@@ -12,16 +12,23 @@
 </head>
 <body>
 	<div class="alphabox" style="float: right; padding-left: 1em; padding-right: 1em; margin-bottom: 0.5em; margin-left: 0.5em;">
+		<form>
+			<button type="button" onclick="getPosts('eric@hb.com')">Get</button>
+		</form>
 		<h2>What is Clutter?</h2>
 		<p>A <a href="https://en.wiktionary.org/wiki/clutter"><em>clutter</em></a> is a flock of cats.</p>
 		<p><strong>Clutter</strong> is a fully decentralized alternative to Twitter.</p>
-		<p>Impossible to censor, cats refuse to be silenced.</p>
-		<p>Join the meowvolution on <a href="http://ceptr.org">Ceptr.org</a>.</p>
+		<p>Impossible to censor or control.</p>
+		<p>Join the mewvolution on <a href="http://ceptr.org">Ceptr.org</a>.</p>
 	</div>
-	<div style="position: absolute; left: 2.8em; bottom: 1.5em;"><img src="cat-eating-bird-circle.png" style="width: 13em; height: 13em;" /></div>
+	<div style="position: absolute; left: 2.8em; top: 1em;">
+		<img src="cat-eating-bird-circle.png" style="width: 13em; height: 13em;" />
+		<div id="nick"></div>
+	</div>
 	<div class="contentcontainer">
-		<div id="banner">Clutter<div class="subtitle">can haz herd cats?</div></div>
-                <div id="nick"></div>
+		<div id="banner">Clutter
+			<div class="subtitle">can haz herd cats?</div>
+		</div>
 		<div id="content">
 			<form action="" style="text-align: center; margin-bottom: 1.75em;">
 				<input id="meow" name="meow" type="text" size="64" />
@@ -35,13 +42,13 @@
 				</div>
 			</div>
 		</div>
-                <button type="button" onclick="getPosts('eric@hb.com')">Get</button>
 
 	</div>
         <script type="text/javascript">
          window.onload = function() {
              getProfile();
          }
+				 var nick = getProfile();
         </script>
 </body>
 </html>
