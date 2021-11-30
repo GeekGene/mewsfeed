@@ -1,0 +1,11 @@
+---
+manifest_version: "1"
+name: clutter_index
+uuid: 00000000-0000-0000-0000-000000000000
+properties: ~
+zomes: 
+  - name: index
+    bundled: ../../../target/wasm32-unknown-unknown/release/index.wasm
+  - name: services
+    bundled: ../../../target/wasm32-unknown-unknown/release/services.wasm
+

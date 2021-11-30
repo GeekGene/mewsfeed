@@ -1,0 +1,16 @@
+[package]
+edition = "2018"
+name = "profiles_stub"
+version = "0.0.1"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+name = "profiles_stub"
+
+[dependencies]
+serde = "1"
+derive_more = "0"
+chrono = {version = "0.4", features = ["serde"]}
+
+hdk = "0.0.115"
+holo_hash = { version = "0.0.12", features = ["encoding"] }
