@@ -2,7 +2,7 @@ use hdk::prelude::*;
 use hdk::prelude::holo_hash::*;
 
 #[hdk_entry(id = "handle")]
-// define depth stuff here for the Handle(Path)?
+// define depth stuff here for the Handle(Path)? https://docs.rs/hdk/0.0.116/hdk/hash_path/shard/index.html
 pub struct Handle(Path);
 
 #[hdk_entry(id = "profile")]
