@@ -1,26 +1,40 @@
 use hdk::prelude::*;
 use hdk::prelude::holo_hash::*;
 
-#[hdk_entry(id = "post")]
-pub struct Post(String);
+#[hdk_entry(id = "handle")]
+// define depth stuff here for the Handle(Path)?
+pub struct Handle(Path);
+
+#[hdk_entry(id = "profile")]
+// TODO: decide on pub
+pub struct Profile {
+    // TODO: define image type later in conjunction with the filestore zome
+    avatar: FilestoreImage,
+    location: String,
+    bio: String,
+};
 
 entry_defs![
-    Post::entry_def()
+    // Clutter handle for user
+    Handle::entry_def()
+    Profile::entry_def()
 ];
 
+// TODO: maybe create_profile thing for handle here with "2:3#" depth notation?
+
 #[hdk_extern]
-pub fn create_post(post: Post) -> ExternResult<EntryHashB64> {
-    create_entry(&post)?;
-    let hash = hash_entry(&post)?;
+pub fn create_profile(profile: Profile) -> ExternResult<EntryHashB64> {
+    create_entry(&profile)?;
+    let hash = hash_entry(&profile)?;
 
     Ok(EntryHashB64::from(hash))
 }
 
 #[hdk_extern]
-pub fn get_post(entry_hash: EntryHashB64) -> ExternResult<Post> {
-    let element = get(EntryHash::from(entry_hash), GetOptions::default())?.ok_or(WasmError::Guest(String::from("Post not found")))?;
+pub fn get_profile(entry_hash: EntryHashB64) -> ExternResult<Profile> {
+    let element = get(EntryHash::from(entry_hash), GetOptions::default())?.ok_or(WasmError::Guest(String::from("Profile not found")))?;
 
-    let post: Post = element.entry().to_app_option()?.ok_or(WasmError::Guest(String::from("Malformed post")))?;
+    let profile: Profile = element.entry().to_app_option()?.ok_or(WasmError::Guest(String::from("Malformed profile")))?;
 
-    Ok(post)
+    Ok(profile)
 }

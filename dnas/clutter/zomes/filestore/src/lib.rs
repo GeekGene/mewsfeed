@@ -1,8 +1,12 @@
 use hdk::prelude::*;
 use hdk::prelude::holo_hash::*;
 
-#[hdk_entry(id = "post")]
+#[hdk_entry(id = "file")]
 pub struct Post(String);
+
+// TODO: replace "post" with file everywhere
+// TODO: identify the mime types for different file types so it can render it – starting first with images only 
+// TODO: need to define FilestoreImage somewhere in here
 
 entry_defs![
     Post::entry_def()
