@@ -47,3 +47,27 @@ pub fn update_profile(new_profile_data: Profile, updated_entry: EntryHashB64) ->
 }
 
 // TODO: decide about delete_profile
+
+#[hdk_extern]
+pub fn create_handle(handle: Handle) -> ExternResult<EntryHashB64> {
+    create_entry(&handle)?;
+    let hash = hash_entry(&handle)?;
+
+    // TODO: when you create a handle you add a link to your agent key base that points to the hash of the handle
+    
+    Ok(EntryHashB64::from(hash))
+}
+
+#[hdk_extern]
+pub fn get_handle(entry_hash: EntryHashB64) -> ExternResult<Handle> {
+    let element = get(EntryHash::from(entry_hash), GetOptions::default())?.ok_or(WasmError::Guest(String::from("Handle not found")))?;
+
+    let handle: Handle = element.entry().to_app_option()?.ok_or(WasmError::Guest(String::from("Malformed handle")))?;
+
+    Ok(handle)
+}
+
+#[hdk_extern]
+pub fn update_handle(new_handle_data: Handle, updated_entry: EntryHashB64) -> {
+
+}
