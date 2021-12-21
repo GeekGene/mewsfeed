@@ -12,6 +12,8 @@ pub struct Profile {
     avatar: FilestoreImage,
     location: String,
     bio: String,
+    // TODO: i18n (replace String with something more systematic, e.g. https://lib.rs/crates/i18n-embed)
+    lang_pref: String,
 };
 
 entry_defs![
@@ -38,3 +40,10 @@ pub fn get_profile(entry_hash: EntryHashB64) -> ExternResult<Profile> {
 
     Ok(profile)
 }
+
+#[hdk_extern]
+pub fn update_profile(new_profile_data: Profile, updated_entry: EntryHashB64) -> {
+
+}
+
+// TODO: decide about delete_profile
