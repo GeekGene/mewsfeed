@@ -9,16 +9,16 @@ pub struct Handle(Path);
 // TODO: decide on pub
 pub struct Profile {
     // TODO: define image type later in conjunction with the filestore zome
-    avatar: FilestoreImage,
+    avatar: String, // base 64 in-place image url
     location: String,
     bio: String,
     // TODO: i18n (replace String with something more systematic, e.g. https://lib.rs/crates/i18n-embed)
     lang_pref: String,
-};
+}
 
 entry_defs![
     // Clutter handle for user
-    Handle::entry_def()
+    Handle::entry_def(),
     Profile::entry_def()
 ];
 
@@ -41,10 +41,11 @@ pub fn get_profile(entry_hash: EntryHashB64) -> ExternResult<Profile> {
     Ok(profile)
 }
 
+/* 
 #[hdk_extern]
-pub fn update_profile(new_profile_data: Profile, updated_entry: EntryHashB64) -> {
-
-}
+pub fn update_profile(new_profile_data: Profile, updated_entry: EntryHashB64) -> ExternResult<EntryHashB64> {
+    Ok()
+}*/
 
 // TODO: decide about delete_profile
 
@@ -66,8 +67,8 @@ pub fn get_handle(entry_hash: EntryHashB64) -> ExternResult<Handle> {
 
     Ok(handle)
 }
-
+/*
 #[hdk_extern]
 pub fn update_handle(new_handle_data: Handle, updated_entry: EntryHashB64) -> {
 
-}
+}*/
