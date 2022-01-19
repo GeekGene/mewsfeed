@@ -1,5 +1,8 @@
 # Clutter Specs
 
+[![hackmd-github-sync-badge](https://hackmd.io/DSAyoLf1TbWpDwTZNcTrOg/badge)](https://hackmd.io/DSAyoLf1TbWpDwTZNcTrOg)
+
+
 ## Assumptions & Requirements
  - Reuse some of the original crazy cat stuff for UI, but have an option to turn off the background (tone it down)
  - Our goal is to have a competent, show-worthy app, but it doesn't have to be perfect
@@ -8,38 +11,50 @@
 
 
 ## Basic Feature List
- - [ ] Register a username, in the future ensure uniqueness
+### 1st Pass / MVP for playing
+
+Zome: Profile
+ - [ ] Register a username
+   - [ ] Disambiguation page for usernames
  - [ ] Create / Edit user profile
-   - [ ] Change username?
    - [ ] First Name / Last Name
    - [ ] Default: identicon as avatar
    - [ ] Upload avatar image
    - [ ] Basic 1-line bio
  - [ ] Search for users (by pathname/anchor)
- - [ ] Follow / Unfollow users
+ - [ ] User Page (with that user's mews feed)
+ - [ ] Follow / Unfollow users (by agentkey)
+
+Zome: Mews
  - [ ] Compose/Commit mew
-   - [ ] Process tweet text for grammatical components
-       - [ ] @user mentions
-       - [ ] #hashtags
-       - [ ] $cashtags ?
-       - [ ] ^links (in UI triggers a link constructor)
-   - [ ] Open social preview (e.g. thumbnail, mewmew box, etc)
-   - [ ] Attach / Upload Picture (file sharing DNA)
+ - [ ] Mews Feed (with recent mews from follows)
+   - [ ] pagination / "load more" option
+ - [ ] Link new mew from a agentkey as a post
+
+### 2nd Pass Features / More full experience
+ - [ ] Ensure username uniqueness (via external namespace service?)
+ - [ ] Change username?
+ - [ ] Process tweet text for grammatical components
+     - [ ] @user mentions
+     - [ ] #hashtags
+     - [ ] $cashtags ?
+     - [ ] ^links (in UI triggers a link constructor)
+ - [ ] Open social preview (e.g. thumbnail, mewmew box, etc)
+ - [ ] Attach / Upload Picture (file sharing DNA)
  - [ ] Reply to mew :left_speech_bubble: 
  - [ ] Mewmew? (Retweet without comment) :recycle: 
  - [ ] Favorite a mew? :heart:
  - [ ] Delete a mew? 🗑
- - [ ] Mews Feed (with recent mews from follows)
- - [ ] User Page (with that user's mews)
-   - [ ] infinite scroll on feeds?
-   - [ ] pagination / "load more" option
- - [ ] Future: Search mews by keywords
+ - [ ] infinite scroll on feeds?
 
-## Possible Future Features
-- [ ] Lists
-- [ ] Direct Messages
+
+### Later Passes / Future Features
 - [ ] Preview Profile
 - [ ] Update Post
+- [ ] Language preference in user profile
+- [ ] Future: Search mews by keywords
+- [ ] Lists??
+- [ ] Direct Messages
 
 ## User Experience / Workflow
 
@@ -59,21 +74,46 @@
 
 ###### External Fns
 
-V.01
+**V.01 / First Pass**
+
+Zome: Profile
  - create_handle(string)
- - delete_handle()
  - create_profile(struct)
  - update_profile(struct)
  - view_user()
- - view_feed(agentkey)
+
+``` rust
+enum FeedOptions {
+    By(AgentPubKey),
+    About(Path), // (mentions, hashtags, cashtags, links)
+    FollowedBy(AgentPubKey), 
+    authored_by: AgentPubKey
+    
+}
+
+Paths
+/hashtags/[tags]
+/cashtags/[tags]
+/agents/[agentpubkey][3:2]
+  .../mentions
+  .../favorites
+  .../following
+  .../follows
+```
+Zome: Mews
  - create_post()
- - delete_post()
  - view_post // includes replies (and related things, e.g. "quote tweets")
+ - mews_feed(FeedOptions) -> Vec<Mew>
+ - mews_by(AgentPubKey)
  - reply_to_post()
 
-Future versions
+**Future versions**
+Zome: Profile
+ - delete_handle()  // leave the platform
  - update_handle(string)
  - preview_profile()
+Zome: Mews
+ - delete_post()
  - update_post()
 
 #### Keyword Indexer (someday)
@@ -90,4 +130,15 @@ Future versions
 - Mewsfeed instead of newsfeed
 - Licks instead of likes
 - Collar tags instead of username/handle
-- 
+- ## editors
+/.idea
+/.vscode
+
+## system files
+.DS_Store
+## editors
+/.idea
+/.vscode
+
+## system files
+.DS_Store
