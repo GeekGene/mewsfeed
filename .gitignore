@@ -1,0 +1,15 @@
+## editors
+/.idea
+/.vscode
+
+## system files
+.DS_Store
+
+## holochain files
+.hc*
+.cargo/
+dnas/clutter/workdir/clutter.dna
+dnas/clutter_index/workdir/clutter_index.dna
+node_modules/
+target/
+workdir/clutter.happ
