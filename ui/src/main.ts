@@ -12,8 +12,7 @@ AppWs.connect().then((appWs => app.provide(APP_WEB_SOCKET, appWs)));
 
 app.use(router);
 app.use(Quasar, {
-    plugins: { Notify }, // import Quasar plugins and add here
+    plugins: { Notify }
 })
 
-// Assumes you have a <div id="app"></div> in your index.html
 app.mount('#app')

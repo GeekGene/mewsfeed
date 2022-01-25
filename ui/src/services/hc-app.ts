@@ -14,12 +14,6 @@ export class AppWs {
         }
         return appWebSocket;
     }
-
-    // const appInfo = await ws.appInfo({installed_app_id: 'test-app'})
-    // const cell = appInfo.cell_data.find((cell) => cell.role_id === 'clutter');
-    // if (!cell) {
-    //     return
-    // }
 }
 
 export const useAppWebSocket = () => {
