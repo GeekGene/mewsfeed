@@ -4,7 +4,7 @@
   "author": "Jost Schulte",
   "version": "0.0.1",
   "scripts": {
-    "dev": "vite",
+    "start": "vite",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview"
   },

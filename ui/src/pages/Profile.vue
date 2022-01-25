@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { Profile } from 'src/types/types';
+import { Profile } from 'ui/src/types/types';
 import {AppWebsocket} from '@holochain/client'
 import {onMounted, reactive, UnwrapRef} from 'vue'
 
