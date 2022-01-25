@@ -6,3 +6,11 @@ declare module '*.vue' {
   const component: DefineComponent<{}, {}, any>
   export default component
 }
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv
+}
+
+interface ImportMetaEnv {
+  readonly VITE_HC_PORT: number
+}

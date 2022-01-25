@@ -13,5 +13,4 @@ app.use(Quasar, {
     plugins: {}, // import Quasar plugins and add here
 })
 
-// Assumes you have a <div id="app"></div> in your index.html
 app.mount('#app')
