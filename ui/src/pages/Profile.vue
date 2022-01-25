@@ -7,14 +7,18 @@
             <q-input v-model="profile.location" label="Location" />
             <q-btn @click="saveProfile" icon="save">Save</q-btn>
         </q-form>
-        {{ errorMsg }}
+        <p>{{ errorMsg }}</p>
+        <p>{{ successMsg }}</p>
     </q-page>
 </template>
 
 <script setup lang="ts">
+import { InstalledAppInfo } from '@holochain/client';
 import { Profile } from 'ui/src/types/types';
-import { AppWebsocket, InstalledCell } from '@holochain/client'
 import { onMounted, reactive, ref } from 'vue'
+import { useAppWebSocket } from '../services/hc-app';
+import { useQuasar } from 'quasar'
+const $q = useQuasar()
 
 const profile = reactive<Profile>({
     avatar: '',
@@ -24,22 +28,20 @@ const profile = reactive<Profile>({
 })
 
 const errorMsg = ref('')
+const successMsg = ref('')
 
-let ws: AppWebsocket;
-let cell: InstalledCell
-let agentPubKey: Uint8Array;
+const appWs = useAppWebSocket();
+let appInfo: InstalledAppInfo
 
 onMounted(async () => {
-    ws = await AppWebsocket.connect(`ws://localhost:${import.meta.env.VITE_HC_PORT}`)
-    const appInfo = await ws.appInfo({ installed_app_id: 'test-app' })
-    cell = appInfo.cell_data[0]
-    agentPubKey = cell.cell_id[1]
+    appInfo = await appWs.appInfo({ installed_app_id: 'clutter' })
     // const cell = appInfo.cell_data.find((cell) => cell.role_id === 'clutter');
     // if (!cell) {
+    //     errorMsg.value = 'Could not find clutter cell'
     //     return
     // }
     // const provenance = cell.cell_id[1]
-    // const result = await ws.callZome({
+    // const result = await appWs.callZome({
     //     cell_id: cell.cell_id,
     //     zome_name: 'profiles_stub',
     //     fn_name: 'get_profile',
@@ -49,16 +51,27 @@ onMounted(async () => {
     // })
 })
 
-async function saveProfile() {
+const saveProfile = async () => {
+    if (!appInfo) {
+        errorMsg.value = 'Could not get app info'
+        return
+    }
+    const cell = appInfo.cell_data.find((cell) => cell.role_id === 'clutter');
+    if (!cell) {
+        errorMsg.value = 'Could not find clutter cell'
+        return;
+    }
+    const provenance = cell.cell_id[1]
     try {
-        await ws.callZome({
+        const profilehash = await appWs.callZome({
             cell_id: cell.cell_id,
             zome_name: 'profiles_stub',
-            fn_name: 'get_profile',
-            payload: {},
+            fn_name: 'create_profile',
+            payload: profile,
             cap_secret: null,
-            provenance: agentPubKey
+            provenance
         })
+        $q.notify({message: 'Profile saved', color: 'green', position: 'bottom-right'})
     } catch (error) {
         errorMsg.value = error instanceof Error ? error.message : String(error);
     }
