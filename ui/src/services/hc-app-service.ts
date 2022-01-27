@@ -8,7 +8,7 @@ let appInfo: InstalledAppInfo
 export const APP_WEB_SOCKET: InjectionKey<AppWebsocket> = Symbol()
 export const connectAppWebSocket = async () => {
     if (!appWebSocket) {
-        appWebSocket = await AppWebsocket.connect(`ws://localhost:59395`) //${import.meta.env.VITE_HC_PORT}`)
+        appWebSocket = await AppWebsocket.connect(`ws://localhost:50896`) //${import.meta.env.VITE_HC_PORT}`)
         appInfo = await appWebSocket.appInfo({ installed_app_id: 'clutter' })
     }
     return appWebSocket

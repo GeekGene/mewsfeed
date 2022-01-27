@@ -7,18 +7,14 @@
             <q-input v-model="profile.location" label="Location" />
             <q-btn @click="saveProfile" icon="save">Save</q-btn>
         </q-form>
-        <p>{{ errorMsg }}</p>
-        <p>{{ successMsg }}</p>
     </q-page>
 </template>
 
 <script setup lang="ts">
-import { InstalledAppInfo } from '@holochain/client';
 import { Profile } from 'ui/src/types/types';
-import { onMounted, reactive, ref } from 'vue'
-import { useAppWebSocket, createProfile } from '../services/hc-app-service';
-import { useQuasar } from 'quasar'
-const $q = useQuasar()
+import { onMounted, reactive } from 'vue'
+import { createProfile } from '../services/hc-app-service';
+import { showError, showMessage } from '../utils/notification';
 
 const profile = reactive<Profile>({
     avatar: '',
@@ -26,12 +22,6 @@ const profile = reactive<Profile>({
     lang_pref: 'en',
     location: ''
 })
-
-const errorMsg = ref('')
-const successMsg = ref('')
-
-const appWs = useAppWebSocket();
-let appInfo: InstalledAppInfo
 
 onMounted(async () => {
     // const profile = await loadProfile({
@@ -44,9 +34,9 @@ const saveProfile = async () => {
     try {
         const profilehash = await createProfile(profile)
         console.log('profileHash', profilehash)
-        $q.notify({ message: 'Profile saved', color: 'green', position: 'bottom-right' })
+        showMessage({ message: 'Profile saved'})
     } catch (error) {
-        errorMsg.value = error instanceof Error ? error.message : String(error);
+        showError(error)
     }
 }
 </script>
