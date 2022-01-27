@@ -13,7 +13,7 @@
 <script setup lang="ts">
 import { Profile } from 'ui/src/types/types';
 import { onMounted, reactive } from 'vue'
-import { createProfile } from '../services/hc-app-service';
+import { createProfile } from '../services/clutter-dna';
 import { showError, showMessage } from '../utils/notification';
 
 const profile = reactive<Profile>({

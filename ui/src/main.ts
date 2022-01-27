@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
 import { Notify, Quasar } from 'quasar'
-import { connectAppWebSocket, APP_WEB_SOCKET } from './services/hc-app-service'
+import { connectAppWebSocket, APP_WEB_SOCKET } from './services/clutter-dna'
 import App from './App.vue'
 import router from './router'
 import 'quasar/src/css/index.sass'
