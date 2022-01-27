@@ -4,7 +4,7 @@
   "author": "Jost Schulte",
   "version": "0.0.1",
   "scripts": {
-    "start": "vite",
+    "start": "echo 'VITE_HC_PORT='$HC_PORT > .env.local && vite",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview"
   },
