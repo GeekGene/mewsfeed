@@ -5,14 +5,14 @@
             <q-input v-model="profile.bio" label="Bio" />
             <q-input v-model="profile.lang_pref" label="Language preference" />
             <q-input v-model="profile.location" label="Location" />
-            <q-btn @click="saveProfile" icon="save">Save</q-btn>
+            <q-btn @click="saveProfile" :loading="saving" icon="save">Save</q-btn>
         </q-form>
     </q-page>
 </template>
 
 <script setup lang="ts">
 import { Profile } from 'ui/src/types/types';
-import { onMounted, reactive } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { createProfile } from '../services/clutter-dna';
 import { showError, showMessage } from '../utils/notification';
 
@@ -23,6 +23,8 @@ const profile = reactive<Profile>({
     location: ''
 })
 
+const saving = ref(false)
+
 onMounted(async () => {
     // const profile = await loadProfile({
     //     zome_name: 'profiles_stub',
@@ -32,11 +34,14 @@ onMounted(async () => {
 
 const saveProfile = async () => {
     try {
+        saving.value = true
         const profilehash = await createProfile(profile)
         console.log('profileHash', profilehash)
         showMessage({ message: 'Profile saved'})
     } catch (error) {
         showError(error)
+    } finally {
+        saving.value = false
     }
 }
 </script>
