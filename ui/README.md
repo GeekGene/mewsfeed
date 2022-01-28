@@ -3,5 +3,10 @@
 ## Run dev server
 ```sh
 npm i
-npm run dev
+npm run start
+```
+
+## Lint
+```sh
+npm run lint
 ```

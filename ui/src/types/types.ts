@@ -22,6 +22,6 @@ export interface NotificationOptions {
     | "left"
     | "right"
     | "center";
-    actions?: any[];
+    actions?: Array<() => void>;
     onDismiss?: () => void;
 }

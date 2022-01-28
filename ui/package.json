@@ -7,7 +7,8 @@
     "prepare-env": "echo 'VITE_HC_PORT='$HC_PORT > .env.local",
     "start": "npm run prepare-env && vite",
     "build": "vue-tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint . --fix --ext .js,.ts,.vue"
   },
   "dependencies": {
     "@holochain/client": "^0.3.2",
@@ -18,9 +19,13 @@
   },
   "devDependencies": {
     "@quasar/vite-plugin": "^1.0.4",
+    "@typescript-eslint/eslint-plugin": "^5.10.1",
+    "@typescript-eslint/parser": "^5.10.1",
     "@vitejs/plugin-vue": "^2.0.0",
+    "eslint": "^8.7.0",
+    "eslint-plugin-vue": "^8.4.0",
     "sass": "^1.32.0",
-    "typescript": "^4.4.4",
+    "typescript": "^4.5.5",
     "vite": "^2.7.2",
     "vue-tsc": "^0.29.8"
   }
