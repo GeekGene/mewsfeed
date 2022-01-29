@@ -1,7 +1,18 @@
 <template>
-    <h1>Mews Feed</h1>
+    <div>
+        <h1>Mews Feed</h1>
+        <div>{{ mewsFeed }}</div>
+    </div>
 </template>
 
-<script setup lang="ts">
+<script>
+    import { mewsFeed } from '../services/clutter-dna'
 
+    export default {
+        async data() {
+            return {
+                mewsFeed: await mewsFeed()
+            }            
+        }
+    }
 </script>
