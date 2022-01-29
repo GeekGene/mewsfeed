@@ -23,7 +23,7 @@ export default (orchestrator: Orchestrator<any>) =>
     const bob = bob_happ.cells.find(cell => cell.cellRole.includes('/clutter.dna')) as Cell;
     const carol = carol_happ.cells.find(cell => cell.cellRole.includes('/clutter.dna')) as Cell;
 
-    const mewContents = "My Mew";
+    const mewContents = "My Mew with #hashtag and $cashtag";
 
     // Alice creates a post
     const mewHash = await alice.call(
@@ -35,6 +35,23 @@ export default (orchestrator: Orchestrator<any>) =>
 
     await sleep(250);
 
+    const hashtaggedMews = await alice.call(
+      "mews",
+      "get_mews_with_hashtag",
+      "#hashtag"
+    );
+    t.equal(hashtaggedMews.length, 1)
+    console.log('searching hashtags')
+    console.log(hashtaggedMews[0].entry)
+
+    const cashtaggedMews = await alice.call(
+      "mews",
+      "get_mews_with_cashtag",
+      "$cashtag"
+    );
+    t.equal(cashtaggedMews.length, 1)
+    console.log('searching cashtags')
+    console.log(cashtaggedMews[0].entry)
     // Bob gets the created mew
     const mew = await bob.call("mews", "get_mew", mewHash);
     t.equal(mew, mewContents);
