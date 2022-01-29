@@ -6,5 +6,4 @@
       src="src/assets/img/cat-eating-bird-circle.png"
     />
   </q-page>
-
 </template>

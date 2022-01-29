@@ -35,7 +35,7 @@ export interface NotificationOptions {
     | "center";
     actions?: Array<() => void>;
     onDismiss?: () => void;
-}``
+}
 
 export interface FeedOptions {
     options: string

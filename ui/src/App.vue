@@ -1,5 +1,8 @@
 <template>
-  <context-provider :context="profilesStoreContext" :value="store">
+  <context-provider
+    :context="profilesStoreContext"
+    :value="store"
+  >
     <profile-prompt>
       <main-layout />
     </profile-prompt>
