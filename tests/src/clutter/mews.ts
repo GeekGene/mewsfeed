@@ -37,6 +37,7 @@ export default (orchestrator: Orchestrator<any>) =>
 
     // Bob gets the created mew
     const mew = await bob.call("mews", "get_mew", mewHash);
+    t.ok(mew);
     t.equal(mew, mewContents);
 
     let alicePubKey = serializeHash(alice.cellId[1])
