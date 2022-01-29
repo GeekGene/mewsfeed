@@ -4,6 +4,7 @@
       class="q-mx-xl"
       style="max-width: 400px;"
     >
+      <div>{{ profile.did }}</div>
       <q-input
         v-model="profile.avatar"
         label="Avatar"
@@ -35,10 +36,11 @@
 <script setup lang="ts">
 import { Profile } from "../types/types";
 import { onMounted, reactive, ref } from "vue";
-import { createProfile } from "../services/clutter-dna";
+import { createProfile, loadProfile } from "../services/ad4m";
 import { showError, showMessage } from "../utils/notification";
 
 const profile = reactive<Profile>({
+    did: "",
     avatar: "",
     bio: "",
     lang_pref: "en",
@@ -48,10 +50,13 @@ const profile = reactive<Profile>({
 const saving = ref(false);
 
 onMounted(async () => {
-    // const profile = await loadProfile({
-    //     zome_name: 'profiles_stub',
-    //     fn_name: 'get_profile',
-    // })
+    const { did, avatar, bio, lang_pref, location } = await loadProfile()
+    profile.did = did
+    profile.avatar = avatar
+    profile.bio = bio
+    profile.lang_pref = lang_pref
+    profile.location = location
+
 });
 
 const saveProfile = async () => {

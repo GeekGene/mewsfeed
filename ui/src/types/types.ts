@@ -1,4 +1,5 @@
 export interface Profile {
+    did: string,
     avatar: string, // base 64 in-place image url
     location: string,
     bio: string,
