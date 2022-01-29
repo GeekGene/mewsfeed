@@ -13,7 +13,7 @@ let orchestrator: Orchestrator<any>;
 orchestrator = new Orchestrator();
 mews(orchestrator);
 orchestrator.run();
-
+/*
 orchestrator = new Orchestrator();
 index_stub(orchestrator);
 orchestrator.run();
@@ -33,6 +33,6 @@ orchestrator.run();
 orchestrator = new Orchestrator();
 services(orchestrator);
 orchestrator.run();
-
+*/
 
 

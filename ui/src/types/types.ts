@@ -1,3 +1,5 @@
+import { Header } from '@holochain-open-dev/core-types';
+
 export interface Profile {
     did: string,
     avatar: string, // base 64 in-place image url
@@ -7,7 +9,12 @@ export interface Profile {
 }
 
 export interface Mew {
-    content: string
+    entry: string
+}
+
+export interface FeedMew {
+    entry: string,
+    header: Header,
 }
 
 export interface NotificationOptions {
@@ -29,4 +36,8 @@ export interface NotificationOptions {
     | "center";
     actions?: Array<() => void>;
     onDismiss?: () => void;
+}``
+
+export interface FeedOptions {
+    options: string
 }
