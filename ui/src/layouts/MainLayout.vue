@@ -18,6 +18,7 @@
       </q-toolbar>
       <q-toolbar class="col-10">
         <q-btn
+          to="/feed"
           icon="feed"
           flat
         >
