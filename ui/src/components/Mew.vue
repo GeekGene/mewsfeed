@@ -10,10 +10,6 @@ import { defineComponent } from 'vue'
 export default defineComponent({
     props: {
         mewContent: Object
-    },
-
-    setup(props) {
-        return props
     }
 })
 </script>
