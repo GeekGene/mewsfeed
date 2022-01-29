@@ -36,6 +36,6 @@ export default (orchestrator: Orchestrator<any>) =>
     t.equal(mew, postContents);
 
     const mews = await bob.call("mews", "mews_feed", {option: ""})
-    t.equal(mews[0], "test");
+    t.equal(mews[0].entry, "MyTest");
 
 });
