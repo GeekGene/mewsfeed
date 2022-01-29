@@ -11,7 +11,7 @@
     export default {
         async data() {
             return {
-                mewsFeed: await mewsFeed()
+                mewsFeed: await mewsFeed({option: ""})
             }            
         }
     }
