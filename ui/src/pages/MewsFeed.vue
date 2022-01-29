@@ -11,7 +11,7 @@
 </template>
 
 <script>
-    import { mewsFeed, createMew } from '../services/clutter-dna'
+    import { mewsBy, createMew, myAgentPubKey } from '../services/clutter-dna'
     import Mew from '../components/Mew.vue'
     import MewConstructor from '../components/MewConstructor.vue'
 
@@ -24,13 +24,14 @@
 
         methods: {
             async publishMew(newMew) {
+                console.log("got event:", newMew)
                 await createMew(newMew)
-                this.mewsFeed = await mewsFeed({option: ""})
+                this.mewsFeed = await mewsBy(myAgentPubKey())
             }
         },
 
         async mounted() {
-            this.mewsFeed = await mewsFeed({option: ""})
+            this.mewsFeed = await mewsBy(myAgentPubKey())
         },
 
         components: {
