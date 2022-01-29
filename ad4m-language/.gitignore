@@ -2,3 +2,5 @@
 *.js.map
 node_modules
 build
+dist-mew
+dist-mew-constructor
