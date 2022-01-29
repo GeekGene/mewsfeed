@@ -83,6 +83,8 @@ pub fn mews_feed(_options: FeedOptions) -> ExternResult<Vec<FeedMew>> {
     for agent in my_following(())?.into_iter() {
         feed.append(&mut mews_by(agent)?);
     }
+    // TODO don't really need to sort, could merge for efficiency
+    feed.sort_by(|a,b| a.header.timestamp().cmp(&b.header.timestamp()));
 
     Ok(feed)
 }
