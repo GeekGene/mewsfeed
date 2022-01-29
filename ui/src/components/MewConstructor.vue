@@ -6,6 +6,7 @@
       class="q-mb-sm"
       dense
       outlined
+      @keyup.enter="publishMew"
     />
     <q-btn @click="publishMew">
       Publish Mew
