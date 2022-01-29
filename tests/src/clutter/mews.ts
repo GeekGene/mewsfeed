@@ -1,4 +1,4 @@
-
+    
 import { Orchestrator, Player, Cell } from "@holochain/tryorama";
 import { config, installation, sleep } from '../utils';
 import { serializeHash } from '@holochain-open-dev/core-types';
@@ -61,19 +61,23 @@ export default (orchestrator: Orchestrator<any>) =>
     console.log("Carol", carolPubKey)
     console.log("alice.my_followers")
     let follow = await alice.call("mews", "my_followers", null)
+    console.log("alices my_followers", follow, follow.length)
     t.deepEqual(follow, [bobPubKey])
 
     console.log("alice.my_following")
     follow = await alice.call("mews", "my_following", null)
-    t.deepEqual(follow, [])
+    console.log("alice my_following", follow, follow.length)
+    t.equal(follow.length, 0)
 
     console.log("bob.my_following")
     follow = await bob.call("mews", "my_following", null)
+    console.log("bob my_following", follow, follow.length)
     t.deepEqual(follow, [alicePubKey])
 
     console.log("bob.my_followers")
     follow = await bob.call("mews", "my_followers", null)
-    t.deepEqual(follow, [])
+    console.log("bob my_followers", follow, follow.length)
+    t.equal(follow.length, 0)
 
     follow = await alice.call("mews", "followers", alicePubKey)
     t.deepEqual(follow, [bobPubKey])
