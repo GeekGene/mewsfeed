@@ -37,17 +37,45 @@ export default (orchestrator: Orchestrator<any>) =>
     const mew = await bob.call("mews", "get_mew", mewHash);
     t.equal(mew, mewContents);
 
-    let mews = await bob.call("mews", "mews_by", serializeHash(alice.cellId[1]))
+    let alicePubKey = serializeHash(alice.cellId[1])
+    let bobPubKey = serializeHash(bob.cellId[1])
+
+    let mews = await bob.call("mews", "mews_by", alicePubKey)
     t.equal(mews[0].entry, mewContents);
 
-    mews = await bob.call("mews", "mews_by", serializeHash(bob.cellId[1]))
+    mews = await bob.call("mews", "mews_by", bobPubKey)
     t.equal(mews.length, 0);
 
     mews = await bob.call("mews", "mews_feed", {option: ""})
     t.equal(mews.length, 0);
 
-    await bob.call("mews", "follow", serializeHash(alice.cellId[1]))
+    await bob.call("mews", "follow", alicePubKey)
     t.ok
+    await sleep(50);
+
+    console.log("Bob", bobPubKey)
+    console.log("Alice", alicePubKey)
+    console.log("alice.my_followers")
+    let follow = await alice.call("mews", "my_followers", null)
+    t.deepEqual(follow, [bobPubKey])
+
+    console.log("alice.my_following")
+    follow = await alice.call("mews", "my_following", null)
+    t.deepEqual(follow, [])
+
+    console.log("bob.my_following")
+    follow = await bob.call("mews", "my_following", null)
+    t.deepEqual(follow, [alicePubKey])
+
+    console.log("bob.my_followers")
+    follow = await bob.call("mews", "my_followers", null)
+    t.deepEqual(follow, [])
+
+    follow = await alice.call("mews", "followers", alicePubKey)
+    t.deepEqual(follow, [bobPubKey])
+
+    follow = await alice.call("mews", "following", bobPubKey)
+    t.deepEqual(follow, [alicePubKey])
 
     // after following alice bob should get alice's mews in his feed
     mews = await bob.call("mews", "mews_feed", {option: ""})

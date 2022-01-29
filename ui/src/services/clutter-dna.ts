@@ -79,7 +79,37 @@ export const mewsBy = async (agent: AgentPubKeyB64) : Promise<Array<FeedMew>> =>
   });
 };
 
+export const followers = async (agent: AgentPubKeyB64) : Promise<Array<FeedMew>> => {
+  return callZome({
+    zome_name: "mews",
+    fn_name: "followers",
+    payload: agent,
+  });
+};
 
+export const following = async (agent: AgentPubKeyB64) : Promise<Array<FeedMew>> => {
+  return callZome({
+    zome_name: "mews",
+    fn_name: "following",
+    payload: agent,
+  });
+};
+
+export const myFollowers = async () : Promise<Array<FeedMew>> => {
+  return callZome({
+    zome_name: "mews",
+    fn_name: "my_followers",
+    payload: null,
+  });
+};
+
+export const myFollowing = async () : Promise<Array<FeedMew>> => {
+  return callZome({
+    zome_name: "mews",
+    fn_name: "my_following",
+    payload: null,
+  });
+};
 
 export const clutterCell = () =>
   appInfo.cell_data.find((cell) => cell.role_id === "clutter");

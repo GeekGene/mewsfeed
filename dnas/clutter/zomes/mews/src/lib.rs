@@ -79,13 +79,9 @@ pub fn mews_by(agent: AgentPubKeyB64) -> ExternResult<Vec<FeedMew>> {
 #[hdk_extern]
 pub fn mews_feed(_options: FeedOptions) -> ExternResult<Vec<FeedMew>> {
 
-    // get who I'm following
-    let me : EntryHash =  agent_info()?.agent_latest_pubkey.into();
-    let links = get_links(me, Some(LinkTag::new("following")))?;
-
     let mut feed = Vec::new();
-    for link in links.into_iter() {
-        feed.append(&mut mews_by(AgentPubKey::from(link.target).into())?);
+    for agent in my_following(())?.into_iter() {
+        feed.append(&mut mews_by(agent)?);
     }
 
     Ok(feed)
@@ -96,6 +92,34 @@ pub fn follow(agent: AgentPubKeyB64) -> ExternResult<()> {
     let me : EntryHash =  agent_info()?.agent_latest_pubkey.into();
     let them : EntryHash = AgentPubKey::from(agent).into();
     let _link_hh = create_link(me.clone(), them.clone(), LinkTag::new("following"))?;
-    let _link_hh = create_link(them, me, LinkTag::new("followed_by"))?;
+    let _link_hh = create_link(them, me, LinkTag::new("follower"))?;
     Ok(())
+}
+
+#[hdk_extern]
+pub fn my_following(_: ()) -> ExternResult<Vec<AgentPubKeyB64>> {
+    let me : EntryHash =  agent_info()?.agent_latest_pubkey.into();
+    follow_inner(me,"following")
+}
+#[hdk_extern]
+pub fn my_followers(_: ()) -> ExternResult<Vec<AgentPubKeyB64>> {
+    let me : EntryHash =  agent_info()?.agent_latest_pubkey.into();
+    follow_inner(me,"follower")
+}
+
+fn follow_inner(agent: EntryHash, link_tag: &str)  -> ExternResult<Vec<AgentPubKeyB64>>  {
+    let links = get_links(agent, Some(LinkTag::new(link_tag)))?;
+    Ok(links.into_iter().map(|link| AgentPubKey::from(link.target).into()).collect())
+}
+
+// get who's following an agent
+#[hdk_extern]
+pub fn following(agent: AgentPubKeyB64) -> ExternResult<Vec<AgentPubKeyB64>> {
+    follow_inner(AgentPubKey::from(agent).into(),"following")
+}
+
+/// get whos followers are of an agent
+ #[hdk_extern]
+pub fn followers(agent: AgentPubKeyB64) -> ExternResult<Vec<AgentPubKeyB64>> {
+    follow_inner(AgentPubKey::from(agent).into(),"follower")
 }
