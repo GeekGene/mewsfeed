@@ -29,3 +29,7 @@ export interface NotificationOptions {
     actions?: Array<() => void>;
     onDismiss?: () => void;
 }
+
+export interface FeedOptions {
+    options: string
+}

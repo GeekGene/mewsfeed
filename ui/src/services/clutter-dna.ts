@@ -4,7 +4,8 @@ import {
   InstalledAppInfo,
 } from "@holochain/client";
 import { inject, InjectionKey } from "vue";
-import { Profile } from "../types/types";
+import { Mew, FeedOptions } from "../types/types";
+import { EntryHashB64 } from '@holochain-open-dev/core-types';
 
 let appWebSocket: AppWebsocket;
 let appInfo: InstalledAppInfo;
@@ -46,13 +47,31 @@ const callZome = async (
   });
 };
 
-export const createProfile = async (profile: Profile) => {
+export const createMew = async (mew: Mew) => {
   return callZome({
-    zome_name: "profiles_stub",
-    fn_name: "create_profile",
-    payload: profile,
+    zome_name: "mews",
+    fn_name: "create_mew",
+    payload: mew,
   });
 };
+
+export const getMew = async (mew: EntryHashB64) => {
+  return callZome({
+    zome_name: "mews",
+    fn_name: "get_mew",
+    payload: mew,
+  });
+};
+
+export const mewsFeed = async (options: FeedOptions) => {
+  return callZome({
+    zome_name: "mews",
+    fn_name: "mews_feed",
+    payload: options,
+  });
+};
+
+
 
 export const clutterCell = () =>
   appInfo.cell_data.find((cell) => cell.role_id === "clutter");

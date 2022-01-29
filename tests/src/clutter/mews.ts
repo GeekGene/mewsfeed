@@ -31,7 +31,11 @@ export default (orchestrator: Orchestrator<any>) =>
 
     await sleep(50);
     
-    // Bob gets the created post
-    const post = await bob.call("mews", "get_mew", mewHash);
-    t.equal(post, postContents);
+    // Bob gets the created mew
+    const mew = await bob.call("mews", "get_mew", mewHash);
+    t.equal(mew, postContents);
+
+    const mews = await bob.call("mews", "mews_feed", {option: ""})
+    t.equal(mews[0], "test");
+
 });

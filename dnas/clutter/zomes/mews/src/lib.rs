@@ -27,3 +27,14 @@ pub fn get_mew(entry_hash: EntryHashB64) -> ExternResult<Mew> {
 
     Ok(mew)
 }
+
+#[derive(Debug, Serialize, Deserialize, SerializedBytes)]
+#[serde(rename_all = "camelCase")]
+pub struct FeedOptions {
+    pub option: String
+}
+
+#[hdk_extern]
+pub fn mews_feed(_options: FeedOptions) -> ExternResult<Vec<Mew>> {
+    Ok(vec![Mew("test".into())])
+}
