@@ -19,19 +19,19 @@ export default (orchestrator: Orchestrator<any>) =>
     const alice = alice_happ.cells.find(cell => cell.cellRole.includes('/clutter.dna')) as Cell;
     const bob = bob_happ.cells.find(cell => cell.cellRole.includes('/clutter.dna')) as Cell;
 
-    const postContents = "My Post";
+    const postContents = "My Mew";
 
     // Alice creates a post
-    const postHash = await alice.call(
+    const mewHash = await alice.call(
         "mews",
-        "create_post",
+        "create_mew",
         postContents
     );
-    t.ok(postHash);
+    t.ok(mewHash);
 
     await sleep(50);
     
     // Bob gets the created post
-    const post = await bob.call("mews", "get_post", postHash);
+    const post = await bob.call("mews", "get_mew", mewHash);
     t.equal(post, postContents);
 });
