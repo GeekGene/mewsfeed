@@ -9,8 +9,8 @@ entry_defs![
     Mew::entry_def()
 ];
 
-fn get_mews_base() -> ExternResult<EntryHash> {
-    let path = Path::from("mews");
+fn get_mews_base(agent: AgentPubKeyB64) -> ExternResult<EntryHash> {
+    let path = Path::from(format!("agent.{}", agent));
     path.ensure()?;
     let anchor_hash = path.path_entry_hash()?;
     Ok(anchor_hash)
@@ -22,7 +22,8 @@ pub fn create_mew(mew: Mew) -> ExternResult<HeaderHashB64> {
     let header_hash = create_entry(&mew)?;
     let hash = hash_entry(&mew)?;
 
-    let base = get_mews_base()?;
+    let me : AgentPubKeyB64 =  agent_info()?.agent_latest_pubkey.into();
+    let base = get_mews_base(me)?;
 
     // TODO: maybe return the link_hh later if we need to delete
     let _link_hh = create_link(base, hash, LinkTag::new("mew"))?;
@@ -53,10 +54,9 @@ pub struct FeedMew {
     pub header: Header,
 }
 
-
 #[hdk_extern]
-pub fn mews_feed(_options: FeedOptions) -> ExternResult<Vec<FeedMew>> {
-    let base = get_mews_base()?;
+pub fn mews_by(agent: AgentPubKeyB64) -> ExternResult<Vec<FeedMew>> {
+    let base = get_mews_base(agent)?;
     let links = get_links(base, Some(LinkTag::new("mew")))?;
     let get_input = links
         .into_iter()
@@ -74,5 +74,12 @@ pub fn mews_feed(_options: FeedOptions) -> ExternResult<Vec<FeedMew>> {
         })
         .collect();
     Ok(feed)
+}
 
+#[hdk_extern]
+pub fn mews_feed(_options: FeedOptions) -> ExternResult<Vec<FeedMew>> {
+
+    // TODO: temporarliy just return my own mews as my feed
+    let me : AgentPubKeyB64 =  agent_info()?.agent_latest_pubkey.into();
+    mews_by(me)
 }

@@ -5,7 +5,7 @@ import {
 } from "@holochain/client";
 import { inject, InjectionKey } from "vue";
 import { Mew, FeedOptions, FeedMew } from "../types/types";
-import { EntryHashB64 } from '@holochain-open-dev/core-types';
+import { EntryHashB64, AgentPubKeyB64 } from '@holochain-open-dev/core-types';
 
 let appWebSocket: AppWebsocket;
 let appInfo: InstalledAppInfo;
@@ -68,6 +68,14 @@ export const mewsFeed = async (options: FeedOptions) : Promise<Array<FeedMew>> =
     zome_name: "mews",
     fn_name: "mews_feed",
     payload: options,
+  });
+};
+
+export const mewsBy = async (agent: AgentPubKeyB64) : Promise<Array<FeedMew>> => {
+  return callZome({
+    zome_name: "mews",
+    fn_name: "mews_by",
+    payload: agent,
   });
 };
 

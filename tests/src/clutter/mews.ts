@@ -1,6 +1,8 @@
 
 import { Orchestrator, Player, Cell } from "@holochain/tryorama";
 import { config, installation, sleep } from '../utils';
+import { serializeHash } from '@holochain-open-dev/core-types';
+
 
 export default (orchestrator: Orchestrator<any>) => 
   orchestrator.registerScenario("mews tests", async (s, t) => {
@@ -19,13 +21,13 @@ export default (orchestrator: Orchestrator<any>) =>
     const alice = alice_happ.cells.find(cell => cell.cellRole.includes('/clutter.dna')) as Cell;
     const bob = bob_happ.cells.find(cell => cell.cellRole.includes('/clutter.dna')) as Cell;
 
-    const postContents = "My Mew";
+    const mewContents = "My Mew";
 
     // Alice creates a post
     const mewHash = await alice.call(
         "mews",
         "create_mew",
-        postContents
+        mewContents
     );
     t.ok(mewHash);
 
@@ -33,9 +35,15 @@ export default (orchestrator: Orchestrator<any>) =>
     
     // Bob gets the created mew
     const mew = await bob.call("mews", "get_mew", mewHash);
-    t.equal(mew, postContents);
+    t.equal(mew, mewContents);
 
-    const mews = await bob.call("mews", "mews_feed", {option: ""})
-    t.equal(mews[0].entry, "MyTest");
+    let mews = await alice.call("mews", "mews_feed", {option: ""})
+    t.equal(mews[0].entry, mewContents);
+
+    mews = await bob.call("mews", "mews_by", serializeHash(alice.cellId[1]))
+    t.equal(mews[0].entry, mewContents);
+
+    mews = await bob.call("mews", "mews_by", serializeHash(bob.cellId[1]))
+    t.equal(mews.length, 0);
 
 });
