@@ -122,10 +122,8 @@ dependencies = [
 name = "filestore"
 version = "0.0.1"
 dependencies = [
- "chrono",
  "derive_more",
  "hdk",
- "holo_hash",
  "serde",
 ]
 
@@ -148,10 +146,31 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ab5ef0d4909ef3724cc8cce6ccc8572c5c817592e9285f5464f8e86f8bd3726e"
 
 [[package]]
+name = "hc_zome_profiles"
+version = "0.0.1"
+source = "git+https://github.com/holochain-open-dev/profiles?rev=for-hc-v0.0.124#3c28f2d2c37d97674a9f7244122f1a3f23fba56b"
+dependencies = [
+ "derive_more",
+ "hc_zome_profiles_types",
+ "hdk",
+ "serde",
+]
+
+[[package]]
+name = "hc_zome_profiles_types"
+version = "0.0.1"
+source = "git+https://github.com/holochain-open-dev/profiles?rev=for-hc-v0.0.124#3c28f2d2c37d97674a9f7244122f1a3f23fba56b"
+dependencies = [
+ "derive_more",
+ "hdk",
+ "serde",
+]
+
+[[package]]
 name = "hdk"
-version = "0.0.118"
+version = "0.0.120"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e1ba1a9a438586f0f7334feacc2ef03471be47f78de600bf7d5fe7d01231aaa0"
+checksum = "7cc8c6e4cf2a35cda1858d3af053bf0e5b54f12f09b0867771728455d32230bb"
 dependencies = [
  "hdk_derive",
  "holo_hash",
@@ -168,9 +187,9 @@ dependencies = [
 
 [[package]]
 name = "hdk_derive"
-version = "0.0.20"
+version = "0.0.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a97ae132bc4b151655185d7611d37ce042301880fb1848ea7e9721bdd36d40cb"
+checksum = "89d426a0ea33d1487cd70fe38f98de0f2f1fc9f9032fb40b17b48eb54619c813"
 dependencies = [
  "holochain_zome_types",
  "paste",
@@ -181,9 +200,9 @@ dependencies = [
 
 [[package]]
 name = "holo_hash"
-version = "0.0.15"
+version = "0.0.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5397a0aa6c6cac2846b26baf1b705b6add5713268a89e4377d55d577f88368f6"
+checksum = "38cdca113cb7ab2f133178684b842216cbfa3c0882845adc8652c5f0d39b3d53"
 dependencies = [
  "base64",
  "blake2b_simd",
@@ -222,9 +241,9 @@ dependencies = [
 
 [[package]]
 name = "holochain_wasmer_common"
-version = "0.0.73"
+version = "0.0.76"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5af45652fd4b0e5b1ed2a721e5b0007d6334ee1e11677e918d7252c4f5a95bd0"
+checksum = "85e0bf4cd72c3b854b4dabf06a01de9a443b2513c91a9549a79f680c99335676"
 dependencies = [
  "holochain_serialized_bytes",
  "serde",
@@ -234,9 +253,9 @@ dependencies = [
 
 [[package]]
 name = "holochain_wasmer_guest"
-version = "0.0.73"
+version = "0.0.76"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "265c2dec85c91d10b01473d8163f3a841a14b47d78d764b7f6625a53f1dc1868"
+checksum = "4f5e433f6129edb7cad3315550b7607e9b451a02f96e00ca9a000929b1b8217a"
 dependencies = [
  "holochain_serialized_bytes",
  "holochain_wasmer_common",
@@ -247,9 +266,9 @@ dependencies = [
 
 [[package]]
 name = "holochain_zome_types"
-version = "0.0.20"
+version = "0.0.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "08ade77e6cf5a17261a4a46ea583813701c9e917ef23962434a0a26512a27cc6"
+checksum = "3613626036f2593c783e718390a9ff975a1220bb0e07a7fc8e378d5bdb43faf2"
 dependencies = [
  "chrono",
  "holo_hash",
@@ -271,7 +290,6 @@ dependencies = [
  "chrono",
  "derive_more",
  "hdk",
- "holo_hash",
  "serde",
 ]
 
@@ -282,7 +300,6 @@ dependencies = [
  "chrono",
  "derive_more",
  "hdk",
- "holo_hash",
  "serde",
 ]
 
@@ -394,7 +411,6 @@ dependencies = [
  "chrono",
  "derive_more",
  "hdk",
- "holo_hash",
  "serde",
 ]
 
@@ -461,7 +477,6 @@ dependencies = [
  "chrono",
  "derive_more",
  "hdk",
- "holo_hash",
  "serde",
 ]
 
@@ -481,13 +496,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "profiles_stub"
+name = "profiles"
 version = "0.0.1"
 dependencies = [
- "chrono",
  "derive_more",
+ "hc_zome_profiles",
  "hdk",
- "holo_hash",
  "serde",
 ]
 
@@ -638,7 +652,6 @@ dependencies = [
  "chrono",
  "derive_more",
  "hdk",
- "holo_hash",
  "serde",
 ]
 

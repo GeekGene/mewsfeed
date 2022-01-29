@@ -6,6 +6,10 @@ export interface Profile {
     lang_pref: string,
 }
 
+export interface Mew {
+    content: string
+}
+
 export interface NotificationOptions {
     color?: string;
     textColor?: string;

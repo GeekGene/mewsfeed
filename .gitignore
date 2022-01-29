@@ -13,3 +13,4 @@ dnas/clutter_index/workdir/clutter_index.dna
 node_modules/
 target/
 workdir/clutter.happ
+.running

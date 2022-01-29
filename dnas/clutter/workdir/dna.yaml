@@ -4,8 +4,8 @@ name: clutter
 uuid: 00000000-0000-0000-0000-000000000000
 properties: ~
 zomes: 
-  - name: profiles_stub
-    bundled: ../../../target/wasm32-unknown-unknown/release/profiles_stub.wasm
+  - name: profiles
+    bundled: ../../../target/wasm32-unknown-unknown/release/profiles.wasm
   - name: mews
     bundled: ../../../target/wasm32-unknown-unknown/release/mews.wasm
   - name: index_stub
