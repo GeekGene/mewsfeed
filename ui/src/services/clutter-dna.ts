@@ -7,7 +7,6 @@ import {
 import { inject, InjectionKey } from "vue";
 import { Mew, FeedOptions, FeedMew } from "../types/types";
 import { EntryHashB64, AgentPubKeyB64 } from '@holochain-open-dev/core-types';
-import { serializeHash } from '@holochain-open-dev/core-types';
 
 let appWebSocket: AppWebsocket;
 let appInfo: InstalledAppInfo;
