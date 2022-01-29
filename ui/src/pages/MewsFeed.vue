@@ -1,42 +1,61 @@
 <template>
-    <div>
-        <MewConstructor v-on:publish-mew="publishMew"></MewConstructor>
-        <h2>Your Mews Feed:</h2>
-        <ul>
-            <li v-for="mew in mewsFeed">
-                <Mew :mewContent="mew"></Mew>
-            </li>
-        </ul>
-    </div>
+  <div
+    class="q-mx-auto"
+    style="width: 50%;"
+  >
+    <MewConstructor @publish-mew="publishMew" />
+    <h3>Your Mews Feed:</h3>
+    <q-spinner-pie
+      v-if="loading"
+      size="10%"
+      color="primary"
+    />
+    <q-list
+      v-else
+      bordered
+      separator
+      dense
+    >
+      <q-item
+        v-for="(mew, index) in mewsFeed"
+        :key="index"
+      >
+        <q-item-section>
+          <MewComponent :mew-content="mew" />
+        </q-item-section>
+      </q-item>
+    </q-list>
+  </div>
 </template>
 
-<script>
-    import { mewsBy, createMew, myAgentPubKey } from '../services/clutter-dna'
-    import Mew from '../components/Mew.vue'
-    import MewConstructor from '../components/MewConstructor.vue'
+<script setup lang="ts">
+import { mewsBy, createMew } from '../services/clutter-dna';
+import { useProfileStore } from "../services/profile-store";
+import MewComponent from '../components/Mew.vue';
+import MewConstructor from '../components/MewConstructor.vue';
+import { onMounted, ref } from 'vue';
+import { FeedMew, Mew } from '../types/types';
+import { showError } from '../utils/notification';
 
-    export default {
-        data() {
-            return {
-                mewsFeed: [],
-            }            
-        },
+const { myAgentPubKey } = useProfileStore();
+const loading = ref(false);
+const mewsFeed = ref<FeedMew[]>([]);
 
-        methods: {
-            async publishMew(newMew) {
-                console.log("got event:", newMew)
-                await createMew(newMew)
-                this.mewsFeed = await mewsBy(myAgentPubKey())
-            }
-        },
+const loadMewsFeed = async () => {
+  try {
+    loading.value = true;
+    mewsFeed.value = await mewsBy(myAgentPubKey);
+  } catch (error) {
+    showError(error);
+  } finally {
+    loading.value = false;
+  }
+};
 
-        async mounted() {
-            this.mewsFeed = await mewsBy(myAgentPubKey())
-        },
+onMounted(loadMewsFeed);
 
-        components: {
-            Mew,
-            MewConstructor
-        }
-    }
+const publishMew = async (newMew: Mew) => {
+  await createMew(newMew);
+  loadMewsFeed();
+};
 </script>

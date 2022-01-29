@@ -2,14 +2,16 @@ import {
   AppWebsocket,
   CallZomeRequest,
   InstalledAppInfo,
+  InstalledCell,
 } from "@holochain/client";
 import { inject, InjectionKey } from "vue";
 import { Mew, FeedOptions, FeedMew } from "../types/types";
 import { EntryHashB64, AgentPubKeyB64 } from '@holochain-open-dev/core-types';
-import { serializeHash } from '@holochain-open-dev/core-types';
 
 let appWebSocket: AppWebsocket;
 let appInfo: InstalledAppInfo;
+
+export let clutterCell: InstalledCell;
 
 export const APP_WEB_SOCKET: InjectionKey<AppWebsocket> = Symbol();
 export const connectAppWebSocket = async () => {
@@ -18,6 +20,11 @@ export const connectAppWebSocket = async () => {
       `ws://localhost:${import.meta.env.VITE_HC_PORT}`
     );
     appInfo = await appWebSocket.appInfo({ installed_app_id: "clutter" });
+    const cell = appInfo.cell_data.find((cell) => cell.role_id === "clutter");
+    if (!cell) {
+      throw new Error('Could not find cell "clutter"');
+    }
+    clutterCell = cell;
   }
   return appWebSocket;
 };
@@ -33,13 +40,9 @@ export const useAppWebSocket = () => {
 const callZome = async (
   req: Pick<CallZomeRequest, "zome_name" | "fn_name" | "payload">
 ) => {
-  const cell = clutterCell();
-  if (!cell) {
-    throw new Error('Could not find cell "clutter"');
-  }
-  const provenance = cell.cell_id[1];
+  const provenance = clutterCell.cell_id[1];
   return appWebSocket.callZome({
-    cell_id: cell.cell_id,
+    cell_id: clutterCell.cell_id,
     zome_name: req.zome_name,
     fn_name: req.fn_name,
     payload: req.payload,
@@ -111,10 +114,3 @@ export const myFollowing = async () : Promise<Array<FeedMew>> => {
     payload: null,
   });
 };
-
-export const clutterCell = () =>
-  appInfo.cell_data.find((cell) => cell.role_id === "clutter");
-
-export const myAgentPubKey = () => {
-  return serializeHash(clutterCell()?.cell_id[1]!)
-}

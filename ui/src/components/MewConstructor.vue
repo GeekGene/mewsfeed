@@ -1,19 +1,26 @@
 <template>
-    <div>
-        <input v-model="newMew">
-        <button v-on:click="publishMew">Publish Mew</button>
-    </div>
+  <div>
+    <q-input
+      v-model="newMew"
+      type="text"
+      class="q-mb-sm"
+      dense
+      outlined
+    />
+    <q-btn @click="publishMew">
+      Publish Mew
+    </q-btn>
+  </div>
 </template>
 
-<script>
-import { defineComponent } from 'vue'
+<script setup lang="ts">
+import { ref } from "vue";
+import { Mew } from "../types/types";
+const emit = defineEmits<{(e: 'publish-mew', mew: Mew): void;}>();
 
-export default defineComponent({
-    methods: {
-        async publishMew() {
-            this.$emit("publish-mew", this.newMew)
-            this.newMew = ""
-        }
-    }
-})
+const newMew = ref("");
+const publishMew = async () => {
+    emit("publish-mew", newMew.value);
+    newMew.value = "";
+};
 </script>

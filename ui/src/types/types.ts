@@ -8,9 +8,7 @@ export interface Profile {
     lang_pref: string,
 }
 
-export interface Mew {
-    entry: string
-}
+export type Mew = string;
 
 export interface FeedMew {
     entry: string,
@@ -36,7 +34,7 @@ export interface NotificationOptions {
     | "center";
     actions?: Array<() => void>;
     onDismiss?: () => void;
-}``
+}
 
 export interface FeedOptions {
     options: string
