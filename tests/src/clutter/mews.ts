@@ -37,13 +37,20 @@ export default (orchestrator: Orchestrator<any>) =>
     const mew = await bob.call("mews", "get_mew", mewHash);
     t.equal(mew, mewContents);
 
-    let mews = await alice.call("mews", "mews_feed", {option: ""})
-    t.equal(mews[0].entry, mewContents);
-
-    mews = await bob.call("mews", "mews_by", serializeHash(alice.cellId[1]))
+    let mews = await bob.call("mews", "mews_by", serializeHash(alice.cellId[1]))
     t.equal(mews[0].entry, mewContents);
 
     mews = await bob.call("mews", "mews_by", serializeHash(bob.cellId[1]))
     t.equal(mews.length, 0);
+
+    mews = await bob.call("mews", "mews_feed", {option: ""})
+    t.equal(mews.length, 0);
+
+    await bob.call("mews", "follow", serializeHash(alice.cellId[1]))
+    t.ok
+
+    // after following alice bob should get alice's mews in his feed
+    mews = await bob.call("mews", "mews_feed", {option: ""})
+    t.equal(mews[0].entry, mewContents);
 
 });

@@ -79,7 +79,23 @@ pub fn mews_by(agent: AgentPubKeyB64) -> ExternResult<Vec<FeedMew>> {
 #[hdk_extern]
 pub fn mews_feed(_options: FeedOptions) -> ExternResult<Vec<FeedMew>> {
 
-    // TODO: temporarliy just return my own mews as my feed
-    let me : AgentPubKeyB64 =  agent_info()?.agent_latest_pubkey.into();
-    mews_by(me)
+    // get who I'm following
+    let me : EntryHash =  agent_info()?.agent_latest_pubkey.into();
+    let links = get_links(me, Some(LinkTag::new("following")))?;
+
+    let mut feed = Vec::new();
+    for link in links.into_iter() {
+        feed.append(&mut mews_by(AgentPubKey::from(link.target).into())?);
+    }
+
+    Ok(feed)
+}
+
+#[hdk_extern]
+pub fn follow(agent: AgentPubKeyB64) -> ExternResult<()> {
+    let me : EntryHash =  agent_info()?.agent_latest_pubkey.into();
+    let them : EntryHash = AgentPubKey::from(agent).into();
+    let _link_hh = create_link(me.clone(), them.clone(), LinkTag::new("following"))?;
+    let _link_hh = create_link(them, me, LinkTag::new("followed_by"))?;
+    Ok(())
 }
