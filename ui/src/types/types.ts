@@ -7,9 +7,7 @@ export interface Profile {
     lang_pref: string,
 }
 
-export interface Mew {
-    entry: string
-}
+export type Mew = string;
 
 export interface FeedMew {
     entry: string,

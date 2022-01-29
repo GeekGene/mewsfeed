@@ -11,20 +11,10 @@
 
 <script setup lang="ts">
 import MainLayout from "./layouts/MainLayout.vue";
-import { clutterCell, useAppWebSocket } from "./services/clutter-dna";
-import {
-  ProfilesStore,
-  profilesStoreContext,
-} from "@holochain-open-dev/profiles";
-import { HolochainClient } from "@holochain-open-dev/cell-client";
+import {profilesStoreContext} from "@holochain-open-dev/profiles";
+import { useProfileStore } from "./services/profile-store";
 
-const appWs = useAppWebSocket();
-
-const cellClient = new HolochainClient(appWs, clutterCell());
-const store = new ProfilesStore(cellClient, {
-  avatarMode: "avatar",
-  additionalFields: ["Bio", "Location"],
-});
+const store = useProfileStore();
 </script>
 
 <style>

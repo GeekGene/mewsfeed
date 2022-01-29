@@ -1,15 +1,15 @@
 <template>
-    <div>
-        {{ mewContent.entry }}
-    </div>
+  <div>
+    {{ mewContent.entry }}
+  </div>
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent } from 'vue';
 
 export default defineComponent({
     props: {
         mewContent: Object
     }
-})
+});
 </script>
