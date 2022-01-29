@@ -8,7 +8,7 @@
     "start": "npm run prepare-env && vite",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
-    "lint": "eslint . --fix --ext .js,.ts,.vue"
+    "lint": "eslint src/ --fix --ext .js,.ts,.vue"
   },
   "dependencies": {
     "@holochain/client": "^0.3.2",

@@ -13,6 +13,9 @@ module.exports = {
         "plugin:@typescript-eslint/recommended",
         "plugin:vue/vue3-recommended",
     ],
+    env: {
+        "vue/setup-compiler-macros": true
+    },
     rules: {
         semi: ["error", "always"],
     }
