@@ -20,6 +20,7 @@ const appWs = useAppWebSocket();
 const cellClient = new HolochainClient(appWs, clutterCell());
 const store = new ProfilesStore(cellClient, {
   avatarMode: "avatar",
+  additionalFields: ["Bio", "Location"],
 });
 </script>
 

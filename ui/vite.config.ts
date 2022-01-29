@@ -5,11 +5,18 @@ import { quasar, transformAssetUrls } from "@quasar/vite-plugin";
 export default defineConfig({
   plugins: [
     vue({
-      template: { transformAssetUrls }
+      template: {
+        transformAssetUrls,
+        compilerOptions: {
+          // treat all tags with a dash as custom elements
+          isCustomElement: (tag) =>
+            tag.includes("profile") || tag.includes("context-provider"),
+        },
+      },
     }),
 
     quasar({
-      sassVariables: "src/quasar-variables.sass"
-    })
-  ]
+      sassVariables: "src/quasar-variables.sass",
+    }),
+  ],
 });

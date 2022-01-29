@@ -1,6 +1,6 @@
 // Import the profiles elements that we need
 import "@holochain-open-dev/profiles/profile-prompt";
-import "@holochain-open-dev/profiles/list-profiles";
+import "@holochain-open-dev/profiles/my-profile";
 
 // Import the context-provider element
 import "@holochain-open-dev/context/context-provider";
