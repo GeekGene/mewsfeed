@@ -4,7 +4,7 @@ import {
   InstalledAppInfo,
 } from "@holochain/client";
 import { inject, InjectionKey } from "vue";
-import { Mew, FeedOptions } from "../types/types";
+import { Mew, FeedOptions, FeedMew } from "../types/types";
 import { EntryHashB64 } from '@holochain-open-dev/core-types';
 
 let appWebSocket: AppWebsocket;
@@ -63,7 +63,7 @@ export const getMew = async (mew: EntryHashB64) => {
   });
 };
 
-export const mewsFeed = async (options: FeedOptions) => {
+export const mewsFeed = async (options: FeedOptions) : Promise<Array<FeedMew>> => {
   return callZome({
     zome_name: "mews",
     fn_name: "mews_feed",
