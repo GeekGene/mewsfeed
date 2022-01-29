@@ -7,5 +7,4 @@
     />
   </q-page>
 
-  <list-profiles></list-profiles>
 </template>
