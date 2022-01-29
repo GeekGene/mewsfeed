@@ -2,6 +2,7 @@
 resolver = "2"
 members = [
     "dnas/clutter/zomes/profiles_stub",
+    "dnas/clutter/zomes/profiles",
     "dnas/clutter/zomes/mews",
     "dnas/clutter/zomes/index_stub",
     "dnas/clutter/zomes/filestore",

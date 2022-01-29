@@ -1,16 +1,15 @@
 [package]
 edition = "2018"
-name = "services"
+name = "profiles"
 version = "0.0.1"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
-name = "services"
+name = "profiles"
 
 [dependencies]
 serde = "1"
 derive_more = "0"
-chrono = {version = "0.4", features = ["serde"]}
+hc_zome_profiles = {git = "https://github.com/holochain-open-dev/profiles", rev = "for-hc-v0.0.124", package = "hc_zome_profiles"}
 
 hdk = {version = "0.0.120", features = ["encoding"]}
-
