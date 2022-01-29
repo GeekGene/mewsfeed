@@ -5,7 +5,7 @@
         <h2>Your Mews Feed:</h2>
         <ul>
             <li v-for="mew in mewsFeed">
-                {{ mew.entry }}
+                <Mew :mewContent="mew"></Mew>
             </li>
         </ul>
     </div>
@@ -13,6 +13,7 @@
 
 <script>
     import { mewsFeed, createMew } from '../services/clutter-dna'
+    import Mew from '../components/Mew.vue'
 
     export default {
         data() {
@@ -32,6 +33,10 @@
 
         async mounted() {
             this.mewsFeed = await mewsFeed({option: ""})
+        },
+
+        components: {
+            Mew
         }
     }
 </script>
