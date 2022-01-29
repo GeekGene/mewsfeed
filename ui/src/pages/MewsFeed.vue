@@ -1,7 +1,6 @@
 <template>
     <div>
-        <input v-model="newMew">
-        <button v-on:click="publishMew">Publish Mew</button>
+        <MewConstructor v-on:publish-mew="publishMew"></MewConstructor>
         <h2>Your Mews Feed:</h2>
         <ul>
             <li v-for="mew in mewsFeed">
@@ -12,31 +11,32 @@
 </template>
 
 <script>
-    import { mewsFeed, createMew } from '../services/clutter-dna'
+    import { mewsBy, createMew, myAgentPubKey } from '../services/clutter-dna'
     import Mew from '../components/Mew.vue'
+    import MewConstructor from '../components/MewConstructor.vue'
 
     export default {
         data() {
             return {
                 mewsFeed: [],
-                newMew: ""
             }            
         },
 
         methods: {
-            async publishMew() {
-                await createMew(this.newMew)
-                this.mewsFeed = await mewsFeed({option: ""})
-                this.newMew = ""
+            async publishMew(newMew) {
+                console.log("got event:", newMew)
+                await createMew(newMew)
+                this.mewsFeed = await mewsBy(myAgentPubKey())
             }
         },
 
         async mounted() {
-            this.mewsFeed = await mewsFeed({option: ""})
+            this.mewsFeed = await mewsBy(myAgentPubKey())
         },
 
         components: {
-            Mew
+            Mew,
+            MewConstructor
         }
     }
 </script>

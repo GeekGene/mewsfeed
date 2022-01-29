@@ -6,6 +6,7 @@ import {
 import { inject, InjectionKey } from "vue";
 import { Mew, FeedOptions, FeedMew } from "../types/types";
 import { EntryHashB64, AgentPubKeyB64 } from '@holochain-open-dev/core-types';
+import { serializeHash } from '@holochain-open-dev/core-types';
 
 let appWebSocket: AppWebsocket;
 let appInfo: InstalledAppInfo;
@@ -113,3 +114,7 @@ export const myFollowing = async () : Promise<Array<FeedMew>> => {
 
 export const clutterCell = () =>
   appInfo.cell_data.find((cell) => cell.role_id === "clutter");
+
+export const myAgentPubKey = () => {
+  return serializeHash(clutterCell()?.cell_id[1]!)
+}

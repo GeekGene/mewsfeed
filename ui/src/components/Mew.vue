@@ -9,11 +9,7 @@ import { defineComponent } from 'vue'
 
 export default defineComponent({
     props: {
-        mewContent: String
-    },
-
-    setup(props) {
-        return props
+        mewContent: Object
     }
 })
 </script>
