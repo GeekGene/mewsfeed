@@ -14,13 +14,16 @@
       v-else
       bordered
       separator
-      dense
     >
       <q-item
         v-for="(mew, index) in mewsFeed"
         :key="index"
       >
-        <q-item-section>
+        <q-item-section avatar>
+          <agent-avatar :agent-pub-key="myAgentPubKey" />
+        </q-item-section>
+        <q-item-section class="text-body1 text-left">
+          {{ mew }}
           <MewComponent :mew-content="mew" />
         </q-item-section>
       </q-item>
@@ -31,11 +34,11 @@
 <script setup lang="ts">
 import { mewsBy, createMew } from '../services/clutter-dna';
 import { useProfileStore } from "../services/profile-store";
-import MewComponent from '../components/Mew.vue';
-import MewConstructor from '../components/MewConstructor.vue';
 import { onMounted, ref } from 'vue';
 import { FeedMew, Mew } from '../types/types';
 import { showError } from '../utils/notification';
+import MewComponent from '../components/Mew.vue';
+import MewConstructor from '../components/MewConstructor.vue';
 
 const { myAgentPubKey } = useProfileStore();
 const loading = ref(false);
