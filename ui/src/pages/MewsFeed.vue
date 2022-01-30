@@ -4,7 +4,7 @@
     style="width: 50%;"
   >
     <MewConstructor @publish-mew="publishMew" />
-    <h3>Your Mews Feed:</h3>
+    <h4>Your Mews Feed:</h4>
     <q-spinner-pie
       v-if="loading"
       size="10%"
@@ -20,10 +20,13 @@
         :key="index"
       >
         <q-item-section avatar>
-          <agent-avatar :agent-pub-key="myAgentPubKey" />
+          <agent-avatar
+            :agent-pub-key="mew.id"
+            size="100%"
+          />
+          {{ JSON.stringify(mew, null, 4) }}
         </q-item-section>
         <q-item-section class="text-body1 text-left">
-          {{ mew }}
           <MewComponent :mew-content="mew" />
         </q-item-section>
       </q-item>
