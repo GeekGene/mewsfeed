@@ -33,7 +33,7 @@ export default (orchestrator: Orchestrator<any>) =>
     );
     t.ok(mewHash);
 
-    await sleep(250);
+    await sleep(500);
 
     const hashtaggedMews = await alice.call(
       "mews",
