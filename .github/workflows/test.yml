@@ -43,4 +43,5 @@ jobs:
         run: nix-shell --pure --run "npm ci && npm run build:happ"
 
       - name: Test with tryorama
-        run: nix-shell --pure --run "npm test"
+        # run a few times; these tests have failed non-deterministically (see "sleep" in tests)
+        run: nix-shell --pure --run "npm test && npm test && npm test"
