@@ -1,6 +1,6 @@
 <template>
   <div>
-    {{ mewContent.entry }}
+    {{ mewContent.mew.mewType.original.mew }}
   </div>
 </template>
 

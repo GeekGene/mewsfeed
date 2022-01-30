@@ -5,7 +5,7 @@ import {
   InstalledCell,
 } from "@holochain/client";
 import { inject, InjectionKey } from "vue";
-import { Mew, FeedOptions, FeedMew } from "../types/types";
+import { Mew, FeedOptions, FeedMew, FullMew } from "../types/types";
 import { EntryHashB64, AgentPubKeyB64 } from '@holochain-open-dev/core-types';
 
 let appWebSocket: AppWebsocket;
@@ -59,7 +59,7 @@ export const createMew = async (mew: Mew) => {
   });
 };
 
-export const getMew = async (mew: EntryHashB64) => {
+export const getMew = async (mew: EntryHashB64) : Promise<FullMew> => {
   return callZome({
     zome_name: "mews",
     fn_name: "get_mew",
@@ -83,7 +83,7 @@ export const mewsBy = async (agent: AgentPubKeyB64) : Promise<Array<FeedMew>> =>
   });
 };
 
-export const followers = async (agent: AgentPubKeyB64) : Promise<Array<FeedMew>> => {
+export const followers = async (agent: AgentPubKeyB64) : Promise<Array<AgentPubKeyB64>> => {
   return callZome({
     zome_name: "mews",
     fn_name: "followers",
@@ -91,7 +91,7 @@ export const followers = async (agent: AgentPubKeyB64) : Promise<Array<FeedMew>>
   });
 };
 
-export const following = async (agent: AgentPubKeyB64) : Promise<Array<FeedMew>> => {
+export const following = async (agent: AgentPubKeyB64) : Promise<Array<AgentPubKeyB64>> => {
   return callZome({
     zome_name: "mews",
     fn_name: "following",
@@ -99,7 +99,7 @@ export const following = async (agent: AgentPubKeyB64) : Promise<Array<FeedMew>>
   });
 };
 
-export const myFollowers = async () : Promise<Array<FeedMew>> => {
+export const myFollowers = async () : Promise<Array<AgentPubKeyB64>> => {
   return callZome({
     zome_name: "mews",
     fn_name: "my_followers",
@@ -107,7 +107,7 @@ export const myFollowers = async () : Promise<Array<FeedMew>> => {
   });
 };
 
-export const myFollowing = async () : Promise<Array<FeedMew>> => {
+export const myFollowing = async () : Promise<Array<AgentPubKeyB64>> => {
   return callZome({
     zome_name: "mews",
     fn_name: "my_following",

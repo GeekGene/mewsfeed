@@ -22,12 +22,14 @@ enum MewType {
 }
 
 #[hdk_entry(id = "mew_content")]
+#[serde(rename_all = "camelCase")]
 struct MewContent {
     mew: String, // "Visit this web site ^link by @user about #hashtag to earn $cashtag! Also read this humm earth post ^link (as an HRL link)" 
 //   mew_links: Vec<LinkTypes>, // [^links in the mewstring in sequence]
 //    mew_images: Vec<EntryHash>, //Vec of image links hashes to retrieve
 }
 #[hdk_entry(id = "full_mew")]
+#[serde(rename_all = "camelCase")]
 pub struct FullMew {
   mew_type: MewType,
   mew: Option<MewContent>,

@@ -5,7 +5,7 @@ import { serializeHash } from '@holochain-open-dev/core-types';
 
 
 function getMewContents(fullMew: any) : string {
-  return fullMew.mew.mew_type.original.mew
+  return fullMew.mew.mewType.original.mew
 }
 
 export default (orchestrator: Orchestrator<any>) =>
@@ -47,7 +47,7 @@ export default (orchestrator: Orchestrator<any>) =>
     );
     t.equal(hashtaggedMews.length, 1)
     console.log('searching hashtags')
-    console.log(hashtaggedMews[0].mew.mew_type.original)
+    console.log(hashtaggedMews[0].mew.mewType.original)
     t.equal(getMewContents(hashtaggedMews[0]), mewContents);
 
     // get hashtags: arabic
@@ -58,7 +58,7 @@ export default (orchestrator: Orchestrator<any>) =>
     );
     t.equal(hashtaggedMews.length, 1)
     console.log('searching hashtags')
-    console.log(hashtaggedMews[0].mew.mew_type.original)
+    console.log(hashtaggedMews[0].mew.mewType.original)
     t.equal(getMewContents(hashtaggedMews[0]), mewContents);
 
     // get hashtags: emojis -- invalid hashtag!
@@ -82,7 +82,7 @@ export default (orchestrator: Orchestrator<any>) =>
     // Bob gets the created mew
     const mew = await bob.call("mews", "get_mew", mewHash);
     console.log("mew", mew)
-    t.deepEqual(mew, { mew_type: { original: { mew: mewContents } }, mew: null });
+    t.deepEqual(mew, { mewType: { original: { mew: mewContents } }, mew: null });
 
     let alicePubKey = serializeHash(alice.cellId[1])
     let bobPubKey = serializeHash(bob.cellId[1])
