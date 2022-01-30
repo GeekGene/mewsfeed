@@ -23,7 +23,7 @@ export default (orchestrator: Orchestrator<any>) =>
     const bob = bob_happ.cells.find(cell => cell.cellRole.includes('/clutter.dna')) as Cell;
     const carol = carol_happ.cells.find(cell => cell.cellRole.includes('/clutter.dna')) as Cell;
 
-    const mewContents = "My Mew with #hashtag and $cashtag";
+    const mewContents = "My Mew with #hashtag #سعيدة #😃😃😃 and $cashtag";
 
     // Alice creates a post
     const mewHash = await alice.call(
@@ -33,9 +33,10 @@ export default (orchestrator: Orchestrator<any>) =>
     );
     t.ok(mewHash);
 
-    await sleep(500);
+    await sleep(777);
 
-    const hashtaggedMews = await alice.call(
+    // get hashtags: #hashtag
+    let hashtaggedMews = await alice.call(
       "mews",
       "get_mews_with_hashtag",
       "#hashtag"
@@ -43,17 +44,40 @@ export default (orchestrator: Orchestrator<any>) =>
     t.equal(hashtaggedMews.length, 1)
     console.log('searching hashtags')
     console.log(hashtaggedMews[0].entry)
+    t.equal(hashtaggedMews[0].entry, mewContents);
+
+    // get hashtags: arabic
+    hashtaggedMews = await alice.call(
+      "mews",
+      "get_mews_with_hashtag",
+      "#سعيدة"
+    );
+    t.equal(hashtaggedMews.length, 1)
+    console.log('searching hashtags')
+    console.log(hashtaggedMews[0].entry)
+    t.equal(hashtaggedMews[0].entry, mewContents);
+
+    // get hashtags: emojis -- invalid hashtag!
+    hashtaggedMews = await alice.call(
+      "mews",
+      "get_mews_with_hashtag",
+      "#😃😃😃"
+    );
+    t.equal(hashtaggedMews.length, 0)
 
     const cashtaggedMews = await alice.call(
       "mews",
       "get_mews_with_cashtag",
       "$cashtag"
     );
+    console.log({ cashtaggedMews })
     t.equal(cashtaggedMews.length, 1)
     console.log('searching cashtags')
     console.log(cashtaggedMews[0].entry)
+
     // Bob gets the created mew
     const mew = await bob.call("mews", "get_mew", mewHash);
+    console.log('bob gets mew', { mew, mewContents })
     t.equal(mew, mewContents);
 
     let alicePubKey = serializeHash(alice.cellId[1])
@@ -61,6 +85,7 @@ export default (orchestrator: Orchestrator<any>) =>
     let carolPubKey = serializeHash(carol.cellId[1])
 
     let mews = await bob.call("mews", "mews_by", alicePubKey)
+    console.log("mews by", mews[0].entry, { mewContents })
     t.equal(mews[0].entry, mewContents);
 
     mews = await bob.call("mews", "mews_by", bobPubKey)
@@ -71,7 +96,8 @@ export default (orchestrator: Orchestrator<any>) =>
 
     await bob.call("mews", "follow", alicePubKey)
     t.ok
-    await sleep(250);
+    t.ok
+    await sleep(777);
 
     console.log("Bob", bobPubKey)
     console.log("Alice", alicePubKey)
@@ -84,7 +110,6 @@ export default (orchestrator: Orchestrator<any>) =>
     console.log("alice.my_following")
     follow = await alice.call("mews", "my_following", null)
     console.log("alice my_following", follow, follow.length)
-    sleep(250)
     t.equal(follow.length, 0)
 
     console.log("bob.my_following")
@@ -105,6 +130,8 @@ export default (orchestrator: Orchestrator<any>) =>
 
     // after following alice bob should get alice's mews in his feed
     mews = await bob.call("mews", "mews_feed", { option: "" })
+    console.log("mews[0]", mews[0]);
+    console.log("mews[0].entry", mews[0].entry);
     t.equal(mews[0].entry, mewContents);
 
     // carol and alice post, bob follows carol
@@ -126,12 +153,17 @@ export default (orchestrator: Orchestrator<any>) =>
 
     await bob.call("mews", "follow", carolPubKey)
     t.ok
-    await sleep(250);
+    await sleep(500);
 
     // tests that mews from different followers get sorted into the correct order
     mews = await bob.call("mews", "mews_feed", { option: "" })
     t.equal(mews.length, 3);
-    t.equal(mews[1].entry, mewContents + "2");
-    t.equal(mews[2].entry, mewContents + "3");
 
+    console.log("mews[1]", mews[1])
+    console.log("mews[1].entry", mews[1].entry)
+    t.equal(mews[1].entry, mewContents + "2");
+
+    console.log("mews[2]", mews[2])
+    console.log("mews[2].entry", mews[2].entry)
+    t.equal(mews[2].entry, mewContents + "3");
   });
