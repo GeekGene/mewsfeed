@@ -1,5 +1,4 @@
 import { Header } from '@holochain-open-dev/core-types';
-import { HoloHashB64 } from '@holochain/client';
 
 export interface Profile {
     avatar: string, // base 64 in-place image url
@@ -26,8 +25,7 @@ export interface FullMew {
 
 export interface FeedMew {
     mew: FullMew,
-    header: Header,
-    id: HoloHashB64
+    header: Header
 }
 
 export interface NotificationOptions {

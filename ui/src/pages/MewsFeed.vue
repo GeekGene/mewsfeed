@@ -21,10 +21,9 @@
       >
         <q-item-section avatar>
           <agent-avatar
-            :agent-pub-key="mew.id"
-            size="100%"
+            :agent-pub-key="authorPubKey(mew.header.author)"
+            size="50"
           />
-          {{ JSON.stringify(mew, null, 4) }}
         </q-item-section>
         <q-item-section class="text-body1 text-left">
           <MewComponent :mew-content="mew" />
@@ -35,6 +34,7 @@
 </template>
 
 <script setup lang="ts">
+import { serializeHash } from '@holochain-open-dev/core-types';
 import { mewsBy, createMew } from '../services/clutter-dna';
 import { useProfileStore } from "../services/profile-store";
 import { onMounted, ref } from 'vue';
@@ -63,5 +63,11 @@ onMounted(loadMewsFeed);
 const publishMew = async (newMew: Mew) => {
   await createMew(newMew);
   loadMewsFeed();
+};
+
+const authorPubKey = (author: unknown) => {
+  if (author instanceof Uint8Array) {
+    return serializeHash(author);
+  }
 };
 </script>
