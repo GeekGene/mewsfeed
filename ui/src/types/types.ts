@@ -10,8 +10,22 @@ export interface Profile {
 
 export type Mew = string;
 
+export interface MewContent {
+    mew: string
+}
+
+export type MewType = 
+| {
+    original: MewContent
+}
+
+export interface FullMew {
+    mew_type: MewType,
+    mew: MewContent | null
+}
+
 export interface FeedMew {
-    entry: string,
+    mew: FullMew,
     header: Header,
     id: HoloHashB64
 }

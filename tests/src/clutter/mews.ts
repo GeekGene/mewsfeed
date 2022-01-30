@@ -4,6 +4,10 @@ import { config, installation, sleep } from '../utils';
 import { serializeHash } from '@holochain-open-dev/core-types';
 
 
+function getMewContents(fullMew: any) : string {
+  return fullMew.mew.mewType.original.mew
+}
+
 export default (orchestrator: Orchestrator<any>) =>
   orchestrator.registerScenario("mews tests", async (s, t) => {
     // Declare two players using the previously specified config, nicknaming them "alice" and "bob"
@@ -23,7 +27,7 @@ export default (orchestrator: Orchestrator<any>) =>
     const bob = bob_happ.cells.find(cell => cell.cellRole.includes('/clutter.dna')) as Cell;
     const carol = carol_happ.cells.find(cell => cell.cellRole.includes('/clutter.dna')) as Cell;
 
-    const mewContents = "My Mew";
+    const mewContents = "My Mew with #hashtag #سعيدة #😃😃😃 and $cashtag";
 
     // Alice creates a post
     const mewHash = await alice.call(
@@ -33,19 +37,59 @@ export default (orchestrator: Orchestrator<any>) =>
     );
     t.ok(mewHash);
 
-    await sleep(250);
+    await sleep(777);
+
+    // get hashtags: #hashtag
+    let hashtaggedMews = await alice.call(
+      "mews",
+      "get_mews_with_hashtag",
+      "#hashtag"
+    );
+    t.equal(hashtaggedMews.length, 1)
+    console.log('searching hashtags')
+    console.log(hashtaggedMews[0].mew.mewType.original)
+    t.equal(getMewContents(hashtaggedMews[0]), mewContents);
+
+    // get hashtags: arabic
+    hashtaggedMews = await alice.call(
+      "mews",
+      "get_mews_with_hashtag",
+      "#سعيدة"
+    );
+    t.equal(hashtaggedMews.length, 1)
+    console.log('searching hashtags')
+    console.log(hashtaggedMews[0].mew.mewType.original)
+    t.equal(getMewContents(hashtaggedMews[0]), mewContents);
+
+    // get hashtags: emojis -- invalid hashtag!
+    hashtaggedMews = await alice.call(
+      "mews",
+      "get_mews_with_hashtag",
+      "#😃😃😃"
+    );
+    t.equal(hashtaggedMews.length, 0)
+
+    const cashtaggedMews = await alice.call(
+      "mews",
+      "get_mews_with_cashtag",
+      "$cashtag"
+    );
+    console.log({ cashtaggedMews })
+    t.equal(cashtaggedMews.length, 1)
+    console.log('searching cashtags')
+    console.log(getMewContents(cashtaggedMews[0]))
 
     // Bob gets the created mew
     const mew = await bob.call("mews", "get_mew", mewHash);
-    t.ok(mew);
-    t.equal(mew, mewContents);
+    console.log("mew", mew)
+    t.deepEqual(mew, { mewType: { original: { mew: mewContents } }, mew: null });
 
     let alicePubKey = serializeHash(alice.cellId[1])
     let bobPubKey = serializeHash(bob.cellId[1])
     let carolPubKey = serializeHash(carol.cellId[1])
 
     let mews = await bob.call("mews", "mews_by", alicePubKey)
-    t.equal(mews[0].entry, mewContents);
+    t.equal(getMewContents(mews[0]), mewContents);
 
     mews = await bob.call("mews", "mews_by", bobPubKey)
     t.equal(mews.length, 0);
@@ -55,7 +99,8 @@ export default (orchestrator: Orchestrator<any>) =>
 
     await bob.call("mews", "follow", alicePubKey)
     t.ok
-    await sleep(250);
+    t.ok
+    await sleep(777);
 
     console.log("Bob", bobPubKey)
     console.log("Alice", alicePubKey)
@@ -68,7 +113,6 @@ export default (orchestrator: Orchestrator<any>) =>
     console.log("alice.my_following")
     follow = await alice.call("mews", "my_following", null)
     console.log("alice my_following", follow, follow.length)
-    sleep(250)
     t.equal(follow.length, 0)
 
     console.log("bob.my_following")
@@ -89,7 +133,7 @@ export default (orchestrator: Orchestrator<any>) =>
 
     // after following alice bob should get alice's mews in his feed
     mews = await bob.call("mews", "mews_feed", { option: "" })
-    t.equal(mews[0].entry, mewContents);
+    t.equal(getMewContents(mews[0]), mewContents);
 
     // carol and alice post, bob follows carol
     // Carol creates a post
@@ -110,12 +154,11 @@ export default (orchestrator: Orchestrator<any>) =>
 
     await bob.call("mews", "follow", carolPubKey)
     t.ok
-    await sleep(250);
+    await sleep(500);
 
     // tests that mews from different followers get sorted into the correct order
     mews = await bob.call("mews", "mews_feed", { option: "" })
     t.equal(mews.length, 3);
-    t.equal(mews[1].entry, mewContents + "2");
-    t.equal(mews[2].entry, mewContents + "3");
-
+    t.equal(getMewContents(mews[1]), mewContents + "2");
+    t.equal(getMewContents(mews[2]), mewContents + "3");
   });
