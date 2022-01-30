@@ -4,7 +4,7 @@ import { config, installation, sleep } from '../utils';
 import { serializeHash } from '@holochain-open-dev/core-types';
 
 
-export default (orchestrator: Orchestrator<any>) => 
+export default (orchestrator: Orchestrator<any>) =>
   orchestrator.registerScenario("mews tests", async (s, t) => {
     // Declare two players using the previously specified config, nicknaming them "alice" and "bob"
     // note that the first argument to players is just an array conductor configs that that will
@@ -27,16 +27,17 @@ export default (orchestrator: Orchestrator<any>) =>
 
     // Alice creates a post
     const mewHash = await alice.call(
-        "mews",
-        "create_mew",
-        mewContents
+      "mews",
+      "create_mew",
+      mewContents
     );
     t.ok(mewHash);
 
-    await sleep(50);
-    
+    await sleep(250);
+
     // Bob gets the created mew
     const mew = await bob.call("mews", "get_mew", mewHash);
+    t.ok(mew);
     t.equal(mew, mewContents);
 
     let alicePubKey = serializeHash(alice.cellId[1])
@@ -49,31 +50,36 @@ export default (orchestrator: Orchestrator<any>) =>
     mews = await bob.call("mews", "mews_by", bobPubKey)
     t.equal(mews.length, 0);
 
-    mews = await bob.call("mews", "mews_feed", {option: ""})
+    mews = await bob.call("mews", "mews_feed", { option: "" })
     t.equal(mews.length, 0);
 
     await bob.call("mews", "follow", alicePubKey)
     t.ok
-    await sleep(50);
+    await sleep(250);
 
     console.log("Bob", bobPubKey)
     console.log("Alice", alicePubKey)
     console.log("Carol", carolPubKey)
     console.log("alice.my_followers")
     let follow = await alice.call("mews", "my_followers", null)
+    console.log("alices my_followers", follow, follow.length)
     t.deepEqual(follow, [bobPubKey])
 
     console.log("alice.my_following")
     follow = await alice.call("mews", "my_following", null)
-    t.deepEqual(follow, [])
+    console.log("alice my_following", follow, follow.length)
+    sleep(250)
+    t.equal(follow.length, 0)
 
     console.log("bob.my_following")
     follow = await bob.call("mews", "my_following", null)
+    console.log("bob my_following", follow, follow.length)
     t.deepEqual(follow, [alicePubKey])
 
     console.log("bob.my_followers")
     follow = await bob.call("mews", "my_followers", null)
-    t.deepEqual(follow, [])
+    console.log("bob my_followers", follow, follow.length)
+    t.equal(follow.length, 0)
 
     follow = await alice.call("mews", "followers", alicePubKey)
     t.deepEqual(follow, [bobPubKey])
@@ -82,7 +88,7 @@ export default (orchestrator: Orchestrator<any>) =>
     t.deepEqual(follow, [alicePubKey])
 
     // after following alice bob should get alice's mews in his feed
-    mews = await bob.call("mews", "mews_feed", {option: ""})
+    mews = await bob.call("mews", "mews_feed", { option: "" })
     t.equal(mews[0].entry, mewContents);
 
     // carol and alice post, bob follows carol
@@ -90,7 +96,7 @@ export default (orchestrator: Orchestrator<any>) =>
     const mewHash2 = await carol.call(
       "mews",
       "create_mew",
-      mewContents+"2"
+      mewContents + "2"
     );
     t.ok(mewHash2);
 
@@ -98,18 +104,18 @@ export default (orchestrator: Orchestrator<any>) =>
     const mewHash3 = await alice.call(
       "mews",
       "create_mew",
-      mewContents+"3"
+      mewContents + "3"
     );
     t.ok(mewHash2);
 
     await bob.call("mews", "follow", carolPubKey)
     t.ok
-    await sleep(50);
+    await sleep(250);
 
     // tests that mews from different followers get sorted into the correct order
-    mews = await bob.call("mews", "mews_feed", {option: ""})
+    mews = await bob.call("mews", "mews_feed", { option: "" })
     t.equal(mews.length, 3);
-    t.equal(mews[1].entry, mewContents+"2");
-    t.equal(mews[2].entry, mewContents+"3");
+    t.equal(mews[1].entry, mewContents + "2");
+    t.equal(mews[2].entry, mewContents + "3");
 
-});
+  });
