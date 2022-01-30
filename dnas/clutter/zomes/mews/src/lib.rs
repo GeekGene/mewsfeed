@@ -104,7 +104,6 @@ pub struct FeedOptions {
 pub struct FeedMew {
     pub mew: FullMew,
     pub header: Header,
-    pub id: HeaderHashB64,
 }
 
 #[hdk_extern]
