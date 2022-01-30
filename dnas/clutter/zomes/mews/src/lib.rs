@@ -6,8 +6,32 @@ pub struct Mew(String);
 
 entry_defs![
     PathEntry::entry_def(),
-    Mew::entry_def()
+    MewContent::entry_def(),
+    FullMew::entry_def()
 ];
+
+
+#[derive(Debug, Serialize, Deserialize, SerializedBytes)]
+#[serde(rename_all = "camelCase")]
+enum MewType {
+    Original(MewContent),
+    // Reply(HeaderHash,MewContent),
+    // ReMew(HeaderHash,Option<MewContent>),
+    // MewMew(HeaderHash,MewContent), // QuoteTweet
+}
+
+#[hdk_entry(id = "mew_content")]
+struct MewContent {
+    mew: String, // "Visit this web site ^link by @user about #hashtag to earn $cashtag! Also read this humm earth post ^link (as an HRL link)" 
+//   mew_links: Vec<LinkTypes>, // [^links in the mewstring in sequence]
+//    mew_images: Vec<EntryHash>, //Vec of image links hashes to retrieve
+}
+#[hdk_entry(id = "full_mew")]
+pub struct FullMew {
+  mew_type: MewType,
+  mew: Option<MewContent>,
+}
+
 const MEWS_PATH_SEGMENT: &str = "mews";
 const FOLLOWERS_PATH_SEGMENT: &str = "followers";
 const FOLLOWING_PATH_SEGMENT: &str = "following";
@@ -31,24 +55,32 @@ fn get_mews_base(agent: AgentPubKeyB64, base_type: &str, ensure: bool) -> Extern
 
 #[hdk_extern]
 // TODO: we want a parsing function here to identify user references, tag references, etc to build posts, links, etc
-pub fn create_mew(mew: Mew) -> ExternResult<HeaderHashB64> {
-    let header_hash = create_entry(&mew)?;
-    let hash = hash_entry(&mew)?;
+pub fn create_mew(mew: String) -> ExternResult<HeaderHashB64> {
+    let content = MewContent{mew};
+    let _header_hash = create_entry(&content)?;
+
+    let full = FullMew{
+        mew_type: MewType::Original(content),
+        mew: None
+    };
+    let full_header_hash = create_entry(&full)?;
+    let hash = hash_entry(&full)?;
+
 
     let base = get_my_mews_base(MEWS_PATH_SEGMENT, true)?;
 
     // TODO: maybe return the link_hh later if we need to delete
-    let _link_hh = create_link(base, hash, LinkTag::new("mew"))?;
-    Ok(header_hash.into())
+    let _link_hh = create_link(base, hash, ())?;
+    Ok(full_header_hash.into())
 }
 
 // TODO: open question: do we want to allow edits, "deletes"?
 
 #[hdk_extern]
-pub fn get_mew(header_hash: HeaderHashB64) -> ExternResult<Mew> {
+pub fn get_mew(header_hash: HeaderHashB64) -> ExternResult<FullMew> {
     let element = get(HeaderHash::from(header_hash), GetOptions::default())?.ok_or(WasmError::Guest(String::from("Mew not found")))?;
 
-    let mew: Mew = element.entry().to_app_option()?.ok_or(WasmError::Guest(String::from("Malformed mew")))?;
+    let mew: FullMew = element.entry().to_app_option()?.ok_or(WasmError::Guest(String::from("Malformed mew")))?;
 
     Ok(mew)
 }
@@ -62,7 +94,7 @@ pub struct FeedOptions {
 #[derive(Debug, Serialize, Deserialize, SerializedBytes)]
 #[serde(rename_all = "camelCase")]
 pub struct FeedMew {
-    pub entry: Mew,
+    pub mew: FullMew,
     pub header: Header,
 }
 
@@ -76,12 +108,11 @@ pub fn mews_by(agent: AgentPubKeyB64) -> ExternResult<Vec<FeedMew>> {
         .collect();
 
     let mew_elements = HDK.with(|hdk| hdk.borrow().get(get_input))?;
-
     let feed: Vec<FeedMew> = mew_elements
         .into_iter()
         .filter_map(|me| me)
         .filter_map(|element| match element.entry().to_app_option() {
-            Ok(Some(g)) => Some(FeedMew{entry: g, header: element.header().clone()}),
+            Ok(Some(g)) => Some(FeedMew{mew: g, header: element.header().clone()}),
             _ => None,
         })
         .collect();

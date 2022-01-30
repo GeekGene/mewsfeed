@@ -37,14 +37,14 @@ export default (orchestrator: Orchestrator<any>) =>
 
     // Bob gets the created mew
     const mew = await bob.call("mews", "get_mew", mewHash);
-    t.equal(mew, mewContents);
+    t.deepEqual(mew, { mew_type: { original: { mew: 'My Mew' } }, mew: null });
 
     let alicePubKey = serializeHash(alice.cellId[1])
     let bobPubKey = serializeHash(bob.cellId[1])
     let carolPubKey = serializeHash(carol.cellId[1])
 
     let mews = await bob.call("mews", "mews_by", alicePubKey)
-    t.equal(mews[0].entry, mewContents);
+    t.equal(mews[0].mew.mew_type.original.mew, mewContents);
 
     mews = await bob.call("mews", "mews_by", bobPubKey)
     t.equal(mews.length, 0);
@@ -88,7 +88,7 @@ export default (orchestrator: Orchestrator<any>) =>
 
     // after following alice bob should get alice's mews in his feed
     mews = await bob.call("mews", "mews_feed", { option: "" })
-    t.equal(mews[0].entry, mewContents);
+    t.equal(mews[0].mew.mew_type.original.mew, mewContents);
 
     // carol and alice post, bob follows carol
     // Carol creates a post
@@ -114,7 +114,7 @@ export default (orchestrator: Orchestrator<any>) =>
     // tests that mews from different followers get sorted into the correct order
     mews = await bob.call("mews", "mews_feed", { option: "" })
     t.equal(mews.length, 3);
-    t.equal(mews[1].entry, mewContents + "2");
-    t.equal(mews[2].entry, mewContents + "3");
+    t.equal(mews[1].mew.mew_type.original.mew, mewContents + "2");
+    t.equal(mews[2].mew.mew_type.original.mew, mewContents + "3");
 
   });

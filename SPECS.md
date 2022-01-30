@@ -101,15 +101,15 @@ enum MewType {
   MewMew(HeaderHash,MewContent), // QuoteTweet
 }
 
-struct FullMew {}
+struct FullMew {
   mew_type: MewType,
   mew: Option<MewContent>,
 }
 
 struct MewContent {
   mew: String, // "Visit this web site ^link by @user about #hashtag to earn $cashtag! Also read this humm earth post ^link (as an HRL link)" 
-  mew_links: Vec[LinkTypes], // [^links in the mewstring in sequence]
-  mew_images: Vec[EntryHash], //Vec of image links hashes to retrieve
+  mew_links: Vec<LinkTypes>, // [^links in the mewstring in sequence]
+  mew_images: Vec<EntryHash>, //Vec of image links hashes to retrieve
 }
 enum LinkTypes {
   URL,
