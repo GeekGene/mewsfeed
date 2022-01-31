@@ -7,7 +7,12 @@ import "@holochain-open-dev/context/context-provider";
 
 import { createApp } from "vue";
 import { Notify, Quasar } from "quasar";
-import { connectAppWebSocket, APP_WEB_SOCKET, clutterCell } from "./services/clutter-dna";
+import {
+  connectAppWebSocket,
+  APP_WEB_SOCKET,
+  clutterCell,
+  installed_app_id,
+} from "./services/clutter-dna";
 import { HolochainClient } from "@holochain-open-dev/cell-client";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { PROFILE_STORE } from "./services/profile-store";
@@ -16,11 +21,16 @@ import router from "./router";
 import "quasar/src/css/index.sass";
 import "@quasar/extras/material-icons/material-icons.css";
 
-connectAppWebSocket().then((appWebsocket) => {
+connectAppWebSocket().then(async (appWebsocket) => {
   const app = createApp(App);
   app.provide(APP_WEB_SOCKET, appWebsocket);
 
-  const cellClient = new HolochainClient(appWebsocket, clutterCell);
+  const client = await HolochainClient.connect(
+    appWebsocket.client.socket.url,
+    installed_app_id
+  );
+  const cellClient = client.forCell(clutterCell);
+
   const store = new ProfilesStore(cellClient, {
     avatarMode: "avatar",
     additionalFields: ["Bio", "Location"],
