@@ -85,6 +85,14 @@ export const mewsBy = async (agent: AgentPubKeyB64) : Promise<Array<FeedMew>> =>
   });
 };
 
+export const follow = async (agent: AgentPubKeyB64) : Promise<Array<AgentPubKeyB64>> => {
+  return callZome({
+    zome_name: "mews",
+    fn_name: "follow",
+    payload: agent,
+  });
+};
+
 export const followers = async (agent: AgentPubKeyB64) : Promise<Array<AgentPubKeyB64>> => {
   return callZome({
     zome_name: "mews",
