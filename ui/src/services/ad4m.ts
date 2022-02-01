@@ -1,9 +1,10 @@
-import { Ad4mClient, Literal, Perspective, PerspectiveProxy } from '@perspect3vism/ad4m'
+import { Ad4mClient, Agent, Link, Literal, Perspective, PerspectiveProxy } from '@perspect3vism/ad4m'
 import { ApolloClient, ApolloLink, InMemoryCache } from "@apollo/client";
 import { WebSocketLink } from '@apollo/client/link/ws';
 import { Profile } from '../types/types'
 
 const AGENT_PERSPECTIVE_NAME = '__agent_public_perspective'
+const CLUTTER_LANGUAGE = "QmdTZKNaNgMakbWR2qciPXFggMe1K2bd2CZ1TN9GQXkYuz"
 
 //--------------------------------------------
 // Create AD4M client
@@ -28,7 +29,7 @@ const ad4m = new Ad4mClient(apolloClient)
 
 
 let agentPerspective: PerspectiveProxy|undefined
-let me
+let me: Agent
 
 
 //------------------------------------------------
@@ -97,3 +98,26 @@ export async function createProfile(profile: Profile) {
         await agentPerspective!.setSingleTarget({source: 'self', predicate: 'clutter://profile.location', target: Literal.from(profile.location).toUrl()})
     await ad4m.agent.updatePublicPerspective(await agentPerspective!.snapshot())
 }
+
+
+export const createMew = async (mew: Mew) => {
+    const mewUrl = await ad4m.expression.create({ mew }, CLUTTER_LANGUAGE)
+
+    await agentPerspective!.add(new Link({
+        source: me.did,
+        prediacte: `clutter://haz_mew`,
+        target: mewUrl
+    }))
+
+    await ad4m.agent.updatePublicPerspective(await agentPerspective!.snapshot()))
+};
+  
+export const getMew = async (mew: EntryHashB64) : Promise<FullMew> => {
+    const mewExpression = await ad4m.expression.get(`${CLUTTER_LANGUAGE}://${mew}`)
+    //TODO update Language to include FullMew
+    return { mew_type: { original: { mew: mewExpression.data }}}
+};
+  
+export const mewsFeed = async (options: FeedOptions) : Promise<Array<FeedMew>> => {
+    agentPerspective?.get(new LinkQuery({}))
+};
