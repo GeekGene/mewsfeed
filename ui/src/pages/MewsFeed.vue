@@ -35,22 +35,20 @@
 
 <script setup lang="ts">
 import { serializeHash } from '@holochain-open-dev/core-types';
-import { mewsBy, createMew } from '../services/clutter-dna';
-import { useProfileStore } from "../services/profile-store";
+import { createMew, mewsFeed as getMewsFeed } from '../services/clutter-dna';
 import { onMounted, ref } from 'vue';
 import { FeedMew, Mew } from '../types/types';
 import { showError } from '../utils/notification';
 import MewComponent from '../components/Mew.vue';
 import MewConstructor from '../components/MewConstructor.vue';
 
-const { myAgentPubKey } = useProfileStore();
 const loading = ref(false);
 const mewsFeed = ref<FeedMew[]>([]);
 
 const loadMewsFeed = async () => {
   try {
     loading.value = true;
-    mewsFeed.value = await mewsBy(myAgentPubKey);
+    mewsFeed.value = await getMewsFeed({ option: '' });
   } catch (error) {
     showError(error);
   } finally {
