@@ -1,6 +1,6 @@
 <template>
   <div
-    class="q-mx-auto"
+    class="q-mx-auto q-pb-xl"
     style="width: 50%;"
   >
     <MewConstructor @publish-mew="publishMew" />
