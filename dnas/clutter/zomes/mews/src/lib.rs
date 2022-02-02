@@ -137,7 +137,8 @@ pub fn mews_feed(_options: FeedOptions) -> ExternResult<Vec<FeedMew>> {
         feed.append(&mut mews_by(agent)?);
     }
     // TODO don't really need to sort, could merge for efficiency
-    feed.sort_by(|a, b| a.header.timestamp().cmp(&b.header.timestamp()));
+    // sort by timestamp in descending order
+    feed.sort_by(|a, b| b.header.timestamp().cmp(&a.header.timestamp()));
 
     Ok(feed)
 }
