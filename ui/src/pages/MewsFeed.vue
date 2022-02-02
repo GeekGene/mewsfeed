@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="q-mx-auto q-pb-xl"
-    style="width: 50%;"
-  >
+  <div class="q-pb-xl">
     <MewConstructor @publish-mew="publishMew" />
     <h4>Your Mews Feed:</h4>
     <q-spinner-pie

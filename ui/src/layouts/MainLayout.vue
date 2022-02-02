@@ -2,21 +2,20 @@
   <q-layout view="hHh lpR lFf">
     <q-header
       elevated
-      class="row bg-primary text-white"
+      class="row justify-center bg-primary text-white"
     >
-      <q-toolbar class="col-2 text-left">
-        <q-toolbar-title class="q-py-sm">
-          <q-btn
-            to="/"
-            flat
-          >
-            <q-avatar class="q-mr-md">
-              <img src="src/assets/img/cat-eating-bird-circle.png">
-            </q-avatar>Clutter
-          </q-btn>
-        </q-toolbar-title>
-      </q-toolbar>
-      <q-toolbar class="col-10">
+      <q-toolbar style="width: 50%;">
+        <q-btn
+          to="/"
+          flat
+        >
+          <q-avatar class="q-mr-md">
+            <img src="src/assets/img/cat-eating-bird-circle.png">
+          </q-avatar>Clutter
+        </q-btn>
+
+        <q-space />
+
         <q-btn
           to="/feed"
           icon="feed"
@@ -34,7 +33,10 @@
       </q-toolbar>
     </q-header>
 
-    <q-page-container>
+    <q-page-container
+      class="q-mx-auto"
+      style="width: 50%;"
+    >
       <router-view />
     </q-page-container>
   </q-layout>
