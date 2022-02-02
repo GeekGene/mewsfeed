@@ -50,5 +50,5 @@ export interface NotificationOptions {
 }
 
 export interface FeedOptions {
-    options: string
+    option: string
 }
