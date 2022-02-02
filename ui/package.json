@@ -4,8 +4,7 @@
   "author": "Jost Schulte",
   "version": "0.0.1",
   "scripts": {
-    "prepare-env": "echo 'VITE_HC_PORT='$HC_PORT > .env.local",
-    "start": "npm run prepare-env && vite",
+    "start": "VITE_HC_PORT=$HC_PORT vite",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
     "lint": "eslint src/ --fix --ext .js,.ts,.vue"
