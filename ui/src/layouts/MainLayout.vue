@@ -4,12 +4,13 @@
       elevated
       class="row justify-center bg-primary text-white"
     >
-      <q-toolbar style="width: 50%;">
+      <q-space />
+      <q-toolbar class="col col-sm-6 col-lg-5 q-px-none">
         <q-btn
           to="/"
           flat
         >
-          <q-avatar class="q-mr-md">
+          <q-avatar class="q-mr-xs">
             <img src="src/assets/img/cat-eating-bird-circle.png">
           </q-avatar>Clutter
         </q-btn>
@@ -31,13 +32,13 @@
           Profile
         </q-btn>
       </q-toolbar>
+      <q-space />
     </q-header>
 
-    <q-page-container
-      class="q-mx-auto"
-      style="width: 50%;"
-    >
-      <router-view />
+    <q-page-container class="row">
+      <q-space />
+      <router-view class="col col-sm-6 col-lg-5" />
+      <q-space />
     </q-page-container>
   </q-layout>
 </template>
