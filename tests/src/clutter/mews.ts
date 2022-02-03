@@ -4,7 +4,7 @@ import { config, installation, sleep } from '../utils';
 import { serializeHash } from '@holochain-open-dev/core-types';
 
 
-function getMewContents(fullMew: any) : string {
+function getMewContents(fullMew: any): string {
   return fullMew.mew.mewType.original.mew
 }
 
@@ -150,15 +150,15 @@ export default (orchestrator: Orchestrator<any>) =>
       "create_mew",
       mewContents + "3"
     );
-    t.ok(mewHash2);
+    t.ok(mewHash3);
 
     await bob.call("mews", "follow", carolPubKey)
-    t.ok
     await sleep(500);
 
-    // tests that mews from different followers get sorted into the correct order
+    // tests that mews from different followers get sorted into descending order
     mews = await bob.call("mews", "mews_feed", { option: "" })
     t.equal(mews.length, 3);
+    t.equal(getMewContents(mews[0]), mewContents + "3");
     t.equal(getMewContents(mews[1]), mewContents + "2");
-    t.equal(getMewContents(mews[2]), mewContents + "3");
+    t.equal(getMewContents(mews[2]), mewContents);
   });
