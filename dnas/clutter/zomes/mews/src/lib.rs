@@ -133,6 +133,8 @@ pub fn mews_by(agent: AgentPubKeyB64) -> ExternResult<Vec<FeedMew>> {
 #[hdk_extern]
 pub fn mews_feed(_options: FeedOptions) -> ExternResult<Vec<FeedMew>> {
     let mut feed = Vec::new();
+    let me = agent_info()?.agent_latest_pubkey;
+    feed.append(&mut mews_by(AgentPubKeyB64::from(me))?);
     for agent in my_following(())?.into_iter() {
         feed.append(&mut mews_by(agent)?);
     }
