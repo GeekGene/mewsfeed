@@ -56,11 +56,11 @@
 </template>
 
 <script setup lang="ts">
-import { serializeHash } from '@holochain-open-dev/core-types';
 import { createMew, mewsFeed as getMewsFeed } from '../services/clutter-dna';
 import { onMounted, ref } from 'vue';
 import { FeedMew, Mew } from '../types/types';
 import { showError } from '../utils/notification';
+import { authorPubKey } from "../utils/hash";
 import MewComponent from '../components/Mew.vue';
 import MewConstructor from '../components/MewConstructor.vue';
 
@@ -111,11 +111,5 @@ const hideProfile = (index: number) => {
 
 const keepShowingProfile = (index: number) => {
   window.clearTimeout(profileHideTimeouts.value[index]);
-};
-
-const authorPubKey = (author: unknown) => {
-  if (author instanceof Uint8Array) {
-    return serializeHash(author);
-  }
 };
 </script>
