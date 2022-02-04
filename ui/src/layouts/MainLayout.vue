@@ -8,11 +8,10 @@
       <q-toolbar class="col col-sm-6 col-lg-5 q-px-none">
         <q-btn
           to="/"
+          icon="img:/src/assets/img/cat.png"
           flat
         >
-          <q-avatar class="q-mr-xs">
-            <img src="src/assets/img/cat-eating-bird-circle.png">
-          </q-avatar>Clutter
+          Clutter
         </q-btn>
 
         <q-space />
@@ -26,10 +25,12 @@
         </q-btn>
         <q-btn
           to="/profile"
-          icon="person"
           flat
         >
-          Profile
+          <agent-avatar
+            :agent-pub-key="authorPubKey(mew.header.author)"
+            size="50"
+          />
         </q-btn>
       </q-toolbar>
       <q-space />
