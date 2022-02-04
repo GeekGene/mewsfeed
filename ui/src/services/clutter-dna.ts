@@ -18,6 +18,7 @@ export let clutterCell: InstalledCell;
 export const APP_WEB_SOCKET: InjectionKey<AppWebsocket> = Symbol();
 export const connectAppWebSocket = async () => {
   if (!appWebSocket) {
+    console.log('import.meta.env.VITE_HC_PORT: ', import.meta.env.VITE_HC_PORT);
     appWebSocket = await AppWebsocket.connect(
       `ws://localhost:${import.meta.env.VITE_HC_PORT}`
     );
