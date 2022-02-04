@@ -9,27 +9,25 @@
         <q-btn
           to="/"
           icon="img:/src/assets/img/cat.png"
+          label="Clutter"
           flat
-        >
-          Clutter
-        </q-btn>
+        />
 
         <q-space />
 
         <q-btn
           to="/feed"
           icon="feed"
+          label="Mews"
           flat
-        >
-          Mews
-        </q-btn>
+        />
         <q-btn
           to="/profile"
           flat
         >
           <agent-avatar
-            :agent-pub-key="authorPubKey(mew.header.author)"
-            size="50"
+            :agent-pub-key="store.myAgentPubKey"
+            size="40"
           />
         </q-btn>
       </q-toolbar>
@@ -45,4 +43,6 @@
 </template>
 
 <script setup lang="ts">
+import { useProfileStore } from "../services/profile-store";
+const store = useProfileStore();
 </script>
