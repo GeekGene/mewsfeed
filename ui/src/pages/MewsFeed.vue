@@ -30,21 +30,20 @@
             size="50"
             class="cursor-pointer"
             @mouseenter="showProfile(index)"
+            @mouseleave="hideProfile(index)"
           >
             <q-menu
               v-model="profileVisible[index]"
-              anchor="bottom left"
-              :offset="[40, 20]"
+              self="top middle"
+              :offset="[0, 5]"
+              no-focus
             >
-              <q-banner>
-                <template #avatar>
-                  <q-icon
-                    name="signal_wifi_off"
-                    color="primary"
-                  />
-                </template>
-                You have lost connection to the internet. This app is offline.
-              </q-banner>
+              <q-card
+                @mouseenter="keepShowingProfile(index)"
+                @mouseleave="hideProfile(index)"
+              >
+                <q-card-section>{{ mew.header.author }}</q-card-section>
+              </q-card>
             </q-menu>
           </agent-avatar>
         </q-item-section>
@@ -65,15 +64,21 @@ import { showError } from '../utils/notification';
 import MewComponent from '../components/Mew.vue';
 import MewConstructor from '../components/MewConstructor.vue';
 
+const PROFILE_SHOW_HIDE_DELAY = 400; // in ms
+
 const loading = ref(false);
 const mewsFeed = ref<FeedMew[]>([]);
 const profileVisible = ref<boolean[]>([]);
+const profileHideTimeouts = ref<number[]>([]);
+const profileShowTimeouts = ref<number[]>([]);
 
 const loadMewsFeed = async () => {
   try {
     loading.value = true;
     mewsFeed.value = await getMewsFeed({ option: '' });
     profileVisible.value = new Array(mewsFeed.value.length).fill(false);
+    profileShowTimeouts.value = new Array(mewsFeed.value.length).fill(0);
+    profileHideTimeouts.value = new Array(mewsFeed.value.length).fill(0);
   } catch (error) {
     showError(error);
   } finally {
@@ -90,7 +95,22 @@ const publishMew = async (newMew: Mew) => {
 
 const showProfile = (index: number) => {
   profileVisible.value = new Array(mewsFeed.value.length).fill(false);
-  profileVisible.value[index] = true;
+  profileShowTimeouts.value[index] = window.setTimeout(
+    () => profileVisible.value[index] = true,
+    PROFILE_SHOW_HIDE_DELAY
+  );
+};
+
+const hideProfile = (index: number) => {
+  window.clearTimeout(profileShowTimeouts.value[index]);
+  profileHideTimeouts.value[index] = window.setTimeout(
+    () => profileVisible.value[index] = false,
+    PROFILE_SHOW_HIDE_DELAY
+  );
+};
+
+const keepShowingProfile = (index: number) => {
+  window.clearTimeout(profileHideTimeouts.value[index]);
 };
 
 const authorPubKey = (author: unknown) => {

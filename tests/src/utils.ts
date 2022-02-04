@@ -14,8 +14,7 @@ export const installation: InstallAgentsHapps = [
   // one agent
   [
     [
-      clutterDna, // contains this dna
-      clutterIndexDna, // contains this dna
+      clutterDna
     ]
   ]
 ];
