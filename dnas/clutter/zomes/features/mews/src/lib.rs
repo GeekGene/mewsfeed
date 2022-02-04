@@ -36,16 +36,10 @@ pub struct FullMew {
 }
 
 const MEWS_PATH_SEGMENT: &str = "mews";
-const FOLLOWERS_PATH_SEGMENT: &str = "followers";
-const FOLLOWING_PATH_SEGMENT: &str = "following";
 // const LICKS_PATH_SEGMENT: &str = "licks";
 // const MENTIONS_PATH_SEGMENT: &str = "mentions";
 // const IMAGES_PATH_SEGMENT: &str = "images";
 
-fn get_my_mews_base(base_type: &str, ensure: bool) -> ExternResult<EntryHash> {
-    let me: AgentPubKey = agent_info()?.agent_latest_pubkey;
-    get_mews_base(me.into(), base_type, ensure)
-}
 
 fn get_mews_base(agent: AgentPubKeyB64, base_type: &str, ensure: bool) -> ExternResult<EntryHash> {
     let path = Path::from(format!("agent.{}.{}", agent, base_type));
@@ -54,6 +48,11 @@ fn get_mews_base(agent: AgentPubKeyB64, base_type: &str, ensure: bool) -> Extern
     }
     let anchor_hash = path.path_entry_hash()?;
     Ok(anchor_hash)
+}
+
+fn get_my_mews_base(base_type: &str, ensure: bool) -> ExternResult<EntryHash> {
+    let me: AgentPubKey = agent_info()?.agent_latest_pubkey;
+    get_mews_base(me.into(), base_type, ensure)
 }
 
 #[hdk_extern]
@@ -140,51 +139,6 @@ pub fn mews_feed(_options: FeedOptions) -> ExternResult<Vec<FeedMew>> {
     feed.sort_by(|a, b| a.header.timestamp().cmp(&b.header.timestamp()));
 
     Ok(feed)
-}
-
-#[hdk_extern]
-pub fn follow(agent: AgentPubKeyB64) -> ExternResult<()> {
-    let me_target: EntryHash = agent_info()?.agent_latest_pubkey.into();
-    let them_target: EntryHash = AgentPubKey::from(agent.clone()).into();
-
-    let me = get_my_mews_base(FOLLOWING_PATH_SEGMENT, true)?;
-    let _link_hh = create_link(me, them_target, ())?;
-
-    let them = get_mews_base(agent, FOLLOWERS_PATH_SEGMENT, true)?;
-    let _link_hh = create_link(them, me_target, ())?;
-    Ok(())
-}
-
-#[hdk_extern]
-pub fn my_following(_: ()) -> ExternResult<Vec<AgentPubKeyB64>> {
-    let me: AgentPubKeyB64 = agent_info()?.agent_latest_pubkey.into();
-    follow_inner(me, FOLLOWING_PATH_SEGMENT)
-}
-#[hdk_extern]
-pub fn my_followers(_: ()) -> ExternResult<Vec<AgentPubKeyB64>> {
-    let me: AgentPubKeyB64 = agent_info()?.agent_latest_pubkey.into();
-    follow_inner(me, FOLLOWERS_PATH_SEGMENT)
-}
-
-fn follow_inner(agent: AgentPubKeyB64, base_type: &str) -> ExternResult<Vec<AgentPubKeyB64>> {
-    let base = get_mews_base(agent, base_type, false)?;
-    let links = get_links(base, None)?;
-    Ok(links
-        .into_iter()
-        .map(|link| AgentPubKey::from(link.target).into())
-        .collect())
-}
-
-// get who's following an agent
-#[hdk_extern]
-pub fn following(agent: AgentPubKeyB64) -> ExternResult<Vec<AgentPubKeyB64>> {
-    follow_inner(agent, FOLLOWING_PATH_SEGMENT)
-}
-
-/// get whos followers are of an agent
-#[hdk_extern]
-pub fn followers(agent: AgentPubKeyB64) -> ExternResult<Vec<AgentPubKeyB64>> {
-    follow_inner(agent, FOLLOWERS_PATH_SEGMENT)
 }
 
 pub fn get_mews_from_path(path: Path) -> ExternResult<Vec<FeedMew>> {

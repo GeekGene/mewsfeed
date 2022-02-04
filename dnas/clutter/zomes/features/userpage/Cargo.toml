@@ -1,0 +1,15 @@
+[package]
+edition = "2018"
+name = "userpage"
+version = "0.0.1"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+name = "userpage"
+
+[dependencies]
+serde = "1"
+derive_more = "0"
+profile = { path = "../../profiles" }
+
+hdk = {version = "0.0.120", features = ["encoding"]}
