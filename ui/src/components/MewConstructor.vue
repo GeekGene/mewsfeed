@@ -2,13 +2,16 @@
   <div>
     <q-input
       v-model="newMew"
-      type="text"
+      type="textarea"
       class="q-mb-sm"
       dense
       outlined
       @keyup.enter="publishMew"
     />
-    <q-btn @click="publishMew">
+    <q-btn
+      color="secondary"
+      @click="publishMew"
+    >
       Publish Mew
     </q-btn>
   </div>
