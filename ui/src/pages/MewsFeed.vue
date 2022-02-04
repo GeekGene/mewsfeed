@@ -1,5 +1,8 @@
 <template>
-  <q-page padding>
+  <q-page
+    class="text-center"
+    padding
+  >
     <MewConstructor @publish-mew="publishMew" />
     <h4>Your Mews Feed</h4>
     <q-spinner-pie
