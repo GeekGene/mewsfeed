@@ -56,10 +56,12 @@ export enum MewsFn {
   GetMew = "get_mew",
   MewsFeed = "mews_feed",
   MewsBy = "mews_by",
+  Follow = "follow",
   Followers = "followers",
   Following = "following",
   MyFollowers = "my_followers",
-  MyFollowing = "my_following"
+  MyFollowing = "my_following",
+  Unfollow = "unfollow"
 }
 
 export const createMew = async (mew: Mew) => {
@@ -90,6 +92,22 @@ export const mewsBy = async (agent: AgentPubKeyB64) : Promise<Array<FeedMew>> =>
   return callZome({
     zome_name: "mews",
     fn_name: MewsFn.MewsBy,
+    payload: agent,
+  });
+};
+
+export const follow = async (agent: AgentPubKeyB64) : Promise<null> => {
+  return callZome({
+    zome_name: "mews",
+    fn_name: MewsFn.Follow,
+    payload: agent,
+  });
+};
+
+export const unfollow = async (agent: AgentPubKeyB64) : Promise<null> => {
+  return callZome({
+    zome_name: "mews",
+    fn_name: MewsFn.Unfollow,
     payload: agent,
   });
 };
