@@ -8,6 +8,6 @@ export const showMessage = (options: NotificationOptions) => {
 };
 
 export const showError = (error: unknown) => {
-    const message = error instanceof Error ? error.message : String(error);
+    const message = error instanceof Error ? error.message : JSON.stringify(error, null, 4);
     Notify.create({ message, color: "red", position: "bottom-right" });
 };
