@@ -98,8 +98,6 @@ export default (orchestrator: Orchestrator<any>) =>
     t.equal(mews.length, 0);
 
     await bob.call("mews", "follow", alicePubKey)
-    t.ok
-    t.ok
     await sleep(777);
 
     console.log("Bob", bobPubKey)
@@ -153,12 +151,17 @@ export default (orchestrator: Orchestrator<any>) =>
     t.ok(mewHash3);
 
     await bob.call("mews", "follow", carolPubKey)
-    await sleep(500);
+    await sleep(777);
 
     // tests that mews from different followers get sorted into descending order
     mews = await bob.call("mews", "mews_feed", { option: "" })
-    t.equal(mews.length, 3);
     t.equal(getMewContents(mews[0]), mewContents + "3");
     t.equal(getMewContents(mews[1]), mewContents + "2");
     t.equal(getMewContents(mews[2]), mewContents);
+
+    await bob.call("mews", "unfollow", alicePubKey);
+    await bob.call("mews", "unfollow", carolPubKey);
+    // Bob unfollows all his followees
+    mews = await bob.call("mews", "mews_feed", { option: "" })
+    t.equal(mews.length, 0);
   });
