@@ -4,4 +4,5 @@ export const authorPubKey = (author: unknown) => {
     if (author instanceof Uint8Array) {
         return serializeHash(author);
     }
+    throw new Error("AgentPubKey is not Uint8Array");
 };
