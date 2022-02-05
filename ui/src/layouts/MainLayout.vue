@@ -2,7 +2,7 @@
   <q-layout view="hHh lpR fFf">
     <q-header
       elevated
-      class="row justify-center bg-primary text-white"
+      class="row justify-center text-black"
     >
       <q-space />
       <q-toolbar class="col col-sm-6 col-lg-5 q-px-none">
@@ -14,6 +14,13 @@
         />
 
         <q-space />
+        <search-agent
+          field-label="Scent fellow"
+          include-myself
+          clear-on-select
+          @agent-selected="onAgentSelect"
+        />
+        <q-space />
 
         <q-btn
           to="/feed"
@@ -22,7 +29,7 @@
           flat
         />
         <q-btn
-          to="/profile"
+          to="/my-profile"
           flat
         >
           <agent-avatar
@@ -43,6 +50,19 @@
 </template>
 
 <script setup lang="ts">
+import "@holochain-open-dev/profiles/search-agent";
+import { HoloHashB64 } from "@holochain-open-dev/core-types";
 import { useProfileStore } from "../services/profile-store";
+import router from "../router";
+
 const store = useProfileStore();
+const onAgentSelect = (payload: { detail: { agentPubKey: HoloHashB64 } }) => {
+  router.push(`/profiles/${payload.detail.agentPubKey}`);
+};
 </script>
+
+<style scoped lang="sass">
+search-agent input
+  // color: white !important
+  background-color: white !important
+</style>
