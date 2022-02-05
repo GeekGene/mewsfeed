@@ -53,13 +53,15 @@
 import "@holochain-open-dev/profiles/search-agent";
 import { HoloHashB64 } from "@holochain-open-dev/core-types";
 import { useProfileStore } from "../services/profile-store";
-import router from "../router";
+import { useRouter } from "vue-router";
 
 const store = useProfileStore();
+const router = useRouter();
 const onAgentSelect = (payload: { detail: { agentPubKey: HoloHashB64 } }) => {
   router.push(`/profiles/${payload.detail.agentPubKey}`);
 };
 </script>
+
 
 <style scoped lang="sass">
 search-agent input
