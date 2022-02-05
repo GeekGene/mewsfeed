@@ -63,12 +63,11 @@
               :offset="[0, 5]"
               no-focus
             >
-              <q-card
+              <ProfilePopup
+                :author="mew.header.author"
                 @mouseenter="keepShowingProfile(index)"
                 @mouseleave="hideProfile(index)"
-              >
-                <q-card-section>{{ mew.header.author }}</q-card-section>
-              </q-card>
+              />
             </q-menu>
           </agent-avatar>
         </q-item-section>
@@ -88,6 +87,7 @@ import { showError } from '../utils/notification';
 import { authorPubKey } from "../utils/hash";
 import MewComponent from '../components/Mew.vue';
 import MewConstructor from '../components/MewConstructor.vue';
+import ProfilePopup from "../components/ProfilePopup.vue";
 
 const PROFILE_SHOW_HIDE_DELAY = 400; // in ms
 
