@@ -11,12 +11,22 @@
       color="primary"
     />
 
-    <div
+    <q-banner
       v-else-if="mewsFeed.length === 0"
-      class="text-subtitle1"
+      class="bg-grey-3"
+      dense
+      rounded
     >
-      Meeoow, nothing here yet!
-    </div>
+      <template #avatar>
+        <q-icon
+          name="pets"
+          color="accent"
+        />
+      </template>
+      <div class="text-subtitle1">
+        Meeoow, nothing here yet!
+      </div>
+    </q-banner>
 
     <q-list
       v-else
