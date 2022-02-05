@@ -5,11 +5,23 @@
   >
     <MewConstructor @publish-mew="publishMew" />
     <h4>Your Mews Feed</h4>
-    <q-spinner-pie
-      v-if="loading"
-      size="10%"
-      color="primary"
-    />
+    <q-list v-if="loading">
+      <q-item
+        v-for="i in [0, 1, 2]"
+        :key="i"
+      >
+        <q-item-section avatar>
+          <q-skeleton type="circle" />
+        </q-item-section>
+        <q-item-section>
+          <q-skeleton
+            type="text"
+            class="q-mb-xs"
+          />
+          <q-skeleton type="text" />
+        </q-item-section>
+      </q-item>
+    </q-list>
 
     <q-banner
       v-else-if="mewsFeed.length === 0"
