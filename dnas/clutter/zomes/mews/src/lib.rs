@@ -159,6 +159,31 @@ pub fn follow(agent: AgentPubKeyB64) -> ExternResult<()> {
 }
 
 #[hdk_extern]
+pub fn unfollow(agent: AgentPubKeyB64) -> ExternResult<()> {
+    let them_target: EntryHash = AgentPubKey::from(agent.clone()).into();
+    let me = get_my_mews_base(FOLLOWING_PATH_SEGMENT, true)?;
+    let links = get_links(me.clone(), None)?;
+    for l in links {
+        if l.target == them_target {
+            let _deleted_link_hh = delete_link(l.create_link_hash)?;
+            break;
+        }
+    }
+    
+    let me_target: EntryHash = agent_info()?.agent_latest_pubkey.into();
+    let them = get_mews_base(agent, FOLLOWERS_PATH_SEGMENT, true)?;
+    let links = get_links(them.clone(), None)?;
+    for l in links {
+        if l.target == me_target {
+            let _deleted_link_hh = delete_link(l.create_link_hash)?;
+            break;
+        }
+    }
+
+    Ok(())
+}
+
+#[hdk_extern]
 pub fn my_following(_: ()) -> ExternResult<Vec<AgentPubKeyB64>> {
     let me: AgentPubKeyB64 = agent_info()?.agent_latest_pubkey.into();
     follow_inner(me, FOLLOWING_PATH_SEGMENT)
