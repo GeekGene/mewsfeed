@@ -32,7 +32,7 @@ fn get_follows_base(agent: AgentPubKeyB64, base_type: &str, ensure: bool) -> Ext
 }
 
 #[hdk_extern]
-pub fn follow(me: Follows, agent: AgentPubKeyB64) -> ExternResult<EntryHashB64> {
+pub fn follow(agent: AgentPubKeyB64) -> ExternResult<EntryHashB64> {
     let base = get_my_follows_base(FOLLOWING_PATH_SEGMENT, true)?; 
     let target = get_follows_base(agent, FOLLOWING_PATH_SEGMENT, false)?;
     let follow = Path::from(format!("follows.{}.{}", base, target));
@@ -46,14 +46,26 @@ pub fn follow(me: Follows, agent: AgentPubKeyB64) -> ExternResult<EntryHashB64> 
 /*
 #[hdk_extern]
 pub fn unfollow(agent: AgentPubKeyB64) -> {
-    
+    // TODO: remove link
 }
 */
 
-/*
 #[hdk_extern]
-pub fn get_follows(path: Path) -> ExternResult<Follows> {
-    path.ensure()?;
-    
-    
-*/
+pub fn my_following(_: ()) -> ExternResult<Vec<AgentPubKeyB64>> {
+    let me: AgentPubKeyB64 = agent_info()?.agent_latest_pubkey.into();
+    follow_inner(me, FOLLOWING_PATH_SEGMENT)
+}
+#[hdk_extern]
+pub fn my_followers(_: ()) -> ExternResult<Vec<AgentPubKeyB64>> {
+    let me: AgentPubKeyB64 = agent_info()?.agent_latest_pubkey.into();
+    follow_inner(me, FOLLOWERS_PATH_SEGMENT)
+}
+
+fn follow_inner(agent: AgentPubKeyB64, base_type: &str) -> ExternResult<Vec<AgentPubKeyB64>> {
+    let base = get_mews_base(agent, base_type, false)?;
+    let links = get_links(base, None)?;
+    Ok(links
+        .into_iter()
+        .map(|link| AgentPubKey::from(link.target).into())
+        .collect())
+}
