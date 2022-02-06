@@ -19,7 +19,7 @@ export type MewType =
 }
 
 export interface FullMew {
-    mew_type: MewType,
+    mewType: MewType,
     mew: MewContent | null
 }
 
