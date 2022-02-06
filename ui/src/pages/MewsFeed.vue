@@ -2,7 +2,7 @@
   <q-page
     padding
   >
-    <MewConstructor
+    <AddMew
       class="text-center"
       @publish-mew="publishMew"
     />
@@ -76,8 +76,8 @@
             </q-menu>
           </agent-avatar>
         </q-item-section>
-        <q-item-section class="text-body1 text-left">
-          <MewComponent :mew-content="mew" />
+        <q-item-section>
+          <MewsFeedContent :mew-content="mew" />
         </q-item-section>
       </q-item>
     </q-list>
@@ -90,8 +90,8 @@ import { onMounted, ref } from 'vue';
 import { FeedMew, Mew } from '../types/types';
 import { showError } from '../utils/notification';
 import { authorPubKey } from "../utils/hash";
-import MewComponent from '../components/Mew.vue';
-import MewConstructor from '../components/MewConstructor.vue';
+import AddMew from '../components/AddMew.vue';
+import MewsFeedContent from '../components/MewsFeedContent.vue';
 import ProfilePopup from "../components/ProfilePopup.vue";
 
 const PROFILE_SHOW_HIDE_DELAY = 400; // in ms
