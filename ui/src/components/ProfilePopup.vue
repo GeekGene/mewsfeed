@@ -9,7 +9,8 @@
       size="md"
       color="accent"
       class="cursor-pointer"
-    /> 
+      @click="toggleFollow"
+    />
   </q-card>
 </template>
 
@@ -17,9 +18,9 @@
 import { HoloHashB64 } from '@holochain-open-dev/core-types';
 import { useProfileStore } from '../services/profile-store';
 import { authorPubKey } from '../utils/hash';
-import { showError } from '../utils/notification';
+import { showError, showMessage } from '../utils/notification';
 import { onMounted, PropType, ref } from 'vue';
-import { myFollowing } from '../services/clutter-dna';
+import { follow, myFollowing, unfollow } from '../services/clutter-dna';
 
 const props = defineProps({
     author: {
@@ -43,7 +44,6 @@ onMounted(async () => {
             nickname.value = profile.nickname;
         }
         const currentMyFollowing = await myFollowing();
-        console.log('current', currentMyFollowing);
         following.value = currentMyFollowing.includes(agentPubKey);
     } catch (error) {
         showError(error);
@@ -51,4 +51,19 @@ onMounted(async () => {
         loading.value = false;
     }
 });
+
+const toggleFollow = async () => {
+    try {
+        if (following.value) {
+            await unfollow(agentPubKey);
+        } else {
+            await follow(agentPubKey);
+        }
+        following.value = !following.value;
+        const message = (following.value ? `You're following ` : 'You stopped following ') + nickname.value;
+        showMessage(message);
+    } catch (error) {
+        showError(error);
+    }
+};
 </script>
