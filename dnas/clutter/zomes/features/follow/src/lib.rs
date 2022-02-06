@@ -51,14 +51,12 @@ pub fn unfollow(agent: AgentPubKeyB64) -> {
 */
 
 #[hdk_extern]
-pub fn my_following(_: ()) -> ExternResult<Vec<AgentPubKeyB64>> {
-    let me: AgentPubKeyB64 = agent_info()?.agent_latest_pubkey.into();
-    follow_inner(me, FOLLOWING_PATH_SEGMENT)
+pub fn get_following(agent: AgentPubKeyB64) -> ExternResult<Vec<AgentPubKeyB64>> {
+    follow_inner(agent, FOLLOWING_PATH_SEGMENT)
 }
 #[hdk_extern]
-pub fn my_followers(_: ()) -> ExternResult<Vec<AgentPubKeyB64>> {
-    let me: AgentPubKeyB64 = agent_info()?.agent_latest_pubkey.into();
-    follow_inner(me, FOLLOWERS_PATH_SEGMENT)
+pub fn get_followers(agent: AgentPubKeyB64) -> ExternResult<Vec<AgentPubKeyB64>> {
+    follow_inner(agent, FOLLOWERS_PATH_SEGMENT)
 }
 
 fn follow_inner(agent: AgentPubKeyB64, base_type: &str) -> ExternResult<Vec<AgentPubKeyB64>> {
