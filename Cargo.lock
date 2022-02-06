@@ -140,10 +140,9 @@ dependencies = [
 name = "follow"
 version = "0.0.1"
 dependencies = [
- "chrono",
  "derive_more",
  "hdk",
- "regex",
+ "profiles",
  "serde",
 ]
 

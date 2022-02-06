@@ -11,5 +11,6 @@ name = "userpage"
 serde = "1"
 derive_more = "0"
 profile = { path = "../../profiles" }
+follow = { path = "../follow" }
 
 hdk = {version = "0.0.120", features = ["encoding"]}

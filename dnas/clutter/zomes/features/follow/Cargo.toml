@@ -10,6 +10,6 @@ name = "follow"
 [dependencies]
 serde = "1"
 derive_more = "0"
-profile = { path = "../../profiles" }
+profiles = { path = "../../profiles" }
 
 hdk = {version = "0.0.120", features = ["encoding"]}

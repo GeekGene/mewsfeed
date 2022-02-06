@@ -1,15 +1,15 @@
 use hdk::prelude::*;
 use hdk::prelude::holo_hash::*;
 
-entry_defs![Path::entry_def()];
+use::std::collections::BTreeMap;
 
-#[derive(Debug, Clone)]
-pub struct Follows { //lists associated Nickname with AgentPubKey
-    pub following: Vec<(AgentPubKeyB64, &str)>,
-    pub followers: Vec<(AgentPubKeyB64, &str)>,
-}
+use profiles::*;
 
-#[derive(Debug)]
+entry_defs![PathEntry::entry_def()];
+
+const FOLLOWERS_PATH_SEGMENT: &str = "followers";
+const FOLLOWING_PATH_SEGMENT: &str = "following";
+
 pub enum FollowFeatures {
     Follow,
     Unfollow,
@@ -17,30 +17,30 @@ pub enum FollowFeatures {
     //Unfollowed
 }
 
-pub fn update_follows(agent_follows: Follows, action: FollowFeatures, me: bool) -> Follows {
-    if me {
-    match action {
-        Follow => agent_follows.following.push,
-        Unfollow => agent_follows.following.pop[agent], // TODO: assign agent to location number or could use BTreeMap
-        }
-        }
-    else {
-    match action {
-        Follow => agent_follows.followers.push,
-        Unfollow => agent_follows.followers.pop[agent],
-        }
+fn get_my_follows_base(base_type: &str, ensure: bool) -> ExternResult<EntryHashB64> {
+    let me = agent_info()?.agent_latest_pubkey;
+    get_follows_base(me.into(), base_type, ensure)
+}
+
+fn get_follows_base(agent: AgentPubKeyB64, base_type: &str, ensure: bool) -> ExternResult<EntryHashB64> {
+    let path = Path::from(format!("agent.{}.{}", agent, base_type));
+    if ensure {
+        path.ensure()?;
     }
-    agent_follows  
+    let anchor_hash = path.path_entry_hash()?;
+    Ok(anchor_hash)
 }
 
 #[hdk_extern]
-pub fn follow(me: Follows, agent: AgentPubKeyB64) -> ExternResult<Path> {
-    let base: AgentPubKeyB64 = agent_info()?.agent_latest_pubkey; 
-    let target: AgentPubKeyB64 = agent;
+pub fn follow(me: Follows, agent: AgentPubKeyB64) -> ExternResult<EntryHashB64> {
+    let base = get_my_follows_base(FOLLOWING_PATH_SEGMENT, true)?; 
+    let target = get_follows_base(agent, FOLLOWING_PATH_SEGMENT, false)?;
     let follow = Path::from(format!("follows.{}.{}", base, target));
-    follow.ensure?;
-    update_follows(me, Follow, true);
-    Ok(follow)
+    follow.ensure()?;
+    let link = create_link(base, target, FOLLOWERS_PATH_SEGMENT)?;
+
+    let path_hash = follow.path_entry_hash()?;
+    Ok(path_hash)
 }
 
 /*
