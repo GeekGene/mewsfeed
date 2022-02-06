@@ -9,7 +9,8 @@
       @keyup.enter="publishMew"
     />
     <q-btn
-      color="black"
+      :disable="newMew === ''"
+      color="secondary"
       @click="publishMew"
     >
       Publish Mew
