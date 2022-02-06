@@ -13,7 +13,7 @@
       <q-icon
         :name="following ? 'star' : 'star_outline'"
         size="md"
-        color="secondary"
+        color="accent"
         class="cursor-pointer"
         @click="toggleFollow"
       />

@@ -7,9 +7,9 @@
       @publish-mew="publishMew"
     />
 
-    <h4 class="q-mb-md">
+    <h5 class="q-mb-md">
       Your Mews Feed
-    </h4>
+    </h5>
     <q-list v-if="loading">
       <q-item
         v-for="i in [0, 1, 2]"
@@ -59,17 +59,19 @@
             :agent-pub-key="authorPubKey(mew.header.author)"
             size="50"
             class="cursor-pointer"
+            @click="onAgentClick(authorPubKey(mew.header.author))"
             @mouseenter="showProfile(index)"
             @mouseleave="hideProfile(index)"
           >
             <q-menu
               v-model="profileVisible[index]"
+              anchor="bottom middle"
               self="top middle"
-              :offset="[0, 5]"
+              :offset="[-10, 5]"
               no-focus
             >
               <ProfilePopup
-                :author="mew.header.author"
+                :agent-pub-key="authorPubKey(mew.header.author)"
                 @mouseenter="keepShowingProfile(index)"
                 @mouseleave="hideProfile(index)"
               />
@@ -85,16 +87,21 @@
 </template>
 
 <script setup lang="ts">
+import { HoloHashB64 } from '@holochain-open-dev/core-types';
 import { createMew, mewsFeed as getMewsFeed } from '../services/clutter-dna';
 import { onMounted, ref } from 'vue';
 import { FeedMew, Mew } from '../types/types';
 import { showError } from '../utils/notification';
 import { authorPubKey } from "../utils/hash";
+import { useRouter } from 'vue-router';
 import AddMew from '../components/AddMew.vue';
 import MewsFeedContent from '../components/MewsFeedContent.vue';
 import ProfilePopup from "../components/ProfilePopup.vue";
 
+
 const PROFILE_SHOW_HIDE_DELAY = 400; // in ms
+
+const router = useRouter();
 
 const loading = ref(false);
 const mewsFeed = ref<FeedMew[]>([]);
@@ -121,6 +128,10 @@ onMounted(loadMewsFeed);
 const publishMew = async (newMew: Mew) => {
   await createMew(newMew);
   loadMewsFeed();
+};
+
+const onAgentClick = (agentPubKey: HoloHashB64) => {
+  router.push(`/profiles/${agentPubKey}`);
 };
 
 const showProfile = (index: number) => {
