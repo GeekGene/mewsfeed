@@ -62,7 +62,7 @@ pub fn my_followers(_: ()) -> ExternResult<Vec<AgentPubKeyB64>> {
 }
 
 fn follow_inner(agent: AgentPubKeyB64, base_type: &str) -> ExternResult<Vec<AgentPubKeyB64>> {
-    let base = get_mews_base(agent, base_type, false)?;
+    let base = get_follows_base(agent, base_type, false)?;
     let links = get_links(base, None)?;
     Ok(links
         .into_iter()
