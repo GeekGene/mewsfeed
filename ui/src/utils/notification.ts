@@ -3,8 +3,13 @@ import { Notify } from "quasar";
 
 const DEFAULT_MESSAGE = "Done!";
 
-export const showMessage = (options: NotificationOptions) => {
-    Notify.create({ message: options.message || DEFAULT_MESSAGE, color: "green", position: "bottom-right" });
+export const showMessage = (messageOrOptions?: string | NotificationOptions) => {
+    const options: NotificationOptions = { color: "green", position: "bottom" };
+    options.message = typeof messageOrOptions === "string" ? messageOrOptions : DEFAULT_MESSAGE;
+    if (typeof messageOrOptions === "object") {
+        Object.assign(options, messageOrOptions);
+    }
+    Notify.create(options);
 };
 
 export const showError = (error: unknown) => {
