@@ -21,7 +21,6 @@
         <q-space />
         <search-agent
           field-label="Scent fellow"
-          include-myself
           clear-on-select
           @agent-selected="onAgentSelect"
         />
