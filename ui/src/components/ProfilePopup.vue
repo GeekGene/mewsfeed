@@ -7,7 +7,7 @@
     <q-icon
       :name="following ? 'star' : 'star_outline'"
       size="md"
-      color="accent"
+      color="secondary"
       class="cursor-pointer"
       @click="toggleFollow"
     />

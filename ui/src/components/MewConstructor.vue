@@ -9,7 +9,7 @@
       @keyup.enter="publishMew"
     />
     <q-btn
-      color="accent"
+      color="black"
       @click="publishMew"
     >
       Publish Mew

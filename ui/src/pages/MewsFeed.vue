@@ -1,10 +1,15 @@
 <template>
   <q-page
-    class="text-center"
     padding
   >
-    <MewConstructor @publish-mew="publishMew" />
-    <h4>Your Mews Feed</h4>
+    <MewConstructor
+      class="text-center"
+      @publish-mew="publishMew"
+    />
+
+    <h4 class="q-mb-md">
+      Your Mews Feed
+    </h4>
     <q-list v-if="loading">
       <q-item
         v-for="i in [0, 1, 2]"

@@ -8,10 +8,15 @@
       <q-toolbar class="col col-sm-6 col-lg-5 q-px-none">
         <q-btn
           to="/"
-          icon="img:/src/assets/img/cat.png"
-          label="Clutter"
           flat
-        />
+        >
+          <q-icon
+            name="img:/src/assets/img/cat_black.png"
+            size="lg"
+            class="q-mr-xs"
+          />
+          <label>Clutter</label>
+        </q-btn>
 
         <q-space />
         <search-agent
@@ -63,8 +68,7 @@ const onAgentSelect = (payload: { detail: { agentPubKey: HoloHashB64 } }) => {
 </script>
 
 
-<style scoped lang="sass">
-search-agent input
-  // color: white !important
-  background-color: white !important
+<style lang="sass">
+search-agent
+  --mdc-notched-outline-border-color: none !important
 </style>
