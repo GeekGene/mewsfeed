@@ -2,7 +2,7 @@
   <q-layout view="hHh lpR fFf">
     <q-header
       elevated
-      class="row justify-center text-black"
+      class="row justify-center"
     >
       <q-space />
       <q-toolbar class="col col-sm-6 col-lg-5 q-px-none">
@@ -11,11 +11,11 @@
           flat
         >
           <q-icon
-            name="img:/src/assets/img/cat_black.png"
+            name="svguse:icons.svg#cat"
             size="lg"
             class="q-mr-xs"
           />
-          <label>Clutter</label>
+          <div>Clutter</div>
         </q-btn>
 
         <q-space />
@@ -65,9 +65,3 @@ const onAgentSelect = (payload: { detail: { agentPubKey: HoloHashB64 } }) => {
   router.push(`/profiles/${payload.detail.agentPubKey}`);
 };
 </script>
-
-
-<style lang="sass">
-search-agent
-  --mdc-notched-outline-border-color: none !important
-</style>
