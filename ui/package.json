@@ -14,7 +14,7 @@
     "@holochain-open-dev/cell-client": "^0.2.1",
     "@holochain-open-dev/context": "^0.0.3",
     "@holochain-open-dev/profiles": "^0.0.4",
-    "@holochain-open-dev/core-types": "^0.1.1",
+    "@holochain-open-dev/core-types": "^0.2.0",
     "@quasar/extras": "^1.12.4",
     "quasar": "^2.4.12",
     "vue": "^3.2.25",
