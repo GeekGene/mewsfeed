@@ -1,6 +1,6 @@
 
 import { Orchestrator, Player, Cell } from "@holochain/tryorama";
-import { config, installation, sleep } from '../utils';
+import { config, installation, sleep, entryHash } from '../utils';
 import { serializeHash } from '@holochain-open-dev/core-types';
 
 
@@ -28,12 +28,18 @@ export default (orchestrator: Orchestrator<any>) =>
     const carol = carol_happ.cells.find(cell => cell.cellRole.includes('/clutter.dna')) as Cell;
 
     const mewContents = "My Mew with #hashtag #سعيدة #😃😃😃 and $cashtag";
+    let createMewInput = {
+      mewType: {
+        original: null
+      },
+      mew: mewContents
+    }
 
     // Alice creates a post
     const mewHash = await alice.call(
       "mews",
       "create_mew",
-      mewContents
+      createMewInput
     );
     t.ok(mewHash);
 
@@ -90,6 +96,12 @@ export default (orchestrator: Orchestrator<any>) =>
 
     let mews = await bob.call("mews", "mews_by", alicePubKey)
     t.equal(getMewContents(mews[0]), mewContents);
+    console.log('mews:', mews)
+    console.log('entry hash:', entryHash(mews[0].header.entry_hash))
+    console.log('mewType:', mews[0].mew.mewType)
+    const original_entry_hash = entryHash(mews[0].header.entry_hash)
+
+
 
     mews = await bob.call("mews", "mews_by", bobPubKey)
     t.equal(mews.length, 0);
@@ -135,18 +147,26 @@ export default (orchestrator: Orchestrator<any>) =>
 
     // carol and alice post, bob follows carol
     // Carol creates a post
+    const createMewInput2 = {
+      ...createMewInput,
+      mew: createMewInput.mew + "2"
+    }
     const mewHash2 = await carol.call(
       "mews",
       "create_mew",
-      mewContents + "2"
+      createMewInput2
     );
     t.ok(mewHash2);
 
+    const createMewInput3 = {
+      ...createMewInput,
+      mew: createMewInput.mew + "3"
+    }
     // Alice creates a post
     const mewHash3 = await alice.call(
       "mews",
       "create_mew",
-      mewContents + "3"
+      createMewInput3
     );
     t.ok(mewHash3);
 
@@ -164,4 +184,54 @@ export default (orchestrator: Orchestrator<any>) =>
     // Bob unfollows all his followees
     mews = await bob.call("mews", "mews_feed", { option: "" })
     t.equal(mews.length, 0);
+
+    let createReplyMewInput = {
+      mewType: {
+        reply: original_entry_hash
+      },
+      mew: "reply mew to original mew!"
+    }
+
+    // Alice replies to first mew
+    const replyMewHash = await alice.call(
+      "mews",
+      "create_mew",
+      createReplyMewInput
+    );
+    t.ok(replyMewHash);
+    
+    let createReMewInput = {
+      mewType: {
+        reMew: original_entry_hash
+      },
+      mew: null
+    }
+    
+    // Alice retweets first mew
+    const reMewHash = await alice.call(
+      "mews",
+      "create_mew",
+      createReMewInput
+    );
+    t.ok(reMewHash);
+
+    let createMewMewInput = {
+      mewType: {
+        mewMew: original_entry_hash
+      },
+      mew: "mewmew of original mew!"
+    }
+    
+    // Alice retweets first mew
+    const mewMewHash = await alice.call(
+      "mews",
+      "create_mew",
+      createMewMewInput
+    );
+    t.ok(mewMewHash);
+    // await sleep(777);
+    // mews = await bob.call("mews", "mews_by", alicePubKey)
+    // console.log('mews:', mews)
+    // console.log('entry hash:', entryHash(mews[1].header.entry_hash))
+    // console.log('mewType:', mews[1].mew.mewType)
   });

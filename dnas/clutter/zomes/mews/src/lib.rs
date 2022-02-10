@@ -16,9 +16,9 @@ entry_defs![
 #[serde(rename_all = "camelCase")]
 enum MewType {
     Original(MewContent),
-    // Reply(HeaderHash,MewContent),
-    // ReMew(HeaderHash,Option<MewContent>),
-    // MewMew(HeaderHash,MewContent), // QuoteTweet
+    Reply(EntryHash,MewContent),
+    ReMew(EntryHash),
+    MewMew(EntryHash,MewContent), // QuoteTweet
 }
 
 #[hdk_entry(id = "mew_content")]
@@ -56,9 +56,58 @@ fn get_mews_base(agent: AgentPubKeyB64, base_type: &str, ensure: bool) -> Extern
     Ok(anchor_hash)
 }
 
+#[derive(Debug, Serialize, Deserialize, SerializedBytes)]
+#[serde(rename_all = "camelCase")]
+enum MewTypeInput {
+    Original,
+    Reply(EntryHashB64),
+    ReMew(EntryHashB64),
+    MewMew(EntryHashB64), // QuoteTweet
+}
+
+#[derive(Debug, Serialize, Deserialize, SerializedBytes)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateMewInput {
+  mew_type: MewTypeInput,
+  mew: Option<String>,
+}
+
 #[hdk_extern]
 // TODO: we want a parsing function here to identify user references, tag references, etc to build posts, links, etc
-pub fn create_mew(mew: String) -> ExternResult<HeaderHashB64> {
+pub fn create_mew(mew: CreateMewInput) -> ExternResult<HeaderHashB64> {
+    // TODO: enforce mew type is correct
+    // check the type
+    let mew_header_hash = match mew.mew_type {
+        MewTypeInput::Original => {
+            match mew.mew {
+                Some(mew_string) => create_original_mew(mew_string)?,
+                None => return Err(WasmError::Guest(String::from("mew must contain text")))
+            }
+        },
+        MewTypeInput::Reply(original_entry_hash) => {
+            match mew.mew {
+                Some(mew_string) => create_reply_mew(mew_string, original_entry_hash)?,
+                None => return Err(WasmError::Guest(String::from("reply mew must contain text")))
+            }
+        },
+        MewTypeInput::ReMew(original_entry_hash) => {
+            match mew.mew {
+                Some(_) => return Err(WasmError::Guest(String::from("remew cannot contain text. Try MewMew-ing."))),
+                None => create_remew(original_entry_hash)?
+            }
+        },
+        MewTypeInput::MewMew(original_entry_hash) => {
+            match mew.mew {
+                Some(mew_string) => create_mewmew(mew_string, original_entry_hash)?,
+                None => return Err(WasmError::Guest(String::from("mewmew must contain text")))
+            }
+        },
+
+    };
+    Ok(mew_header_hash)
+}
+
+pub fn create_original_mew(mew: String) -> ExternResult<HeaderHashB64> {
     let content = MewContent{mew: mew.clone()};
     let _header_hash = create_entry(&content)?;
 
@@ -78,6 +127,65 @@ pub fn create_mew(mew: String) -> ExternResult<HeaderHashB64> {
     Ok(full_header_hash.into())
 }
 
+pub fn create_reply_mew(mew: String, original_entry_hash: EntryHashB64) -> ExternResult<HeaderHashB64> {
+    let content = MewContent{mew: mew.clone()};
+    let _header_hash = create_entry(&content)?;
+
+    let full = FullMew{
+        mew_type: MewType::Reply(original_entry_hash.clone().into(), content),
+        mew: None
+    };
+    let full_header_hash = create_entry(&full)?;
+    let hash = hash_entry(&full)?;
+
+
+    let base = get_my_mews_base(MEWS_PATH_SEGMENT, true)?;
+
+    // TODO: maybe return the link_hh later if we need to delete
+    let _link_hh = create_link(base, hash.clone(), ())?;
+    // link off original entry as comment
+    let _reply_link_hh = create_link(original_entry_hash.into(), hash.clone(), LinkTag::new("reply"))?;
+    parse_mew_text(mew, hash)?;
+    Ok(full_header_hash.into())
+}
+pub fn create_remew(original_entry_hash: EntryHashB64) -> ExternResult<HeaderHashB64> {
+    let full = FullMew{
+        mew_type: MewType::ReMew(original_entry_hash.clone().into()),
+        mew: None
+    };
+    let full_header_hash = create_entry(&full)?;
+    let hash = hash_entry(&full)?;
+
+
+    let base = get_my_mews_base(MEWS_PATH_SEGMENT, true)?;
+
+    // TODO: maybe return the link_hh later if we need to delete
+    let _link_hh = create_link(base, hash.clone(), ())?;
+    // link off original entry as comment
+    let _remew_link_hh = create_link(original_entry_hash.into(), hash.clone(), LinkTag::new("remew"))?;
+    Ok(full_header_hash.into())
+}
+pub fn create_mewmew(mew: String, original_entry_hash: EntryHashB64) -> ExternResult<HeaderHashB64> {
+    let content = MewContent{mew: mew.clone()};
+    let _header_hash = create_entry(&content)?;
+
+    let full = FullMew{
+        mew_type: MewType::MewMew(original_entry_hash.clone().into(), content),
+        mew: None
+    };
+    let full_header_hash = create_entry(&full)?;
+    let hash = hash_entry(&full)?;
+
+
+    let base = get_my_mews_base(MEWS_PATH_SEGMENT, true)?;
+
+    // TODO: maybe return the link_hh later if we need to delete
+    let _link_hh = create_link(base, hash.clone(), ())?;
+    // link off original entry as comment
+    let _mewmew_link_hh = create_link(original_entry_hash.into(), hash.clone(), LinkTag::new("remew"))?;
+    parse_mew_text(mew, hash)?;
+    Ok(full_header_hash.into())
+}
 // TODO: open question: do we want to allow edits, "deletes"?
 
 #[hdk_extern]
@@ -92,6 +200,18 @@ pub fn get_mew(header_hash: HeaderHashB64) -> ExternResult<FullMew> {
 
     Ok(mew)
 }
+// #[hdk_extern]
+// pub fn get_feed_mew_and_context(header_hash: HeaderHashB64) -> ExternResult<FullMew> {
+//     let element = get(HeaderHash::from(header_hash), GetOptions::default())?
+//         .ok_or(WasmError::Guest(String::from("Mew not found")))?;
+
+//     let mew: FullMew = element
+//         .entry()
+//         .to_app_option()?
+//         .ok_or(WasmError::Guest(String::from("Malformed mew")))?;
+
+//     Ok(mew)
+// }
 
 #[derive(Debug, Serialize, Deserialize, SerializedBytes)]
 #[serde(rename_all = "camelCase")]
