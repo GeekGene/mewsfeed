@@ -189,8 +189,24 @@ pub fn create_mewmew(mew: String, original_entry_hash: EntryHashB64) -> ExternRe
 // TODO: open question: do we want to allow edits, "deletes"?
 
 #[hdk_extern]
-pub fn get_mew(header_hash: HeaderHashB64) -> ExternResult<FullMew> {
-    let element = get(HeaderHash::from(header_hash), GetOptions::default())?
+pub fn get_mew(hash: String) -> ExternResult<FullMew> {
+    let header_hash_result = HeaderHashB64::from_b64_str(&hash.clone());
+    let entry_hash_result = EntryHashB64::from_b64_str(&hash);
+
+    match header_hash_result {
+        Ok(header_hash) => Ok(get_mew_inner(HeaderHash::from(header_hash))?),
+        Err(_) => match entry_hash_result {
+            Ok(entry_hash) => Ok(get_mew_inner(EntryHash::from(entry_hash))?),
+            Err(_) => return Err(WasmError::Guest(String::from("invalid hash format")))
+        }
+    }
+}
+
+pub fn get_mew_inner<H>(hash: H) -> ExternResult<FullMew> 
+where
+    AnyDhtHash: From<H>,
+{
+    let element = get(hash, GetOptions::default())?
         .ok_or(WasmError::Guest(String::from("Mew not found")))?;
 
     let mew: FullMew = element
@@ -200,7 +216,6 @@ pub fn get_mew(header_hash: HeaderHashB64) -> ExternResult<FullMew> {
 
     Ok(mew)
 }
-
 #[derive(Debug, Serialize, Deserialize, SerializedBytes)]
 #[serde(rename_all = "camelCase")]
 pub struct FeedMewWithContext {
@@ -211,8 +226,24 @@ pub struct FeedMewWithContext {
 }
 
 #[hdk_extern]
-pub fn get_feed_mew_and_context(header_hash: HeaderHashB64) -> ExternResult<FeedMewWithContext> {
-    let element = get(HeaderHash::from(header_hash), GetOptions::default())?
+pub fn get_feed_mew_and_context(hash: String) -> ExternResult<FeedMewWithContext> {
+    let header_hash_result = HeaderHashB64::from_b64_str(&hash.clone());
+    let entry_hash_result = EntryHashB64::from_b64_str(&hash);
+
+    match header_hash_result {
+        Ok(header_hash) => Ok(get_feed_mew_and_context_inner(HeaderHash::from(header_hash))?),
+        Err(_) => match entry_hash_result {
+            Ok(entry_hash) => Ok(get_feed_mew_and_context_inner(EntryHash::from(entry_hash))?),
+            Err(_) => return Err(WasmError::Guest(String::from("invalid hash format")))
+        }
+    }
+}
+
+pub fn get_feed_mew_and_context_inner<H>(hash: H) -> ExternResult<FeedMewWithContext> 
+where
+    AnyDhtHash: From<H>,
+{
+    let element = get(hash, GetOptions::default())?
         .ok_or(WasmError::Guest(String::from("Mew not found")))?;
     let mew: FullMew = element
         .entry()

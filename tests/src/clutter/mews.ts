@@ -99,7 +99,7 @@ export default (orchestrator: Orchestrator<any>) =>
     console.log('mews:', mews)
     console.log('entry hash:', entryHash(mews[0].header.entry_hash))
     console.log('mewType:', mews[0].mew.mewType)
-    const original_entry_hash = entryHash(mews[0].header.entry_hash)
+    const originalEntryHash = entryHash(mews[0].header.entry_hash)
 
 
 
@@ -185,9 +185,12 @@ export default (orchestrator: Orchestrator<any>) =>
     mews = await bob.call("mews", "mews_feed", { option: "" })
     t.equal(mews.length, 0);
 
+    // ==============================================
+    // test mew interaction: like, reply, remew, and mewmew
+    // ==============================================
     let createReplyMewInput = {
       mewType: {
-        reply: original_entry_hash
+        reply: originalEntryHash
       },
       mew: "reply mew to original mew!"
     }
@@ -202,7 +205,7 @@ export default (orchestrator: Orchestrator<any>) =>
     
     let createReMewInput = {
       mewType: {
-        reMew: original_entry_hash
+        reMew: originalEntryHash
       },
       mew: null
     }
@@ -217,12 +220,12 @@ export default (orchestrator: Orchestrator<any>) =>
 
     let createMewMewInput = {
       mewType: {
-        mewMew: original_entry_hash
+        mewMew: originalEntryHash
       },
       mew: "mewmew of original mew!"
     }
     
-    // Alice retweets first mew
+    // Alice quote tweets first mew
     const mewMewHash = await alice.call(
       "mews",
       "create_mew",
@@ -231,10 +234,23 @@ export default (orchestrator: Orchestrator<any>) =>
     t.ok(mewMewHash);
     
     await sleep(777);
-    // use the original header hash
-    const mew_with_context = await bob.call("mews", "get_feed_mew_and_context", mewHash)
-    console.log('mew context:', mew_with_context)
-    t.equals(mew_with_context.comments.length, 1)
-    t.equals(mew_with_context.shares.length, 2)
-    t.equals(mew_with_context.likes.length, 0)
+    
+    // get orignal mew with context to see if links were created by interacting with it
+    let mewWithContext = await bob.call("mews", "get_feed_mew_and_context", mewHash)
+    console.log('mew context:', mewWithContext)
+    t.equals(mewWithContext.comments.length, 1)
+    t.equals(mewWithContext.shares.length, 2)
+    t.equals(mewWithContext.likes.length, 0)
+  
+    // test can get mew with entry hash in addition to header hash
+    const mewFromEntryHash = await bob.call("mews", "get_mew", mewWithContext.comments[0])
+    console.log('mew from entry hash:', mewFromEntryHash)
+    t.equals(mewFromEntryHash.mew, null)
+    t.equals("reply" in mewFromEntryHash.mewType, true)
+
+    mewWithContext = await bob.call("mews", "get_feed_mew_and_context", originalEntryHash)
+    console.log('mew context:', mewWithContext)
+    t.equals(mewWithContext.comments.length, 1)
+    t.equals(mewWithContext.shares.length, 2)
+    t.equals(mewWithContext.likes.length, 0)
   });
