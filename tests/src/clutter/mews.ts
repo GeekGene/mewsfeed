@@ -188,6 +188,11 @@ export default (orchestrator: Orchestrator<any>) =>
     // ==============================================
     // test mew interaction: like, reply, remew, and mewmew
     // ==============================================
+      
+    // Alice licks first mew
+    const lickMewHash = await alice.call("mews", "lick_mew", originalEntryHash)
+    t.ok(lickMewHash)
+
     let createReplyMewInput = {
       mewType: {
         reply: originalEntryHash
@@ -240,7 +245,7 @@ export default (orchestrator: Orchestrator<any>) =>
     console.log('mew context:', mewWithContext)
     t.equals(mewWithContext.comments.length, 1)
     t.equals(mewWithContext.shares.length, 2)
-    t.equals(mewWithContext.likes.length, 0)
+    t.equals(mewWithContext.likes.length, 1)
   
     // test can get mew with entry hash in addition to header hash
     const mewFromEntryHash = await bob.call("mews", "get_mew", mewWithContext.comments[0])
@@ -252,5 +257,5 @@ export default (orchestrator: Orchestrator<any>) =>
     console.log('mew context:', mewWithContext)
     t.equals(mewWithContext.comments.length, 1)
     t.equals(mewWithContext.shares.length, 2)
-    t.equals(mewWithContext.likes.length, 0)
+    t.equals(mewWithContext.likes.length, 1)
   });

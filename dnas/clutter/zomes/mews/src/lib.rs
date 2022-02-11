@@ -38,7 +38,10 @@ pub struct FullMew {
 const MEWS_PATH_SEGMENT: &str = "mews";
 const FOLLOWERS_PATH_SEGMENT: &str = "followers";
 const FOLLOWING_PATH_SEGMENT: &str = "following";
-// const LICKS_PATH_SEGMENT: &str = "licks";
+const LICKS_PATH_SEGMENT: &str = "licks";
+const REPLY_PATH_SEGMENT: &str = "replies";
+const REMEW_PATH_SEGMENT: &str = "remews";
+const MEWMEW_PATH_SEGMENT: &str = REMEW_PATH_SEGMENT;
 // const MENTIONS_PATH_SEGMENT: &str = "mentions";
 // const IMAGES_PATH_SEGMENT: &str = "images";
 
@@ -144,7 +147,7 @@ pub fn create_reply_mew(mew: String, original_entry_hash: EntryHashB64) -> Exter
     // TODO: maybe return the link_hh later if we need to delete
     let _link_hh = create_link(base, hash.clone(), ())?;
     // link off original entry as comment
-    let _reply_link_hh = create_link(original_entry_hash.into(), hash.clone(), LinkTag::new("reply"))?;
+    let _reply_link_hh = create_link(original_entry_hash.into(), hash.clone(), LinkTag::new(REPLY_PATH_SEGMENT))?;
     parse_mew_text(mew, hash)?;
     Ok(full_header_hash.into())
 }
@@ -162,7 +165,7 @@ pub fn create_remew(original_entry_hash: EntryHashB64) -> ExternResult<HeaderHas
     // TODO: maybe return the link_hh later if we need to delete
     let _link_hh = create_link(base, hash.clone(), ())?;
     // link off original entry as comment
-    let _remew_link_hh = create_link(original_entry_hash.into(), hash.clone(), LinkTag::new("remew"))?;
+    let _remew_link_hh = create_link(original_entry_hash.into(), hash.clone(), LinkTag::new(REMEW_PATH_SEGMENT))?;
     Ok(full_header_hash.into())
 }
 pub fn create_mewmew(mew: String, original_entry_hash: EntryHashB64) -> ExternResult<HeaderHashB64> {
@@ -182,9 +185,38 @@ pub fn create_mewmew(mew: String, original_entry_hash: EntryHashB64) -> ExternRe
     // TODO: maybe return the link_hh later if we need to delete
     let _link_hh = create_link(base, hash.clone(), ())?;
     // link off original entry as comment
-    let _mewmew_link_hh = create_link(original_entry_hash.into(), hash.clone(), LinkTag::new("remew"))?;
+    let _mewmew_link_hh = create_link(original_entry_hash.into(), hash.clone(), LinkTag::new(MEWMEW_PATH_SEGMENT))?;
     parse_mew_text(mew, hash)?;
     Ok(full_header_hash.into())
+}
+
+#[hdk_extern]
+pub fn lick_mew(entry_hash: EntryHashB64) -> ExternResult<HeaderHashB64> {
+    let me: AgentPubKey = agent_info()?.agent_latest_pubkey;
+
+    let base = get_my_mews_base(LICKS_PATH_SEGMENT, true)?;
+    let _lick_hh = create_link(base, entry_hash.clone().into(), ());
+    Ok(create_link(entry_hash.into(),me.into(), LinkTag::new(LICKS_PATH_SEGMENT))?.into())
+}
+#[hdk_extern]
+pub fn my_licks(_: ()) -> ExternResult<Vec<EntryHashB64>> {
+    let me: AgentPubKeyB64 = agent_info()?.agent_latest_pubkey.into();
+    licks_inner(me, LICKS_PATH_SEGMENT)
+}
+
+fn licks_inner(agent: AgentPubKeyB64, base_type: &str) -> ExternResult<Vec<EntryHashB64>> {
+    let base = get_mews_base(agent, base_type, false)?;
+    let links = get_links(base, None)?;
+    Ok(links
+        .into_iter()
+        .map(|link| link.target.into())
+        .collect())
+}
+
+// get who's following an agent
+#[hdk_extern]
+pub fn licks(agent: AgentPubKeyB64) -> ExternResult<Vec<EntryHashB64>> {
+    licks_inner(agent, LICKS_PATH_SEGMENT)
 }
 // TODO: open question: do we want to allow edits, "deletes"?
 
@@ -222,7 +254,7 @@ pub struct FeedMewWithContext {
     pub feed_mew: FeedMew,
     pub comments: Vec<EntryHashB64>,
     pub shares: Vec<EntryHashB64>,
-    pub likes: Vec<EntryHashB64>,
+    pub likes: Vec<AgentPubKeyB64>,
 }
 
 #[hdk_extern]
@@ -256,16 +288,16 @@ where
     // get vecs
     let share_links = get_links(
         element.header().entry_hash().ok_or(WasmError::Guest(String::from("no entry found for header hash")))?.clone(),
-        Some(LinkTag::new("remew")))?;
+        Some(LinkTag::new(REMEW_PATH_SEGMENT)))?;
     let shares: Vec<EntryHashB64> = share_links.into_iter().map(|link| link.target.into()).collect();
     let comment_links = get_links(
         element.header().entry_hash().ok_or(WasmError::Guest(String::from("no entry found for header hash")))?.clone(),
-        Some(LinkTag::new("reply")))?;
+        Some(LinkTag::new(REPLY_PATH_SEGMENT)))?;
     let comments: Vec<EntryHashB64> = comment_links.into_iter().map(|link| link.target.into()).collect();
     let like_links = get_links(
         element.header().entry_hash().ok_or(WasmError::Guest(String::from("no entry found for header hash")))?.clone(),
-        Some(LinkTag::new("like")))?;
-    let likes: Vec<EntryHashB64> = like_links.into_iter().map(|link| link.target.into()).collect();
+        Some(LinkTag::new(LICKS_PATH_SEGMENT)))?;
+    let likes: Vec<AgentPubKeyB64> = like_links.into_iter().map(|link| AgentPubKey::from(link.target).into()).collect();
 
     let feed_mew_and_context = FeedMewWithContext {
         feed_mew,
