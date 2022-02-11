@@ -229,9 +229,12 @@ export default (orchestrator: Orchestrator<any>) =>
       createMewMewInput
     );
     t.ok(mewMewHash);
-    // await sleep(777);
-    // mews = await bob.call("mews", "mews_by", alicePubKey)
-    // console.log('mews:', mews)
-    // console.log('entry hash:', entryHash(mews[1].header.entry_hash))
-    // console.log('mewType:', mews[1].mew.mewType)
+    
+    await sleep(777);
+    // use the original header hash
+    const mew_with_context = await bob.call("mews", "get_feed_mew_and_context", mewHash)
+    console.log('mew context:', mew_with_context)
+    t.equals(mew_with_context.comments.length, 1)
+    t.equals(mew_with_context.shares.length, 2)
+    t.equals(mew_with_context.likes.length, 0)
   });

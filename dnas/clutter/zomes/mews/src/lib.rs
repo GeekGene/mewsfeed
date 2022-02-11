@@ -200,18 +200,50 @@ pub fn get_mew(header_hash: HeaderHashB64) -> ExternResult<FullMew> {
 
     Ok(mew)
 }
-// #[hdk_extern]
-// pub fn get_feed_mew_and_context(header_hash: HeaderHashB64) -> ExternResult<FullMew> {
-//     let element = get(HeaderHash::from(header_hash), GetOptions::default())?
-//         .ok_or(WasmError::Guest(String::from("Mew not found")))?;
 
-//     let mew: FullMew = element
-//         .entry()
-//         .to_app_option()?
-//         .ok_or(WasmError::Guest(String::from("Malformed mew")))?;
+#[derive(Debug, Serialize, Deserialize, SerializedBytes)]
+#[serde(rename_all = "camelCase")]
+pub struct FeedMewWithContext {
+    pub feed_mew: FeedMew,
+    pub comments: Vec<EntryHashB64>,
+    pub shares: Vec<EntryHashB64>,
+    pub likes: Vec<EntryHashB64>,
+}
 
-//     Ok(mew)
-// }
+#[hdk_extern]
+pub fn get_feed_mew_and_context(header_hash: HeaderHashB64) -> ExternResult<FeedMewWithContext> {
+    let element = get(HeaderHash::from(header_hash), GetOptions::default())?
+        .ok_or(WasmError::Guest(String::from("Mew not found")))?;
+    let mew: FullMew = element
+        .entry()
+        .to_app_option()?
+        .ok_or(WasmError::Guest(String::from("Malformed mew")))?;
+    let feed_mew = FeedMew {
+        mew: mew,
+        header: element.header().clone()
+    };
+    // get vecs
+    let share_links = get_links(
+        element.header().entry_hash().ok_or(WasmError::Guest(String::from("no entry found for header hash")))?.clone(),
+        Some(LinkTag::new("remew")))?;
+    let shares: Vec<EntryHashB64> = share_links.into_iter().map(|link| link.target.into()).collect();
+    let comment_links = get_links(
+        element.header().entry_hash().ok_or(WasmError::Guest(String::from("no entry found for header hash")))?.clone(),
+        Some(LinkTag::new("reply")))?;
+    let comments: Vec<EntryHashB64> = comment_links.into_iter().map(|link| link.target.into()).collect();
+    let like_links = get_links(
+        element.header().entry_hash().ok_or(WasmError::Guest(String::from("no entry found for header hash")))?.clone(),
+        Some(LinkTag::new("like")))?;
+    let likes: Vec<EntryHashB64> = like_links.into_iter().map(|link| link.target.into()).collect();
+
+    let feed_mew_and_context = FeedMewWithContext {
+        feed_mew,
+        comments,
+        shares,
+        likes
+    };
+    Ok(feed_mew_and_context)
+}
 
 #[derive(Debug, Serialize, Deserialize, SerializedBytes)]
 #[serde(rename_all = "camelCase")]
