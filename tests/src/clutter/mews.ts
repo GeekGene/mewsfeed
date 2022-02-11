@@ -190,8 +190,10 @@ export default (orchestrator: Orchestrator<any>) =>
     // ==============================================
       
     // Alice licks first mew
-    const lickMewHash = await alice.call("mews", "lick_mew", originalEntryHash)
-    t.ok(lickMewHash)
+    await alice.call("mews", "lick_mew", originalEntryHash)
+    let aliceLicks = await alice.call("mews", "my_licks", null)
+    t.equal(aliceLicks.length, 1)
+    t.equal(aliceLicks[0], originalEntryHash)
 
     let createReplyMewInput = {
       mewType: {
@@ -258,4 +260,16 @@ export default (orchestrator: Orchestrator<any>) =>
     t.equals(mewWithContext.comments.length, 1)
     t.equals(mewWithContext.shares.length, 2)
     t.equals(mewWithContext.likes.length, 1)
+
+    // unlick mew
+    await alice.call("mews", "unlick_mew", originalEntryHash)
+    aliceLicks = await alice.call("mews", "my_licks", null)
+    t.equal(aliceLicks.length, 0)
+
+    await sleep(500);
+    mewWithContext = await bob.call("mews", "get_feed_mew_and_context", originalEntryHash)
+    console.log('mew context:', mewWithContext)
+    t.equals(mewWithContext.comments.length, 1)
+    t.equals(mewWithContext.shares.length, 2)
+    t.equals(mewWithContext.likes.length, 0)
   });

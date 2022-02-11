@@ -191,12 +191,13 @@ pub fn create_mewmew(mew: String, original_entry_hash: EntryHashB64) -> ExternRe
 }
 
 #[hdk_extern]
-pub fn lick_mew(entry_hash: EntryHashB64) -> ExternResult<HeaderHashB64> {
+pub fn lick_mew(entry_hash: EntryHashB64) -> ExternResult<()> {
     let me: AgentPubKey = agent_info()?.agent_latest_pubkey;
 
     let base = get_my_mews_base(LICKS_PATH_SEGMENT, true)?;
-    let _lick_hh = create_link(base, entry_hash.clone().into(), ());
-    Ok(create_link(entry_hash.into(),me.into(), LinkTag::new(LICKS_PATH_SEGMENT))?.into())
+    let _my_lick_hh = create_link(base, entry_hash.clone().into(), ())?;
+    let _mew_lick_hh = create_link(entry_hash.into(),me.into(), LinkTag::new(LICKS_PATH_SEGMENT))?;
+    Ok(())
 }
 #[hdk_extern]
 pub fn my_licks(_: ()) -> ExternResult<Vec<EntryHashB64>> {
@@ -211,6 +212,29 @@ fn licks_inner(agent: AgentPubKeyB64, base_type: &str) -> ExternResult<Vec<Entry
         .into_iter()
         .map(|link| link.target.into())
         .collect())
+}
+
+#[hdk_extern]
+pub fn unlick_mew(entry_hash_b64: EntryHashB64) -> ExternResult<()> {
+    let entry_hash: EntryHash = entry_hash_b64.into();
+    let me: EntryHash = agent_info()?.agent_latest_pubkey.into();
+    let mew_licks = get_links(entry_hash.clone(), None)?;
+    for lick in mew_licks {
+        if lick.target == me {
+            let _delete_link_hh = delete_link(lick.create_link_hash)?;
+            break;
+        }
+    }
+
+    let my_licks = get_my_mews_base(LICKS_PATH_SEGMENT, true)?;
+    let links = get_links(my_licks.clone(), None)?;
+    for link in links {
+        if link.target == entry_hash {
+            let _deleted_link_hh = delete_link(link.create_link_hash)?;
+            break;
+        }
+    }
+    Ok(())
 }
 
 // get who's following an agent
