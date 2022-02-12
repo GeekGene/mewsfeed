@@ -5,7 +5,8 @@
       class="row justify-center"
     >
       <q-space />
-      <q-toolbar class="col col-sm-6 col-lg-5 q-px-none">
+
+      <q-toolbar class="col col-sm-6 col-lg-5">
         <q-btn
           to="/"
           flat
@@ -19,11 +20,36 @@
         </q-btn>
 
         <q-space />
-        <search-agent
-          field-label="Scent fellow"
-          clear-on-select
-          @agent-selected="onAgentSelect"
-        />
+
+        <q-select
+          v-model="selection"
+          :options="options"
+          :loading="searching"
+          input-debounce="0"
+          label="Sniff around"
+          behavior="menu"
+          standout
+          use-input
+          hide-dropdown-icon
+          hide-selected
+          dark
+          :options-dark="false"
+          dense
+          @filter="search"
+          @update:model-value="onAgentSelect"
+        >
+          <template #prepend>
+            <q-icon name="search" />
+          </template>
+          <template #no-option>
+            <q-item>
+              <q-item-section class="text-grey">
+                {{ searchTerm.length < 3 ? "Minimum 3 characters required" : "Nothing here, Kitty!" }}
+              </q-item-section>
+            </q-item>
+          </template>
+        </q-select>
+
         <q-space />
 
         <q-btn
@@ -42,6 +68,7 @@
           />
         </q-btn>
       </q-toolbar>
+
       <q-space />
     </q-header>
 
@@ -55,13 +82,40 @@
 
 <script setup lang="ts">
 import "@holochain-open-dev/profiles/search-agent";
-import { HoloHashB64 } from "@holochain-open-dev/core-types";
 import { useProfileStore } from "../services/profile-store";
+import { QSelectOption } from "quasar";
 import { useRouter } from "vue-router";
+import { ref } from "vue";
+import { showError } from "../utils/notification";
 
 const store = useProfileStore();
 const router = useRouter();
-const onAgentSelect = (payload: { detail: { agentPubKey: HoloHashB64 } }) => {
-  router.push(`/profiles/${payload.detail.agentPubKey}`);
+const searching = ref(false);
+const options = ref<QSelectOption[]>([]);
+const selection = ref<QSelectOption | null>(null);
+const searchTerm = ref("");
+
+const search = (inputValue: string, updateFn: (callbackFn: () => void, afterFn?: () => void) => void) => {
+  searchTerm.value = inputValue;
+  updateFn(async () => {
+    if (inputValue === "" || inputValue.length < 3) {
+      options.value = [];
+    } else {
+      try {
+        searching.value = true;
+        const results = await store.searchProfiles(inputValue);
+        options.value = results.map((r) => ({ value: r.agentPubKey,  label: r.profile.fields["Display name"]}));
+      } catch (error) {
+        showError(error);
+      } finally {
+        searching.value = false;
+      }
+    }
+  });
+};
+
+const onAgentSelect = (option: QSelectOption) => {
+  router.push(`/profiles/${option.value}`);
+  selection.value = null;
 };
 </script>
