@@ -27,7 +27,7 @@ import { onMounted, PropType, ref } from 'vue';
 
 const props = defineProps({
     agentPubKey: {
-        type: Object as PropType<HoloHashB64>,
+        type: String as PropType<HoloHashB64>,
         required: true
     }
 });

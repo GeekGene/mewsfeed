@@ -7,16 +7,64 @@
     />
 
     <template v-else>
-      <h4>{{ nickname }}'s Profile</h4>
-      Bio: {{ bio }}
-      Location: {{ location }}
-      <q-icon
-        :name="following ? 'star' : 'star_outline'"
-        size="md"
-        color="accent"
-        class="cursor-pointer"
-        @click="toggleFollow"
-      />
+      <q-card
+        v-bind="$attrs"
+        flat
+        class="q-mb-md text-body1"
+      >
+        <q-card-section class="flex justify-between">
+          <div class="flex items-center">
+            <agent-avatar
+              :agent-pub-key="agentPubKey"
+              size="50"
+              class="q-mr-lg"
+            />
+            <div class="q-mr-lg text-primary text-weight-medium">
+              {{ displayName }}
+            </div>
+            <div class="text-primary">
+              @{{ nickname }}
+            </div>
+          </div>
+          <ButtonFollow :agent-pub-key="agentPubKey" />
+        </q-card-section>
+
+        <q-card-section class="flex">
+          <div class="q-mr-md">
+            <div>
+              <label class="text-weight-medium">Bio:</label>
+            </div>
+            <div>
+              <label class="text-weight-medium">Location:</label>
+            </div>
+          </div>
+          <div class="col-grow">
+            <div>{{ bio }}</div>
+            <div>{{ location }}</div>
+          </div>
+        </q-card-section>
+      </q-card>
+
+      <q-list
+        v-if="mewsFeed.length > 0"
+        bordered
+        separator
+      >
+        <q-item
+          v-for="(mew, index) in mewsFeed"
+          :key="index"
+        >
+          <q-item-section avatar>
+            <agent-avatar
+              :agent-pub-key="agentPubKey"
+              size="50"
+            />
+          </q-item-section>
+          <q-item-section>
+            <MewsFeedContent :mew-content="mew" />
+          </q-item-section>
+        </q-item>
+      </q-list>
     </template>
   </q-page>
 </template>
@@ -24,50 +72,50 @@
 <script setup lang="ts">
 import { useProfileStore } from "../services/profile-store";
 import { useRoute } from "vue-router";
-import { showError, showMessage } from "../utils/notification";
-import { onMounted, ref } from "vue";
-import { follow, myFollowing, unfollow } from "../services/clutter-dna";
+import { showError } from "../utils/notification";
+import { computed, onMounted, ref, watch } from "vue";
+import { mewsBy, myFollowing } from "../services/clutter-dna";
+import { FeedMew } from "../types/types";
+import ButtonFollow from "../components/ButtonFollow.vue";
+import MewsFeedContent from "../components/MewsFeedContent.vue";
 
-const store = useProfileStore();
+const profileStore = useProfileStore();
 const route = useRoute();
-const { agent } = route.params;
+const agentPubKey = computed(() => 
+  typeof route.params.agent === "string" ? route.params.agent : route.params.agent[0]
+);
 const loading = ref(false);
 const nickname = ref("");
+const displayName = ref("");
 const bio = ref("");
 const location = ref("");
 const following = ref(false);
-const agentPubKey = typeof agent === "string" ? agent : agent[0];
+const mewsFeed = ref<FeedMew[]>([]);
 
-onMounted(async () => {
+const loadProfile = async () => {
   try {
     loading.value = true;
-    const profile = await store.fetchAgentProfile(agentPubKey);
+    const [profile, currentMyFollowing, mews] = await Promise.all([
+      profileStore.fetchAgentProfile(agentPubKey.value),
+      myFollowing(),
+      mewsBy(agentPubKey.value)
+    ]);
     if (profile) {
       nickname.value = profile.nickname;
+      displayName.value = profile.fields["Display name"];
       bio.value = profile.fields.Bio;
       location.value = profile.fields.Location;
     }
-    const currentMyFollowing = await myFollowing();
-    following.value = currentMyFollowing.includes(agentPubKey);
+    following.value = currentMyFollowing.includes(agentPubKey.value);
+    mewsFeed.value = mews;
   } catch (error) {
     showError(error);
   } finally {
     loading.value = false;
   }
-});
-
-const toggleFollow = async () => {
-  try {
-    if (following.value) {
-      await unfollow(agentPubKey);
-    } else {
-      await follow(agentPubKey);
-    }
-    following.value = !following.value;
-    const message = (following.value ? `You're following ` : 'You stopped following ') + nickname.value;
-    showMessage(message);
-  } catch (error) {
-    showError(error);
-  }
 };
+
+onMounted(loadProfile);
+watch(() => route.params.agent, () => loadProfile());
+
 </script>
