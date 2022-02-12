@@ -116,7 +116,7 @@ pub fn mews_by(agent: AgentPubKeyB64) -> ExternResult<Vec<FeedMew>> {
         .collect();
 
     let mew_elements = HDK.with(|hdk| hdk.borrow().get(get_input))?;
-    let feed: Vec<FeedMew> = mew_elements
+    let mut feed: Vec<FeedMew> = mew_elements
         .into_iter()
         .filter_map(|me| me)
         .filter_map(|element| match element.entry().to_app_option() {
@@ -127,6 +127,8 @@ pub fn mews_by(agent: AgentPubKeyB64) -> ExternResult<Vec<FeedMew>> {
             _ => None,
         })
         .collect();
+    feed.sort_by(|a, b| b.header.timestamp().cmp(&a.header.timestamp()));
+
     Ok(feed)
 }
 
