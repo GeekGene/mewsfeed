@@ -5,26 +5,25 @@
     class="text-body1"
   >
     <q-card-section class="row justify-between items-center">
-      <div class="q-mr-lg">
-        <label>Nickname:</label>
-        {{ nickname }}
-      </div>
-      <div class="q-mr-lg">
-        <label>Display name:</label>
+      <div class="q-mr-lg text-primary text-weight-medium">
         {{ displayName }}
       </div>
+      <div class="q-mr-lg text-primary">
+        @{{ nickname }}
+      </div>
       <ButtonFollow
+        v-if="!isMyProfile"
         :agent-pub-key="agentPubKey"
       />
     </q-card-section>
-    <q-card-section>
-      <div>
-        <label>Bio:</label>
-        {{ bio }}
+    <q-card-section class="row">
+      <div class="q-mr-md">
+        <div><label class="text-weight-medium">Bio:</label></div>
+        <div><label class="text-weight-medium">Location:</label></div>
       </div>
-      <div>
-        <label>Location:</label>
-        {{ location }}
+      <div class="col-grow">
+        <div>{{ bio }}</div>
+        <div>{{ location }}</div>
       </div>
     </q-card-section>
   </q-card>
