@@ -98,7 +98,6 @@ import AddMew from '../components/AddMew.vue';
 import MewsFeedContent from '../components/MewsFeedContent.vue';
 import ProfilePopup from "../components/ProfilePopup.vue";
 
-
 const PROFILE_SHOW_HIDE_DELAY = 400; // in ms
 
 const router = useRouter();

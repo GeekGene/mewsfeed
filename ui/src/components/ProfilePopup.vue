@@ -5,11 +5,24 @@
     class="text-body1"
   >
     <q-card-section class="row justify-between items-center">
-      <div class="q-mr-lg text-primary text-weight-medium">
-        {{ displayName }}
-      </div>
+      <context-provider
+        :context="profilesStoreContext"
+        :value="profileStore"
+      >
+        <agent-avatar
+          :agent-pub-key="agentPubKey"
+          size="50"
+          class="q-mr-lg cursor-pointer"
+          @click="onAgentClick(agentPubKey)"
+        >
+          Test
+        </agent-avatar>
+      </context-provider>
       <div class="q-mr-lg text-primary">
-        @{{ nickname }}
+        <div class="text-weight-medium">
+          {{ displayName }}
+        </div>
+        <div>@{{ nickname }}</div>
       </div>
       <ButtonFollow
         v-if="!isMyProfile"
@@ -31,11 +44,14 @@
 
 <script setup lang="ts">
 import { HoloHashB64 } from '@holochain-open-dev/core-types';
+import { profilesStoreContext } from '@holochain-open-dev/profiles';
 import { useProfileStore } from '../services/profile-store';
 import { computed, onMounted, PropType, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { showError } from '../utils/notification';
 import ButtonFollow from './ButtonFollow.vue';
 
+const router = useRouter();
 const profileStore = useProfileStore();
 const props = defineProps({
   agentPubKey: {
@@ -67,4 +83,8 @@ onMounted(async () => {
     loading.value = false;
   }
 });
+
+const onAgentClick = (agentPubKey: HoloHashB64) => {
+  router.push(`/profiles/${agentPubKey}`);
+};
 </script>
