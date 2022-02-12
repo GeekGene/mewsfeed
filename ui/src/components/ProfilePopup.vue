@@ -1,7 +1,6 @@
 <template>
   <q-card
     v-bind="$attrs"
-    bordered
     class="text-body1"
   >
     <q-card-section class="row justify-between items-center">

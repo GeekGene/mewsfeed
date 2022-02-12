@@ -6,15 +6,12 @@
   >
     <template v-if="following">
       <label class="q-mr-sm">Unfollow</label>
-      <q-icon
-        name="svguse:icons.svg#cat"
-        color=""
-      />
+      <q-icon name="svguse:/icons.svg#cat" />
     </template>
     <template v-else>
       <label class="q-mr-sm">Follow</label>
       <q-icon
-        name="svguse:icons.svg#cat"
+        name="svguse:/icons.svg#cat"
         color="accent"
         style="stroke: white;"
       />

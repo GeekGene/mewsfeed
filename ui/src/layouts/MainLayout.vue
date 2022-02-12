@@ -12,7 +12,7 @@
           flat
         >
           <q-icon
-            name="svguse:icons.svg#cat"
+            name="svguse:/icons.svg#cat"
             size="lg"
             class="q-mr-xs"
           />
