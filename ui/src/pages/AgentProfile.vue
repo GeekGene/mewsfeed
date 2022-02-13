@@ -61,7 +61,7 @@
             />
           </q-item-section>
           <q-item-section>
-            <MewsFeedContent :mew-content="mew" />
+            <MewsItemContent :mew-content="mew" />
           </q-item-section>
         </q-item>
       </q-list>
@@ -70,14 +70,14 @@
 </template>
 
 <script setup lang="ts">
-import { useProfileStore } from "../services/profile-store";
+import { useProfileStore } from "@/services/profile-store";
 import { useRoute } from "vue-router";
-import { showError } from "../utils/notification";
+import { showError } from "@/utils/notification";
 import { computed, onMounted, ref, watch } from "vue";
-import { mewsBy, myFollowing } from "../services/clutter-dna";
-import { FeedMew } from "../types/types";
-import ButtonFollow from "../components/ButtonFollow.vue";
-import MewsFeedContent from "../components/MewsFeedContent.vue";
+import { mewsBy, myFollowing } from "@/services/clutter-dna";
+import { FeedMew } from "@/types/types";
+import ButtonFollow from "@/components/ButtonFollow.vue";
+import MewsItemContent from "@/components/MewsItemContent.vue";
 
 const profileStore = useProfileStore();
 const route = useRoute();

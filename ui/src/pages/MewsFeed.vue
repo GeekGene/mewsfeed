@@ -79,7 +79,7 @@
           </agent-avatar>
         </q-item-section>
         <q-item-section>
-          <MewsFeedContent :mew-content="mew" />
+          <MewsItemContent :mew-content="mew" />
         </q-item-section>
       </q-item>
     </q-list>
@@ -88,15 +88,15 @@
 
 <script setup lang="ts">
 import { HoloHashB64 } from '@holochain-open-dev/core-types';
-import { createMew, mewsFeed as getMewsFeed } from '../services/clutter-dna';
+import { createMew, mewsFeed as getMewsFeed } from '@/services/clutter-dna';
 import { onMounted, ref } from 'vue';
-import { FeedMew, Mew } from '../types/types';
-import { showError } from '../utils/notification';
-import { authorPubKey } from "../utils/hash";
+import { FeedMew, Mew } from '@/types/types';
+import { showError } from '@/utils/notification';
+import { authorPubKey } from "@/utils/hash";
 import { useRouter } from 'vue-router';
-import AddMew from '../components/AddMew.vue';
-import MewsFeedContent from '../components/MewsFeedContent.vue';
-import ProfilePopup from "../components/ProfilePopup.vue";
+import AddMew from '@/components/AddMew.vue';
+import MewsItemContent from '@/components/MewsItemContent.vue';
+import ProfilePopup from "@/components/ProfilePopup.vue";
 
 const PROFILE_SHOW_HIDE_DELAY = 400; // in ms
 

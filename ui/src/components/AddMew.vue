@@ -20,7 +20,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { Mew } from "../types/types";
+import { Mew } from "@/types/types";
 const emit = defineEmits<{(e: 'publish-mew', mew: Mew): void;}>();
 
 const newMew = ref("");

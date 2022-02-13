@@ -44,10 +44,10 @@
 <script setup lang="ts">
 import { HoloHashB64 } from '@holochain-open-dev/core-types';
 import { profilesStoreContext } from '@holochain-open-dev/profiles';
-import { useProfileStore } from '../services/profile-store';
+import { useProfileStore } from '@/services/profile-store';
 import { computed, onMounted, PropType, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { showError } from '../utils/notification';
+import { showError } from '@/utils/notification';
 import ButtonFollow from './ButtonFollow.vue';
 
 const router = useRouter();

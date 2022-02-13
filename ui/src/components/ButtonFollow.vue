@@ -1,7 +1,7 @@
 <template>
   <q-btn
     size="md"
-    color="accent"
+    color="secondary"
     @click="toggleFollow"
   >
     <template v-if="following">
@@ -12,7 +12,7 @@
       <label class="q-mr-sm">Follow</label>
       <q-icon
         name="svguse:/icons.svg#cat"
-        color="accent"
+        color="secondary"
         style="stroke: white;"
       />
     </template>
@@ -21,8 +21,8 @@
 
 <script setup lang="ts">
 import { HoloHashB64 } from '@holochain/client';
-import { follow, myFollowing, unfollow } from '../services/clutter-dna';
-import { showError, showMessage } from '../utils/notification';
+import { follow, myFollowing, unfollow } from '@/services/clutter-dna';
+import { showError, showMessage } from '@/utils/notification';
 import { onMounted, PropType, ref } from 'vue';
 
 const props = defineProps({

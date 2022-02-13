@@ -35,6 +35,7 @@
           dark
           :options-dark="false"
           dense
+          class="col-4"
           @filter="search"
           @update:model-value="onAgentSelect"
         >
@@ -44,7 +45,7 @@
           <template #no-option>
             <q-item>
               <q-item-section class="text-grey">
-                {{ searchTerm.length < 3 ? "Minimum 3 characters required" : "Nothing here, Kitty!" }}
+                {{ searchTerm.length < 3 ? "Minimum 3 characters required" : "Nothing found, Kitty" }}
               </q-item-section>
             </q-item>
           </template>
@@ -81,12 +82,11 @@
 </template>
 
 <script setup lang="ts">
-import "@holochain-open-dev/profiles/search-agent";
-import { useProfileStore } from "../services/profile-store";
+import { useProfileStore } from "@/services/profile-store";
 import { QSelectOption } from "quasar";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
-import { showError } from "../utils/notification";
+import { showError } from "@/utils/notification";
 
 const store = useProfileStore();
 const router = useRouter();

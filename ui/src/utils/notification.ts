@@ -1,4 +1,4 @@
-import { NotificationOptions } from "../types/types";
+import { NotificationOptions } from "@/types/types";
 import { Notify } from "quasar";
 
 const DEFAULT_MESSAGE = "Done!";
