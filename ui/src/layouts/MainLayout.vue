@@ -7,67 +7,69 @@
       <q-space />
 
       <q-toolbar class="col col-sm-6 col-lg-5">
-        <q-btn
-          to="/"
-          flat
-        >
-          <q-icon
-            name="svguse:/icons.svg#cat"
-            size="lg"
-            class="q-mr-xs"
-          />
-          <div>Clutter</div>
-        </q-btn>
-
-        <q-space />
-
-        <q-select
-          v-model="selection"
-          :options="options"
-          :loading="searching"
-          input-debounce="0"
-          label="Sniff around"
-          behavior="menu"
-          standout
-          use-input
-          hide-dropdown-icon
-          hide-selected
-          dark
-          :options-dark="false"
+        <q-tabs
+          v-model="tab"
           dense
-          class="col-4"
-          @filter="search"
-          @update:model-value="onAgentSelect"
+          inline-label
+          class="col-grow"
         >
-          <template #prepend>
-            <q-icon name="search" />
-          </template>
-          <template #no-option>
-            <q-item>
-              <q-item-section class="text-grey">
-                {{ searchTerm.length < 3 ? "Minimum 3 characters required" : "Nothing found, Kitty" }}
-              </q-item-section>
-            </q-item>
-          </template>
-        </q-select>
+          <q-route-tab to="/">
+            <q-icon
+              name="svguse:/icons.svg#cat"
+              size="lg"
+              class="q-mr-xs"
+            />
+            <div>Clutter</div>
+          </q-route-tab>
 
-        <q-space />
+          <q-space />
 
-        <q-btn
-          to="/feed"
-          icon="feed"
-          label="Mews"
-          flat
-        />
-        <q-btn
-          to="/my-profile"
-          flat
-        >
-          <agent-avatar
-            :agent-pub-key="store.myAgentPubKey"
-            size="40"
+          <q-select
+            v-model="selection"
+            :options="options"
+            :loading="searching"
+            input-debounce="0"
+            label="Sniff around"
+            behavior="menu"
+            standout
+            use-input
+            hide-dropdown-icon
+            hide-selected
+            dark
+            :options-dark="false"
+            dense
+            class="col-4"
+            @filter="search"
+            @update:model-value="onAgentSelect"
+          >
+            <template #prepend>
+              <q-icon name="search" />
+            </template>
+            <template #no-option>
+              <q-item>
+                <q-item-section class="text-grey">
+                  {{ searchTerm.length < 3 ? "Minimum 3 characters required" : "Nothing found, Kitty" }}
+                </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
+
+          <q-space />
+
+          <q-route-tab
+            to="/feed"
+            icon="feed"
+            label="Mews"
           />
-        </q-btn>
+          <q-route-tab to="/my-profile">
+            <agent-avatar
+              :agent-pub-key="store.myAgentPubKey"
+              size="40"
+              class="q-mr-sm"
+            />
+            <div>Profile</div>
+          </q-route-tab>
+        </q-tabs>
       </q-toolbar>
 
       <q-space />
@@ -90,6 +92,8 @@ import { showError } from "@/utils/notification";
 
 const store = useProfileStore();
 const router = useRouter();
+const tab = ref("");
+
 const searching = ref(false);
 const options = ref<QSelectOption[]>([]);
 const selection = ref<QSelectOption | null>(null);
