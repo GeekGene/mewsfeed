@@ -95,11 +95,11 @@ export default (orchestrator: Orchestrator<any>) =>
     let carolPubKey = serializeHash(carol.cellId[1])
 
     let mews = await bob.call("mews", "mews_by", alicePubKey)
-    t.equal(getMewContents(mews[0]), mewContents);
+    t.equal(getMewContents(mews[0].feedMew), mewContents);
     console.log('mews:', mews)
-    console.log('entry hash:', entryHash(mews[0].header.entry_hash))
-    console.log('mewType:', mews[0].mew.mewType)
-    const originalEntryHash = entryHash(mews[0].header.entry_hash)
+    console.log('entry hash:', entryHash(mews[0].feedMew.header.entry_hash))
+    console.log('mewType:', mews[0].feedMew.mew.mewType)
+    const originalEntryHash = entryHash(mews[0].feedMew.header.entry_hash)
 
 
 
@@ -143,7 +143,7 @@ export default (orchestrator: Orchestrator<any>) =>
 
     // after following alice bob should get alice's mews in his feed
     mews = await bob.call("mews", "mews_feed", { option: "" })
-    t.equal(getMewContents(mews[0]), mewContents);
+    t.equal(getMewContents(mews[0].feedMew), mewContents);
 
     // carol and alice post, bob follows carol
     // Carol creates a post
@@ -175,9 +175,9 @@ export default (orchestrator: Orchestrator<any>) =>
 
     // tests that mews from different followers get sorted into descending order
     mews = await bob.call("mews", "mews_feed", { option: "" })
-    t.equal(getMewContents(mews[0]), mewContents + "3");
-    t.equal(getMewContents(mews[1]), mewContents + "2");
-    t.equal(getMewContents(mews[2]), mewContents);
+    t.equal(getMewContents(mews[0].feedMew), mewContents + "3");
+    t.equal(getMewContents(mews[1].feedMew), mewContents + "2");
+    t.equal(getMewContents(mews[2].feedMew), mewContents);
 
     await bob.call("mews", "unfollow", alicePubKey);
     await bob.call("mews", "unfollow", carolPubKey);

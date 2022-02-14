@@ -346,31 +346,22 @@ pub struct FeedMew {
 }
 
 #[hdk_extern]
-pub fn mews_by(agent: AgentPubKeyB64) -> ExternResult<Vec<FeedMew>> {
+pub fn mews_by(agent: AgentPubKeyB64) -> ExternResult<Vec<FeedMewWithContext>> {
     let base = get_mews_base(agent, MEWS_PATH_SEGMENT, false)?;
     let links = get_links(base, None)?;
-    let get_input = links
+    
+    let feed: Vec<FeedMewWithContext> = links
         .into_iter()
-        .map(|link| GetInput::new(link.target.into(), GetOptions::default()))
-        .collect();
-
-    let mew_elements = HDK.with(|hdk| hdk.borrow().get(get_input))?;
-    let feed: Vec<FeedMew> = mew_elements
-        .into_iter()
-        .filter_map(|me| me)
-        .filter_map(|element| match element.entry().to_app_option() {
-            Ok(Some(g)) => Some(FeedMew {
-                mew: g,
-                header: element.header().clone(),
-            }),
-            _ => None,
+        .map(|link| {
+            get_feed_mew_and_context_inner(link.target)
         })
+        .filter_map(Result::ok)
         .collect();
     Ok(feed)
 }
 
 #[hdk_extern]
-pub fn mews_feed(_options: FeedOptions) -> ExternResult<Vec<FeedMew>> {
+pub fn mews_feed(_options: FeedOptions) -> ExternResult<Vec<FeedMewWithContext>> {
     let mut feed = Vec::new();
     let me = agent_info()?.agent_latest_pubkey;
     feed.append(&mut mews_by(AgentPubKeyB64::from(me))?);
@@ -379,7 +370,7 @@ pub fn mews_feed(_options: FeedOptions) -> ExternResult<Vec<FeedMew>> {
     }
     // TODO don't really need to sort, could merge for efficiency
     // sort by timestamp in descending order
-    feed.sort_by(|a, b| b.header.timestamp().cmp(&a.header.timestamp()));
+    feed.sort_by(|a, b| b.feed_mew.header.timestamp().cmp(&a.feed_mew.header.timestamp()));
 
     Ok(feed)
 }
