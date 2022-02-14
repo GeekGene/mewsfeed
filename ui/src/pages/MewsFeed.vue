@@ -56,10 +56,10 @@
       >
         <q-item-section avatar>
           <agent-avatar
-            :agent-pub-key="authorPubKey(mew.header.author)"
+            :agent-pub-key="authorPubKey(mew.feedMew.header.author)"
             size="50"
             class="cursor-pointer"
-            @click="onAgentClick(authorPubKey(mew.header.author))"
+            @click="onAgentClick(authorPubKey(mew.feedMew.header.author))"
             @mouseenter="showProfile(index)"
             @mouseleave="hideProfile(index)"
           >
@@ -71,7 +71,7 @@
               no-focus
             >
               <ProfilePopup
-                :agent-pub-key="authorPubKey(mew.header.author)"
+                :agent-pub-key="authorPubKey(mew.feedMew.header.author)"
                 @mouseenter="keepShowingProfile(index)"
                 @mouseleave="hideProfile(index)"
               />
@@ -79,7 +79,7 @@
           </agent-avatar>
         </q-item-section>
         <q-item-section>
-          <MewsFeedContent :mew-content="mew" />
+          <MewsFeedContent :mew-content="mew.feedMew" />
         </q-item-section>
       </q-item>
     </q-list>
@@ -90,7 +90,7 @@
 import { HoloHashB64 } from '@holochain-open-dev/core-types';
 import { createMew, mewsFeed as getMewsFeed } from '../services/clutter-dna';
 import { onMounted, ref } from 'vue';
-import { FeedMew, Mew } from '../types/types';
+import { FeedMewWithContext as FeedMew, Mew, CreateMewInput } from '../types/types';
 import { showError } from '../utils/notification';
 import { authorPubKey } from "../utils/hash";
 import { useRouter } from 'vue-router';
@@ -125,7 +125,7 @@ const loadMewsFeed = async () => {
 
 onMounted(loadMewsFeed);
 
-const publishMew = async (newMew: Mew) => {
+const publishMew = async (newMew: CreateMewInput) => {
   await createMew(newMew);
   loadMewsFeed();
 };

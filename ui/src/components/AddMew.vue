@@ -20,12 +20,18 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { Mew } from "../types/types";
-const emit = defineEmits<{(e: 'publish-mew', mew: Mew): void;}>();
+import { Mew, CreateMewInput } from "../types/types";
+const emit = defineEmits<{(e: 'publish-mew', mew: CreateMewInput): void;}>();
 
 const newMew = ref("");
 const publishMew = async () => {
-    emit("publish-mew", newMew.value);
+    const createMewInput = {
+      mewType: {
+        original: null
+      },
+      mew: newMew.value
+    };
+    emit("publish-mew", createMewInput);
     newMew.value = "";
 };
 </script>

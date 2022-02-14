@@ -5,7 +5,7 @@ import {
   InstalledCell,
 } from "@holochain/client";
 import { inject, InjectionKey } from "vue";
-import { Mew, FeedOptions, FeedMew, FullMew } from "../types/types";
+import { Mew, CreateMewInput, FeedOptions, FeedMewWithContext as FeedMew, FullMew } from "../types/types";
 import { EntryHashB64, AgentPubKeyB64 } from '@holochain-open-dev/core-types';
 
 let appWebSocket: AppWebsocket;
@@ -64,7 +64,7 @@ export enum MewsFn {
   Unfollow = "unfollow"
 }
 
-export const createMew = async (mew: Mew) => {
+export const createMew = async (mew: CreateMewInput) => {
   return callZome({
     zome_name: "mews",
     fn_name: MewsFn.CreateMew,

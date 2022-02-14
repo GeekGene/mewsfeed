@@ -9,6 +9,15 @@ export interface Profile {
 
 export type Mew = string;
 
+export type CreateMewInput = {
+    mewType: MewTypeInput,
+    mew: string | null
+}
+
+export type MewTypeInput =
+| {
+    original: null
+}
 export interface MewContent {
     mew: string
 }
@@ -26,6 +35,13 @@ export interface FullMew {
 export interface FeedMew {
     mew: FullMew,
     header: Header
+}
+
+export interface FeedMewWithContext {
+    feedMew: FeedMew,
+    comments: Array<string>,
+    shares: Array<string>,
+    likes: Array<string>
 }
 
 export interface NotificationOptions {
