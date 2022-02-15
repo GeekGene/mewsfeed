@@ -5,7 +5,7 @@ import { serializeHash } from '@holochain-open-dev/core-types';
 
 
 function getMewContents(fullMew: any): string {
-  return fullMew.mew.mewType.original.mew
+  return fullMew.mew.mew.mew
 }
 
 export default (orchestrator: Orchestrator<any>) =>
@@ -88,7 +88,7 @@ export default (orchestrator: Orchestrator<any>) =>
     // Bob gets the created mew
     const mew = await bob.call("mews", "get_mew", mewHash);
     console.log("mew", mew)
-    t.deepEqual(mew, { mewType: { original: { mew: mewContents } }, mew: null });
+    t.deepEqual(mew, { mewType: { original: null }, mew: { mew: mewContents } });
 
     let alicePubKey = serializeHash(alice.cellId[1])
     let bobPubKey = serializeHash(bob.cellId[1])
@@ -252,7 +252,7 @@ export default (orchestrator: Orchestrator<any>) =>
     // test can get mew with entry hash in addition to header hash
     const mewFromEntryHash = await bob.call("mews", "get_mew", mewWithContext.comments[0])
     console.log('mew from entry hash:', mewFromEntryHash)
-    t.equals(mewFromEntryHash.mew, null)
+    t.equals(mewFromEntryHash.mew.mew, createReplyMewInput.mew)
     t.equals("reply" in mewFromEntryHash.mewType, true)
 
     mewWithContext = await bob.call("mews", "get_feed_mew_and_context", originalEntryHash)

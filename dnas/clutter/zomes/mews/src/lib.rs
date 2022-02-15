@@ -15,10 +15,10 @@ entry_defs![
 #[derive(Debug, Serialize, Deserialize, SerializedBytes)]
 #[serde(rename_all = "camelCase")]
 enum MewType {
-    Original(MewContent),
-    Reply(EntryHash,MewContent),
-    ReMew(EntryHash),
-    MewMew(EntryHash,MewContent), // QuoteTweet
+    Original,
+    Reply(EntryHashB64),
+    ReMew(EntryHashB64),
+    MewMew(EntryHashB64), // QuoteTweet
 }
 
 #[hdk_entry(id = "mew_content")]
@@ -115,8 +115,8 @@ pub fn create_original_mew(mew: String) -> ExternResult<HeaderHashB64> {
     let _header_hash = create_entry(&content)?;
 
     let full = FullMew{
-        mew_type: MewType::Original(content),
-        mew: None
+        mew_type: MewType::Original,
+        mew: Some(content)
     };
     let full_header_hash = create_entry(&full)?;
     let hash = hash_entry(&full)?;
@@ -135,8 +135,8 @@ pub fn create_reply_mew(mew: String, original_entry_hash: EntryHashB64) -> Exter
     let _header_hash = create_entry(&content)?;
 
     let full = FullMew{
-        mew_type: MewType::Reply(original_entry_hash.clone().into(), content),
-        mew: None
+        mew_type: MewType::Reply(original_entry_hash.clone().into()),
+        mew: Some(content)
     };
     let full_header_hash = create_entry(&full)?;
     let hash = hash_entry(&full)?;
@@ -173,8 +173,8 @@ pub fn create_mewmew(mew: String, original_entry_hash: EntryHashB64) -> ExternRe
     let _header_hash = create_entry(&content)?;
 
     let full = FullMew{
-        mew_type: MewType::MewMew(original_entry_hash.clone().into(), content),
-        mew: None
+        mew_type: MewType::MewMew(original_entry_hash.clone().into()),
+        mew: Some(content)
     };
     let full_header_hash = create_entry(&full)?;
     let hash = hash_entry(&full)?;

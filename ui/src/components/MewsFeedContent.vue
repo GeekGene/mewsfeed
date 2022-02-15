@@ -1,7 +1,7 @@
 <template>
   <div class="column">
     <div class="text-body1">
-      {{ mewContent.mew.mewType.original.mew }}
+      {{ mewContent.mew.mew.mew }}
     </div>
     <div class="self-end text-caption">
       {{ formattedTimestamp }}

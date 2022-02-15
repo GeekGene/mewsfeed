@@ -1,4 +1,4 @@
-import { Header } from '@holochain-open-dev/core-types';
+import { Header, EntryHashB64, EntryHash } from '@holochain-open-dev/core-types';
 
 export interface Profile {
     avatar: string, // base 64 in-place image url
@@ -18,13 +18,32 @@ export type MewTypeInput =
 | {
     original: null
 }
+| {
+    reply: EntryHashB64
+}
+| {
+    reMew: EntryHashB64
+}
+| {
+    mewMew: EntryHashB64
+}
+
 export interface MewContent {
     mew: string
 }
 
-export type MewType = 
+export type MewType =
 | {
-    original: MewContent
+    original: null
+}
+| {
+    reply: EntryHashB64
+}
+| {
+    reMew: EntryHashB64
+}
+| {
+    mewMew: EntryHashB64
 }
 
 export interface FullMew {
