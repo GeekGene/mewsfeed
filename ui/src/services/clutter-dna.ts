@@ -5,7 +5,7 @@ import {
   InstalledCell,
 } from "@holochain/client";
 import { inject, InjectionKey } from "vue";
-import { Mew, CreateMewInput, FeedOptions, FeedMewWithContext as FeedMew, FullMew } from "../types/types";
+import { Mew, CreateMewInput, FeedOptions, FeedMewWithContext as FeedMew, FullMew, FeedMewWithContext } from "../types/types";
 import { EntryHashB64, AgentPubKeyB64 } from '@holochain-open-dev/core-types';
 
 let appWebSocket: AppWebsocket;
@@ -61,7 +61,10 @@ export enum MewsFn {
   Following = "following",
   MyFollowers = "my_followers",
   MyFollowing = "my_following",
-  Unfollow = "unfollow"
+  Unfollow = "unfollow",
+  LickMew = "lick_mew",
+  UnlickMew = "unlick_mew",
+  GetFeedMewAndContext = "get_feed_mew_and_context"
 }
 
 export const createMew = async (mew: CreateMewInput) => {
@@ -141,5 +144,29 @@ export const myFollowing = async () : Promise<Array<AgentPubKeyB64>> => {
     zome_name: "mews",
     fn_name: MewsFn.MyFollowing,
     payload: null,
+  });
+};
+
+export const lickMew = async (mew: EntryHashB64) : Promise<null> => {
+  return callZome({
+    zome_name: "mews",
+    fn_name: MewsFn.LickMew,
+    payload: mew,
+  });
+};
+
+export const unlickMew = async (mew: EntryHashB64) : Promise<null> => {
+  return callZome({
+    zome_name: "mews",
+    fn_name: MewsFn.UnlickMew,
+    payload: mew,
+  });
+};
+
+export const getFeedMewAndContext = async (mew: string) : Promise<FeedMewWithContext> => {
+  return callZome({
+    zome_name: "mews",
+    fn_name: MewsFn.GetFeedMewAndContext,
+    payload: mew,
   });
 };

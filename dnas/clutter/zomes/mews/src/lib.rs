@@ -276,6 +276,7 @@ where
 #[serde(rename_all = "camelCase")]
 pub struct FeedMewWithContext {
     pub feed_mew: FeedMew,
+    pub mew_entry_hash: EntryHashB64,
     pub comments: Vec<EntryHashB64>,
     pub shares: Vec<EntryHashB64>,
     pub likes: Vec<AgentPubKeyB64>,
@@ -325,6 +326,10 @@ where
 
     let feed_mew_and_context = FeedMewWithContext {
         feed_mew,
+        mew_entry_hash: EntryHash::from(
+            element.header().entry_hash()
+                .ok_or(WasmError::Guest(String::from("could not stringify entry hash")))?
+                .clone()).into(),
         comments,
         shares,
         likes

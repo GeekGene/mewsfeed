@@ -29,7 +29,7 @@
   <q-item-section>
     <div>
       <q-btn
-        @click="likeMew"
+        @click="toggleLickMew"
       >
         like ({{ mew.likes.length }})
       </q-btn>
@@ -41,7 +41,7 @@
 
 <script setup lang="ts">
 import { HoloHashB64 } from "@holochain-open-dev/core-types";
-import { createMew } from "../services/clutter-dna";
+import { createMew, lickMew, unlickMew, getFeedMewAndContext } from "../services/clutter-dna";
 import { onMounted, ref } from "vue";
 import {
   FeedMewWithContext as FeedMew,
@@ -55,10 +55,16 @@ import AddMew from "../components/AddMew.vue";
 import MewsFeedContent from "../components/MewsFeedContent.vue";
 import ProfilePopup from "../components/ProfilePopup.vue";
 import { PropType } from "vue";
-const props = defineProps({ 
+import { useProfileStore } from "../services/profile-store";
+
+let props = defineProps({ 
     mew: { type: Object as PropType<FeedMew>, required: true },
     index: { type: Number, required: true }
     });
+const store = useProfileStore();
+const myAgentPubKey = store.myAgentPubKey;
+
+const emit = defineEmits<{(e: 'refresh-view'): void;}>();
 const PROFILE_SHOW_HIDE_DELAY = 400; // in ms
 
 const router = useRouter();
@@ -92,4 +98,27 @@ const hideProfile = (index: number) => {
 const keepShowingProfile = (index: number) => {
   window.clearTimeout(profileHideTimeouts.value[index]);
 };
+const toggleLickMew = async () => {
+   // check if already likes
+   if(isLickedByMe()) {
+      // unlick
+      await unlickMew(props.mew.mewEntryHash);
+      // refreshMew();
+   } 
+   else {
+      // lick
+      await lickMew(props.mew.mewEntryHash);
+      // refreshMew();
+   }
+};
+
+const isLickedByMe = () => {
+  // check if my agent key is in the returned list of likes
+  return props.mew.likes.includes(myAgentPubKey);
+};
+
+// const refreshMew = async () => {
+//   // eslint-disable-next-line vue/no-mutating-props
+//   props.mew = await getFeedMewAndContext(props.mew.mewEntryHash);
+// };
 </script>

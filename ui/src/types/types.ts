@@ -1,4 +1,4 @@
-import { Header, EntryHashB64, EntryHash } from '@holochain-open-dev/core-types';
+import { Header, EntryHashB64 } from '@holochain-open-dev/core-types';
 
 export interface Profile {
     avatar: string, // base 64 in-place image url
@@ -58,6 +58,7 @@ export interface FeedMew {
 
 export interface FeedMewWithContext {
     feedMew: FeedMew,
+    mewEntryHash: EntryHashB64,
     comments: Array<string>,
     shares: Array<string>,
     likes: Array<string>
