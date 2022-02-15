@@ -4,6 +4,7 @@
   >
     <AddMew
       class="text-center"
+      :mew-type="{original:null}"
       @publish-mew="publishMew"
     />
 
@@ -57,6 +58,8 @@
         <FeedMewWrapper 
           :mew="mew"
           :index="index"
+          @publish-mew="publishMew"
+          @refresh-feed="refreshFeed"
         /> 
       </q-item>
     </q-list>
@@ -96,6 +99,9 @@ onMounted(loadMewsFeed);
 
 const publishMew = async (newMew: CreateMewInput) => {
   await createMew(newMew);
+  refreshFeed();
+};
+const refreshFeed = () => {
   loadMewsFeed();
 };
 </script>

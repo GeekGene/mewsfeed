@@ -1,6 +1,9 @@
 <template>
   <div class="column">
-    <div class="text-body1">
+    <div 
+      v-if="mewContent.mew.mew"
+      class="text-body1"
+    >
       {{ mewContent.mew.mew.mew }}
     </div>
     <div class="self-end text-caption">

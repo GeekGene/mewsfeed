@@ -29,13 +29,44 @@
   <q-item-section>
     <div>
       <q-btn
+        class="like-btn"
         @click="toggleLickMew"
       >
         like ({{ mew.likes.length }})
       </q-btn>
-      <q-btn>reply ({{ mew.comments.length }})</q-btn>
-      <q-btn>share ({{ mew.shares.length }})</q-btn>
+      <q-btn
+        class="reply-btn"
+        @click="replyToMew"
+      >
+        reply ({{ mew.comments.length }})
+      </q-btn>
+      <q-btn
+        class="share-btn"
+        @click="shareMew"
+      >
+        share ({{ mew.shares.length }})
+      </q-btn>
+      <q-btn
+        class="mewmew-btn"
+        @click="mewMew"
+      >
+        mew-mew
+      </q-btn>
     </div>
+  </q-item-section>
+  <q-item-section v-if="isReplying">
+    <AddMew
+      class="text-center"
+      :mew-type="{reply:mew.mewEntryHash}"
+      @publish-mew="closeTextBox"
+    />
+  </q-item-section>
+  <q-item-section v-else-if="isMewMewing">
+    <AddMew
+      class="text-center"
+      :mew-type="{mewMew:mew.mewEntryHash}"
+      @publish-mew="closeTextBox"
+    />
   </q-item-section>
 </template>
 
@@ -64,7 +95,6 @@ let props = defineProps({
 const store = useProfileStore();
 const myAgentPubKey = store.myAgentPubKey;
 
-const emit = defineEmits<{(e: 'refresh-view'): void;}>();
 const PROFILE_SHOW_HIDE_DELAY = 400; // in ms
 
 const router = useRouter();
@@ -74,6 +104,13 @@ const mewsFeed = ref<FeedMew[]>([]);
 const profileVisible = ref<boolean[]>([]);
 const profileHideTimeouts = ref<number[]>([]);
 const profileShowTimeouts = ref<number[]>([]);
+const emit = defineEmits<{
+  (e: 'publish-mew', mew: CreateMewInput): void;
+  (e: 'refresh-feed'): void;
+}>();
+
+let isReplying = ref(false);
+let isMewMewing = ref(false);
 
 const onAgentClick = (agentPubKey: HoloHashB64) => {
   router.push(`/profiles/${agentPubKey}`);
@@ -110,11 +147,42 @@ const toggleLickMew = async () => {
       await lickMew(props.mew.mewEntryHash);
       // refreshMew();
    }
+   emit("refresh-feed");
 };
 
 const isLickedByMe = () => {
   // check if my agent key is in the returned list of likes
   return props.mew.likes.includes(myAgentPubKey);
+};
+
+const replyToMew = () => {
+  if(isMewMewing.value) {
+    mewMew();
+  }
+  isReplying.value = !isReplying.value;
+};
+const mewMew = () => {
+  if(isReplying.value) {
+    replyToMew();
+  }
+  isMewMewing.value = !isMewMewing.value;
+};
+const shareMew = () => {
+  //TODO: enforce 1 share per mew
+  const mew: CreateMewInput = {
+    mewType: {
+      reMew: props.mew.mewEntryHash
+    },
+    mew: null
+  };
+  emit("publish-mew", mew);
+};
+
+const closeTextBox = (newMew: CreateMewInput) => {
+  isReplying.value = false;
+  isMewMewing.value = false;
+  emit("publish-mew", newMew);
+
 };
 
 // const refreshMew = async () => {
