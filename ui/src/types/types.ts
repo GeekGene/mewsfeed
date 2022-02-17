@@ -1,4 +1,4 @@
-import { Header } from '@holochain-open-dev/core-types';
+import { Header, EntryHashB64 } from '@holochain-open-dev/core-types';
 
 export interface Profile {
     did: string,
@@ -10,23 +10,59 @@ export interface Profile {
 
 export type Mew = string;
 
+export type CreateMewInput = {
+    mewType: MewTypeInput,
+    mew: string | null
+}
+
+export type MewTypeInput =
+| {
+    original: null
+}
+| {
+    reply: EntryHashB64
+}
+| {
+    reMew: EntryHashB64
+}
+| {
+    mewMew: EntryHashB64
+}
+
 export interface MewContent {
     mew: string
 }
 
-export type MewType = 
+export type MewType =
 | {
-    original: MewContent
+    original: null
+}
+| {
+    reply: EntryHashB64
+}
+| {
+    reMew: EntryHashB64
+}
+| {
+    mewMew: EntryHashB64
 }
 
 export interface FullMew {
-    mew_type: MewType,
+    mewType: MewType,
     mew: MewContent | null
 }
 
 export interface FeedMew {
     mew: FullMew,
-    header: Header,
+    header: Header
+}
+
+export interface FeedMewWithContext {
+    feedMew: FeedMew,
+    mewEntryHash: EntryHashB64,
+    comments: Array<string>,
+    shares: Array<string>,
+    likes: Array<string>
 }
 
 export interface NotificationOptions {
@@ -51,5 +87,5 @@ export interface NotificationOptions {
 }
 
 export interface FeedOptions {
-    options: string
+    option: string
 }

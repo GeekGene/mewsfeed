@@ -10,7 +10,7 @@
     "network": "npm run build:happ && concurrently-repeat \"npm run start:agent\"",
     "start:agent": "cross-env HC_PORT=$(port) concurrently \"npm run playground\" \"npm run start:happ\" \"sleep 5 && npm run start -w ui\"",
     "test": "npm run build:happ && npm t -w tests",
-    "start:happ": "RUST_LOG=warn hc s generate ./workdir/clutter.happ --run=$HC_PORT -a clutter network mdns",
+    "start:happ": "hc s clean && RUST_LOG=warn hc s generate ./workdir/clutter.happ --run=$HC_PORT -a clutter network mdns",
     "package": "npm run build:happ && npm run package:ui && hc web-app pack workdir",
     "package:ui": "npm run build -w ui && cd ui/dist && bestzip ../dist.zip *",
     "build:happ": "npm run build:dnas && hc app pack ./workdir",
