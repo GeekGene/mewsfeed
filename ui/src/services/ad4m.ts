@@ -109,7 +109,7 @@ export const createMew = async (mew: Mew) => {
         target: mewUrl
     }))
 
-    await ad4m.agent.updatePublicPerspective(await agentPerspective!.snapshot()))
+    await ad4m.agent.updatePublicPerspective(await agentPerspective!.snapshot())
 };
   
 export const getMew = async (mew: EntryHashB64) : Promise<FullMew> => {
