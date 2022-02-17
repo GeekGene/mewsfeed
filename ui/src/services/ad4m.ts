@@ -1,10 +1,12 @@
-import { Ad4mClient, Agent, Link, Literal, Perspective, PerspectiveProxy } from '@perspect3vism/ad4m'
+import { Ad4mClient, Agent, Link, LinkQuery, Literal, Perspective, PerspectiveProxy } from '@perspect3vism/ad4m'
 import { ApolloClient, ApolloLink, InMemoryCache } from "@apollo/client";
 import { WebSocketLink } from '@apollo/client/link/ws';
-import { Profile } from '../types/types'
+import { Profile, CreateMewInput, FeedMewWithContext, FeedOptions } from '../types/types'
+import { EntryHashB64 } from '@holochain-open-dev/core-types';
 
 const AGENT_PERSPECTIVE_NAME = '__agent_public_perspective'
-const CLUTTER_LANGUAGE = "QmdTZKNaNgMakbWR2qciPXFggMe1K2bd2CZ1TN9GQXkYuz"
+// const CLUTTER_LANGUAGE = "QmdTZKNaNgMakbWR2qciPXFggMe1K2bd2CZ1TN9GQXkYuz"
+const CLUTTER_LANGUAGE = "QmcWWYnz494S2yucuZb3f1TczqfuAWjvNgRC3wZkB3mPqW"
 
 //--------------------------------------------
 // Create AD4M client
@@ -100,24 +102,38 @@ export async function createProfile(profile: Profile) {
 }
 
 
-export const createMew = async (mew: Mew) => {
-    const mewUrl = await ad4m.expression.create({ mew }, CLUTTER_LANGUAGE)
+export const createMew = async (mew: CreateMewInput) => {
+    const mewUrl = await ad4m.expression.create(mew, CLUTTER_LANGUAGE)
 
     await agentPerspective!.add(new Link({
         source: me.did,
-        prediacte: `clutter://haz_mew`,
+        predicate: 'clutter://haz_mew',
         target: mewUrl
     }))
 
-    await ad4m.agent.updatePublicPerspective(await agentPerspective!.snapshot())
+    let agent = await ad4m.agent.updatePublicPerspective(await agentPerspective!.snapshot())
+    console.log('returned agent', agent)
+    return mewUrl
 };
   
-export const getMew = async (mew: EntryHashB64) : Promise<FullMew> => {
+export const getMew = async (mew: EntryHashB64) : Promise<FeedMewWithContext> => {
     const mewExpression = await ad4m.expression.get(`${CLUTTER_LANGUAGE}://${mew}`)
-    //TODO update Language to include FullMew
-    return { mew_type: { original: { mew: mewExpression.data }}}
+    return mewExpression.data
 };
   
-export const mewsFeed = async (options: FeedOptions) : Promise<Array<FeedMew>> => {
-    agentPerspective?.get(new LinkQuery({}))
+export const mewsFeed = async (options: FeedOptions) : Promise<Array<FeedMewWithContext>> => {
+    if (!agentPerspective) {
+        await initAgentPerspective();
+    }
+    const myMewLinks = await agentPerspective!.get(new LinkQuery({
+        source: me.did,
+        predicate: 'clutter://haz_mew'
+    }))
+    const myMewUrls = myMewLinks?.map(link => link.data.target)
+
+    const myMews = await Promise.all(
+        myMewUrls.map(async url => await ad4m.expression.get(url))
+    )
+    return myMews.map(expression => expression.data)
+    //get all mine, get all people I follow
 };

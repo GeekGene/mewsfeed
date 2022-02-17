@@ -5,7 +5,7 @@ import {
   InstalledCell,
 } from "@holochain/client";
 import { inject, InjectionKey } from "vue";
-import { Mew, CreateMewInput, FeedOptions, FeedMewWithContext as FeedMew, FullMew, FeedMewWithContext } from "../types/types";
+import { Mew, CreateMewInput, FeedOptions, FeedMew, FullMew, FeedMewWithContext } from "../types/types";
 import { EntryHashB64, AgentPubKeyB64 } from '@holochain-open-dev/core-types';
 
 let appWebSocket: AppWebsocket;
@@ -83,7 +83,7 @@ export const getMew = async (mew: EntryHashB64) : Promise<FullMew> => {
   });
 };
 
-export const mewsFeed = async (options: FeedOptions) : Promise<Array<FeedMew>> => {
+export const mewsFeed = async (options: FeedOptions) : Promise<Array<FeedMewWithContext>> => {
   return callZome({
     zome_name: "mews",
     fn_name: MewsFn.MewsFeed,
@@ -91,7 +91,7 @@ export const mewsFeed = async (options: FeedOptions) : Promise<Array<FeedMew>> =
   });
 };
 
-export const mewsBy = async (agent: AgentPubKeyB64) : Promise<Array<FeedMew>> => {
+export const mewsBy = async (agent: AgentPubKeyB64) : Promise<Array<FeedMewWithContext>> => {
   return callZome({
     zome_name: "mews",
     fn_name: MewsFn.MewsBy,

@@ -13,17 +13,17 @@ export default class ExpressionAdapterImpl implements ExpressionAdapter {
   }
 
   async get(mewAddress: Address): Promise<Expression> {
-    const fullMew = await this.#DNA.call(
+    const fullMewWithContext = await this.#DNA.call(
       DNA_NICK,
       "mews",
-      "get_mew",
+      "get_feed_mew_and_context",
       mewAddress
     );
 
     return {
       author: 'unknown',
       timestamp: 'unknown',
-      data: fullMew.mew_type.original,
+      data: fullMewWithContext,
       proof: {
         key: 'none',
         signature: 'none'
@@ -42,15 +42,15 @@ class Sharing implements PublicSharing {
   }
 
   async createPublic(mewObject: object): Promise<Address> {
-    if(!mewObject["mew"]) throw "Not a Mew object"
-    //@ts-ignore
-    const mewString = mewObject.mew
+    // if(!mewObject["mew"]) throw "Not a Mew object"
+    // //@ts-ignore
+    // const mewString = mewObject.mew
 
     const address = await this.#DNA.call(
       DNA_NICK,
       "mews",
       "create_mew",
-      mewString
+      mewObject
     );
 
     return address

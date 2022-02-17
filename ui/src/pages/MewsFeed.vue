@@ -73,6 +73,7 @@ import { FeedMewWithContext as FeedMew, CreateMewInput } from '../types/types';
 import { showError } from '../utils/notification';
 import AddMew from '../components/AddMew.vue';
 import FeedMewWrapper from '../components/FeedMewWrapper.vue';
+import { createMew as createMewExpression, mewsFeed as ad4mMewsFeed } from '../services/ad4m';
 
 
 const loading = ref(false);
@@ -84,7 +85,9 @@ const profileShowTimeouts = ref<number[]>([]);
 const loadMewsFeed = async () => {
   try {
     loading.value = true;
-    mewsFeed.value = await getMewsFeed({ option: '' });
+    const serializedFeed = await ad4mMewsFeed({ option: ''});
+    mewsFeed.value = serializedFeed.map(mew => JSON.parse(mew));
+    console.log(mewsFeed.value);
     profileVisible.value = new Array(mewsFeed.value.length).fill(false);
     profileShowTimeouts.value = new Array(mewsFeed.value.length).fill(0);
     profileHideTimeouts.value = new Array(mewsFeed.value.length).fill(0);
@@ -98,7 +101,10 @@ const loadMewsFeed = async () => {
 onMounted(loadMewsFeed);
 
 const publishMew = async (newMew: CreateMewInput) => {
-  await createMew(newMew);
+  const address = await createMew(newMew);
+  console.log('mew address:', address);
+  const expressionAddress = await createMewExpression(newMew);
+  console.log('mew expression address:', expressionAddress);
   refreshFeed();
 };
 const refreshFeed = () => {
