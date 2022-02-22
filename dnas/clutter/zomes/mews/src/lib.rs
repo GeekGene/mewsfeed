@@ -355,13 +355,15 @@ pub fn mews_by(agent: AgentPubKeyB64) -> ExternResult<Vec<FeedMewWithContext>> {
     let base = get_mews_base(agent, MEWS_PATH_SEGMENT, false)?;
     let links = get_links(base, None)?;
     
-    let feed: Vec<FeedMewWithContext> = links
+    let mut feed: Vec<FeedMewWithContext> = links
         .into_iter()
         .map(|link| {
             get_feed_mew_and_context_inner(link.target)
         })
         .filter_map(Result::ok)
         .collect();
+    feed.sort_by(|a, b| b.feed_mew.header.timestamp().cmp(&a.feed_mew.header.timestamp()));
+
     Ok(feed)
 }
 

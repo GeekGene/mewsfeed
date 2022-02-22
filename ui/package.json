@@ -11,9 +11,9 @@
   },
   "dependencies": {
     "@holochain/client": "^0.3.2",
-    "@holochain-open-dev/cell-client": "^0.2.1",
+    "@holochain-open-dev/cell-client": "^0.3.1",
     "@holochain-open-dev/context": "^0.0.3",
-    "@holochain-open-dev/profiles": "^0.0.4",
+    "@holochain-open-dev/profiles": "^0.0.5",
     "@holochain-open-dev/core-types": "^0.2.0",
     "@quasar/extras": "^1.12.4",
     "quasar": "^2.4.12",

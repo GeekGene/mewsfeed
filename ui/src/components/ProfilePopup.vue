@@ -1,82 +1,89 @@
 <template>
   <q-card
     v-bind="$attrs"
-    bordered
     class="text-body1"
   >
     <q-card-section class="row justify-between items-center">
-      <div class="q-mr-lg">
-        <label>Nickname:</label>
-        {{ nickname }}
+      <context-provider
+        :context="profilesStoreContext"
+        :value="profileStore"
+      >
+        <agent-avatar
+          :agent-pub-key="agentPubKey"
+          size="50"
+          class="q-mr-lg cursor-pointer"
+          @click="onAgentClick(agentPubKey)"
+        >
+          Test
+        </agent-avatar>
+      </context-provider>
+      <div class="q-mr-lg text-primary">
+        <div class="text-weight-medium">
+          {{ displayName }}
+        </div>
+        <div>@{{ nickname }}</div>
       </div>
-      <q-icon
-        v-if="agentPubKey !== store.myAgentPubKey"
-        :name="following ? 'star' : 'star_outline'"
-        size="md"
-        color="accent"
-        class="cursor-pointer"
-        @click="toggleFollow"
+      <ButtonFollow
+        v-if="!isMyProfile"
+        :agent-pub-key="agentPubKey"
       />
     </q-card-section>
-    <q-card-section>
-      <div><label>Bio: </label>{{ bio }}</div>
-      <div><label>Location: </label>{{ location }}</div>
+    <q-card-section class="row">
+      <div class="q-mr-md">
+        <div><label class="text-weight-medium">Bio:</label></div>
+        <div><label class="text-weight-medium">Location:</label></div>
+      </div>
+      <div class="col-grow">
+        <div>{{ bio }}</div>
+        <div>{{ location }}</div>
+      </div>
     </q-card-section>
   </q-card>
 </template>
 
 <script setup lang="ts">
 import { HoloHashB64 } from '@holochain-open-dev/core-types';
-import { useProfileStore } from '../services/profile-store';
-import { showError, showMessage } from '../utils/notification';
-import { onMounted, PropType, ref } from 'vue';
-import { follow, myFollowing, unfollow } from '../services/clutter-dna';
+import { profilesStoreContext } from '@holochain-open-dev/profiles';
+import { useProfileStore } from '@/services/profile-store';
+import { computed, onMounted, PropType, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { showError } from '@/utils/notification';
+import ButtonFollow from './ButtonFollow.vue';
 
+const router = useRouter();
+const profileStore = useProfileStore();
 const props = defineProps({
-    agentPubKey: {
-        type: Object as PropType<HoloHashB64>,
-        required: true
-    }
+  agentPubKey: {
+    type: Object as PropType<HoloHashB64>,
+    required: true
+  }
 });
+const isMyProfile = computed(() => props.agentPubKey === profileStore.myAgentPubKey);
 
-const loading = ref(false);
 const nickname = ref("");
+const displayName = ref("");
 const bio = ref("");
 const location = ref("");
-const following = ref(false);
-
-const store = useProfileStore();
+const loading = ref(false);
 
 onMounted(async () => {
-    try {
-        loading.value = true;
-        const profile = await store.fetchAgentProfile(props.agentPubKey);
-        if (profile) {
-            nickname.value = profile.nickname;
-            bio.value = profile.fields.Bio;
-            location.value = profile.fields.Location;
-        }
-        const currentMyFollowing = await myFollowing();
-        following.value = currentMyFollowing.includes(props.agentPubKey);
-    } catch (error) {
-        showError(error);
-    } finally {
-        loading.value = false;
+  try {
+    loading.value = true;
+    const profile = await profileStore.fetchAgentProfile(props.agentPubKey);
+    if (profile) {
+      nickname.value = profile.nickname;
+      displayName.value = profile.fields["Display name"];
+      bio.value = profile.fields.Bio;
+      location.value = profile.fields.Location;
     }
+  } catch (error) {
+    showError(error);
+  } finally {
+    loading.value = false;
+  }
 });
 
-const toggleFollow = async () => {
-    try {
-        if (following.value) {
-            await unfollow(props.agentPubKey);
-        } else {
-            await follow(props.agentPubKey);
-        }
-        following.value = !following.value;
-        const message = (following.value ? `You're following ` : 'You stopped following ') + nickname.value;
-        showMessage(message);
-    } catch (error) {
-        showError(error);
-    }
+const onAgentClick = (agentPubKey: HoloHashB64) => {
+  router.push(`/profiles/${agentPubKey}`);
 };
 </script>

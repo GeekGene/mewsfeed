@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { FeedMew } from "../types/types";
+import { FeedMew } from "@/types/types";
 import { PropType } from "vue";
 const props = defineProps({ mewContent: { type: Object as PropType<FeedMew>, required: true } });
 

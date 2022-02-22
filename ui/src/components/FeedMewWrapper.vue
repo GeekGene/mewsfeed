@@ -24,7 +24,7 @@
     </agent-avatar>
   </q-item-section>
   <q-item-section>
-    <MewsFeedContent :mew-content="mew.feedMew" />
+    <MewsItemContent :mew-content="mew.feedMew" />
   </q-item-section>
   <q-item-section>
     <div>
@@ -83,7 +83,7 @@ import { showError } from "../utils/notification";
 import { authorPubKey } from "../utils/hash";
 import { useRouter } from "vue-router";
 import AddMew from "../components/AddMew.vue";
-import MewsFeedContent from "../components/MewsFeedContent.vue";
+import MewsItemContent from "../components/MewsItemContent.vue";
 import ProfilePopup from "../components/ProfilePopup.vue";
 import { PropType } from "vue";
 import { useProfileStore } from "../services/profile-store";
