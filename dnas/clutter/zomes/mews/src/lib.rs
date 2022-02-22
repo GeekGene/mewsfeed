@@ -279,7 +279,7 @@ pub struct FeedMewWithContext {
     pub mew_entry_hash: EntryHashB64,
     pub comments: Vec<EntryHashB64>,
     pub shares: Vec<EntryHashB64>,
-    pub likes: Vec<AgentPubKeyB64>,
+    pub licks: Vec<AgentPubKeyB64>,
 }
 
 #[hdk_extern]
@@ -319,10 +319,10 @@ where
         element.header().entry_hash().ok_or(WasmError::Guest(String::from("no entry found for header hash")))?.clone(),
         Some(LinkTag::new(REPLY_PATH_SEGMENT)))?;
     let comments: Vec<EntryHashB64> = comment_links.into_iter().map(|link| link.target.into()).collect();
-    let like_links = get_links(
+    let lick_links = get_links(
         element.header().entry_hash().ok_or(WasmError::Guest(String::from("no entry found for header hash")))?.clone(),
         Some(LinkTag::new(LICKS_PATH_SEGMENT)))?;
-    let likes: Vec<AgentPubKeyB64> = like_links.into_iter().map(|link| AgentPubKey::from(link.target).into()).collect();
+    let licks: Vec<AgentPubKeyB64> = lick_links.into_iter().map(|link| AgentPubKey::from(link.target).into()).collect();
 
     let feed_mew_and_context = FeedMewWithContext {
         feed_mew,
@@ -332,7 +332,7 @@ where
                 .clone()).into(),
         comments,
         shares,
-        likes
+        licks
     };
     Ok(feed_mew_and_context)
 }

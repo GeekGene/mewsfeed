@@ -61,7 +61,7 @@ export interface FeedMewWithContext {
     mewEntryHash: EntryHashB64,
     comments: Array<string>,
     shares: Array<string>,
-    likes: Array<string>
+    licks: Array<string>
 }
 
 export interface NotificationOptions {

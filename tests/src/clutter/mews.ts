@@ -186,7 +186,7 @@ export default (orchestrator: Orchestrator<any>) =>
     t.equal(mews.length, 0);
 
     // ==============================================
-    // test mew interaction: like, reply, remew, and mewmew
+    // test mew interaction: lick, reply, remew, and mewmew
     // ==============================================
       
     // Alice licks first mew
@@ -247,7 +247,7 @@ export default (orchestrator: Orchestrator<any>) =>
     console.log('mew context:', mewWithContext)
     t.equals(mewWithContext.comments.length, 1)
     t.equals(mewWithContext.shares.length, 2)
-    t.equals(mewWithContext.likes.length, 1)
+    t.equals(mewWithContext.licks.length, 1)
   
     // test can get mew with entry hash in addition to header hash
     const mewFromEntryHash = await bob.call("mews", "get_mew", mewWithContext.comments[0])
@@ -259,7 +259,7 @@ export default (orchestrator: Orchestrator<any>) =>
     console.log('mew context:', mewWithContext)
     t.equals(mewWithContext.comments.length, 1)
     t.equals(mewWithContext.shares.length, 2)
-    t.equals(mewWithContext.likes.length, 1)
+    t.equals(mewWithContext.licks.length, 1)
 
     // unlick mew
     await alice.call("mews", "unlick_mew", originalEntryHash)
@@ -271,5 +271,5 @@ export default (orchestrator: Orchestrator<any>) =>
     console.log('mew context:', mewWithContext)
     t.equals(mewWithContext.comments.length, 1)
     t.equals(mewWithContext.shares.length, 2)
-    t.equals(mewWithContext.likes.length, 0)
+    t.equals(mewWithContext.licks.length, 0)
   });

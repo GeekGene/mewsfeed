@@ -32,7 +32,7 @@
         class="like-btn"
         @click="toggleLickMew"
       >
-        like ({{ mew.likes.length }})
+        lick ({{ mew.licks.length }})
       </q-btn>
       <q-btn
         class="reply-btn"
@@ -136,7 +136,7 @@ const keepShowingProfile = (index: number) => {
   window.clearTimeout(profileHideTimeouts.value[index]);
 };
 const toggleLickMew = async () => {
-   // check if already likes
+   // check if already licks
    if(isLickedByMe()) {
       // unlick
       await unlickMew(props.mew.mewEntryHash);
@@ -151,8 +151,8 @@ const toggleLickMew = async () => {
 };
 
 const isLickedByMe = () => {
-  // check if my agent key is in the returned list of likes
-  return props.mew.likes.includes(myAgentPubKey);
+  // check if my agent key is in the returned list of licks
+  return props.mew.licks.includes(myAgentPubKey);
 };
 
 const replyToMew = () => {
