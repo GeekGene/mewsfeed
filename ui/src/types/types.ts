@@ -19,13 +19,13 @@ export type MewType =
 }
 
 export interface FullMew {
-    mew_type: MewType,
+    mewType: MewType,
     mew: MewContent | null
 }
 
 export interface FeedMew {
     mew: FullMew,
-    header: Header,
+    header: Header
 }
 
 export interface NotificationOptions {
@@ -50,5 +50,5 @@ export interface NotificationOptions {
 }
 
 export interface FeedOptions {
-    options: string
+    option: string
 }

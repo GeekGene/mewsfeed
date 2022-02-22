@@ -1,6 +1,7 @@
 // Import the profiles elements that we need
-import "@holochain-open-dev/profiles/profile-prompt";
+import "@holochain-open-dev/profiles/agent-avatar";
 import "@holochain-open-dev/profiles/my-profile";
+import "@holochain-open-dev/profiles/profile-prompt";
 
 // Import the context-provider element
 import "@holochain-open-dev/context/context-provider";
@@ -33,7 +34,7 @@ connectAppWebSocket().then(async (appWebsocket) => {
 
   const store = new ProfilesStore(cellClient, {
     avatarMode: "avatar",
-    additionalFields: ["Bio", "Location"],
+    additionalFields: ["Display name", "Bio", "Location"],
   });
   app.provide(PROFILE_STORE, store);
 

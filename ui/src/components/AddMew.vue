@@ -2,12 +2,17 @@
   <div>
     <q-input
       v-model="newMew"
-      type="text"
+      type="textarea"
       class="q-mb-sm"
       dense
       outlined
+      @keyup.enter="publishMew"
     />
-    <q-btn @click="publishMew">
+    <q-btn
+      :disable="newMew === ''"
+      color="secondary"
+      @click="publishMew"
+    >
       Publish Mew
     </q-btn>
   </div>
@@ -15,7 +20,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { Mew } from "../types/types";
+import { Mew } from "@/types/types";
 const emit = defineEmits<{(e: 'publish-mew', mew: Mew): void;}>();
 
 const newMew = ref("");

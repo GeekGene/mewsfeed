@@ -116,7 +116,7 @@ pub fn mews_by(agent: AgentPubKeyB64) -> ExternResult<Vec<FeedMew>> {
         .collect();
 
     let mew_elements = HDK.with(|hdk| hdk.borrow().get(get_input))?;
-    let feed: Vec<FeedMew> = mew_elements
+    let mut feed: Vec<FeedMew> = mew_elements
         .into_iter()
         .filter_map(|me| me)
         .filter_map(|element| match element.entry().to_app_option() {
@@ -127,17 +127,22 @@ pub fn mews_by(agent: AgentPubKeyB64) -> ExternResult<Vec<FeedMew>> {
             _ => None,
         })
         .collect();
+    feed.sort_by(|a, b| b.header.timestamp().cmp(&a.header.timestamp()));
+
     Ok(feed)
 }
 
 #[hdk_extern]
 pub fn mews_feed(_options: FeedOptions) -> ExternResult<Vec<FeedMew>> {
     let mut feed = Vec::new();
+    let me = agent_info()?.agent_latest_pubkey;
+    feed.append(&mut mews_by(AgentPubKeyB64::from(me))?);
     for agent in my_following(())?.into_iter() {
         feed.append(&mut mews_by(agent)?);
     }
     // TODO don't really need to sort, could merge for efficiency
-    feed.sort_by(|a, b| a.header.timestamp().cmp(&b.header.timestamp()));
+    // sort by timestamp in descending order
+    feed.sort_by(|a, b| b.header.timestamp().cmp(&a.header.timestamp()));
 
     Ok(feed)
 }
@@ -152,6 +157,31 @@ pub fn follow(agent: AgentPubKeyB64) -> ExternResult<()> {
 
     let them = get_mews_base(agent, FOLLOWERS_PATH_SEGMENT, true)?;
     let _link_hh = create_link(them, me_target, ())?;
+    Ok(())
+}
+
+#[hdk_extern]
+pub fn unfollow(agent: AgentPubKeyB64) -> ExternResult<()> {
+    let them_target: EntryHash = AgentPubKey::from(agent.clone()).into();
+    let me = get_my_mews_base(FOLLOWING_PATH_SEGMENT, true)?;
+    let links = get_links(me.clone(), None)?;
+    for link in links {
+        if link.target == them_target {
+            let _deleted_link_hh = delete_link(link.create_link_hash)?;
+            break;
+        }
+    }
+    
+    let me_target: EntryHash = agent_info()?.agent_latest_pubkey.into();
+    let them = get_mews_base(agent, FOLLOWERS_PATH_SEGMENT, true)?;
+    let links = get_links(them.clone(), None)?;
+    for link in links {
+        if link.target == me_target {
+            let _deleted_link_hh = delete_link(link.create_link_hash)?;
+            break;
+        }
+    }
+
     Ok(())
 }
 
