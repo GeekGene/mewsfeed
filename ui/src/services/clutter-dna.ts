@@ -11,15 +11,18 @@ import { EntryHashB64, AgentPubKeyB64 } from '@holochain-open-dev/core-types';
 let appWebSocket: AppWebsocket;
 let appInfo: InstalledAppInfo;
 
+export const installed_app_id = 'clutter';
+
 export let clutterCell: InstalledCell;
 
 export const APP_WEB_SOCKET: InjectionKey<AppWebsocket> = Symbol();
 export const connectAppWebSocket = async () => {
   if (!appWebSocket) {
+    console.log('import.meta.env.VITE_HC_PORT: ', import.meta.env.VITE_HC_PORT);
     appWebSocket = await AppWebsocket.connect(
       `ws://localhost:${import.meta.env.VITE_HC_PORT}`
     );
-    appInfo = await appWebSocket.appInfo({ installed_app_id: "clutter" });
+    appInfo = await appWebSocket.appInfo({ installed_app_id });
     const cell = appInfo.cell_data.find((cell) => cell.role_id === "clutter");
     if (!cell) {
       throw new Error('Could not find cell "clutter"');

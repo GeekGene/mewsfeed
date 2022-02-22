@@ -1,4 +1,4 @@
-import { NotificationOptions } from "../types/types";
+import { NotificationOptions } from "@/types/types";
 import { Notify } from "quasar";
 
 const DEFAULT_MESSAGE = "Done!";
@@ -14,5 +14,5 @@ export const showMessage = (messageOrOptions?: string | NotificationOptions) => 
 
 export const showError = (error: unknown) => {
     const message = error instanceof Error ? error.message : JSON.stringify(error, null, 4);
-    Notify.create({ message, color: "red", position: "bottom-right" });
+    Notify.create({ message, color: "red", position: "bottom" });
 };

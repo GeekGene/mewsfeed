@@ -24,7 +24,7 @@
     </agent-avatar>
   </q-item-section>
   <q-item-section>
-    <MewsFeedContent :mew-content="mew.feedMew" />
+    <MewsItemContent :mew-content="mew.feedMew" />
   </q-item-section>
   <q-item-section>
     <div>
@@ -32,7 +32,7 @@
         class="like-btn"
         @click="toggleLickMew"
       >
-        like ({{ mew.likes.length }})
+        lick ({{ mew.licks.length }})
       </q-btn>
       <q-btn
         class="reply-btn"
@@ -83,7 +83,7 @@ import { showError } from "../utils/notification";
 import { authorPubKey } from "../utils/hash";
 import { useRouter } from "vue-router";
 import AddMew from "../components/AddMew.vue";
-import MewsFeedContent from "../components/MewsFeedContent.vue";
+import MewsItemContent from "../components/MewsItemContent.vue";
 import ProfilePopup from "../components/ProfilePopup.vue";
 import { PropType } from "vue";
 import { useProfileStore } from "../services/profile-store";
@@ -136,7 +136,7 @@ const keepShowingProfile = (index: number) => {
   window.clearTimeout(profileHideTimeouts.value[index]);
 };
 const toggleLickMew = async () => {
-   // check if already likes
+   // check if already licks
    if(isLickedByMe()) {
       // unlick
       await unlickMew(props.mew.mewEntryHash);
@@ -151,8 +151,8 @@ const toggleLickMew = async () => {
 };
 
 const isLickedByMe = () => {
-  // check if my agent key is in the returned list of likes
-  return props.mew.likes.includes(myAgentPubKey);
+  // check if my agent key is in the returned list of licks
+  return props.mew.licks.includes(myAgentPubKey);
 };
 
 const replyToMew = () => {
@@ -184,9 +184,4 @@ const closeTextBox = (newMew: CreateMewInput) => {
   emit("publish-mew", newMew);
 
 };
-
-// const refreshMew = async () => {
-//   // eslint-disable-next-line vue/no-mutating-props
-//   props.mew = await getFeedMewAndContext(props.mew.mewEntryHash);
-// };
 </script>

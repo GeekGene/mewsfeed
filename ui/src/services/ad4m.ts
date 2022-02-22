@@ -6,7 +6,7 @@ import { EntryHashB64 } from '@holochain-open-dev/core-types';
 
 const AGENT_PERSPECTIVE_NAME = '__agent_public_perspective'
 // const CLUTTER_LANGUAGE = "QmdTZKNaNgMakbWR2qciPXFggMe1K2bd2CZ1TN9GQXkYuz"
-const CLUTTER_LANGUAGE = "QmcWWYnz494S2yucuZb3f1TczqfuAWjvNgRC3wZkB3mPqW"
+const CLUTTER_LANGUAGE = "QmYvRM3RSR6kReoapLzzA4EsfrKW4vhydnvzExzGkH1cYo"
 
 //--------------------------------------------
 // Create AD4M client

@@ -8,7 +8,7 @@
     $: if(expression && expression.data) feedMewWithContext = JSON.parse(expression.data)
     let isReplying = false
     let isMewMewing = false
-    function toggleLikeMew() {
+    function togglelickMew() {
         //TODO: create function in adapter for liking/unliking mews
         console.log(feedMewWithContext.mewEntryHash)
     }
@@ -49,7 +49,7 @@
         <p>{feedMewWithContext.feedMew.mew.mew.mew}</p>
     </div>
     <div class="mew-interactions">
-        <button on:click={() => toggleLikeMew()}>like ({feedMewWithContext.likes.length})</button>
+        <button on:click={() => togglelickMew()}>lick ({feedMewWithContext.licks.length})</button>
         <button on:click={() => replyToMew()}>reply ({feedMewWithContext.comments.length})</button>
         <button on:click={() => shareMew()}>share ({feedMewWithContext.shares.length})</button>
         <button on:click={() => mewMew()}>mewmew ({feedMewWithContext.shares.length})</button>

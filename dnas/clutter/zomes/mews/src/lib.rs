@@ -279,7 +279,7 @@ pub struct FeedMewWithContext {
     pub mew_entry_hash: EntryHashB64,
     pub comments: Vec<EntryHashB64>,
     pub shares: Vec<EntryHashB64>,
-    pub likes: Vec<AgentPubKeyB64>,
+    pub licks: Vec<AgentPubKeyB64>,
 }
 
 #[hdk_extern]
@@ -319,10 +319,10 @@ where
         element.header().entry_hash().ok_or(WasmError::Guest(String::from("no entry found for header hash")))?.clone(),
         Some(LinkTag::new(REPLY_PATH_SEGMENT)))?;
     let comments: Vec<EntryHashB64> = comment_links.into_iter().map(|link| link.target.into()).collect();
-    let like_links = get_links(
+    let lick_links = get_links(
         element.header().entry_hash().ok_or(WasmError::Guest(String::from("no entry found for header hash")))?.clone(),
         Some(LinkTag::new(LICKS_PATH_SEGMENT)))?;
-    let likes: Vec<AgentPubKeyB64> = like_links.into_iter().map(|link| AgentPubKey::from(link.target).into()).collect();
+    let licks: Vec<AgentPubKeyB64> = lick_links.into_iter().map(|link| AgentPubKey::from(link.target).into()).collect();
 
     let feed_mew_and_context = FeedMewWithContext {
         feed_mew,
@@ -332,7 +332,7 @@ where
                 .clone()).into(),
         comments,
         shares,
-        likes
+        licks
     };
     Ok(feed_mew_and_context)
 }
@@ -355,13 +355,15 @@ pub fn mews_by(agent: AgentPubKeyB64) -> ExternResult<Vec<FeedMewWithContext>> {
     let base = get_mews_base(agent, MEWS_PATH_SEGMENT, false)?;
     let links = get_links(base, None)?;
     
-    let feed: Vec<FeedMewWithContext> = links
+    let mut feed: Vec<FeedMewWithContext> = links
         .into_iter()
         .map(|link| {
             get_feed_mew_and_context_inner(link.target)
         })
         .filter_map(Result::ok)
         .collect();
+    feed.sort_by(|a, b| b.feed_mew.header.timestamp().cmp(&a.feed_mew.header.timestamp()));
+
     Ok(feed)
 }
 
