@@ -184,9 +184,4 @@ const closeTextBox = (newMew: CreateMewInput) => {
   emit("publish-mew", newMew);
 
 };
-
-// const refreshMew = async () => {
-//   // eslint-disable-next-line vue/no-mutating-props
-//   props.mew = await getFeedMewAndContext(props.mew.mewEntryHash);
-// };
 </script>
