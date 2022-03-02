@@ -5,8 +5,7 @@ import { Profile, CreateMewInput, FeedMewWithContext, FeedOptions } from '../typ
 import { EntryHashB64 } from '@holochain-open-dev/core-types';
 
 const AGENT_PERSPECTIVE_NAME = '__agent_public_perspective'
-// const CLUTTER_LANGUAGE = "QmdTZKNaNgMakbWR2qciPXFggMe1K2bd2CZ1TN9GQXkYuz"
-const CLUTTER_LANGUAGE = "QmYvRM3RSR6kReoapLzzA4EsfrKW4vhydnvzExzGkH1cYo"
+const CLUTTER_LANGUAGE = "QmWaBfeuvHaLrBH3ybo5qFNgypGFpaoDiSCcny1rAB9NB6"
 
 //--------------------------------------------
 // Create AD4M client

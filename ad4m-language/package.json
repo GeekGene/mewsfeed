@@ -5,12 +5,14 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc && rollup -c",
+    "build": "npm run build-icons && tsc && rollup -c",
+    "build-icons": "rollup -c rollup.config.icons.js",
     "dev": "tsc && rollup -c rollup.config.icons.js && rollup -c -w",
     "test-icon": "rollup -c rollup.config.icons.dev.js && sirv",
     "build:vue-mew": "vue-cli-service build --target lib --dest dist-mew --name Mew ../ui/src/components/Mew.vue --inline-vue",
     "build:vue-mewconstructor": "vue-cli-service build --target lib --dest dist-mew-constructor --name MewConstructor ../ui/src/components/MewConstructor.vue --inline-vue",
-    "build:vue": "npm run build:vue-mew && npm run build:vue-mewconstructor"
+    "build:vue": "npm run build:vue-mew && npm run build:vue-mewconstructor",
+    "get-dna": "node get-dna.js"
   },
   "author": "",
   "license": "ISC",
@@ -35,7 +37,8 @@
     "svelte-preprocess": "^4.0.0",
     "tslib": "^2.0.0",
     "typescript": "^4.2.4",
-    "xmlhttprequest": "^1.8.0"
+    "xmlhttprequest": "^1.8.0",
+    "node-wget-js": "^1.0.1"
   },
   "dependencies": {
     "@vue/cli-service": "^4.5.15",

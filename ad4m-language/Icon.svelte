@@ -1,15 +1,19 @@
 <svelte:options tag={null}/>
 
 <script lang="ts">
-    // import type Expression from "@perspect3vism/ad4m/Expression";
-    import ConstructorIcon from "./ConstructorIcon.svelte";
-    export let expression//: Expression
+    import type Expression from "@perspect3vism/ad4m/Expression";
+    export let expression: Expression
+    export let createExpression
     let feedMewWithContext
-    $: if(expression && expression.data) feedMewWithContext = JSON.parse(expression.data)
+    $: if(expression && expression.data) {
+        console.log('expression from icon:', expression)
+        feedMewWithContext = JSON.parse(expression.data)
+    } 
+    
+    let text = ""
     let isReplying = false
     let isMewMewing = false
     function togglelickMew() {
-        //TODO: create function in adapter for liking/unliking mews
         console.log(feedMewWithContext.mewEntryHash)
     }
     function replyToMew() {
@@ -33,31 +37,38 @@
         }
         isMewMewing = !isMewMewing
     }
-
-    function createExpression(createMewInput) {
-        console.log(createMewInput)
-        //TODO: call createPublic in adapter
+    function createMewInput(text) {
+        let mewType = isReplying ? { reply: feedMewWithContext.mewEntryHash } : { mewMew: feedMewWithContext.mewEntryHash }
+        let createMewInput = {
+            mewType: mewType,
+            mew: text
+        }
+        return createMewInput
     }
 </script>
 
 <div class="container">
-    <div class="avatar-box"></div>
-    <div class="mew-meta">
-        {expression.author} {expression.timestamp}
-    </div>
-    <div class="mew-content">
-        <p>{feedMewWithContext.feedMew.mew.mew.mew}</p>
-    </div>
-    <div class="mew-interactions">
-        <button on:click={() => togglelickMew()}>lick ({feedMewWithContext.licks.length})</button>
-        <button on:click={() => replyToMew()}>reply ({feedMewWithContext.comments.length})</button>
-        <button on:click={() => shareMew()}>share ({feedMewWithContext.shares.length})</button>
-        <button on:click={() => mewMew()}>mewmew ({feedMewWithContext.shares.length})</button>
-    </div>
-    {#if isReplying}
-        <ConstructorIcon commitExpression={createExpression} mewType={{reply:feedMewWithContext.mewEntryHash}}/>
-    {:else if isMewMewing}
-        <ConstructorIcon commitExpression={createExpression} mewType={{mewMew:feedMewWithContext.mewEntryHash}}/>
+    {#if expression}
+        <div class="avatar-box"></div>
+        <div class="mew-meta">
+            {expression.author} {expression.timestamp}
+        </div>
+        <div class="mew-content">
+            <p>{feedMewWithContext.feedMew.mew.mew.mew}</p>
+        </div>
+        <div class="mew-interactions">
+            <button on:click={() => togglelickMew()}>lick ({feedMewWithContext.licks.length})</button>
+            <button on:click={() => replyToMew()}>reply ({feedMewWithContext.comments.length})</button>
+            <button on:click={() => shareMew()}>share ({feedMewWithContext.shares.length})</button>
+            <button on:click={() => mewMew()}>mewmew ({feedMewWithContext.shares.length})</button>
+        </div>
+        {#if isReplying}
+            <input bind:value={text}>
+            <button on:click={()=>createExpression(createMewInput(text))}>Publish Mew</button>
+        {:else if isMewMewing}
+            <input bind:value={text}>
+            <button on:click={()=>createExpression(createMewInput(text))}>Publish Mew</button>
+        {/if}
     {/if}
 </div>
 
