@@ -1,5 +1,6 @@
 import type { Address, Agent, Expression, PublicSharing, LanguageContext, HolochainLanguageDelegate, ExpressionAdapter, AgentService } from "@perspect3vism/ad4m";
 import { DNA_NICK } from "./dna";
+import { serializeHash } from "@holochain-open-dev/core-types";
 
 export default class ExpressionAdapterImpl implements ExpressionAdapter {
   #DNA: HolochainLanguageDelegate;
@@ -19,10 +20,12 @@ export default class ExpressionAdapterImpl implements ExpressionAdapter {
       "get_feed_mew_and_context",
       mewAddress
     );
-
+    const mew = JSON.parse(fullMewWithContext)
+    const author = serializeHash(new Uint8Array(mew.header.author.data)) 
+    const timestamp = mew.header.timestamp
     return {
-      author: 'unknown',
-      timestamp: 'unknown',
+      author: author,
+      timestamp: timestamp,
       data: fullMewWithContext,
       proof: {
         key: 'none',
