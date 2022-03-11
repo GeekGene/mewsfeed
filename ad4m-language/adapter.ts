@@ -1,4 +1,4 @@
-import type { Address, Agent, Expression, PublicSharing, LanguageContext, HolochainLanguageDelegate, ExpressionAdapter, AgentService } from "@perspect3vism/ad4m";
+import type { Address, Agent, Expression, PublicSharing, LanguageContext, HolochainLanguageDelegate, ExpressionAdapter, AgentService, Interaction } from "@perspect3vism/ad4m";
 import { DNA_NICK } from "./dna";
 import { serializeHash } from "@holochain-open-dev/core-types";
 import { Base64 } from 'js-base64';
@@ -33,6 +33,23 @@ export default class ExpressionAdapterImpl implements ExpressionAdapter {
       }
     }
   };
+
+  async interactions(expressionAddress: Address): Promise<Interaction[]> {
+    return [{
+      label: 'lick a mew',
+      name: 'lick-mew',
+      parameters: [['entryHash','object']],
+      execute: async (parameters: object) => {
+        const mewAddress = parameters['entryHash']
+        await this.#DNA.call(
+          DNA_NICK,
+          "mews",
+          "lick_mew",
+          mewAddress
+        )
+      }
+    }]
+  }
 }
 
 class Sharing implements PublicSharing {
@@ -45,10 +62,6 @@ class Sharing implements PublicSharing {
   }
 
   async createPublic(mewObject: object): Promise<Address> {
-    // if(!mewObject["mew"]) throw "Not a Mew object"
-    // //@ts-ignore
-    // const mewString = mewObject.mew
-
     const address = await this.#DNA.call(
       DNA_NICK,
       "mews",
