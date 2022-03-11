@@ -48,6 +48,20 @@ export default class ExpressionAdapterImpl implements ExpressionAdapter {
           mewAddress
         )
       }
+    },
+    {
+      label: 'unlick a mew',
+      name: 'unlick-mew',
+      parameters: [['entryHash','object']],
+      execute: async (parameters: object) => {
+        const mewAddress = parameters['entryHash']
+        await this.#DNA.call(
+          DNA_NICK,
+          "mews",
+          "unlick_mew",
+          mewAddress
+        )
+      }
     }]
   }
 }

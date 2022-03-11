@@ -2,8 +2,12 @@
 
 <script lang="ts">
     import type Expression from "@perspect3vism/ad4m/Expression";
+    import type ExpressionClient from "@perspect3vism/ad4m/ExpressionClient";
+    import { InteractionCall } from "@perspect3vism/ad4m"
+
     export let expression: Expression
     export let createExpression
+    export let expressionClient: ExpressionClient
     let feedMewWithContext
     $: if(expression && expression.data) {
         console.log('expression from icon:', expression)
@@ -13,8 +17,12 @@
     let text = ""
     let isReplying = false
     let isMewMewing = false
-    function togglelickMew() {
+    async function togglelickMew() {
         console.log(feedMewWithContext.mewEntryHash)
+        const interactionCall = new InteractionCall('lick-mew', { entryHash: feedMewWithContext.mewEntryHash })
+        const exprAddr = `${expression.language.address}://${feedMewWithContext.mewEntryHash}`
+        await expressionClient.interact(exprAddr, interactionCall)
+        // TODO: first check if agent key is in the list of liked mews, then lick or unlick accordingly
     }
     function replyToMew() {
         if (isMewMewing) {
@@ -57,7 +65,7 @@
             <p>{feedMewWithContext.feedMew.mew.mew.mew}</p>
         </div>
         <div class="mew-interactions">
-            <button on:click={() => togglelickMew()}>lick ({feedMewWithContext.licks.length})</button>
+            <button on:click={async () => togglelickMew()}>lick ({feedMewWithContext.licks.length})</button>
             <button on:click={() => replyToMew()}>reply ({feedMewWithContext.comments.length})</button>
             <button on:click={() => shareMew()}>share ({feedMewWithContext.shares.length})</button>
             <button on:click={() => mewMew()}>mewmew ({feedMewWithContext.shares.length})</button>
