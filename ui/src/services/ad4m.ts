@@ -5,7 +5,16 @@ import { Profile, CreateMewInput, FeedMewWithContext, FeedOptions } from '../typ
 import { EntryHashB64 } from '@holochain-open-dev/core-types';
 
 const AGENT_PERSPECTIVE_NAME = '__agent_public_perspective'
-const CLUTTER_LANGUAGE = "QmWaBfeuvHaLrBH3ybo5qFNgypGFpaoDiSCcny1rAB9NB6"
+// const CLUTTER_LANGUAGE = "QmWaBfeuvHaLrBH3ybo5qFNgypGFpaoDiSCcny1rAB9NB6"
+// const CLUTTER_LANGUAGE = "QmZS7UX1gETVe7EEWXsYNW8DWdCtKpnJry2AdPbdAoKEj1"
+// const CLUTTER_LANGUAGE = "Qmezr5VQXZ1jf75STic67dH3KZf5MaiTRZq8wFGKmxNF3r"
+// const CLUTTER_LANGUAGE = "QmenhKJnak3GWV8gvTghPw3rvmoFLzoD4nrDKm6guN9i2Z"
+// const CLUTTER_LANGUAGE = "QmUhaKmuxYPgzCNRrcjCFqD6zKwGDYy2BH3kLMUsguUkiN"
+// const CLUTTER_LANGUAGE = "Qmbrtheoi5nCGGcPHCa7fwTdbRymJf3H991vnHhjK2ZQrf"
+// const CLUTTER_LANGUAGE = "QmdaTaKtjULVpTjnf99B1vVTq6vCHU7RiYqgZ6uwZeWxMr"
+// const CLUTTER_LANGUAGE = "QmbKWRzYTKxaqbKpXy9UL3BzynyLR86aB4ZvLSdX8QSMTY"
+// const CLUTTER_LANGUAGE = "QmNkypz8SjoDajzJreeX2BEogfhTttJMbyYiMXujqxS8UD"
+const CLUTTER_LANGUAGE = "QmRtWtNCxZ7HVVc3C8CFD8MnsNL58316APDKVAbH8TRrWa"
 
 //--------------------------------------------
 // Create AD4M client
@@ -30,6 +39,7 @@ const ad4m = new Ad4mClient(apolloClient)
 
 
 let agentPerspective: PerspectiveProxy|undefined
+let followingAgentPerspective: PerspectiveProxy|undefined
 let me: Agent
 
 
@@ -133,6 +143,46 @@ export const mewsFeed = async (options: FeedOptions) : Promise<Array<FeedMewWith
     const myMews = await Promise.all(
         myMewUrls.map(async url => await ad4m.expression.get(url))
     )
-    return myMews.map(expression => expression.data)
+
+    const followingLinks = await agentPerspective!.get(new LinkQuery({
+        source: me.did,
+        predicate: 'clutter://follows'
+    }))
+    
+    const followingDIDs = followingLinks.map(link => link.data.target)
+    let allMews = []
+    for (let agentDID of followingDIDs) {
+        const agent = await ad4m.agent.byDID(agentDID)
+        if (!agent) continue
+        console.log('agent followed:', agent)
+        console.log('agent perspective:', agent.perspective)
+        const tempAgentPerspective = await ad4m.perspective.add("temp working perspective")
+        await tempAgentPerspective.loadSnapshot(agent.perspective)
+        const mewLinks = await tempAgentPerspective.get(new LinkQuery({
+            source: agentDID,
+            predicate: 'clutter://haz_mew'
+        }))
+
+        const mewURLs = mewLinks.map(link => link.data.target)
+        const mews = await Promise.all(
+            mewURLs.map(async url => await ad4m.expression.get(url))
+        )
+        allMews = allMews.concat(mews)
+    }
+    return allMews.concat(myMews).map(expression => expression.data)
     //get all mine, get all people I follow
 };
+
+export const followAgent = async (agentDID: string) => {
+    if (!agentPerspective) {
+        await initAgentPerspective();
+    }
+    await agentPerspective!.add(new Link({
+        source: me.did,
+        predicate: 'clutter://follows',
+        target: agentDID
+    }))
+    const snapshot = await agentPerspective!.snapshot()
+    console.log('snapshot after follow:', snapshot)
+    await ad4m.agent.updatePublicPerspective(snapshot)
+}
