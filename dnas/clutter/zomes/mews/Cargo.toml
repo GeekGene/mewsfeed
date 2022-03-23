@@ -13,5 +13,5 @@ derive_more = "0"
 chrono = {version = "0.4", features = ["serde"]}
 regex = "1"
 
-hdk = {version = "0.0.120", features = ["encoding"]}
+hdk = {version = "0.0.123", features = ["encoding"]}
 
