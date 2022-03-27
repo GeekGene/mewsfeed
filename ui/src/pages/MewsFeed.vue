@@ -1,10 +1,8 @@
 <template>
-  <q-page
-    padding
-  >
+  <q-page padding>
     <AddMew
       class="text-center"
-      :mew-type="{original:null}"
+      :mew-type="{ original: null }"
       @publish-mew="publishMew"
     />
 
@@ -55,12 +53,12 @@
         v-for="(mew, index) in mewsFeed"
         :key="index"
       >
-        <FeedMewWrapper 
+        <FeedMewWrapper
           :mew="mew"
           :index="index"
           @publish-mew="publishMew"
-          @refresh-feed="refreshFeed"
-        /> 
+          @refresh-feed="loadMewsFeed"
+        />
       </q-item>
     </q-list>
   </q-page>
@@ -74,7 +72,7 @@ import { showError } from '../utils/notification';
 import AddMew from '../components/AddMew.vue';
 import FeedMewWrapper from '../components/FeedMewWrapper.vue';
 
-
+let firstLoad = true;
 const loading = ref(false);
 const mewsFeed = ref<FeedMew[]>([]);
 const profileVisible = ref<boolean[]>([]);
@@ -83,11 +81,12 @@ const profileShowTimeouts = ref<number[]>([]);
 
 const loadMewsFeed = async () => {
   try {
-    loading.value = true;
+    loading.value = firstLoad;
     mewsFeed.value = await getMewsFeed({ option: '' });
     profileVisible.value = new Array(mewsFeed.value.length).fill(false);
     profileShowTimeouts.value = new Array(mewsFeed.value.length).fill(0);
     profileHideTimeouts.value = new Array(mewsFeed.value.length).fill(0);
+    firstLoad = false;
   } catch (error) {
     showError(error);
   } finally {
@@ -99,9 +98,6 @@ onMounted(loadMewsFeed);
 
 const publishMew = async (newMew: CreateMewInput) => {
   await createMew(newMew);
-  refreshFeed();
-};
-const refreshFeed = () => {
   loadMewsFeed();
 };
 </script>
