@@ -156,16 +156,6 @@ const mewMew = () => {
   }
   isMewMewing.value = !isMewMewing.value;
 };
-const shareMew = () => {
-  //TODO: enforce 1 share per mew
-  const mew: CreateMewInput = {
-    mewType: {
-      reMew: props.mew.mewEntryHash
-    },
-    mew: null
-  };
-  emit("publish-mew", mew);
-};
 
 const closeTextBox = (newMew: CreateMewInput) => {
   isReplying.value = false;
