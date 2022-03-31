@@ -47,14 +47,6 @@
         {{ mew.comments.length }}
       </q-btn>
       <q-btn
-        class="share-btn"
-        size="sm"
-        icon="share"
-        @click="shareMew"
-      >
-        {{ mew.shares.length }}
-      </q-btn>
-      <q-btn
         class="mewmew-btn"
         size="sm"
         icon="forward"
