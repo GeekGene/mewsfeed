@@ -53,7 +53,7 @@
         v-for="(mew, index) in mewsFeed"
         :key="index"
       >
-        <FeedMewWrapper
+        <FeedMew
           :mew="mew"
           :index="index"
           @publish-mew="publishMew"
@@ -67,14 +67,14 @@
 <script setup lang="ts">
 import { createMew, mewsFeed as getMewsFeed } from '../services/clutter-dna';
 import { onMounted, ref } from 'vue';
-import { FeedMewWithContext as FeedMew, CreateMewInput } from '../types/types';
+import { FeedMewWithContext, CreateMewInput } from '../types/types';
 import { showError } from '../utils/notification';
 import AddMew from '../components/AddMew.vue';
-import FeedMewWrapper from '../components/FeedMewWrapper.vue';
+import FeedMew from '../components/FeedMew.vue';
 
 let firstLoad = true;
 const loading = ref(false);
-const mewsFeed = ref<FeedMew[]>([]);
+const mewsFeed = ref<FeedMewWithContext[]>([]);
 const profileVisible = ref<boolean[]>([]);
 const profileHideTimeouts = ref<number[]>([]);
 const profileShowTimeouts = ref<number[]>([]);

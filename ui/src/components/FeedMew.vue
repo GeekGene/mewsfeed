@@ -54,17 +54,11 @@
       />
     </div>
   </q-item-section>
+
   <q-item-section v-if="isReplying">
     <AddMew
       class="text-center"
       :mew-type="{ reply: mew.mewEntryHash }"
-      @publish-mew="closeTextBox"
-    />
-  </q-item-section>
-  <q-item-section v-else-if="isMewMewing">
-    <AddMew
-      class="text-center"
-      :mew-type="{ mewMew: mew.mewEntryHash }"
       @publish-mew="closeTextBox"
     />
   </q-item-section>
@@ -80,9 +74,9 @@ import {
 } from "../types/types";
 import { authorPubKey } from "../utils/hash";
 import { useRouter } from "vue-router";
-import AddMew from "../components/AddMew.vue";
-import MewsItemContent from "../components/MewsItemContent.vue";
-import ProfilePopup from "../components/ProfilePopup.vue";
+import AddMew from "./AddMew.vue";
+import MewsItemContent from "./MewsItemContent.vue";
+import ProfilePopup from "./ProfilePopup.vue";
 import { PropType } from "vue";
 import { useProfileStore } from "../services/profile-store";
 
