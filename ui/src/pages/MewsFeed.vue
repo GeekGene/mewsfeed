@@ -6,9 +6,9 @@
       @publish-mew="publishMew"
     />
 
-    <h5 class="q-mb-md">
+    <h6 class="q-mb-md">
       Your Mews Feed
-    </h5>
+    </h6>
     <q-list v-if="loading">
       <q-item
         v-for="i in [0, 1, 2]"
@@ -52,6 +52,7 @@
       <q-item
         v-for="(mew, index) in mewsFeed"
         :key="index"
+        class="items-start"
       >
         <FeedMew
           :mew="mew"

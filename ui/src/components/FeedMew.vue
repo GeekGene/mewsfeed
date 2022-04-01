@@ -3,7 +3,7 @@
     <agent-avatar
       :agent-pub-key="authorPubKey(mew.feedMew.header.author)"
       size="50"
-      class="cursor-pointer"
+      class="self-start cursor-pointer"
       @click="onAgentClick(authorPubKey(mew.feedMew.header.author))"
       @mouseenter="showProfile(index)"
       @mouseleave="hideProfile(index)"
@@ -25,49 +25,82 @@
   </q-item-section>
 
   <q-item-section>
-    <MewsItemContent :mew-content="mew.feedMew" />
-  </q-item-section>
+    <div class="row q-mb-sm">
+      <span class="q-mr-xs text-primary text-weight-medium">{{ displayName }} </span>
+      <span>@{{ agentProfile?.nickname }}</span>
+      <q-space />
+      <span class="text-caption">
+        <Timestamp :timestamp="mew.feedMew.header.timestamp" />
+      </span>
+    </div>
 
-  <q-item-section class="col-shrink">
+    <MewsItemContent
+      :mew-content="mew.feedMew"
+      class="q-mb-sm"
+    />
+
     <div>
       <q-btn
-        class="like-btn"
         size="sm"
         :icon="isLickedByMe() ? 'favorite' : 'favorite_border'"
+        flat
         @click="toggleLickMew"
       >
         {{ mew.licks.length }}
       </q-btn>
       <q-btn
-        class="reply-btn"
         size="sm"
         icon="reply"
+        flat
         @click="replyToMew"
       >
         {{ mew.comments.length }}
       </q-btn>
       <q-btn
-        class="mewmew-btn"
         size="sm"
         icon="forward"
+        flat
         @click="mewMew"
       />
     </div>
   </q-item-section>
 
-  <q-item-section v-if="isReplying">
-    <AddMew
-      class="text-center"
-      :mew-type="{ reply: mew.mewEntryHash }"
-      @publish-mew="closeTextBox"
-    />
-  </q-item-section>
+  <q-dialog
+    v-model="isReplying"
+    transition-show="fade"
+    transition-hide="fade"
+  >
+    <q-card>
+      <q-card-section class="q-pb-none">
+        <div class="row text-h6">
+          Reply to {{ displayName }}
+          <q-space />
+          <q-btn
+            v-close-popup
+            icon="close"
+            flat
+            round
+            dense
+          />
+        </div>
+        <MewsItemContent :mew-content="mew.feedMew" />
+      </q-card-section>
+
+      <q-card-section>
+        <AddMew
+          class="text-center"
+          :mew-type="{ reply: mew.mewEntryHash }"
+          @publish-mew="closeTextBox"
+        />
+      </q-card-section>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup lang="ts">
 import { HoloHashB64 } from "@holochain-open-dev/core-types";
 import { lickMew, unlickMew } from "../services/clutter-dna";
-import { ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import {
   FeedMewWithContext as FeedMew,
   CreateMewInput,
@@ -79,12 +112,15 @@ import MewsItemContent from "./MewsItemContent.vue";
 import ProfilePopup from "./ProfilePopup.vue";
 import { PropType } from "vue";
 import { useProfileStore } from "../services/profile-store";
+import Timestamp from "./Timestamp.vue";
 
 let props = defineProps({
   mew: { type: Object as PropType<FeedMew>, required: true },
   index: { type: Number, required: true }
 });
 const store = useProfileStore();
+const agentProfile = ref();
+const displayName = computed(() => agentProfile.value?.fields["Display name"]);
 const myAgentPubKey = store.myAgentPubKey;
 
 const PROFILE_SHOW_HIDE_DELAY = 400; // in ms
@@ -99,6 +135,10 @@ const emit = defineEmits<{
   (e: 'publish-mew', mew: CreateMewInput): void;
   (e: 'refresh-feed'): void;
 }>();
+
+onMounted(async () => {
+  agentProfile.value = await store.fetchAgentProfile(props.mew.feedMew.header.author);
+});
 
 let isReplying = ref(false);
 let isMewMewing = ref(false);
