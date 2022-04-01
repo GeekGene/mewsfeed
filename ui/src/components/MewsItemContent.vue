@@ -3,6 +3,7 @@
     <div 
       v-if="mewContent.mew.mew"
       class="text-body1"
+      style="word-break: break-all;"
     >
       {{ mewContent.mew.mew.mew }}
     </div>
