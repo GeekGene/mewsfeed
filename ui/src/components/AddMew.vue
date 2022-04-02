@@ -6,7 +6,7 @@
       class="q-mb-sm"
       dense
       outlined
-      @keyup.enter="publishMew"
+      autofocus
     />
     <q-btn
       :disable="newMew === ''"
@@ -20,12 +20,21 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { Mew } from "@/types/types";
-const emit = defineEmits<{(e: 'publish-mew', mew: Mew): void;}>();
+import { CreateMewInput, MewType } from "../types/types";
+import { PropType } from "vue";
+const emit = defineEmits<{ (e: 'publish-mew', mew: CreateMewInput): void; }>();
+
+const props = defineProps({
+  mewType: { type: Object as PropType<MewType>, required: true }
+});
 
 const newMew = ref("");
-const publishMew = async () => {
-    emit("publish-mew", newMew.value);
-    newMew.value = "";
+const publishMew = () => {
+  const createMewInput: CreateMewInput = {
+    mewType: props.mewType,
+    mew: newMew.value
+  };
+  emit("publish-mew", createMewInput);
+  newMew.value = "";
 };
 </script>

@@ -1,15 +1,14 @@
 <template>
-  <q-page
-    padding
-  >
+  <q-page padding>
     <AddMew
       class="text-center"
+      :mew-type="{ original: null }"
       @publish-mew="publishMew"
     />
 
-    <h5 class="q-mb-md">
+    <h6 class="q-mb-md">
       Your Mews Feed
-    </h5>
+    </h6>
     <q-list v-if="loading">
       <q-item
         v-for="i in [0, 1, 2]"
@@ -53,68 +52,42 @@
       <q-item
         v-for="(mew, index) in mewsFeed"
         :key="index"
+        class="items-start"
       >
-        <q-item-section avatar>
-          <agent-avatar
-            :agent-pub-key="authorPubKey(mew.header.author)"
-            size="50"
-            class="cursor-pointer"
-            @click="onAgentClick(authorPubKey(mew.header.author))"
-            @mouseenter="showProfile(index)"
-            @mouseleave="hideProfile(index)"
-          >
-            <q-menu
-              v-model="profileVisible[index]"
-              anchor="bottom middle"
-              self="top middle"
-              :offset="[-10, 5]"
-              no-focus
-            >
-              <ProfilePopup
-                :agent-pub-key="authorPubKey(mew.header.author)"
-                @mouseenter="keepShowingProfile(index)"
-                @mouseleave="hideProfile(index)"
-              />
-            </q-menu>
-          </agent-avatar>
-        </q-item-section>
-        <q-item-section>
-          <MewsItemContent :mew-content="mew" />
-        </q-item-section>
+        <FeedMew
+          :mew="mew"
+          :index="index"
+          @publish-mew="publishMew"
+          @refresh-feed="loadMewsFeed"
+        />
       </q-item>
     </q-list>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { HoloHashB64 } from '@holochain-open-dev/core-types';
-import { createMew, mewsFeed as getMewsFeed } from '@/services/clutter-dna';
+import { createMew, mewsFeed as getMewsFeed } from '../services/clutter-dna';
 import { onMounted, ref } from 'vue';
-import { FeedMew, Mew } from '@/types/types';
-import { showError } from '@/utils/notification';
-import { authorPubKey } from "@/utils/hash";
-import { useRouter } from 'vue-router';
-import AddMew from '@/components/AddMew.vue';
-import MewsItemContent from '@/components/MewsItemContent.vue';
-import ProfilePopup from "@/components/ProfilePopup.vue";
+import { FeedMewWithContext, CreateMewInput } from '../types/types';
+import { showError } from '../utils/notification';
+import AddMew from '../components/AddMew.vue';
+import FeedMew from '../components/FeedMew.vue';
 
-const PROFILE_SHOW_HIDE_DELAY = 400; // in ms
-
-const router = useRouter();
-
+let firstLoad = true;
 const loading = ref(false);
-const mewsFeed = ref<FeedMew[]>([]);
+const mewsFeed = ref<FeedMewWithContext[]>([]);
 const profileVisible = ref<boolean[]>([]);
 const profileHideTimeouts = ref<number[]>([]);
 const profileShowTimeouts = ref<number[]>([]);
 
 const loadMewsFeed = async () => {
   try {
-    loading.value = true;
+    loading.value = firstLoad;
     mewsFeed.value = await getMewsFeed({ option: '' });
     profileVisible.value = new Array(mewsFeed.value.length).fill(false);
     profileShowTimeouts.value = new Array(mewsFeed.value.length).fill(0);
     profileHideTimeouts.value = new Array(mewsFeed.value.length).fill(0);
+    firstLoad = false;
   } catch (error) {
     showError(error);
   } finally {
@@ -124,32 +97,8 @@ const loadMewsFeed = async () => {
 
 onMounted(loadMewsFeed);
 
-const publishMew = async (newMew: Mew) => {
+const publishMew = async (newMew: CreateMewInput) => {
   await createMew(newMew);
   loadMewsFeed();
-};
-
-const onAgentClick = (agentPubKey: HoloHashB64) => {
-  router.push(`/profiles/${agentPubKey}`);
-};
-
-const showProfile = (index: number) => {
-  profileVisible.value = new Array(mewsFeed.value.length).fill(false);
-  profileShowTimeouts.value[index] = window.setTimeout(
-    () => profileVisible.value[index] = true,
-    PROFILE_SHOW_HIDE_DELAY
-  );
-};
-
-const hideProfile = (index: number) => {
-  window.clearTimeout(profileShowTimeouts.value[index]);
-  profileHideTimeouts.value[index] = window.setTimeout(
-    () => profileVisible.value[index] = false,
-    PROFILE_SHOW_HIDE_DELAY
-  );
-};
-
-const keepShowingProfile = (index: number) => {
-  window.clearTimeout(profileHideTimeouts.value[index]);
 };
 </script>

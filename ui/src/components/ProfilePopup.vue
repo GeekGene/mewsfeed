@@ -13,9 +13,7 @@
           size="50"
           class="q-mr-lg cursor-pointer"
           @click="onAgentClick(agentPubKey)"
-        >
-          Test
-        </agent-avatar>
+        />
       </context-provider>
       <div class="q-mr-lg text-primary">
         <div class="text-weight-medium">
@@ -54,7 +52,7 @@ const router = useRouter();
 const profileStore = useProfileStore();
 const props = defineProps({
   agentPubKey: {
-    type: Object as PropType<HoloHashB64>,
+    type: String as PropType<HoloHashB64>,
     required: true
   }
 });

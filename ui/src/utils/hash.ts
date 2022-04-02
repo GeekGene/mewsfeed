@@ -6,3 +6,10 @@ export const authorPubKey = (author: unknown) => {
     }
     throw new Error("AgentPubKey is not Uint8Array");
 };
+
+export const entryHash = (hash: unknown) => {
+    if (hash instanceof Uint8Array) {
+        return serializeHash(hash);
+    }
+    throw new Error("EntryHash is not Uint8Array");
+};
