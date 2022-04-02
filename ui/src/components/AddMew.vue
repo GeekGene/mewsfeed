@@ -7,7 +7,6 @@
       dense
       outlined
       autofocus
-      @keyup.enter="publishMew"
     />
     <q-btn
       :disable="newMew === ''"
