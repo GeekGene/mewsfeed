@@ -128,15 +128,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "filestore"
-version = "0.0.1"
-dependencies = [
- "derive_more",
- "hdk",
- "serde",
-]
-
-[[package]]
 name = "gcollections"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -290,26 +281,6 @@ dependencies = [
  "subtle",
  "thiserror",
  "tracing",
-]
-
-[[package]]
-name = "index"
-version = "0.0.1"
-dependencies = [
- "chrono",
- "derive_more",
- "hdk",
- "serde",
-]
-
-[[package]]
-name = "index_stub"
-version = "0.0.1"
-dependencies = [
- "chrono",
- "derive_more",
- "hdk",
- "serde",
 ]
 
 [[package]]
@@ -487,16 +458,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "acbf547ad0c65e31259204bd90935776d1c693cec2f4ff7abb7a1bbbd40dfe58"
 
 [[package]]
-name = "pathlinks"
-version = "0.0.1"
-dependencies = [
- "chrono",
- "derive_more",
- "hdk",
- "serde",
-]
-
-[[package]]
 name = "pin-project-lite"
 version = "0.2.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -660,16 +621,6 @@ dependencies = [
  "indexmap",
  "itoa",
  "ryu",
- "serde",
-]
-
-[[package]]
-name = "services"
-version = "0.0.1"
-dependencies = [
- "chrono",
- "derive_more",
- "hdk",
  "serde",
 ]
 
