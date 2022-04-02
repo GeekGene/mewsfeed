@@ -127,8 +127,12 @@ const toggleLickMew = async () => {
 
 const replyToMew = () => isReplying.value = true;
 
-const mewMew = () => {
-  console.log('hello');
+const mewMew = async () => {
+  const createMewInput: CreateMewInput = {
+    mewType: {mewMew: props.mew.mewEntryHash},
+    mew: props.mew.feedMew.mew.mew?.mew || null
+  };
+  emit("publish-mew", createMewInput);
 };
 
 const publishReply = (newMew: CreateMewInput) => {

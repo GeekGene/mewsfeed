@@ -30,8 +30,8 @@ const props = defineProps({
 });
 
 const newMew = ref("");
-const publishMew = async () => {
-  const createMewInput = {
+const publishMew = () => {
+  const createMewInput: CreateMewInput = {
     mewType: props.mewType,
     mew: newMew.value
   };
