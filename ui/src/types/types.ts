@@ -58,11 +58,12 @@ export interface FeedMew {
 }
 
 export interface FeedMewWithContext {
-    feedMew: FeedMew,
-    mewEntryHash: EntryHashB64,
-    comments: Array<string>,
-    shares: Array<string>,
-    licks: Array<string>
+    feedMew: FeedMew;
+    mewEntryHash: EntryHashB64;
+    comments: string[];
+    shares: string[];
+    licks: string[];
+    mewmews: string[];
 }
 
 export interface NotificationOptions {

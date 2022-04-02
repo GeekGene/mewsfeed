@@ -280,6 +280,7 @@ pub struct FeedMewWithContext {
     pub comments: Vec<EntryHashB64>,
     pub shares: Vec<EntryHashB64>,
     pub licks: Vec<AgentPubKeyB64>,
+    pub mewmews: Vec<EntryHashB64>,
 }
 
 #[hdk_extern]
@@ -307,7 +308,7 @@ where
         .to_app_option()?
         .ok_or(WasmError::Guest(String::from("Malformed mew")))?;
     let feed_mew = FeedMew {
-        mew: mew,
+        mew,
         header: element.header().clone()
     };
     // get vecs
@@ -323,6 +324,10 @@ where
         element.header().entry_hash().ok_or(WasmError::Guest(String::from("no entry found for header hash")))?.clone(),
         Some(LinkTag::new(LICKS_PATH_SEGMENT)))?;
     let licks: Vec<AgentPubKeyB64> = lick_links.into_iter().map(|link| AgentPubKey::from(link.target).into()).collect();
+    let mewmew_links = get_links(
+        element.header().entry_hash().ok_or(WasmError::Guest(String::from("no entry found for header hash")))?.clone(),
+        Some(LinkTag::new(MEWMEW_PATH_SEGMENT)))?;
+    let mewmews: Vec<EntryHashB64> = mewmew_links.into_iter().map(|mewmew| mewmew.target.into()).collect();
 
     let feed_mew_and_context = FeedMewWithContext {
         feed_mew,
@@ -332,7 +337,8 @@ where
                 .clone()).into(),
         comments,
         shares,
-        licks
+        licks,
+        mewmews
     };
     Ok(feed_mew_and_context)
 }

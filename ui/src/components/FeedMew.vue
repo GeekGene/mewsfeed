@@ -8,7 +8,7 @@
 
   <q-item-section>
     <div class="row q-mb-sm">
-      <span class="q-mr-xs text-primary text-weight-medium">{{ displayName }} </span>
+      <span class="q-mr-xs text-primary text-weight-medium">{{ displayName }}</span>
       <span>@{{ agentProfile?.nickname }}</span>
       <q-space />
       <span class="text-caption">
@@ -43,7 +43,9 @@
         icon="forward"
         flat
         @click="mewMew"
-      />
+      >
+        {{ mew.mewmews.length }}
+      </q-btn>
     </div>
   </q-item-section>
 
@@ -55,8 +57,8 @@
     <q-card>
       <q-card-section class="q-pb-none">
         <div class="q-mb-sm row items-center text-subtitle2">
-          <span class="q-mr-sm">Reply to {{ displayName }}</span> 
-          <span class="text-secondary">@{{ nickname }}</span> 
+          <span class="q-mr-sm">Reply to {{ displayName }}</span>
+          <span class="text-secondary">@{{ nickname }}</span>
           <q-space />
           <q-btn
             v-close-popup
@@ -93,6 +95,7 @@ import { PropType } from "vue";
 import { useProfileStore } from "../services/profile-store";
 import Timestamp from "./Timestamp.vue";
 import AvatarWithPopup from "./AvatarWithPopup.vue";
+import { serializeHash } from "@holochain-open-dev/core-types";
 
 const props = defineProps({
   mew: { type: Object as PropType<FeedMewWithContext>, required: true },
@@ -110,7 +113,7 @@ const emit = defineEmits<{
 }>();
 
 onMounted(async () => {
-  agentProfile.value = await store.fetchAgentProfile(props.mew.feedMew.header.author);
+  agentProfile.value = await store.fetchAgentProfile(serializeHash(props.mew.feedMew.header.author));
 });
 
 const isReplying = ref(false);
@@ -129,7 +132,7 @@ const replyToMew = () => isReplying.value = true;
 
 const mewMew = async () => {
   const createMewInput: CreateMewInput = {
-    mewType: {mewMew: props.mew.mewEntryHash},
+    mewType: { mewMew: props.mew.mewEntryHash },
     mew: props.mew.feedMew.mew.mew?.mew || null
   };
   emit("publish-mew", createMewInput);
