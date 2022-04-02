@@ -10,7 +10,7 @@
     />
     <q-btn
       :disable="newMew === ''"
-      color="secondary"
+      color="accent"
       @click="publishMew"
     >
       Publish Mew

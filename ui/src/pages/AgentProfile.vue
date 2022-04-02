@@ -61,7 +61,7 @@
             />
           </q-item-section>
           <q-item-section>
-            <MewsItemContent :mew-content="mew" />
+            <MewsItemContent :mew-content="mew.feedMew" />
           </q-item-section>
         </q-item>
       </q-list>
@@ -75,7 +75,7 @@ import { useRoute } from "vue-router";
 import { showError } from "@/utils/notification";
 import { computed, onMounted, ref, watch } from "vue";
 import { mewsBy, myFollowing } from "@/services/clutter-dna";
-import { FeedMew } from "@/types/types";
+import { FeedMewWithContext } from "@/types/types";
 import ButtonFollow from "@/components/ButtonFollow.vue";
 import MewsItemContent from "@/components/MewsItemContent.vue";
 
@@ -90,7 +90,7 @@ const displayName = ref("");
 const bio = ref("");
 const location = ref("");
 const following = ref(false);
-const mewsFeed = ref<FeedMew[]>([]);
+const mewsFeed = ref<FeedMewWithContext[]>([]);
 
 const loadProfile = async () => {
   try {
