@@ -6,8 +6,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export const clutterDna = path.join(__dirname, "../../dnas/clutter/workdir/clutter.dna");
-export const clutterIndexDna = path.join(__dirname, "../../dnas/clutter_index/workdir/clutter_index.dna");
-
 
 export const config = Config.gen();
 

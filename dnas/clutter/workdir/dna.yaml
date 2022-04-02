@@ -8,10 +8,4 @@ zomes:
     bundled: ../../../target/wasm32-unknown-unknown/release/profiles.wasm
   - name: mews
     bundled: ../../../target/wasm32-unknown-unknown/release/mews.wasm
-  - name: index_stub
-    bundled: ../../../target/wasm32-unknown-unknown/release/index_stub.wasm
-  - name: filestore
-    bundled: ../../../target/wasm32-unknown-unknown/release/filestore.wasm
-  - name: pathlinks
-    bundled: ../../../target/wasm32-unknown-unknown/release/pathlinks.wasm
 
