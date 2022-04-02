@@ -6,6 +6,7 @@
       class="q-mb-sm"
       dense
       outlined
+      autofocus
       @keyup.enter="publishMew"
     />
     <q-btn

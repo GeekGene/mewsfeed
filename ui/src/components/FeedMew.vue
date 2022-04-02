@@ -36,7 +36,7 @@
 
     <MewsItemContent
       :mew-content="mew.feedMew"
-      class="q-mb-sm"
+      class="q-mb-xs"
     />
 
     <div>
