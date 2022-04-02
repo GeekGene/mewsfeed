@@ -13,49 +13,64 @@
 ## Basic Feature List
 ### 1st Pass / MVP for playing
 
-Zome: Profile
+#### Zome: Profile
  - [x] Register a username
-   - [ ] Disambiguation page for usernames
+   - [ ] Enforce lower case usernames
+   - [ ] Enforce minimum length of 3 characters
  - [x] Create / Edit user profile
-   - [ ] First Name / Last Name
+   - [ ] Display name / full name
    - [ ] Default: identicon as avatar
    - [x] Upload avatar image
    - [x] Basic 1-line bio
    - [x] Location
- - [ ] Search for users (by pathname/anchor)
- - [ ] User Page (with that user's mews feed)
- - [ ] Follow / Unfollow users (by agentkey)
+ - [x] Search for users (by pathname/anchor)
+     - [x] three character autocomplete
+     - [ ] Disambiguation page for usernames
+ - [x] User Page
+ - [x] Follow / Unfollow users (by agentkey on their page)
+     - [x] Follow
+     - [x] Unfollow
 
-Zome: Mews
- - [ ] Compose/Commit mew
- - [ ] Mews Feed (with recent mews from follows)
+#### Zome: Mews
+ - [x] Compose/Commit mew
+ - [x] Mews Feed (with recent mews from follows)
    - [ ] pagination / "load more" option
- - [ ] Link new mew from a agentkey as a post
+   - [x] show avatar
+   - [x] show username
+   - [ ] show full/display name
+ - [x] Link new mew from a agentkey as a post
 
 ### 2nd Pass Features / More full experience
  - [ ] Ensure username uniqueness (via external namespace service?)
- - [ ] Change username?
+ - [x] Change username
  - [ ] Process tweet text for grammatical components
      - [ ] @user mentions
-     - [ ] #hashtags
-     - [ ] $cashtags ?
+     - [x] #hashtags
+     - [x] $cashtags ?
      - [ ] ^links (in UI triggers a link constructor)
  - [ ] Open social preview (e.g. thumbnail, mewmew box, etc)
- - [ ] Attach / Upload Picture (file sharing DNA)
- - [ ] Reply to mew :left_speech_bubble: 
- - [ ] Mewmew? (Retweet without comment) :recycle: 
+ - [ ] Attach / Upload Picture (file sharing mixin/zome)
+     - [ ] Enforce 5mb size limit (UI should auto-scale down images above it)
+ - [x] Reply to mew :left_speech_bubble: 
+ - [x] Mewmew? (Retweet without comment) :recycle: 
  - [ ] Favorite a mew? :heart:
  - [ ] Delete a mew? 🗑
- - [ ] infinite scroll on feeds?
+ - [ ] infinite scroll on feeds
 
 
 ### Later Passes / Future Features
-- [ ] Preview Profile
+- [x] Preview Profile
+- [ ] **sPin a Yarn** (feature unique to clutter)
+  - [ ] Limit N pinned yarns (2?)
+  - [ ] Threaded / Git/branching view for yarn
+- [ ] $cashtag transaction accounting
+  - [ ] tx grammar
+  - [ ] accounting nodes
 - [ ] Update Post
 - [ ] Language preference in user profile
 - [ ] Future: Search mews by keywords
-- [ ] Lists??
 - [ ] Direct Messages
+- [ ] Lists??
 
 ## User Experience / Workflow
  
@@ -63,10 +78,17 @@ Zome: Mews
 
 ### Pages
  - [ ] Home page: TBD
- - [x] View/Edit my profile:
- - [ ] View/Follow other user profile
+ - [ ] User page
+     - [x] View/Edit my profile:
+     - [x] View/Follow other user profile
+     - [x] Un/follow button
+     - [ ] Preview user mews
+     - [ ] Pinned Yarns
  - [ ] Mews_by(agent)
  - [ ] MewsFeed(agent): coallated mews_by for the people the agent follows
+     - [ ] pagination for MewsFeed
+     - [ ] Mews which are part of a yarn have an icon/link to view source yarn
+ - [ ] Yarns threads / gitbranch view
 
 
 
@@ -101,15 +123,15 @@ enum MewType {
   MewMew(HeaderHash,MewContent), // QuoteTweet
 }
 
-struct FullMew {
+struct FullMew {}
   mew_type: MewType,
   mew: Option<MewContent>,
 }
 
 struct MewContent {
   mew: String, // "Visit this web site ^link by @user about #hashtag to earn $cashtag! Also read this humm earth post ^link (as an HRL link)" 
-  mew_links: Vec<LinkTypes>, // [^links in the mewstring in sequence]
-  mew_images: Vec<EntryHash>, //Vec of image links hashes to retrieve
+  mew_links: Vec[LinkTypes], // [^links in the mewstring in sequence]
+  mew_images: Vec[EntryHash], //Vec of image links hashes to retrieve
 }
 enum LinkTypes {
   URL,
