@@ -72,8 +72,9 @@
   >
     <q-card>
       <q-card-section class="q-pb-none">
-        <div class="row text-h6">
-          Reply to {{ displayName }}
+        <div class="q-mb-sm row items-center text-subtitle2">
+          <span class="q-mr-sm">Reply to {{ displayName }}</span> 
+          <span class="text-secondary">@{{ nickname }}</span> 
           <q-space />
           <q-btn
             v-close-popup
@@ -121,6 +122,7 @@ let props = defineProps({
 const store = useProfileStore();
 const agentProfile = ref();
 const displayName = computed(() => agentProfile.value?.fields["Display name"]);
+const nickname = computed(() => agentProfile.value?.nickname);
 const myAgentPubKey = store.myAgentPubKey;
 
 const PROFILE_SHOW_HIDE_DELAY = 400; // in ms
