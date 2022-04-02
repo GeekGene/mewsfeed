@@ -5,11 +5,15 @@
     @click="toggleFollow"
   >
     <template v-if="following">
-      <label class="q-mr-sm">Unfollow</label>
+      <div class="q-mr-sm">
+        Unfollow
+      </div>
       <q-icon name="svguse:/icons.svg#cat" />
     </template>
     <template v-else>
-      <label class="q-mr-sm">Follow</label>
+      <div class="q-mr-sm">
+        Follow
+      </div>
       <q-icon
         name="svguse:/icons.svg#cat"
         color="secondary"
