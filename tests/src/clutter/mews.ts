@@ -1,7 +1,8 @@
 
 import { Orchestrator, Player, Cell } from "@holochain/tryorama";
 import { config, installation, sleep, entryHash } from '../utils';
-import { serializeHash } from '@holochain-open-dev/core-types';
+import { FeedMewWithContext } from '../../../ui/src/types/types';
+import { serializeHash } from "@holochain-open-dev/core-types";
 
 
 function getMewContents(fullMew: any): string {
@@ -44,17 +45,17 @@ export default (orchestrator: Orchestrator<any>) =>
     t.ok(mewHash);
 
     await sleep(777);
-
+    
+    console.log('searching hashtags')
     // get hashtags: #hashtag
-    let hashtaggedMews = await alice.call(
+    let hashtaggedMews: FeedMewWithContext[] = await alice.call(
       "mews",
       "get_mews_with_hashtag",
       "#hashtag"
     );
     t.equal(hashtaggedMews.length, 1)
-    console.log('searching hashtags')
-    console.log(hashtaggedMews[0].mew.mewType.original)
-    t.equal(getMewContents(hashtaggedMews[0]), mewContents);
+    console.log(hashtaggedMews[0].feedMew.mew.mewType)
+    t.equal(hashtaggedMews[0].feedMew.mew.mew?.mew, mewContents);
 
     // get hashtags: arabic
     hashtaggedMews = await alice.call(
@@ -64,8 +65,8 @@ export default (orchestrator: Orchestrator<any>) =>
     );
     t.equal(hashtaggedMews.length, 1)
     console.log('searching hashtags')
-    console.log(hashtaggedMews[0].mew.mewType.original)
-    t.equal(getMewContents(hashtaggedMews[0]), mewContents);
+    console.log(hashtaggedMews[0].feedMew.mew.mewType)
+    t.equal(hashtaggedMews[0].feedMew.mew.mew?.mew, mewContents);
 
     // get hashtags: emojis -- invalid hashtag!
     hashtaggedMews = await alice.call(
@@ -75,7 +76,7 @@ export default (orchestrator: Orchestrator<any>) =>
     );
     t.equal(hashtaggedMews.length, 0)
 
-    const cashtaggedMews = await alice.call(
+    const cashtaggedMews: FeedMewWithContext[] = await alice.call(
       "mews",
       "get_mews_with_cashtag",
       "$cashtag"
@@ -83,7 +84,7 @@ export default (orchestrator: Orchestrator<any>) =>
     console.log({ cashtaggedMews })
     t.equal(cashtaggedMews.length, 1)
     console.log('searching cashtags')
-    console.log(getMewContents(cashtaggedMews[0]))
+    console.log(cashtaggedMews[0].feedMew.mew.mew?.mew)
 
     // Bob gets the created mew
     const mew = await bob.call("mews", "get_mew", mewHash);
