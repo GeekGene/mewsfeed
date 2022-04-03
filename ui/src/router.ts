@@ -5,7 +5,8 @@ const routes = [
     { path: "/my-profile/", component: () => import("./pages/MyProfile.vue") },
     { path: "/profiles/:agent", component: () => import("./pages/AgentProfile.vue") },
     { path: "/feed", component: () => import("./pages/MewsFeed.vue") },
-    { path: "/feed/hashtag/:hashtag", component: () => import("./pages/MewsWithHashtag.vue") },
+    { path: "/feed/cashtag/:tag", component: () => import("./pages/MewsWithHashtag.vue") },
+    { path: "/feed/hashtag/:tag", component: () => import("./pages/MewsWithHashtag.vue") },
     { path: '/:pathMatch(.*)', component: () => import("./pages/NotFound.vue") }
 ];
 

@@ -1,7 +1,7 @@
 <template>
   <q-page padding>
     <h6 class="q-mb-md">
-      Mews that contain hashtag #{{ hashtag }}
+      Mews that contain hashtag #{{ tag }}
     </h6>
     <q-list v-if="loading">
       <q-item
@@ -68,7 +68,7 @@ import { useRouter } from 'vue-router';
 import FeedMew from '../components/FeedMew.vue';
 
 const router = useRouter();
-const hashtag = Array.isArray(router.currentRoute.value.params.hashtag) ? router.currentRoute.value.params.hashtag[0] : router.currentRoute.value.params.hashtag;
+const tag = Array.isArray(router.currentRoute.value.params.tag) ? router.currentRoute.value.params.tag[0] : router.currentRoute.value.params.tag;
 
 let firstLoad = true;
 const loading = ref(false);
@@ -80,7 +80,7 @@ const profileShowTimeouts = ref<number[]>([]);
 const loadMewsFeed = async () => {
   try {
     loading.value = firstLoad;
-    matchingMews.value = await getMewsWithHashtag('#' + hashtag);
+    matchingMews.value = await getMewsWithHashtag('#' + tag);
     profileVisible.value = new Array(matchingMews.value.length).fill(false);
     profileShowTimeouts.value = new Array(matchingMews.value.length).fill(0);
     profileHideTimeouts.value = new Array(matchingMews.value.length).fill(0);
