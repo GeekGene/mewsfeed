@@ -4,7 +4,22 @@
       class="text-body1"
       style="overflow-wrap: anywhere;"
     >
-      <div v-html="content" />
+      <span
+        v-for="(contentPart, index) of contentParts"
+        :key="index"
+      >
+        <router-link
+          v-if="contentPart.startsWith('#')"
+          :to="`/feed/hashtag/${contentPart.substring(1)}`"
+          class="text-secondary"
+        >
+          {{ contentPart }}
+        </router-link>
+
+        <template v-else>
+          {{ contentPart }}
+        </template>
+      </span> 
     </div>
   </div>
 </template>
@@ -15,10 +30,6 @@ import { PropType, ref } from "vue";
 const props = defineProps({ mewContent: { type: Object as PropType<FeedMew>, required: true } });
 
 const content = ref(props.mewContent.mew.mew?.mew || '');
-const hashtagRegex = /#(\w+)/g;
-const matches = [...content.value.matchAll(hashtagRegex)];
-matches.forEach((captureGroup) => {
-  const [hashtag, match] = captureGroup;
-  content.value = content.value.replaceAll(hashtag, `<a href="/feed/hashtag/${match}">#${match}</a>`);
-});
+const hashtagRegex = /\B(#\w+)/g;
+const contentParts = content.value.split(hashtagRegex);
 </script>

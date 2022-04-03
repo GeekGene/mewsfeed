@@ -458,8 +458,7 @@ pub fn followers(agent: AgentPubKeyB64) -> ExternResult<Vec<AgentPubKeyB64>> {
     follow_inner(agent, FOLLOWERS_PATH_SEGMENT)
 }
 
-pub fn get_mews_from_path(path: Path) -> ExternResult<Vec<FeedMew>> {
-    path.ensure()?;
+pub fn get_mews_from_path(path: Path) -> ExternResult<Vec<FeedMewWithContext>> {
     let path_hash = path.path_entry_hash()?;
 
     let links = get_links(path_hash, None)?;
@@ -470,26 +469,23 @@ pub fn get_mews_from_path(path: Path) -> ExternResult<Vec<FeedMew>> {
 
     let mew_elements = HDK.with(|hdk| hdk.borrow().get(get_input))?;
 
-    let hashtag_feed: Vec<FeedMew> = mew_elements
+    let hashtag_feed: Vec<FeedMewWithContext> = mew_elements
         .into_iter()
         .filter_map(|me| me)
         .filter_map(|element| match element.entry().to_app_option() {
-            Ok(Some(g)) => Some(FeedMew {
-                mew: g,
-                header: element.header().clone(),
-            }),
+            Ok(Some(fullMew)) => Some(get_feed_mew_and_context(element.header().entry_hash()?.to_string())?),
             _ => None,
         })
         .collect();
     Ok(hashtag_feed)
 }
 #[hdk_extern]
-pub fn get_mews_with_hashtag(hashtag: String) -> ExternResult<Vec<FeedMew>> {
+pub fn get_mews_with_hashtag(hashtag: String) -> ExternResult<Vec<FeedMewWithContext>> {
     let path = Path::from(format!("hashtags.{}", hashtag));
     Ok(get_mews_from_path(path)?)
 }
 #[hdk_extern]
-pub fn get_mews_with_cashtag(hashtag: String) -> ExternResult<Vec<FeedMew>> {
+pub fn get_mews_with_cashtag(hashtag: String) -> ExternResult<Vec<FeedMewWithContext>> {
     let path = Path::from(format!("cashtags.{}", hashtag));
     Ok(get_mews_from_path(path)?)
 }
