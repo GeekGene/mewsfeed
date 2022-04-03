@@ -11,7 +11,6 @@ entry_defs![
     FullMew::entry_def()
 ];
 
-
 #[derive(Debug, Serialize, Deserialize, SerializedBytes)]
 #[serde(rename_all = "camelCase")]
 enum MewType {
@@ -24,15 +23,15 @@ enum MewType {
 #[hdk_entry(id = "mew_content")]
 #[serde(rename_all = "camelCase")]
 struct MewContent {
-    mew: String, // "Visit this web site ^link by @user about #hashtag to earn $cashtag! Also read this humm earth post ^link (as an HRL link)" 
-//   mew_links: Vec<LinkTypes>, // [^links in the mewstring in sequence]
-//    mew_images: Vec<EntryHash>, //Vec of image links hashes to retrieve
+    mew: String, // "Visit this web site ^link by @user about #hashtag to earn $cashtag! Also read this humm earth post ^link (as an HRL link)"
+                 //   mew_links: Vec<LinkTypes>, // [^links in the mewstring in sequence]
+                 //    mew_images: Vec<EntryHash>, //Vec of image links hashes to retrieve
 }
 #[hdk_entry(id = "full_mew")]
 #[serde(rename_all = "camelCase")]
 pub struct FullMew {
-  mew_type: MewType,
-  mew: Option<MewContent>,
+    mew_type: MewType,
+    mew: Option<MewContent>,
 }
 
 const MEWS_PATH_SEGMENT: &str = "mews";
@@ -71,8 +70,8 @@ enum MewTypeInput {
 #[derive(Debug, Serialize, Deserialize, SerializedBytes)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateMewInput {
-  mew_type: MewTypeInput,
-  mew: Option<String>,
+    mew_type: MewTypeInput,
+    mew: Option<String>,
 }
 
 #[hdk_extern]
@@ -81,46 +80,44 @@ pub fn create_mew(mew: CreateMewInput) -> ExternResult<HeaderHashB64> {
     // TODO: enforce mew type is correct
     // check the type
     let mew_header_hash = match mew.mew_type {
-        MewTypeInput::Original => {
-            match mew.mew {
-                Some(mew_string) => create_original_mew(mew_string)?,
-                None => return Err(WasmError::Guest(String::from("mew must contain text")))
+        MewTypeInput::Original => match mew.mew {
+            Some(mew_string) => create_original_mew(mew_string)?,
+            None => return Err(WasmError::Guest(String::from("mew must contain text"))),
+        },
+        MewTypeInput::Reply(original_entry_hash) => match mew.mew {
+            Some(mew_string) => create_reply_mew(mew_string, original_entry_hash)?,
+            None => {
+                return Err(WasmError::Guest(String::from(
+                    "reply mew must contain text",
+                )))
             }
         },
-        MewTypeInput::Reply(original_entry_hash) => {
-            match mew.mew {
-                Some(mew_string) => create_reply_mew(mew_string, original_entry_hash)?,
-                None => return Err(WasmError::Guest(String::from("reply mew must contain text")))
+        MewTypeInput::ReMew(original_entry_hash) => match mew.mew {
+            Some(_) => {
+                return Err(WasmError::Guest(String::from(
+                    "remew cannot contain text. Try MewMew-ing.",
+                )))
             }
+            None => create_remew(original_entry_hash)?,
         },
-        MewTypeInput::ReMew(original_entry_hash) => {
-            match mew.mew {
-                Some(_) => return Err(WasmError::Guest(String::from("remew cannot contain text. Try MewMew-ing."))),
-                None => create_remew(original_entry_hash)?
-            }
+        MewTypeInput::MewMew(original_entry_hash) => match mew.mew {
+            Some(mew_string) => create_mewmew(mew_string, original_entry_hash)?,
+            None => return Err(WasmError::Guest(String::from("mewmew must contain text"))),
         },
-        MewTypeInput::MewMew(original_entry_hash) => {
-            match mew.mew {
-                Some(mew_string) => create_mewmew(mew_string, original_entry_hash)?,
-                None => return Err(WasmError::Guest(String::from("mewmew must contain text")))
-            }
-        },
-
     };
     Ok(mew_header_hash)
 }
 
 pub fn create_original_mew(mew: String) -> ExternResult<HeaderHashB64> {
-    let content = MewContent{mew: mew.clone()};
+    let content = MewContent { mew: mew.clone() };
     let _header_hash = create_entry(&content)?;
 
-    let full = FullMew{
+    let full = FullMew {
         mew_type: MewType::Original,
-        mew: Some(content)
+        mew: Some(content),
     };
     let full_header_hash = create_entry(&full)?;
     let hash = hash_entry(&full)?;
-
 
     let base = get_my_mews_base(MEWS_PATH_SEGMENT, true)?;
 
@@ -130,62 +127,77 @@ pub fn create_original_mew(mew: String) -> ExternResult<HeaderHashB64> {
     Ok(full_header_hash.into())
 }
 
-pub fn create_reply_mew(mew: String, original_entry_hash: EntryHashB64) -> ExternResult<HeaderHashB64> {
-    let content = MewContent{mew: mew.clone()};
+pub fn create_reply_mew(
+    mew: String,
+    original_entry_hash: EntryHashB64,
+) -> ExternResult<HeaderHashB64> {
+    let content = MewContent { mew: mew.clone() };
     let _header_hash = create_entry(&content)?;
 
-    let full = FullMew{
+    let full = FullMew {
         mew_type: MewType::Reply(original_entry_hash.clone().into()),
-        mew: Some(content)
+        mew: Some(content),
     };
     let full_header_hash = create_entry(&full)?;
     let hash = hash_entry(&full)?;
-
 
     let base = get_my_mews_base(MEWS_PATH_SEGMENT, true)?;
 
     // TODO: maybe return the link_hh later if we need to delete
     let _link_hh = create_link(base, hash.clone(), ())?;
     // link off original entry as comment
-    let _reply_link_hh = create_link(original_entry_hash.into(), hash.clone(), LinkTag::new(REPLY_PATH_SEGMENT))?;
+    let _reply_link_hh = create_link(
+        original_entry_hash.into(),
+        hash.clone(),
+        LinkTag::new(REPLY_PATH_SEGMENT),
+    )?;
     parse_mew_text(mew, hash)?;
     Ok(full_header_hash.into())
 }
 pub fn create_remew(original_entry_hash: EntryHashB64) -> ExternResult<HeaderHashB64> {
-    let full = FullMew{
+    let full = FullMew {
         mew_type: MewType::ReMew(original_entry_hash.clone().into()),
-        mew: None
+        mew: None,
     };
     let full_header_hash = create_entry(&full)?;
     let hash = hash_entry(&full)?;
-
 
     let base = get_my_mews_base(MEWS_PATH_SEGMENT, true)?;
 
     // TODO: maybe return the link_hh later if we need to delete
     let _link_hh = create_link(base, hash.clone(), ())?;
     // link off original entry as comment
-    let _remew_link_hh = create_link(original_entry_hash.into(), hash.clone(), LinkTag::new(REMEW_PATH_SEGMENT))?;
+    let _remew_link_hh = create_link(
+        original_entry_hash.into(),
+        hash.clone(),
+        LinkTag::new(REMEW_PATH_SEGMENT),
+    )?;
     Ok(full_header_hash.into())
 }
-pub fn create_mewmew(mew: String, original_entry_hash: EntryHashB64) -> ExternResult<HeaderHashB64> {
-    let content = MewContent{mew: mew.clone()};
+pub fn create_mewmew(
+    mew: String,
+    original_entry_hash: EntryHashB64,
+) -> ExternResult<HeaderHashB64> {
+    let content = MewContent { mew: mew.clone() };
     let _header_hash = create_entry(&content)?;
 
-    let full = FullMew{
+    let full = FullMew {
         mew_type: MewType::MewMew(original_entry_hash.clone().into()),
-        mew: Some(content)
+        mew: Some(content),
     };
     let full_header_hash = create_entry(&full)?;
     let hash = hash_entry(&full)?;
-
 
     let base = get_my_mews_base(MEWS_PATH_SEGMENT, true)?;
 
     // TODO: maybe return the link_hh later if we need to delete
     let _link_hh = create_link(base, hash.clone(), ())?;
     // link off original entry as comment
-    let _mewmew_link_hh = create_link(original_entry_hash.into(), hash.clone(), LinkTag::new(MEWMEW_PATH_SEGMENT))?;
+    let _mewmew_link_hh = create_link(
+        original_entry_hash.into(),
+        hash.clone(),
+        LinkTag::new(MEWMEW_PATH_SEGMENT),
+    )?;
     parse_mew_text(mew, hash)?;
     Ok(full_header_hash.into())
 }
@@ -196,7 +208,11 @@ pub fn lick_mew(entry_hash: EntryHashB64) -> ExternResult<()> {
 
     let base = get_my_mews_base(LICKS_PATH_SEGMENT, true)?;
     let _my_lick_hh = create_link(base, entry_hash.clone().into(), ())?;
-    let _mew_lick_hh = create_link(entry_hash.into(),me.into(), LinkTag::new(LICKS_PATH_SEGMENT))?;
+    let _mew_lick_hh = create_link(
+        entry_hash.into(),
+        me.into(),
+        LinkTag::new(LICKS_PATH_SEGMENT),
+    )?;
     Ok(())
 }
 #[hdk_extern]
@@ -208,10 +224,7 @@ pub fn my_licks(_: ()) -> ExternResult<Vec<EntryHashB64>> {
 fn licks_inner(agent: AgentPubKeyB64, base_type: &str) -> ExternResult<Vec<EntryHashB64>> {
     let base = get_mews_base(agent, base_type, false)?;
     let links = get_links(base, None)?;
-    Ok(links
-        .into_iter()
-        .map(|link| link.target.into())
-        .collect())
+    Ok(links.into_iter().map(|link| link.target.into()).collect())
 }
 
 #[hdk_extern]
@@ -253,17 +266,17 @@ pub fn get_mew(hash: String) -> ExternResult<FullMew> {
         Ok(header_hash) => Ok(get_mew_inner(HeaderHash::from(header_hash))?),
         Err(_) => match entry_hash_result {
             Ok(entry_hash) => Ok(get_mew_inner(EntryHash::from(entry_hash))?),
-            Err(_) => return Err(WasmError::Guest(String::from("invalid hash format")))
-        }
+            Err(_) => return Err(WasmError::Guest(String::from("invalid hash format"))),
+        },
     }
 }
 
-pub fn get_mew_inner<H>(hash: H) -> ExternResult<FullMew> 
+pub fn get_mew_inner<H>(hash: H) -> ExternResult<FullMew>
 where
     AnyDhtHash: From<H>,
 {
-    let element = get(hash, GetOptions::default())?
-        .ok_or(WasmError::Guest(String::from("Mew not found")))?;
+    let element =
+        get(hash, GetOptions::default())?.ok_or(WasmError::Guest(String::from("Mew not found")))?;
 
     let mew: FullMew = element
         .entry()
@@ -289,56 +302,104 @@ pub fn get_feed_mew_and_context(hash: String) -> ExternResult<FeedMewWithContext
     let entry_hash_result = EntryHashB64::from_b64_str(&hash);
 
     match header_hash_result {
-        Ok(header_hash) => Ok(get_feed_mew_and_context_inner(HeaderHash::from(header_hash))?),
+        Ok(header_hash) => Ok(get_feed_mew_and_context_inner(HeaderHash::from(
+            header_hash,
+        ))?),
         Err(_) => match entry_hash_result {
             Ok(entry_hash) => Ok(get_feed_mew_and_context_inner(EntryHash::from(entry_hash))?),
-            Err(_) => return Err(WasmError::Guest(String::from("invalid hash format")))
-        }
+            Err(_) => return Err(WasmError::Guest(String::from("invalid hash format"))),
+        },
     }
 }
 
-pub fn get_feed_mew_and_context_inner<H>(hash: H) -> ExternResult<FeedMewWithContext> 
+pub fn get_feed_mew_and_context_inner<H>(hash: H) -> ExternResult<FeedMewWithContext>
 where
     AnyDhtHash: From<H>,
 {
-    let element = get(hash, GetOptions::default())?
-        .ok_or(WasmError::Guest(String::from("Mew not found")))?;
+    let element =
+        get(hash, GetOptions::default())?.ok_or(WasmError::Guest(String::from("Mew not found")))?;
     let mew: FullMew = element
         .entry()
         .to_app_option()?
         .ok_or(WasmError::Guest(String::from("Malformed mew")))?;
     let feed_mew = FeedMew {
         mew,
-        header: element.header().clone()
+        header: element.header().clone(),
     };
     // get vecs
     let share_links = get_links(
-        element.header().entry_hash().ok_or(WasmError::Guest(String::from("no entry found for header hash")))?.clone(),
-        Some(LinkTag::new(REMEW_PATH_SEGMENT)))?;
-    let shares: Vec<EntryHashB64> = share_links.into_iter().map(|link| link.target.into()).collect();
+        element
+            .header()
+            .entry_hash()
+            .ok_or(WasmError::Guest(String::from(
+                "no entry found for header hash",
+            )))?
+            .clone(),
+        Some(LinkTag::new(REMEW_PATH_SEGMENT)),
+    )?;
+    let shares: Vec<EntryHashB64> = share_links
+        .into_iter()
+        .map(|link| link.target.into())
+        .collect();
     let comment_links = get_links(
-        element.header().entry_hash().ok_or(WasmError::Guest(String::from("no entry found for header hash")))?.clone(),
-        Some(LinkTag::new(REPLY_PATH_SEGMENT)))?;
-    let comments: Vec<EntryHashB64> = comment_links.into_iter().map(|link| link.target.into()).collect();
+        element
+            .header()
+            .entry_hash()
+            .ok_or(WasmError::Guest(String::from(
+                "no entry found for header hash",
+            )))?
+            .clone(),
+        Some(LinkTag::new(REPLY_PATH_SEGMENT)),
+    )?;
+    let comments: Vec<EntryHashB64> = comment_links
+        .into_iter()
+        .map(|link| link.target.into())
+        .collect();
     let lick_links = get_links(
-        element.header().entry_hash().ok_or(WasmError::Guest(String::from("no entry found for header hash")))?.clone(),
-        Some(LinkTag::new(LICKS_PATH_SEGMENT)))?;
-    let licks: Vec<AgentPubKeyB64> = lick_links.into_iter().map(|link| AgentPubKey::from(link.target).into()).collect();
+        element
+            .header()
+            .entry_hash()
+            .ok_or(WasmError::Guest(String::from(
+                "no entry found for header hash",
+            )))?
+            .clone(),
+        Some(LinkTag::new(LICKS_PATH_SEGMENT)),
+    )?;
+    let licks: Vec<AgentPubKeyB64> = lick_links
+        .into_iter()
+        .map(|link| AgentPubKey::from(link.target).into())
+        .collect();
     let mewmew_links = get_links(
-        element.header().entry_hash().ok_or(WasmError::Guest(String::from("no entry found for header hash")))?.clone(),
-        Some(LinkTag::new(MEWMEW_PATH_SEGMENT)))?;
-    let mewmews: Vec<EntryHashB64> = mewmew_links.into_iter().map(|mewmew| mewmew.target.into()).collect();
+        element
+            .header()
+            .entry_hash()
+            .ok_or(WasmError::Guest(String::from(
+                "no entry found for header hash",
+            )))?
+            .clone(),
+        Some(LinkTag::new(MEWMEW_PATH_SEGMENT)),
+    )?;
+    let mewmews: Vec<EntryHashB64> = mewmew_links
+        .into_iter()
+        .map(|mewmew| mewmew.target.into())
+        .collect();
 
     let feed_mew_and_context = FeedMewWithContext {
         feed_mew,
         mew_entry_hash: EntryHash::from(
-            element.header().entry_hash()
-                .ok_or(WasmError::Guest(String::from("could not stringify entry hash")))?
-                .clone()).into(),
+            element
+                .header()
+                .entry_hash()
+                .ok_or(WasmError::Guest(String::from(
+                    "could not stringify entry hash",
+                )))?
+                .clone(),
+        )
+        .into(),
         comments,
         shares,
         licks,
-        mewmews
+        mewmews,
     };
     Ok(feed_mew_and_context)
 }
@@ -360,15 +421,18 @@ pub struct FeedMew {
 pub fn mews_by(agent: AgentPubKeyB64) -> ExternResult<Vec<FeedMewWithContext>> {
     let base = get_mews_base(agent, MEWS_PATH_SEGMENT, false)?;
     let links = get_links(base, None)?;
-    
+
     let mut feed: Vec<FeedMewWithContext> = links
         .into_iter()
-        .map(|link| {
-            get_feed_mew_and_context_inner(link.target)
-        })
+        .map(|link| get_feed_mew_and_context_inner(link.target))
         .filter_map(Result::ok)
         .collect();
-    feed.sort_by(|a, b| b.feed_mew.header.timestamp().cmp(&a.feed_mew.header.timestamp()));
+    feed.sort_by(|a, b| {
+        b.feed_mew
+            .header
+            .timestamp()
+            .cmp(&a.feed_mew.header.timestamp())
+    });
 
     Ok(feed)
 }
@@ -383,7 +447,12 @@ pub fn mews_feed(_options: FeedOptions) -> ExternResult<Vec<FeedMewWithContext>>
     }
     // TODO don't really need to sort, could merge for efficiency
     // sort by timestamp in descending order
-    feed.sort_by(|a, b| b.feed_mew.header.timestamp().cmp(&a.feed_mew.header.timestamp()));
+    feed.sort_by(|a, b| {
+        b.feed_mew
+            .header
+            .timestamp()
+            .cmp(&a.feed_mew.header.timestamp())
+    });
 
     Ok(feed)
 }
@@ -412,7 +481,7 @@ pub fn unfollow(agent: AgentPubKeyB64) -> ExternResult<()> {
             break;
         }
     }
-    
+
     let me_target: EntryHash = agent_info()?.agent_latest_pubkey.into();
     let them = get_mews_base(agent, FOLLOWERS_PATH_SEGMENT, true)?;
     let links = get_links(them.clone(), None)?;
@@ -472,9 +541,10 @@ pub fn get_mews_from_path(path: Path) -> ExternResult<Vec<FeedMewWithContext>> {
     let hashtag_feed: Vec<FeedMewWithContext> = mew_elements
         .into_iter()
         .filter_map(|me| me)
-        .filter_map(|element| match element.entry().to_app_option() {
-            Ok(Some(fullMew)) => Some(get_feed_mew_and_context(element.header().entry_hash()?.to_string())?),
-            _ => None,
+        .filter_map(|element| {
+            Some(get_feed_mew_and_context(
+                element.header().entry_hash()?.to_string(),
+            ).unwrap())
         })
         .collect();
     Ok(hashtag_feed)
