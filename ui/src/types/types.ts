@@ -1,6 +1,9 @@
 import { EntryHashB64 } from '@holochain-open-dev/core-types';
 import { Header } from '@holochain/client';
 
+export const HASHTAG = '#';
+export const CASHTAG = '$';
+
 export interface Profile {
     avatar: string, // base 64 in-place image url
     location: string,

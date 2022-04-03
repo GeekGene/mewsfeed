@@ -18,7 +18,6 @@ export let clutterCell: InstalledCell;
 export const APP_WEB_SOCKET: InjectionKey<AppWebsocket> = Symbol();
 export const connectAppWebSocket = async () => {
   if (!appWebSocket) {
-    console.log('import.meta.env.VITE_HC_PORT: ', import.meta.env.VITE_HC_PORT);
     appWebSocket = await AppWebsocket.connect(
       `ws://localhost:${import.meta.env.VITE_HC_PORT}`
     );
@@ -68,6 +67,7 @@ export enum MewsFn {
   LickMew = "lick_mew",
   UnlickMew = "unlick_mew",
   GetFeedMewAndContext = "get_feed_mew_and_context",
+  GetMewsWithCashtag = "get_mews_with_cashtag",
   GetMewsWithHashtag = "get_mews_with_hashtag",
 }
 
@@ -172,6 +172,14 @@ export const getFeedMewAndContext = async (mew: string): Promise<FeedMewWithCont
     zome_name: "mews",
     fn_name: MewsFn.GetFeedMewAndContext,
     payload: mew,
+  });
+};
+
+export const getMewsWithCashtag = async (cashtag: string): Promise<FeedMewWithContext[]> => {
+  return callZome({
+    zome_name: "mews",
+    fn_name: MewsFn.GetMewsWithCashtag,
+    payload: cashtag,
   });
 };
 
