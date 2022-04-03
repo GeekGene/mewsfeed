@@ -1,50 +1,96 @@
 <template>
-  <div
-    class="q-mx-auto"
-    style="width: 50%;"
+  <q-page
+    padding
   >
-    <MewConstructor @publish-mew="publishMew" />
-    <h3>Your Mews Feed:</h3>
-    <q-spinner-pie
-      v-if="loading"
-      size="10%"
-      color="primary"
+    <AddMew
+      class="text-center"
+      :mew-type="{original:null}"
+      @publish-mew="publishMew"
     />
+
+    <h5 class="q-mb-md">
+      Your Mews Feed
+    </h5>
+    <q-list v-if="loading">
+      <q-item
+        v-for="i in [0, 1, 2]"
+        :key="i"
+      >
+        <q-item-section avatar>
+          <q-skeleton type="circle" />
+        </q-item-section>
+        <q-item-section>
+          <q-skeleton
+            type="text"
+            class="q-mb-xs"
+          />
+          <q-skeleton type="text" />
+        </q-item-section>
+      </q-item>
+    </q-list>
+
+    <q-banner
+      v-else-if="mewsFeed.length === 0"
+      class="bg-grey-3"
+      dense
+      rounded
+    >
+      <template #avatar>
+        <q-icon
+          name="pets"
+          color="accent"
+        />
+      </template>
+      <div class="text-subtitle1">
+        Meeoow, nothing here yet!
+      </div>
+    </q-banner>
+
     <q-list
       v-else
       bordered
       separator
-      dense
     >
       <q-item
         v-for="(mew, index) in mewsFeed"
         :key="index"
       >
-        <q-item-section>
-          <MewComponent :mew-content="mew" />
-        </q-item-section>
+        <FeedMewWrapper 
+          :mew="mew"
+          :index="index"
+          @publish-mew="publishMew"
+          @refresh-feed="refreshFeed"
+        /> 
       </q-item>
     </q-list>
-  </div>
+  </q-page>
 </template>
 
 <script setup lang="ts">
-import { mewsBy, createMew } from '../services/clutter-dna';
-import { useProfileStore } from "../services/profile-store";
-import MewComponent from '../components/Mew.vue';
-import MewConstructor from '../components/MewConstructor.vue';
+import { createMew, mewsFeed as getMewsFeed } from '../services/clutter-dna';
 import { onMounted, ref } from 'vue';
-import { FeedMew, Mew } from '../types/types';
+import { FeedMewWithContext as FeedMew, CreateMewInput } from '../types/types';
 import { showError } from '../utils/notification';
+import AddMew from '../components/AddMew.vue';
+import FeedMewWrapper from '../components/FeedMewWrapper.vue';
+import { createMew as createMewExpression, mewsFeed as ad4mMewsFeed } from '../services/ad4m';
 
-const { myAgentPubKey } = useProfileStore();
+
 const loading = ref(false);
 const mewsFeed = ref<FeedMew[]>([]);
+const profileVisible = ref<boolean[]>([]);
+const profileHideTimeouts = ref<number[]>([]);
+const profileShowTimeouts = ref<number[]>([]);
 
 const loadMewsFeed = async () => {
   try {
     loading.value = true;
-    mewsFeed.value = await mewsBy(myAgentPubKey);
+    const serializedFeed = await ad4mMewsFeed({ option: ''});
+    mewsFeed.value = serializedFeed.map(mew => JSON.parse(mew));
+    console.log(mewsFeed.value);
+    profileVisible.value = new Array(mewsFeed.value.length).fill(false);
+    profileShowTimeouts.value = new Array(mewsFeed.value.length).fill(0);
+    profileHideTimeouts.value = new Array(mewsFeed.value.length).fill(0);
   } catch (error) {
     showError(error);
   } finally {
@@ -54,8 +100,14 @@ const loadMewsFeed = async () => {
 
 onMounted(loadMewsFeed);
 
-const publishMew = async (newMew: Mew) => {
-  await createMew(newMew);
+const publishMew = async (newMew: CreateMewInput) => {
+  const address = await createMew(newMew);
+  console.log('mew address:', address);
+  const expressionAddress = await createMewExpression(newMew);
+  console.log('mew expression address:', expressionAddress);
+  refreshFeed();
+};
+const refreshFeed = () => {
   loadMewsFeed();
 };
 </script>

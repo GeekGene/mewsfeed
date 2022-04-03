@@ -12,5 +12,5 @@ serde = "1"
 derive_more = "0"
 chrono = {version = "0.4", features = ["serde"]}
 
-hdk = {version = "0.0.120", features = ["encoding"]}
+hdk = {version = "0.0.123", features = ["encoding"]}
 

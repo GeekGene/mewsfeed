@@ -2,8 +2,7 @@
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig.json to read more about this file */
     /* Basic Options */
-    "outDir": "dist",
-    "target": "ES2017",
+    "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "node",
     /* Strict Type-Checking Options */

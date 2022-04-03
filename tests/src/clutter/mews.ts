@@ -1,11 +1,11 @@
 
 import { Orchestrator, Player, Cell } from "@holochain/tryorama";
-import { config, installation, sleep } from '../utils';
+import { config, installation, sleep, entryHash } from '../utils';
 import { serializeHash } from '@holochain-open-dev/core-types';
 
 
-function getMewContents(fullMew: any) : string {
-  return fullMew.mew.mewType.original.mew
+function getMewContents(fullMew: any): string {
+  return fullMew.mew.mew.mew
 }
 
 export default (orchestrator: Orchestrator<any>) =>
@@ -28,12 +28,18 @@ export default (orchestrator: Orchestrator<any>) =>
     const carol = carol_happ.cells.find(cell => cell.cellRole.includes('/clutter.dna')) as Cell;
 
     const mewContents = "My Mew with #hashtag #سعيدة #😃😃😃 and $cashtag";
+    let createMewInput = {
+      mewType: {
+        original: null
+      },
+      mew: mewContents
+    }
 
     // Alice creates a post
     const mewHash = await alice.call(
       "mews",
       "create_mew",
-      mewContents
+      createMewInput
     );
     t.ok(mewHash);
 
@@ -82,14 +88,20 @@ export default (orchestrator: Orchestrator<any>) =>
     // Bob gets the created mew
     const mew = await bob.call("mews", "get_mew", mewHash);
     console.log("mew", mew)
-    t.deepEqual(mew, { mewType: { original: { mew: mewContents } }, mew: null });
+    t.deepEqual(mew, { mewType: { original: null }, mew: { mew: mewContents } });
 
     let alicePubKey = serializeHash(alice.cellId[1])
     let bobPubKey = serializeHash(bob.cellId[1])
     let carolPubKey = serializeHash(carol.cellId[1])
 
     let mews = await bob.call("mews", "mews_by", alicePubKey)
-    t.equal(getMewContents(mews[0]), mewContents);
+    t.equal(getMewContents(mews[0].feedMew), mewContents);
+    console.log('mews:', mews)
+    console.log('entry hash:', entryHash(mews[0].feedMew.header.entry_hash))
+    console.log('mewType:', mews[0].feedMew.mew.mewType)
+    const originalEntryHash = entryHash(mews[0].feedMew.header.entry_hash)
+
+
 
     mews = await bob.call("mews", "mews_by", bobPubKey)
     t.equal(mews.length, 0);
@@ -98,8 +110,6 @@ export default (orchestrator: Orchestrator<any>) =>
     t.equal(mews.length, 0);
 
     await bob.call("mews", "follow", alicePubKey)
-    t.ok
-    t.ok
     await sleep(777);
 
     console.log("Bob", bobPubKey)
@@ -133,32 +143,133 @@ export default (orchestrator: Orchestrator<any>) =>
 
     // after following alice bob should get alice's mews in his feed
     mews = await bob.call("mews", "mews_feed", { option: "" })
-    t.equal(getMewContents(mews[0]), mewContents);
+    t.equal(getMewContents(mews[0].feedMew), mewContents);
 
     // carol and alice post, bob follows carol
     // Carol creates a post
+    const createMewInput2 = {
+      ...createMewInput,
+      mew: createMewInput.mew + "2"
+    }
     const mewHash2 = await carol.call(
       "mews",
       "create_mew",
-      mewContents + "2"
+      createMewInput2
     );
     t.ok(mewHash2);
 
+    const createMewInput3 = {
+      ...createMewInput,
+      mew: createMewInput.mew + "3"
+    }
     // Alice creates a post
     const mewHash3 = await alice.call(
       "mews",
       "create_mew",
-      mewContents + "3"
+      createMewInput3
     );
-    t.ok(mewHash2);
+    t.ok(mewHash3);
 
     await bob.call("mews", "follow", carolPubKey)
-    t.ok
-    await sleep(500);
+    await sleep(777);
 
-    // tests that mews from different followers get sorted into the correct order
+    // tests that mews from different followers get sorted into descending order
     mews = await bob.call("mews", "mews_feed", { option: "" })
-    t.equal(mews.length, 3);
-    t.equal(getMewContents(mews[1]), mewContents + "2");
-    t.equal(getMewContents(mews[2]), mewContents + "3");
+    t.equal(getMewContents(mews[0].feedMew), mewContents + "3");
+    t.equal(getMewContents(mews[1].feedMew), mewContents + "2");
+    t.equal(getMewContents(mews[2].feedMew), mewContents);
+
+    await bob.call("mews", "unfollow", alicePubKey);
+    await bob.call("mews", "unfollow", carolPubKey);
+    // Bob unfollows all his followees
+    mews = await bob.call("mews", "mews_feed", { option: "" })
+    t.equal(mews.length, 0);
+
+    // ==============================================
+    // test mew interaction: lick, reply, remew, and mewmew
+    // ==============================================
+      
+    // Alice licks first mew
+    await alice.call("mews", "lick_mew", originalEntryHash)
+    let aliceLicks = await alice.call("mews", "my_licks", null)
+    t.equal(aliceLicks.length, 1)
+    t.equal(aliceLicks[0], originalEntryHash)
+
+    let createReplyMewInput = {
+      mewType: {
+        reply: originalEntryHash
+      },
+      mew: "reply mew to original mew!"
+    }
+
+    // Alice replies to first mew
+    const replyMewHash = await alice.call(
+      "mews",
+      "create_mew",
+      createReplyMewInput
+    );
+    t.ok(replyMewHash);
+    
+    let createReMewInput = {
+      mewType: {
+        reMew: originalEntryHash
+      },
+      mew: null
+    }
+    
+    // Alice retweets first mew
+    const reMewHash = await alice.call(
+      "mews",
+      "create_mew",
+      createReMewInput
+    );
+    t.ok(reMewHash);
+
+    let createMewMewInput = {
+      mewType: {
+        mewMew: originalEntryHash
+      },
+      mew: "mewmew of original mew!"
+    }
+    
+    // Alice quote tweets first mew
+    const mewMewHash = await alice.call(
+      "mews",
+      "create_mew",
+      createMewMewInput
+    );
+    t.ok(mewMewHash);
+    
+    await sleep(777);
+    
+    // get orignal mew with context to see if links were created by interacting with it
+    let mewWithContext = await bob.call("mews", "get_feed_mew_and_context", mewHash)
+    console.log('mew context:', mewWithContext)
+    t.equals(mewWithContext.comments.length, 1)
+    t.equals(mewWithContext.shares.length, 2)
+    t.equals(mewWithContext.licks.length, 1)
+  
+    // test can get mew with entry hash in addition to header hash
+    const mewFromEntryHash = await bob.call("mews", "get_mew", mewWithContext.comments[0])
+    console.log('mew from entry hash:', mewFromEntryHash)
+    t.equals(mewFromEntryHash.mew.mew, createReplyMewInput.mew)
+    t.equals("reply" in mewFromEntryHash.mewType, true)
+
+    mewWithContext = await bob.call("mews", "get_feed_mew_and_context", originalEntryHash)
+    console.log('mew context:', mewWithContext)
+    t.equals(mewWithContext.comments.length, 1)
+    t.equals(mewWithContext.shares.length, 2)
+    t.equals(mewWithContext.licks.length, 1)
+
+    // unlick mew
+    await alice.call("mews", "unlick_mew", originalEntryHash)
+    aliceLicks = await alice.call("mews", "my_licks", null)
+    t.equal(aliceLicks.length, 0)
+
+    await sleep(500);
+    mewWithContext = await bob.call("mews", "get_feed_mew_and_context", originalEntryHash)
+    console.log('mew context:', mewWithContext)
+    t.equals(mewWithContext.comments.length, 1)
+    t.equals(mewWithContext.shares.length, 2)
+    t.equals(mewWithContext.licks.length, 0)
   });

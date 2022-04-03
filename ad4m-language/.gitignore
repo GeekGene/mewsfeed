@@ -1,0 +1,9 @@
+*.js
+*.js.map
+node_modules
+build
+dist-mew
+dist-mew-constructor
+!main.js
+!rollup.config.icons.dev.js
+!rollup.config.icons.js
