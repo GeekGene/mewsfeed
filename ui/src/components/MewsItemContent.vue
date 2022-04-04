@@ -9,35 +9,29 @@
         :key="index"
       >
         <router-link
-          v-if="contentPart.startsWith('#')"
-          :to="`/feed/hashtag/${contentPart.substring(1)}`"
+          v-if="startsWithTag(contentPart)"
+          :to="`/${PATH[contentPart[0]]}/${contentPart.substring(1)}`"
           class="text-secondary"
         >
           {{ contentPart }}
         </router-link>
 
-        <router-link
-          v-else-if="contentPart.startsWith('$')"
-          :to="`/feed/cashtag/${contentPart.substring(1)}`"
-          class="text-secondary"
-        >
-          {{ contentPart }}
-        </router-link>
-
-        <template v-else>
-          {{ contentPart }}
-        </template>
-      </span> 
+        <template v-else>{{ contentPart }}</template>
+      </span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { FeedMew } from "@/types/types";
+import { FeedMew, TAG_SYMBOLS } from "@/types/types";
+import { PATH } from '@/router';
 import { PropType, ref } from "vue";
 const props = defineProps({ mewContent: { type: Object as PropType<FeedMew>, required: true } });
 
 const content = ref(props.mewContent.mew.mew?.mew || '');
-const tagRegex = /\B(#\w+|\$\w+)/g;
+const regexpString = Object.values(TAG_SYMBOLS).map((symbol) => `\\${symbol}\\w+`);
+const tagRegex = new RegExp(`\\B(${regexpString.join('|')})`, 'gi');
 const contentParts = content.value.split(tagRegex);
+
+const startsWithTag = (contentPart: string) => Object.values(TAG_SYMBOLS).some((symbol) => contentPart.startsWith(symbol));
 </script>

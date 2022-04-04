@@ -1,6 +1,6 @@
 <template>
   <q-page padding>
-    <h6 class="q-mb-md">
+    <h6 class="q-mt-none q-mb-md">
       Mews with {{ tagSymbol }}{{ tag }}
     </h6>
     <FeedSkeleton v-if="loading" />
@@ -27,16 +27,18 @@
 </template>
 
 <script setup lang="ts">
-import { createMew, getMewsWithCashtag, getMewsWithHashtag } from '../services/clutter-dna';
+import { createMew, getMewsWithCashtag, getMewsWithHashtag, mewsBy } from '@/services/clutter-dna';
 import { onMounted, computed, ref, watch } from 'vue';
-import { FeedMewWithContext, CreateMewInput } from '../types/types';
-import { showError } from '../utils/notification';
+import { FeedMewWithContext, CreateMewInput, TAG_SYMBOLS } from '@/types/types';
+import { showError } from '@/utils/notification';
 import { useRouter } from 'vue-router';
-import FeedMew from '../components/FeedMew.vue';
-import FeedSkeleton from '../components/FeedSkeleton.vue';
+import { useProfileStore } from '@/services/profile-store';
+import FeedMew from '@/components/FeedMew.vue';
+import FeedSkeleton from '@/components/FeedSkeleton.vue';
+import { Dictionary } from '@holochain-open-dev/core-types';
+import { Profile } from '@holochain-open-dev/profiles';
 
-const SYMBOL_CASHTAG = '$';
-const SYMBOL_HASHTAG = '#';
+const profileStore = useProfileStore();
 
 const router = useRouter();
 const currentRoute = computed(() => router.currentRoute.value);
@@ -49,10 +51,17 @@ const mews = ref<FeedMewWithContext[]>([]);
 const loadMewsFeed = async () => {
   try {
     loading.value = true;
-    if (tagSymbol.value === SYMBOL_CASHTAG) {
+    if (tagSymbol.value === TAG_SYMBOLS.CASHTAG) {
       mews.value = await getMewsWithCashtag(tagSymbol.value + tag.value);
-    } else if (tagSymbol.value === SYMBOL_HASHTAG) {
+    } else if (tagSymbol.value === TAG_SYMBOLS.HASHTAG) {
       mews.value = await getMewsWithHashtag(tagSymbol.value + tag.value);
+    } else if (tagSymbol.value === TAG_SYMBOLS.MENTION) {
+      await profileStore.fetchAllProfiles();
+      const allProfiles = await new Promise<Dictionary<Profile>>((resolve) => profileStore.knownProfiles.subscribe((allProfiles) => resolve(allProfiles)));
+      const agentPubKey = Object.keys(allProfiles).find((key) => allProfiles[key].nickname === tag.value);
+      if (agentPubKey) {
+        mews.value = await mewsBy(agentPubKey);
+      }
     }
   } catch (error) {
     showError(error);

@@ -117,5 +117,4 @@ const loadProfile = async () => {
 
 onMounted(loadProfile);
 watch(() => route.params.agent, () => loadProfile());
-
 </script>
