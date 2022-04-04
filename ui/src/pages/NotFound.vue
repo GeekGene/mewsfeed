@@ -1,11 +1,6 @@
 <template>
-  <q-page
-    class="text-center"
-    padding
-  >
-    <h4>
-      You've lost the thread
-    </h4>
+  <q-page class="text-center" padding>
+    <h4>You've lost the thread</h4>
     <q-btn
       icon="explore"
       color="accent"
@@ -13,5 +8,5 @@
       size="md"
       to="/"
     />
-  </q-page> 
+  </q-page>
 </template>

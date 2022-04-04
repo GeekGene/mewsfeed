@@ -5,13 +5,19 @@ import {
   InstalledCell,
 } from "@holochain/client";
 import { inject, InjectionKey } from "vue";
-import { CreateMewInput, FeedOptions, FeedMewWithContext as FeedMew, FullMew, FeedMewWithContext } from "../types/types";
-import { EntryHashB64, AgentPubKeyB64 } from '@holochain-open-dev/core-types';
+import {
+  CreateMewInput,
+  FeedOptions,
+  FeedMewWithContext as FeedMew,
+  FullMew,
+  FeedMewWithContext,
+} from "../types/types";
+import { EntryHashB64, AgentPubKeyB64 } from "@holochain-open-dev/core-types";
 
 let appWebSocket: AppWebsocket;
 let appInfo: InstalledAppInfo;
 
-export const installed_app_id = 'clutter';
+export const installed_app_id = "clutter";
 
 export let clutterCell: InstalledCell;
 
@@ -87,7 +93,9 @@ export const getMew = async (mew: EntryHashB64): Promise<FullMew> => {
   });
 };
 
-export const mewsFeed = async (options: FeedOptions): Promise<Array<FeedMew>> => {
+export const mewsFeed = async (
+  options: FeedOptions
+): Promise<Array<FeedMew>> => {
   return callZome({
     zome_name: "mews",
     fn_name: MewsFn.MewsFeed,
@@ -95,7 +103,9 @@ export const mewsFeed = async (options: FeedOptions): Promise<Array<FeedMew>> =>
   });
 };
 
-export const mewsBy = async (agent: AgentPubKeyB64): Promise<Array<FeedMew>> => {
+export const mewsBy = async (
+  agent: AgentPubKeyB64
+): Promise<Array<FeedMew>> => {
   return callZome({
     zome_name: "mews",
     fn_name: MewsFn.MewsBy,
@@ -119,7 +129,9 @@ export const unfollow = async (agent: AgentPubKeyB64): Promise<null> => {
   });
 };
 
-export const followers = async (agent: AgentPubKeyB64): Promise<Array<AgentPubKeyB64>> => {
+export const followers = async (
+  agent: AgentPubKeyB64
+): Promise<Array<AgentPubKeyB64>> => {
   return callZome({
     zome_name: "mews",
     fn_name: MewsFn.Followers,
@@ -127,7 +139,9 @@ export const followers = async (agent: AgentPubKeyB64): Promise<Array<AgentPubKe
   });
 };
 
-export const following = async (agent: AgentPubKeyB64): Promise<Array<AgentPubKeyB64>> => {
+export const following = async (
+  agent: AgentPubKeyB64
+): Promise<Array<AgentPubKeyB64>> => {
   return callZome({
     zome_name: "mews",
     fn_name: MewsFn.Following,
@@ -167,7 +181,9 @@ export const unlickMew = async (mew: EntryHashB64): Promise<null> => {
   });
 };
 
-export const getFeedMewAndContext = async (mew: string): Promise<FeedMewWithContext> => {
+export const getFeedMewAndContext = async (
+  mew: string
+): Promise<FeedMewWithContext> => {
   return callZome({
     zome_name: "mews",
     fn_name: MewsFn.GetFeedMewAndContext,
@@ -175,7 +191,9 @@ export const getFeedMewAndContext = async (mew: string): Promise<FeedMewWithCont
   });
 };
 
-export const getMewsWithCashtag = async (cashtag: string): Promise<FeedMewWithContext[]> => {
+export const getMewsWithCashtag = async (
+  cashtag: string
+): Promise<FeedMewWithContext[]> => {
   return callZome({
     zome_name: "mews",
     fn_name: MewsFn.GetMewsWithCashtag,
@@ -183,7 +201,9 @@ export const getMewsWithCashtag = async (cashtag: string): Promise<FeedMewWithCo
   });
 };
 
-export const getMewsWithHashtag = async (hashtag: string): Promise<FeedMewWithContext[]> => {
+export const getMewsWithHashtag = async (
+  hashtag: string
+): Promise<FeedMewWithContext[]> => {
   return callZome({
     zome_name: "mews",
     fn_name: MewsFn.GetMewsWithHashtag,

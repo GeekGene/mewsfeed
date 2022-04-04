@@ -1,24 +1,12 @@
 <template>
   <q-layout view="hHh lpR fFf">
-    <q-header
-      elevated
-      class="row justify-center"
-    >
+    <q-header elevated class="row justify-center">
       <q-space />
 
       <q-toolbar class="col col-sm-6 col-lg-5">
-        <q-tabs
-          v-model="tab"
-          dense
-          inline-label
-          class="col-grow"
-        >
+        <q-tabs v-model="tab" dense inline-label class="col-grow">
           <q-route-tab to="/">
-            <q-icon
-              name="svguse:/icons.svg#cat"
-              size="lg"
-              class="q-mr-xs"
-            />
+            <q-icon name="svguse:/icons.svg#cat" size="lg" class="q-mr-xs" />
             <div>Clutter</div>
           </q-route-tab>
 
@@ -48,7 +36,11 @@
             <template #no-option>
               <q-item>
                 <q-item-section class="text-grey">
-                  {{ searchTerm.length < 3 ? "Minimum 3 characters required" : "Nothing found, Kitty" }}
+                  {{
+                    searchTerm.length < 3
+                      ? "Minimum 3 characters required"
+                      : "Nothing found, Kitty"
+                  }}
                 </q-item-section>
               </q-item>
             </template>
@@ -56,11 +48,7 @@
 
           <q-space />
 
-          <q-route-tab
-            to="/feed"
-            icon="feed"
-            label="Mews"
-          />
+          <q-route-tab to="/feed" icon="feed" label="Mews" />
           <q-route-tab to="/my-profile">
             <agent-avatar
               :agent-pub-key="store.myAgentPubKey"
@@ -99,7 +87,10 @@ const options = ref<QSelectOption[]>([]);
 const selection = ref<QSelectOption | null>(null);
 const searchTerm = ref("");
 
-const search = (inputValue: string, updateFn: (callbackFn: () => void, afterFn?: () => void) => void) => {
+const search = (
+  inputValue: string,
+  updateFn: (callbackFn: () => void, afterFn?: () => void) => void
+) => {
   searchTerm.value = inputValue;
   updateFn(async () => {
     if (inputValue === "" || inputValue.length < 3) {
@@ -108,7 +99,10 @@ const search = (inputValue: string, updateFn: (callbackFn: () => void, afterFn?:
       try {
         searching.value = true;
         const results = await store.searchProfiles(inputValue);
-        options.value = results.map((r) => ({ value: r.agentPubKey,  label: r.profile.fields["Display name"]}));
+        options.value = results.map((r) => ({
+          value: r.agentPubKey,
+          label: r.profile.fields["Display name"],
+        }));
       } catch (error) {
         showError(error);
       } finally {
