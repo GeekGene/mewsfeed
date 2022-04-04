@@ -26,8 +26,8 @@
 <script setup lang="ts">
 import { HoloHashB64 } from "@holochain-open-dev/core-types";
 import { PropType, ref } from "vue";
-import { FeedMewWithContext } from "../types/types";
-import { authorPubKey } from "../utils/hash";
+import { FeedMewWithContext } from "@/types/types";
+import { authorPubKey } from "@/utils/hash";
 import { useRouter } from "vue-router";
 import ProfilePopup from "./ProfilePopup.vue";
 

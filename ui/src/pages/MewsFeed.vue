@@ -9,26 +9,11 @@
     <h6 class="q-mb-md">
       Your Mews Feed
     </h6>
-    <q-list v-if="loading">
-      <q-item
-        v-for="i in [0, 1, 2]"
-        :key="i"
-      >
-        <q-item-section avatar>
-          <q-skeleton type="circle" />
-        </q-item-section>
-        <q-item-section>
-          <q-skeleton
-            type="text"
-            class="q-mb-xs"
-          />
-          <q-skeleton type="text" />
-        </q-item-section>
-      </q-item>
-    </q-list>
+
+    <FeedSkeleton v-if="loading" />
 
     <q-banner
-      v-else-if="mewsFeed.length === 0"
+      v-else-if="mews.length === 0"
       class="bg-grey-3"
       dense
       rounded
@@ -50,7 +35,7 @@
       separator
     >
       <q-item
-        v-for="(mew, index) in mewsFeed"
+        v-for="(mew, index) of mews"
         :key="index"
         class="items-start"
       >
@@ -72,22 +57,15 @@ import { FeedMewWithContext, CreateMewInput } from '../types/types';
 import { showError } from '../utils/notification';
 import AddMew from '../components/AddMew.vue';
 import FeedMew from '../components/FeedMew.vue';
+import FeedSkeleton from '../components/FeedSkeleton.vue';
 
-let firstLoad = true;
 const loading = ref(false);
-const mewsFeed = ref<FeedMewWithContext[]>([]);
-const profileVisible = ref<boolean[]>([]);
-const profileHideTimeouts = ref<number[]>([]);
-const profileShowTimeouts = ref<number[]>([]);
+const mews = ref<FeedMewWithContext[]>([]);
 
 const loadMewsFeed = async () => {
   try {
-    loading.value = firstLoad;
-    mewsFeed.value = await getMewsFeed({ option: '' });
-    profileVisible.value = new Array(mewsFeed.value.length).fill(false);
-    profileShowTimeouts.value = new Array(mewsFeed.value.length).fill(0);
-    profileHideTimeouts.value = new Array(mewsFeed.value.length).fill(0);
-    firstLoad = false;
+    loading.value = true;
+    mews.value = await getMewsFeed({ option: '' });
   } catch (error) {
     showError(error);
   } finally {
