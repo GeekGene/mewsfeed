@@ -9,8 +9,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@": path.resolve("src")
-    }
+      "@": path.resolve("src"),
+    },
   },
   plugins: [
     vue({
@@ -19,7 +19,10 @@ export default defineConfig({
         compilerOptions: {
           // treat all tags with a dash as custom elements
           isCustomElement: (tag) =>
-            tag.includes("profile") || tag.includes("context-provider") || tag.includes("agent-avatar") || tag.includes("search-agent"),
+            tag.includes("profile") ||
+            tag.includes("context-provider") ||
+            tag.includes("agent-avatar") ||
+            tag.includes("search-agent"),
         },
       },
     }),

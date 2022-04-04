@@ -1,8 +1,5 @@
 <template>
-  <q-list
-    v-for="i of [0, 1, 2]"
-    :key="i"
-  >
+  <q-list v-for="i of [0, 1, 2]" :key="i">
     <q-item>
       <q-item-section avatar>
         <q-skeleton type="QAvatar" />
@@ -13,10 +10,7 @@
           <q-skeleton type="text" />
         </q-item-label>
         <q-item-label caption>
-          <q-skeleton
-            type="text"
-            width="80%"
-          />
+          <q-skeleton type="text" width="80%" />
         </q-item-label>
       </q-item-section>
     </q-item>
@@ -25,10 +19,7 @@
       <q-item-section avatar />
 
       <q-item-section>
-        <q-skeleton
-          height="50px"
-          class="q-mb-sm"
-        />
+        <q-skeleton height="50px" class="q-mb-sm" />
 
         <div class="row items-center">
           <div class="row items-center">
@@ -38,23 +29,12 @@
               class="q-mr-sm"
               size="18px"
             />
-            <q-skeleton
-              type="text"
-              width="30px"
-            />
+            <q-skeleton type="text" width="30px" />
           </div>
 
           <div class="row items-center">
-            <q-icon
-              name="repeat"
-              color="grey-4"
-              class="q-mr-sm"
-              size="18px"
-            />
-            <q-skeleton
-              type="text"
-              width="30px"
-            />
+            <q-icon name="repeat" color="grey-4" class="q-mr-sm" size="18px" />
+            <q-skeleton type="text" width="30px" />
           </div>
 
           <div class="row items-center">
@@ -64,10 +44,7 @@
               class="q-mr-sm"
               size="18px"
             />
-            <q-skeleton
-              type="text"
-              width="30px"
-            />
+            <q-skeleton type="text" width="30px" />
           </div>
         </div>
       </q-item-section>

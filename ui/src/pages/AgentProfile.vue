@@ -1,17 +1,9 @@
 <template>
   <q-page padding>
-    <q-spinner-pie
-      v-if="loading"
-      size="10%"
-      color="primary"
-    />
+    <q-spinner-pie v-if="loading" size="10%" color="primary" />
 
     <template v-else>
-      <q-card
-        v-bind="$attrs"
-        flat
-        class="q-mb-md text-body1"
-      >
+      <q-card v-bind="$attrs" flat class="q-mb-md text-body1">
         <q-card-section class="flex justify-between">
           <div class="flex items-center">
             <agent-avatar
@@ -22,9 +14,7 @@
             <div class="q-mr-lg text-primary text-weight-medium">
               {{ displayName }}
             </div>
-            <div class="text-primary">
-              @{{ nickname }}
-            </div>
+            <div class="text-primary">@{{ nickname }}</div>
           </div>
           <ButtonFollow :agent-pub-key="agentPubKey" />
         </q-card-section>
@@ -45,20 +35,10 @@
         </q-card-section>
       </q-card>
 
-      <q-list
-        v-if="mewsFeed.length > 0"
-        bordered
-        separator
-      >
-        <q-item
-          v-for="(mew, index) in mewsFeed"
-          :key="index"
-        >
+      <q-list v-if="mewsFeed.length > 0" bordered separator>
+        <q-item v-for="(mew, index) in mewsFeed" :key="index">
           <q-item-section avatar>
-            <agent-avatar
-              :agent-pub-key="agentPubKey"
-              size="50"
-            />
+            <agent-avatar :agent-pub-key="agentPubKey" size="50" />
           </q-item-section>
           <q-item-section>
             <MewsItemContent :mew-content="mew.feedMew" />
@@ -81,8 +61,10 @@ import MewsItemContent from "@/components/MewsItemContent.vue";
 
 const profileStore = useProfileStore();
 const route = useRoute();
-const agentPubKey = computed(() => 
-  typeof route.params.agent === "string" ? route.params.agent : route.params.agent[0]
+const agentPubKey = computed(() =>
+  typeof route.params.agent === "string"
+    ? route.params.agent
+    : route.params.agent[0]
 );
 const loading = ref(false);
 const nickname = ref("");
@@ -98,7 +80,7 @@ const loadProfile = async () => {
     const [profile, currentMyFollowing, mews] = await Promise.all([
       profileStore.fetchAgentProfile(agentPubKey.value),
       myFollowing(),
-      mewsBy(agentPubKey.value)
+      mewsBy(agentPubKey.value),
     ]);
     if (profile) {
       nickname.value = profile.nickname;
@@ -116,5 +98,8 @@ const loadProfile = async () => {
 };
 
 onMounted(loadProfile);
-watch(() => route.params.agent, () => loadProfile());
+watch(
+  () => route.params.agent,
+  () => loadProfile()
+);
 </script>

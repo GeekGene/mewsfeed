@@ -8,9 +8,9 @@ declare module "*.vue" {
 }
 
 interface ImportMeta {
-  readonly env: ImportMetaEnv
+  readonly env: ImportMetaEnv;
 }
 
 interface ImportMetaEnv {
-  readonly VITE_HC_PORT: number
+  readonly VITE_HC_PORT: number;
 }

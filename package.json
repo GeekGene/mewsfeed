@@ -16,15 +16,23 @@
     "build:happ": "npm run build:dnas && hc app pack ./workdir",
     "build:dnas": "npm run build:zomes && hc dna pack ./dnas/clutter/workdir",
     "build:zomes": "CARGO_TARGET_DIR=target cargo build --release --target wasm32-unknown-unknown",
-    "playground": "run-singleton \"holochain-playground\""
+    "playground": "run-singleton \"holochain-playground\"",
+    "lint": "eslint --fix --ext .ts tests --ext .ts ui/src --ext .vue ui/src"
   },
   "devDependencies": {
     "@holochain-playground/cli": "^0.0.8",
+    "@typescript-eslint/eslint-plugin": "^5.17.0",
+    "@typescript-eslint/parser": "^5.17.0",
     "bestzip": "^2.2.0",
     "concurrently": "^6.2.1",
     "concurrently-repeat": "^0.0.1",
     "cross-env": "^7.0.3",
+    "eslint": "^8.7.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-vue": "^8.4.0",
     "new-port-cli": "^1.0.0",
+    "prettier": "^2.6.2",
     "rimraf": "^3.0.2",
     "run-singleton-cli": "^0.0.5"
   },

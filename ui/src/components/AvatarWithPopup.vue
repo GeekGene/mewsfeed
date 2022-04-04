@@ -32,8 +32,8 @@ import { useRouter } from "vue-router";
 import ProfilePopup from "./ProfilePopup.vue";
 
 defineProps({
-    mew: { type: Object as PropType<FeedMewWithContext>, required: true },
-    index: { type: Number, required: true }
+  mew: { type: Object as PropType<FeedMewWithContext>, required: true },
+  index: { type: Number, required: true },
 });
 
 const PROFILE_SHOW_HIDE_DELAY = 400; // in ms
@@ -45,26 +45,26 @@ const profileShowTimeouts = ref<number[]>([]);
 const router = useRouter();
 
 const onAgentClick = (agentPubKey: HoloHashB64) => {
-    router.push(`/profiles/${agentPubKey}`);
+  router.push(`/profiles/${agentPubKey}`);
 };
 
 const showProfile = (index: number) => {
-    profileVisible.value = new Array(mewsFeed.value.length).fill(false);
-    profileShowTimeouts.value[index] = window.setTimeout(
-        () => (profileVisible.value[index] = true),
-        PROFILE_SHOW_HIDE_DELAY
-    );
+  profileVisible.value = new Array(mewsFeed.value.length).fill(false);
+  profileShowTimeouts.value[index] = window.setTimeout(
+    () => (profileVisible.value[index] = true),
+    PROFILE_SHOW_HIDE_DELAY
+  );
 };
 
 const hideProfile = (index: number) => {
-    window.clearTimeout(profileShowTimeouts.value[index]);
-    profileHideTimeouts.value[index] = window.setTimeout(
-        () => (profileVisible.value[index] = false),
-        PROFILE_SHOW_HIDE_DELAY
-    );
+  window.clearTimeout(profileShowTimeouts.value[index]);
+  profileHideTimeouts.value[index] = window.setTimeout(
+    () => (profileVisible.value[index] = false),
+    PROFILE_SHOW_HIDE_DELAY
+  );
 };
 
 const keepShowingProfile = (index: number) => {
-    window.clearTimeout(profileHideTimeouts.value[index]);
+  window.clearTimeout(profileHideTimeouts.value[index]);
 };
 </script>

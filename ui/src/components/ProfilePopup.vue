@@ -1,13 +1,7 @@
 <template>
-  <q-card
-    v-bind="$attrs"
-    class="text-body1"
-  >
+  <q-card v-bind="$attrs" class="text-body1">
     <q-card-section class="row justify-between items-center">
-      <context-provider
-        :context="profilesStoreContext"
-        :value="profileStore"
-      >
+      <context-provider :context="profilesStoreContext" :value="profileStore">
         <agent-avatar
           :agent-pub-key="agentPubKey"
           size="50"
@@ -21,10 +15,7 @@
         </div>
         <div>@{{ nickname }}</div>
       </div>
-      <ButtonFollow
-        v-if="!isMyProfile"
-        :agent-pub-key="agentPubKey"
-      />
+      <ButtonFollow v-if="!isMyProfile" :agent-pub-key="agentPubKey" />
     </q-card-section>
     <q-card-section class="row">
       <div class="q-mr-md">
@@ -40,23 +31,25 @@
 </template>
 
 <script setup lang="ts">
-import { HoloHashB64 } from '@holochain-open-dev/core-types';
-import { profilesStoreContext } from '@holochain-open-dev/profiles';
-import { useProfileStore } from '@/services/profile-store';
-import { computed, onMounted, PropType, ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { showError } from '@/utils/notification';
-import ButtonFollow from './ButtonFollow.vue';
+import { HoloHashB64 } from "@holochain-open-dev/core-types";
+import { profilesStoreContext } from "@holochain-open-dev/profiles";
+import { useProfileStore } from "@/services/profile-store";
+import { computed, onMounted, PropType, ref } from "vue";
+import { useRouter } from "vue-router";
+import { showError } from "@/utils/notification";
+import ButtonFollow from "./ButtonFollow.vue";
 
 const router = useRouter();
 const profileStore = useProfileStore();
 const props = defineProps({
   agentPubKey: {
     type: String as PropType<HoloHashB64>,
-    required: true
-  }
+    required: true,
+  },
 });
-const isMyProfile = computed(() => props.agentPubKey === profileStore.myAgentPubKey);
+const isMyProfile = computed(
+  () => props.agentPubKey === profileStore.myAgentPubKey
+);
 
 const nickname = ref("");
 const displayName = ref("");
