@@ -542,27 +542,34 @@ pub fn get_mews_from_path(path: Path) -> ExternResult<Vec<FeedMewWithContext>> {
         .into_iter()
         .filter_map(|me| me)
         .filter_map(|element| {
-            Some(get_feed_mew_and_context(
-                element.header().entry_hash()?.to_string(),
-            ).unwrap())
+            Some(get_feed_mew_and_context(element.header().entry_hash()?.to_string()).unwrap())
         })
         .collect();
     Ok(hashtag_feed)
 }
+
 #[hdk_extern]
 pub fn get_mews_with_hashtag(hashtag: String) -> ExternResult<Vec<FeedMewWithContext>> {
     let path = Path::from(format!("hashtags.{}", hashtag));
     Ok(get_mews_from_path(path)?)
 }
+
 #[hdk_extern]
 pub fn get_mews_with_cashtag(hashtag: String) -> ExternResult<Vec<FeedMewWithContext>> {
     let path = Path::from(format!("cashtags.{}", hashtag));
     Ok(get_mews_from_path(path)?)
 }
 
+#[hdk_extern]
+pub fn get_mews_with_mention(hashtag: String) -> ExternResult<Vec<FeedMewWithContext>> {
+    let path = Path::from(format!("mentions.{}", hashtag));
+    Ok(get_mews_from_path(path)?)
+}
+
 pub fn parse_mew_text(mew_text: String, mew_hash: EntryHash) -> ExternResult<()> {
     let hashtag_regex = Regex::new(r"#\w+").unwrap();
     let cashtag_regex = Regex::new(r"\$\w+").unwrap();
+    let mention_regex = Regex::new(r"@\w+").unwrap();
     for mat in hashtag_regex.find_iter(&mew_text.clone()) {
         let hashtag = mat.as_str();
         let path = Path::from(format!("hashtags.{}", hashtag));
@@ -573,6 +580,13 @@ pub fn parse_mew_text(mew_text: String, mew_hash: EntryHash) -> ExternResult<()>
     for mat in cashtag_regex.find_iter(&mew_text.clone()) {
         let cashtag = mat.as_str();
         let path = Path::from(format!("cashtags.{}", cashtag));
+        path.ensure()?;
+        let path_hash = path.path_entry_hash()?;
+        let _link_hh = create_link(path_hash, mew_hash.clone(), ())?;
+    }
+    for mat in mention_regex.find_iter(&mew_text.clone()) {
+        let mention = mat.as_str();
+        let path = Path::from(format!("mentions.{}", mention));
         path.ensure()?;
         let path_hash = path.path_entry_hash()?;
         let _link_hh = create_link(path_hash, mew_hash.clone(), ())?;
