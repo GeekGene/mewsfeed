@@ -36,7 +36,8 @@ export default (orchestrator: Orchestrator<any>) =>
       cell.cellRole.includes("/clutter.dna")
     ) as Cell;
 
-    const mewContents = "My Mew with #hashtag #سعيدة #😃😃😃 and $cashtag";
+    const mewContents =
+      "My Mew with #hashtag #سعيدة #😃😃😃 and $cashtag and @mention";
     const createMewInput = {
       mewType: {
         original: null,
@@ -89,6 +90,16 @@ export default (orchestrator: Orchestrator<any>) =>
     t.equal(cashtaggedMews.length, 1);
     console.log("searching cashtags");
     console.log(cashtaggedMews[0].feedMew.mew.mew?.mew);
+
+    const mentionedMews: FeedMewWithContext[] = await alice.call(
+      "mews",
+      "get_mews_with_mention",
+      "@mention"
+    );
+    console.log({ mentionedMews });
+    t.equal(mentionedMews.length, 1);
+    console.log("searching mentions");
+    console.log(mentionedMews[0].feedMew.mew.mew?.mew);
 
     // Bob gets the created mew
     const mew = await bob.call("mews", "get_mew", mewHash);

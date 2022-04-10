@@ -21,19 +21,14 @@ import {
   createMew,
   getMewsWithCashtag,
   getMewsWithHashtag,
-  mewsBy,
+  getMewsWithMention,
 } from "@/services/clutter-dna";
 import { onMounted, computed, ref, watch } from "vue";
 import { FeedMewWithContext, CreateMewInput, TAG_SYMBOLS } from "@/types/types";
 import { showError } from "@/utils/notification";
 import { useRouter } from "vue-router";
-import { useProfileStore } from "@/services/profile-store";
 import FeedMew from "@/components/FeedMew.vue";
 import FeedSkeleton from "@/components/FeedSkeleton.vue";
-import { Dictionary } from "@holochain-open-dev/core-types";
-import { Profile } from "@holochain-open-dev/profiles";
-
-const profileStore = useProfileStore();
 
 const router = useRouter();
 const currentRoute = computed(() => router.currentRoute.value);
@@ -55,18 +50,7 @@ const loadMewsFeed = async () => {
     } else if (tagSymbol.value === TAG_SYMBOLS.HASHTAG) {
       mews.value = await getMewsWithHashtag(tagSymbol.value + tag.value);
     } else if (tagSymbol.value === TAG_SYMBOLS.MENTION) {
-      await profileStore.fetchAllProfiles();
-      const allProfiles = await new Promise<Dictionary<Profile>>((resolve) =>
-        profileStore.knownProfiles.subscribe((allProfiles) =>
-          resolve(allProfiles)
-        )
-      );
-      const agentPubKey = Object.keys(allProfiles).find(
-        (key) => allProfiles[key].nickname === tag.value
-      );
-      if (agentPubKey) {
-        mews.value = await mewsBy(agentPubKey);
-      }
+      mews.value = await getMewsWithMention(tagSymbol.value + tag.value);
     }
   } catch (error) {
     showError(error);
