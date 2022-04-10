@@ -75,6 +75,7 @@ export enum MewsFn {
   GetFeedMewAndContext = "get_feed_mew_and_context",
   GetMewsWithCashtag = "get_mews_with_cashtag",
   GetMewsWithHashtag = "get_mews_with_hashtag",
+  GetMewsWithMention = "get_mews_with_mention",
 }
 
 export const createMew = async (mew: CreateMewInput) => {
@@ -208,5 +209,15 @@ export const getMewsWithHashtag = async (
     zome_name: "mews",
     fn_name: MewsFn.GetMewsWithHashtag,
     payload: hashtag,
+  });
+};
+
+export const getMewsWithMention = async (
+  mention: string
+): Promise<FeedMewWithContext[]> => {
+  return callZome({
+    zome_name: "mews",
+    fn_name: MewsFn.GetMewsWithMention,
+    payload: mention,
   });
 };
