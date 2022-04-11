@@ -15,7 +15,7 @@
       </span>
     </div>
 
-    <MewsItemContent :mew-content="mew" class="q-mb-xs" />
+    <MewContent :mew="mew" class="q-mb-xs" />
 
     <div>
       <q-btn
