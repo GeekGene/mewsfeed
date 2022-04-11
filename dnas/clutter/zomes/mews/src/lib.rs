@@ -407,13 +407,6 @@ pub struct FeedOptions {
     pub option: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, SerializedBytes)]
-#[serde(rename_all = "camelCase")]
-pub struct FeedMew {
-    pub mew: FullMew,
-    pub header: Header,
-}
-
 #[hdk_extern]
 pub fn mews_by(agent: AgentPubKeyB64) -> ExternResult<Vec<FeedMewWithContext>> {
     let base = get_mews_base(agent, MEWS_PATH_SEGMENT, false)?;
