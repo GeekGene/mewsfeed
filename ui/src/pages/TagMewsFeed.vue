@@ -1,12 +1,12 @@
 <template>
   <q-page padding>
     <h6 class="q-mt-none q-mb-md">Mews with {{ tagSymbol }}{{ tag }}</h6>
-    <FeedSkeleton v-if="loading" />
+    <FeedItemSkeleton v-if="loading" />
 
     <q-list v-else bordered separator>
       <q-item v-for="(mew, index) in mews" :key="index" class="items-start">
-        <FeedMew
-          :mew="mew"
+        <FeedItem
+          :feed-mew="mew"
           :index="index"
           @publish-mew="publishMew"
           @refresh-feed="loadMewsFeed"
@@ -24,11 +24,11 @@ import {
   getMewsWithMention,
 } from "@/services/clutter-dna";
 import { onMounted, computed, ref, watch } from "vue";
-import { FeedMewWithContext, CreateMewInput, TAG_SYMBOLS } from "@/types/types";
+import { FeedMew, CreateMewInput, TAG_SYMBOLS } from "@/types/types";
 import { showError } from "@/utils/notification";
 import { useRouter } from "vue-router";
-import FeedMew from "@/components/FeedMew.vue";
-import FeedSkeleton from "@/components/FeedSkeleton.vue";
+import FeedItem from "@/components/FeedItem.vue";
+import FeedItemSkeleton from "@/components/FeedItemSkeleton.vue";
 
 const router = useRouter();
 const currentRoute = computed(() => router.currentRoute.value);
@@ -40,7 +40,7 @@ const tag = computed(() =>
 );
 
 const loading = ref(false);
-const mews = ref<FeedMewWithContext[]>([]);
+const mews = ref<FeedMew[]>([]);
 
 const loadMewsFeed = async () => {
   try {

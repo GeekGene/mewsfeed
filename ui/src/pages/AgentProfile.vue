@@ -36,12 +36,12 @@
       </q-card>
 
       <q-list v-if="mewsFeed.length > 0" bordered separator>
-        <q-item v-for="(mew, index) in mewsFeed" :key="index">
+        <q-item v-for="(feedMew, index) in mewsFeed" :key="index">
           <q-item-section avatar>
             <agent-avatar :agent-pub-key="agentPubKey" size="50" />
           </q-item-section>
           <q-item-section>
-            <MewsItemContent :mew-content="mew.feedMew" />
+            <MewContent :feed-mew="feedMew" />
           </q-item-section>
         </q-item>
       </q-list>
@@ -55,9 +55,9 @@ import { useRoute } from "vue-router";
 import { showError } from "@/utils/notification";
 import { computed, onMounted, ref, watch } from "vue";
 import { mewsBy, myFollowing } from "@/services/clutter-dna";
-import { FeedMewWithContext } from "@/types/types";
+import { FeedMew } from "@/types/types";
 import ButtonFollow from "@/components/ButtonFollow.vue";
-import MewsItemContent from "@/components/MewsItemContent.vue";
+import MewContent from "@/components/MewContent.vue";
 
 const profileStore = useProfileStore();
 const route = useRoute();
@@ -72,7 +72,7 @@ const displayName = ref("");
 const bio = ref("");
 const location = ref("");
 const following = ref(false);
-const mewsFeed = ref<FeedMewWithContext[]>([]);
+const mewsFeed = ref<FeedMew[]>([]);
 
 const loadProfile = async () => {
   try {

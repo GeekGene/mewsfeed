@@ -5,13 +5,7 @@ import {
   InstalledCell,
 } from "@holochain/client";
 import { inject, InjectionKey } from "vue";
-import {
-  CreateMewInput,
-  FeedOptions,
-  FeedMewWithContext as FeedMew,
-  FullMew,
-  FeedMewWithContext,
-} from "../types/types";
+import { CreateMewInput, FeedOptions, FeedMew, Mew } from "../types/types";
 import { EntryHashB64, AgentPubKeyB64 } from "@holochain-open-dev/core-types";
 
 let appWebSocket: AppWebsocket;
@@ -86,7 +80,7 @@ export const createMew = async (mew: CreateMewInput) => {
   });
 };
 
-export const getMew = async (mew: EntryHashB64): Promise<FullMew> => {
+export const getMew = async (mew: EntryHashB64): Promise<Mew> => {
   return callZome({
     zome_name: "mews",
     fn_name: MewsFn.GetMew,
@@ -182,9 +176,7 @@ export const unlickMew = async (mew: EntryHashB64): Promise<null> => {
   });
 };
 
-export const getFeedMewAndContext = async (
-  mew: string
-): Promise<FeedMewWithContext> => {
+export const getFeedMewAndContext = async (mew: string): Promise<FeedMew> => {
   return callZome({
     zome_name: "mews",
     fn_name: MewsFn.GetFeedMewAndContext,
@@ -194,7 +186,7 @@ export const getFeedMewAndContext = async (
 
 export const getMewsWithCashtag = async (
   cashtag: string
-): Promise<FeedMewWithContext[]> => {
+): Promise<FeedMew[]> => {
   return callZome({
     zome_name: "mews",
     fn_name: MewsFn.GetMewsWithCashtag,
@@ -204,7 +196,7 @@ export const getMewsWithCashtag = async (
 
 export const getMewsWithHashtag = async (
   hashtag: string
-): Promise<FeedMewWithContext[]> => {
+): Promise<FeedMew[]> => {
   return callZome({
     zome_name: "mews",
     fn_name: MewsFn.GetMewsWithHashtag,
@@ -214,7 +206,7 @@ export const getMewsWithHashtag = async (
 
 export const getMewsWithMention = async (
   mention: string
-): Promise<FeedMewWithContext[]> => {
+): Promise<FeedMew[]> => {
   return callZome({
     zome_name: "mews",
     fn_name: MewsFn.GetMewsWithMention,
