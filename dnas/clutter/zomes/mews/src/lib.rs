@@ -24,8 +24,8 @@ enum MewType {
 #[serde(rename_all = "camelCase")]
 struct MewContent {
     mew: String, // "Visit this web site ^link by @user about #hashtag to earn $cashtag! Also read this humm earth post ^link (as an HRL link)"
-                 //   mew_links: Vec<LinkTypes>, // [^links in the mewstring in sequence]
-                 //    mew_images: Vec<EntryHash>, //Vec of image links hashes to retrieve
+                 // mew_links: Vec<LinkTypes>, // [^links in the mewstring in sequence]
+                 // mew_images: Vec<EntryHash>, //Vec of image links hashes to retrieve
 }
 #[hdk_entry(id = "full_mew")]
 #[serde(rename_all = "camelCase")]
@@ -255,7 +255,6 @@ pub fn unlick_mew(entry_hash_b64: EntryHashB64) -> ExternResult<()> {
 pub fn licks(agent: AgentPubKeyB64) -> ExternResult<Vec<EntryHashB64>> {
     licks_inner(agent, LICKS_PATH_SEGMENT)
 }
-// TODO: open question: do we want to allow edits, "deletes"?
 
 #[hdk_extern]
 pub fn get_mew(hash: String) -> ExternResult<FullMew> {
@@ -288,7 +287,8 @@ where
 #[derive(Debug, Serialize, Deserialize, SerializedBytes)]
 #[serde(rename_all = "camelCase")]
 pub struct FeedMewWithContext {
-    pub feed_mew: FeedMew,
+    pub mew: FullMew,
+    pub header: Header,
     pub mew_entry_hash: EntryHashB64,
     pub comments: Vec<EntryHashB64>,
     pub shares: Vec<EntryHashB64>,
@@ -322,10 +322,6 @@ where
         .entry()
         .to_app_option()?
         .ok_or(WasmError::Guest(String::from("Malformed mew")))?;
-    let feed_mew = FeedMew {
-        mew,
-        header: element.header().clone(),
-    };
     // get vecs
     let share_links = get_links(
         element
@@ -385,7 +381,8 @@ where
         .collect();
 
     let feed_mew_and_context = FeedMewWithContext {
-        feed_mew,
+        mew,
+        header: element.header().clone(),
         mew_entry_hash: EntryHash::from(
             element
                 .header()
@@ -427,12 +424,7 @@ pub fn mews_by(agent: AgentPubKeyB64) -> ExternResult<Vec<FeedMewWithContext>> {
         .map(|link| get_feed_mew_and_context_inner(link.target))
         .filter_map(Result::ok)
         .collect();
-    feed.sort_by(|a, b| {
-        b.feed_mew
-            .header
-            .timestamp()
-            .cmp(&a.feed_mew.header.timestamp())
-    });
+    feed.sort_by(|a, b| b.header.timestamp().cmp(&a.header.timestamp()));
 
     Ok(feed)
 }
@@ -447,12 +439,7 @@ pub fn mews_feed(_options: FeedOptions) -> ExternResult<Vec<FeedMewWithContext>>
     }
     // TODO don't really need to sort, could merge for efficiency
     // sort by timestamp in descending order
-    feed.sort_by(|a, b| {
-        b.feed_mew
-            .header
-            .timestamp()
-            .cmp(&a.feed_mew.header.timestamp())
-    });
+    feed.sort_by(|a, b| b.header.timestamp().cmp(&a.header.timestamp()));
 
     Ok(feed)
 }
