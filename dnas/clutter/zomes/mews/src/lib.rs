@@ -2,9 +2,6 @@ use hdk::prelude::holo_hash::*;
 use hdk::prelude::*;
 use regex::Regex;
 
-#[hdk_entry(id = "mew")]
-pub struct Mew(String);
-
 entry_defs![
     PathEntry::entry_def(),
     MewContent::entry_def(),
@@ -32,6 +29,24 @@ struct MewContent {
 pub struct FullMew {
     mew_type: MewType,
     mew: Option<MewContent>,
+}
+
+#[derive(Debug, Serialize, Deserialize, SerializedBytes)]
+#[serde(rename_all = "camelCase")]
+pub struct FeedOptions {
+    pub option: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, SerializedBytes)]
+#[serde(rename_all = "camelCase")]
+pub struct FeedMew {
+    pub mew: FullMew,
+    pub header: Header,
+    pub mew_entry_hash: EntryHashB64,
+    pub comments: Vec<EntryHashB64>,
+    pub shares: Vec<EntryHashB64>,
+    pub licks: Vec<AgentPubKeyB64>,
+    pub mewmews: Vec<EntryHashB64>,
 }
 
 const MEWS_PATH_SEGMENT: &str = "mews";
@@ -284,20 +299,9 @@ where
 
     Ok(mew)
 }
-#[derive(Debug, Serialize, Deserialize, SerializedBytes)]
-#[serde(rename_all = "camelCase")]
-pub struct FeedMewWithContext {
-    pub mew: FullMew,
-    pub header: Header,
-    pub mew_entry_hash: EntryHashB64,
-    pub comments: Vec<EntryHashB64>,
-    pub shares: Vec<EntryHashB64>,
-    pub licks: Vec<AgentPubKeyB64>,
-    pub mewmews: Vec<EntryHashB64>,
-}
 
 #[hdk_extern]
-pub fn get_feed_mew_and_context(hash: String) -> ExternResult<FeedMewWithContext> {
+pub fn get_feed_mew_and_context(hash: String) -> ExternResult<FeedMew> {
     let header_hash_result = HeaderHashB64::from_b64_str(&hash.clone());
     let entry_hash_result = EntryHashB64::from_b64_str(&hash);
 
@@ -312,7 +316,7 @@ pub fn get_feed_mew_and_context(hash: String) -> ExternResult<FeedMewWithContext
     }
 }
 
-pub fn get_feed_mew_and_context_inner<H>(hash: H) -> ExternResult<FeedMewWithContext>
+pub fn get_feed_mew_and_context_inner<H>(hash: H) -> ExternResult<FeedMew>
 where
     AnyDhtHash: From<H>,
 {
@@ -380,7 +384,7 @@ where
         .map(|mewmew| mewmew.target.into())
         .collect();
 
-    let feed_mew_and_context = FeedMewWithContext {
+    let feed_mew_and_context = FeedMew {
         mew,
         header: element.header().clone(),
         mew_entry_hash: EntryHash::from(
@@ -401,18 +405,12 @@ where
     Ok(feed_mew_and_context)
 }
 
-#[derive(Debug, Serialize, Deserialize, SerializedBytes)]
-#[serde(rename_all = "camelCase")]
-pub struct FeedOptions {
-    pub option: String,
-}
-
 #[hdk_extern]
-pub fn mews_by(agent: AgentPubKeyB64) -> ExternResult<Vec<FeedMewWithContext>> {
+pub fn mews_by(agent: AgentPubKeyB64) -> ExternResult<Vec<FeedMew>> {
     let base = get_mews_base(agent, MEWS_PATH_SEGMENT, false)?;
     let links = get_links(base, None)?;
 
-    let mut feed: Vec<FeedMewWithContext> = links
+    let mut feed: Vec<FeedMew> = links
         .into_iter()
         .map(|link| get_feed_mew_and_context_inner(link.target))
         .filter_map(Result::ok)
@@ -423,7 +421,7 @@ pub fn mews_by(agent: AgentPubKeyB64) -> ExternResult<Vec<FeedMewWithContext>> {
 }
 
 #[hdk_extern]
-pub fn mews_feed(_options: FeedOptions) -> ExternResult<Vec<FeedMewWithContext>> {
+pub fn mews_feed(_options: FeedOptions) -> ExternResult<Vec<FeedMew>> {
     let mut feed = Vec::new();
     let me = agent_info()?.agent_latest_pubkey;
     feed.append(&mut mews_by(AgentPubKeyB64::from(me))?);
@@ -507,7 +505,7 @@ pub fn followers(agent: AgentPubKeyB64) -> ExternResult<Vec<AgentPubKeyB64>> {
     follow_inner(agent, FOLLOWERS_PATH_SEGMENT)
 }
 
-pub fn get_mews_from_path(path: Path) -> ExternResult<Vec<FeedMewWithContext>> {
+pub fn get_mews_from_path(path: Path) -> ExternResult<Vec<FeedMew>> {
     let path_hash = path.path_entry_hash()?;
 
     let links = get_links(path_hash, None)?;
@@ -518,7 +516,7 @@ pub fn get_mews_from_path(path: Path) -> ExternResult<Vec<FeedMewWithContext>> {
 
     let mew_elements = HDK.with(|hdk| hdk.borrow().get(get_input))?;
 
-    let hashtag_feed: Vec<FeedMewWithContext> = mew_elements
+    let hashtag_feed: Vec<FeedMew> = mew_elements
         .into_iter()
         .filter_map(|me| me)
         .filter_map(|element| {
@@ -529,19 +527,19 @@ pub fn get_mews_from_path(path: Path) -> ExternResult<Vec<FeedMewWithContext>> {
 }
 
 #[hdk_extern]
-pub fn get_mews_with_hashtag(hashtag: String) -> ExternResult<Vec<FeedMewWithContext>> {
+pub fn get_mews_with_hashtag(hashtag: String) -> ExternResult<Vec<FeedMew>> {
     let path = Path::from(format!("hashtags.{}", hashtag));
     Ok(get_mews_from_path(path)?)
 }
 
 #[hdk_extern]
-pub fn get_mews_with_cashtag(hashtag: String) -> ExternResult<Vec<FeedMewWithContext>> {
+pub fn get_mews_with_cashtag(hashtag: String) -> ExternResult<Vec<FeedMew>> {
     let path = Path::from(format!("cashtags.{}", hashtag));
     Ok(get_mews_from_path(path)?)
 }
 
 #[hdk_extern]
-pub fn get_mews_with_mention(hashtag: String) -> ExternResult<Vec<FeedMewWithContext>> {
+pub fn get_mews_with_mention(hashtag: String) -> ExternResult<Vec<FeedMew>> {
     let path = Path::from(format!("mentions.{}", hashtag));
     Ok(get_mews_from_path(path)?)
 }
