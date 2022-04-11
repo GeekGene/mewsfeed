@@ -61,10 +61,6 @@ export interface FullMew {
 export interface FeedMew {
   mew: FullMew;
   header: Header;
-}
-
-export interface FeedMewWithContext {
-  feedMew: FeedMew;
   mewEntryHash: EntryHashB64;
   comments: string[];
   shares: string[];
