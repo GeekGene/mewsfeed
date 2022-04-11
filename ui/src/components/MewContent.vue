@@ -21,10 +21,10 @@ import { FeedMew, TAG_SYMBOLS } from "@/types/types";
 import { PATH } from "@/router";
 import { PropType, ref } from "vue";
 const props = defineProps({
-  mewContent: { type: Object as PropType<FeedMew>, required: true },
+  mew: { type: Object as PropType<FeedMew>, required: true },
 });
 
-const content = ref(props.mewContent.mew.mew?.mew || "");
+const content = ref(props.mew.mew.mew?.mew || "");
 const regexpString = Object.values(TAG_SYMBOLS).map(
   (symbol) => `\\${symbol}\\w+`
 );

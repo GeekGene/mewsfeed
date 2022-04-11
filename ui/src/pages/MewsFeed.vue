@@ -8,7 +8,7 @@
 
     <h6 class="q-mb-md">Your Mews Feed</h6>
 
-    <FeedSkeleton v-if="loading" />
+    <FeedItemSkeleton v-if="loading" />
 
     <q-banner v-else-if="mews.length === 0" class="bg-grey-3" dense rounded>
       <template #avatar>
@@ -19,7 +19,7 @@
 
     <q-list v-else bordered separator>
       <q-item v-for="(mew, index) of mews" :key="index" class="items-start">
-        <FeedMew
+        <FeedItem
           :mew="mew"
           :index="index"
           @publish-mew="publishMew"
@@ -33,14 +33,14 @@
 <script setup lang="ts">
 import { createMew, mewsFeed as getMewsFeed } from "../services/clutter-dna";
 import { onMounted, ref } from "vue";
-import { FeedMewWithContext, CreateMewInput } from "../types/types";
+import { FeedMew, CreateMewInput } from "../types/types";
 import { showError } from "../utils/notification";
 import AddMew from "../components/AddMew.vue";
-import FeedMew from "../components/FeedMew.vue";
-import FeedSkeleton from "../components/FeedSkeleton.vue";
+import FeedItem from "../components/FeedItem.vue";
+import FeedItemSkeleton from "../components/FeedItemSkeleton.vue";
 
 const loading = ref(false);
-const mews = ref<FeedMewWithContext[]>([]);
+const mews = ref<FeedMew[]>([]);
 
 const loadMewsFeed = async () => {
   try {

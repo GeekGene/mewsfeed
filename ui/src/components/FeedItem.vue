@@ -11,11 +11,11 @@
       <span>@{{ agentProfile?.nickname }}</span>
       <q-space />
       <span class="text-caption">
-        <Timestamp :timestamp="mew.feedMew.header.timestamp" />
+        <Timestamp :timestamp="mew.header.timestamp" />
       </span>
     </div>
 
-    <MewsItemContent :mew-content="mew.feedMew" class="q-mb-xs" />
+    <MewsItemContent :mew-content="mew" class="q-mb-xs" />
 
     <div>
       <q-btn
@@ -44,7 +44,7 @@
           <q-space />
           <q-btn v-close-popup icon="close" flat round dense />
         </div>
-        <MewsItemContent :mew-content="mew.feedMew" />
+        <MewContent :mew="mew" />
       </q-card-section>
 
       <q-card-section>
@@ -61,17 +61,17 @@
 <script setup lang="ts">
 import { lickMew, unlickMew } from "../services/clutter-dna";
 import { computed, onMounted, ref } from "vue";
-import { FeedMewWithContext, CreateMewInput } from "../types/types";
-import AddMew from "./AddMew.vue";
-import MewsItemContent from "./MewsItemContent.vue";
+import { FeedMew, CreateMewInput } from "../types/types";
+import { serializeHash } from "@holochain-open-dev/core-types";
 import { PropType } from "vue";
 import { useProfileStore } from "../services/profile-store";
+import AddMew from "./AddMew.vue";
+import MewContent from "./MewContent.vue";
 import Timestamp from "./Timestamp.vue";
 import AvatarWithPopup from "./AvatarWithPopup.vue";
-import { serializeHash } from "@holochain-open-dev/core-types";
 
 const props = defineProps({
-  mew: { type: Object as PropType<FeedMewWithContext>, required: true },
+  mew: { type: Object as PropType<FeedMew>, required: true },
   index: { type: Number, required: true },
 });
 const store = useProfileStore();
@@ -87,7 +87,7 @@ const emit = defineEmits<{
 
 onMounted(async () => {
   agentProfile.value = await store.fetchAgentProfile(
-    serializeHash(props.mew.feedMew.header.author)
+    serializeHash(props.mew.header.author)
   );
 });
 
@@ -108,7 +108,7 @@ const replyToMew = () => (isReplying.value = true);
 const mewMew = async () => {
   const createMewInput: CreateMewInput = {
     mewType: { mewMew: props.mew.mewEntryHash },
-    mew: props.mew.feedMew.mew.mew?.mew || null,
+    mew: props.mew.mew.mew?.mew || null,
   };
   emit("publish-mew", createMewInput);
 };
