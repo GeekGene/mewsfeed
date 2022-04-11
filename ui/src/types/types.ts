@@ -14,11 +14,9 @@ export interface Profile {
   lang_pref: string;
 }
 
-export type Mew = string;
-
 export type CreateMewInput = {
   mewType: MewTypeInput;
-  mew: string | null;
+  text: string | null;
 };
 
 export type MewTypeInput =
@@ -36,7 +34,7 @@ export type MewTypeInput =
     };
 
 export interface MewContent {
-  mew: string;
+  text: string;
 }
 
 export type MewType =
@@ -53,13 +51,13 @@ export type MewType =
       mewMew: EntryHashB64;
     };
 
-export interface FullMew {
+export interface Mew {
   mewType: MewType;
-  mew: MewContent | null;
+  content: MewContent | null;
 }
 
 export interface FeedMew {
-  mew: FullMew;
+  mew: Mew;
   header: Header;
   mewEntryHash: EntryHashB64;
   comments: string[];

@@ -1,6 +1,6 @@
 <template>
   <q-item-section avatar>
-    <avatar-with-popup :mew="mew" :index="index" />
+    <avatar-with-popup :feed-mew="feedMew" :index="index" />
   </q-item-section>
 
   <q-item-section>
@@ -11,11 +11,11 @@
       <span>@{{ agentProfile?.nickname }}</span>
       <q-space />
       <span class="text-caption">
-        <Timestamp :timestamp="mew.header.timestamp" />
+        <Timestamp :timestamp="feedMew.header.timestamp" />
       </span>
     </div>
 
-    <MewContent :mew="mew" class="q-mb-xs" />
+    <MewContent :feed-mew="feedMew" class="q-mb-xs" />
 
     <div>
       <q-btn
@@ -24,13 +24,13 @@
         flat
         @click="toggleLickMew"
       >
-        {{ mew.licks.length }}
+        {{ feedMew.licks.length }}
       </q-btn>
       <q-btn size="sm" icon="reply" flat @click="replyToMew">
-        {{ mew.comments.length }}
+        {{ feedMew.comments.length }}
       </q-btn>
       <q-btn size="sm" icon="forward" flat @click="mewMew">
-        {{ mew.mewmews.length }}
+        {{ feedMew.mewmews.length }}
       </q-btn>
     </div>
   </q-item-section>
@@ -44,13 +44,13 @@
           <q-space />
           <q-btn v-close-popup icon="close" flat round dense />
         </div>
-        <MewContent :mew="mew" />
+        <MewContent :feed-mew="feedMew" />
       </q-card-section>
 
       <q-card-section>
         <AddMew
           class="text-center"
-          :mew-type="{ reply: mew.mewEntryHash }"
+          :mew-type="{ reply: feedMew.mewEntryHash }"
           @publish-mew="publishReply"
         />
       </q-card-section>
@@ -71,7 +71,7 @@ import Timestamp from "./Timestamp.vue";
 import AvatarWithPopup from "./AvatarWithPopup.vue";
 
 const props = defineProps({
-  mew: { type: Object as PropType<FeedMew>, required: true },
+  feedMew: { type: Object as PropType<FeedMew>, required: true },
   index: { type: Number, required: true },
 });
 const store = useProfileStore();
@@ -87,18 +87,20 @@ const emit = defineEmits<{
 
 onMounted(async () => {
   agentProfile.value = await store.fetchAgentProfile(
-    serializeHash(props.mew.header.author)
+    serializeHash(props.feedMew.header.author)
   );
 });
 
 const isReplying = ref(false);
-const isLickedByMe = computed(() => props.mew.licks.includes(myAgentPubKey));
+const isLickedByMe = computed(() =>
+  props.feedMew.licks.includes(myAgentPubKey)
+);
 
 const toggleLickMew = async () => {
   if (isLickedByMe.value) {
-    await unlickMew(props.mew.mewEntryHash);
+    await unlickMew(props.feedMew.mewEntryHash);
   } else {
-    await lickMew(props.mew.mewEntryHash);
+    await lickMew(props.feedMew.mewEntryHash);
   }
   emit("refresh-feed");
 };
@@ -107,8 +109,8 @@ const replyToMew = () => (isReplying.value = true);
 
 const mewMew = async () => {
   const createMewInput: CreateMewInput = {
-    mewType: { mewMew: props.mew.mewEntryHash },
-    mew: props.mew.mew.mew?.mew || null,
+    mewType: { mewMew: props.feedMew.mewEntryHash },
+    mew: props.feedMew.mew.content?.text || null,
   };
   emit("publish-mew", createMewInput);
 };

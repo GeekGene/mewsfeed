@@ -20,7 +20,7 @@ enum MewType {
 #[hdk_entry(id = "mew_content")]
 #[serde(rename_all = "camelCase")]
 struct MewContent {
-    mew: String, // "Visit this web site ^link by @user about #hashtag to earn $cashtag! Also read this humm earth post ^link (as an HRL link)"
+    text: String, // "Visit this web site ^link by @user about #hashtag to earn $cashtag! Also read this humm earth post ^link (as an HRL link)"
                  // mew_links: Vec<LinkTypes>, // [^links in the mewstring in sequence]
                  // mew_images: Vec<EntryHash>, //Vec of image links hashes to retrieve
 }
@@ -28,7 +28,7 @@ struct MewContent {
 #[serde(rename_all = "camelCase")]
 pub struct Mew {
     mew_type: MewType,
-    mew: Option<MewContent>,
+    content: Option<MewContent>,
 }
 
 #[derive(Debug, Serialize, Deserialize, SerializedBytes)]
@@ -86,7 +86,7 @@ enum MewTypeInput {
 #[serde(rename_all = "camelCase")]
 pub struct CreateMewInput {
     mew_type: MewTypeInput,
-    mew: Option<String>,
+    text: Option<String>,
 }
 
 #[hdk_extern]
@@ -95,11 +95,11 @@ pub fn create_mew(mew: CreateMewInput) -> ExternResult<HeaderHashB64> {
     // TODO: enforce mew type is correct
     // check the type
     let mew_header_hash = match mew.mew_type {
-        MewTypeInput::Original => match mew.mew {
+        MewTypeInput::Original => match mew.text {
             Some(mew_string) => create_original_mew(mew_string)?,
             None => return Err(WasmError::Guest(String::from("mew must contain text"))),
         },
-        MewTypeInput::Reply(original_entry_hash) => match mew.mew {
+        MewTypeInput::Reply(original_entry_hash) => match mew.text {
             Some(mew_string) => create_reply_mew(mew_string, original_entry_hash)?,
             None => {
                 return Err(WasmError::Guest(String::from(
@@ -107,7 +107,7 @@ pub fn create_mew(mew: CreateMewInput) -> ExternResult<HeaderHashB64> {
                 )))
             }
         },
-        MewTypeInput::ReMew(original_entry_hash) => match mew.mew {
+        MewTypeInput::ReMew(original_entry_hash) => match mew.text {
             Some(_) => {
                 return Err(WasmError::Guest(String::from(
                     "remew cannot contain text. Try MewMew-ing.",
@@ -115,7 +115,7 @@ pub fn create_mew(mew: CreateMewInput) -> ExternResult<HeaderHashB64> {
             }
             None => create_remew(original_entry_hash)?,
         },
-        MewTypeInput::MewMew(original_entry_hash) => match mew.mew {
+        MewTypeInput::MewMew(original_entry_hash) => match mew.text {
             Some(mew_string) => create_mewmew(mew_string, original_entry_hash)?,
             None => return Err(WasmError::Guest(String::from("mewmew must contain text"))),
         },
@@ -124,12 +124,12 @@ pub fn create_mew(mew: CreateMewInput) -> ExternResult<HeaderHashB64> {
 }
 
 pub fn create_original_mew(text: String) -> ExternResult<HeaderHashB64> {
-    let content = MewContent { mew: text.clone() };
+    let content = MewContent { text: text.clone() };
     let _header_hash = create_entry(&content)?;
 
     let mew = Mew {
         mew_type: MewType::Original,
-        mew: Some(content),
+        content: Some(content),
     };
     let mew_header_hash = create_entry(&mew)?;
     let hash = hash_entry(&mew)?;
@@ -146,12 +146,12 @@ pub fn create_reply_mew(
     text: String,
     original_entry_hash: EntryHashB64,
 ) -> ExternResult<HeaderHashB64> {
-    let content = MewContent { mew: text.clone() };
+    let content = MewContent { text: text.clone() };
     let _header_hash = create_entry(&content)?;
 
     let mew = Mew {
         mew_type: MewType::Reply(original_entry_hash.clone().into()),
-        mew: Some(content),
+        content: Some(content),
     };
     let mew_header_hash = create_entry(&mew)?;
     let hash = hash_entry(&mew)?;
@@ -173,7 +173,7 @@ pub fn create_reply_mew(
 pub fn create_remew(original_entry_hash: EntryHashB64) -> ExternResult<HeaderHashB64> {
     let mew = Mew {
         mew_type: MewType::ReMew(original_entry_hash.clone().into()),
-        mew: None,
+        content: None,
     };
     let mew_header_hash = create_entry(&mew)?;
     let hash = hash_entry(&mew)?;
@@ -195,12 +195,12 @@ pub fn create_mewmew(
     text: String,
     original_entry_hash: EntryHashB64,
 ) -> ExternResult<HeaderHashB64> {
-    let content = MewContent { mew: text.clone() };
+    let content = MewContent { text: text.clone() };
     let _header_hash = create_entry(&content)?;
 
     let mew = Mew {
         mew_type: MewType::MewMew(original_entry_hash.clone().into()),
-        mew: Some(content),
+        content: Some(content),
     };
     let mew_header_hash = create_entry(&mew)?;
     let hash = hash_entry(&mew)?;

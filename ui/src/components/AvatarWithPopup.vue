@@ -1,9 +1,9 @@
 <template>
   <agent-avatar
-    :agent-pub-key="authorPubKey(mew.header.author)"
+    :agent-pub-key="authorPubKey(feedMew.header.author)"
     size="50"
     class="self-start cursor-pointer"
-    @click="onAgentClick(authorPubKey(mew.header.author))"
+    @click="onAgentClick(authorPubKey(feedMew.header.author))"
     @mouseenter="showProfile(index)"
     @mouseleave="hideProfile(index)"
   >
@@ -15,7 +15,7 @@
       no-focus
     >
       <ProfilePopup
-        :agent-pub-key="authorPubKey(mew.header.author)"
+        :agent-pub-key="authorPubKey(feedMew.header.author)"
         @mouseenter="keepShowingProfile(index)"
         @mouseleave="hideProfile(index)"
       />
@@ -32,7 +32,7 @@ import { useRouter } from "vue-router";
 import ProfilePopup from "./ProfilePopup.vue";
 
 defineProps({
-  mew: { type: Object as PropType<FeedMew>, required: true },
+  feedMew: { type: Object as PropType<FeedMew>, required: true },
   index: { type: Number, required: true },
 });
 

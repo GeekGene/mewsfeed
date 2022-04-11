@@ -28,7 +28,7 @@ const newMew = ref("");
 const publishMew = () => {
   const createMewInput: CreateMewInput = {
     mewType: props.mewType,
-    mew: newMew.value,
+    text: newMew.value,
   };
   emit("publish-mew", createMewInput);
   newMew.value = "";

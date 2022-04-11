@@ -36,12 +36,12 @@
       </q-card>
 
       <q-list v-if="mewsFeed.length > 0" bordered separator>
-        <q-item v-for="(mew, index) in mewsFeed" :key="index">
+        <q-item v-for="(feedMew, index) in mewsFeed" :key="index">
           <q-item-section avatar>
             <agent-avatar :agent-pub-key="agentPubKey" size="50" />
           </q-item-section>
           <q-item-section>
-            <MewContent :mew="mew" />
+            <MewContent :feed-mew="feedMew" />
           </q-item-section>
         </q-item>
       </q-list>

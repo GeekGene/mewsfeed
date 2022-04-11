@@ -6,7 +6,7 @@
     <q-list v-else bordered separator>
       <q-item v-for="(mew, index) in mews" :key="index" class="items-start">
         <FeedItem
-          :mew="mew"
+          :feed-mew="mew"
           :index="index"
           @publish-mew="publishMew"
           @refresh-feed="loadMewsFeed"
