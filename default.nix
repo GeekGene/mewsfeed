@@ -10,6 +10,5 @@ nixpkgs.mkShell {
   packages = with nixpkgs; [
     niv
     nodejs-16_x
-    pkgs.darwin.apple_sdk.frameworks.Security
   ];
 }
