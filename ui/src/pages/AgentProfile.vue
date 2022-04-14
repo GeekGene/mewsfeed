@@ -62,9 +62,7 @@ import MewContent from "@/components/MewContent.vue";
 const profileStore = useProfileStore();
 const route = useRoute();
 const agentPubKey = computed(() =>
-  typeof route.params.agent === "string"
-    ? route.params.agent
-    : route.params.agent[0]
+  Array.isArray(route.params.agent) ? route.params.agent[0] : route.params.agent
 );
 const loading = ref(false);
 const nickname = ref("");
@@ -91,6 +89,7 @@ const loadProfile = async () => {
     following.value = currentMyFollowing.includes(agentPubKey.value);
     mewsFeed.value = mews;
   } catch (error) {
+    console.error("erererere", error);
     showError(error);
   } finally {
     loading.value = false;
@@ -100,6 +99,10 @@ const loadProfile = async () => {
 onMounted(loadProfile);
 watch(
   () => route.params.agent,
-  () => loadProfile()
+  () => {
+    if (route.params.agent) {
+      loadProfile();
+    }
+  }
 );
 </script>
