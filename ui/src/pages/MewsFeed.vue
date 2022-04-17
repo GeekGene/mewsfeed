@@ -17,7 +17,7 @@
       <div class="text-subtitle1">Meeoow, nothing here yet!</div>
     </q-banner>
 
-    <MewList v-else :mews="mews" @refresh-feed="loadMewsFeed" />
+    <MewList v-else :mews="mews" @refresh="loadMewsFeed" />
   </q-page>
 </template>
 

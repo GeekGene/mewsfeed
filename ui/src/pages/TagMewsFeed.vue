@@ -3,31 +3,21 @@
     <h6 class="q-mt-none q-mb-md">Mews with {{ tagSymbol }}{{ tag }}</h6>
     <FeedItemSkeleton v-if="loading" />
 
-    <q-list v-else bordered separator>
-      <q-item v-for="(mew, index) in mews" :key="index" class="items-start">
-        <FeedItem
-          :feed-mew="mew"
-          :index="index"
-          @publish-mew="publishMew"
-          @refresh-feed="loadMewsFeed"
-        />
-      </q-item>
-    </q-list>
+    <MewList v-else :mews="mews" @refresh="loadMewsFeed" />
   </q-page>
 </template>
 
 <script setup lang="ts">
 import {
-  createMew,
   getMewsWithCashtag,
   getMewsWithHashtag,
   getMewsWithMention,
 } from "@/services/clutter-dna";
 import { onMounted, computed, ref, watch } from "vue";
-import { FeedMew, CreateMewInput, TAG_SYMBOLS } from "@/types/types";
+import { FeedMew, TAG_SYMBOLS } from "@/types/types";
 import { showError } from "@/utils/notification";
 import { useRouter } from "vue-router";
-import FeedItem from "@/components/FeedItem.vue";
+import MewList from "../components/MewList.vue";
 import FeedItemSkeleton from "@/components/FeedItemSkeleton.vue";
 
 const router = useRouter();
@@ -61,9 +51,4 @@ const loadMewsFeed = async () => {
 
 onMounted(loadMewsFeed);
 watch(router.currentRoute, loadMewsFeed);
-
-const publishMew = async (newMew: CreateMewInput) => {
-  await createMew(newMew);
-  loadMewsFeed();
-};
 </script>

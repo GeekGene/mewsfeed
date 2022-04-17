@@ -5,7 +5,7 @@
         <agent-avatar
           :agent-pub-key="agentPubKey"
           size="50"
-          class="q-mr-lg cursor-pointer"
+          :class="['q-mr-lg', { 'cursor-pointer': !isCurrentProfile }]"
           @click="onAgentClick(agentPubKey)"
         />
       </context-provider>
@@ -50,6 +50,9 @@ const props = defineProps({
 const isMyProfile = computed(
   () => props.agentPubKey === profileStore.myAgentPubKey
 );
+const isCurrentProfile = computed(
+  () => router.currentRoute.value.params.agent === props.agentPubKey
+);
 
 const nickname = ref("");
 const displayName = ref("");
@@ -75,6 +78,8 @@ onMounted(async () => {
 });
 
 const onAgentClick = (agentPubKey: HoloHashB64) => {
-  router.push(`/profiles/${agentPubKey}`);
+  if (!isCurrentProfile.value) {
+    router.push(`/profiles/${agentPubKey}`);
+  }
 };
 </script>

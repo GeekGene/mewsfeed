@@ -4,7 +4,7 @@
       <FeedItem
         :feed-mew="mew"
         :index="index"
-        @refresh-feed="emit('refresh-feed')"
+        @refresh-feed="emit('refresh')"
       />
     </q-item>
   </q-list>
@@ -22,5 +22,5 @@ defineProps({
   },
 });
 
-const emit = defineEmits<{ (e: "refresh-feed"): void }>();
+const emit = defineEmits<{ (e: "refresh"): void }>();
 </script>
