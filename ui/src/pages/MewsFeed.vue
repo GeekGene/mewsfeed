@@ -17,16 +17,7 @@
       <div class="text-subtitle1">Meeoow, nothing here yet!</div>
     </q-banner>
 
-    <q-list v-else bordered separator>
-      <q-item v-for="(mew, index) of mews" :key="index" class="items-start">
-        <FeedItem
-          :feed-mew="mew"
-          :index="index"
-          @publish-mew="publishMew"
-          @refresh-feed="loadMewsFeed"
-        />
-      </q-item>
-    </q-list>
+    <MewList v-else :mews="mews" @refresh-feed="loadMewsFeed" />
   </q-page>
 </template>
 
@@ -36,7 +27,7 @@ import { onMounted, ref } from "vue";
 import { FeedMew, CreateMewInput } from "../types/types";
 import { showError } from "../utils/notification";
 import AddMew from "../components/AddMew.vue";
-import FeedItem from "../components/FeedItem.vue";
+import MewList from "../components/MewList.vue";
 import FeedItemSkeleton from "../components/FeedItemSkeleton.vue";
 
 const loading = ref(false);
