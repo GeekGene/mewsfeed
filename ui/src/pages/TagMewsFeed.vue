@@ -1,9 +1,8 @@
 <template>
   <q-page padding>
     <h6 class="q-mt-none q-mb-md">Mews with {{ tagSymbol }}{{ tag }}</h6>
-    <FeedItemSkeleton v-if="loading" />
 
-    <MewList v-else :mews="mews" @refresh="loadMewsFeed" />
+    <MewList :loading="loading" :mews="mews" @refresh="loadMewsFeed" />
   </q-page>
 </template>
 
@@ -18,7 +17,6 @@ import { FeedMew, TAG_SYMBOLS } from "@/types/types";
 import { showError } from "@/utils/notification";
 import { useRouter } from "vue-router";
 import MewList from "../components/MewList.vue";
-import FeedItemSkeleton from "@/components/FeedItemSkeleton.vue";
 
 const router = useRouter();
 const currentRoute = computed(() => router.currentRoute.value);
