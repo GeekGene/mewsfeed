@@ -2,7 +2,14 @@
   <agent-avatar
     :agent-pub-key="authorPubKey(feedMew.header.author)"
     size="50"
-    class="self-start cursor-pointer"
+    :class="[
+      'self-start',
+      {
+        'cursor-pointer': !isCurrentProfile(
+          authorPubKey(feedMew.header.author)
+        ),
+      },
+    ]"
     @click="onAgentClick(authorPubKey(feedMew.header.author))"
     @mouseenter="showProfile(index)"
     @mouseleave="hideProfile(index)"
@@ -44,8 +51,14 @@ const profileHideTimeouts = ref<number[]>([]);
 const profileShowTimeouts = ref<number[]>([]);
 const router = useRouter();
 
+const isCurrentProfile = (agentPubKey: HoloHashB64) => {
+  return router.currentRoute.value.params.agent === agentPubKey;
+};
+
 const onAgentClick = (agentPubKey: HoloHashB64) => {
-  router.push(`/profiles/${agentPubKey}`);
+  if (!isCurrentProfile(agentPubKey)) {
+    router.push(`/profiles/${agentPubKey}`);
+  }
 };
 
 const showProfile = (index: number) => {

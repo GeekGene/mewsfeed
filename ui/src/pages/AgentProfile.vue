@@ -34,9 +34,7 @@
       </q-card-section>
     </q-card>
 
-    <FeedItemSkeleton v-if="loadingMews" />
-
-    <MewList v-else :mews="mews" @refresh="loadMews" />
+    <MewList :loading="loadingMews" :mews="mews" @refresh="loadMews" />
   </q-page>
 </template>
 
@@ -48,7 +46,6 @@ import { computed, onMounted, ref, watch } from "vue";
 import { mewsBy, myFollowing } from "@/services/clutter-dna";
 import { FeedMew } from "@/types/types";
 import ButtonFollow from "@/components/ButtonFollow.vue";
-import FeedItemSkeleton from "@/components/FeedItemSkeleton.vue";
 import MewList from "../components/MewList.vue";
 
 const profileStore = useProfileStore();
