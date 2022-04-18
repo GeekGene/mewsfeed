@@ -1,9 +1,9 @@
 <template>
-  <FeedItemSkeleton v-if="loading" />
+  <MewListSkeleton v-if="loading" />
 
   <q-list v-else bordered separator>
     <q-item v-for="(mew, index) of mews" :key="index" class="items-start">
-      <FeedItem
+      <MewListItem
         :feed-mew="mew"
         :index="index"
         @refresh-feed="emit('refresh')"
@@ -15,8 +15,8 @@
 <script setup lang="ts">
 import { PropType } from "vue";
 import { FeedMew } from "@/types/types";
-import FeedItem from "./FeedItem.vue";
-import FeedItemSkeleton from "@/components/FeedItemSkeleton.vue";
+import MewListItem from "./MewListItem.vue";
+import MewListSkeleton from "@/components/MewListSkeleton.vue";
 
 defineProps({
   mews: {
