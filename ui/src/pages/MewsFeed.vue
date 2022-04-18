@@ -8,25 +8,19 @@
 
     <h6 class="q-mb-md">Your Mews Feed</h6>
 
-    <FeedItemSkeleton v-if="loading" />
-
-    <q-banner v-else-if="mews.length === 0" class="bg-grey-3" dense rounded>
+    <q-banner
+      v-if="!loading && mews.length === 0"
+      class="bg-grey-3"
+      dense
+      rounded
+    >
       <template #avatar>
         <q-icon name="pets" color="accent" />
       </template>
       <div class="text-subtitle1">Meeoow, nothing here yet!</div>
     </q-banner>
 
-    <q-list v-else bordered separator>
-      <q-item v-for="(mew, index) of mews" :key="index" class="items-start">
-        <FeedItem
-          :feed-mew="mew"
-          :index="index"
-          @publish-mew="publishMew"
-          @refresh-feed="loadMewsFeed"
-        />
-      </q-item>
-    </q-list>
+    <MewList v-else :loading="loading" :mews="mews" @refresh="loadMewsFeed" />
   </q-page>
 </template>
 
@@ -36,8 +30,7 @@ import { onMounted, ref } from "vue";
 import { FeedMew, CreateMewInput } from "../types/types";
 import { showError } from "../utils/notification";
 import AddMew from "../components/AddMew.vue";
-import FeedItem from "../components/FeedItem.vue";
-import FeedItemSkeleton from "../components/FeedItemSkeleton.vue";
+import MewList from "../components/MewList.vue";
 
 const loading = ref(false);
 const mews = ref<FeedMew[]>([]);

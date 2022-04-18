@@ -1,51 +1,40 @@
 <template>
   <q-page padding>
-    <q-spinner-pie v-if="loading" size="10%" color="primary" />
+    <q-spinner-pie v-if="loadingProfile" size="10%" color="primary" />
 
-    <template v-else>
-      <q-card v-bind="$attrs" flat class="q-mb-md text-body1">
-        <q-card-section class="flex justify-between">
-          <div class="flex items-center">
-            <agent-avatar
-              :agent-pub-key="agentPubKey"
-              size="50"
-              class="q-mr-lg"
-            />
-            <div class="q-mr-lg text-primary text-weight-medium">
-              {{ displayName }}
-            </div>
-            <div class="text-primary">@{{ nickname }}</div>
+    <q-card v-else v-bind="$attrs" flat class="q-mb-md text-body1">
+      <q-card-section class="flex justify-between">
+        <div class="flex items-center">
+          <agent-avatar
+            :agent-pub-key="agentPubKey"
+            size="50"
+            class="q-mr-lg"
+          />
+          <div class="q-mr-lg text-primary text-weight-medium">
+            {{ displayName }}
           </div>
-          <ButtonFollow :agent-pub-key="agentPubKey" />
-        </q-card-section>
+          <div class="text-primary">@{{ nickname }}</div>
+        </div>
+        <ButtonFollow :agent-pub-key="agentPubKey" />
+      </q-card-section>
 
-        <q-card-section class="flex">
-          <div class="q-mr-md">
-            <div>
-              <label class="text-weight-medium">Bio:</label>
-            </div>
-            <div>
-              <label class="text-weight-medium">Location:</label>
-            </div>
+      <q-card-section class="flex">
+        <div class="q-mr-md">
+          <div>
+            <label class="text-weight-medium">Bio:</label>
           </div>
-          <div class="col-grow">
-            <div>{{ bio }}</div>
-            <div>{{ location }}</div>
+          <div>
+            <label class="text-weight-medium">Location:</label>
           </div>
-        </q-card-section>
-      </q-card>
+        </div>
+        <div class="col-grow">
+          <div>{{ bio }}</div>
+          <div>{{ location }}</div>
+        </div>
+      </q-card-section>
+    </q-card>
 
-      <q-list v-if="mewsFeed.length > 0" bordered separator>
-        <q-item v-for="(feedMew, index) in mewsFeed" :key="index">
-          <q-item-section avatar>
-            <agent-avatar :agent-pub-key="agentPubKey" size="50" />
-          </q-item-section>
-          <q-item-section>
-            <MewContent :feed-mew="feedMew" />
-          </q-item-section>
-        </q-item>
-      </q-list>
-    </template>
+    <MewList :loading="loadingMews" :mews="mews" @refresh="loadMews" />
   </q-page>
 </template>
 
@@ -57,28 +46,39 @@ import { computed, onMounted, ref, watch } from "vue";
 import { mewsBy, myFollowing } from "@/services/clutter-dna";
 import { FeedMew } from "@/types/types";
 import ButtonFollow from "@/components/ButtonFollow.vue";
-import MewContent from "@/components/MewContent.vue";
+import MewList from "../components/MewList.vue";
 
 const profileStore = useProfileStore();
 const route = useRoute();
 const agentPubKey = computed(() =>
   Array.isArray(route.params.agent) ? route.params.agent[0] : route.params.agent
 );
-const loading = ref(false);
+const loadingMews = ref(false);
+const loadingProfile = ref(false);
 const nickname = ref("");
 const displayName = ref("");
 const bio = ref("");
 const location = ref("");
 const following = ref(false);
-const mewsFeed = ref<FeedMew[]>([]);
+const mews = ref<FeedMew[]>([]);
+
+const loadMews = async () => {
+  try {
+    loadingMews.value = true;
+    mews.value = await mewsBy(agentPubKey.value);
+  } catch (error) {
+    showError(error);
+  } finally {
+    loadingMews.value = false;
+  }
+};
 
 const loadProfile = async () => {
   try {
-    loading.value = true;
-    const [profile, currentMyFollowing, mews] = await Promise.all([
+    loadingProfile.value = true;
+    const [profile, currentMyFollowing] = await Promise.all([
       profileStore.fetchAgentProfile(agentPubKey.value),
       myFollowing(),
-      mewsBy(agentPubKey.value),
     ]);
     if (profile) {
       nickname.value = profile.nickname;
@@ -87,16 +87,20 @@ const loadProfile = async () => {
       location.value = profile.fields.Location;
     }
     following.value = currentMyFollowing.includes(agentPubKey.value);
-    mewsFeed.value = mews;
   } catch (error) {
-    console.error("erererere", error);
     showError(error);
   } finally {
-    loading.value = false;
+    loadingProfile.value = false;
   }
 };
 
-onMounted(loadProfile);
+const load = () => {
+  loadProfile();
+  loadMews();
+};
+
+onMounted(load);
+
 watch(
   () => route.params.agent,
   () => {

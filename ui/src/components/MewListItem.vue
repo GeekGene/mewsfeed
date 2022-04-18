@@ -59,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { lickMew, unlickMew } from "../services/clutter-dna";
+import { createMew, lickMew, unlickMew } from "../services/clutter-dna";
 import { computed, onMounted, ref } from "vue";
 import { FeedMew, CreateMewInput } from "../types/types";
 import { serializeHash } from "@holochain-open-dev/core-types";
@@ -80,10 +80,7 @@ const displayName = computed(() => agentProfile.value?.fields["Display name"]);
 const nickname = computed(() => agentProfile.value?.nickname);
 const myAgentPubKey = store.myAgentPubKey;
 
-const emit = defineEmits<{
-  (e: "publish-mew", mew: CreateMewInput): void;
-  (e: "refresh-feed"): void;
-}>();
+const emit = defineEmits<{ (e: "refresh-feed"): void }>();
 
 onMounted(async () => {
   agentProfile.value = await store.fetchAgentProfile(
@@ -108,15 +105,17 @@ const toggleLickMew = async () => {
 const replyToMew = () => (isReplying.value = true);
 
 const mewMew = async () => {
-  const createMewInput: CreateMewInput = {
+  const mew: CreateMewInput = {
     mewType: { mewMew: props.feedMew.mewEntryHash },
-    mew: props.feedMew.mew.content?.text || null,
+    text: props.feedMew.mew.content?.text || null,
   };
-  emit("publish-mew", createMewInput);
+  await createMew(mew);
+  emit("refresh-feed");
 };
 
-const publishReply = (newMew: CreateMewInput) => {
+const publishReply = async (mew: CreateMewInput) => {
+  await createMew(mew);
   isReplying.value = false;
-  emit("publish-mew", newMew);
+  emit("refresh-feed");
 };
 </script>
