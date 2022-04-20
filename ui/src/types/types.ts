@@ -1,41 +1,79 @@
-import { Header } from '@holochain-open-dev/core-types';
+import { EntryHashB64 } from "@holochain-open-dev/core-types";
+import { Header } from "@holochain/client";
+
+export const TAG_SYMBOLS = {
+  CASHTAG: "$",
+  HASHTAG: "#",
+  MENTION: "@",
+};
 
 export interface Profile {
-    avatar: string, // base 64 in-place image url
-    location: string,
-    bio: string,
-    lang_pref: string,
+  avatar: string; // Base64 in-place image url
+  location: string;
+  bio: string;
+  lang_pref: string;
 }
 
-export type Mew = string;
+export type CreateMewInput = {
+  mewType: MewTypeInput;
+  text: string | null;
+};
+
+export type MewTypeInput =
+  | {
+      original: null;
+    }
+  | {
+      reply: EntryHashB64;
+    }
+  | {
+      reMew: EntryHashB64;
+    }
+  | {
+      mewMew: EntryHashB64;
+    };
 
 export interface MewContent {
-    mew: string
+  text: string;
 }
 
-export type MewType = 
-| {
-    original: MewContent
-}
+export type MewType =
+  | {
+      original: null;
+    }
+  | {
+      reply: EntryHashB64;
+    }
+  | {
+      reMew: EntryHashB64;
+    }
+  | {
+      mewMew: EntryHashB64;
+    };
 
-export interface FullMew {
-    mew_type: MewType,
-    mew: MewContent | null
+export interface Mew {
+  mewType: MewType;
+  content: MewContent | null;
 }
 
 export interface FeedMew {
-    mew: FullMew,
-    header: Header,
+  mew: Mew;
+  header: Header;
+  mewEntryHash: EntryHashB64;
+  comments: string[];
+  shares: string[];
+  licks: string[];
+  mewmews: string[];
 }
 
 export interface NotificationOptions {
-    color?: string;
-    textColor?: string;
-    message?: string;
-    caption?: string;
-    html?: boolean;
-    icon?: string;
-    position?:
+  color?: string;
+  textColor?: string;
+  message?: string;
+  caption?: string;
+  html?: boolean;
+  icon?: string;
+  position?:
     | "top-left"
     | "top-right"
     | "bottom-left"
@@ -45,10 +83,10 @@ export interface NotificationOptions {
     | "left"
     | "right"
     | "center";
-    actions?: Array<() => void>;
-    onDismiss?: () => void;
+  actions?: Array<() => void>;
+  onDismiss?: () => void;
 }
 
 export interface FeedOptions {
-    options: string
+  option: string;
 }
