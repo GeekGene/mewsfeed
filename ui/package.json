@@ -4,33 +4,28 @@
   "author": "Jost Schulte",
   "version": "0.0.1",
   "scripts": {
-    "prepare-env": "echo 'VITE_HC_PORT='$HC_PORT > .env.local",
-    "start": "npm run prepare-env && vite",
+    "start": "VITE_HC_PORT=$HC_PORT vite",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
-    "lint": "eslint src/ --fix --ext .js,.ts,.vue"
+    "lint": "eslint --fix --ext .ts ./ --ext .vue src"
   },
   "dependencies": {
-    "@holochain/client": "^0.3.2",
-    "@holochain-open-dev/cell-client": "^0.2.1",
+    "@holochain-open-dev/cell-client": "^0.3.2",
     "@holochain-open-dev/context": "^0.0.3",
-    "@holochain-open-dev/profiles": "^0.0.4",
-    "@holochain-open-dev/core-types": "^0.1.1",
-    "@quasar/extras": "^1.12.4",
-    "quasar": "^2.4.12",
-    "vue": "^3.2.25",
-    "vue-router": "^4.0.12"
+    "@holochain-open-dev/core-types": "^0.2.0",
+    "@holochain-open-dev/profiles": "^0.0.10",
+    "@holochain/client": "^0.3.2",
+    "@quasar/extras": "^1.13.5",
+    "quasar": "^2.6.5",
+    "vue": "^3.2.31",
+    "vue-router": "^4.0.14"
   },
   "devDependencies": {
-    "@quasar/vite-plugin": "^1.0.4",
-    "@typescript-eslint/eslint-plugin": "^5.10.1",
-    "@typescript-eslint/parser": "^5.10.1",
-    "@vitejs/plugin-vue": "^2.0.0",
-    "eslint": "^8.7.0",
-    "eslint-plugin-vue": "^8.4.0",
+    "@quasar/vite-plugin": "^1.0.8",
+    "@vitejs/plugin-vue": "^2.3.1",
     "sass": "^1.32.0",
-    "typescript": "^4.5.5",
-    "vite": "^2.7.2",
+    "typescript": "^4.6.3",
+    "vite": "^2.9.1",
     "vue-tsc": "^0.29.8"
   }
 }

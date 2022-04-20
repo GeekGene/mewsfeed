@@ -15,14 +15,3 @@ roles:
       version: ~
       clone_limit: 0
 
-  - id: clutter_index
-    provisioning:
-      strategy: create
-      deferred: false
-    dna:
-      bundled: "../dnas/clutter_index/workdir/clutter_index.dna"
-      properties: ~
-      uuid: ~
-      version: ~
-      clone_limit: 0
-

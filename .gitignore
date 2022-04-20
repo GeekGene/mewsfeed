@@ -8,9 +8,12 @@
 ## holochain files
 .hc*
 .cargo/
-dnas/clutter/workdir/clutter.dna
-dnas/clutter_index/workdir/clutter_index.dna
+*.dna
+*.happ
+*.webhapp
 node_modules/
 target/
-workdir/clutter.happ
 .running
+
+## ui files
+dist.zip
