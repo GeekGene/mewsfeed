@@ -1,12 +1,11 @@
-import { NotificationOptions } from "@/types/types";
-import { Notify } from "quasar";
+import { Notify, QNotifyCreateOptions } from "quasar";
 
 const DEFAULT_MESSAGE = "Done!";
 
 export const showMessage = (
-  messageOrOptions?: string | NotificationOptions
+  messageOrOptions?: string | QNotifyCreateOptions
 ) => {
-  const options: NotificationOptions = { color: "green", position: "bottom" };
+  const options: QNotifyCreateOptions = { color: "green", position: "bottom" };
   options.message =
     typeof messageOrOptions === "string" ? messageOrOptions : DEFAULT_MESSAGE;
   if (typeof messageOrOptions === "object") {
