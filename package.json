@@ -1,6 +1,7 @@
 {
   "name": "clutter-dev",
   "private": true,
+  "version": "0.3.0",
   "workspaces": [
     "ui",
     "tests"
