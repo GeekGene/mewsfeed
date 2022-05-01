@@ -1,13 +1,10 @@
 <template>
-  <q-layout view="hHh lpR fFf">
+  <q-layout view="hHh lpr lfr">
     <q-header elevated class="row justify-center">
-      <q-space />
-
       <q-toolbar class="col col-sm-6 col-lg-5">
-        <q-tabs v-model="tab" dense inline-label class="col-grow">
+        <q-tabs v-model="tab" dense inline-label>
           <q-route-tab to="/">
-            <q-icon name="svguse:/icons.svg#cat" size="lg" class="q-mr-xs" />
-            <div>Clutter</div>
+            <q-icon name="svguse:/icons.svg#cat" size="lg" />
           </q-route-tab>
 
           <q-space />
@@ -18,6 +15,7 @@
             :loading="searching"
             input-debounce="0"
             label="Sniff around"
+            label-color="secondary"
             behavior="menu"
             standout
             use-input
@@ -26,16 +24,16 @@
             dark
             :options-dark="false"
             dense
-            class="col-4"
+            class="col-4 bg-white"
             @filter="search"
             @update:model-value="onAgentSelect"
           >
             <template #prepend>
-              <q-icon name="search" />
+              <q-icon name="search" color="secondary" />
             </template>
             <template #no-option>
               <q-item>
-                <q-item-section class="text-grey">
+                <q-item-section>
                   {{
                     searchTerm.length < 3
                       ? "Minimum 3 characters required"
@@ -49,24 +47,25 @@
           <q-space />
 
           <q-route-tab to="/feed" icon="feed" label="Mews" />
+
+          <q-space />
+
           <q-route-tab to="/my-profile">
-            <agent-avatar
-              :agent-pub-key="store.myAgentPubKey"
-              size="40"
-              class="q-mr-sm"
-            />
-            <div>Profile</div>
+            <agent-avatar :agent-pub-key="store.myAgentPubKey" size="40" />
+            <div class="lg q-ml-sm text-weight-bold">Profile</div>
           </q-route-tab>
         </q-tabs>
       </q-toolbar>
-
-      <q-space />
     </q-header>
 
-    <q-page-container class="row">
-      <q-space />
-      <router-view class="col col-sm-6 col-lg-5" />
-      <q-space />
+    <q-drawer v-model="leftDrawerOpen" side="left">
+      <sidebar-left />
+    </q-drawer>
+
+    <q-drawer v-model="rightDrawerOpen" side="right" />
+
+    <q-page-container>
+      <router-view />
     </q-page-container>
   </q-layout>
 </template>
@@ -77,10 +76,13 @@ import { QSelectOption } from "quasar";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
 import { showError } from "@/utils/notification";
+import SidebarLeft from "@/components/SidebarLeft.vue";
 
 const store = useProfileStore();
 const router = useRouter();
 const tab = ref("");
+const leftDrawerOpen = ref(true);
+const rightDrawerOpen = ref(true);
 
 const searching = ref(false);
 const options = ref<QSelectOption[]>([]);
