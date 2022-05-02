@@ -1,5 +1,5 @@
 <template>
-  <q-page padding>
+  <q-page>
     <AddMew
       class="text-center"
       :mew-type="{ original: null }"

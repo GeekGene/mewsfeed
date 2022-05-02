@@ -1,5 +1,5 @@
 <template>
-  <q-page padding>
+  <q-page>
     <q-spinner-pie v-if="loadingProfile" size="10%" color="primary" />
 
     <q-card v-else v-bind="$attrs" flat class="q-mb-md text-body1">
