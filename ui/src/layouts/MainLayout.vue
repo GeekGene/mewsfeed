@@ -15,6 +15,8 @@
             :loading="searching"
             input-debounce="0"
             label="Sniff around"
+            label-color="white"
+            filled
             behavior="menu"
             standout
             use-input
@@ -28,7 +30,7 @@
             @update:model-value="onAgentSelect"
           >
             <template #prepend>
-              <q-icon name="search" />
+              <q-icon name="search" color="white" />
             </template>
             <template #no-option>
               <q-item>
