@@ -17,7 +17,7 @@
     "@holochain/client": "^0.3.2",
     "@quasar/extras": "^1.13.5",
     "quasar": "^2.6.5",
-    "vue": "^3.2.31",
+    "vue": "^3.2.33",
     "vue-router": "^4.0.14"
   },
   "devDependencies": {
