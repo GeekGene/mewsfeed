@@ -10,6 +10,10 @@
       }}</span>
       <span>@{{ agentProfile?.nickname }}</span>
       <q-space />
+      <span v-if="feedMew.mew.mewType.mewMew">mewmew from @{{ referencedMewAgentProfile?.nickname }}</span>
+      <span v-if="feedMew.mew.mewType.reply">replying to @{{ referencedMewAgentProfile?.nickname }}</span>
+      <q-space />
+      <q-space />
       <span class="text-caption">
         <Timestamp :timestamp="feedMew.header.timestamp" />
       </span>
@@ -59,7 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import { createMew, lickMew, unlickMew } from "../services/clutter-dna";
+import { createMew, getFeedMewAndContext, lickMew, unlickMew } from "../services/clutter-dna";
 import { computed, onMounted, ref } from "vue";
 import { FeedMew, CreateMewInput } from "../types/types";
 import { serializeHash } from "@holochain-open-dev/core-types";
@@ -75,6 +79,8 @@ const props = defineProps({
   index: { type: Number, required: true },
 });
 const store = useProfileStore();
+const referencedMew = ref();
+const referencedMewAgentProfile = ref();
 const agentProfile = ref();
 const displayName = computed(() => agentProfile.value?.fields["Display name"]);
 const nickname = computed(() => agentProfile.value?.nickname);
@@ -86,6 +92,13 @@ onMounted(async () => {
   agentProfile.value = await store.fetchAgentProfile(
     serializeHash(props.feedMew.header.author)
   );
+  const mewType: any = props.feedMew.mew.mewType
+  if (mewType.reply || mewType.mewMew || mewType.remew) {
+    referencedMew.value = await getFeedMewAndContext(mewType.reply || mewType.mewMew || mewType.remew)
+    referencedMewAgentProfile.value = await store.fetchAgentProfile(
+      serializeHash(referencedMew.value.header.author)
+    );
+  }
 });
 
 const isReplying = ref(false);
