@@ -5,7 +5,10 @@
 
   <q-item-section>
     <div class="row q-mb-sm">
-      <span class="q-mr-xs text-primary text-weight-medium">{{
+      <span 
+        class="q-mr-xs text-primary text-weight-medium cursor-pointer"
+        @click="onAgentClick(router, authorPubKey(feedMew.header.author))"
+      >{{
         displayName
       }}</span>
       <span>@{{ agentProfile?.nickname }}</span>
@@ -64,6 +67,8 @@
 
 <script setup lang="ts">
 import { createMew, getFeedMewAndContext, lickMew, unlickMew } from "../services/clutter-dna";
+import { authorPubKey } from "@/utils/hash";
+import { isCurrentProfile, onAgentClick } from "@/utils/router"
 import { computed, onMounted, ref } from "vue";
 import { FeedMew, CreateMewInput } from "../types/types";
 import { serializeHash } from "@holochain-open-dev/core-types";
@@ -73,6 +78,7 @@ import AddMew from "./AddMew.vue";
 import MewContent from "./MewContent.vue";
 import Timestamp from "./Timestamp.vue";
 import AvatarWithPopup from "./AvatarWithPopup.vue";
+import { useRouter } from "vue-router";
 
 const props = defineProps({
   feedMew: { type: Object as PropType<FeedMew>, required: true },
@@ -85,6 +91,7 @@ const agentProfile = ref();
 const displayName = computed(() => agentProfile.value?.fields["Display name"]);
 const nickname = computed(() => agentProfile.value?.nickname);
 const myAgentPubKey = store.myAgentPubKey;
+const router = useRouter();
 
 const emit = defineEmits<{ (e: "refresh-feed"): void }>();
 
