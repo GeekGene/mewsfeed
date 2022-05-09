@@ -14,7 +14,11 @@
       <span>@{{ agentProfile?.nickname }}</span>
       <q-space />
       <span v-if="feedMew.mew.mewType.mewMew">mewmew from @{{ referencedMewAgentProfile?.nickname }}</span>
-      <span v-if="feedMew.mew.mewType.reply">replying to @{{ referencedMewAgentProfile?.nickname }}</span>
+      <span v-if="feedMew.mew.mewType.reply && referencedMew">replying to 
+        <router-link :to="`/profiles/${authorPubKey(referencedMew.header.author)}`">
+          @{{ referencedMewAgentProfile?.nickname }}
+        </router-link>
+      </span>
       <q-space />
       <q-space />
       <span class="text-caption">
@@ -85,7 +89,7 @@ const props = defineProps({
   index: { type: Number, required: true },
 });
 const store = useProfileStore();
-const referencedMew = ref();
+const referencedMew = ref(false);
 const referencedMewAgentProfile = ref();
 const agentProfile = ref();
 const displayName = computed(() => agentProfile.value?.fields["Display name"]);
