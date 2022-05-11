@@ -124,14 +124,13 @@ export default (orchestrator: Orchestrator<any>) =>
 
     try {
       await bob.call("mews", "follow", bobPubKey);
-      await sleep(777);
-      t.fail()
-    } catch(e) {
+      t.fail();
+    } catch (e) {
       console.log("bob.my_following");
-      let follow = await bob.call("mews", "my_following", null);
+      const follow = await bob.call("mews", "my_following", null);
       console.log("bob my_following", follow, follow.length);
       t.deepEqual(follow, []);
-      t.ok("error thrown")
+      t.ok("error thrown");
     }
 
     await bob.call("mews", "follow", alicePubKey);
