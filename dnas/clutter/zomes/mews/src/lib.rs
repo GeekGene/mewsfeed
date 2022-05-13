@@ -442,6 +442,10 @@ pub fn follow(agent: AgentPubKeyB64) -> ExternResult<()> {
     let me_target: EntryHash = agent_info()?.agent_latest_pubkey.into();
     let them_target: EntryHash = AgentPubKey::from(agent.clone()).into();
 
+    if me_target == them_target {
+        return Err(WasmError::Guest(String::from("Cannot follow yourself.")));
+    }
+
     let me = get_my_mews_base(FOLLOWING_PATH_SEGMENT, true)?;
     let _link_hh = create_link(me, them_target, ())?;
 

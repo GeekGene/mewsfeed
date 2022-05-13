@@ -15,7 +15,7 @@
           </div>
           <div class="text-primary">@{{ nickname }}</div>
         </div>
-        <ButtonFollow :agent-pub-key="agentPubKey" />
+        <ButtonFollow v-if="!isMyProfile" :agent-pub-key="agentPubKey" />
       </q-card-section>
 
       <q-card-section class="flex">
@@ -61,6 +61,10 @@ const bio = ref("");
 const location = ref("");
 const following = ref(false);
 const mews = ref<FeedMew[]>([]);
+
+const isMyProfile = computed(
+  () => agentPubKey.value === profileStore.myAgentPubKey
+);
 
 const loadMews = async () => {
   try {
