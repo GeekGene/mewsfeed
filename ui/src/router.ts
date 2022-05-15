@@ -7,14 +7,34 @@ export const PATH = {
   [TAG_SYMBOLS.MENTION]: "handle",
 };
 
+export enum Routes {
+  Home = "/",
+  MyProfile = "myProfile",
+  Profiles = "profiles",
+  Feed = "feed",
+}
+
 const routes: RouteRecordRaw[] = [
-  { path: "/", component: () => import("./pages/HomePage.vue") },
-  { path: "/my-profile/", component: () => import("./pages/MyProfile.vue") },
+  {
+    path: "/",
+    name: Routes.Home,
+    component: () => import("./pages/HomePage.vue"),
+  },
+  {
+    path: "/my-profile/",
+    name: Routes.MyProfile,
+    component: () => import("./pages/MyProfile.vue"),
+  },
   {
     path: "/profiles/:agent",
+    name: Routes.Profiles,
     component: () => import("./pages/AgentProfile.vue"),
   },
-  { path: "/feed", component: () => import("./pages/MewsFeed.vue") },
+  {
+    path: "/feed",
+    name: Routes.Feed,
+    component: () => import("./pages/MewsFeed.vue"),
+  },
   {
     path: `/${PATH[TAG_SYMBOLS.CASHTAG]}/:tag`,
     component: () => import("./pages/TagMewsFeed.vue"),

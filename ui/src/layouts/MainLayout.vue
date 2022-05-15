@@ -12,8 +12,9 @@
             color="secondary"
             class="q-mx-md"
             @click="onAddMewClick"
-            >Mew</q-btn
           >
+            Mew
+          </q-btn>
 
           <q-select
             v-model="selection"
@@ -65,50 +66,33 @@
       <router-view class="col-12 col-md-6" />
       <q-space />
     </q-page-container>
-
-    <q-dialog v-model="isShowingAddMewDialog">
-      <q-card>
-        <q-card-section class="q-pb-none">
-          <div class="q-mb-sm row items-center text-subtitle2">
-            <span class="q-mr-sm">Post a mew</span>
-            <q-space />
-            <q-btn v-close-popup icon="close" flat round dense />
-          </div>
-        </q-card-section>
-
-        <q-card-section>
-          <AddMew
-            class="text-center"
-            :mew-type="{ original: null }"
-            @publish-mew="onPublishReply"
-          />
-        </q-card-section>
-      </q-card>
-    </q-dialog>
   </q-layout>
 </template>
 
 <script setup lang="ts">
 import { useProfileStore } from "@/services/profile-store";
-import { QSelectOption } from "quasar";
+import { QSelectOption, useQuasar } from "quasar";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
 import { showError } from "@/utils/notification";
-import { CreateMewInput } from "@/types/types";
-import AddMew from "@/components/AddMew.vue";
+import AddMewDialog from "@/components/AddMewDialog.vue";
+import { Routes } from "@/router";
 
 const store = useProfileStore();
 const router = useRouter();
+const $q = useQuasar();
 const tab = ref("");
-const isShowingAddMewDialog = ref(false);
 
 const searching = ref(false);
 const options = ref<QSelectOption[]>([]);
 const selection = ref<QSelectOption | null>(null);
 const searchTerm = ref("");
 
-const onAddMewClick = () => (isShowingAddMewDialog.value = true);
-const onPublishReply = (mew: CreateMewInput) => console.log("mew", mew);
+const onAddMewClick = () =>
+  $q.dialog({
+    component: AddMewDialog,
+    componentProps: { mewType: { original: null } },
+  });
 
 const search = (
   inputValue: string,
@@ -136,7 +120,7 @@ const search = (
 };
 
 const onAgentSelect = (option: QSelectOption) => {
-  router.push(`/profiles/${option.value}`);
+  router.push({ name: Routes.Profiles, params: { agent: option.value } });
   selection.value = null;
 };
 </script>

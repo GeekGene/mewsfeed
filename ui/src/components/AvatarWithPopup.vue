@@ -2,14 +2,7 @@
   <agent-avatar
     :agent-pub-key="authorPubKey(feedMew.header.author)"
     size="50"
-    :class="[
-      'self-start',
-      {
-        'cursor-pointer': !isCurrentProfile(
-          authorPubKey(feedMew.header.author)
-        ),
-      },
-    ]"
+    :class="['self-start', { 'cursor-pointer': true }]"
     @click="onAgentClick(authorPubKey(feedMew.header.author))"
     @mouseenter="showProfile(index)"
     @mouseleave="hideProfile(index)"
@@ -37,6 +30,7 @@ import { FeedMew } from "@/types/types";
 import { authorPubKey } from "@/utils/hash";
 import { useRouter } from "vue-router";
 import ProfilePopup from "./ProfilePopup.vue";
+import { Routes } from "@/router";
 
 defineProps({
   feedMew: { type: Object as PropType<FeedMew>, required: true },
@@ -51,14 +45,8 @@ const profileHideTimeouts = ref<number[]>([]);
 const profileShowTimeouts = ref<number[]>([]);
 const router = useRouter();
 
-const isCurrentProfile = (agentPubKey: HoloHashB64) => {
-  return router.currentRoute.value.params.agent === agentPubKey;
-};
-
 const onAgentClick = (agentPubKey: HoloHashB64) => {
-  if (!isCurrentProfile(agentPubKey)) {
-    router.push(`/profiles/${agentPubKey}`);
-  }
+  router.push({ name: Routes.Profiles, params: { agent: agentPubKey } });
 };
 
 const showProfile = (index: number) => {
