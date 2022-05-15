@@ -19,17 +19,17 @@
 <script setup lang="ts">
 import { FeedMew, TAG_SYMBOLS } from "@/types/types";
 import { PATH } from "@/router";
-import { PropType, ref } from "vue";
+import { computed, PropType } from "vue";
 const props = defineProps({
   feedMew: { type: Object as PropType<FeedMew>, required: true },
 });
 
-const content = ref(props.feedMew.mew.content?.text || "");
+const content = computed(() => props.feedMew.mew.content?.text || "");
 const regexpString = Object.values(TAG_SYMBOLS).map(
   (symbol) => `\\${symbol}\\w+`
 );
 const tagRegex = new RegExp(`\\B(${regexpString.join("|")})`, "gi");
-const contentParts = content.value.split(tagRegex);
+const contentParts = computed(() => content.value.split(tagRegex));
 
 const startsWithTag = (contentPart: string) =>
   Object.values(TAG_SYMBOLS).some((symbol) => contentPart.startsWith(symbol));
