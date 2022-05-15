@@ -48,7 +48,7 @@
       </q-card-section>
 
       <q-card-section>
-        <AddMew
+        <AddMewField
           class="text-center"
           :mew-type="{ reply: feedMew.mewEntryHash }"
           @publish-mew="publishReply"
@@ -65,7 +65,7 @@ import { FeedMew, CreateMewInput } from "../types/types";
 import { serializeHash } from "@holochain-open-dev/core-types";
 import { PropType } from "vue";
 import { useProfileStore } from "../services/profile-store";
-import AddMew from "./AddMew.vue";
+import AddMewField from "./AddMewField.vue";
 import MewContent from "./MewContent.vue";
 import Timestamp from "./Timestamp.vue";
 import AvatarWithPopup from "./AvatarWithPopup.vue";
