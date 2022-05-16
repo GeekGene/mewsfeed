@@ -8,7 +8,7 @@ import "@holochain-open-dev/context/context-provider";
 
 import { createApp } from "vue";
 import { createPinia } from "pinia";
-import { Dialog, Notify, Quasar } from "quasar";
+import { Notify, Quasar } from "quasar";
 import {
   connectAppWebSocket,
   APP_WEB_SOCKET,
@@ -42,7 +42,7 @@ connectAppWebSocket().then(async (appWebsocket) => {
   app.use(createPinia());
   app.use(router);
   app.use(Quasar, {
-    plugins: { Dialog, Notify },
+    plugins: { Notify },
   });
 
   app.mount("#app");

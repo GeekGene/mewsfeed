@@ -5,9 +5,9 @@
 
   <q-item-section>
     <div class="row q-mb-sm">
-      <span class="q-mr-xs text-primary text-weight-medium">{{
-        displayName
-      }}</span>
+      <span class="q-mr-xs text-primary text-weight-medium">
+        {{ displayName }}
+      </span>
       <span>@{{ agentProfile?.nickname }}</span>
       <q-space />
       <span class="text-caption">
@@ -35,27 +35,20 @@
     </div>
   </q-item-section>
 
-  <q-dialog v-model="isReplying" transition-show="fade" transition-hide="fade">
-    <q-card>
-      <q-card-section class="q-pb-none">
-        <div class="q-mb-sm row items-center text-subtitle2">
-          <span class="q-mr-sm">Reply to {{ displayName }}</span>
-          <span class="text-secondary">@{{ nickname }}</span>
-          <q-space />
-          <q-btn v-close-popup icon="close" flat round dense />
-        </div>
-        <MewContent :feed-mew="feedMew" />
-      </q-card-section>
-
-      <q-card-section>
-        <AddMewField
-          class="text-center"
-          :mew-type="{ reply: feedMew.mewEntryHash }"
-          @publish-mew="publishReply"
-        />
-      </q-card-section>
-    </q-card>
-  </q-dialog>
+  <create-mew-dialog
+    v-if="isReplying"
+    :mew-type="{ reply: feedMew.mewEntryHash }"
+    @mew-created="onMewCreated"
+    @close="isReplying = false"
+  >
+    <template #title>
+      <span class="q-mr-sm">Reply to {{ displayName }}</span>
+      <span class="text-secondary">@{{ nickname }}</span>
+    </template>
+    <template #subtitle>
+      <MewContent :feed-mew="feedMew" />
+    </template>
+  </create-mew-dialog>
 </template>
 
 <script setup lang="ts">
@@ -65,7 +58,7 @@ import { FeedMew, CreateMewInput } from "../types/types";
 import { serializeHash } from "@holochain-open-dev/core-types";
 import { PropType } from "vue";
 import { useProfileStore } from "../services/profile-store";
-import AddMewField from "./AddMewField.vue";
+import CreateMewDialog from "./CreateMewDialog.vue";
 import MewContent from "./MewContent.vue";
 import Timestamp from "./Timestamp.vue";
 import AvatarWithPopup from "./AvatarWithPopup.vue";
@@ -113,9 +106,5 @@ const mewMew = async () => {
   emit("refresh-feed");
 };
 
-const publishReply = async (mew: CreateMewInput) => {
-  await createMew(mew);
-  isReplying.value = false;
-  emit("refresh-feed");
-};
+const onMewCreated = () => (isReplying.value = false);
 </script>

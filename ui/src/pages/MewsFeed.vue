@@ -1,6 +1,6 @@
 <template>
   <q-page class="q-pb-lg">
-    <AddMewField
+    <CreateMewField
       class="text-center"
       :mew-type="{ original: null }"
       @publish-mew="publishMew"
@@ -34,12 +34,12 @@ import { createMew } from "../services/clutter-dna";
 import { onMounted } from "vue";
 import { CreateMewInput } from "../types/types";
 import { useStore } from "@/store";
-import AddMewField from "../components/AddMewField.vue";
+import CreateMewField from "../components/CreateMewField.vue";
 import MewList from "../components/MewList.vue";
 
 const store = useStore();
 
-onMounted(store.fetchMewsFeed);
+onMounted(() => store.fetchMewsFeed());
 
 const publishMew = async (newMew: CreateMewInput) => {
   await createMew(newMew);

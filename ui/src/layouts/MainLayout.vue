@@ -66,21 +66,28 @@
       <router-view class="col-12 col-md-6" />
       <q-space />
     </q-page-container>
+
+    <create-mew-dialog
+      v-if="isCreatingMew"
+      :mew-type="{ original: null }"
+      @close="isCreatingMew = false"
+    >
+      <template #title>Create a new mew:</template>
+    </create-mew-dialog>
   </q-layout>
 </template>
 
 <script setup lang="ts">
 import { useProfileStore } from "@/services/profile-store";
-import { QSelectOption, useQuasar } from "quasar";
+import { QSelectOption } from "quasar";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
 import { showError } from "@/utils/notification";
-import AddMewDialog from "@/components/AddMewDialog.vue";
 import { Routes } from "@/router";
+import CreateMewDialog from "@/components/CreateMewDialog.vue";
 
 const store = useProfileStore();
 const router = useRouter();
-const $q = useQuasar();
 const tab = ref("");
 
 const searching = ref(false);
@@ -88,11 +95,8 @@ const options = ref<QSelectOption[]>([]);
 const selection = ref<QSelectOption | null>(null);
 const searchTerm = ref("");
 
-const onAddMewClick = () =>
-  $q.dialog({
-    component: AddMewDialog,
-    componentProps: { mewType: { original: null } },
-  });
+const isCreatingMew = ref(false);
+const onAddMewClick = () => (isCreatingMew.value = true);
 
 const search = (
   inputValue: string,
