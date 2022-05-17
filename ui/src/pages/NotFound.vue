@@ -6,7 +6,11 @@
       color="accent"
       label="Come back home, Kitty"
       size="md"
-      to="/"
+      :to="{ name: ROUTES.home }"
     />
   </q-page>
 </template>
+
+<script setup lang="ts">
+import { ROUTES } from "@/router";
+</script>

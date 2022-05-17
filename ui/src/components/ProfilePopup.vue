@@ -38,7 +38,7 @@ import { computed, onMounted, PropType, ref } from "vue";
 import { useRouter } from "vue-router";
 import { showError } from "@/utils/notification";
 import ButtonFollow from "./ButtonFollow.vue";
-import { Routes } from "@/router";
+import { ROUTES } from "@/router";
 
 const router = useRouter();
 const profileStore = useProfileStore();
@@ -80,7 +80,7 @@ onMounted(async () => {
 
 const onAgentClick = (agentPubKey: HoloHashB64) => {
   if (!isCurrentProfile.value) {
-    router.push({ name: Routes.Profiles, params: { agent: agentPubKey } });
+    router.push({ name: ROUTES.profiles, params: { agent: agentPubKey } });
   }
 };
 </script>

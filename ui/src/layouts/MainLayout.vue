@@ -3,7 +3,7 @@
     <q-header elevated class="row justify-center">
       <q-toolbar class="col-12 col-md-6">
         <q-tabs v-model="tab" dense inline-label class="col-grow">
-          <q-route-tab to="/">
+          <q-route-tab :to="{ name: ROUTES.home }">
             <q-icon name="svguse:/icons.svg#cat" size="lg" />
           </q-route-tab>
 
@@ -52,9 +52,13 @@
             </template>
           </q-select>
 
-          <q-route-tab to="/feed" icon="feed" label="Mews Feed" />
+          <q-route-tab
+            :to="{ name: ROUTES.feed }"
+            icon="feed"
+            label="Mews Feed"
+          />
 
-          <q-route-tab to="/my-profile">
+          <q-route-tab :to="{ name: ROUTES.myProfile }">
             <agent-avatar :agent-pub-key="store.myAgentPubKey" size="40" />
           </q-route-tab>
         </q-tabs>
@@ -83,7 +87,7 @@ import { QSelectOption } from "quasar";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
 import { showError } from "@/utils/notification";
-import { Routes } from "@/router";
+import { ROUTES } from "@/router";
 import CreateMewDialog from "@/components/CreateMewDialog.vue";
 
 const store = useProfileStore();
@@ -124,7 +128,7 @@ const search = (
 };
 
 const onAgentSelect = (option: QSelectOption) => {
-  router.push({ name: Routes.Profiles, params: { agent: option.value } });
+  router.push({ name: ROUTES.profiles, params: { agent: option.value } });
   selection.value = null;
 };
 </script>

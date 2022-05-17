@@ -28,7 +28,7 @@ import { PropType, ref } from "vue";
 import { showError } from "@/utils/notification";
 import { createMew } from "@/services/clutter-dna";
 import { useStore } from "@/store";
-import { Routes } from "@/router";
+import { ROUTES } from "@/router";
 import { useRouter } from "vue-router";
 import CreateMewField from "@/components/CreateMewField.vue";
 
@@ -46,10 +46,10 @@ const onPublishMew = async (mew: CreateMewInput) => {
     saving.value = true;
     await createMew(mew);
     emit("mew-created");
-    if (router.currentRoute.value.name === Routes.Feed) {
+    if (router.currentRoute.value.name === ROUTES.feed) {
       store.fetchMewsFeed();
     } else {
-      router.push(Routes.Feed);
+      router.push(ROUTES.feed);
     }
     onClose();
   } catch (error) {

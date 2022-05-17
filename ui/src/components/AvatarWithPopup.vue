@@ -30,7 +30,7 @@ import { FeedMew } from "@/types/types";
 import { authorPubKey } from "@/utils/hash";
 import { useRouter } from "vue-router";
 import ProfilePopup from "./ProfilePopup.vue";
-import { Routes } from "@/router";
+import { ROUTES } from "@/router";
 
 defineProps({
   feedMew: { type: Object as PropType<FeedMew>, required: true },
@@ -46,7 +46,7 @@ const profileShowTimeouts = ref<number[]>([]);
 const router = useRouter();
 
 const onAgentClick = (agentPubKey: HoloHashB64) => {
-  router.push({ name: Routes.Profiles, params: { agent: agentPubKey } });
+  router.push({ name: ROUTES.profiles, params: { agent: agentPubKey } });
 };
 
 const showProfile = (index: number) => {

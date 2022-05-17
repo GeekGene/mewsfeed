@@ -4,7 +4,10 @@
       <span v-for="(contentPart, index) of contentParts" :key="index">
         <router-link
           v-if="startsWithTag(contentPart)"
-          :to="`/${PATH[contentPart[0]]}/${contentPart.substring(1)}`"
+          :to="{
+            name: ROUTES[PATH[contentPart[0]]],
+            params: { tag: contentPart.substring(1) },
+          }"
           class="text-secondary"
         >
           {{ contentPart }}
@@ -18,7 +21,7 @@
 
 <script setup lang="ts">
 import { FeedMew, TAG_SYMBOLS } from "@/types/types";
-import { PATH } from "@/router";
+import { PATH, ROUTES } from "@/router";
 import { computed, PropType } from "vue";
 const props = defineProps({
   feedMew: { type: Object as PropType<FeedMew>, required: true },
