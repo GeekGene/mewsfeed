@@ -7,6 +7,7 @@ import "@holochain-open-dev/profiles/profile-prompt";
 import "@holochain-open-dev/context/context-provider";
 
 import { createApp } from "vue";
+import { createPinia } from "pinia";
 import { Notify, Quasar } from "quasar";
 import {
   connectAppWebSocket,
@@ -38,6 +39,7 @@ connectAppWebSocket().then(async (appWebsocket) => {
   });
   app.provide(PROFILE_STORE, store);
 
+  app.use(createPinia());
   app.use(router);
   app.use(Quasar, {
     plugins: { Notify },

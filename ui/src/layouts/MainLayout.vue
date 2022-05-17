@@ -1,16 +1,20 @@
 <template>
   <q-layout view="hHh lpR fFf">
     <q-header elevated class="row justify-center">
-      <q-space />
-
-      <q-toolbar class="col col-sm-6 col-lg-5">
+      <q-toolbar class="col-12 col-md-6">
         <q-tabs v-model="tab" dense inline-label class="col-grow">
-          <q-route-tab to="/">
-            <q-icon name="svguse:/icons.svg#cat" size="lg" class="q-mr-xs" />
-            <div>Clutter</div>
+          <q-route-tab :to="{ name: ROUTES.home }">
+            <q-icon name="svguse:/icons.svg#cat" size="lg" />
           </q-route-tab>
 
-          <q-space />
+          <q-btn
+            icon="add"
+            color="secondary"
+            class="q-mx-md"
+            @click="onAddMewClick"
+          >
+            Mew
+          </q-btn>
 
           <q-select
             v-model="selection"
@@ -18,20 +22,22 @@
             :loading="searching"
             input-debounce="0"
             label="Sniff around"
+            label-color="white"
+            filled
             behavior="menu"
             standout
             use-input
             hide-dropdown-icon
             hide-selected
             dark
+            class="col q-mx-md"
             :options-dark="false"
             dense
-            class="col-4"
             @filter="search"
             @update:model-value="onAgentSelect"
           >
             <template #prepend>
-              <q-icon name="search" />
+              <q-icon name="search" color="white" />
             </template>
             <template #no-option>
               <q-item>
@@ -46,28 +52,32 @@
             </template>
           </q-select>
 
-          <q-space />
+          <q-route-tab
+            :to="{ name: ROUTES.feed }"
+            icon="feed"
+            label="Mews Feed"
+          />
 
-          <q-route-tab to="/feed" icon="feed" label="Mews" />
-          <q-route-tab to="/my-profile">
-            <agent-avatar
-              :agent-pub-key="store.myAgentPubKey"
-              size="40"
-              class="q-mr-sm"
-            />
-            <div>Profile</div>
+          <q-route-tab :to="{ name: ROUTES.myProfile }">
+            <agent-avatar :agent-pub-key="store.myAgentPubKey" size="40" />
           </q-route-tab>
         </q-tabs>
       </q-toolbar>
-
-      <q-space />
     </q-header>
 
     <q-page-container class="row">
       <q-space />
-      <router-view class="col col-sm-6 col-lg-5" />
+      <router-view class="col-12 col-md-6" />
       <q-space />
     </q-page-container>
+
+    <create-mew-dialog
+      v-if="isCreatingMew"
+      :mew-type="{ original: null }"
+      @close="isCreatingMew = false"
+    >
+      <template #title>Create a new mew:</template>
+    </create-mew-dialog>
   </q-layout>
 </template>
 
@@ -77,6 +87,8 @@ import { QSelectOption } from "quasar";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
 import { showError } from "@/utils/notification";
+import { ROUTES } from "@/router";
+import CreateMewDialog from "@/components/CreateMewDialog.vue";
 
 const store = useProfileStore();
 const router = useRouter();
@@ -86,6 +98,9 @@ const searching = ref(false);
 const options = ref<QSelectOption[]>([]);
 const selection = ref<QSelectOption | null>(null);
 const searchTerm = ref("");
+
+const isCreatingMew = ref(false);
+const onAddMewClick = () => (isCreatingMew.value = true);
 
 const search = (
   inputValue: string,
@@ -113,7 +128,7 @@ const search = (
 };
 
 const onAgentSelect = (option: QSelectOption) => {
-  router.push(`/profiles/${option.value}`);
+  router.push({ name: ROUTES.profiles, params: { agent: option.value } });
   selection.value = null;
 };
 </script>
