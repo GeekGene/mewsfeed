@@ -1,6 +1,6 @@
 <template>
-  <q-page padding>
-    <AddMew
+  <q-page class="q-pb-lg">
+    <CreateMewField
       class="text-center"
       :mew-type="{ original: null }"
       @publish-mew="publishMew"
@@ -9,7 +9,7 @@
     <h6 class="q-mb-md">Your Mews Feed</h6>
 
     <q-banner
-      v-if="!loading && mews.length === 0"
+      v-if="!store.isLoadingMewsFeed && store.mewsFeed.length === 0"
       class="bg-grey-3"
       dense
       rounded
@@ -20,36 +20,29 @@
       <div class="text-subtitle1">Meeoow, nothing here yet!</div>
     </q-banner>
 
-    <MewList v-else :loading="loading" :mews="mews" @refresh="loadMewsFeed" />
+    <MewList
+      v-else
+      :loading="store.isLoadingMewsFeed"
+      :mews="store.mewsFeed"
+      @refresh="store.fetchMewsFeed"
+    />
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { createMew, mewsFeed as getMewsFeed } from "../services/clutter-dna";
-import { onMounted, ref } from "vue";
-import { FeedMew, CreateMewInput } from "../types/types";
-import { showError } from "../utils/notification";
-import AddMew from "../components/AddMew.vue";
+import { createMew } from "../services/clutter-dna";
+import { onMounted } from "vue";
+import { CreateMewInput } from "../types/types";
+import { useStore } from "@/store";
+import CreateMewField from "../components/CreateMewField.vue";
 import MewList from "../components/MewList.vue";
 
-const loading = ref(false);
-const mews = ref<FeedMew[]>([]);
+const store = useStore();
 
-const loadMewsFeed = async () => {
-  try {
-    loading.value = true;
-    mews.value = await getMewsFeed({ option: "" });
-  } catch (error) {
-    showError(error);
-  } finally {
-    loading.value = false;
-  }
-};
-
-onMounted(loadMewsFeed);
+onMounted(() => store.fetchMewsFeed());
 
 const publishMew = async (newMew: CreateMewInput) => {
   await createMew(newMew);
-  loadMewsFeed();
+  store.fetchMewsFeed();
 };
 </script>

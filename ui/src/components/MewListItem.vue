@@ -11,9 +11,9 @@
         <span 
           class="q-mr-xs text-primary text-weight-medium cursor-pointer"
           @click="onAgentClick(router, authorPubKey(displayMew.header.author))"
-        >{{
-          displayName
-        }}</span>
+        >
+          {{ displayName }}
+        </span>
         <span>@{{ agentProfile?.nickname }}</span>
         <q-space />
         <span v-if="feedMew.mew.mewType.mewMew">mewmew by 
@@ -53,40 +53,34 @@
       </div>
     </q-item-section>
 
-    <q-dialog v-model="isReplying" transition-show="fade" transition-hide="fade">
-      <q-card>
-        <q-card-section class="q-pb-none">
-          <div class="q-mb-sm row items-center text-subtitle2">
-            <span class="q-mr-sm">Reply to {{ displayName }}</span>
-            <span class="text-secondary">@{{ nickname }}</span>
-            <q-space />
-            <q-btn v-close-popup icon="close" flat round dense />
-          </div>
-          <MewContent :feed-mew="displayMew" />
-        </q-card-section>
-
-        <q-card-section>
-          <AddMew
-            class="text-center"
-            :mew-type="{ reply: displayMew.mewEntryHash }"
-            @publish-mew="publishReply"
-          />
-        </q-card-section>
-      </q-card>
-    </q-dialog>
+    <create-mew-dialog
+      v-if="isReplying"
+      :mew-type="{ reply: displayMew.mewEntryHash }"
+      @mew-created="onMewCreated"
+      @close="isReplying = false"
+    >
+      <template #title>
+        <span class="q-mr-sm">Reply to {{ displayName }}</span>
+        <span class="text-secondary">@{{ nickname }}</span>
+      </template>
+      <template #subtitle>
+        <MewContent :feed-mew="displayMew" />
+      </template>
+    </create-mew-dialog>
   </template>
+
 </template>
 
 <script setup lang="ts">
-import { createMew, getFeedMewAndContext, lickMew, unlickMew } from "../services/clutter-dna";
+import { createMew, getFeedMewAndContext, lickMew, unlickMew } from "@/services/clutter-dna";
 import { authorPubKey } from "@/utils/hash";
 import { isCurrentProfile, onAgentClick } from "@/utils/router"
 import { computed, onMounted, ref } from "vue";
 import { FeedMew, CreateMewInput } from "../types/types";
 import { serializeHash } from "@holochain-open-dev/core-types";
 import { PropType } from "vue";
-import { useProfileStore } from "../services/profile-store";
-import AddMew from "./AddMew.vue";
+import { useProfileStore } from "@/services/profile-store";
+import CreateMewDialog from "./CreateMewDialog.vue";
 import MewContent from "./MewContent.vue";
 import Timestamp from "./Timestamp.vue";
 import AvatarWithPopup from "./AvatarWithPopup.vue";
@@ -157,9 +151,5 @@ const mewMew = async () => {
   emit("refresh-feed");
 };
 
-const publishReply = async (mew: CreateMewInput) => {
-  await createMew(mew);
-  isReplying.value = false;
-  emit("refresh-feed");
-};
+const onMewCreated = () => (isReplying.value = false);
 </script>

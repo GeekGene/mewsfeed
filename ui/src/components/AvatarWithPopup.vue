@@ -40,6 +40,7 @@ import { useRouter } from "vue-router";
 import ProfilePopup from "./ProfilePopup.vue";
 import { isCurrentProfile, onAgentClick } from "@/utils/router"
 
+
 defineProps({
   feedMew: { type: Object as PropType<FeedMew>, required: true },
   index: { type: Number, required: true },
@@ -52,7 +53,6 @@ const profileVisible = ref<boolean[]>([]);
 const profileHideTimeouts = ref<number[]>([]);
 const profileShowTimeouts = ref<number[]>([]);
 const router = useRouter();
-
 
 const showProfile = (index: number) => {
   profileVisible.value = new Array(mewsFeed.value.length).fill(false);

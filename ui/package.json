@@ -16,6 +16,7 @@
     "@holochain-open-dev/profiles": "^0.0.10",
     "@holochain/client": "^0.3.2",
     "@quasar/extras": "^1.13.5",
+    "pinia": "^2.0.14",
     "quasar": "^2.6.5",
     "vue": "^3.2.33",
     "vue-router": "^4.0.14"

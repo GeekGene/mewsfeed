@@ -1,5 +1,5 @@
 <template>
-  <q-page padding>
+  <q-page>
     <h6 class="q-mt-none q-mb-md">Mews with {{ tagSymbol }}{{ tag }}</h6>
 
     <MewList :loading="loading" :mews="mews" @refresh="loadMewsFeed" />

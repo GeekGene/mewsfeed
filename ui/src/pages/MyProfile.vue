@@ -1,5 +1,5 @@
 <template>
-  <div style="width: 300px; margin-left: 16px; margin-top: -32px">
+  <q-page class="flex justify-center" style="width: 50%">
     <my-profile />
-  </div>
+  </q-page>
 </template>
