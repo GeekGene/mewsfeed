@@ -43,10 +43,10 @@ pub struct FeedMew {
     pub mew: Mew,
     pub header: Header,
     pub mew_entry_hash: EntryHashB64,
-    pub comments: Vec<EntryHashB64>,
-    pub shares: Vec<EntryHashB64>,
+    pub comments: Vec<AnyLinkableHashB64>,
+    pub shares: Vec<AnyLinkableHashB64>,
     pub licks: Vec<AgentPubKeyB64>,
-    pub mewmews: Vec<EntryHashB64>,
+    pub mewmews: Vec<AnyLinkableHashB64>,
 }
 
 const MEWS_PATH_SEGMENT: &str = "mews";
@@ -137,7 +137,7 @@ pub fn create_original_mew(text: String) -> ExternResult<HeaderHashB64> {
     let base = get_my_mews_base(MEWS_PATH_SEGMENT, true)?;
 
     // TODO: maybe return the link_hh later if we need to delete
-    let _link_hh = create_link(base, hash.clone(), ())?;
+    let _link_hh = create_link(base, hash.clone(), HdkLinkType::Any, ())?;
     parse_mew_text(text, hash)?;
     Ok(mew_header_hash.into())
 }
@@ -159,11 +159,12 @@ pub fn create_reply_mew(
     let base = get_my_mews_base(MEWS_PATH_SEGMENT, true)?;
 
     // TODO: maybe return the link_hh later if we need to delete
-    let _link_hh = create_link(base, hash.clone(), ())?;
+    let _link_hh = create_link(base, hash.clone(), HdkLinkType::Any, ())?;
     // link off original entry as comment
-    let _reply_link_hh = create_link(
+    let _reply_link_hh = create_link::<EntryHash, EntryHash, HdkLinkType, LinkTag>(
         original_entry_hash.into(),
         hash.clone(),
+        HdkLinkType::Any,
         LinkTag::new(REPLY_PATH_SEGMENT),
     )?;
     parse_mew_text(text, hash)?;
@@ -181,11 +182,12 @@ pub fn create_remew(original_entry_hash: EntryHashB64) -> ExternResult<HeaderHas
     let base = get_my_mews_base(MEWS_PATH_SEGMENT, true)?;
 
     // TODO: maybe return the link_hh later if we need to delete
-    let _link_hh = create_link(base, hash.clone(), ())?;
+    let _link_hh = create_link(base, hash.clone(), HdkLinkType::Any, ())?;
     // link off original entry as comment
-    let _remew_link_hh = create_link(
+    let _remew_link_hh = create_link::<EntryHash, EntryHash, HdkLinkType, LinkTag>(
         original_entry_hash.into(),
         hash.clone(),
+        HdkLinkType::Any,
         LinkTag::new(REMEW_PATH_SEGMENT),
     )?;
     Ok(mew_header_hash.into())
@@ -208,11 +210,12 @@ pub fn create_mewmew(
     let base = get_my_mews_base(MEWS_PATH_SEGMENT, true)?;
 
     // TODO: maybe return the link_hh later if we need to delete
-    let _link_hh = create_link(base, hash.clone(), ())?;
+    let _link_hh = create_link(base, hash.clone(), HdkLinkType::Any, ())?;
     // link off original entry as comment
-    let _mewmew_link_hh = create_link(
+    let _mewmew_link_hh = create_link::<EntryHash, EntryHash, HdkLinkType, LinkTag>(
         original_entry_hash.into(),
         hash.clone(),
+        HdkLinkType::Any,
         LinkTag::new(MEWMEW_PATH_SEGMENT),
     )?;
     parse_mew_text(text, hash)?;
@@ -224,21 +227,27 @@ pub fn lick_mew(entry_hash: EntryHashB64) -> ExternResult<()> {
     let me: AgentPubKey = agent_info()?.agent_latest_pubkey;
 
     let base = get_my_mews_base(LICKS_PATH_SEGMENT, true)?;
-    let _my_lick_hh = create_link(base, entry_hash.clone().into(), ())?;
-    let _mew_lick_hh = create_link(
+    let _my_lick_hh = create_link::<EntryHash, EntryHash, HdkLinkType, ()>(
+        base,
+        entry_hash.clone().into(),
+        HdkLinkType::Any,
+        (),
+    )?;
+    let _mew_lick_hh = create_link::<EntryHash, EntryHash, HdkLinkType, LinkTag>(
         entry_hash.into(),
         me.into(),
+        HdkLinkType::Any,
         LinkTag::new(LICKS_PATH_SEGMENT),
     )?;
     Ok(())
 }
 #[hdk_extern]
-pub fn my_licks(_: ()) -> ExternResult<Vec<EntryHashB64>> {
+pub fn my_licks(_: ()) -> ExternResult<Vec<AnyLinkableHashB64>> {
     let me: AgentPubKeyB64 = agent_info()?.agent_latest_pubkey.into();
     licks_inner(me, LICKS_PATH_SEGMENT)
 }
 
-fn licks_inner(agent: AgentPubKeyB64, base_type: &str) -> ExternResult<Vec<EntryHashB64>> {
+fn licks_inner(agent: AgentPubKeyB64, base_type: &str) -> ExternResult<Vec<AnyLinkableHashB64>> {
     let base = get_mews_base(agent, base_type, false)?;
     let links = get_links(base, None)?;
     Ok(links.into_iter().map(|link| link.target.into()).collect())
@@ -250,7 +259,7 @@ pub fn unlick_mew(entry_hash_b64: EntryHashB64) -> ExternResult<()> {
     let me: EntryHash = agent_info()?.agent_latest_pubkey.into();
     let mew_licks = get_links(entry_hash.clone(), None)?;
     for lick in mew_licks {
-        if lick.target == me {
+        if lick.target == me.clone().into() {
             let _delete_link_hh = delete_link(lick.create_link_hash)?;
             break;
         }
@@ -259,7 +268,7 @@ pub fn unlick_mew(entry_hash_b64: EntryHashB64) -> ExternResult<()> {
     let my_licks = get_my_mews_base(LICKS_PATH_SEGMENT, true)?;
     let links = get_links(my_licks.clone(), None)?;
     for link in links {
-        if link.target == entry_hash {
+        if link.target == entry_hash.clone().into() {
             let _deleted_link_hh = delete_link(link.create_link_hash)?;
             break;
         }
@@ -269,7 +278,7 @@ pub fn unlick_mew(entry_hash_b64: EntryHashB64) -> ExternResult<()> {
 
 // get who's following an agent
 #[hdk_extern]
-pub fn licks(agent: AgentPubKeyB64) -> ExternResult<Vec<EntryHashB64>> {
+pub fn licks(agent: AgentPubKeyB64) -> ExternResult<Vec<AnyLinkableHashB64>> {
     licks_inner(agent, LICKS_PATH_SEGMENT)
 }
 
@@ -339,7 +348,7 @@ where
             .clone(),
         Some(LinkTag::new(REMEW_PATH_SEGMENT)),
     )?;
-    let shares: Vec<EntryHashB64> = share_links
+    let shares: Vec<AnyLinkableHashB64> = share_links
         .into_iter()
         .map(|link| link.target.into())
         .collect();
@@ -353,7 +362,7 @@ where
             .clone(),
         Some(LinkTag::new(REPLY_PATH_SEGMENT)),
     )?;
-    let comments: Vec<EntryHashB64> = comment_links
+    let comments: Vec<AnyLinkableHashB64> = comment_links
         .into_iter()
         .map(|link| link.target.into())
         .collect();
@@ -369,7 +378,7 @@ where
     )?;
     let licks: Vec<AgentPubKeyB64> = lick_links
         .into_iter()
-        .map(|link| AgentPubKey::from(link.target).into())
+        .map(|link| AgentPubKey::from(EntryHash::from(link.target)).into())
         .collect();
     let mewmew_links = get_links(
         element
@@ -381,7 +390,7 @@ where
             .clone(),
         Some(LinkTag::new(MEWMEW_PATH_SEGMENT)),
     )?;
-    let mewmews: Vec<EntryHashB64> = mewmew_links
+    let mewmews: Vec<AnyLinkableHashB64> = mewmew_links
         .into_iter()
         .map(|mewmew| mewmew.target.into())
         .collect();
@@ -447,10 +456,10 @@ pub fn follow(agent: AgentPubKeyB64) -> ExternResult<()> {
     }
 
     let me = get_my_mews_base(FOLLOWING_PATH_SEGMENT, true)?;
-    let _link_hh = create_link(me, them_target, ())?;
+    let _link_hh = create_link(me, them_target, HdkLinkType::Any, ())?;
 
     let them = get_mews_base(agent, FOLLOWERS_PATH_SEGMENT, true)?;
-    let _link_hh = create_link(them, me_target, ())?;
+    let _link_hh = create_link(them, me_target, HdkLinkType::Any, ())?;
     Ok(())
 }
 
@@ -460,7 +469,7 @@ pub fn unfollow(agent: AgentPubKeyB64) -> ExternResult<()> {
     let me = get_my_mews_base(FOLLOWING_PATH_SEGMENT, true)?;
     let links = get_links(me.clone(), None)?;
     for link in links {
-        if link.target == them_target {
+        if link.target == them_target.clone().into() {
             let _deleted_link_hh = delete_link(link.create_link_hash)?;
             break;
         }
@@ -470,7 +479,7 @@ pub fn unfollow(agent: AgentPubKeyB64) -> ExternResult<()> {
     let them = get_mews_base(agent, FOLLOWERS_PATH_SEGMENT, true)?;
     let links = get_links(them.clone(), None)?;
     for link in links {
-        if link.target == me_target {
+        if link.target == me_target.clone().into() {
             let _deleted_link_hh = delete_link(link.create_link_hash)?;
             break;
         }
@@ -495,9 +504,9 @@ fn follow_inner(agent: AgentPubKeyB64, base_type: &str) -> ExternResult<Vec<Agen
     let links = get_links(base, None)?;
     Ok(links
         .into_iter()
-        .map(|link| AgentPubKey::from(link.target).into())
+        .map(|link| AgentPubKey::from(EntryHash::from(link.target)).into())
         .collect())
-}
+    }
 
 // get who's following an agent
 #[hdk_extern]
@@ -559,21 +568,21 @@ pub fn parse_mew_text(mew_text: String, mew_hash: EntryHash) -> ExternResult<()>
         let path = Path::from(format!("hashtags.{}", hashtag));
         path.ensure()?;
         let path_hash = path.path_entry_hash()?;
-        let _link_hh = create_link(path_hash, mew_hash.clone(), ())?;
+        let _link_hh = create_link(path_hash, mew_hash.clone(), HdkLinkType::Any, ())?;
     }
     for mat in cashtag_regex.find_iter(&mew_text.clone()) {
         let cashtag = mat.as_str();
         let path = Path::from(format!("cashtags.{}", cashtag));
         path.ensure()?;
         let path_hash = path.path_entry_hash()?;
-        let _link_hh = create_link(path_hash, mew_hash.clone(), ())?;
+        let _link_hh = create_link(path_hash, mew_hash.clone(), HdkLinkType::Any, ())?;
     }
     for mat in mention_regex.find_iter(&mew_text.clone()) {
         let mention = mat.as_str();
         let path = Path::from(format!("mentions.{}", mention));
         path.ensure()?;
         let path_hash = path.path_entry_hash()?;
-        let _link_hh = create_link(path_hash, mew_hash.clone(), ())?;
+        let _link_hh = create_link(path_hash, mew_hash.clone(), HdkLinkType::Any, ())?;
     }
     Ok(())
 }
