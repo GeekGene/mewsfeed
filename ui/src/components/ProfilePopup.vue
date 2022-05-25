@@ -9,8 +9,11 @@
           @click="onAgentClick(agentPubKey)"
         />
       </context-provider>
-      <div class="q-mr-lg text-primary">
-        <div class="text-weight-medium">
+      <div
+        :class="['q-mr-lg', { 'cursor-pointer': !isCurrentProfile }]"
+        @click="onAgentClick(agentPubKey)"
+      >
+        <div class="text-primary text-weight-medium">
           {{ displayName }}
         </div>
         <div>@{{ nickname }}</div>
@@ -37,17 +40,19 @@ import { useProfileStore } from "@/services/profile-store";
 import { computed, onMounted, PropType, ref } from "vue";
 import { useRouter } from "vue-router";
 import { showError } from "@/utils/notification";
+import { useProfileUtils } from "@/utils/profile";
 import ButtonFollow from "./ButtonFollow.vue";
-import { ROUTES } from "@/router";
 
-const router = useRouter();
-const profileStore = useProfileStore();
 const props = defineProps({
   agentPubKey: {
     type: String as PropType<HoloHashB64>,
     required: true,
   },
 });
+
+const router = useRouter();
+const profileStore = useProfileStore();
+const { onAgentClick } = useProfileUtils();
 const isMyProfile = computed(
   () => props.agentPubKey === profileStore.myAgentPubKey
 );
@@ -77,10 +82,4 @@ onMounted(async () => {
     loading.value = false;
   }
 });
-
-const onAgentClick = (agentPubKey: HoloHashB64) => {
-  if (!isCurrentProfile.value) {
-    router.push({ name: ROUTES.profiles, params: { agent: agentPubKey } });
-  }
-};
 </script>

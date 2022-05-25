@@ -1,17 +1,12 @@
 <template>
   <agent-avatar
-    :agent-pub-key="authorPubKey(feedMew.header.author)"
+    :agent-pub-key="authorPubKey"
     size="50"
     :class="[
       'self-start',
-      {
-        'cursor-pointer': !isCurrentProfile(
-          router,
-          authorPubKey(feedMew.header.author)
-        ),
-      },
+      { 'cursor-pointer': !isCurrentProfile(authorPubKey) },
     ]"
-    @click="onAgentClick(router, authorPubKey(feedMew.header.author))"
+    @click="onAgentClick(authorPubKey)"
     @mouseenter="showProfile(index)"
     @mouseleave="hideProfile(index)"
   >
@@ -23,7 +18,7 @@
       no-focus
     >
       <ProfilePopup
-        :agent-pub-key="authorPubKey(feedMew.header.author)"
+        :agent-pub-key="authorPubKey"
         @mouseenter="keepShowingProfile(index)"
         @mouseleave="hideProfile(index)"
       />
@@ -32,27 +27,26 @@
 </template>
 
 <script setup lang="ts">
-import { HoloHashB64 } from "@holochain-open-dev/core-types";
 import { PropType, ref } from "vue";
 import { FeedMew } from "@/types/types";
-import { authorPubKey } from "@/utils/hash";
-import { useRouter } from "vue-router";
+import { getAuthorPubKey } from "@/utils/hash";
+import { useProfileUtils } from "@/utils/profile";
 import ProfilePopup from "./ProfilePopup.vue";
-import { isCurrentProfile, onAgentClick } from "@/utils/router"
 
-
-defineProps({
+const props = defineProps({
   feedMew: { type: Object as PropType<FeedMew>, required: true },
   index: { type: Number, required: true },
 });
 
 const PROFILE_SHOW_HIDE_DELAY = 400; // in ms
 
+const { isCurrentProfile, onAgentClick } = useProfileUtils();
+const authorPubKey = getAuthorPubKey(props.feedMew.header.author);
+
 const mewsFeed = ref<FeedMew[]>([]);
 const profileVisible = ref<boolean[]>([]);
 const profileHideTimeouts = ref<number[]>([]);
 const profileShowTimeouts = ref<number[]>([]);
-const router = useRouter();
 
 const showProfile = (index: number) => {
   profileVisible.value = new Array(mewsFeed.value.length).fill(false);
