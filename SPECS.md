@@ -18,7 +18,7 @@
    - [ ] Enforce lower case usernames
    - [ ] Enforce minimum length of 3 characters
  - [x] Create / Edit user profile
-   - [ ] Display name / full name
+   - [x] Display name / full name
    - [ ] Default: identicon as avatar
    - [x] Upload avatar image
    - [x] Basic 1-line bio
@@ -53,7 +53,7 @@
      - [ ] Enforce 5mb size limit (UI should auto-scale down images above it)
  - [x] Reply to mew :left_speech_bubble: 
  - [x] Mewmew? (Retweet without comment) :recycle: 
- - [ ] Favorite a mew? :heart:
+ - [x] Favorite a mew? :heart:
  - [ ] Delete a mew? 🗑
  - [ ] infinite scroll on feeds
 
