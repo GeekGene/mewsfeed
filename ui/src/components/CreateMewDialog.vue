@@ -1,8 +1,8 @@
 <template>
   <q-dialog v-model="isVisible" @hide="onClose">
     <q-card class="q-dialog-plugin">
-      <q-card-section class="q-pb-none">
-        <div class="q-mb-sm row items-center text-subtitle2">
+      <q-card-section>
+        <div class="row items-center text-subtitle1">
           <slot name="title" />
           <q-space />
           <q-btn v-close-popup icon="close" flat round dense />
@@ -49,7 +49,7 @@ const onPublishMew = async (mew: CreateMewInput) => {
     if (router.currentRoute.value.name === ROUTES.feed) {
       store.fetchMewsFeed();
     } else {
-      router.push(ROUTES.feed);
+      router.push({ name: ROUTES.feed });
     }
     onClose();
   } catch (error) {

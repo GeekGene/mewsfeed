@@ -20,6 +20,7 @@ import { HoloHashB64 } from "@holochain/client";
 import { follow, myFollowing, unfollow } from "@/services/clutter-dna";
 import { showError, showMessage } from "@/utils/notification";
 import { onMounted, PropType, ref } from "vue";
+import { useProfileStore } from "@/services/profile-store";
 
 const props = defineProps({
   agentPubKey: {
@@ -27,6 +28,8 @@ const props = defineProps({
     required: true,
   },
 });
+
+const profileStore = useProfileStore();
 
 const loading = ref(false);
 const following = ref(false);
@@ -45,15 +48,17 @@ onMounted(async () => {
 
 const toggleFollow = async () => {
   try {
-    if (following.value) {
-      await unfollow(props.agentPubKey);
-    } else {
-      await follow(props.agentPubKey);
-    }
+    const [profile] = await Promise.all([
+      profileStore.fetchAgentProfile(props.agentPubKey),
+      following.value
+        ? await unfollow(props.agentPubKey)
+        : await follow(props.agentPubKey),
+    ]);
     following.value = !following.value;
+    const name = `${profile?.fields["Display name"]} (@${profile?.nickname})`;
     const message = following.value
-      ? `You're following now`
-      : "Not following anymore";
+      ? `You're following ${name} now`
+      : `You're not following ${name} anymore`;
     showMessage(message);
   } catch (error) {
     showError(error);
