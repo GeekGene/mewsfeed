@@ -15,23 +15,9 @@ export interface Profile {
 }
 
 export type CreateMewInput = {
-  mewType: MewTypeInput;
+  mewType: MewType;
   text: string | null;
 };
-
-export type MewTypeInput =
-  | {
-      original: null;
-    }
-  | {
-      reply: EntryHashB64;
-    }
-  | {
-      reMew: EntryHashB64;
-    }
-  | {
-      mewMew: EntryHashB64;
-    };
 
 export interface MewContent {
   text: string;
