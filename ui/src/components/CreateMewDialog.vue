@@ -2,12 +2,14 @@
   <q-dialog v-model="isVisible" @hide="onClose">
     <q-card class="q-dialog-plugin">
       <q-card-section>
-        <div class="row items-center text-subtitle1">
+        <div class="row items-center text-subtitle1 text-medium">
           <slot name="title" />
           <q-space />
           <q-btn v-close-popup icon="close" flat round dense />
         </div>
-        <slot name="subtitle" />
+        <div class="text-subtitle1">
+          <slot name="subtitle" />
+        </div>
       </q-card-section>
 
       <q-card-section>

@@ -11,7 +11,7 @@
       ]"
       @click="onAgentClick(authorPubKey)"
     >
-      <span class="q-mr-xs text-primary text-weight-medium">
+      <span class="q-mr-xs text-primary text-weight-bold">
         {{ displayName }}
       </span>
       <span>@{{ agentProfile?.nickname }}</span>
@@ -48,11 +48,16 @@
     @close="isReplying = false"
   >
     <template #title>
-      <span class="q-mr-sm">Reply to {{ displayName }}</span>
-      <span class="text-secondary">@{{ nickname }}</span>
+      <span>
+        Reply to
+        <span class="q-mr-xs text-primary text-bold">{{ displayName }}</span>
+        <span>@{{ nickname }}</span>
+      </span>
     </template>
     <template #subtitle>
-      <MewContent :feed-mew="feedMew" />
+      <div class="text-grey-7">
+        <MewContent :feed-mew="feedMew" />
+      </div>
     </template>
   </create-mew-dialog>
 </template>
