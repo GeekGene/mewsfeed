@@ -4,24 +4,39 @@
   </q-item-section>
 
   <q-item-section>
-    <div
-      :class="[
-        'row q-mb-sm',
-        { 'cursor-pointer': !isCurrentProfile(authorPubKey) },
-      ]"
-      @click="onAgentClick(authorPubKey)"
-    >
-      <span class="q-mr-xs text-primary text-weight-bold">
-        {{ displayName }}
-      </span>
-      <span>@{{ agentProfile?.nickname }}</span>
+    <div class="row q-mb-sm">
+      <div
+        :class="{ 'cursor-pointer': !isCurrentProfile(authorPubKey) }"
+        @click="onAgentClick(authorPubKey)"
+      >
+        <span class="q-mr-xs text-primary text-weight-bold">
+          {{ displayName }}
+        </span>
+        <span>@{{ agentProfile?.nickname }}</span>
+      </div>
+
       <q-space />
+
+      <span v-if="originalMewAuthor" class="text-secondary">
+        <q-skeleton v-if="loadingOriginalMewAuthor" type="text" width="4rem" />
+        <template v-else>
+          mewmewed from
+          <span class="text-bold">
+            {{ originalMewAuthor.fields["Display name"] }} @{{
+              originalMewAuthor.nickname
+            }}
+          </span>
+        </template>
+      </span>
+
+      <q-space />
+
       <span class="text-caption">
-        <Timestamp :timestamp="feedMew.header.timestamp" />
+        <timestamp :timestamp="feedMew.header.timestamp" />
       </span>
     </div>
 
-    <MewContent :feed-mew="feedMew" class="q-mb-xs" />
+    <mew-content :feed-mew="feedMew" class="q-mb-xs" />
 
     <div>
       <q-btn
@@ -56,45 +71,64 @@
     </template>
     <template #subtitle>
       <div class="text-grey-7">
-        <MewContent :feed-mew="feedMew" />
+        <mew-content :feed-mew="feedMew" />
       </div>
     </template>
   </create-mew-dialog>
 </template>
 
 <script setup lang="ts">
-import { createMew, lickMew, unlickMew } from "../services/clutter-dna";
-import { computed, onMounted, ref } from "vue";
-import { FeedMew, CreateMewInput } from "../types/types";
-import { serializeHash } from "@holochain-open-dev/core-types";
-import { PropType } from "vue";
-import { useProfileStore } from "../services/profile-store";
+import { useProfileStore } from "@/services/profile-store";
+import { CreateMewInput, FeedMew, MewTypeName } from "@/types/types";
 import { getAuthorPubKey } from "@/utils/hash";
 import { useProfileUtils } from "@/utils/profile";
+import { serializeHash } from "@holochain-open-dev/core-types";
+import { Profile } from "@holochain-open-dev/profiles";
+import { computed, onMounted, PropType, ref } from "vue";
+import {
+  createMew,
+  getFeedMewAndContext,
+  lickMew,
+  unlickMew,
+} from "../services/clutter-dna";
+import AvatarWithPopup from "./AvatarWithPopup.vue";
 import CreateMewDialog from "./CreateMewDialog.vue";
 import MewContent from "./MewContent.vue";
 import Timestamp from "./Timestamp.vue";
-import AvatarWithPopup from "./AvatarWithPopup.vue";
 
 const props = defineProps({
   feedMew: { type: Object as PropType<FeedMew>, required: true },
   index: { type: Number, required: true },
 });
 
-const store = useProfileStore();
+const profileStore = useProfileStore();
 const { isCurrentProfile, onAgentClick } = useProfileUtils();
 const authorPubKey = getAuthorPubKey(props.feedMew.header.author);
 const agentProfile = ref();
 const displayName = computed(() => agentProfile.value?.fields["Display name"]);
 const nickname = computed(() => agentProfile.value?.nickname);
-const myAgentPubKey = store.myAgentPubKey;
+const myAgentPubKey = profileStore.myAgentPubKey;
+const originalMewAuthor = ref<Profile>();
+const loadingOriginalMewAuthor = ref<boolean>();
 
 const emit = defineEmits<{ (e: "refresh-feed"): void }>();
 
 onMounted(async () => {
-  agentProfile.value = await store.fetchAgentProfile(
+  agentProfile.value = await profileStore.fetchAgentProfile(
     serializeHash(props.feedMew.header.author)
   );
+
+  // load original mew author if item is a mewmew
+  if (MewTypeName.MewMew in props.feedMew.mew.mewType) {
+    loadingOriginalMewAuthor.value = true;
+    getFeedMewAndContext(props.feedMew.mew.mewType.mewMew)
+      .then((originalMew) =>
+        profileStore
+          .fetchAgentProfile(serializeHash(originalMew.header.author))
+          .then((profile) => (originalMewAuthor.value = profile))
+      )
+      .finally(() => (loadingOriginalMewAuthor.value = false));
+  }
 });
 
 const isReplying = ref(false);

@@ -23,18 +23,21 @@ export interface MewContent {
   text: string;
 }
 
+export enum MewTypeName {
+  Original = "original",
+  Reply = "reply",
+  MewMew = "mewMew",
+}
+
 export type MewType =
   | {
-      original: null;
+      [MewTypeName.Original]: null;
     }
   | {
-      reply: EntryHashB64;
+      [MewTypeName.Reply]: EntryHashB64;
     }
   | {
-      reMew: EntryHashB64;
-    }
-  | {
-      mewMew: EntryHashB64;
+      [MewTypeName.MewMew]: EntryHashB64;
     };
 
 export interface Mew {
