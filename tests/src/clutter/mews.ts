@@ -228,7 +228,7 @@ export default (orchestrator: Orchestrator<any>) =>
 
     const createReMewInput: CreateMewInput = {
       mewType: {
-        reMew: originalEntryHash,
+        mewMew: originalEntryHash,
       },
       text: null,
     };
@@ -239,9 +239,9 @@ export default (orchestrator: Orchestrator<any>) =>
 
     const createMewMewInput: CreateMewInput = {
       mewType: {
-        mewMew: originalEntryHash,
+        quote: originalEntryHash,
       },
-      text: "mewmew of original mew!",
+      text: "quote of original mew!",
     };
 
     // Alice quote tweets first mew
@@ -262,7 +262,7 @@ export default (orchestrator: Orchestrator<any>) =>
     );
     console.log("mew context:", mewWithContext);
     t.equals(mewWithContext.comments.length, 1);
-    t.equals(mewWithContext.shares.length, 2);
+    t.equals(mewWithContext.quotes.length, 2);
     t.equals(mewWithContext.licks.length, 1);
 
     // test can get mew with entry hash in addition to header hash
@@ -282,7 +282,7 @@ export default (orchestrator: Orchestrator<any>) =>
     );
     console.log("mew context:", mewWithContext);
     t.equals(mewWithContext.comments.length, 1);
-    t.equals(mewWithContext.shares.length, 2);
+    t.equals(mewWithContext.quotes.length, 2);
     t.equals(mewWithContext.licks.length, 1);
 
     // unlick mew
@@ -298,6 +298,6 @@ export default (orchestrator: Orchestrator<any>) =>
     );
     console.log("mew context:", mewWithContext);
     t.equals(mewWithContext.comments.length, 1);
-    t.equals(mewWithContext.shares.length, 2);
+    t.equals(mewWithContext.quotes.length, 2);
     t.equals(mewWithContext.licks.length, 0);
   });

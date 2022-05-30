@@ -27,6 +27,7 @@ export enum MewTypeName {
   Original = "original",
   Reply = "reply",
   MewMew = "mewMew",
+  Quote = "quote",
 }
 
 export type MewType =
@@ -38,6 +39,9 @@ export type MewType =
     }
   | {
       [MewTypeName.MewMew]: EntryHashB64;
+    }
+  | {
+      [MewTypeName.Quote]: EntryHashB64;
     };
 
 export interface Mew {
@@ -50,7 +54,7 @@ export interface FeedMew {
   header: Header;
   mewEntryHash: EntryHashB64;
   comments: string[];
-  shares: string[];
+  quotes: string[];
   licks: string[];
   mewmews: string[];
 }

@@ -13,7 +13,7 @@ entry_defs![
 enum MewType {
     Original,
     Reply(EntryHashB64),
-    ReMew(EntryHashB64),
+    Quote(EntryHashB64),
     MewMew(EntryHashB64), // QuoteTweet
 }
 
@@ -44,7 +44,7 @@ pub struct FeedMew {
     pub header: Header,
     pub mew_entry_hash: EntryHashB64,
     pub comments: Vec<AnyLinkableHashB64>,
-    pub shares: Vec<AnyLinkableHashB64>,
+    pub quotes: Vec<AnyLinkableHashB64>,
     pub licks: Vec<AgentPubKeyB64>,
     pub mewmews: Vec<AnyLinkableHashB64>,
 }
@@ -54,8 +54,8 @@ const FOLLOWERS_PATH_SEGMENT: &str = "followers";
 const FOLLOWING_PATH_SEGMENT: &str = "following";
 const LICKS_PATH_SEGMENT: &str = "licks";
 const REPLY_PATH_SEGMENT: &str = "replies";
-const REMEW_PATH_SEGMENT: &str = "remews";
-const MEWMEW_PATH_SEGMENT: &str = REMEW_PATH_SEGMENT;
+const QUOTE_PATH_SEGMENT: &str = "quotes";
+const MEWMEW_PATH_SEGMENT: &str = QUOTE_PATH_SEGMENT;
 // const MENTIONS_PATH_SEGMENT: &str = "mentions";
 // const IMAGES_PATH_SEGMENT: &str = "images";
 
@@ -75,17 +75,8 @@ fn get_mews_base(agent: AgentPubKeyB64, base_type: &str, ensure: bool) -> Extern
 
 #[derive(Debug, Serialize, Deserialize, SerializedBytes)]
 #[serde(rename_all = "camelCase")]
-enum MewTypeInput {
-    Original,
-    Reply(EntryHashB64),
-    ReMew(EntryHashB64),
-    MewMew(EntryHashB64), // QuoteTweet
-}
-
-#[derive(Debug, Serialize, Deserialize, SerializedBytes)]
-#[serde(rename_all = "camelCase")]
 pub struct CreateMewInput {
-    mew_type: MewTypeInput,
+    mew_type: MewType,
     text: Option<String>,
 }
 
@@ -95,11 +86,11 @@ pub fn create_mew(mew: CreateMewInput) -> ExternResult<HeaderHashB64> {
     // TODO: enforce mew type is correct
     // check the type
     let mew_header_hash = match mew.mew_type {
-        MewTypeInput::Original => match mew.text {
+        MewType::Original => match mew.text {
             Some(mew_string) => create_original_mew(mew_string)?,
             None => return Err(WasmError::Guest(String::from("mew must contain text"))),
         },
-        MewTypeInput::Reply(original_entry_hash) => match mew.text {
+        MewType::Reply(original_entry_hash) => match mew.text {
             Some(mew_string) => create_reply_mew(mew_string, original_entry_hash)?,
             None => {
                 return Err(WasmError::Guest(String::from(
@@ -107,17 +98,17 @@ pub fn create_mew(mew: CreateMewInput) -> ExternResult<HeaderHashB64> {
                 )))
             }
         },
-        MewTypeInput::ReMew(original_entry_hash) => match mew.text {
+        MewType::MewMew(original_entry_hash) => match mew.text {
             Some(_) => {
                 return Err(WasmError::Guest(String::from(
-                    "remew cannot contain text. Try MewMew-ing.",
+                    "mewmew cannot contain text. Try quoting.",
                 )))
             }
-            None => create_remew(original_entry_hash)?,
+            None => create_mewmew(original_entry_hash)?,
         },
-        MewTypeInput::MewMew(original_entry_hash) => match mew.text {
-            Some(mew_string) => create_mewmew(mew_string, original_entry_hash)?,
-            None => return Err(WasmError::Guest(String::from("mewmew must contain text"))),
+        MewType::Quote(original_entry_hash) => match mew.text {
+            Some(mew_string) => create_quote(mew_string, original_entry_hash)?,
+            None => return Err(WasmError::Guest(String::from("quote must contain text"))),
         },
     };
     Ok(mew_header_hash)
@@ -171,9 +162,9 @@ pub fn create_reply_mew(
     Ok(mew_header_hash.into())
 }
 
-pub fn create_remew(original_entry_hash: EntryHashB64) -> ExternResult<HeaderHashB64> {
+pub fn create_mewmew(original_entry_hash: EntryHashB64) -> ExternResult<HeaderHashB64> {
     let mew = Mew {
-        mew_type: MewType::ReMew(original_entry_hash.clone().into()),
+        mew_type: MewType::Quote(original_entry_hash.clone().into()),
         content: None,
     };
     let mew_header_hash = create_entry(&mew)?;
@@ -184,16 +175,16 @@ pub fn create_remew(original_entry_hash: EntryHashB64) -> ExternResult<HeaderHas
     // TODO: maybe return the link_hh later if we need to delete
     let _link_hh = create_link(base, hash.clone(), HdkLinkType::Any, ())?;
     // link off original entry as comment
-    let _remew_link_hh = create_link::<EntryHash, EntryHash, HdkLinkType, LinkTag>(
+    let _quote_link_hh = create_link::<EntryHash, EntryHash, HdkLinkType, LinkTag>(
         original_entry_hash.into(),
         hash.clone(),
         HdkLinkType::Any,
-        LinkTag::new(REMEW_PATH_SEGMENT),
+        LinkTag::new(QUOTE_PATH_SEGMENT),
     )?;
     Ok(mew_header_hash.into())
 }
 
-pub fn create_mewmew(
+pub fn create_quote(
     text: String,
     original_entry_hash: EntryHashB64,
 ) -> ExternResult<HeaderHashB64> {
@@ -338,7 +329,7 @@ where
         .to_app_option()?
         .ok_or(WasmError::Guest(String::from("Malformed mew")))?;
     // get vecs
-    let share_links = get_links(
+    let quote_links = get_links(
         element
             .header()
             .entry_hash()
@@ -346,9 +337,9 @@ where
                 "no entry found for header hash",
             )))?
             .clone(),
-        Some(LinkTag::new(REMEW_PATH_SEGMENT)),
+        Some(LinkTag::new(QUOTE_PATH_SEGMENT)),
     )?;
-    let shares: Vec<AnyLinkableHashB64> = share_links
+    let quotes: Vec<AnyLinkableHashB64> = quote_links
         .into_iter()
         .map(|link| link.target.into())
         .collect();
@@ -409,7 +400,7 @@ where
         )
         .into(),
         comments,
-        shares,
+        quotes,
         licks,
         mewmews,
     };
