@@ -53,7 +53,7 @@ export interface FeedMew {
   mew: Mew;
   header: Header;
   mewEntryHash: EntryHashB64;
-  comments: string[];
+  replies: string[];
   quotes: string[];
   licks: string[];
   mewmews: string[];

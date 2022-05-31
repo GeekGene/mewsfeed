@@ -48,10 +48,13 @@
         {{ feedMew.licks.length }}
       </q-btn>
       <q-btn size="sm" icon="reply" flat @click="replyToMew">
-        {{ feedMew.comments.length }}
+        {{ feedMew.replies.length }}
       </q-btn>
       <q-btn size="sm" icon="forward" flat @click="mewMew">
         {{ feedMew.mewmews.length }}
+      </q-btn>
+      <q-btn size="sm" icon="format_quote" flat @click="quote">
+        {{ feedMew.quotes.length }}
       </q-btn>
     </div>
   </q-item-section>
@@ -65,6 +68,26 @@
     <template #title>
       <span>
         Reply to
+        <span class="q-mr-xs text-primary text-bold">{{ displayName }}</span>
+        <span>@{{ nickname }}</span>
+      </span>
+    </template>
+    <template #subtitle>
+      <div class="text-grey-7">
+        <mew-content :feed-mew="feedMew" />
+      </div>
+    </template>
+  </create-mew-dialog>
+
+  <create-mew-dialog
+    v-if="isQuoting"
+    :mew-type="{ quote: feedMew.mewEntryHash }"
+    @mew-created="onMewCreated"
+    @close="isQuoting = false"
+  >
+    <template #title>
+      <span>
+        Quote
         <span class="q-mr-xs text-primary text-bold">{{ displayName }}</span>
         <span>@{{ nickname }}</span>
       </span>
@@ -132,6 +155,7 @@ onMounted(async () => {
 });
 
 const isReplying = ref(false);
+const isQuoting = ref(false);
 const isLickedByMe = computed(() =>
   props.feedMew.licks.includes(myAgentPubKey)
 );
@@ -156,5 +180,10 @@ const mewMew = async () => {
   emit("refresh-feed");
 };
 
-const onMewCreated = () => (isReplying.value = false);
+const quote = () => (isQuoting.value = true);
+
+const onMewCreated = () => {
+  isReplying.value = false;
+  isQuoting.value = false;
+};
 </script>

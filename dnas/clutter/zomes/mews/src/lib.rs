@@ -43,7 +43,7 @@ pub struct FeedMew {
     pub mew: Mew,
     pub header: Header,
     pub mew_entry_hash: EntryHashB64,
-    pub comments: Vec<AnyLinkableHashB64>,
+    pub replies: Vec<AnyLinkableHashB64>,
     pub quotes: Vec<AnyLinkableHashB64>,
     pub licks: Vec<AgentPubKeyB64>,
     pub mewmews: Vec<AnyLinkableHashB64>,
@@ -54,10 +54,8 @@ const FOLLOWERS_PATH_SEGMENT: &str = "followers";
 const FOLLOWING_PATH_SEGMENT: &str = "following";
 const LICKS_PATH_SEGMENT: &str = "licks";
 const REPLY_PATH_SEGMENT: &str = "replies";
+const MEWMEW_PATH_SEGMENT: &str = "mewmew";
 const QUOTE_PATH_SEGMENT: &str = "quotes";
-const MEWMEW_PATH_SEGMENT: &str = QUOTE_PATH_SEGMENT;
-// const MENTIONS_PATH_SEGMENT: &str = "mentions";
-// const IMAGES_PATH_SEGMENT: &str = "images";
 
 fn get_my_mews_base(base_type: &str, ensure: bool) -> ExternResult<EntryHash> {
     let me: AgentPubKey = agent_info()?.agent_latest_pubkey;
@@ -164,7 +162,7 @@ pub fn create_reply_mew(
 
 pub fn create_mewmew(original_entry_hash: EntryHashB64) -> ExternResult<HeaderHashB64> {
     let mew = Mew {
-        mew_type: MewType::Quote(original_entry_hash.clone().into()),
+        mew_type: MewType::MewMew(original_entry_hash.clone().into()),
         content: None,
     };
     let mew_header_hash = create_entry(&mew)?;
@@ -179,7 +177,7 @@ pub fn create_mewmew(original_entry_hash: EntryHashB64) -> ExternResult<HeaderHa
         original_entry_hash.into(),
         hash.clone(),
         HdkLinkType::Any,
-        LinkTag::new(QUOTE_PATH_SEGMENT),
+        LinkTag::new(MEWMEW_PATH_SEGMENT),
     )?;
     Ok(mew_header_hash.into())
 }
@@ -192,7 +190,7 @@ pub fn create_quote(
     let _header_hash = create_entry(&content)?;
 
     let mew = Mew {
-        mew_type: MewType::MewMew(original_entry_hash.clone().into()),
+        mew_type: MewType::Quote(original_entry_hash.clone().into()),
         content: Some(content),
     };
     let mew_header_hash = create_entry(&mew)?;
@@ -207,7 +205,7 @@ pub fn create_quote(
         original_entry_hash.into(),
         hash.clone(),
         HdkLinkType::Any,
-        LinkTag::new(MEWMEW_PATH_SEGMENT),
+        LinkTag::new(QUOTE_PATH_SEGMENT),
     )?;
     parse_mew_text(text, hash)?;
     Ok(mew_header_hash.into())
@@ -343,7 +341,7 @@ where
         .into_iter()
         .map(|link| link.target.into())
         .collect();
-    let comment_links = get_links(
+    let reply_links = get_links(
         element
             .header()
             .entry_hash()
@@ -353,7 +351,7 @@ where
             .clone(),
         Some(LinkTag::new(REPLY_PATH_SEGMENT)),
     )?;
-    let comments: Vec<AnyLinkableHashB64> = comment_links
+    let replies: Vec<AnyLinkableHashB64> = reply_links
         .into_iter()
         .map(|link| link.target.into())
         .collect();
@@ -399,7 +397,7 @@ where
                 .clone(),
         )
         .into(),
-        comments,
+        replies,
         quotes,
         licks,
         mewmews,

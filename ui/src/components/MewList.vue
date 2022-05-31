@@ -1,5 +1,5 @@
 <template>
-  <MewListSkeleton v-if="loading" />
+  <mew-list-skeleton v-if="loading" />
 
   <q-list v-else bordered separator>
     <q-item v-for="(mew, index) of mews" :key="index" class="items-start">
