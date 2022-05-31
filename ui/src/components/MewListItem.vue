@@ -15,17 +15,14 @@
         <span>@{{ agentProfile?.nickname }}</span>
       </div>
 
-      <q-space />
-
-      <span v-if="originalMewAuthor" class="text-secondary">
+      <span v-if="originalMewAuthor" class="text-secondary q-ml-md">
         <q-skeleton v-if="loadingOriginalMewAuthor" type="text" width="4rem" />
         <template v-else>
-          mewmewed from
+          {{ reactionLabel }}
           <span class="text-bold">
-            {{ originalMewAuthor.fields["Display name"] }} @{{
-              originalMewAuthor.nickname
-            }}
+            {{ originalMewAuthor.fields["Display name"] }}
           </span>
+          @{{ originalMewAuthor.nickname }}
         </template>
       </span>
 
@@ -36,7 +33,7 @@
       </span>
     </div>
 
-    <mew-content :feed-mew="feedMew" class="q-mb-xs" />
+    <mew-content :feed-mew="originalMew ?? feedMew" class="q-mb-xs" />
 
     <div>
       <q-btn
@@ -131,6 +128,15 @@ const agentProfile = ref();
 const displayName = computed(() => agentProfile.value?.fields["Display name"]);
 const nickname = computed(() => agentProfile.value?.nickname);
 const myAgentPubKey = profileStore.myAgentPubKey;
+
+const isMewMew = computed(
+  () => MewTypeName.MewMew in props.feedMew.mew.mewType
+);
+const isReply = computed(() => MewTypeName.Reply in props.feedMew.mew.mewType);
+const reactionLabel = computed(() =>
+  isMewMew.value ? "mewmewed by" : isReply.value ? "replied by" : "quoted by"
+);
+const originalMew = ref<FeedMew>();
 const originalMewAuthor = ref<Profile>();
 const loadingOriginalMewAuthor = ref<boolean>();
 
@@ -141,15 +147,23 @@ onMounted(async () => {
     serializeHash(props.feedMew.header.author)
   );
 
-  // load original mew author if item is a mewmew
-  if (MewTypeName.MewMew in props.feedMew.mew.mewType) {
+  // load original mew author if item is a mewmew or quote
+  if (
+    MewTypeName.MewMew in props.feedMew.mew.mewType ||
+    MewTypeName.Quote in props.feedMew.mew.mewType
+  ) {
     loadingOriginalMewAuthor.value = true;
-    getFeedMewAndContext(props.feedMew.mew.mewType.mewMew)
-      .then((originalMew) =>
+    const originalMewHash =
+      MewTypeName.MewMew in props.feedMew.mew.mewType
+        ? props.feedMew.mew.mewType.mewMew
+        : props.feedMew.mew.mewType.quote;
+    getFeedMewAndContext(originalMewHash)
+      .then((mew) => {
+        originalMew.value = mew;
         profileStore
-          .fetchAgentProfile(serializeHash(originalMew.header.author))
-          .then((profile) => (originalMewAuthor.value = profile))
-      )
+          .fetchAgentProfile(serializeHash(mew.header.author))
+          .then((profile) => (originalMewAuthor.value = profile));
+      })
       .finally(() => (loadingOriginalMewAuthor.value = false));
   }
 });
@@ -174,7 +188,7 @@ const replyToMew = () => (isReplying.value = true);
 const mewMew = async () => {
   const mew: CreateMewInput = {
     mewType: { mewMew: props.feedMew.mewEntryHash },
-    text: props.feedMew.mew.content?.text || null,
+    text: null,
   };
   await createMew(mew);
   emit("refresh-feed");

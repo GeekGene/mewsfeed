@@ -149,7 +149,7 @@ pub fn create_reply_mew(
 
     // TODO: maybe return the link_hh later if we need to delete
     let _link_hh = create_link(base, hash.clone(), HdkLinkType::Any, ())?;
-    // link off original entry as comment
+    // link off original entry as reply
     let _reply_link_hh = create_link::<EntryHash, EntryHash, HdkLinkType, LinkTag>(
         original_entry_hash.into(),
         hash.clone(),
@@ -172,7 +172,7 @@ pub fn create_mewmew(original_entry_hash: EntryHashB64) -> ExternResult<HeaderHa
 
     // TODO: maybe return the link_hh later if we need to delete
     let _link_hh = create_link(base, hash.clone(), HdkLinkType::Any, ())?;
-    // link off original entry as comment
+    // link off original entry as mewmew
     let _quote_link_hh = create_link::<EntryHash, EntryHash, HdkLinkType, LinkTag>(
         original_entry_hash.into(),
         hash.clone(),
@@ -200,7 +200,7 @@ pub fn create_quote(
 
     // TODO: maybe return the link_hh later if we need to delete
     let _link_hh = create_link(base, hash.clone(), HdkLinkType::Any, ())?;
-    // link off original entry as comment
+    // link off original entry as quot
     let _mewmew_link_hh = create_link::<EntryHash, EntryHash, HdkLinkType, LinkTag>(
         original_entry_hash.into(),
         hash.clone(),
