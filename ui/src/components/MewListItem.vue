@@ -1,13 +1,13 @@
 <template>
   <q-item-section avatar>
-    <avatar-with-popup :feed-mew="feedMew" :index="index" />
+    <avatar-with-popup :agent-pub-key="feedMew.header.author" />
   </q-item-section>
 
   <q-item-section>
     <div class="row q-mb-sm">
       <div
-        :class="{ 'cursor-pointer': !isCurrentProfile(authorPubKey) }"
-        @click="onAgentClick(authorPubKey)"
+        :class="{ 'cursor-pointer': !isCurrentProfile(urlSafeAgentPubKey) }"
+        @click="onAgentClick(urlSafeAgentPubKey)"
       >
         <span class="q-mr-xs text-primary text-weight-bold">
           {{ displayName }}
@@ -15,14 +15,14 @@
         <span>@{{ agentProfile?.nickname }}</span>
       </div>
 
-      <span v-if="originalMewAuthor" class="text-secondary q-ml-md">
+      <span v-if="!isOriginal" class="text-secondary q-ml-md">
         <q-skeleton v-if="loadingOriginalMewAuthor" type="text" width="4rem" />
         <template v-else>
           {{ reactionLabel }}
           <span class="text-bold">
-            {{ originalMewAuthor.fields["Display name"] }}
+            {{ originalMewAuthor?.fields["Display name"] }}
           </span>
-          @{{ originalMewAuthor.nickname }}
+          @{{ originalMewAuthor?.nickname }}
         </template>
       </span>
 
@@ -33,7 +33,10 @@
       </span>
     </div>
 
-    <mew-content :feed-mew="originalMew ?? feedMew" class="q-mb-xs" />
+    <mew-content
+      :feed-mew="originalMew && isMewMew ? originalMew : feedMew"
+      class="q-mb-xs"
+    />
 
     <div>
       <q-btn
@@ -100,7 +103,7 @@
 <script setup lang="ts">
 import { useProfileStore } from "@/services/profile-store";
 import { CreateMewInput, FeedMew, MewTypeName } from "@/types/types";
-import { getAuthorPubKey } from "@/utils/hash";
+import { getUrlSafeAgentPubKey } from "@/utils/hash";
 import { useProfileUtils } from "@/utils/profile";
 import { serializeHash } from "@holochain-open-dev/core-types";
 import { Profile } from "@holochain-open-dev/profiles";
@@ -123,7 +126,7 @@ const props = defineProps({
 
 const profileStore = useProfileStore();
 const { isCurrentProfile, onAgentClick } = useProfileUtils();
-const authorPubKey = getAuthorPubKey(props.feedMew.header.author);
+const urlSafeAgentPubKey = getUrlSafeAgentPubKey(props.feedMew.header.author);
 const agentProfile = ref();
 const displayName = computed(() => agentProfile.value?.fields["Display name"]);
 const nickname = computed(() => agentProfile.value?.nickname);
@@ -133,12 +136,15 @@ const isMewMew = computed(
   () => MewTypeName.MewMew in props.feedMew.mew.mewType
 );
 const isReply = computed(() => MewTypeName.Reply in props.feedMew.mew.mewType);
-const reactionLabel = computed(() =>
-  isMewMew.value ? "mewmewed by" : isReply.value ? "replied by" : "quoted by"
+const isOriginal = computed(
+  () => MewTypeName.Original in props.feedMew.mew.mewType
 );
 const originalMew = ref<FeedMew>();
 const originalMewAuthor = ref<Profile>();
 const loadingOriginalMewAuthor = ref<boolean>();
+const reactionLabel = computed(() =>
+  isMewMew.value ? "mewmewed from" : isReply.value ? "replied to" : "quoted"
+);
 
 const emit = defineEmits<{ (e: "refresh-feed"): void }>();
 
@@ -148,14 +154,13 @@ onMounted(async () => {
   );
 
   // load original mew author if item is a mewmew or quote
-  if (
-    MewTypeName.MewMew in props.feedMew.mew.mewType ||
-    MewTypeName.Quote in props.feedMew.mew.mewType
-  ) {
+  if (!(MewTypeName.Original in props.feedMew.mew.mewType)) {
     loadingOriginalMewAuthor.value = true;
     const originalMewHash =
       MewTypeName.MewMew in props.feedMew.mew.mewType
         ? props.feedMew.mew.mewType.mewMew
+        : MewTypeName.Reply in props.feedMew.mew.mewType
+        ? props.feedMew.mew.mewType.reply
         : props.feedMew.mew.mewType.quote;
     getFeedMewAndContext(originalMewHash)
       .then((mew) => {

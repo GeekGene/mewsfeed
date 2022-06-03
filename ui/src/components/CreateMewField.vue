@@ -7,6 +7,7 @@
       dense
       outlined
       autofocus
+      @keydown.meta.enter.prevent="publishMew"
     />
     <q-btn
       :disable="newMew === '' && !saving"
