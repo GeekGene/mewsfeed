@@ -1,6 +1,6 @@
 import { serializeHash } from "@holochain-open-dev/core-types";
 
-export const getAuthorPubKey = (author: unknown) => {
+export const getUrlSafeAgentPubKey = (author: unknown) => {
   if (author instanceof Uint8Array) {
     return serializeHash(author);
   }
