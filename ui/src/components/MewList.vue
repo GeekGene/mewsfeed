@@ -2,20 +2,19 @@
   <mew-list-skeleton v-if="loading" />
 
   <q-list v-else bordered separator>
-    <q-item v-for="(mew, index) of mews" :key="index" class="items-start">
-      <MewListItem
-        :feed-mew="mew"
-        :index="index"
-        @refresh-feed="emit('refresh')"
-      />
-    </q-item>
+    <mew-list-item
+      v-for="(mew, index) of mews"
+      :key="index"
+      :feed-mew="mew"
+      @refresh-feed="emit('refresh')"
+    />
   </q-list>
 </template>
 
 <script setup lang="ts">
 import { PropType } from "vue";
 import { FeedMew } from "@/types/types";
-import MewListItem from "./MewListItem.vue";
+import MewListItem from "@/components/MewListItem.vue";
 import MewListSkeleton from "@/components/MewListSkeleton.vue";
 
 defineProps({

@@ -14,7 +14,7 @@ enum MewType {
     Original,
     Reply(EntryHashB64),
     Quote(EntryHashB64),
-    MewMew(EntryHashB64), // QuoteTweet
+    MewMew(EntryHashB64),
 }
 
 #[hdk_entry(id = "mew_content")]
@@ -230,6 +230,7 @@ pub fn lick_mew(entry_hash: EntryHashB64) -> ExternResult<()> {
     )?;
     Ok(())
 }
+
 #[hdk_extern]
 pub fn my_licks(_: ()) -> ExternResult<Vec<AnyLinkableHashB64>> {
     let me: AgentPubKeyB64 = agent_info()?.agent_latest_pubkey.into();
@@ -482,6 +483,7 @@ pub fn my_following(_: ()) -> ExternResult<Vec<AgentPubKeyB64>> {
     let me: AgentPubKeyB64 = agent_info()?.agent_latest_pubkey.into();
     follow_inner(me, FOLLOWING_PATH_SEGMENT)
 }
+
 #[hdk_extern]
 pub fn my_followers(_: ()) -> ExternResult<Vec<AgentPubKeyB64>> {
     let me: AgentPubKeyB64 = agent_info()?.agent_latest_pubkey.into();
@@ -495,7 +497,7 @@ fn follow_inner(agent: AgentPubKeyB64, base_type: &str) -> ExternResult<Vec<Agen
         .into_iter()
         .map(|link| AgentPubKey::from(EntryHash::from(link.target)).into())
         .collect())
-    }
+}
 
 // get who's following an agent
 #[hdk_extern]

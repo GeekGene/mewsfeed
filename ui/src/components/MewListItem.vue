@@ -1,103 +1,125 @@
 <template>
-  <q-item-section avatar>
-    <avatar-with-popup :agent-pub-key="feedMew.header.author" />
-  </q-item-section>
+  <component
+    :is="isQuote ? QExpansionItem : QItem"
+    :content-inset-level="isQuote ? 1 : undefined"
+    :class="isQuote ? '' : 'items-start'"
+    :header-class="isQuote ? 'items-start' : ''"
+  >
+    <template #[slotName]>
+      <q-item-section avatar>
+        <avatar-with-popup :agent-pub-key="feedMew.header.author" />
+      </q-item-section>
 
-  <q-item-section>
-    <div class="row q-mb-sm">
-      <div
-        :class="{ 'cursor-pointer': !isCurrentProfile(urlSafeAgentPubKey) }"
-        @click="onAgentClick(urlSafeAgentPubKey)"
-      >
-        <span class="q-mr-xs text-primary text-weight-bold">
-          {{ displayName }}
-        </span>
-        <span>@{{ agentProfile?.nickname }}</span>
-      </div>
+      <q-item-section>
+        <div class="row q-mb-sm">
+          <div
+            :class="{ 'cursor-pointer': !isCurrentProfile(urlSafeAgentPubKey) }"
+            @click="onAgentClick(urlSafeAgentPubKey)"
+          >
+            <span class="q-mr-xs text-primary text-weight-bold">
+              {{ displayName }}
+            </span>
+            <span>@{{ agentProfile?.nickname }}</span>
+          </div>
 
-      <span v-if="!isOriginal" class="text-secondary q-ml-md">
-        <q-skeleton v-if="loadingOriginalMewAuthor" type="text" width="4rem" />
-        <template v-else>
-          {{ reactionLabel }}
-          <span class="text-bold">
-            {{ originalMewAuthor?.fields["Display name"] }}
+          <span v-if="!isOriginal" class="text-secondary q-ml-md">
+            <q-skeleton
+              v-if="loadingOriginalMewAuthor"
+              type="text"
+              width="4rem"
+            />
+            <template v-else>
+              {{ reactionLabel }}
+              <span class="text-bold">
+                {{ originalMewAuthor?.fields["Display name"] }}
+              </span>
+              @{{ originalMewAuthor?.nickname }}
+            </template>
           </span>
-          @{{ originalMewAuthor?.nickname }}
-        </template>
-      </span>
 
-      <q-space />
+          <q-space />
 
-      <span class="text-caption">
-        <timestamp :timestamp="feedMew.header.timestamp" />
-      </span>
-    </div>
+          <span class="text-caption">
+            <timestamp :timestamp="feedMew.header.timestamp" />
+          </span>
+        </div>
 
-    <mew-content
-      :feed-mew="originalMew && isMewMew ? originalMew : feedMew"
-      class="q-mb-xs"
-    />
+        <mew-content
+          :feed-mew="originalMew && isMewMew ? originalMew : feedMew"
+          class="q-mb-xs"
+        />
 
-    <div>
-      <q-btn
-        size="sm"
-        :icon="isLickedByMe ? 'favorite' : 'favorite_border'"
-        flat
-        @click="toggleLickMew"
+        <div>
+          <q-btn
+            size="sm"
+            :icon="isLickedByMe ? 'favorite' : 'favorite_border'"
+            flat
+            @click="toggleLickMew"
+          >
+            {{ feedMew.licks.length }}
+          </q-btn>
+          <q-btn size="sm" icon="reply" flat @click="replyToMew">
+            {{ feedMew.replies.length }}
+          </q-btn>
+          <q-btn size="sm" icon="forward" flat @click="mewMew">
+            {{ feedMew.mewmews.length }}
+          </q-btn>
+          <q-btn size="sm" icon="format_quote" flat @click="quote">
+            {{ feedMew.quotes.length }}
+          </q-btn>
+        </div>
+      </q-item-section>
+
+      <create-mew-dialog
+        v-if="isReplying"
+        :mew-type="{ reply: feedMew.mewEntryHash }"
+        @mew-created="onMewCreated"
+        @close="isReplying = false"
       >
-        {{ feedMew.licks.length }}
-      </q-btn>
-      <q-btn size="sm" icon="reply" flat @click="replyToMew">
-        {{ feedMew.replies.length }}
-      </q-btn>
-      <q-btn size="sm" icon="forward" flat @click="mewMew">
-        {{ feedMew.mewmews.length }}
-      </q-btn>
-      <q-btn size="sm" icon="format_quote" flat @click="quote">
-        {{ feedMew.quotes.length }}
-      </q-btn>
-    </div>
-  </q-item-section>
+        <template #title>
+          <span>
+            Reply to
+            <span class="q-mr-xs text-primary text-bold">{{
+              displayName
+            }}</span>
+            <span>@{{ nickname }}</span>
+          </span>
+        </template>
+        <template #subtitle>
+          <div class="text-grey-7">
+            <mew-content :feed-mew="feedMew" />
+          </div>
+        </template>
+      </create-mew-dialog>
 
-  <create-mew-dialog
-    v-if="isReplying"
-    :mew-type="{ reply: feedMew.mewEntryHash }"
-    @mew-created="onMewCreated"
-    @close="isReplying = false"
-  >
-    <template #title>
-      <span>
-        Reply to
-        <span class="q-mr-xs text-primary text-bold">{{ displayName }}</span>
-        <span>@{{ nickname }}</span>
-      </span>
+      <create-mew-dialog
+        v-if="isQuoting"
+        :mew-type="{ quote: feedMew.mewEntryHash }"
+        @mew-created="onMewCreated"
+        @close="isQuoting = false"
+      >
+        <template #title>
+          <span>
+            Quote
+            <span class="q-mr-xs text-primary text-bold">{{
+              displayName
+            }}</span>
+            <span>@{{ nickname }}</span>
+          </span>
+        </template>
+        <template #subtitle>
+          <div class="text-grey-7">
+            <mew-content :feed-mew="feedMew" />
+          </div>
+        </template>
+      </create-mew-dialog>
     </template>
-    <template #subtitle>
-      <div class="text-grey-7">
-        <mew-content :feed-mew="feedMew" />
-      </div>
-    </template>
-  </create-mew-dialog>
 
-  <create-mew-dialog
-    v-if="isQuoting"
-    :mew-type="{ quote: feedMew.mewEntryHash }"
-    @mew-created="onMewCreated"
-    @close="isQuoting = false"
-  >
-    <template #title>
-      <span>
-        Quote
-        <span class="q-mr-xs text-primary text-bold">{{ displayName }}</span>
-        <span>@{{ nickname }}</span>
-      </span>
+    <template v-if="isQuote" #default>
+      <!-- compile error when v-if condition is moved to outer v-if -->
+      <mew-list-item v-if="originalMew" :feed-mew="originalMew" />
     </template>
-    <template #subtitle>
-      <div class="text-grey-7">
-        <mew-content :feed-mew="feedMew" />
-      </div>
-    </template>
-  </create-mew-dialog>
+  </component>
 </template>
 
 <script setup lang="ts">
@@ -107,6 +129,7 @@ import { getUrlSafeAgentPubKey } from "@/utils/hash";
 import { useProfileUtils } from "@/utils/profile";
 import { serializeHash } from "@holochain-open-dev/core-types";
 import { Profile } from "@holochain-open-dev/profiles";
+import { QExpansionItem, QItem } from "quasar";
 import { computed, onMounted, PropType, ref } from "vue";
 import {
   createMew,
@@ -121,7 +144,6 @@ import Timestamp from "./Timestamp.vue";
 
 const props = defineProps({
   feedMew: { type: Object as PropType<FeedMew>, required: true },
-  index: { type: Number, required: true },
 });
 
 const profileStore = useProfileStore();
@@ -132,13 +154,15 @@ const displayName = computed(() => agentProfile.value?.fields["Display name"]);
 const nickname = computed(() => agentProfile.value?.nickname);
 const myAgentPubKey = profileStore.myAgentPubKey;
 
+const slotName = computed(() => (isQuote.value ? "header" : "default"));
 const isMewMew = computed(
   () => MewTypeName.MewMew in props.feedMew.mew.mewType
 );
-const isReply = computed(() => MewTypeName.Reply in props.feedMew.mew.mewType);
 const isOriginal = computed(
   () => MewTypeName.Original in props.feedMew.mew.mewType
 );
+const isReply = computed(() => MewTypeName.Reply in props.feedMew.mew.mewType);
+const isQuote = computed(() => MewTypeName.Quote in props.feedMew.mew.mewType);
 const originalMew = ref<FeedMew>();
 const originalMewAuthor = ref<Profile>();
 const loadingOriginalMewAuthor = ref<boolean>();
