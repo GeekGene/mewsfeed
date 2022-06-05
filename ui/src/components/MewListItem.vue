@@ -2,8 +2,9 @@
   <component
     :is="isQuote ? QExpansionItem : QItem"
     :content-inset-level="isQuote ? 1 : undefined"
-    :class="isQuote ? '' : 'items-start'"
-    :header-class="isQuote ? 'items-start' : ''"
+    :class="isQuote ? undefined : 'items-start'"
+    :header-class="isQuote ? 'items-start' : undefined"
+    :expand-icon-toggle="isQuote ? true : undefined"
   >
     <template #[slotName]>
       <q-item-section avatar>
@@ -22,24 +23,33 @@
             <span>@{{ agentProfile?.nickname }}</span>
           </div>
 
-          <span v-if="!isOriginal" class="text-secondary q-ml-md">
+          <span v-if="!isOriginal" class="q-ml-md">
             <q-skeleton
               v-if="loadingOriginalMewAuthor"
               type="text"
               width="4rem"
             />
-            <template v-else>
+            <router-link
+              v-else-if="originalMew && originalMewAuthor"
+              :to="{
+                name: ROUTES.profiles,
+                params: {
+                  agent: getUrlSafeAgentPubKey(originalMew.header.author),
+                },
+              }"
+              class="text-secondary"
+            >
               {{ reactionLabel }}
               <span class="text-bold">
-                {{ originalMewAuthor?.fields["Display name"] }}
+                {{ originalMewAuthor.fields["Display name"] }}
               </span>
-              @{{ originalMewAuthor?.nickname }}
-            </template>
+              @{{ originalMewAuthor.nickname }}
+            </router-link>
           </span>
 
           <q-space />
 
-          <span class="text-caption">
+          <span class="q-ml-md text-caption">
             <timestamp :timestamp="feedMew.header.timestamp" />
           </span>
         </div>
@@ -123,6 +133,13 @@
 </template>
 
 <script setup lang="ts">
+import { ROUTES } from "@/router";
+import {
+  createMew,
+  getFeedMewAndContext,
+  lickMew,
+  unlickMew,
+} from "@/services/clutter-dna";
 import { useProfileStore } from "@/services/profile-store";
 import { CreateMewInput, FeedMew, MewTypeName } from "@/types/types";
 import { getUrlSafeAgentPubKey } from "@/utils/hash";
@@ -131,12 +148,6 @@ import { serializeHash } from "@holochain-open-dev/core-types";
 import { Profile } from "@holochain-open-dev/profiles";
 import { QExpansionItem, QItem } from "quasar";
 import { computed, onMounted, PropType, ref } from "vue";
-import {
-  createMew,
-  getFeedMewAndContext,
-  lickMew,
-  unlickMew,
-} from "../services/clutter-dna";
 import AvatarWithPopup from "./AvatarWithPopup.vue";
 import CreateMewDialog from "./CreateMewDialog.vue";
 import MewContent from "./MewContent.vue";
