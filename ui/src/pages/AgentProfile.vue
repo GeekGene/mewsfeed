@@ -109,8 +109,7 @@ watch(
   () => route.params.agent,
   () => {
     if (route.params.agent) {
-      loadProfile();
-      loadMews();
+      load();
     }
   }
 );

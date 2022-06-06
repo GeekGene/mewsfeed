@@ -76,7 +76,7 @@
       :mew-type="{ original: null }"
       @close="isCreatingMew = false"
     >
-      <template #title>Create a new mew:</template>
+      <template #title>Create a mew:</template>
     </create-mew-dialog>
   </q-layout>
 </template>

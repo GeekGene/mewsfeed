@@ -202,7 +202,7 @@ export default (orchestrator: Orchestrator<any>) =>
     t.equal(mews.length, 0);
 
     // ==============================================
-    // test mew interaction: lick, reply, remew, and mewmew
+    // test mew interaction: lick, reply, quote, and mewmew
     // ==============================================
 
     // Alice licks first mew
@@ -226,31 +226,31 @@ export default (orchestrator: Orchestrator<any>) =>
     );
     t.ok(replyMewHash);
 
-    const createReMewInput: CreateMewInput = {
+    const createMewMewInput: CreateMewInput = {
       mewType: {
-        reMew: originalEntryHash,
+        mewMew: originalEntryHash,
       },
       text: null,
     };
 
     // Alice retweets first mew
-    const reMewHash = await alice.call("mews", "create_mew", createReMewInput);
-    t.ok(reMewHash);
-
-    const createMewMewInput: CreateMewInput = {
-      mewType: {
-        mewMew: originalEntryHash,
-      },
-      text: "mewmew of original mew!",
-    };
-
-    // Alice quote tweets first mew
     const mewMewHash = await alice.call(
       "mews",
       "create_mew",
       createMewMewInput
     );
     t.ok(mewMewHash);
+
+    const createQuoteInput: CreateMewInput = {
+      mewType: {
+        quote: originalEntryHash,
+      },
+      text: "mewmew of original mew!",
+    };
+
+    // Alice quote tweets first mew
+    const quoteHash = await alice.call("mews", "create_mew", createQuoteInput);
+    t.ok(quoteHash);
 
     await sleep(777);
 
@@ -261,15 +261,15 @@ export default (orchestrator: Orchestrator<any>) =>
       mewHash
     );
     console.log("mew context:", mewWithContext);
-    t.equals(mewWithContext.comments.length, 1);
-    t.equals(mewWithContext.shares.length, 2);
+    t.equals(mewWithContext.replies.length, 1);
+    t.equals(mewWithContext.quotes.length, 1);
     t.equals(mewWithContext.licks.length, 1);
 
     // test can get mew with entry hash in addition to header hash
     const mewFromEntryHash: Mew = await bob.call(
       "mews",
       "get_mew",
-      mewWithContext.comments[0]
+      mewWithContext.replies[0]
     );
     console.log("mew from entry hash:", mewFromEntryHash);
     t.equals(mewFromEntryHash.content?.text, createReplyMewInput.text);
@@ -281,8 +281,8 @@ export default (orchestrator: Orchestrator<any>) =>
       originalEntryHash
     );
     console.log("mew context:", mewWithContext);
-    t.equals(mewWithContext.comments.length, 1);
-    t.equals(mewWithContext.shares.length, 2);
+    t.equals(mewWithContext.replies.length, 1);
+    t.equals(mewWithContext.quotes.length, 1);
     t.equals(mewWithContext.licks.length, 1);
 
     // unlick mew
@@ -297,7 +297,7 @@ export default (orchestrator: Orchestrator<any>) =>
       originalEntryHash
     );
     console.log("mew context:", mewWithContext);
-    t.equals(mewWithContext.comments.length, 1);
-    t.equals(mewWithContext.shares.length, 2);
+    t.equals(mewWithContext.replies.length, 1);
+    t.equals(mewWithContext.quotes.length, 1);
     t.equals(mewWithContext.licks.length, 0);
   });

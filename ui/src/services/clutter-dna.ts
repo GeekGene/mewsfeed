@@ -66,6 +66,7 @@ export enum MewsFn {
   Unfollow = "unfollow",
   LickMew = "lick_mew",
   UnlickMew = "unlick_mew",
+  MyLicks = "my_licks",
   GetFeedMewAndContext = "get_feed_mew_and_context",
   GetMewsWithCashtag = "get_mews_with_cashtag",
   GetMewsWithHashtag = "get_mews_with_hashtag",

@@ -1,141 +1,225 @@
 <template>
-  
-  <MewListItemSkeleton v-if="loading"/>
-  <template v-else>
-    <q-item-section avatar >
-      <avatar-with-popup :feed-mew="displayMew" :index="index" />
-    </q-item-section>
+  <component
+    :is="showOriginalMew ? QExpansionItem : QItem"
+    :content-inset-level="showOriginalMew ? 1 : undefined"
+    :class="showOriginalMew ? undefined : 'items-start'"
+    :header-class="showOriginalMew ? 'items-start' : undefined"
+    :expand-icon-toggle="showOriginalMew ? true : undefined"
+  >
+    <template #[slotName]>
+      <q-item-section avatar>
+        <avatar-with-popup :agent-pub-key="feedMew.header.author" />
+      </q-item-section>
 
-    <q-item-section >
-      <div class="row q-mb-sm">
-        <span 
-          class="q-mr-xs text-primary text-weight-medium cursor-pointer"
-          @click="onAgentClick(router, authorPubKey(displayMew.header.author))"
-        >
-          {{ displayName }}
-        </span>
-        <span>@{{ agentProfile?.nickname }}</span>
-        <q-space />
-        <span v-if="feedMew.mew.mewType.mewMew">mewmew by 
-          <router-link :to="`/profiles/${authorPubKey(feedMew.header.author)}`">
-            @{{ referencedMewAgentProfile?.nickname }}
-          </router-link>
-        </span>
-        <span v-if="displayMew.mew.mewType.reply && referencedMew">replying to 
-          <router-link :to="`/profiles/${authorPubKey(referencedMew.header.author)}`">
-            @{{ referencedMewAgentProfile?.nickname }}
-          </router-link>
-        </span>
-        <q-space />
-        <q-space />
-        <span class="text-caption">
-          <Timestamp :timestamp="displayMew.header.timestamp" />
-        </span>
-      </div>
+      <q-item-section>
+        <div class="row q-mb-sm">
+          <div
+            :class="{ 'cursor-pointer': !isCurrentProfile(urlSafeAgentPubKey) }"
+            @click="onAgentClick(urlSafeAgentPubKey)"
+          >
+            <span class="q-mr-xs text-primary text-weight-bold">
+              {{ displayName }}
+            </span>
+            <span>@{{ agentProfile?.nickname }}</span>
+          </div>
 
-      <MewContent :feed-mew="displayMew" class="q-mb-xs" />
+          <span v-if="!isOriginal" class="q-ml-md">
+            <q-skeleton
+              v-if="loadingOriginalMewAuthor"
+              type="text"
+              width="4rem"
+            />
+            <router-link
+              v-else-if="originalMew && originalMewAuthor"
+              :to="{
+                name: ROUTES.profiles,
+                params: {
+                  agent: getUrlSafeAgentPubKey(originalMew.header.author),
+                },
+              }"
+              class="text-secondary"
+            >
+              {{ reactionLabel }}
+              <span class="text-bold">
+                {{ originalMewAuthor.fields["Display name"] }}
+              </span>
+              @{{ originalMewAuthor.nickname }}
+            </router-link>
+          </span>
 
-      <div>
-        <q-btn
-          size="sm"
-          :icon="isLickedByMe ? 'favorite' : 'favorite_border'"
-          flat
-          @click="toggleLickMew"
-        >
-          {{ displayMew.licks.length }}
-        </q-btn>
-        <q-btn size="sm" icon="reply" flat @click="replyToMew">
-          {{ displayMew.comments.length }}
-        </q-btn>
-        <q-btn size="sm" icon="forward" flat @click="mewMew">
-          {{ displayMew.mewmews.length }}
-        </q-btn>
-      </div>
-    </q-item-section>
+          <q-space />
 
-    <create-mew-dialog
-      v-if="isReplying"
-      :mew-type="{ reply: displayMew.mewEntryHash }"
-      @mew-created="onMewCreated"
-      @close="isReplying = false"
-    >
-      <template #title>
-        <span class="q-mr-sm">Reply to {{ displayName }}</span>
-        <span class="text-secondary">@{{ nickname }}</span>
-      </template>
-      <template #subtitle>
-        <MewContent :feed-mew="displayMew" />
-      </template>
-    </create-mew-dialog>
-  </template>
+          <span class="q-ml-md text-caption">
+            <timestamp :timestamp="feedMew.header.timestamp" />
+          </span>
+        </div>
 
+        <mew-content
+          :feed-mew="originalMew && isMewMew ? originalMew : feedMew"
+          class="q-mb-xs"
+        />
+
+        <div>
+          <q-btn
+            size="sm"
+            :icon="isLickedByMe ? 'favorite' : 'favorite_border'"
+            flat
+            @click="toggleLickMew"
+          >
+            {{ feedMew.licks.length }}
+          </q-btn>
+          <q-btn size="sm" icon="reply" flat @click="replyToMew">
+            {{ feedMew.replies.length }}
+          </q-btn>
+          <q-btn size="sm" icon="forward" flat @click="mewMew">
+            {{ feedMew.mewmews.length }}
+          </q-btn>
+          <q-btn size="sm" icon="format_quote" flat @click="quote">
+            {{ feedMew.quotes.length }}
+          </q-btn>
+        </div>
+      </q-item-section>
+
+      <create-mew-dialog
+        v-if="isReplying"
+        :mew-type="{ reply: feedMew.mewEntryHash }"
+        @mew-created="onMewCreated"
+        @close="isReplying = false"
+      >
+        <template #title>
+          <span>
+            Reply to
+            <span class="q-mr-xs text-primary text-bold">{{
+              displayName
+            }}</span>
+            <span>@{{ nickname }}</span>
+          </span>
+        </template>
+        <template #subtitle>
+          <div class="text-grey-7">
+            <mew-content :feed-mew="feedMew" />
+          </div>
+        </template>
+      </create-mew-dialog>
+
+      <create-mew-dialog
+        v-if="isQuoting"
+        :mew-type="{ quote: feedMew.mewEntryHash }"
+        @mew-created="onMewCreated"
+        @close="isQuoting = false"
+      >
+        <template #title>
+          <span>
+            Quote
+            <span class="q-mr-xs text-primary text-bold">{{
+              displayName
+            }}</span>
+            <span>@{{ nickname }}</span>
+          </span>
+        </template>
+        <template #subtitle>
+          <div class="text-grey-7">
+            <mew-content :feed-mew="feedMew" />
+          </div>
+        </template>
+      </create-mew-dialog>
+    </template>
+
+    <template v-if="showOriginalMew" #default>
+      <!-- compile error when v-if condition is moved to outer v-if -->
+      <mew-list-item v-if="originalMew" :feed-mew="originalMew" />
+    </template>
+  </component>
 </template>
 
 <script setup lang="ts">
-import { createMew, getFeedMewAndContext, lickMew, unlickMew } from "@/services/clutter-dna";
-import { authorPubKey } from "@/utils/hash";
-import { isCurrentProfile, onAgentClick } from "@/utils/router"
-import { computed, onMounted, ref } from "vue";
-import { FeedMew, CreateMewInput } from "../types/types";
-import { serializeHash } from "@holochain-open-dev/core-types";
-import { PropType } from "vue";
+import { ROUTES } from "@/router";
+import {
+  createMew,
+  getFeedMewAndContext,
+  lickMew,
+  unlickMew,
+} from "@/services/clutter-dna";
 import { useProfileStore } from "@/services/profile-store";
+import { CreateMewInput, FeedMew, MewTypeName } from "@/types/types";
+import { getUrlSafeAgentPubKey } from "@/utils/hash";
+import { useProfileUtils } from "@/utils/profile";
+import { serializeHash } from "@holochain-open-dev/core-types";
+import { Profile } from "@holochain-open-dev/profiles";
+import { QExpansionItem, QItem } from "quasar";
+import { computed, onMounted, PropType, ref } from "vue";
+import AvatarWithPopup from "./AvatarWithPopup.vue";
 import CreateMewDialog from "./CreateMewDialog.vue";
 import MewContent from "./MewContent.vue";
 import Timestamp from "./Timestamp.vue";
-import AvatarWithPopup from "./AvatarWithPopup.vue";
-import { useRouter } from "vue-router";
-import MewListItemSkeleton from "@/components/MewListItemSkeleton.vue";
 
 const props = defineProps({
   feedMew: { type: Object as PropType<FeedMew>, required: true },
-  index: { type: Number, required: true },
 });
-const store = useProfileStore();
-const loading = ref(true);
-const displayMew = ref<FeedMew>(undefined);
-const referencedMew = ref<FeedMew>(undefined);
-const referencedMewAgentProfile = ref();
+
+const profileStore = useProfileStore();
+const { isCurrentProfile, onAgentClick } = useProfileUtils();
+const urlSafeAgentPubKey = getUrlSafeAgentPubKey(props.feedMew.header.author);
 const agentProfile = ref();
 const displayName = computed(() => agentProfile.value?.fields["Display name"]);
 const nickname = computed(() => agentProfile.value?.nickname);
-const myAgentPubKey = store.myAgentPubKey;
-const router = useRouter();
+const myAgentPubKey = profileStore.myAgentPubKey;
+
+const isMewMew = computed(
+  () => MewTypeName.MewMew in props.feedMew.mew.mewType
+);
+const isOriginal = computed(
+  () => MewTypeName.Original in props.feedMew.mew.mewType
+);
+const isReply = computed(() => MewTypeName.Reply in props.feedMew.mew.mewType);
+const isQuote = computed(() => MewTypeName.Quote in props.feedMew.mew.mewType);
+const showOriginalMew = computed(() => isReply.value || isQuote.value);
+const slotName = computed(() => (showOriginalMew.value ? "header" : "default"));
+const originalMew = ref<FeedMew>();
+const originalMewAuthor = ref<Profile>();
+const loadingOriginalMewAuthor = ref<boolean>();
+const reactionLabel = computed(() =>
+  isMewMew.value ? "mewmewed from" : isReply.value ? "replied to" : "quoted"
+);
 
 const emit = defineEmits<{ (e: "refresh-feed"): void }>();
 
 onMounted(async () => {
-  loading.value = true
-  agentProfile.value = await store.fetchAgentProfile(
+  agentProfile.value = await profileStore.fetchAgentProfile(
     serializeHash(props.feedMew.header.author)
   );
-  const mewType: any = props.feedMew.mew.mewType
-  displayMew.value = props.feedMew
-  if (mewType.reply) {
-    referencedMew.value = await getFeedMewAndContext(mewType.reply || mewType.mewMew || mewType.remew)
-    referencedMewAgentProfile.value = await store.fetchAgentProfile(
-      serializeHash(referencedMew.value.header.author)
-    );
-  } else if (mewType.mewMew) {
-    displayMew.value = await getFeedMewAndContext(mewType.mewMew)
-    referencedMewAgentProfile.value = agentProfile.value
-    agentProfile.value = await store.fetchAgentProfile(
-      serializeHash(displayMew.value.header.author)
-    );
+
+  // load original mew author if item is a mewmew or quote
+  if (!(MewTypeName.Original in props.feedMew.mew.mewType)) {
+    loadingOriginalMewAuthor.value = true;
+    const originalMewHash =
+      MewTypeName.MewMew in props.feedMew.mew.mewType
+        ? props.feedMew.mew.mewType.mewMew
+        : MewTypeName.Reply in props.feedMew.mew.mewType
+        ? props.feedMew.mew.mewType.reply
+        : props.feedMew.mew.mewType.quote;
+    getFeedMewAndContext(originalMewHash)
+      .then((mew) => {
+        originalMew.value = mew;
+        profileStore
+          .fetchAgentProfile(serializeHash(mew.header.author))
+          .then((profile) => (originalMewAuthor.value = profile));
+      })
+      .finally(() => (loadingOriginalMewAuthor.value = false));
   }
-  loading.value = false
- });
+});
 
 const isReplying = ref(false);
+const isQuoting = ref(false);
 const isLickedByMe = computed(() =>
-  displayMew.value.licks.includes(myAgentPubKey)
+  props.feedMew.licks.includes(myAgentPubKey)
 );
 
 const toggleLickMew = async () => {
   if (isLickedByMe.value) {
-    await unlickMew(displayMew.value.mewEntryHash);
+    await unlickMew(props.feedMew.mewEntryHash);
   } else {
-    await lickMew(displayMew.value.mewEntryHash);
+    await lickMew(props.feedMew.mewEntryHash);
   }
   emit("refresh-feed");
 };
@@ -144,12 +228,17 @@ const replyToMew = () => (isReplying.value = true);
 
 const mewMew = async () => {
   const mew: CreateMewInput = {
-    mewType: { mewMew: displayMew.value.mewEntryHash },
-    text: displayMew.value.mew.content?.text || null,
+    mewType: { mewMew: props.feedMew.mewEntryHash },
+    text: null,
   };
   await createMew(mew);
   emit("refresh-feed");
 };
 
-const onMewCreated = () => (isReplying.value = false);
+const quote = () => (isQuoting.value = true);
+
+const onMewCreated = () => {
+  isReplying.value = false;
+  isQuoting.value = false;
+};
 </script>
