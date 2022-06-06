@@ -1,10 +1,10 @@
 <template>
   <component
-    :is="isQuote ? QExpansionItem : QItem"
-    :content-inset-level="isQuote ? 1 : undefined"
-    :class="isQuote ? undefined : 'items-start'"
-    :header-class="isQuote ? 'items-start' : undefined"
-    :expand-icon-toggle="isQuote ? true : undefined"
+    :is="showOriginalMew ? QExpansionItem : QItem"
+    :content-inset-level="showOriginalMew ? 1 : undefined"
+    :class="showOriginalMew ? undefined : 'items-start'"
+    :header-class="showOriginalMew ? 'items-start' : undefined"
+    :expand-icon-toggle="showOriginalMew ? true : undefined"
   >
     <template #[slotName]>
       <q-item-section avatar>
@@ -125,7 +125,7 @@
       </create-mew-dialog>
     </template>
 
-    <template v-if="isQuote" #default>
+    <template v-if="showOriginalMew" #default>
       <!-- compile error when v-if condition is moved to outer v-if -->
       <mew-list-item v-if="originalMew" :feed-mew="originalMew" />
     </template>
@@ -165,7 +165,6 @@ const displayName = computed(() => agentProfile.value?.fields["Display name"]);
 const nickname = computed(() => agentProfile.value?.nickname);
 const myAgentPubKey = profileStore.myAgentPubKey;
 
-const slotName = computed(() => (isQuote.value ? "header" : "default"));
 const isMewMew = computed(
   () => MewTypeName.MewMew in props.feedMew.mew.mewType
 );
@@ -174,6 +173,8 @@ const isOriginal = computed(
 );
 const isReply = computed(() => MewTypeName.Reply in props.feedMew.mew.mewType);
 const isQuote = computed(() => MewTypeName.Quote in props.feedMew.mew.mewType);
+const showOriginalMew = computed(() => isReply.value || isQuote.value);
+const slotName = computed(() => (showOriginalMew.value ? "header" : "default"));
 const originalMew = ref<FeedMew>();
 const originalMewAuthor = ref<Profile>();
 const loadingOriginalMewAuthor = ref<boolean>();

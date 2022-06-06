@@ -1,386 +1,303 @@
-import {
-  AgentPubKeyB64,
-  EntryHash,
-  HeaderHash,
-} from "@holochain-open-dev/core-types";
-import { pause, Scenario } from "@holochain/tryorama";
-import test from "tape";
+import { Orchestrator, Player, Cell } from "@holochain/tryorama";
+import { config, installation, sleep } from "../utils";
 import { CreateMewInput, FeedMew, Mew } from "../../../ui/src/types/types";
-import { clutterDna } from "../utils.js";
+import { serializeHash } from "@holochain-open-dev/core-types";
 
-test("mew tests", async (t) => {
-  const scenario = new Scenario();
-  const [alice, bob, carol] = await scenario.addPlayersWithHapps([
-    { dnas: [clutterDna] },
-    { dnas: [clutterDna] },
-    { dnas: [clutterDna] },
-  ]);
+export default (orchestrator: Orchestrator<any>) =>
+  orchestrator.registerScenario("mews tests", async (s, t) => {
+    // Declare two players using the previously specified config, nicknaming them "alice" and "bob"
+    // note that the first argument to players is just an array conductor configs that that will
+    // be used to spin up the conductor processes which are returned in a matching array.
+    const [alice_player, bob_player, carol_player]: Player[] = await s.players([
+      config,
+      config,
+      config,
+    ]);
 
-  await scenario.shareAllAgents();
+    // install your happs into the conductors and destructuring the returned happ data using the same
+    // array structure as you created in your installation array.
+    const [[alice_happ]] = await alice_player.installAgentsHapps(installation);
+    const [[bob_happ]] = await bob_player.installAgentsHapps(installation);
+    const [[carol_happ]] = await carol_player.installAgentsHapps(installation);
 
-  const mewContent =
-    "My Mew with #hashtag #سعيدة #😃😃😃 and $cashtag and @mention";
-  const createMewInput: CreateMewInput = {
-    mewType: {
-      original: null,
-    },
-    text: mewContent,
-  };
+    await s.shareAllNodes([alice_player, bob_player, carol_player]);
 
-  // Alice creates a post
-  const mewHash: HeaderHash = await alice.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "create_mew",
-    payload: createMewInput,
-  });
-  t.ok(mewHash);
+    const alice = alice_happ.cells.find((cell) =>
+      cell.cellRole.includes("/clutter.dna")
+    ) as Cell;
+    const bob = bob_happ.cells.find((cell) =>
+      cell.cellRole.includes("/clutter.dna")
+    ) as Cell;
+    const carol = carol_happ.cells.find((cell) =>
+      cell.cellRole.includes("/clutter.dna")
+    ) as Cell;
 
-  await pause(777);
+    const mewContent =
+      "My Mew with #hashtag #سعيدة #😃😃😃 and $cashtag and @mention";
+    const createMewInput: CreateMewInput = {
+      mewType: {
+        original: null,
+      },
+      text: mewContent,
+    };
 
-  console.log("searching hashtags");
-  // get hashtags: #hashtag
-  let hashtaggedMews: FeedMew[] = await alice.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "get_mews_with_hashtag",
-    payload: "#hashtag",
-  });
-  t.equal(hashtaggedMews.length, 1);
-  console.log(hashtaggedMews[0].mew.mewType);
-  t.equal(hashtaggedMews[0].mew.content?.text, mewContent);
+    // Alice creates a post
+    const mewHash = await alice.call("mews", "create_mew", createMewInput);
+    t.ok(mewHash);
 
-  // get hashtags: arabic
-  hashtaggedMews = await alice.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "get_mews_with_hashtag",
-    payload: "#سعيدة",
-  });
-  t.equal(hashtaggedMews.length, 1);
-  console.log("searching hashtags");
-  console.log(hashtaggedMews[0].mew.mewType);
-  t.equal(hashtaggedMews[0].mew.content?.text, mewContent);
+    await sleep(777);
 
-  // get hashtags: emojis -- invalid hashtag!
-  hashtaggedMews = await alice.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "get_mews_with_hashtag",
-    payload: "#😃😃😃",
-  });
-  t.equal(hashtaggedMews.length, 0);
+    console.log("searching hashtags");
+    // get hashtags: #hashtag
+    let hashtaggedMews: FeedMew[] = await alice.call(
+      "mews",
+      "get_mews_with_hashtag",
+      "#hashtag"
+    );
+    t.equal(hashtaggedMews.length, 1);
+    console.log(hashtaggedMews[0].mew.mewType);
+    t.equal(hashtaggedMews[0].mew.content?.text, mewContent);
 
-  const cashtaggedMews: FeedMew[] = await alice.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "get_mews_with_cashtag",
-    payload: "$cashtag",
-  });
-  console.log({ cashtaggedMews });
-  t.equal(cashtaggedMews.length, 1);
-  console.log("searching cashtags");
-  console.log(cashtaggedMews[0].mew.content?.text);
+    // get hashtags: arabic
+    hashtaggedMews = await alice.call(
+      "mews",
+      "get_mews_with_hashtag",
+      "#سعيدة"
+    );
+    t.equal(hashtaggedMews.length, 1);
+    console.log("searching hashtags");
+    console.log(hashtaggedMews[0].mew.mewType);
+    t.equal(hashtaggedMews[0].mew.content?.text, mewContent);
 
-  const mentionedMews: FeedMew[] = await alice.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "get_mews_with_mention",
-    payload: "@mention",
-  });
-  console.log({ mentionedMews });
-  t.equal(mentionedMews.length, 1);
-  console.log("searching mentions");
-  console.log(mentionedMews[0].mew.content?.text);
+    // get hashtags: emojis -- invalid hashtag!
+    hashtaggedMews = await alice.call(
+      "mews",
+      "get_mews_with_hashtag",
+      "#😃😃😃"
+    );
+    t.equal(hashtaggedMews.length, 0);
 
-  // Bob gets the created mew
-  const mew: Mew = await bob.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "get_mew",
-    payload: mewHash,
-  });
-  console.log("mew", mew);
-  t.deepEqual(mew, {
-    mewType: { original: null },
-    content: { text: mewContent },
-  });
+    const cashtaggedMews: FeedMew[] = await alice.call(
+      "mews",
+      "get_mews_with_cashtag",
+      "$cashtag"
+    );
+    console.log({ cashtaggedMews });
+    t.equal(cashtaggedMews.length, 1);
+    console.log("searching cashtags");
+    console.log(cashtaggedMews[0].mew.content?.text);
 
-  let mews: FeedMew[] = await bob.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "mews_by",
-    payload: alice.agentPubKey,
-  });
-  t.equal(mews[0].mew.content?.text, mewContent);
-  console.log("mews:", mews);
-  console.log("entry hash:", mews[0].mewEntryHash);
-  console.log("mewType:", mews[0].mew.mewType);
-  const originalEntryHash = mews[0].mewEntryHash;
+    const mentionedMews: FeedMew[] = await alice.call(
+      "mews",
+      "get_mews_with_mention",
+      "@mention"
+    );
+    console.log({ mentionedMews });
+    t.equal(mentionedMews.length, 1);
+    console.log("searching mentions");
+    console.log(mentionedMews[0].mew.content?.text);
 
-  mews = await bob.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "mews_by",
-    payload: bob.agentPubKey,
-  });
-  t.equal(mews.length, 0);
-
-  mews = await bob.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "mews_feed",
-    payload: { option: "" },
-  });
-  t.equal(mews.length, 0);
-
-  try {
-    await bob.cells[0].callZome({
-      zome_name: "mews",
-      fn_name: "follow",
-      payload: bob.agentPubKey,
+    // Bob gets the created mew
+    const mew: Mew = await bob.call("mews", "get_mew", mewHash);
+    console.log("mew", mew);
+    t.deepEqual(mew, {
+      mewType: { original: null },
+      content: { text: mewContent },
     });
-    t.fail();
-  } catch (e) {
+
+    const alicePubKey = serializeHash(alice.cellId[1]);
+    const bobPubKey = serializeHash(bob.cellId[1]);
+    const carolPubKey = serializeHash(carol.cellId[1]);
+
+    let mews: FeedMew[] = await bob.call("mews", "mews_by", alicePubKey);
+    t.equal(mews[0].mew.content?.text, mewContent);
+    console.log("mews:", mews);
+    console.log("entry hash:", mews[0].mewEntryHash);
+    console.log("mewType:", mews[0].mew.mewType);
+    const originalEntryHash = mews[0].mewEntryHash;
+
+    mews = await bob.call("mews", "mews_by", bobPubKey);
+    t.equal(mews.length, 0);
+
+    mews = await bob.call("mews", "mews_feed", { option: "" });
+    t.equal(mews.length, 0);
+
+    try {
+      await bob.call("mews", "follow", bobPubKey);
+      t.fail();
+    } catch (e) {
+      console.log("bob.my_following");
+      const follow = await bob.call("mews", "my_following", null);
+      console.log("bob my_following", follow, follow.length);
+      t.deepEqual(follow, []);
+      t.ok("error thrown");
+    }
+
+    await bob.call("mews", "follow", alicePubKey);
+    await sleep(777);
+
+    console.log("Bob", bobPubKey);
+    console.log("Alice", alicePubKey);
+    console.log("Carol", carolPubKey);
+    console.log("alice.my_followers");
+    let follow = await alice.call("mews", "my_followers", null);
+    console.log("alices my_followers", follow, follow.length);
+    t.deepEqual(follow, [bobPubKey]);
+
+    console.log("alice.my_following");
+    follow = await alice.call("mews", "my_following", null);
+    console.log("alice my_following", follow, follow.length);
+    t.equal(follow.length, 0);
+
     console.log("bob.my_following");
-    const follow: AgentPubKeyB64[] = await bob.cells[0].callZome({
-      zome_name: "mews",
-      fn_name: "my_following",
-    });
+    follow = await bob.call("mews", "my_following", null);
     console.log("bob my_following", follow, follow.length);
-    t.deepEqual(follow, []);
-    t.ok("error thrown");
-  }
+    t.deepEqual(follow, [alicePubKey]);
 
-  await bob.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "follow",
-    payload: alice.agentPubKey,
+    console.log("bob.my_followers");
+    follow = await bob.call("mews", "my_followers", null);
+    console.log("bob my_followers", follow, follow.length);
+    t.equal(follow.length, 0);
+
+    follow = await alice.call("mews", "followers", alicePubKey);
+    t.deepEqual(follow, [bobPubKey]);
+
+    follow = await alice.call("mews", "following", bobPubKey);
+    t.deepEqual(follow, [alicePubKey]);
+
+    // after following alice bob should get alice's mews in his feed
+    mews = await bob.call("mews", "mews_feed", { option: "" });
+    t.equal(mews[0].mew.content?.text, mewContent);
+
+    // carol and alice post, bob follows carol
+    // Carol creates a post
+    const createMewInput2: CreateMewInput = {
+      ...createMewInput,
+      text: createMewInput.text + "2",
+    };
+    const mewHash2 = await carol.call("mews", "create_mew", createMewInput2);
+    t.ok(mewHash2);
+
+    const createMewInput3: CreateMewInput = {
+      ...createMewInput,
+      text: createMewInput.text + "3",
+    };
+    // Alice creates a post
+    const mewHash3 = await alice.call("mews", "create_mew", createMewInput3);
+    t.ok(mewHash3);
+
+    await bob.call("mews", "follow", carolPubKey);
+    await sleep(777);
+
+    // tests that mews from different followers get sorted into descending order
+    mews = await bob.call("mews", "mews_feed", { option: "" });
+    t.equal(mews[0].mew.content?.text, mewContent + "3");
+    t.equal(mews[1].mew.content?.text, mewContent + "2");
+    t.equal(mews[2].mew.content?.text, mewContent);
+
+    await bob.call("mews", "unfollow", alicePubKey);
+    await bob.call("mews", "unfollow", carolPubKey);
+    // Bob unfollows all his followees
+    mews = await bob.call("mews", "mews_feed", { option: "" });
+    t.equal(mews.length, 0);
+
+    // ==============================================
+    // test mew interaction: lick, reply, quote, and mewmew
+    // ==============================================
+
+    // Alice licks first mew
+    await alice.call("mews", "lick_mew", originalEntryHash);
+    let aliceLicks = await alice.call("mews", "my_licks", null);
+    t.equal(aliceLicks.length, 1);
+    t.equal(aliceLicks[0], originalEntryHash);
+
+    const createReplyMewInput: CreateMewInput = {
+      mewType: {
+        reply: originalEntryHash,
+      },
+      text: "reply mew to original mew!",
+    };
+
+    // Alice replies to first mew
+    const replyMewHash = await alice.call(
+      "mews",
+      "create_mew",
+      createReplyMewInput
+    );
+    t.ok(replyMewHash);
+
+    const createMewMewInput: CreateMewInput = {
+      mewType: {
+        mewMew: originalEntryHash,
+      },
+      text: null,
+    };
+
+    // Alice retweets first mew
+    const mewMewHash = await alice.call(
+      "mews",
+      "create_mew",
+      createMewMewInput
+    );
+    t.ok(mewMewHash);
+
+    const createQuoteInput: CreateMewInput = {
+      mewType: {
+        quote: originalEntryHash,
+      },
+      text: "mewmew of original mew!",
+    };
+
+    // Alice quote tweets first mew
+    const quoteHash = await alice.call("mews", "create_mew", createQuoteInput);
+    t.ok(quoteHash);
+
+    await sleep(777);
+
+    // get orignal mew with context to see if links were created by interacting with it
+    let mewWithContext: FeedMew = await bob.call(
+      "mews",
+      "get_feed_mew_and_context",
+      mewHash
+    );
+    console.log("mew context:", mewWithContext);
+    t.equals(mewWithContext.replies.length, 1);
+    t.equals(mewWithContext.quotes.length, 1);
+    t.equals(mewWithContext.licks.length, 1);
+
+    // test can get mew with entry hash in addition to header hash
+    const mewFromEntryHash: Mew = await bob.call(
+      "mews",
+      "get_mew",
+      mewWithContext.replies[0]
+    );
+    console.log("mew from entry hash:", mewFromEntryHash);
+    t.equals(mewFromEntryHash.content?.text, createReplyMewInput.text);
+    t.equals("reply" in mewFromEntryHash.mewType, true);
+
+    mewWithContext = await bob.call(
+      "mews",
+      "get_feed_mew_and_context",
+      originalEntryHash
+    );
+    console.log("mew context:", mewWithContext);
+    t.equals(mewWithContext.replies.length, 1);
+    t.equals(mewWithContext.quotes.length, 1);
+    t.equals(mewWithContext.licks.length, 1);
+
+    // unlick mew
+    await alice.call("mews", "unlick_mew", originalEntryHash);
+    aliceLicks = await alice.call("mews", "my_licks", null);
+    t.equal(aliceLicks.length, 0);
+
+    await sleep(500);
+    mewWithContext = await bob.call(
+      "mews",
+      "get_feed_mew_and_context",
+      originalEntryHash
+    );
+    console.log("mew context:", mewWithContext);
+    t.equals(mewWithContext.replies.length, 1);
+    t.equals(mewWithContext.quotes.length, 1);
+    t.equals(mewWithContext.licks.length, 0);
   });
-  await pause(777);
-
-  console.log("Bob", bob.agentPubKey);
-  console.log("Alice", alice.agentPubKey);
-  console.log("Carol", carol.agentPubKey);
-  console.log("alice.my_followers");
-  let follow: AgentPubKeyB64[] = await alice.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "my_followers",
-  });
-  console.log("alices my_followers", follow, follow.length);
-  t.deepEqual(follow, [bob.agentPubKey]);
-
-  console.log("alice.my_following");
-  follow = await alice.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "my_following",
-  });
-  console.log("alice my_following", follow, follow.length);
-  t.equal(follow.length, 0);
-
-  console.log("bob.my_following");
-  follow = await bob.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "my_following",
-  });
-  console.log("bob my_following", follow, follow.length);
-  t.deepEqual(follow, [alice.agentPubKey]);
-
-  console.log("bob.my_followers");
-  follow = await bob.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "my_followers",
-  });
-  console.log("bob my_followers", follow, follow.length);
-  t.equal(follow.length, 0);
-
-  follow = await alice.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "followers",
-    payload: alice.agentPubKey,
-  });
-  t.deepEqual(follow, Buffer.from(bob.agentPubKey).toString("base64url"));
-
-  follow = await alice.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "following",
-    payload: bob.agentPubKey,
-  });
-  t.deepEqual(follow, Buffer.from(alice.agentPubKey).toString("base64url"));
-
-  // after following alice, bob should get alice's mews in his feed
-  mews = await bob.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "mews_feed",
-    payload: { option: "" },
-  });
-  t.equal(mews[0].mew.content?.text, mewContent);
-
-  // carol and alice post, bob follows carol
-  // Carol creates a post
-  const createMewInput2: CreateMewInput = {
-    ...createMewInput,
-    text: createMewInput.text + "2",
-  };
-  const mewHash2 = await carol.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "create_mew",
-    payload: createMewInput2,
-  });
-  t.ok(mewHash2);
-
-  const createMewInput3: CreateMewInput = {
-    ...createMewInput,
-    text: createMewInput.text + "3",
-  };
-  // Alice creates a post
-  const mewHash3 = await alice.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "create_mew",
-    payload: createMewInput3,
-  });
-  t.ok(mewHash3);
-
-  await bob.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "follow",
-    payload: carol.agentPubKey,
-  });
-  await pause(777);
-
-  // tests that mews from different followers get sorted into descending order
-  mews = await bob.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "mews_feed",
-    payload: { option: "" },
-  });
-  t.equal(mews[0].mew.content?.text, mewContent + "3");
-  t.equal(mews[1].mew.content?.text, mewContent + "2");
-  t.equal(mews[2].mew.content?.text, mewContent);
-
-  await bob.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "unfollow",
-    payload: alice.agentPubKey,
-  });
-  await bob.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "unfollow",
-    payload: carol.agentPubKey,
-  });
-  // Bob unfollows all his followees
-  mews = await bob.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "mews_feed",
-    payload: { option: "" },
-  });
-  t.equal(mews.length, 0);
-
-  // ==============================================
-  // test mew interaction: lick, reply, remew, and mewmew
-  // ==============================================
-
-  // Alice licks first mew
-  await alice.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "lick_mew",
-    payload: originalEntryHash,
-  });
-  let aliceLicks: EntryHash[] = await alice.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "my_licks",
-  });
-  t.equal(aliceLicks.length, 1);
-  t.equal(aliceLicks[0], originalEntryHash);
-
-  const createReplyMewInput: CreateMewInput = {
-    mewType: {
-      reply: originalEntryHash,
-    },
-    text: "reply mew to original mew!",
-  };
-
-  // Alice replies to first mew
-  const replyMewHash = await alice.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "create_mew",
-    payload: createReplyMewInput,
-  });
-  t.ok(replyMewHash);
-
-  const createReMewInput: CreateMewInput = {
-    mewType: {
-      mewMew: originalEntryHash,
-    },
-    text: null,
-  };
-
-  // Alice retweets first mew
-  const reMewHash = await alice.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "create_mew",
-    payload: createReMewInput,
-  });
-  t.ok(reMewHash);
-
-  const createMewMewInput: CreateMewInput = {
-    mewType: {
-      quote: originalEntryHash,
-    },
-    text: "quote of original mew!",
-  };
-
-  // Alice quote tweets first mew
-  const mewMewHash = await alice.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "create_mew",
-    payload: createMewMewInput,
-  });
-  t.ok(mewMewHash);
-
-  await pause(777);
-
-  // get orignal mew with context to see if links were created by interacting with it
-  let mewWithContext: FeedMew = await bob.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "get_feed_mew_and_context",
-    payload: mewHash,
-  });
-  console.log("mew context:", mewWithContext);
-  t.equals(mewWithContext.replies.length, 1);
-  t.equals(mewWithContext.quotes.length, 2);
-  t.equals(mewWithContext.licks.length, 1);
-
-  // test can get mew with entry hash in addition to header hash
-  const mewFromEntryHash: Mew = await bob.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "get_mew",
-    payload: mewWithContext.replies[0],
-  });
-  console.log("mew from entry hash:", mewFromEntryHash);
-  t.equals(mewFromEntryHash.content?.text, createReplyMewInput.text);
-  t.equals("reply" in mewFromEntryHash.mewType, true);
-
-  mewWithContext = await bob.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "get_feed_mew_and_context",
-    payload: originalEntryHash,
-  });
-  console.log("mew context:", mewWithContext);
-  t.equals(mewWithContext.replies.length, 1);
-  t.equals(mewWithContext.quotes.length, 2);
-  t.equals(mewWithContext.licks.length, 1);
-
-  // unlick mew
-  await alice.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "unlick_mew",
-    payload: originalEntryHash,
-  });
-  aliceLicks = await alice.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "my_licks",
-  });
-  t.equal(aliceLicks.length, 0);
-
-  await pause(500);
-  mewWithContext = await bob.cells[0].callZome({
-    zome_name: "mews",
-    fn_name: "get_feed_mew_and_context",
-    payload: originalEntryHash,
-  });
-  console.log("mew context:", mewWithContext);
-  t.equals(mewWithContext.replies.length, 1);
-  t.equals(mewWithContext.quotes.length, 2);
-  t.equals(mewWithContext.licks.length, 0);
-});
