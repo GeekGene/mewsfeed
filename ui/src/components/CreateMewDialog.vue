@@ -1,27 +1,24 @@
 <template>
-  <q-dialog v-model="isVisible" @hide="onClose">
-    <q-card class="q-dialog-plugin">
-      <q-card-section>
-        <div class="row items-center text-subtitle1 text-medium">
-          <slot name="title" />
-          <q-space />
-          <q-btn v-close-popup icon="close" flat round dense />
-        </div>
-        <div class="text-subtitle1">
-          <slot name="subtitle" />
-        </div>
-      </q-card-section>
+  <base-dialog @close="onClose">
+    <template #title>
+      <div class="text-subtitle1 text-medium">
+        <slot name="title" />
+      </div>
+    </template>
 
-      <q-card-section>
-        <CreateMewField
-          class="text-center"
-          :mew-type="mewType"
-          :saving="saving"
-          @publish-mew="onPublishMew"
-        />
-      </q-card-section>
-    </q-card>
-  </q-dialog>
+    <template #content>
+      <div class="q-mt-sm q-mb-md text-subtitle1">
+        <slot name="content" />
+      </div>
+
+      <CreateMewField
+        class="text-center"
+        :mew-type="mewType"
+        :saving="saving"
+        @publish-mew="onPublishMew"
+      />
+    </template>
+  </base-dialog>
 </template>
 
 <script setup lang="ts">
@@ -32,6 +29,7 @@ import { createMew } from "@/services/clutter-dna";
 import { useStore } from "@/store";
 import { ROUTES } from "@/router";
 import { useRouter } from "vue-router";
+import BaseDialog from "@/components/BaseDialog.vue";
 import CreateMewField from "@/components/CreateMewField.vue";
 
 defineProps({ mewType: { type: Object as PropType<MewType>, required: true } });
@@ -40,7 +38,6 @@ const onClose = () => emit("close");
 
 const store = useStore();
 const router = useRouter();
-const isVisible = ref(true);
 const saving = ref(false);
 
 const onPublishMew = async (mew: CreateMewInput) => {
