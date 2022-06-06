@@ -16,7 +16,7 @@
 #### Zome: Profile
  - [x] Register a username
    - [ ] Enforce lower case usernames
-   - [ ] Enforce minimum length of 3 characters
+   - [x] Enforce minimum length of 3 characters
  - [x] Create / Edit user profile
    - [x] Display name / full name
    - [ ] Default: identicon as avatar
@@ -37,22 +37,27 @@
    - [ ] pagination / "load more" option
    - [x] show avatar
    - [x] show username
-   - [ ] show full/display name
+   - [x] show full/display name
  - [x] Link new mew from a agentkey as a post
 
 ### 2nd Pass Features / More full experience
  - [ ] Ensure username uniqueness (via external namespace service?)
  - [x] Change username
  - [ ] Process tweet text for grammatical components
-     - [ ] @user mentions
+     - [x] @user mentions
      - [x] #hashtags
      - [x] $cashtags ?
      - [ ] ^links (in UI triggers a link constructor)
+- [ ] Search for
+     - [ ] @user mentions
+     - [ ] #hashtags
+     - [ ] $cashtags
  - [ ] Open social preview (e.g. thumbnail, mewmew box, etc)
  - [ ] Attach / Upload Picture (file sharing mixin/zome)
      - [ ] Enforce 5mb size limit (UI should auto-scale down images above it)
  - [x] Reply to mew :left_speech_bubble: 
  - [x] Mewmew? (Retweet without comment) :recycle: 
+ - [x] Quote (Retweet with comment) 📢
  - [x] Favorite a mew? :heart:
  - [ ] Delete a mew? 🗑
  - [ ] infinite scroll on feeds
@@ -84,7 +89,7 @@
      - [x] Un/follow button
      - [ ] Preview user mews
      - [ ] Pinned Yarns
- - [ ] Mews_by(agent)
+ - [x] Mews_by(agent)
  - [ ] MewsFeed(agent): coallated mews_by for the people the agent follows
      - [ ] pagination for MewsFeed
      - [ ] Mews which are part of a yarn have an icon/link to view source yarn
