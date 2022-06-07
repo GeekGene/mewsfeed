@@ -8,7 +8,7 @@
         </div>
       </q-card-section>
 
-      <q-card-section class="q-py-none">
+      <q-card-section class="q-py-lg">
         <slot name="content" />
       </q-card-section>
     </q-card>
@@ -28,6 +28,5 @@ const onClose = () => emit("close");
 .dialog
   min-width: 400px
   max-width: 600px
-  min-height: 300px
   max-height: calc(100vh - 100px)
 </style>
