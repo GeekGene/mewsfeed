@@ -1,5 +1,9 @@
 
-# clutter
+# Clutter
+
+## Project Management w/ Acorn
+
+We use Sprillow's Holochain app [Acorn](https://github.com/lightningrodlabs/acorn) v1.0.2-alpha ([download](https://github.com/lightningrodlabs/acorn/releases/tag/v1.0.2-alpha)) for project management. If you wish to join us there, please [download the app](https://github.com/lightningrodlabs/acorn/releases/tag/v1.0.2-alpha), install it, click "Join a project" and paste in this secret: `blunt budding gatherer spilt simply`.
 
 ## Environment Setup
 
