@@ -1,303 +1,612 @@
-import { Orchestrator, Player, Cell } from "@holochain/tryorama";
-import { config, installation, sleep } from "../utils";
-import { CreateMewInput, FeedMew, Mew } from "../../../ui/src/types/types";
-import { serializeHash } from "@holochain-open-dev/core-types";
+import {
+  AgentPubKeyB64,
+  HeaderHash,
+  HeaderHashB64,
+  serializeHash,
+} from "@holochain-open-dev/core-types";
+import { getZomeCaller, pause, Scenario } from "@holochain/tryorama";
+import test from "tape";
+import {
+  CreateMewInput,
+  FeedMew,
+  MewTypeName,
+  MewYarn,
+} from "../../../ui/src/types/types.js";
+import { clutterDna } from "../utils.js";
 
-export default (orchestrator: Orchestrator<any>) =>
-  orchestrator.registerScenario("mews tests", async (s, t) => {
-    // Declare two players using the previously specified config, nicknaming them "alice" and "bob"
-    // note that the first argument to players is just an array conductor configs that that will
-    // be used to spin up the conductor processes which are returned in a matching array.
-    const [alice_player, bob_player, carol_player]: Player[] = await s.players([
-      config,
-      config,
-      config,
-    ]);
+test.skip("Mew Yarn", async (t) => {
+  const scenario = new Scenario();
+  const alice = await scenario.addPlayerWithHapp({ dnas: [clutterDna] });
 
-    // install your happs into the conductors and destructuring the returned happ data using the same
-    // array structure as you created in your installation array.
-    const [[alice_happ]] = await alice_player.installAgentsHapps(installation);
-    const [[bob_happ]] = await bob_player.installAgentsHapps(installation);
-    const [[carol_happ]] = await carol_player.installAgentsHapps(installation);
-
-    await s.shareAllNodes([alice_player, bob_player, carol_player]);
-
-    const alice = alice_happ.cells.find((cell) =>
-      cell.cellRole.includes("/clutter.dna")
-    ) as Cell;
-    const bob = bob_happ.cells.find((cell) =>
-      cell.cellRole.includes("/clutter.dna")
-    ) as Cell;
-    const carol = carol_happ.cells.find((cell) =>
-      cell.cellRole.includes("/clutter.dna")
-    ) as Cell;
-
-    const mewContent =
-      "My Mew with #hashtag #سعيدة #😃😃😃 and $cashtag and @mention";
-    const createMewInput: CreateMewInput = {
-      mewType: {
-        original: null,
-      },
-      text: mewContent,
-    };
-
-    // Alice creates a post
-    const mewHash = await alice.call("mews", "create_mew", createMewInput);
-    t.ok(mewHash);
-
-    await sleep(777);
-
-    console.log("searching hashtags");
-    // get hashtags: #hashtag
-    let hashtaggedMews: FeedMew[] = await alice.call(
-      "mews",
-      "get_mews_with_hashtag",
-      "#hashtag"
-    );
-    t.equal(hashtaggedMews.length, 1);
-    console.log(hashtaggedMews[0].mew.mewType);
-    t.equal(hashtaggedMews[0].mew.content?.text, mewContent);
-
-    // get hashtags: arabic
-    hashtaggedMews = await alice.call(
-      "mews",
-      "get_mews_with_hashtag",
-      "#سعيدة"
-    );
-    t.equal(hashtaggedMews.length, 1);
-    console.log("searching hashtags");
-    console.log(hashtaggedMews[0].mew.mewType);
-    t.equal(hashtaggedMews[0].mew.content?.text, mewContent);
-
-    // get hashtags: emojis -- invalid hashtag!
-    hashtaggedMews = await alice.call(
-      "mews",
-      "get_mews_with_hashtag",
-      "#😃😃😃"
-    );
-    t.equal(hashtaggedMews.length, 0);
-
-    const cashtaggedMews: FeedMew[] = await alice.call(
-      "mews",
-      "get_mews_with_cashtag",
-      "$cashtag"
-    );
-    console.log({ cashtaggedMews });
-    t.equal(cashtaggedMews.length, 1);
-    console.log("searching cashtags");
-    console.log(cashtaggedMews[0].mew.content?.text);
-
-    const mentionedMews: FeedMew[] = await alice.call(
-      "mews",
-      "get_mews_with_mention",
-      "@mention"
-    );
-    console.log({ mentionedMews });
-    t.equal(mentionedMews.length, 1);
-    console.log("searching mentions");
-    console.log(mentionedMews[0].mew.content?.text);
-
-    // Bob gets the created mew
-    const mew: Mew = await bob.call("mews", "get_mew", mewHash);
-    console.log("mew", mew);
-    t.deepEqual(mew, {
-      mewType: { original: null },
-      content: { text: mewContent },
-    });
-
-    const alicePubKey = serializeHash(alice.cellId[1]);
-    const bobPubKey = serializeHash(bob.cellId[1]);
-    const carolPubKey = serializeHash(carol.cellId[1]);
-
-    let mews: FeedMew[] = await bob.call("mews", "mews_by", alicePubKey);
-    t.equal(mews[0].mew.content?.text, mewContent);
-    console.log("mews:", mews);
-    console.log("entry hash:", mews[0].mewEntryHash);
-    console.log("mewType:", mews[0].mew.mewType);
-    const originalEntryHash = mews[0].mewEntryHash;
-
-    mews = await bob.call("mews", "mews_by", bobPubKey);
-    t.equal(mews.length, 0);
-
-    mews = await bob.call("mews", "mews_feed", { option: "" });
-    t.equal(mews.length, 0);
-
-    try {
-      await bob.call("mews", "follow", bobPubKey);
-      t.fail();
-    } catch (e) {
-      console.log("bob.my_following");
-      const follow = await bob.call("mews", "my_following", null);
-      console.log("bob my_following", follow, follow.length);
-      t.deepEqual(follow, []);
-      t.ok("error thrown");
-    }
-
-    await bob.call("mews", "follow", alicePubKey);
-    await sleep(777);
-
-    console.log("Bob", bobPubKey);
-    console.log("Alice", alicePubKey);
-    console.log("Carol", carolPubKey);
-    console.log("alice.my_followers");
-    let follow = await alice.call("mews", "my_followers", null);
-    console.log("alices my_followers", follow, follow.length);
-    t.deepEqual(follow, [bobPubKey]);
-
-    console.log("alice.my_following");
-    follow = await alice.call("mews", "my_following", null);
-    console.log("alice my_following", follow, follow.length);
-    t.equal(follow.length, 0);
-
-    console.log("bob.my_following");
-    follow = await bob.call("mews", "my_following", null);
-    console.log("bob my_following", follow, follow.length);
-    t.deepEqual(follow, [alicePubKey]);
-
-    console.log("bob.my_followers");
-    follow = await bob.call("mews", "my_followers", null);
-    console.log("bob my_followers", follow, follow.length);
-    t.equal(follow.length, 0);
-
-    follow = await alice.call("mews", "followers", alicePubKey);
-    t.deepEqual(follow, [bobPubKey]);
-
-    follow = await alice.call("mews", "following", bobPubKey);
-    t.deepEqual(follow, [alicePubKey]);
-
-    // after following alice bob should get alice's mews in his feed
-    mews = await bob.call("mews", "mews_feed", { option: "" });
-    t.equal(mews[0].mew.content?.text, mewContent);
-
-    // carol and alice post, bob follows carol
-    // Carol creates a post
-    const createMewInput2: CreateMewInput = {
-      ...createMewInput,
-      text: createMewInput.text + "2",
-    };
-    const mewHash2 = await carol.call("mews", "create_mew", createMewInput2);
-    t.ok(mewHash2);
-
-    const createMewInput3: CreateMewInput = {
-      ...createMewInput,
-      text: createMewInput.text + "3",
-    };
-    // Alice creates a post
-    const mewHash3 = await alice.call("mews", "create_mew", createMewInput3);
-    t.ok(mewHash3);
-
-    await bob.call("mews", "follow", carolPubKey);
-    await sleep(777);
-
-    // tests that mews from different followers get sorted into descending order
-    mews = await bob.call("mews", "mews_feed", { option: "" });
-    t.equal(mews[0].mew.content?.text, mewContent + "3");
-    t.equal(mews[1].mew.content?.text, mewContent + "2");
-    t.equal(mews[2].mew.content?.text, mewContent);
-
-    await bob.call("mews", "unfollow", alicePubKey);
-    await bob.call("mews", "unfollow", carolPubKey);
-    // Bob unfollows all his followees
-    mews = await bob.call("mews", "mews_feed", { option: "" });
-    t.equal(mews.length, 0);
-
-    // ==============================================
-    // test mew interaction: lick, reply, quote, and mewmew
-    // ==============================================
-
-    // Alice licks first mew
-    await alice.call("mews", "lick_mew", originalEntryHash);
-    let aliceLicks = await alice.call("mews", "my_licks", null);
-    t.equal(aliceLicks.length, 1);
-    t.equal(aliceLicks[0], originalEntryHash);
-
-    const createReplyMewInput: CreateMewInput = {
-      mewType: {
-        reply: originalEntryHash,
-      },
-      text: "reply mew to original mew!",
-    };
-
-    // Alice replies to first mew
-    const replyMewHash = await alice.call(
-      "mews",
-      "create_mew",
-      createReplyMewInput
-    );
-    t.ok(replyMewHash);
-
-    const createMewMewInput: CreateMewInput = {
-      mewType: {
-        mewMew: originalEntryHash,
-      },
-      text: null,
-    };
-
-    // Alice retweets first mew
-    const mewMewHash = await alice.call(
-      "mews",
-      "create_mew",
-      createMewMewInput
-    );
-    t.ok(mewMewHash);
-
-    const createQuoteInput: CreateMewInput = {
-      mewType: {
-        quote: originalEntryHash,
-      },
-      text: "mewmew of original mew!",
-    };
-
-    // Alice quote tweets first mew
-    const quoteHash = await alice.call("mews", "create_mew", createQuoteInput);
-    t.ok(quoteHash);
-
-    await sleep(777);
-
-    // get orignal mew with context to see if links were created by interacting with it
-    let mewWithContext: FeedMew = await bob.call(
-      "mews",
-      "get_feed_mew_and_context",
-      mewHash
-    );
-    console.log("mew context:", mewWithContext);
-    t.equals(mewWithContext.replies.length, 1);
-    t.equals(mewWithContext.quotes.length, 1);
-    t.equals(mewWithContext.licks.length, 1);
-
-    // test can get mew with entry hash in addition to header hash
-    const mewFromEntryHash: Mew = await bob.call(
-      "mews",
-      "get_mew",
-      mewWithContext.replies[0]
-    );
-    console.log("mew from entry hash:", mewFromEntryHash);
-    t.equals(mewFromEntryHash.content?.text, createReplyMewInput.text);
-    t.equals("reply" in mewFromEntryHash.mewType, true);
-
-    mewWithContext = await bob.call(
-      "mews",
-      "get_feed_mew_and_context",
-      originalEntryHash
-    );
-    console.log("mew context:", mewWithContext);
-    t.equals(mewWithContext.replies.length, 1);
-    t.equals(mewWithContext.quotes.length, 1);
-    t.equals(mewWithContext.licks.length, 1);
-
-    // unlick mew
-    await alice.call("mews", "unlick_mew", originalEntryHash);
-    aliceLicks = await alice.call("mews", "my_licks", null);
-    t.equal(aliceLicks.length, 0);
-
-    await sleep(500);
-    mewWithContext = await bob.call(
-      "mews",
-      "get_feed_mew_and_context",
-      originalEntryHash
-    );
-    console.log("mew context:", mewWithContext);
-    t.equals(mewWithContext.replies.length, 1);
-    t.equals(mewWithContext.quotes.length, 1);
-    t.equals(mewWithContext.licks.length, 0);
+  const originalMewInput: CreateMewInput = {
+    text: "hello",
+    mewType: { [MewTypeName.Original]: null },
+  };
+  const entryHeaderHash: HeaderHash = await alice.cells[0].callZome({
+    zome_name: "mews",
+    fn_name: "create_mew",
+    payload: originalMewInput,
   });
+
+  const feedMew: FeedMew = await alice.cells[0].callZome({
+    zome_name: "mews",
+    fn_name: "get_feed_mew_and_context",
+    payload: entryHeaderHash,
+  });
+  const replyMewInput: CreateMewInput = {
+    text: "response",
+    mewType: { [MewTypeName.Reply]: feedMew.headerHash },
+  };
+  await alice.cells[0].callZome({
+    zome_name: "mews",
+    fn_name: "create_mew",
+    payload: replyMewInput,
+  });
+
+  const mewYarn: MewYarn = await alice.cells[0].callZome({
+    zome_name: "mews",
+    fn_name: "get_mew_yarn",
+    payload: entryHeaderHash,
+  });
+  console.log("mewYarn", mewYarn.replies);
+  t.ok(mewYarn.replies.length === 1, "one reply");
+  await scenario.cleanUp();
+});
+
+test("Following oneself should fail", async (t) => {
+  const scenario = new Scenario();
+  const alice = await scenario.addPlayerWithHapp({ dnas: [clutterDna] });
+  try {
+    await alice.cells[0].callZome({ zome_name: "mews", fn_name: "follow" });
+    t.fail();
+  } catch (e) {
+    const myFollowers: AgentPubKeyB64[] = await alice.cells[0].callZome({
+      zome_name: "mews",
+      fn_name: "my_following",
+      payload: null,
+    });
+    t.equal(myFollowers.length, 0, "no followers");
+    t.ok(true, "following self failed");
+  }
+  await scenario.cleanUp();
+});
+
+test("Following", async (t) => {
+  const scenario = new Scenario();
+  const [alice, bob] = await scenario.addPlayersWithHapps([
+    { dnas: [clutterDna] },
+    { dnas: [clutterDna] },
+  ]);
+  const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
+  const bobCallMewsZome = getZomeCaller(bob.cells[0], "mews");
+
+  await scenario.shareAllAgents();
+
+  const aliceFollowersInitial: AgentPubKeyB64[] = await aliceCallMewsZome(
+    "my_followers",
+    null
+  );
+  t.ok(aliceFollowersInitial.length === 0, "alice has no followers");
+
+  const aliceMyFollowingInitial: AgentPubKeyB64[] = await aliceCallMewsZome(
+    "my_following",
+    null
+  );
+  t.ok(aliceMyFollowingInitial.length === 0, "alice is not following anyone");
+
+  // bob starts following alice
+  await bobCallMewsZome("follow", alice.agentPubKey);
+  await pause(100);
+
+  const aliceFollowers: AgentPubKeyB64[] = await aliceCallMewsZome(
+    "my_followers",
+    null
+  );
+  const bobAgentPubKey = serializeHash(bob.agentPubKey);
+  t.deepEqual(aliceFollowers, [bobAgentPubKey], "bob follows alice");
+
+  const aliceAgentPubKey = serializeHash(alice.agentPubKey);
+  const followersOfAlice: AgentPubKeyB64[] = await aliceCallMewsZome(
+    "followers",
+    aliceAgentPubKey
+  );
+  t.deepEqual(followersOfAlice, [bobAgentPubKey], "bob is a follower of alice");
+
+  const bobMyFollowing = await bobCallMewsZome("my_following", null);
+  t.deepEqual(bobMyFollowing, [aliceAgentPubKey], "bob is following alice");
+
+  const bobMyFollowers: AgentPubKeyB64[] = await bobCallMewsZome(
+    "my_followers",
+    null
+  );
+  t.ok(bobMyFollowers.length === 0, "bob has no followers");
+
+  const agentsFollowingAlice: AgentPubKeyB64[] = await bobCallMewsZome(
+    "following",
+    bobAgentPubKey
+  );
+  t.deepEqual(
+    agentsFollowingAlice,
+    [aliceAgentPubKey],
+    "bob is a followee of alice"
+  );
+
+  await scenario.cleanUp();
+});
+
+test("Mews by", async (t) => {
+  const scenario = new Scenario();
+  const [alice, bob] = await scenario.addPlayersWithHapps([
+    { dnas: [clutterDna] },
+    { dnas: [clutterDna] },
+  ]);
+  const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
+  const bobCallMewsZome = getZomeCaller(bob.cells[0], "mews");
+
+  await scenario.shareAllAgents();
+
+  const originalMewContent = "test-mew";
+  const originalMewInput: CreateMewInput = {
+    mewType: { [MewTypeName.Original]: null },
+    text: originalMewContent,
+  };
+  const entryHeaderHash: HeaderHashB64 = await aliceCallMewsZome(
+    "create_mew",
+    originalMewInput
+  );
+  t.ok(entryHeaderHash.startsWith("uhCkk"), "alice created a valid mew");
+
+  const mewsByAlice: FeedMew[] = await aliceCallMewsZome(
+    "mews_by",
+    alice.agentPubKey
+  );
+  t.ok(mewsByAlice.length === 1, "mews by alice contains 1 mew");
+  t.equal(
+    mewsByAlice[0].mew.content?.text,
+    originalMewContent,
+    "mews by alice includes her mew"
+  );
+
+  const mewsByBob: FeedMew[] = await bobCallMewsZome(
+    "mews_by",
+    bob.agentPubKey
+  );
+  t.ok(mewsByBob.length === 0, "mews by bob is empty");
+
+  await pause(100);
+
+  const mewsByAliceInBobsCell: FeedMew[] = await bobCallMewsZome(
+    "mews_by",
+    alice.agentPubKey
+  );
+  t.ok(mewsByAliceInBobsCell.length === 1, "1 mew by alice in bob's cell");
+  t.equal(
+    mewsByAliceInBobsCell[0].mew.content?.text,
+    originalMewContent,
+    "mews by alice in bob's cell includes her mew"
+  );
+
+  await scenario.cleanUp();
+});
+
+test("Hashtag, cashtag and mention", async (t) => {
+  const scenario = new Scenario();
+  const alice = await scenario.addPlayerWithHapp({ dnas: [clutterDna] });
+  const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
+
+  const mewContent =
+    "My Mew with #hashtag #سعيدة #😃😃😃 and $cashtag and @mention";
+  const createMewInput: CreateMewInput = {
+    mewType: {
+      original: null,
+    },
+    text: mewContent,
+  };
+
+  const mewHash: HeaderHashB64 = await aliceCallMewsZome(
+    "create_mew",
+    createMewInput
+  );
+  t.ok(mewHash.startsWith("uhCkk"), "alice created a valid mew");
+  console.log("hh", mewHash);
+
+  await pause(100);
+
+  const hashtaggedMews: FeedMew[] = await aliceCallMewsZome(
+    "get_mews_with_hashtag",
+    "#hashtag"
+  );
+  t.ok(hashtaggedMews.length === 1, "one mew with hashtag");
+  t.equal(
+    hashtaggedMews[0].mew.content?.text,
+    mewContent,
+    "mew content matches"
+  );
+
+  const arabicHashtaggedMews: FeedMew[] = await aliceCallMewsZome(
+    "get_mews_with_hashtag",
+    "#سعيدة"
+  );
+  t.ok(arabicHashtaggedMews.length === 1, "one mew with arabic hashtag");
+  t.equal(
+    arabicHashtaggedMews[0].mew.content?.text,
+    mewContent,
+    "mew content matches"
+  );
+
+  // get hashtag containing emojis -- invalid hashtag!
+  const emojiHashtaggedMews: FeedMew[] = await aliceCallMewsZome(
+    "get_mews_with_hashtag",
+    "#😃😃😃"
+  );
+  t.ok(emojiHashtaggedMews.length === 0, "no mew with emoji hashtag");
+
+  const cashtaggedMews: FeedMew[] = await aliceCallMewsZome(
+    "get_mews_with_cashtag",
+    "$cashtag"
+  );
+  t.ok(cashtaggedMews.length === 1, "one mew with cashtag");
+
+  const mentionedMews: FeedMew[] = await aliceCallMewsZome(
+    "get_mews_with_mention",
+    "@mention"
+  );
+  t.ok(mentionedMews.length === 1, "one mew with mention");
+
+  await scenario.cleanUp();
+});
+
+test("Mews Feed - should include own mews", async (t) => {
+  const scenario = new Scenario();
+  const [alice] = await scenario.addPlayersWithHapps([{ dnas: [clutterDna] }]);
+  const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
+
+  const aliceMewsFeedInitial: FeedMew[] = await aliceCallMewsZome("mews_feed", {
+    option: "",
+  });
+  t.ok(
+    aliceMewsFeedInitial.length === 0,
+    "alice's mews feed is initially empty"
+  );
+
+  const mewContent = "test-mew";
+  const mewInput: CreateMewInput = {
+    mewType: { [MewTypeName.Original]: null },
+    text: mewContent,
+  };
+  await aliceCallMewsZome("create_mew", mewInput);
+
+  const aliceMewsFeed: FeedMew[] = await aliceCallMewsZome("mews_feed", {
+    option: "",
+  });
+  t.ok(aliceMewsFeed.length === 1, "alice's mews feed includes her mew");
+  t.equal(
+    aliceMewsFeed[0].mew.content?.text,
+    mewContent,
+    "mew content matches"
+  );
+
+  await scenario.cleanUp();
+});
+
+test("Mews Feed - Should include mews of followed agent", async (t) => {
+  const scenario = new Scenario();
+  const [alice, bob] = await scenario.addPlayersWithHapps([
+    { dnas: [clutterDna] },
+    { dnas: [clutterDna] },
+  ]);
+  await scenario.shareAllAgents();
+  const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
+  const bobCallMewsZome = getZomeCaller(bob.cells[0], "mews");
+
+  const mewContent = "test-mew";
+  const mewInput: CreateMewInput = {
+    mewType: { [MewTypeName.Original]: null },
+    text: mewContent,
+  };
+  await aliceCallMewsZome("create_mew", mewInput);
+
+  const bobMewsFeedInitial: FeedMew[] = await bobCallMewsZome("mews_feed", {
+    option: "",
+  });
+  t.ok(bobMewsFeedInitial.length === 0, "bob's mews feed is initially empty");
+
+  await bobCallMewsZome("follow", alice.agentPubKey);
+
+  const bobMewsFeed: FeedMew[] = await bobCallMewsZome("mews_feed", {
+    option: "",
+  });
+  t.ok(bobMewsFeed.length === 1, "bob's mews feed includes 1 mew");
+  t.equal(
+    bobMewsFeed[0].mew.content?.text,
+    mewContent,
+    "mew content in bob's mews feed matches alice's mew content"
+  );
+
+  await scenario.cleanUp();
+});
+
+test("Mews Feed - Should not include mews of non-followed agent", async (t) => {
+  const scenario = new Scenario();
+  const [alice, bob, carol] = await scenario.addPlayersWithHapps([
+    { dnas: [clutterDna] },
+    { dnas: [clutterDna] },
+    { dnas: [clutterDna] },
+  ]);
+  await scenario.shareAllAgents();
+  const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
+  const bobCallMewsZome = getZomeCaller(bob.cells[0], "mews");
+  const carolCallMewsZome = getZomeCaller(carol.cells[0], "mews");
+
+  const aliceMewContent = "alice-test-mew";
+  const aliceMewInput: CreateMewInput = {
+    mewType: { [MewTypeName.Original]: null },
+    text: aliceMewContent,
+  };
+  await aliceCallMewsZome("create_mew", aliceMewInput);
+
+  const carolMewContent = "carol-test-mew";
+  const carolMewInput: CreateMewInput = {
+    mewType: { [MewTypeName.Original]: null },
+    text: carolMewContent,
+  };
+  await carolCallMewsZome("create_mew", carolMewInput);
+
+  await bobCallMewsZome("follow", alice.agentPubKey);
+
+  const bobMewsFeed: FeedMew[] = await bobCallMewsZome("mews_feed", {
+    option: "",
+  });
+  t.ok(bobMewsFeed.length === 1, "bob's mews feed includes 1 mew");
+  t.equal(
+    bobMewsFeed[0].mew.content?.text,
+    aliceMewContent,
+    "mew content in bob's mews feed matches alice's mew content"
+  );
+
+  await scenario.cleanUp();
+});
+
+test("Mews Feed - Should not include mews of un-followed agent", async (t) => {
+  const scenario = new Scenario();
+  const [alice, bob] = await scenario.addPlayersWithHapps([
+    { dnas: [clutterDna] },
+    { dnas: [clutterDna] },
+  ]);
+  await scenario.shareAllAgents();
+  const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
+  const bobCallMewsZome = getZomeCaller(bob.cells[0], "mews");
+
+  const aliceMewContent = "alice-test-mew";
+  const aliceMewInput: CreateMewInput = {
+    mewType: { [MewTypeName.Original]: null },
+    text: aliceMewContent,
+  };
+  await aliceCallMewsZome("create_mew", aliceMewInput);
+
+  await bobCallMewsZome("follow", alice.agentPubKey);
+
+  const bobMewsFeedWhenFollowing: FeedMew[] = await bobCallMewsZome(
+    "mews_feed",
+    { option: "" }
+  );
+  t.ok(bobMewsFeedWhenFollowing.length === 1, "bob's mews feed includes 1 mew");
+  t.equal(
+    bobMewsFeedWhenFollowing[0].mew.content?.text,
+    aliceMewContent,
+    "mew content in bob's mews feed matches alice's mew content"
+  );
+
+  await bobCallMewsZome("unfollow", alice.agentPubKey);
+
+  const bobMewsFeed: FeedMew[] = await bobCallMewsZome("mews_feed", {
+    option: "",
+  });
+  t.ok(bobMewsFeed.length === 0, "bob's mews feed is empty");
+
+  await scenario.cleanUp();
+});
+
+test("Mews Feed - Should be ordered by timestamp in descending order", async (t) => {
+  const scenario = new Scenario();
+  const [alice, bob, carol] = await scenario.addPlayersWithHapps([
+    { dnas: [clutterDna] },
+    { dnas: [clutterDna] },
+    { dnas: [clutterDna] },
+  ]);
+  await scenario.shareAllAgents();
+  const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
+  const bobCallMewsZome = getZomeCaller(bob.cells[0], "mews");
+  const carolCallMewsZome = getZomeCaller(carol.cells[0], "mews");
+
+  const firstMewContent = "first-test-mew";
+  const firstMewInput: CreateMewInput = {
+    mewType: { [MewTypeName.Original]: null },
+    text: firstMewContent,
+  };
+  await aliceCallMewsZome("create_mew", firstMewInput);
+
+  const secondMewContent = "second-test-mew";
+  const secondMewInput: CreateMewInput = {
+    mewType: { [MewTypeName.Original]: null },
+    text: secondMewContent,
+  };
+  await bobCallMewsZome("create_mew", secondMewInput);
+
+  const thirdMewContent = "third-test-mew";
+  const thirdMewInput: CreateMewInput = {
+    mewType: { [MewTypeName.Original]: null },
+    text: thirdMewContent,
+  };
+  await carolCallMewsZome("create_mew", thirdMewInput);
+
+  const fourthMewContent = "fourth-test-mew";
+  const fourthMewInput: CreateMewInput = {
+    mewType: { [MewTypeName.Original]: null },
+    text: fourthMewContent,
+  };
+  await aliceCallMewsZome("create_mew", fourthMewInput);
+
+  // alice starts following bob and carol
+  await aliceCallMewsZome("follow", bob.agentPubKey);
+  await aliceCallMewsZome("follow", carol.agentPubKey);
+
+  await pause(100);
+
+  const aliceMewsFeed: FeedMew[] = await aliceCallMewsZome("mews_feed", {
+    option: "",
+  });
+  t.ok(aliceMewsFeed.length === 4, "alice's mews feed includes all 4 mews");
+  t.equal(
+    aliceMewsFeed[0].mew.content?.text,
+    fourthMewContent,
+    "mew 1 in feed is fourth mew"
+  );
+  t.equal(
+    aliceMewsFeed[1].mew.content?.text,
+    thirdMewContent,
+    "mew 2 in feed is third mew"
+  );
+  t.equal(
+    aliceMewsFeed[2].mew.content?.text,
+    secondMewContent,
+    "mew 3 in feed is second mew"
+  );
+  t.equal(
+    aliceMewsFeed[3].mew.content?.text,
+    firstMewContent,
+    "mew 4 in feed is first mew"
+  );
+
+  await scenario.cleanUp();
+});
+
+test.skip("Mew Interaction - Like should be included in my likes", async (t) => {
+  const scenario = new Scenario();
+  const [alice] = await scenario.addPlayersWithHapps([{ dnas: [clutterDna] }]);
+  const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
+
+  const aliceMewContent = "alice-test-mew";
+  const aliceMewInput: CreateMewInput = {
+    mewType: { [MewTypeName.Original]: null },
+    text: aliceMewContent,
+  };
+  await aliceCallMewsZome("create_mew", aliceMewInput);
+  await aliceCallMewsZome("create_mew", aliceMewInput);
+
+  // await aliceCallMewsZome("lick", )
+
+  const aliceMewsFeed: FeedMew[] = await aliceCallMewsZome("mews_feed", {
+    option: "",
+  });
+  console.log("alic", aliceMewsFeed);
+  t.deepEqual(
+    "u" + Buffer.from(aliceMewsFeed[0].header.entry_hash).toString("base64url"),
+    aliceMewsFeed[0].mewEntryHash
+  );
+  // t.ok(aliceMewsFeed.length === 1, "alice's mews feed includes 1 mew");
+  // t.equal(
+  //   aliceMewsFeed[0].mew.content?.text,
+  //   aliceMewContent,
+  //   "mew content in bob's mews feed matches alice's mew content"
+  // );
+
+  await scenario.cleanUp();
+});
+
+//   // ==============================================
+//   // test mew interaction: lick, reply, quote, and mewmew
+//   // ==============================================
+
+//   // Alice licks first mew
+//   await alice.call("mews", "lick_mew", originalEntryHash);
+//   let aliceLicks = await alice.call("mews", "my_licks", null);
+//   t.equal(aliceLicks.length, 1);
+//   t.equal(aliceLicks[0], originalEntryHash);
+
+//   const createReplyMewInput: CreateMewInput = {
+//     mewType: {
+//       reply: originalEntryHash,
+//     },
+//     text: "reply mew to original mew!",
+//   };
+
+//   // Alice replies to first mew
+//   const replyMewHash = await alice.call(
+//     "mews",
+//     "create_mew",
+//     createReplyMewInput
+//   );
+//   t.ok(replyMewHash);
+
+//   const createMewMewInput: CreateMewInput = {
+//     mewType: {
+//       mewMew: originalEntryHash,
+//     },
+//     text: null,
+//   };
+
+//   // Alice retweets first mew
+//   const mewMewHash = await alice.call("mews", "create_mew", createMewMewInput);
+//   t.ok(mewMewHash);
+
+//   const createQuoteInput: CreateMewInput = {
+//     mewType: {
+//       quote: originalEntryHash,
+//     },
+//     text: "mewmew of original mew!",
+//   };
+
+//   // Alice quote tweets first mew
+//   const quoteHash = await alice.call("mews", "create_mew", createQuoteInput);
+//   t.ok(quoteHash);
+
+//   await sleep(777);
+
+//   // get orignal mew with context to see if links were created by interacting with it
+//   let mewWithContext: FeedMew = await bob.call(
+//     "mews",
+//     "get_feed_mew_and_context",
+//     mewHash
+//   );
+//   console.log("mew context:", mewWithContext);
+//   t.equals(mewWithContext.replies.length, 1);
+//   t.equals(mewWithContext.quotes.length, 1);
+//   t.equals(mewWithContext.licks.length, 1);
+
+//   // test can get mew with entry hash in addition to header hash
+//   const mewFromEntryHash: Mew = await bob.call(
+//     "mews",
+//     "get_mew",
+//     mewWithContext.replies[0]
+//   );
+//   console.log("mew from entry hash:", mewFromEntryHash);
+//   t.equals(mewFromEntryHash.content?.text, createReplyMewInput.text);
+//   t.equals("reply" in mewFromEntryHash.mewType, true);
+
+//   mewWithContext = await bob.call(
+//     "mews",
+//     "get_feed_mew_and_context",
+//     originalEntryHash
+//   );
+//   console.log("mew context:", mewWithContext);
+//   t.equals(mewWithContext.replies.length, 1);
+//   t.equals(mewWithContext.quotes.length, 1);
+//   t.equals(mewWithContext.licks.length, 1);
+
+//   // unlick mew
+//   await alice.call("mews", "unlick_mew", originalEntryHash);
+//   aliceLicks = await alice.call("mews", "my_licks", null);
+//   t.equal(aliceLicks.length, 0);
+
+//   await sleep(500);
+//   mewWithContext = await bob.call(
+//     "mews",
+//     "get_feed_mew_and_context",
+//     originalEntryHash
+//   );
+//   console.log("mew context:", mewWithContext);
+//   t.equals(mewWithContext.replies.length, 1);
+//   t.equals(mewWithContext.quotes.length, 1);
+//   t.equals(mewWithContext.licks.length, 0);
+// });

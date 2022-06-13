@@ -82,7 +82,7 @@
 
       <create-mew-dialog
         v-if="isReplying"
-        :mew-type="{ reply: feedMew.mewEntryHash }"
+        :mew-type="{ reply: feedMew.headerHash }"
         @mew-created="onMewCreated"
         @close="isReplying = false"
       >
@@ -104,7 +104,7 @@
 
       <create-mew-dialog
         v-if="isQuoting"
-        :mew-type="{ quote: feedMew.mewEntryHash }"
+        :mew-type="{ quote: feedMew.headerHash }"
         @mew-created="onMewCreated"
         @close="isQuoting = false"
       >
@@ -189,24 +189,25 @@ onMounted(async () => {
     serializeHash(props.feedMew.header.author)
   );
 
-  // load original mew author if item is a mewmew or quote
-  if (!(MewTypeName.Original in props.feedMew.mew.mewType)) {
-    loadingOriginalMewAuthor.value = true;
-    const originalMewHash =
-      MewTypeName.MewMew in props.feedMew.mew.mewType
-        ? props.feedMew.mew.mewType.mewMew
-        : MewTypeName.Reply in props.feedMew.mew.mewType
-        ? props.feedMew.mew.mewType.reply
-        : props.feedMew.mew.mewType.quote;
-    getFeedMewAndContext(originalMewHash)
-      .then((mew) => {
-        originalMew.value = mew;
-        profileStore
-          .fetchAgentProfile(serializeHash(mew.header.author))
-          .then((profile) => (originalMewAuthor.value = profile));
-      })
-      .finally(() => (loadingOriginalMewAuthor.value = false));
+  if (MewTypeName.Original in props.feedMew.mew.mewType) {
+    return;
   }
+  // load original mew author if item is a reply, mewmew or quote
+  loadingOriginalMewAuthor.value = true;
+  const originalMewHash =
+    MewTypeName.MewMew in props.feedMew.mew.mewType
+      ? props.feedMew.mew.mewType.mewMew
+      : MewTypeName.Reply in props.feedMew.mew.mewType
+      ? props.feedMew.mew.mewType.reply
+      : props.feedMew.mew.mewType.quote;
+  getFeedMewAndContext(originalMewHash)
+    .then((mew) => {
+      originalMew.value = mew;
+      profileStore
+        .fetchAgentProfile(serializeHash(mew.header.author))
+        .then((profile) => (originalMewAuthor.value = profile));
+    })
+    .finally(() => (loadingOriginalMewAuthor.value = false));
 });
 
 const isReplying = ref(false);
@@ -217,9 +218,9 @@ const isLickedByMe = computed(() =>
 
 const toggleLickMew = async () => {
   if (isLickedByMe.value) {
-    await unlickMew(props.feedMew.mewEntryHash);
+    await unlickMew(props.feedMew.headerHash);
   } else {
-    await lickMew(props.feedMew.mewEntryHash);
+    await lickMew(props.feedMew.headerHash);
   }
   emit("refresh-feed");
 };
@@ -228,7 +229,7 @@ const replyToMew = () => (isReplying.value = true);
 
 const mewMew = async () => {
   const mew: CreateMewInput = {
-    mewType: { mewMew: props.feedMew.mewEntryHash },
+    mewType: { mewMew: props.feedMew.headerHash },
     text: null,
   };
   await createMew(mew);

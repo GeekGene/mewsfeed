@@ -1,7 +1,7 @@
 <template>
   <q-dialog v-model="isVisible" @hide="onClose">
     <q-card class="dialog">
-      <q-card-section class="q-pb-none">
+      <q-card-section class="q-pb-sm">
         <div class="row justify-between items-center">
           <slot name="title" />
           <q-btn v-close-popup icon="close" flat round dense />

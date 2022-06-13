@@ -7,7 +7,7 @@
     </template>
 
     <template #content>
-      <div class="q-mt-sm q-mb-md text-subtitle1">
+      <div class="q-mb-md text-subtitle1">
         <slot name="content" />
       </div>
 
