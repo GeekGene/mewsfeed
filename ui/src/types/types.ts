@@ -35,13 +35,13 @@ export type MewType =
       [MewTypeName.Original]: null;
     }
   | {
-      [MewTypeName.Reply]: EntryHashB64;
+      [MewTypeName.Reply]: HeaderHashB64;
     }
   | {
-      [MewTypeName.MewMew]: EntryHashB64;
+      [MewTypeName.MewMew]: HeaderHashB64;
     }
   | {
-      [MewTypeName.Quote]: EntryHashB64;
+      [MewTypeName.Quote]: HeaderHashB64;
     };
 
 export interface Mew {
@@ -58,13 +58,6 @@ export interface FeedMew {
   quotes: string[];
   licks: string[];
   mewmews: string[];
-}
-
-export interface MewYarn {
-  mew: Mew;
-  header: Header;
-  mew_entry_hash: EntryHashB64;
-  replies: Element[];
 }
 
 export interface NotificationOptions {
