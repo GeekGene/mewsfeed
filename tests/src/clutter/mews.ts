@@ -167,7 +167,6 @@ test("Hashtag, cashtag and mention", async (t) => {
     createMewInput
   );
   t.ok(mewHash.startsWith("uhCkk"), "alice created a valid mew");
-  console.log("hh", mewHash);
 
   await pause(100);
 

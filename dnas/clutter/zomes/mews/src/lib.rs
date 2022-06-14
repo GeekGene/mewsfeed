@@ -92,7 +92,6 @@ pub struct CreateMewInput {
 }
 
 #[hdk_extern]
-// TODO: we want a parsing function here to identify user references, tag references, etc to build posts, links, etc
 pub fn create_mew(mew: CreateMewInput) -> ExternResult<HeaderHashB64> {
     // TODO: enforce mew type is correct
     // check the type
@@ -137,10 +136,8 @@ pub fn create_original_mew(text: String) -> ExternResult<HeaderHashB64> {
 
     let base = get_my_mews_base(MEWS_PATH_SEGMENT, true)?;
 
-    // TODO: maybe return the link_hh later if we need to delete
     let _link_hh = create_link(base, mew_header_hash.clone(), HdkLinkType::Any, ())?;
-    let hash = hash_entry(&mew)?;
-    parse_mew_text(text, hash.clone())?;
+    parse_mew_text(text, mew_header_hash.clone())?;
     Ok(mew_header_hash.into())
 }
 
@@ -159,7 +156,6 @@ pub fn create_reply(
 
     let base = get_my_mews_base(MEWS_PATH_SEGMENT, true)?;
 
-    // TODO: maybe return the link_hh later if we need to delete
     let _link_hh = create_link(base, reply_header_hash.clone(), HdkLinkType::Any, ())?;
     // link off original entry as reply
     let _reply_link_hh = create_link::<HeaderHash, HeaderHash, HdkLinkType, LinkTag>(
@@ -168,8 +164,7 @@ pub fn create_reply(
         HdkLinkType::Any,
         LinkTag::new(REPLY_PATH_SEGMENT),
     )?;
-    let hash = hash_entry(&mew)?;
-    parse_mew_text(text, hash.clone())?;
+    parse_mew_text(text, reply_header_hash.clone())?;
     Ok(reply_header_hash.into())
 }
 
@@ -179,11 +174,9 @@ pub fn create_mewmew(original_header_hash: HeaderHashB64) -> ExternResult<Header
         content: None,
     };
     let mewmew_header_hash = create_entry(&mew)?;
-    // let hash = hash_entry(&mew)?;
 
     let base = get_my_mews_base(MEWS_PATH_SEGMENT, true)?;
 
-    // TODO: maybe return the link_hh later if we need to delete
     let _link_hh = create_link(base, mewmew_header_hash.clone(), HdkLinkType::Any, ())?;
     // link off original entry as mewmew
     let _quote_link_hh = create_link::<HeaderHash, HeaderHash, HdkLinkType, LinkTag>(
@@ -210,7 +203,6 @@ pub fn create_quote(
 
     let base = get_my_mews_base(MEWS_PATH_SEGMENT, true)?;
 
-    // TODO: maybe return the link_hh later if we need to delete
     let _link_hh = create_link(base, quote_header_hash.clone(), HdkLinkType::Any, ())?;
     // link off original entry as quote
     let _quote_link_hh = create_link::<HeaderHash, HeaderHash, HdkLinkType, LinkTag>(
@@ -219,8 +211,7 @@ pub fn create_quote(
         HdkLinkType::Any,
         LinkTag::new(QUOTE_PATH_SEGMENT),
     )?;
-    let hash = hash_entry(&mew)?;
-    parse_mew_text(text, hash.clone())?;
+    parse_mew_text(text, quote_header_hash.clone())?;
     Ok(quote_header_hash.into())
 }
 
@@ -460,15 +451,6 @@ pub fn my_followers(_: ()) -> ExternResult<Vec<AgentPubKeyB64>> {
     follow_inner(me, FOLLOWERS_PATH_SEGMENT)
 }
 
-fn follow_inner(agent: AgentPubKeyB64, base_type: &str) -> ExternResult<Vec<AgentPubKeyB64>> {
-    let base = get_mews_base(agent, base_type, false)?;
-    let links = get_links(base, None)?;
-    Ok(links
-        .into_iter()
-        .map(|link| AgentPubKey::from(EntryHash::from(link.target)).into())
-        .collect())
-}
-
 // get who an agent is following
 #[hdk_extern]
 pub fn following(agent: AgentPubKeyB64) -> ExternResult<Vec<AgentPubKeyB64>> {
@@ -479,6 +461,15 @@ pub fn following(agent: AgentPubKeyB64) -> ExternResult<Vec<AgentPubKeyB64>> {
 #[hdk_extern]
 pub fn followers(agent: AgentPubKeyB64) -> ExternResult<Vec<AgentPubKeyB64>> {
     follow_inner(agent, FOLLOWERS_PATH_SEGMENT)
+}
+
+fn follow_inner(agent: AgentPubKeyB64, base_type: &str) -> ExternResult<Vec<AgentPubKeyB64>> {
+    let base = get_mews_base(agent, base_type, false)?;
+    let links = get_links(base, None)?;
+    Ok(links
+        .into_iter()
+        .map(|link| AgentPubKey::from(EntryHash::from(link.target)).into())
+        .collect())
 }
 
 // *** Tagging (hashtag, cashtag, mention) ***
@@ -505,29 +496,25 @@ pub fn get_mews_from_path(path: Path) -> ExternResult<Vec<FeedMew>> {
     let path_hash = path.path_entry_hash()?;
 
     let links = get_links(path_hash, None)?;
-    let get_input = links
+    let mut mews: Vec<FeedMew> = links
         .into_iter()
-        .map(|link| GetInput::new(link.target.into(), GetOptions::default()))
-        .collect();
-
-    let mew_elements = HDK.with(|hdk| hdk.borrow().get(get_input))?;
-
-    let hashtag_feed: Vec<FeedMew> = mew_elements
-        .into_iter()
-        .filter_map(|me| me)
-        .filter_map(|element| {
-            Some(
-                get_feed_mew_and_context(HeaderHashB64::from(
-                    hash_header(element.header().clone()).unwrap(),
-                ))
-                .unwrap(),
-            )
+        .map(|link| {
+            get(HeaderHash::from(link.target), GetOptions::default())
+                .unwrap()
+                .unwrap()
+        })
+        .map(|element| {
+            get_feed_mew_and_context(HeaderHashB64::from(
+                hash_header(element.header().clone()).unwrap(),
+            ))
+            .unwrap()
         })
         .collect();
-    Ok(hashtag_feed)
+    mews.sort_by(|a, b| b.header.timestamp().cmp(&a.header.timestamp()));
+    Ok(mews)
 }
 
-pub fn parse_mew_text(mew_text: String, mew_hash: EntryHash) -> ExternResult<()> {
+pub fn parse_mew_text(mew_text: String, mew_hash: HeaderHash) -> ExternResult<()> {
     let hashtag_regex = Regex::new(r"#\w+").unwrap();
     let cashtag_regex = Regex::new(r"\$\w+").unwrap();
     let mention_regex = Regex::new(r"@\w+").unwrap();
