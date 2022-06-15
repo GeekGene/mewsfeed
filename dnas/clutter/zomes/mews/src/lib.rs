@@ -44,20 +44,10 @@ pub struct FeedMew {
     pub mew: Mew,
     pub header: Header,
     pub header_hash: HeaderHashB64,
-    pub mew_entry_hash: EntryHashB64,
     pub replies: Vec<AnyLinkableHashB64>,
     pub quotes: Vec<AnyLinkableHashB64>,
     pub licks: Vec<AgentPubKeyB64>,
     pub mewmews: Vec<AnyLinkableHashB64>,
-}
-
-#[derive(Debug, Serialize, Deserialize, SerializedBytes)]
-#[serde(rename_all = "camelCase")]
-pub struct MewYarn {
-    pub mew: Mew,
-    pub header: Header,
-    pub mew_entry_hash: EntryHashB64,
-    pub replies: Vec<Element>,
 }
 
 const MEWS_PATH_SEGMENT: &str = "mews";
@@ -283,16 +273,6 @@ pub fn get_feed_mew_and_context(header_hash: HeaderHashB64) -> ExternResult<Feed
         mew,
         header: element.header().clone(),
         header_hash: hash_header(element.header().clone())?.into(),
-        mew_entry_hash: EntryHash::from(
-            element
-                .header()
-                .entry_hash()
-                .ok_or(WasmError::Guest(String::from(
-                    "could not stringify entry hash",
-                )))?
-                .clone(),
-        )
-        .into(),
         replies,
         quotes,
         licks,
