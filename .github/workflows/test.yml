@@ -8,7 +8,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Cache Cargo and Rust Build
         uses: actions/cache@v2
@@ -43,5 +43,4 @@ jobs:
         run: nix-shell --pure --run "npm ci && npm run build:happ"
 
       - name: Test with tryorama
-        # run a few times; these tests have failed non-deterministically (see "sleep" in tests)
         run: nix-shell --pure --run "npm test && npm test && npm test"
