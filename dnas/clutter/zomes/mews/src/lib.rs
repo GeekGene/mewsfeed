@@ -208,25 +208,9 @@ pub fn create_quote(
 // *** Getting mews ***
 
 #[hdk_extern]
-pub fn get_mew(hash: String) -> ExternResult<Mew> {
-    let header_hash_result = HeaderHashB64::from_b64_str(&hash.clone());
-    let entry_hash_result = EntryHashB64::from_b64_str(&hash);
-
-    match header_hash_result {
-        Ok(header_hash) => Ok(get_mew_inner(HeaderHash::from(header_hash))?),
-        Err(_) => match entry_hash_result {
-            Ok(entry_hash) => Ok(get_mew_inner(EntryHash::from(entry_hash))?),
-            Err(_) => return Err(WasmError::Guest(String::from("invalid hash format"))),
-        },
-    }
-}
-
-pub fn get_mew_inner<H>(hash: H) -> ExternResult<Mew>
-where
-    AnyDhtHash: From<H>,
-{
+pub fn get_mew(header_hash: HeaderHashB64) -> ExternResult<Mew> {
     let element =
-        get(hash, GetOptions::default())?.ok_or(WasmError::Guest(String::from("Mew not found")))?;
+        get(header_hash, GetOptions::default())?.ok_or(WasmError::Guest(String::from("Mew not found")))?;
 
     let mew: Mew = element
         .entry()
@@ -272,7 +256,7 @@ pub fn get_feed_mew_and_context(header_hash: HeaderHashB64) -> ExternResult<Feed
     let feed_mew_and_context = FeedMew {
         mew,
         header: element.header().clone(),
-        header_hash: hash_header(element.header().clone())?.into(),
+        header_hash: HeaderHashB64::from(element.signed_header.as_hash().clone()),
         replies,
         quotes,
         licks,
@@ -484,10 +468,7 @@ pub fn get_mews_from_path(path: Path) -> ExternResult<Vec<FeedMew>> {
                 .unwrap()
         })
         .map(|element| {
-            get_feed_mew_and_context(HeaderHashB64::from(
-                hash_header(element.header().clone()).unwrap(),
-            ))
-            .unwrap()
+            get_feed_mew_and_context(HeaderHashB64::from(element.signed_header.as_hash().clone())).unwrap()
         })
         .collect();
     mews.sort_by(|a, b| b.header.timestamp().cmp(&a.header.timestamp()));
