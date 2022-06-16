@@ -3,6 +3,7 @@
   "description": "A UI for Clutter based on Vue",
   "author": "Jost Schulte",
   "version": "0.0.1",
+  "type": "module",
   "scripts": {
     "start": "VITE_HC_PORT=$HC_PORT vite",
     "build": "vue-tsc --noEmit && vite build",
@@ -25,8 +26,7 @@
     "@quasar/vite-plugin": "^1.0.8",
     "@vitejs/plugin-vue": "^2.3.1",
     "sass": "^1.32.0",
-    "typescript": "^4.6.3",
     "vite": "^2.9.1",
-    "vue-tsc": "^0.29.8"
+    "vue-tsc": "^0.37.8"
   }
 }

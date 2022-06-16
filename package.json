@@ -1,7 +1,7 @@
 {
   "name": "clutter-dev",
   "private": true,
-  "version": "0.3.0",
+  "version": "0.4.0",
   "workspaces": [
     "ui",
     "tests"
@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "@holochain-playground/cli": "^0.0.8",
-    "@typescript-eslint/eslint-plugin": "^5.17.0",
+    "@typescript-eslint/eslint-plugin": "^5.28.0",
     "@typescript-eslint/parser": "^5.17.0",
     "bestzip": "^2.2.0",
     "concurrently": "^6.2.1",
