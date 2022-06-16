@@ -87,7 +87,7 @@ test("Following", async (t) => {
   t.deepEqual(
     agentsFollowingAlice,
     [aliceAgentPubKey],
-    "bob is a followee of alice"
+    "bob is a follower of alice"
   );
 
   await scenario.cleanUp();
@@ -311,6 +311,7 @@ test("Mews Feed - should not include mews of non-followed agent", async (t) => {
   await carolCallMewsZome("create_mew", carolMewInput);
 
   await bobCallMewsZome("follow", alice.agentPubKey);
+  await pause(100);
 
   const bobMewsFeed: FeedMew[] = await bobCallMewsZome("mews_feed", {
     option: "",
@@ -343,6 +344,7 @@ test("Mews Feed - un-following should exclude agent's mews from feed", async (t)
   await aliceCallMewsZome("create_mew", aliceMewInput);
 
   await bobCallMewsZome("follow", alice.agentPubKey);
+  await pause(100);
 
   const bobMewsFeedWhenFollowing: FeedMew[] = await bobCallMewsZome(
     "mews_feed",
