@@ -43,4 +43,4 @@ jobs:
         run: nix-shell --pure --run "npm ci && npm run build:happ"
 
       - name: Test with tryorama
-        run: nix-shell --pure --run "npm test && npm test && npm test"
+        run: nix-shell --pure --run "npm test"
