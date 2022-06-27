@@ -8,23 +8,14 @@
   },
   "author": "",
   "license": "CAL-1.0",
-  "dependencies": {
+  "type": "module",
+  "devDependencies": {
+    "@holochain-open-dev/core-types": "^0.1.1",
+    "@holochain/tryorama": "^0.5.4",
     "@msgpack/msgpack": "^2.7.0",
-    "esm": "^3.2.25",
-    "js-base64": "^3.6.1",
-    "lodash-es": "^4.17.21",
-    "path": "^0.12.7",
+    "@types/tape": "^4.13.2",
     "tape": "^5.2.2",
     "ts-node": "^10.8.1",
     "uuidv4": "^6.2.11"
-  },
-  "devDependencies": {
-    "@detools/tap-diff": "^0.2.2",
-    "@holochain-open-dev/core-types": "^0.1.1",
-    "@holochain/tryorama": "^0.5.4",
-    "@types/lodash": "^4.14.158",
-    "@types/node": "^14.0.14",
-    "@types/tape": "^4.13.2"
-  },
-  "type": "module"
+  }
 }
