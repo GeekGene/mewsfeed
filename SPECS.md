@@ -19,7 +19,7 @@
    - [x] Enforce minimum length of 3 characters
  - [x] Create / Edit user profile
    - [x] Display name / full name
-   - [ ] Default: identicon as avatar
+   - [ ] ~~Default: identicon as avatar~~ (avatars are mandatory in profile DNA)
    - [x] Upload avatar image
    - [x] Basic 1-line bio
    - [x] Location
