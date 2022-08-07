@@ -8,10 +8,9 @@ crate-type = ["cdylib", "rlib"]
 name = "mews"
 
 [dependencies]
-serde = "1"
-derive_more = "0"
 chrono = {version = "0.4", features = ["serde"]}
+derive_more = "0"
 regex = "1"
+serde = "1"
 
-hdk = {version = "0.0.132", features = ["encoding"]}
-
+hdk = {version = "0.0.138", features = ["encoding"]}
