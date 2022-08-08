@@ -3,32 +3,46 @@ import {
   CallZomeRequest,
   InstalledAppInfo,
   InstalledCell,
+  RoleId,
 } from "@holochain/client";
 import { inject, InjectionKey } from "vue";
 import { CreateMewInput, FeedOptions, FeedMew, Mew } from "../types/types";
 import { AgentPubKeyB64, HeaderHashB64 } from "@holochain-open-dev/core-types";
+import { CellClient, HolochainClient } from "@holochain-open-dev/cell-client";
 
 let appWebSocket: AppWebsocket;
+let cellClient: CellClient;
 let appInfo: InstalledAppInfo;
 
 export const installed_app_id = "clutter";
 
 export let clutterCell: InstalledCell;
 
-export const APP_WEB_SOCKET: InjectionKey<AppWebsocket> = Symbol();
+export const APP_WEB_SOCKET: InjectionKey<CellClient> = Symbol();
 export const connectAppWebSocket = async () => {
-  if (!appWebSocket) {
-    appWebSocket = await AppWebsocket.connect(
+  async function setupClient() {
+    const appWebsocket = await AppWebsocket.connect(
       `ws://localhost:${import.meta.env.VITE_HC_PORT}`
     );
-    appInfo = await appWebSocket.appInfo({ installed_app_id });
-    const cell = appInfo.cell_data.find((cell) => cell.role_id === "clutter");
-    if (!cell) {
-      throw new Error('Could not find cell "clutter"');
-    }
-    clutterCell = cell;
+    const client = new HolochainClient(appWebsocket);
+    return client;
   }
-  return appWebSocket;
+  // if (!appWebSocket) {
+  //   appInfo = await appWebSocket.appInfo({ installed_app_id });
+  //   clutterCell = cell;
+  // }
+  // return appWebSocket;
+  const client = await setupClient();
+  const appInfo = await client.appWebsocket.appInfo({ installed_app_id });
+  // Find the cell you want to make the call to
+  // const cell = appInfo.cell_data[0];
+  const cell = appInfo.cell_data.find((cell) => cell.role_id === "clutter");
+  if (!cell) {
+    throw new Error('Could not find cell "clutter"');
+  }
+
+  cellClient = new CellClient(client, cell);
+  return cellClient;
 };
 
 export const useAppWebSocket = () => {
@@ -41,17 +55,7 @@ export const useAppWebSocket = () => {
 
 const callZome = async (
   req: Pick<CallZomeRequest, "zome_name" | "fn_name" | "payload">
-) => {
-  const provenance = clutterCell.cell_id[1];
-  return appWebSocket.callZome({
-    cell_id: clutterCell.cell_id,
-    zome_name: req.zome_name,
-    fn_name: req.fn_name,
-    payload: req.payload,
-    cap_secret: null,
-    provenance,
-  });
-};
+) => cellClient.callZome(req.zome_name, req.fn_name, req.payload);
 
 export enum MewsFn {
   CreateMew = "create_mew",

@@ -12,10 +12,9 @@
   },
   "dependencies": {
     "@holochain-open-dev/cell-client": "^0.6.1",
-    "@holochain-open-dev/context": "^0.0.3",
-    "@holochain-open-dev/core-types": "^0.2.0",
-    "@holochain-open-dev/profiles": "^0.0.10",
-    "@holochain/client": "^0.3.4",
+    "@holochain-open-dev/core-types": "^0.4.0",
+    "@holochain-open-dev/profiles": "^0.4.3",
+    "@holochain/client": "^0.7.0",
     "@quasar/extras": "^1.13.5",
     "pinia": "^2.0.14",
     "quasar": "^2.6.5",
