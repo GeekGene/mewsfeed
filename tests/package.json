@@ -2,20 +2,21 @@
   "name": "tests",
   "version": "0.0.0",
   "description": "",
-  "main": "index.js",
+  "type": "module",
+  "main": "src/index.js",
   "scripts": {
-    "test": "RUST_BACKTRACE=1 RUST_LOG=holochain::core::ribosome::host_fn::debug=debug TRYORAMA_HOLOCHAIN_PATH=\"holochain\" node --loader ts-node/esm --experimental-specifier-resolution=node src/index.ts"
+    "test": "RUST_BACKTRACE=1 RUST_LOG=holochain::core::ribosome::host_fn::debug=debug TRYORAMA_HOLOCHAIN_PATH=\"holochain\" node --loader ts-node/esm src/index.ts"
   },
   "author": "",
   "license": "CAL-1.0",
-  "type": "module",
   "devDependencies": {
-    "@holochain-open-dev/core-types": "^0.1.1",
+    "@holochain-open-dev/core-types": "^0.4.0",
+    "@holochain-open-dev/utils": "^0.3.1",
     "@holochain/tryorama": "^0.5.4",
     "@msgpack/msgpack": "^2.7.0",
     "@types/tape": "^4.13.2",
     "tape": "^5.2.2",
-    "ts-node": "^10.8.1",
+    "ts-node": "^10.9.1",
     "uuidv4": "^6.2.11"
   }
 }

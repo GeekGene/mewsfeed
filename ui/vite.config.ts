@@ -17,7 +17,6 @@ export default defineConfig({
       template: {
         transformAssetUrls,
         compilerOptions: {
-          // treat all tags with a dash as custom elements
           isCustomElement: (tag) =>
             tag.includes("profiles-context") ||
             tag.includes("profile-prompt") ||
