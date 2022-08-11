@@ -1,14 +1,13 @@
 <template>
   <q-card v-bind="$attrs" class="text-body1">
     <q-card-section class="row justify-between items-center">
-      <context-provider :context="profilesStoreContext" :value="profileStore">
-        <agent-avatar
-          :agent-pub-key="agentPubKey"
-          size="50"
-          :class="['q-mr-lg', { 'cursor-pointer': !isCurrentProfile }]"
-          @click="onAgentClick(agentPubKey)"
-        />
-      </context-provider>
+      <agent-avatar
+        :agentPubKey="agentPubKey"
+        :store="profileStore"
+        size="50"
+        :class="['q-mr-lg', { 'cursor-pointer': !isCurrentProfile }]"
+        @click="onAgentClick(agentPubKey)"
+      />
       <div
         :class="['q-mr-lg', { 'cursor-pointer': !isCurrentProfile }]"
         @click="onAgentClick(agentPubKey)"
@@ -34,18 +33,20 @@
 </template>
 
 <script setup lang="ts">
-import { HoloHashB64 } from "@holochain-open-dev/core-types";
-import { profilesStoreContext } from "@holochain-open-dev/profiles";
 import { useProfileStore } from "@/services/profile-store";
-import { computed, onMounted, PropType, ref } from "vue";
-import { useRouter } from "vue-router";
+import { isSameAgentPubKey } from "@/utils/hash";
 import { showError } from "@/utils/notification";
 import { useProfileUtils } from "@/utils/profile";
+import { Profile } from "@holochain-open-dev/profiles";
+import { serializeHash } from "@holochain-open-dev/utils";
+import { AgentPubKey } from "@holochain/client";
+import { computed, onMounted, PropType, ref } from "vue";
+import { useRouter } from "vue-router";
 import ButtonFollow from "./ButtonFollow.vue";
 
 const props = defineProps({
   agentPubKey: {
-    type: String as PropType<HoloHashB64>,
+    type: Object as PropType<AgentPubKey>,
     required: true,
   },
 });
@@ -53,11 +54,12 @@ const props = defineProps({
 const router = useRouter();
 const profileStore = useProfileStore();
 const { onAgentClick } = useProfileUtils();
-const isMyProfile = computed(
-  () => props.agentPubKey === profileStore.myAgentPubKey
+const isMyProfile = computed(() =>
+  isSameAgentPubKey(props.agentPubKey, profileStore.myAgentPubKey)
 );
 const isCurrentProfile = computed(
-  () => router.currentRoute.value.params.agent === props.agentPubKey
+  () =>
+    router.currentRoute.value.params.agent === serializeHash(props.agentPubKey)
 );
 
 const nickname = ref("");
@@ -69,7 +71,11 @@ const loading = ref(false);
 onMounted(async () => {
   try {
     loading.value = true;
-    const profile = await profileStore.fetchAgentProfile(props.agentPubKey);
+    let profile: Profile | undefined;
+    const profileReadable = await profileStore.fetchAgentProfile(
+      props.agentPubKey
+    );
+    profileReadable.subscribe((p) => (profile = p));
     if (profile) {
       nickname.value = profile.nickname;
       displayName.value = profile.fields["Display name"];

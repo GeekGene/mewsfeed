@@ -1,17 +1,21 @@
 import { ROUTES } from "@/router";
-import { HoloHashB64 } from "@holochain/client";
+import { serializeHash } from "@holochain-open-dev/utils";
+import { AgentPubKey } from "@holochain/client";
 import { useRoute, useRouter } from "vue-router";
 
 export const useProfileUtils = () => {
   const route = useRoute();
   const router = useRouter();
 
-  const isCurrentProfile = (agentPubKey: HoloHashB64) =>
-    route.params.agent === agentPubKey;
+  const isCurrentProfile = (agentPubKey: AgentPubKey) =>
+    route.params.agent === serializeHash(agentPubKey);
 
-  const onAgentClick = (agentPubKey: HoloHashB64) => {
+  const onAgentClick = (agentPubKey: AgentPubKey) => {
     if (!isCurrentProfile(agentPubKey)) {
-      router.push({ name: ROUTES.profiles, params: { agent: agentPubKey } });
+      router.push({
+        name: ROUTES.profiles,
+        params: { agent: serializeHash(agentPubKey) },
+      });
     }
   };
 

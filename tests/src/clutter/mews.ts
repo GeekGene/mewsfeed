@@ -1,8 +1,4 @@
-import {
-  AgentPubKeyB64,
-  HeaderHashB64,
-  serializeHash,
-} from "@holochain-open-dev/core-types";
+import { ActionHash, AgentPubKey } from "@holochain/client";
 import { getZomeCaller, pause, Scenario } from "@holochain/tryorama";
 import test from "tape";
 import {
@@ -19,7 +15,7 @@ test("Following oneself should fail", async (t) => {
     await alice.cells[0].callZome({ zome_name: "mews", fn_name: "follow" });
     t.fail();
   } catch (e) {
-    const myFollowers: AgentPubKeyB64[] = await alice.cells[0].callZome({
+    const myFollowers: AgentPubKey[] = await alice.cells[0].callZome({
       zome_name: "mews",
       fn_name: "my_following",
       payload: null,
@@ -41,13 +37,13 @@ test("Following", async (t) => {
 
   await scenario.shareAllAgents();
 
-  const aliceFollowersInitial: AgentPubKeyB64[] = await aliceCallMewsZome(
+  const aliceFollowersInitial: AgentPubKey[] = await aliceCallMewsZome(
     "my_followers",
     null
   );
   t.ok(aliceFollowersInitial.length === 0, "alice has no followers");
 
-  const aliceMyFollowingInitial: AgentPubKeyB64[] = await aliceCallMewsZome(
+  const aliceMyFollowingInitial: AgentPubKey[] = await aliceCallMewsZome(
     "my_following",
     null
   );
@@ -57,36 +53,38 @@ test("Following", async (t) => {
   await bobCallMewsZome("follow", alice.agentPubKey);
   await pause(100);
 
-  const aliceFollowers: AgentPubKeyB64[] = await aliceCallMewsZome(
+  const aliceFollowers: AgentPubKey[] = await aliceCallMewsZome(
     "my_followers",
     null
   );
-  const bobAgentPubKey = serializeHash(bob.agentPubKey);
-  t.deepEqual(aliceFollowers, [bobAgentPubKey], "bob follows alice");
+  t.deepEqual(aliceFollowers, [bob.agentPubKey], "bob follows alice");
 
-  const aliceAgentPubKey = serializeHash(alice.agentPubKey);
-  const followersOfAlice: AgentPubKeyB64[] = await aliceCallMewsZome(
+  const followersOfAlice: AgentPubKey[] = await aliceCallMewsZome(
     "followers",
-    aliceAgentPubKey
+    alice.agentPubKey
   );
-  t.deepEqual(followersOfAlice, [bobAgentPubKey], "bob is a follower of alice");
+  t.deepEqual(
+    followersOfAlice,
+    [bob.agentPubKey],
+    "bob is a follower of alice"
+  );
 
   const bobMyFollowing = await bobCallMewsZome("my_following", null);
-  t.deepEqual(bobMyFollowing, [aliceAgentPubKey], "bob is following alice");
+  t.deepEqual(bobMyFollowing, [alice.agentPubKey], "bob is following alice");
 
-  const bobMyFollowers: AgentPubKeyB64[] = await bobCallMewsZome(
+  const bobMyFollowers: AgentPubKey[] = await bobCallMewsZome(
     "my_followers",
     null
   );
   t.ok(bobMyFollowers.length === 0, "bob has no followers");
 
-  const agentsFollowingAlice: AgentPubKeyB64[] = await bobCallMewsZome(
+  const agentsFollowingAlice: AgentPubKey[] = await bobCallMewsZome(
     "following",
-    bobAgentPubKey
+    bob.agentPubKey
   );
   t.deepEqual(
     agentsFollowingAlice,
-    [aliceAgentPubKey],
+    [alice.agentPubKey],
     "bob is a follower of alice"
   );
 
@@ -109,11 +107,15 @@ test("Mews by", async (t) => {
     mewType: { [MewTypeName.Original]: null },
     text: originalMewContent,
   };
-  const entryHeaderHash: HeaderHashB64 = await aliceCallMewsZome(
+  const entryHeaderHash: ActionHash = await aliceCallMewsZome(
     "create_mew",
     originalMewInput
   );
-  t.ok(entryHeaderHash.startsWith("uhCkk"), "alice created a valid mew");
+  t.deepEqual(
+    entryHeaderHash.slice(0, 3),
+    Buffer.from([132, 41, 36]),
+    "alice created a valid mew"
+  );
 
   const mewsByAlice: FeedMew[] = await aliceCallMewsZome(
     "mews_by",
@@ -162,11 +164,15 @@ test("Hashtag, cashtag and mention", async (t) => {
     text: mewContent,
   };
 
-  const mewHash: HeaderHashB64 = await aliceCallMewsZome(
+  const mewHash: ActionHash = await aliceCallMewsZome(
     "create_mew",
     createMewInput
   );
-  t.ok(mewHash.startsWith("uhCkk"), "alice created a valid mew");
+  t.deepEqual(
+    mewHash.slice(0, 3),
+    Buffer.from([132, 41, 36]),
+    "alice created a valid mew"
+  );
 
   await pause(100);
 
@@ -451,16 +457,16 @@ test("Mew Interaction - liked mew should be included in my likes", async (t) => 
     mewType: { [MewTypeName.Original]: null },
     text: aliceMewContent,
   };
-  const mewHeaderHash: HeaderHashB64 = await aliceCallMewsZome(
+  const mewHeaderHash: ActionHash = await aliceCallMewsZome(
     "create_mew",
     aliceMewInput
   );
 
   await aliceCallMewsZome("lick_mew", mewHeaderHash);
 
-  const myLikes: HeaderHashB64[] = await aliceCallMewsZome("my_licks", null);
+  const myLikes: ActionHash[] = await aliceCallMewsZome("my_licks", null);
   t.equal(myLikes.length, 1, "alice has 1 like");
-  t.equal(myLikes[0], mewHeaderHash, "alice's like is the mew she created");
+  t.deepEqual(myLikes[0], mewHeaderHash, "alice's like is the mew she created");
 
   await scenario.cleanUp();
 });
@@ -475,7 +481,7 @@ test("Mew Interaction - unliked mew should be excluded from my likes", async (t)
     mewType: { [MewTypeName.Original]: null },
     text: aliceMewContent,
   };
-  const mewHeaderHash: HeaderHashB64 = await aliceCallMewsZome(
+  const mewHeaderHash: ActionHash = await aliceCallMewsZome(
     "create_mew",
     aliceMewInput
   );
@@ -483,7 +489,7 @@ test("Mew Interaction - unliked mew should be excluded from my likes", async (t)
   await aliceCallMewsZome("lick_mew", mewHeaderHash);
   await aliceCallMewsZome("unlick_mew", mewHeaderHash);
 
-  const myLikes: HeaderHashB64[] = await aliceCallMewsZome("my_licks", null);
+  const myLikes: ActionHash[] = await aliceCallMewsZome("my_licks", null);
   t.equal(myLikes.length, 0, "alice has no likes");
 
   await scenario.cleanUp();
@@ -499,7 +505,7 @@ test("Mew Interaction - replying to a mew should be linked correctly", async (t)
     mewType: { [MewTypeName.Original]: null },
     text: aliceMewContent,
   };
-  const mewHeaderHash: HeaderHashB64 = await aliceCallMewsZome(
+  const mewHeaderHash: ActionHash = await aliceCallMewsZome(
     "create_mew",
     aliceMewInput
   );
@@ -509,7 +515,7 @@ test("Mew Interaction - replying to a mew should be linked correctly", async (t)
     mewType: { [MewTypeName.Reply]: mewHeaderHash },
     text: aliceReplyContent,
   };
-  const replyHeaderHash: HeaderHashB64 = await aliceCallMewsZome(
+  const replyHeaderHash: ActionHash = await aliceCallMewsZome(
     "create_mew",
     aliceReplyInput
   );
@@ -535,7 +541,7 @@ test("Mew Interaction - replying to a mew should be linked correctly", async (t)
   );
   t.equal(originalMew.mew.content?.text, aliceMewContent, "mew is alice's mew");
   t.ok(originalMew.replies.length === 1, "original mew has 1 reply");
-  t.equal(
+  t.deepEqual(
     originalMew.replies[0],
     replyHeaderHash,
     "original mew's reply is alice's reply"
@@ -554,7 +560,7 @@ test("Mew Interaction - mewmewing a mew should be linked correctly", async (t) =
     mewType: { [MewTypeName.Original]: null },
     text: aliceMewContent,
   };
-  const mewHeaderHash: HeaderHashB64 = await aliceCallMewsZome(
+  const mewHeaderHash: ActionHash = await aliceCallMewsZome(
     "create_mew",
     aliceMewInput
   );
@@ -563,7 +569,7 @@ test("Mew Interaction - mewmewing a mew should be linked correctly", async (t) =
     mewType: { [MewTypeName.MewMew]: mewHeaderHash },
     text: null,
   };
-  const mewmewHeaderHash: HeaderHashB64 = await aliceCallMewsZome(
+  const mewmewHeaderHash: ActionHash = await aliceCallMewsZome(
     "create_mew",
     aliceMewmewInput
   );
@@ -585,7 +591,7 @@ test("Mew Interaction - mewmewing a mew should be linked correctly", async (t) =
   );
   t.equal(originalMew.mew.content?.text, aliceMewContent, "mew is alice's mew");
   t.ok(originalMew.mewmews.length === 1, "original mew has 1 mewmew");
-  t.equal(
+  t.deepEqual(
     originalMew.mewmews[0],
     mewmewHeaderHash,
     "original mew's mewmew is alice's mewmew"
@@ -604,7 +610,7 @@ test("Mew Interaction - quoting a mew should be linked correctly", async (t) => 
     mewType: { [MewTypeName.Original]: null },
     text: aliceMewContent,
   };
-  const mewHeaderHash: HeaderHashB64 = await aliceCallMewsZome(
+  const mewHeaderHash: ActionHash = await aliceCallMewsZome(
     "create_mew",
     aliceMewInput
   );
@@ -614,7 +620,7 @@ test("Mew Interaction - quoting a mew should be linked correctly", async (t) => 
     mewType: { [MewTypeName.Quote]: mewHeaderHash },
     text: aliceQuoteText,
   };
-  const quoteHeaderHash: HeaderHashB64 = await aliceCallMewsZome(
+  const quoteHeaderHash: ActionHash = await aliceCallMewsZome(
     "create_mew",
     aliceQuoteInput
   );
@@ -636,7 +642,7 @@ test("Mew Interaction - quoting a mew should be linked correctly", async (t) => 
   );
   t.equal(originalMew.mew.content?.text, aliceMewContent, "mew is alice's mew");
   t.ok(originalMew.quotes.length === 1, "original mew has 1 quote");
-  t.equal(
+  t.deepEqual(
     originalMew.quotes[0],
     quoteHeaderHash,
     "original mew's quote is alice's quote"

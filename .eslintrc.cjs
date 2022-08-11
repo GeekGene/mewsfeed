@@ -12,6 +12,13 @@ module.exports = {
     "plugin:vue/vue3-recommended",
     "plugin:prettier/recommended",
   ],
+  rules: {
+    "vue/attribute-hyphenation": [
+      "warn",
+      "always",
+      { ignore: ["agentPubKey"] },
+    ],
+  },
   env: {
     "vue/setup-compiler-macros": true,
   },

@@ -17,12 +17,11 @@ export default defineConfig({
       template: {
         transformAssetUrls,
         compilerOptions: {
-          // treat all tags with a dash as custom elements
           isCustomElement: (tag) =>
-            tag.includes("profile") ||
-            tag.includes("context-provider") ||
+            tag.includes("profiles-context") ||
+            tag.includes("profile-prompt") ||
             tag.includes("agent-avatar") ||
-            tag.includes("search-agent"),
+            tag.includes("my-profile"),
         },
       },
     }),

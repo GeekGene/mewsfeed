@@ -1,7 +1,8 @@
 [workspace]
 resolver = "2"
 members = [
-    "dnas/clutter/zomes/profiles",
+    "dnas/clutter/integrity_zomes/profiles",
+    "dnas/clutter/coordinator_zomes/profiles",
     "dnas/clutter/zomes/mews",
 ]
 

@@ -1,11 +1,17 @@
 ---
 manifest_version: "1"
 name: clutter
-uuid: 00000000-0000-0000-0000-000000000000
-properties: ~
-zomes: 
-  - name: profiles
-    bundled: ../../../target/wasm32-unknown-unknown/release/profiles.wasm
-  - name: mews
-    bundled: ../../../target/wasm32-unknown-unknown/release/mews.wasm
-
+integrity:
+  uuid: 00000000-0000-0000-0000-000000000000
+  properties: ~
+  zomes:
+    - name: profiles_integrity
+      bundled: ../../../target/wasm32-unknown-unknown/release/profiles_integrity.wasm
+    - name: mews
+      bundled: ../../../target/wasm32-unknown-unknown/release/mews.wasm
+coordinator:
+  zomes:
+    - name: profiles
+      bundled: ../../../target/wasm32-unknown-unknown/release/profiles.wasm
+      dependencies:
+        - name: profiles_integrity
