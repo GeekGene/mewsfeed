@@ -5,11 +5,7 @@
     <q-card v-else v-bind="$attrs" flat class="q-mb-md text-body1">
       <q-card-section class="flex justify-between">
         <div class="flex items-center">
-          <agent-avatar
-            :agent-pub-key="agentPubKey"
-            size="50"
-            class="q-mr-lg"
-          />
+          <agent-avatar :agentPubKey="agentPubKey" size="50" class="q-mr-lg" />
           <div class="q-mr-lg text-primary text-weight-medium">
             {{ displayName }}
           </div>
@@ -45,13 +41,20 @@ import { showError } from "@/utils/notification";
 import { computed, onMounted, ref, watch } from "vue";
 import { mewsBy, myFollowing } from "@/services/clutter-dna";
 import { FeedMew } from "@/types/types";
+import { isSameAgentPubKey } from "@/utils/hash";
 import ButtonFollow from "@/components/ButtonFollow.vue";
 import MewList from "../components/MewList.vue";
+import { deserializeHash } from "@holochain-open-dev/utils";
+import { Profile } from "@holochain-open-dev/profiles";
 
 const profileStore = useProfileStore();
 const route = useRoute();
 const agentPubKey = computed(() =>
-  Array.isArray(route.params.agent) ? route.params.agent[0] : route.params.agent
+  deserializeHash(
+    Array.isArray(route.params.agent)
+      ? route.params.agent[0]
+      : route.params.agent
+  )
 );
 const loadingMews = ref(false);
 const loadingProfile = ref(false);
@@ -62,8 +65,8 @@ const location = ref("");
 const following = ref(false);
 const mews = ref<FeedMew[]>([]);
 
-const isMyProfile = computed(
-  () => agentPubKey.value === profileStore.myAgentPubKey
+const isMyProfile = computed(() =>
+  isSameAgentPubKey(agentPubKey.value, profileStore.myAgentPubKey)
 );
 
 const loadMews = async () => {
@@ -80,10 +83,12 @@ const loadMews = async () => {
 const loadProfile = async () => {
   try {
     loadingProfile.value = true;
-    const [profile, currentMyFollowing] = await Promise.all([
+    const [profileReadable, currentMyFollowing] = await Promise.all([
       profileStore.fetchAgentProfile(agentPubKey.value),
       myFollowing(),
     ]);
+    let profile: Profile | undefined;
+    profileReadable.subscribe((p) => (profile = p));
     if (profile) {
       nickname.value = profile.nickname;
       displayName.value = profile.fields["Display name"];

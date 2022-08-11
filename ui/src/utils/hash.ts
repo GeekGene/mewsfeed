@@ -1,8 +1,2 @@
-import { serializeHash } from "@holochain-open-dev/core-types";
-
-export const getUrlSafeAgentPubKey = (author: unknown) => {
-  if (author instanceof Uint8Array) {
-    return serializeHash(author);
-  }
-  throw new TypeError("AgentPubKey is not Uint8Array");
-};
+export const isSameAgentPubKey = (key1: Uint8Array, key2: Uint8Array) =>
+  key1.every((byte, index) => key2[index] === byte);

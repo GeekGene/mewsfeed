@@ -8,7 +8,7 @@
         </div>
       </q-card-section>
 
-      <q-card-section class="q-py-lg">
+      <q-card-section class="q-pb-lg">
         <slot name="content" />
       </q-card-section>
     </q-card>

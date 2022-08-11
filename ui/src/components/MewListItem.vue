@@ -8,14 +8,16 @@
   >
     <template #[slotName]>
       <q-item-section avatar>
-        <avatar-with-popup :agent-pub-key="feedMew.header.author" />
+        <avatar-with-popup :agent-pub-key="feedMew.action.author" />
       </q-item-section>
 
       <q-item-section>
         <div class="row q-mb-sm">
           <div
-            :class="{ 'cursor-pointer': !isCurrentProfile(urlSafeAgentPubKey) }"
-            @click="onAgentClick(urlSafeAgentPubKey)"
+            :class="{
+              'cursor-pointer': !isCurrentProfile(feedMew.action.author),
+            }"
+            @click="onAgentClick(feedMew.action.author)"
           >
             <span class="q-mr-xs text-primary text-weight-bold">
               {{ displayName }}
@@ -33,9 +35,7 @@
               v-else-if="originalMew && originalMewAuthor"
               :to="{
                 name: ROUTES.profiles,
-                params: {
-                  agent: getUrlSafeAgentPubKey(originalMew.header.author),
-                },
+                params: { agent: serializeHash(originalMew.action.author) },
               }"
               class="text-secondary"
             >
@@ -50,7 +50,7 @@
           <q-space />
 
           <span class="q-ml-md text-caption">
-            <timestamp :timestamp="feedMew.header.timestamp" />
+            <timestamp :timestamp="feedMew.action.timestamp" />
           </span>
         </div>
 
@@ -82,7 +82,7 @@
 
       <create-mew-dialog
         v-if="isReplying"
-        :mew-type="{ reply: feedMew.headerHash }"
+        :mew-type="{ reply: feedMew.actionHash }"
         @mew-created="onMewCreated"
         @close="isReplying = false"
       >
@@ -95,7 +95,7 @@
             <span>@{{ nickname }}</span>
           </span>
         </template>
-        <template #subtitle>
+        <template #content>
           <div class="text-grey-7">
             <mew-content :feed-mew="feedMew" />
           </div>
@@ -104,7 +104,7 @@
 
       <create-mew-dialog
         v-if="isQuoting"
-        :mew-type="{ quote: feedMew.headerHash }"
+        :mew-type="{ quote: feedMew.actionHash }"
         @mew-created="onMewCreated"
         @close="isQuoting = false"
       >
@@ -117,7 +117,7 @@
             <span>@{{ nickname }}</span>
           </span>
         </template>
-        <template #subtitle>
+        <template #content>
           <div class="text-grey-7">
             <mew-content :feed-mew="feedMew" />
           </div>
@@ -142,10 +142,10 @@ import {
 } from "@/services/clutter-dna";
 import { useProfileStore } from "@/services/profile-store";
 import { CreateMewInput, FeedMew, MewTypeName } from "@/types/types";
-import { getUrlSafeAgentPubKey } from "@/utils/hash";
+import { isSameAgentPubKey } from "@/utils/hash";
 import { useProfileUtils } from "@/utils/profile";
-import { serializeHash } from "@holochain-open-dev/core-types";
 import { Profile } from "@holochain-open-dev/profiles";
+import { serializeHash } from "@holochain-open-dev/utils";
 import { QExpansionItem, QItem } from "quasar";
 import { computed, onMounted, PropType, ref } from "vue";
 import AvatarWithPopup from "./AvatarWithPopup.vue";
@@ -159,7 +159,6 @@ const props = defineProps({
 
 const profileStore = useProfileStore();
 const { isCurrentProfile, onAgentClick } = useProfileUtils();
-const urlSafeAgentPubKey = getUrlSafeAgentPubKey(props.feedMew.header.author);
 const agentProfile = ref();
 const displayName = computed(() => agentProfile.value?.fields["Display name"]);
 const nickname = computed(() => agentProfile.value?.nickname);
@@ -185,9 +184,10 @@ const reactionLabel = computed(() =>
 const emit = defineEmits<{ (e: "refresh-feed"): void }>();
 
 onMounted(async () => {
-  agentProfile.value = await profileStore.fetchAgentProfile(
-    serializeHash(props.feedMew.header.author)
+  const agentProfileReadable = await profileStore.fetchAgentProfile(
+    props.feedMew.action.author
   );
+  agentProfileReadable.subscribe((profile) => (agentProfile.value = profile));
 
   if (MewTypeName.Original in props.feedMew.mew.mewType) {
     return;
@@ -204,8 +204,12 @@ onMounted(async () => {
     .then((mew) => {
       originalMew.value = mew;
       profileStore
-        .fetchAgentProfile(serializeHash(mew.header.author))
-        .then((profile) => (originalMewAuthor.value = profile));
+        .fetchAgentProfile(mew.action.author)
+        .then((profileReadable) => {
+          profileReadable.subscribe(
+            (profile) => (originalMewAuthor.value = profile)
+          );
+        });
     })
     .finally(() => (loadingOriginalMewAuthor.value = false));
 });
@@ -213,14 +217,14 @@ onMounted(async () => {
 const isReplying = ref(false);
 const isQuoting = ref(false);
 const isLickedByMe = computed(() =>
-  props.feedMew.licks.includes(myAgentPubKey)
+  props.feedMew.licks.some((lick) => isSameAgentPubKey(lick, myAgentPubKey))
 );
 
 const toggleLickMew = async () => {
   if (isLickedByMe.value) {
-    await unlickMew(props.feedMew.headerHash);
+    await unlickMew(props.feedMew.actionHash);
   } else {
-    await lickMew(props.feedMew.headerHash);
+    await lickMew(props.feedMew.actionHash);
   }
   emit("refresh-feed");
 };
@@ -229,7 +233,7 @@ const replyToMew = () => (isReplying.value = true);
 
 const mewMew = async () => {
   const mew: CreateMewInput = {
-    mewType: { mewMew: props.feedMew.headerHash },
+    mewType: { mewMew: props.feedMew.actionHash },
     text: null,
   };
   await createMew(mew);

@@ -59,7 +59,7 @@
           />
 
           <q-route-tab :to="{ name: ROUTES.myProfile }">
-            <agent-avatar :agent-pub-key="store.myAgentPubKey" size="40" />
+            <agent-avatar :agentPubKey="store.myAgentPubKey" size="40" />
           </q-route-tab>
         </q-tabs>
       </q-toolbar>
@@ -89,6 +89,7 @@ import { ref } from "vue";
 import { showError } from "@/utils/notification";
 import { ROUTES } from "@/router";
 import CreateMewDialog from "@/components/CreateMewDialog.vue";
+import { serializeHash } from "@holochain-open-dev/utils";
 
 const store = useProfileStore();
 const router = useRouter();
@@ -113,10 +114,10 @@ const search = (
     } else {
       try {
         searching.value = true;
-        const results = await store.searchProfiles(inputValue);
-        options.value = results.map((r) => ({
-          value: r.agentPubKey,
-          label: r.profile.fields["Display name"],
+        const profilesMap = await store.searchProfiles(inputValue);
+        options.value = profilesMap.entries().map(([key, value]) => ({
+          value: serializeHash(key),
+          label: `${value.fields["Display name"]} (@${value.nickname})`,
         }));
       } catch (error) {
         showError(error);

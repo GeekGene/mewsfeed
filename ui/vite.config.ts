@@ -20,7 +20,8 @@ export default defineConfig({
           isCustomElement: (tag) =>
             tag.includes("profiles-context") ||
             tag.includes("profile-prompt") ||
-            tag.includes("agent-avatar"),
+            tag.includes("agent-avatar") ||
+            tag.includes("my-profile"),
         },
       },
     }),

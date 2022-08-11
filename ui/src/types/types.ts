@@ -1,5 +1,4 @@
-import { EntryHashB64, HeaderHashB64 } from "@holochain-open-dev/core-types";
-import { Create, Header } from "@holochain/client";
+import { ActionHash, AgentPubKey, Create, HoloHash } from "@holochain/client";
 
 export const TAG_SYMBOLS = {
   CASHTAG: "$",
@@ -35,13 +34,13 @@ export type MewType =
       [MewTypeName.Original]: null;
     }
   | {
-      [MewTypeName.Reply]: HeaderHashB64;
+      [MewTypeName.Reply]: ActionHash;
     }
   | {
-      [MewTypeName.MewMew]: HeaderHashB64;
+      [MewTypeName.MewMew]: ActionHash;
     }
   | {
-      [MewTypeName.Quote]: HeaderHashB64;
+      [MewTypeName.Quote]: ActionHash;
     };
 
 export interface Mew {
@@ -51,12 +50,12 @@ export interface Mew {
 
 export interface FeedMew {
   mew: Mew;
-  header: Create;
-  headerHash: HeaderHashB64;
-  replies: string[];
-  quotes: string[];
-  licks: string[];
-  mewmews: string[];
+  action: Create;
+  actionHash: ActionHash;
+  replies: HoloHash[];
+  quotes: HoloHash[];
+  licks: AgentPubKey[];
+  mewmews: HoloHash[];
 }
 
 export interface NotificationOptions {

@@ -43,7 +43,7 @@ pub struct FeedOptions {
 #[serde(rename_all = "camelCase")]
 pub struct FeedMew {
     pub mew: Mew,
-    pub header: Action,
+    pub action: Action,
     pub action_hash: ActionHash,
     pub replies: Vec<AnyLinkableHash>,
     pub quotes: Vec<AnyLinkableHash>,
@@ -285,7 +285,7 @@ pub fn get_feed_mew_and_context(action_hash: ActionHash) -> ExternResult<FeedMew
 
     let feed_mew_and_context = FeedMew {
         mew,
-        header: element.action().clone(),
+        action: element.action().clone(),
         action_hash: element.signed_action().as_hash().clone(),
         replies,
         quotes,
@@ -307,7 +307,7 @@ pub fn mews_by(agent: AgentPubKey) -> ExternResult<Vec<FeedMew>> {
         .map(|link| get_feed_mew_and_context(ActionHash::from(link.target).into()))
         .filter_map(Result::ok)
         .collect();
-    feed.sort_by(|a, b| b.header.timestamp().cmp(&a.header.timestamp()));
+    feed.sort_by(|a, b| b.action.timestamp().cmp(&a.action.timestamp()));
 
     Ok(feed)
 }
@@ -322,7 +322,7 @@ pub fn mews_feed(_options: FeedOptions) -> ExternResult<Vec<FeedMew>> {
     }
     // TODO don't really need to sort, could merge for efficiency
     // sort by timestamp in descending order
-    feed.sort_by(|a, b| b.header.timestamp().cmp(&a.header.timestamp()));
+    feed.sort_by(|a, b| b.action.timestamp().cmp(&a.action.timestamp()));
 
     Ok(feed)
 }
@@ -496,7 +496,7 @@ pub fn get_mews_from_path(path: Path) -> ExternResult<Vec<FeedMew>> {
         })
         .map(|element| get_feed_mew_and_context(element.signed_action().as_hash().clone()).unwrap())
         .collect();
-    mews.sort_by(|a, b| b.header.timestamp().cmp(&a.header.timestamp()));
+    mews.sort_by(|a, b| b.action.timestamp().cmp(&a.action.timestamp()));
     Ok(mews)
 }
 

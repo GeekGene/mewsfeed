@@ -1,12 +1,12 @@
 <template>
   <agent-avatar
-    :agent-pub-key="urlSafeAgentPubKey"
+    :agentPubKey="agentPubKey"
     size="50"
     :class="[
       'self-start',
-      { 'cursor-pointer': !isCurrentProfile(urlSafeAgentPubKey) },
+      { 'cursor-pointer': !isCurrentProfile(agentPubKey) },
     ]"
-    @click="onAgentClick(urlSafeAgentPubKey)"
+    @click="onAgentClick(agentPubKey)"
     @mouseenter="showProfile"
     @mouseleave="hideProfile"
   >
@@ -18,7 +18,7 @@
       no-focus
     >
       <ProfilePopup
-        :agent-pub-key="urlSafeAgentPubKey"
+        :agent-pub-key="agentPubKey"
         @mouseenter="keepShowingProfile"
         @mouseleave="hideProfile"
       />
@@ -27,15 +27,14 @@
 </template>
 
 <script setup lang="ts">
-import { getUrlSafeAgentPubKey } from "@/utils/hash";
 import { useProfileUtils } from "@/utils/profile";
-import { AgentPubKey, HoloHashB64 } from "@holochain/client";
+import { AgentPubKey } from "@holochain/client";
 import { PropType, ref } from "vue";
 import ProfilePopup from "./ProfilePopup.vue";
 
-const props = defineProps({
+defineProps({
   agentPubKey: {
-    type: Object as PropType<HoloHashB64 | AgentPubKey>,
+    type: Object as PropType<AgentPubKey>,
     required: true,
   },
 });
@@ -43,11 +42,6 @@ const props = defineProps({
 const PROFILE_SHOW_HIDE_DELAY = 400; // in ms
 
 const { isCurrentProfile, onAgentClick } = useProfileUtils();
-
-const urlSafeAgentPubKey =
-  typeof props.agentPubKey === "string"
-    ? props.agentPubKey
-    : getUrlSafeAgentPubKey(props.agentPubKey);
 
 const isPopupVisible = ref<boolean>(false);
 const popupHideTimeout = ref<number>(0);
