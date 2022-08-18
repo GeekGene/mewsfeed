@@ -1,76 +1,7 @@
 use hdk::prelude::holo_hash::*;
 use hdk::prelude::*;
+use mews_integrity::*;
 use regex::Regex;
-
-#[hdk_entry_defs]
-#[unit_enum(UnitEntryTypes)]
-enum EntryTypes {
-    MewContent(MewContent),
-    Mew(Mew),
-}
-
-#[hdk_entry_helper]
-#[serde(rename_all = "camelCase")]
-enum MewType {
-    Original,
-    Reply(ActionHash),
-    Quote(ActionHash),
-    MewMew(ActionHash),
-}
-
-#[hdk_entry_helper]
-#[serde(rename_all = "camelCase")]
-struct MewContent {
-    text: String,
-    // "Visit this web site ^link by @user about #hashtag to earn $cashtag! Also read this humm earth post ^link (as an HRL link)"
-    // [^links in the mewstring in sequence]
-    // links: Vec<LinkTypes>,
-    // mew_images: Vec<EntryHash>, //Vec of image links hashes to retrieve
-}
-
-#[hdk_entry_helper]
-#[serde(rename_all = "camelCase")]
-pub struct Mew {
-    mew_type: MewType,
-    content: Option<MewContent>,
-}
-
-#[hdk_entry_helper]
-#[serde(rename_all = "camelCase")]
-pub struct FeedOptions {
-    pub option: String,
-}
-
-#[hdk_entry_helper]
-#[serde(rename_all = "camelCase")]
-pub struct FeedMew {
-    pub mew: Mew,
-    pub action: Action,
-    pub action_hash: ActionHash,
-    pub replies: Vec<AnyLinkableHash>,
-    pub quotes: Vec<AnyLinkableHash>,
-    pub licks: Vec<AgentPubKey>,
-    pub mewmews: Vec<AnyLinkableHash>,
-}
-
-#[hdk_link_types]
-enum LinkTypes {
-    Mew,
-    Follow,
-    Lick,
-    Reply,
-    Mewmew,
-    Quote,
-    Tag,
-}
-
-const MEW_PATH_SEGMENT: &str = "mew";
-const FOLLOWER_PATH_SEGMENT: &str = "follower";
-const FOLLOWING_PATH_SEGMENT: &str = "following";
-const LICK_PATH_SEGMENT: &str = "lick";
-const REPLY_PATH_SEGMENT: &str = "reply";
-const MEWMEW_PATH_SEGMENT: &str = "mewmew";
-const QUOTE_PATH_SEGMENT: &str = "quote";
 
 fn get_my_mews_base(base_type: &str, ensure: bool) -> ExternResult<EntryHash> {
     let me: AgentPubKey = agent_info()?.agent_latest_pubkey;
@@ -79,9 +10,6 @@ fn get_my_mews_base(base_type: &str, ensure: bool) -> ExternResult<EntryHash> {
 
 fn get_mews_base(agent: AgentPubKey, base_type: &str, _ensure: bool) -> ExternResult<EntryHash> {
     let path = Path::from(format!("agent.{}.{}", agent, base_type));
-    // if ensure {
-    //     path.ensure()?;
-    // }
     let anchor_hash = path.path_entry_hash()?;
     Ok(anchor_hash)
 }

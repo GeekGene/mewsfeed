@@ -888,6 +888,18 @@ dependencies = [
  "chrono",
  "derive_more",
  "hdk",
+ "mews_integrity",
+ "regex",
+ "serde",
+]
+
+[[package]]
+name = "mews_integrity"
+version = "0.0.1"
+dependencies = [
+ "chrono",
+ "derive_more",
+ "holochain_deterministic_integrity",
  "regex",
  "serde",
 ]

@@ -1,0 +1,16 @@
+[package]
+edition = "2021"
+name = "mews_integrity"
+version = "0.0.1"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+name = "mews_integrity"
+
+[dependencies]
+chrono = {version = "0.4", features = ["serde"]}
+derive_more = "0"
+regex = "1"
+serde = "1"
+
+holochain_deterministic_integrity = "0.0.10"

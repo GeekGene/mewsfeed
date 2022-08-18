@@ -2,8 +2,9 @@
 resolver = "2"
 members = [
     "dnas/clutter/integrity_zomes/profiles",
+    "dnas/clutter/integrity_zomes/mews",
     "dnas/clutter/coordinator_zomes/profiles",
-    "dnas/clutter/zomes/mews",
+    "dnas/clutter/coordinator_zomes/mews",
 ]
 
 [profile.dev]
