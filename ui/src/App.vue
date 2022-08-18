@@ -1,14 +1,17 @@
 <template>
-  <profiles-context :store="profilesStore">
-    <profile-prompt>
-      <main-layout />
-    </profile-prompt>
-  </profiles-context>
+  <holo-login>
+    <profiles-context :store="profilesStore">
+      <profile-prompt>
+        <main-layout />
+      </profile-prompt>
+    </profiles-context>
+  </holo-login>
 </template>
 
 <script setup lang="ts">
-import MainLayout from "./layouts/MainLayout.vue";
-import { useProfileStore } from "./services/profile-store";
+import HoloLogin from "@/components/HoloLogin.vue";
+import MainLayout from "@/layouts/MainLayout.vue";
+import { useProfileStore } from "@/services/profile-store";
 
 const profilesStore = useProfileStore();
 </script>
