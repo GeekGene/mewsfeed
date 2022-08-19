@@ -5,6 +5,7 @@
 </template>
 
 <script setup lang="ts">
+import { ROUTES } from "@/router";
 import { useHoloStore } from "@/stores";
 import { onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
@@ -23,22 +24,14 @@ watch(
   (isLoggedIn) => {
     if (isLoggedIn) {
       holoStore.isAuthFormOpen = false;
-      setTimeout(
-        () =>
-          router.push(
-            typeof router.currentRoute.value.params.nextUrl === "string"
-              ? router.currentRoute.value.params.nextUrl
-              : "/feed"
-          ),
-        10
-      );
+      setTimeout(() => router.replace({ name: ROUTES.home, force: true }), 10);
     }
   }
 );
+
 watch(
   () => holoStore.isAnonymous,
   (isAnonymous) => {
-    console.log("isAnonymous changed", isAnonymous);
     if (isAnonymous && !holoStore.isAuthFormOpen) {
       holoStore.signUp();
     }

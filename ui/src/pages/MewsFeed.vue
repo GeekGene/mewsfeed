@@ -30,19 +30,18 @@
 </template>
 
 <script setup lang="ts">
-import { createMew } from "../services/clutter-dna";
 import { onMounted } from "vue";
 import { CreateMewInput } from "../types/types";
-import { useStore } from "@/store";
+import { useClutterStore } from "@/stores";
 import CreateMewField from "../components/CreateMewField.vue";
 import MewList from "../components/MewList.vue";
 
-const store = useStore();
+const store = useClutterStore();
 
 onMounted(() => store.fetchMewsFeed());
 
 const publishMew = async (newMew: CreateMewInput) => {
-  await createMew(newMew);
+  await store.createMew(newMew);
   store.fetchMewsFeed();
 };
 </script>

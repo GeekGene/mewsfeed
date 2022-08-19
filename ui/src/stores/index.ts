@@ -65,4 +65,4 @@ export const useClientStore: ClientStore = makeUseClientStore({
   // },
 });
 
-export const useClutterStore = makeUseClutterStore({ useClientStore });
+export const useClutterStore = makeUseClutterStore();

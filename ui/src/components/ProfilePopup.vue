@@ -54,9 +54,15 @@ const props = defineProps({
 const router = useRouter();
 const profileStore = useProfileStore();
 const { onAgentClick } = useProfileUtils();
-const isMyProfile = computed(() =>
-  isSameAgentPubKey(props.agentPubKey, profileStore.myAgentPubKey)
-);
+const isMyProfile = computed(() => {
+  console.log(
+    "is same agent pub key",
+    props.agentPubKey,
+    profileStore.myAgentPubKey,
+    isSameAgentPubKey(props.agentPubKey, profileStore.myAgentPubKey)
+  );
+  return isSameAgentPubKey(props.agentPubKey, profileStore.myAgentPubKey);
+});
 const isCurrentProfile = computed(
   () =>
     router.currentRoute.value.params.agent === serializeHash(props.agentPubKey)
