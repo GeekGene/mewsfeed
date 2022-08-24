@@ -13,4 +13,6 @@ interface ImportMeta {
 
 interface ImportMetaEnv {
   readonly VITE_HC_PORT: number;
+  readonly VITE_IS_HOLO_HOSTED: boolean;
+  readonly VITE_CHAPERONE_SERVER_URL: string;
 }
