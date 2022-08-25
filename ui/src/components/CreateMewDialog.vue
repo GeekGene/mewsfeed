@@ -22,31 +22,30 @@
 </template>
 
 <script setup lang="ts">
-import { CreateMewInput, MewType } from "@/types/types";
-import { PropType, ref } from "vue";
-import { showError } from "@/utils/notification";
-import { createMew } from "@/services/clutter-dna";
-import { useStore } from "@/store";
-import { ROUTES } from "@/router";
-import { useRouter } from "vue-router";
 import BaseDialog from "@/components/BaseDialog.vue";
 import CreateMewField from "@/components/CreateMewField.vue";
+import { ROUTES } from "@/router";
+import { useClutterStore } from "@/stores";
+import { CreateMewInput, MewType } from "@/types/types";
+import { showError } from "@/utils/notification";
+import { PropType, ref } from "vue";
+import { useRouter } from "vue-router";
 
 defineProps({ mewType: { type: Object as PropType<MewType>, required: true } });
 const emit = defineEmits<{ (e: "mew-created"): void; (e: "close"): void }>();
 const onClose = () => emit("close");
 
-const store = useStore();
+const clutterStore = useClutterStore();
 const router = useRouter();
 const saving = ref(false);
 
 const onPublishMew = async (mew: CreateMewInput) => {
   try {
     saving.value = true;
-    await createMew(mew);
+    await useClutterStore().createMew(mew);
     emit("mew-created");
     if (router.currentRoute.value.name === ROUTES.feed) {
-      store.fetchMewsFeed();
+      clutterStore.fetchMewsFeed();
     } else {
       router.push({ name: ROUTES.feed });
     }

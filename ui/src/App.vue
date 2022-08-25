@@ -1,15 +1,29 @@
 <template>
-  <profiles-context :store="profilesStore">
-    <profile-prompt>
-      <main-layout />
-    </profile-prompt>
-  </profiles-context>
+  <template v-if="isHoloHosted">
+    <holo-login>
+      <profiles-context :store="profilesStore">
+        <profile-prompt>
+          <main-layout />
+        </profile-prompt>
+      </profiles-context>
+    </holo-login>
+  </template>
+
+  <template v-else>
+    <profiles-context :store="profilesStore">
+      <profile-prompt>
+        <main-layout />
+      </profile-prompt>
+    </profiles-context>
+  </template>
 </template>
 
 <script setup lang="ts">
-import MainLayout from "./layouts/MainLayout.vue";
-import { useProfileStore } from "./services/profile-store";
+import HoloLogin from "@/components/HoloLogin.vue";
+import MainLayout from "@/layouts/MainLayout.vue";
+import { useProfileStore } from "@/services/profile-store";
 
+const isHoloHosted = Boolean(import.meta.env.VITE_IS_HOLO_HOSTED);
 const profilesStore = useProfileStore();
 </script>
 

@@ -7,11 +7,15 @@ integrity:
   zomes:
     - name: profiles_integrity
       bundled: ../../../target/wasm32-unknown-unknown/release/profiles_integrity.wasm
-    - name: mews
-      bundled: ../../../target/wasm32-unknown-unknown/release/mews.wasm
+    - name: mews_integrity
+      bundled: ../../../target/wasm32-unknown-unknown/release/mews_integrity.wasm
 coordinator:
   zomes:
     - name: profiles
       bundled: ../../../target/wasm32-unknown-unknown/release/profiles.wasm
       dependencies:
         - name: profiles_integrity
+    - name: mews
+      bundled: ../../../target/wasm32-unknown-unknown/release/mews.wasm
+      dependencies:
+        - name: mews_integrity

@@ -10,6 +10,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve("src"),
+      uicommon: path.resolve(__dirname, "ui-common-library/src"),
     },
   },
   plugins: [

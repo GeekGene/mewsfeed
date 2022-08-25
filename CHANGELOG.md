@@ -12,6 +12,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Removed
 
+## 2022-08-11 v0.5.0-alpha
+
+### Changed
+
+- **BREAKING**: upgrade Holochain to 156
+- refactor to hybridity for Holo hosting and running locally (dev server/Launcher)
+- running with a Holo Chaperone server can be configured with two env vars:
+  - VITE_IS_HOLO_HOSTED=true to enable holo hosted version (= front end only)
+  - VITE_CHAPERONE_SERVER_URL=https://chaperone.url to set the Chaperone server's URL
+
 ## 2022-08-11 v0.4.0-alpha
 
 ### Changed
