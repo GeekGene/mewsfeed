@@ -8,10 +8,9 @@ crate-type = ["cdylib", "rlib"]
 name = "mews"
 
 [dependencies]
-chrono = {version = "0.4", features = ["serde"]}
 derive_more = "0"
 regex = "1"
 serde = "1"
 
 mews_integrity = {path = "../../integrity_zomes/mews"}
-hdk = {version = "0.0.138", features = ["encoding"]}
+hdk = {version = "0.0.147", features = ["encoding"]}

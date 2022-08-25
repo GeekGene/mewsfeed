@@ -1,4 +1,3 @@
-use hdk::prelude::holo_hash::*;
 use hdk::prelude::*;
 use mews_integrity::*;
 use regex::Regex;
@@ -84,7 +83,7 @@ pub fn create_reply(text: String, original_action_hash: ActionHash) -> ExternRes
     // let _action_hash = create_entry(&content)?;
 
     let mew = Mew {
-        mew_type: MewType::Reply(original_action_hash.clone().into()),
+        mew_type: MewType::Reply(original_action_hash.clone()),
         content: Some(content),
     };
     let reply_action_hash = create_entry(EntryTypes::Mew(mew))?;

@@ -8,9 +8,6 @@ crate-type = ["cdylib", "rlib"]
 name = "mews_integrity"
 
 [dependencies]
-chrono = {version = "0.4", features = ["serde"]}
-derive_more = "0"
-regex = "1"
 serde = "1"
 
-holochain_deterministic_integrity = "0.0.10"
+hdi = "0.0.19"
