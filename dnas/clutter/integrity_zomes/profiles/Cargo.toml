@@ -8,4 +8,4 @@ crate-type = ["cdylib", "rlib"]
 name = "profiles_integrity"
 
 [dependencies]
-hc_zome_profiles_integrity = {git = "https://github.com/jost-s/profiles.git", rev = "ee5c82c2a5467ff41f02ed54dfbb66313daed545", package = "hc_zome_profiles_integrity"}
+hc_zome_profiles_integrity = {git = "https://github.com/holochain-open-dev/profiles", rev = "for-hdk-v0.0.147", package = "hc_zome_profiles_integrity"}
