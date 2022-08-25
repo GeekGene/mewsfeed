@@ -22,11 +22,9 @@
 import HoloLogin from "@/components/HoloLogin.vue";
 import MainLayout from "@/layouts/MainLayout.vue";
 import { useProfileStore } from "@/services/profile-store";
-import { serializeHash } from "@holochain-open-dev/utils";
 
 const isHoloHosted = Boolean(import.meta.env.VITE_IS_HOLO_HOSTED);
 const profilesStore = useProfileStore();
-console.log("agent pub key", serializeHash(profilesStore.myAgentPubKey));
 </script>
 
 <style lang="sass">
