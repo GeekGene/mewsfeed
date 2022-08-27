@@ -12,6 +12,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Removed
 
+## 2022-08-27 v0.5.1-alpha
+
+### Fixed
+- Initialize profiles store only after log in to Holo
+  - fixes profile prompt after Holo log in with existing profile
+  - fixes possibility to follow oneself
+
 ## 2022-08-25 v0.5.0-alpha
 
 ### Changed

@@ -35,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import { useProfileStore } from "@/services/profile-store";
+import { useProfilesStore } from "@/services/profiles-store";
 import { useRoute } from "vue-router";
 import { showError } from "@/utils/notification";
 import { computed, onMounted, ref, watch } from "vue";
@@ -47,7 +47,7 @@ import MewList from "../components/MewList.vue";
 import { deserializeHash } from "@holochain-open-dev/utils";
 import { Profile } from "@holochain-open-dev/profiles";
 
-const profileStore = useProfileStore();
+const profilesStore = useProfilesStore();
 const route = useRoute();
 const agentPubKey = computed(() =>
   deserializeHash(
@@ -66,7 +66,7 @@ const following = ref(false);
 const mews = ref<FeedMew[]>([]);
 
 const isMyProfile = computed(() =>
-  isSameAgentPubKey(agentPubKey.value, profileStore.myAgentPubKey)
+  isSameAgentPubKey(agentPubKey.value, profilesStore.value.myAgentPubKey)
 );
 
 const loadMews = async () => {
@@ -84,7 +84,7 @@ const loadProfile = async () => {
   try {
     loadingProfile.value = true;
     const [profileReadable, currentMyFollowing] = await Promise.all([
-      profileStore.fetchAgentProfile(agentPubKey.value),
+      profilesStore.value.fetchAgentProfile(agentPubKey.value),
       myFollowing(),
     ]);
     let profile: Profile | undefined;

@@ -6,7 +6,7 @@ import makeUseHoloStore from "uicommon/stores/useHoloStore";
 
 export const NATIVE_INSTALLED_APP_ID = "clutter";
 export const NATIVE_HC_URI = `ws://localhost:${import.meta.env.VITE_HC_PORT}`;
-export const IS_HOLO_HOSTED = import.meta.env.VITE_IS_HOLO_HOSTED;
+export const IS_HOLO_HOSTED = Boolean(import.meta.env.VITE_IS_HOLO_HOSTED);
 
 export const useHolochainStore = makeUseHolochainStore({
   installed_app_id: NATIVE_INSTALLED_APP_ID,

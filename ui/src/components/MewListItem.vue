@@ -140,7 +140,7 @@ import {
   lickMew,
   unlickMew,
 } from "@/services/clutter-dna";
-import { useProfileStore } from "@/services/profile-store";
+import { useProfilesStore } from "@/services/profiles-store";
 import { CreateMewInput, FeedMew, MewTypeName } from "@/types/types";
 import { isSameAgentPubKey } from "@/utils/hash";
 import { useProfileUtils } from "@/utils/profile";
@@ -157,12 +157,12 @@ const props = defineProps({
   feedMew: { type: Object as PropType<FeedMew>, required: true },
 });
 
-const profileStore = useProfileStore();
+const profilesStore = useProfilesStore();
 const { isCurrentProfile, onAgentClick } = useProfileUtils();
 const agentProfile = ref();
 const displayName = computed(() => agentProfile.value?.fields["Display name"]);
 const nickname = computed(() => agentProfile.value?.nickname);
-const myAgentPubKey = profileStore.myAgentPubKey;
+const myAgentPubKey = profilesStore.value.myAgentPubKey;
 
 const isMewMew = computed(
   () => MewTypeName.MewMew in props.feedMew.mew.mewType
@@ -184,7 +184,7 @@ const reactionLabel = computed(() =>
 const emit = defineEmits<{ (e: "refresh-feed"): void }>();
 
 onMounted(async () => {
-  const agentProfileReadable = await profileStore.fetchAgentProfile(
+  const agentProfileReadable = await profilesStore.value.fetchAgentProfile(
     props.feedMew.action.author
   );
   agentProfileReadable.subscribe((profile) => (agentProfile.value = profile));
@@ -203,7 +203,7 @@ onMounted(async () => {
   getFeedMewAndContext(originalMewHash)
     .then((mew) => {
       originalMew.value = mew;
-      profileStore
+      profilesStore.value
         .fetchAgentProfile(mew.action.author)
         .then((profileReadable) => {
           profileReadable.subscribe(
