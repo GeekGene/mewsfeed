@@ -59,13 +59,16 @@
           />
 
           <q-route-tab :to="{ name: ROUTES.myProfile }">
-            <agent-avatar :agentPubKey="store.myAgentPubKey" size="40" />
+            <agent-avatar
+              :agentPubKey="profilesStore.myAgentPubKey"
+              size="40"
+            />
           </q-route-tab>
         </q-tabs>
       </q-toolbar>
     </q-header>
 
-    <q-page-container class="row">
+    <q-page-container class="row q-mt-xl">
       <q-space />
       <router-view class="col-12 col-md-6" />
       <q-space />
@@ -82,7 +85,7 @@
 </template>
 
 <script setup lang="ts">
-import { useProfileStore } from "@/services/profile-store";
+import { useProfilesStore } from "@/services/profiles-store";
 import { QSelectOption } from "quasar";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
@@ -91,7 +94,7 @@ import { ROUTES } from "@/router";
 import CreateMewDialog from "@/components/CreateMewDialog.vue";
 import { serializeHash } from "@holochain-open-dev/utils";
 
-const store = useProfileStore();
+const profilesStore = useProfilesStore();
 const router = useRouter();
 const tab = ref("");
 
@@ -114,7 +117,9 @@ const search = (
     } else {
       try {
         searching.value = true;
-        const profilesMap = await store.searchProfiles(inputValue);
+        const profilesMap = await profilesStore.value.searchProfiles(
+          inputValue
+        );
         options.value = profilesMap.entries().map(([key, value]) => ({
           value: serializeHash(key),
           label: `${value.fields["Display name"]} (@${value.nickname})`,

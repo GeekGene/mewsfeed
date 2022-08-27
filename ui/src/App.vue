@@ -1,30 +1,26 @@
 <template>
-  <template v-if="isHoloHosted">
-    <holo-login>
-      <profiles-context :store="profilesStore">
-        <profile-prompt>
-          <main-layout />
-        </profile-prompt>
-      </profiles-context>
-    </holo-login>
-  </template>
-
-  <template v-else>
-    <profiles-context :store="profilesStore">
+  <holo-login v-if="IS_HOLO_HOSTED">
+    <profiles-context v-if="profilesStore" :store="profilesStore">
       <profile-prompt>
         <main-layout />
       </profile-prompt>
     </profiles-context>
-  </template>
+  </holo-login>
+
+  <profiles-context v-else :store="profilesStore">
+    <profile-prompt>
+      <main-layout />
+    </profile-prompt>
+  </profiles-context>
 </template>
 
 <script setup lang="ts">
 import HoloLogin from "@/components/HoloLogin.vue";
 import MainLayout from "@/layouts/MainLayout.vue";
-import { useProfileStore } from "@/services/profile-store";
+import { useProfilesStore } from "./services/profiles-store";
+import { IS_HOLO_HOSTED } from "./stores";
 
-const isHoloHosted = Boolean(import.meta.env.VITE_IS_HOLO_HOSTED);
-const profilesStore = useProfileStore();
+const profilesStore = useProfilesStore();
 </script>
 
 <style lang="sass">
@@ -36,7 +32,4 @@ const profilesStore = useProfileStore();
 profiles-context
   --mdc-theme-primary: #{$primary}
   --mdc-theme-secondary: #{$primary}
-
-  profile-prompt
-    margin-top: 60px
 </style>

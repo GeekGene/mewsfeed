@@ -3,7 +3,7 @@
     <q-card-section class="row justify-between items-center">
       <agent-avatar
         :agentPubKey="agentPubKey"
-        :store="profileStore"
+        :store="profilesStore"
         size="50"
         :class="['q-mr-lg', { 'cursor-pointer': !isCurrentProfile }]"
         @click="onAgentClick(agentPubKey)"
@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { useProfileStore } from "@/services/profile-store";
+import { useProfilesStore } from "@/services/profiles-store";
 import { isSameAgentPubKey } from "@/utils/hash";
 import { showError } from "@/utils/notification";
 import { useProfileUtils } from "@/utils/profile";
@@ -52,9 +52,11 @@ const props = defineProps({
 });
 
 const router = useRouter();
-const profileStore = useProfileStore();
+const profilesStore = useProfilesStore();
 const { onAgentClick } = useProfileUtils();
-const isMyProfile = computed(() => isSameAgentPubKey(props.agentPubKey, profileStore.myAgentPubKey));
+const isMyProfile = computed(() =>
+  isSameAgentPubKey(props.agentPubKey, profilesStore.value.myAgentPubKey)
+);
 const isCurrentProfile = computed(
   () =>
     router.currentRoute.value.params.agent === serializeHash(props.agentPubKey)
@@ -70,7 +72,7 @@ onMounted(async () => {
   try {
     loading.value = true;
     let profile: Profile | undefined;
-    const profileReadable = await profileStore.fetchAgentProfile(
+    const profileReadable = await profilesStore.value.fetchAgentProfile(
       props.agentPubKey
     );
     profileReadable.subscribe((p) => (profile = p));

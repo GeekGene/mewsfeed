@@ -17,7 +17,7 @@
 
 <script setup lang="ts">
 import { follow, myFollowing, unfollow } from "@/services/clutter-dna";
-import { useProfileStore } from "@/services/profile-store";
+import { useProfilesStore } from "@/services/profiles-store";
 import { isSameAgentPubKey } from "@/utils/hash";
 import { showError, showMessage } from "@/utils/notification";
 import { Profile } from "@holochain-open-dev/profiles";
@@ -31,7 +31,7 @@ const props = defineProps({
   },
 });
 
-const profileStore = useProfileStore();
+const profilesStore = useProfilesStore();
 
 const loading = ref(false);
 const following = ref(false);
@@ -53,7 +53,7 @@ onMounted(async () => {
 const toggleFollow = async () => {
   try {
     const [profileReadable] = await Promise.all([
-      profileStore.fetchAgentProfile(props.agentPubKey),
+      profilesStore.value.fetchAgentProfile(props.agentPubKey),
       following.value
         ? await unfollow(props.agentPubKey)
         : await follow(props.agentPubKey),

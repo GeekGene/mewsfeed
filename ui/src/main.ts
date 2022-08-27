@@ -15,11 +15,15 @@ import "@quasar/extras/material-icons/material-icons.css";
 import { createPinia } from "pinia";
 import { Notify, Quasar } from "quasar";
 import "quasar/src/css/index.sass";
-import { createApp } from "vue";
+import { createApp, ref, watch } from "vue";
 import App from "./App.vue";
 import router from "./router";
-import { PROFILE_STORE } from "./services/profile-store";
-import { NATIVE_INSTALLED_APP_ID, useClientStore } from "./stores";
+import { PROFILES_STORE } from "./services/profiles-store";
+import {
+  IS_HOLO_HOSTED,
+  NATIVE_INSTALLED_APP_ID,
+  useClientStore,
+} from "./stores";
 import { CLUTTER_ROLE_ID } from "./stores/clutter";
 
 const app = createApp(App);
@@ -29,31 +33,57 @@ app.use(Quasar, {
 });
 app.use(createPinia());
 
-const isHoloHosted = Boolean(import.meta.env.VITE_IS_HOLO_HOSTED);
+const profilesStore = ref<ProfilesStore>();
+app.provide(PROFILES_STORE, profilesStore);
 
-useClientStore()
-  .initialize()
-  .then(async (client: any) => {
-    const appInfo: AppInfoResponse = await client.appInfo({
-      installed_app_id: NATIVE_INSTALLED_APP_ID,
-    });
-    const holochainClient = isHoloHosted
-      ? new HoloClient(client, appInfo)
-      : new HolochainClient(client);
-    const cell = appInfo.cell_data.find(
-      (cell) => cell.role_id === CLUTTER_ROLE_ID
-    );
-    if (!cell) {
-      throw new Error('Could not find cell "clutter"');
+const clientStore = useClientStore();
+clientStore.initialize().then(async (client: any) => {
+  if (IS_HOLO_HOSTED) {
+    app.mount("#app");
+    if (!client.agent.isAnonymous && client.agent.isAvailable) {
+      initProfileStore(client);
+    } else {
+      const clientLogIn = new Promise((resolve) => {
+        const stopWatching = watch(
+          () => clientStore.agentKey,
+          async () => {
+            if (clientStore.isReady) {
+              initProfileStore(client);
+              stopWatching();
+              resolve(undefined);
+            }
+          }
+        );
+      });
+      await clientLogIn;
     }
-    const cellClient = new CellClient(holochainClient, cell);
+  } else {
+    await initProfileStore(client);
+    app.mount("#app");
+  }
+});
+
+const initProfileStore = async (client: any) => {
+  const appInfo: AppInfoResponse = await client.appInfo({
+    installed_app_id: NATIVE_INSTALLED_APP_ID,
+  });
+  const holochainClient = IS_HOLO_HOSTED
+    ? new HoloClient(client, appInfo)
+    : new HolochainClient(client);
+  const cell = appInfo.cell_data.find(
+    (cell) => cell.role_id === CLUTTER_ROLE_ID
+  );
+  if (!cell) {
+    throw new Error('Could not find cell "clutter"');
+  }
+  const cellClient = new CellClient(holochainClient, cell);
+  profilesStore.value = new ProfilesStore(
     // eslint-disable-next-line
     // @ts-ignore
-    const profilesStore = new ProfilesStore(new ProfilesService(cellClient), {
+    new ProfilesService(cellClient),
+    {
       avatarMode: "avatar-required",
       additionalFields: ["Display name", "Bio", "Location"],
-    });
-    app.provide(PROFILE_STORE, profilesStore);
-
-    app.mount("#app");
-  });
+    }
+  );
+};
