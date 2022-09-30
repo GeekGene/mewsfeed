@@ -10,7 +10,9 @@ import { clutterDna } from "../utils.js";
 
 test("Following oneself should fail", async (t) => {
   const scenario = new Scenario();
-  const alice = await scenario.addPlayerWithHapp({ dnas: [clutterDna] });
+  const alice = await scenario.addPlayerWithHapp({
+    dnas: [{ source: clutterDna }],
+  });
   try {
     await alice.cells[0].callZome({ zome_name: "mews", fn_name: "follow" });
     t.fail();
@@ -29,8 +31,8 @@ test("Following oneself should fail", async (t) => {
 test("Following", async (t) => {
   const scenario = new Scenario();
   const [alice, bob] = await scenario.addPlayersWithHapps([
-    { dnas: [clutterDna] },
-    { dnas: [clutterDna] },
+    { dnas: [{ source: clutterDna }] },
+    { dnas: [{ source: clutterDna }] },
   ]);
   const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
   const bobCallMewsZome = getZomeCaller(bob.cells[0], "mews");
@@ -94,8 +96,8 @@ test("Following", async (t) => {
 test("Mews by", async (t) => {
   const scenario = new Scenario();
   const [alice, bob] = await scenario.addPlayersWithHapps([
-    { dnas: [clutterDna] },
-    { dnas: [clutterDna] },
+    { dnas: [{ source: clutterDna }] },
+    { dnas: [{ source: clutterDna }] },
   ]);
   const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
   const bobCallMewsZome = getZomeCaller(bob.cells[0], "mews");
@@ -152,7 +154,9 @@ test("Mews by", async (t) => {
 
 test("Hashtag, cashtag and mention", async (t) => {
   const scenario = new Scenario();
-  const alice = await scenario.addPlayerWithHapp({ dnas: [clutterDna] });
+  const alice = await scenario.addPlayerWithHapp({
+    dnas: [{ source: clutterDna }],
+  });
   const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
 
   const mewContent =
@@ -222,7 +226,9 @@ test("Hashtag, cashtag and mention", async (t) => {
 
 test("Mews Feed - should include own mews", async (t) => {
   const scenario = new Scenario();
-  const [alice] = await scenario.addPlayersWithHapps([{ dnas: [clutterDna] }]);
+  const [alice] = await scenario.addPlayersWithHapps([
+    { dnas: [{ source: clutterDna }] },
+  ]);
   const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
 
   const aliceMewsFeedInitial: FeedMew[] = await aliceCallMewsZome("mews_feed", {
@@ -256,8 +262,8 @@ test("Mews Feed - should include own mews", async (t) => {
 test("Mews Feed - should include mews of followed agent", async (t) => {
   const scenario = new Scenario();
   const [alice, bob] = await scenario.addPlayersWithHapps([
-    { dnas: [clutterDna] },
-    { dnas: [clutterDna] },
+    { dnas: [{ source: clutterDna }] },
+    { dnas: [{ source: clutterDna }] },
   ]);
   await scenario.shareAllAgents();
   const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
@@ -293,9 +299,9 @@ test("Mews Feed - should include mews of followed agent", async (t) => {
 test("Mews Feed - should not include mews of non-followed agent", async (t) => {
   const scenario = new Scenario();
   const [alice, bob, carol] = await scenario.addPlayersWithHapps([
-    { dnas: [clutterDna] },
-    { dnas: [clutterDna] },
-    { dnas: [clutterDna] },
+    { dnas: [{ source: clutterDna }] },
+    { dnas: [{ source: clutterDna }] },
+    { dnas: [{ source: clutterDna }] },
   ]);
   await scenario.shareAllAgents();
   const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
@@ -335,8 +341,8 @@ test("Mews Feed - should not include mews of non-followed agent", async (t) => {
 test("Mews Feed - un-following should exclude agent's mews from feed", async (t) => {
   const scenario = new Scenario();
   const [alice, bob] = await scenario.addPlayersWithHapps([
-    { dnas: [clutterDna] },
-    { dnas: [clutterDna] },
+    { dnas: [{ source: clutterDna }] },
+    { dnas: [{ source: clutterDna }] },
   ]);
   await scenario.shareAllAgents();
   const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
@@ -376,9 +382,9 @@ test("Mews Feed - un-following should exclude agent's mews from feed", async (t)
 test("Mews Feed - should be ordered by timestamp in descending order", async (t) => {
   const scenario = new Scenario();
   const [alice, bob, carol] = await scenario.addPlayersWithHapps([
-    { dnas: [clutterDna] },
-    { dnas: [clutterDna] },
-    { dnas: [clutterDna] },
+    { dnas: [{ source: clutterDna }] },
+    { dnas: [{ source: clutterDna }] },
+    { dnas: [{ source: clutterDna }] },
   ]);
   await scenario.shareAllAgents();
   const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
@@ -449,7 +455,9 @@ test("Mews Feed - should be ordered by timestamp in descending order", async (t)
 
 test("Mew Interaction - liked mew should be included in my likes", async (t) => {
   const scenario = new Scenario();
-  const [alice] = await scenario.addPlayersWithHapps([{ dnas: [clutterDna] }]);
+  const [alice] = await scenario.addPlayersWithHapps([
+    { dnas: [{ source: clutterDna }] },
+  ]);
   const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
 
   const aliceMewContent = "alice-test-mew";
@@ -473,7 +481,9 @@ test("Mew Interaction - liked mew should be included in my likes", async (t) => 
 
 test("Mew Interaction - unliked mew should be excluded from my likes", async (t) => {
   const scenario = new Scenario();
-  const [alice] = await scenario.addPlayersWithHapps([{ dnas: [clutterDna] }]);
+  const [alice] = await scenario.addPlayersWithHapps([
+    { dnas: [{ source: clutterDna }] },
+  ]);
   const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
 
   const aliceMewContent = "alice-test-mew";
@@ -497,7 +507,9 @@ test("Mew Interaction - unliked mew should be excluded from my likes", async (t)
 
 test("Mew Interaction - replying to a mew should be linked correctly", async (t) => {
   const scenario = new Scenario();
-  const [alice] = await scenario.addPlayersWithHapps([{ dnas: [clutterDna] }]);
+  const [alice] = await scenario.addPlayersWithHapps([
+    { dnas: [{ source: clutterDna }] },
+  ]);
   const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
 
   const aliceMewContent = "alice-test-mew";
@@ -552,7 +564,9 @@ test("Mew Interaction - replying to a mew should be linked correctly", async (t)
 
 test("Mew Interaction - mewmewing a mew should be linked correctly", async (t) => {
   const scenario = new Scenario();
-  const [alice] = await scenario.addPlayersWithHapps([{ dnas: [clutterDna] }]);
+  const [alice] = await scenario.addPlayersWithHapps([
+    { dnas: [{ source: clutterDna }] },
+  ]);
   const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
 
   const aliceMewContent = "alice-test-mew";
@@ -602,7 +616,9 @@ test("Mew Interaction - mewmewing a mew should be linked correctly", async (t) =
 
 test("Mew Interaction - quoting a mew should be linked correctly", async (t) => {
   const scenario = new Scenario();
-  const [alice] = await scenario.addPlayersWithHapps([{ dnas: [clutterDna] }]);
+  const [alice] = await scenario.addPlayersWithHapps([
+    { dnas: [{ source: clutterDna }] },
+  ]);
   const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
 
   const aliceMewContent = "alice-test-mew";

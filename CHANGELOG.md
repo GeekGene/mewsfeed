@@ -12,6 +12,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Removed
 
+## 2022-09-29 v0.6.0-alpha
+
+### Changed
+- Upgrade to Holochain 0.0.161 & Lair 0.2.0 (compatible with Holo Alpha Testnet)
+
 ## 2022-08-27 v0.5.1-alpha
 
 ### Fixed
