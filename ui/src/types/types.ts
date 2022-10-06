@@ -6,12 +6,11 @@ export const TAG_SYMBOLS = {
   MENTION: "@",
 };
 
-export interface Profile {
-  avatar: string; // Base64 in-place image url
-  location: string;
-  bio: string;
-  lang_pref: string;
-}
+export const PROFILE_FIELDS = {
+  DISPLAY_NAME: "Display name",
+  BIO: "Bio",
+  LOCATION: "Location",
+};
 
 export type CreateMewInput = {
   mewType: MewType;

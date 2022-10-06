@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="hHh lpR fFf">
+  <q-layout view="hHh lpr fFf">
     <q-header elevated class="row justify-center">
       <q-toolbar class="col-12 col-md-6">
         <q-tabs v-model="tab" dense inline-label class="col-grow">
@@ -93,6 +93,7 @@ import { showError } from "@/utils/notification";
 import { ROUTES } from "@/router";
 import CreateMewDialog from "@/components/CreateMewDialog.vue";
 import { serializeHash } from "@holochain-open-dev/utils";
+import { PROFILE_FIELDS } from "@/types/types";
 
 const profilesStore = useProfilesStore();
 const router = useRouter();
@@ -122,7 +123,9 @@ const search = (
         );
         options.value = profilesMap.entries().map(([key, value]) => ({
           value: serializeHash(key),
-          label: `${value.fields["Display name"]} (@${value.nickname})`,
+          label: `${value.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
+            value.nickname
+          })`,
         }));
       } catch (error) {
         showError(error);

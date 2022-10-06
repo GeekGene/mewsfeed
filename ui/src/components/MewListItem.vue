@@ -41,7 +41,7 @@
             >
               {{ reactionLabel }}
               <span class="text-bold">
-                {{ originalMewAuthor.fields["Display name"] }}
+                {{ originalMewAuthor.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
               </span>
               @{{ originalMewAuthor.nickname }}
             </router-link>
@@ -141,7 +141,12 @@ import {
   unlickMew,
 } from "@/services/clutter-dna";
 import { useProfilesStore } from "@/services/profiles-store";
-import { CreateMewInput, FeedMew, MewTypeName } from "@/types/types";
+import {
+  CreateMewInput,
+  FeedMew,
+  MewTypeName,
+  PROFILE_FIELDS,
+} from "@/types/types";
 import { isSameAgentPubKey } from "@/utils/hash";
 import { useProfileUtils } from "@/utils/profile";
 import { Profile } from "@holochain-open-dev/profiles";
@@ -160,7 +165,9 @@ const props = defineProps({
 const profilesStore = useProfilesStore();
 const { isCurrentProfile, onAgentClick } = useProfileUtils();
 const agentProfile = ref();
-const displayName = computed(() => agentProfile.value?.fields["Display name"]);
+const displayName = computed(
+  () => agentProfile.value?.fields[PROFILE_FIELDS.DISPLAY_NAME]
+);
 const nickname = computed(() => agentProfile.value?.nickname);
 const myAgentPubKey = profilesStore.value.myAgentPubKey;
 

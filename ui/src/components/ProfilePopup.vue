@@ -34,6 +34,7 @@
 
 <script setup lang="ts">
 import { useProfilesStore } from "@/services/profiles-store";
+import { PROFILE_FIELDS } from "@/types/types";
 import { isSameAgentPubKey } from "@/utils/hash";
 import { showError } from "@/utils/notification";
 import { useProfileUtils } from "@/utils/profile";
@@ -78,9 +79,9 @@ onMounted(async () => {
     profileReadable.subscribe((p) => (profile = p));
     if (profile) {
       nickname.value = profile.nickname;
-      displayName.value = profile.fields["Display name"];
-      bio.value = profile.fields.Bio;
-      location.value = profile.fields.Location;
+      displayName.value = profile.fields[PROFILE_FIELDS.DISPLAY_NAME];
+      bio.value = profile.fields[PROFILE_FIELDS.BIO];
+      location.value = profile.fields[PROFILE_FIELDS.LOCATION];
     }
   } catch (error) {
     showError(error);
