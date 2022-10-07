@@ -1,7 +1,7 @@
 <template>
   <q-list>
     <q-item
-      v-for="(followee, index) of agentFollowees"
+      v-for="(followee, index) of followersOfAgent"
       :key="index"
       class="q-px-none"
     >
@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { following } from "@/services/clutter-dna";
+import { followers } from "@/services/clutter-dna";
 import { useProfilesStore } from "@/services/profiles-store";
 import { PROFILE_FIELDS } from "@/types/types";
 import { showError } from "@/utils/notification";
@@ -28,7 +28,7 @@ import { AgentPubKey } from "@holochain/client";
 import { onMounted, ref, watch } from "vue";
 import AvatarWithPopup from "./AvatarWithPopup.vue";
 
-interface Followee {
+interface Follower {
   agentPubKey: AgentPubKey;
   nickname: string;
   displayName: string;
@@ -38,37 +38,37 @@ const props = defineProps<{ agentPubKey: AgentPubKey }>();
 
 const profilesStore = useProfilesStore();
 
-const loadingFollowees = ref(false);
-const agentFollowees = ref<Followee[]>([]);
+const loadingFollowers = ref(false);
+const followersOfAgent = ref<Follower[]>([]);
 
-const loadFollowees = async () => {
+const loadFollowers = async () => {
   try {
-    loadingFollowees.value = true;
-    const followeeAgentPubKeys = await following(props.agentPubKey);
+    loadingFollowers.value = true;
+    const followerAgentPubKeys = await followers(props.agentPubKey);
     const profilesReadable = await profilesStore.value.fetchAgentsProfiles(
-      followeeAgentPubKeys
+      followerAgentPubKeys
     );
     profilesReadable.subscribe((profiles) => {
-      agentFollowees.value = followeeAgentPubKeys.map((agentPubKey) => {
+      followersOfAgent.value = followerAgentPubKeys.map((agentPubKey) => {
         const profile = profiles.get(agentPubKey);
-        const agentFollowee: Followee = {
+        const follower: Follower = {
           agentPubKey,
           nickname: profile.nickname,
           displayName: profile.fields[PROFILE_FIELDS.DISPLAY_NAME],
         };
-        return agentFollowee;
+        return follower;
       });
     });
   } catch (error) {
     showError(error);
   } finally {
-    loadingFollowees.value = false;
+    loadingFollowers.value = false;
   }
 };
 
-onMounted(loadFollowees);
+onMounted(loadFollowers);
 watch(
   () => props.agentPubKey,
-  () => loadFollowees()
+  () => loadFollowers()
 );
 </script>

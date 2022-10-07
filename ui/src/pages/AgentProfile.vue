@@ -40,9 +40,11 @@
       <MewList :loading="loadingMews" :mews="mews" @refresh="loadMews" />
     </div>
 
-    <div class="col q-pl-xl q-pr-md">
+    <div class="follow-col col self-start q-pl-xl q-pr-md">
       <h6 class="q-mt-none q-mb-md">Following</h6>
       <FolloweesList :agent-pub-key="agentPubKey" />
+      <h6 class="q-mb-md">Followed by</h6>
+      <FollowersList :agent-pub-key="agentPubKey" />
     </div>
   </q-page>
 </template>
@@ -50,6 +52,7 @@
 <script setup lang="ts">
 import ButtonFollow from "@/components/ButtonFollow.vue";
 import FolloweesList from "@/components/FolloweesList.vue";
+import FollowersList from "@/components/FollowersList.vue";
 import { mewsBy, myFollowing } from "@/services/clutter-dna";
 import { useProfilesStore } from "@/services/profiles-store";
 import { FeedMew, PROFILE_FIELDS } from "@/types/types";
@@ -63,15 +66,13 @@ import MewList from "../components/MewList.vue";
 
 const profilesStore = useProfilesStore();
 const route = useRoute();
-const agentPubKey = computed(() => {
-  const apg = deserializeHash(
+const agentPubKey = computed(() =>
+  deserializeHash(
     Array.isArray(route.params.agent)
       ? route.params.agent[0]
       : route.params.agent
-  );
-  console.log("apg", apg);
-  return apg;
-});
+  )
+);
 const loadingMews = ref(false);
 const loadingProfile = ref(false);
 const nickname = ref("");
@@ -135,3 +136,9 @@ watch(
   }
 );
 </script>
+
+<style lang="sass">
+.follow-col
+  position: sticky
+  top: $toolbar-min-height + map-get(map-get($spaces, "xl"), "y")
+</style>

@@ -68,7 +68,7 @@
       </q-toolbar>
     </q-header>
 
-    <q-page-container class="row q-mt-xl">
+    <q-page-container class="row q-mt-xl bg-white">
       <q-space />
       <router-view class="col-12 col-md-6" />
       <q-space />
