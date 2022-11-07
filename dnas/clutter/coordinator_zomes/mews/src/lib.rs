@@ -14,19 +14,14 @@ fn get_mews_base(agent: AgentPubKey, base_type: &str, _ensure: bool) -> ExternRe
 }
 
 // *** Creating mews ***
-
-#[derive(Debug, Serialize, Deserialize, SerializedBytes)]
-#[serde(rename_all = "camelCase")]
-pub struct CreateMewInput {
-    mew_type: MewType,
-    text: Option<String>,
-}
-
 #[hdk_extern]
 pub fn create_mew(mew: CreateMewInput) -> ExternResult<ActionHash> {
     let mew_action_hash = match mew.mew_type {
         MewType::Original => match mew.text {
-            Some(mew_string) => create_original_mew(mew_string)?,
+            Some(mew_string) => create_original_mew(MewContent {
+                text: mew_string,
+                links: mew.links,
+            })?,
             None => {
                 return Err(wasm_error!(WasmErrorInner::Guest(
                     "mew must contain text".to_string()
@@ -34,7 +29,13 @@ pub fn create_mew(mew: CreateMewInput) -> ExternResult<ActionHash> {
             }
         },
         MewType::Reply(original_action_hash) => match mew.text {
-            Some(mew_string) => create_reply(mew_string, original_action_hash)?,
+            Some(mew_string) => create_reply(
+                MewContent {
+                    text: mew_string,
+                    links: mew.links,
+                },
+                original_action_hash,
+            )?,
             None => {
                 return Err(wasm_error!(WasmErrorInner::Guest(
                     "reply mew must contain text".to_string()
@@ -50,7 +51,13 @@ pub fn create_mew(mew: CreateMewInput) -> ExternResult<ActionHash> {
             None => create_mewmew(original_action_hash)?,
         },
         MewType::Quote(original_entry_hash) => match mew.text {
-            Some(mew_string) => create_quote(mew_string, original_entry_hash)?,
+            Some(mew_string) => create_quote(
+                MewContent {
+                    text: mew_string,
+                    links: mew.links,
+                },
+                original_entry_hash,
+            )?,
             None => {
                 return Err(wasm_error!(WasmErrorInner::Guest(
                     "quote must contain text".to_string()
@@ -61,30 +68,27 @@ pub fn create_mew(mew: CreateMewInput) -> ExternResult<ActionHash> {
     Ok(mew_action_hash)
 }
 
-pub fn create_original_mew(text: String) -> ExternResult<ActionHash> {
-    let content = MewContent { text: text.clone() };
-    // let _action_hash = create_entry(&content)?;
-
+pub fn create_original_mew(mew_content: MewContent) -> ExternResult<ActionHash> {
     let mew = Mew {
         mew_type: MewType::Original,
-        content: Some(content),
+        content: Some(mew_content.clone()),
     };
     let mew_action_hash = create_entry(EntryTypes::Mew(mew))?;
 
     let base = get_my_mews_base(MEW_PATH_SEGMENT, true)?;
 
     let _link_ah = create_link(base, mew_action_hash.clone(), LinkTypes::Mew, ())?;
-    parse_mew_text(text, mew_action_hash.clone())?;
+    parse_mew_text(mew_content.text, mew_action_hash.clone())?;
     Ok(mew_action_hash)
 }
 
-pub fn create_reply(text: String, original_action_hash: ActionHash) -> ExternResult<ActionHash> {
-    let content = MewContent { text: text.clone() };
-    // let _action_hash = create_entry(&content)?;
-
+pub fn create_reply(
+    mew_content: MewContent,
+    original_action_hash: ActionHash,
+) -> ExternResult<ActionHash> {
     let mew = Mew {
         mew_type: MewType::Reply(original_action_hash.clone()),
-        content: Some(content),
+        content: Some(mew_content.clone()),
     };
     let reply_action_hash = create_entry(EntryTypes::Mew(mew))?;
 
@@ -98,7 +102,7 @@ pub fn create_reply(text: String, original_action_hash: ActionHash) -> ExternRes
         LinkTypes::Reply,
         LinkTag::new(REPLY_PATH_SEGMENT),
     )?;
-    parse_mew_text(text, reply_action_hash.clone())?;
+    parse_mew_text(mew_content.text, reply_action_hash.clone())?;
     Ok(reply_action_hash)
 }
 
@@ -122,11 +126,13 @@ pub fn create_mewmew(original_action_hash: ActionHash) -> ExternResult<ActionHas
     Ok(mewmew_action_hash)
 }
 
-pub fn create_quote(text: String, original_action_hash: ActionHash) -> ExternResult<ActionHash> {
-    let content = MewContent { text: text.clone() };
+pub fn create_quote(
+    mew_content: MewContent,
+    original_action_hash: ActionHash,
+) -> ExternResult<ActionHash> {
     let mew = Mew {
         mew_type: MewType::Quote(original_action_hash.clone()),
-        content: Some(content),
+        content: Some(mew_content.clone()),
     };
     let quote_action_hash = create_entry(EntryTypes::Mew(mew))?;
 
@@ -140,7 +146,7 @@ pub fn create_quote(text: String, original_action_hash: ActionHash) -> ExternRes
         LinkTypes::Quote,
         LinkTag::new(QUOTE_PATH_SEGMENT),
     )?;
-    parse_mew_text(text, quote_action_hash.clone())?;
+    parse_mew_text(mew_content.text, quote_action_hash.clone())?;
     Ok(quote_action_hash.into())
 }
 
