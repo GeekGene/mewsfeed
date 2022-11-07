@@ -1,10 +1,6 @@
 <template>
   <q-page class="q-pb-lg">
-    <CreateMewField
-      class="text-center"
-      :mew-type="{ original: null }"
-      @publish-mew="publishMew"
-    />
+    <CreateMewField :mew-type="{ original: null }" @publish-mew="publishMew" />
 
     <h6 class="q-mb-md">Your Mews Feed</h6>
 

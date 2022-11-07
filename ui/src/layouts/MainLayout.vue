@@ -41,7 +41,7 @@
             </template>
             <template #no-option>
               <q-item>
-                <q-item-section class="text-grey">
+                <q-item-section>
                   {{
                     searchTerm.length < 3
                       ? "Minimum 3 characters required"
