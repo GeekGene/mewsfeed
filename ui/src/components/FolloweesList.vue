@@ -1,22 +1,30 @@
 <template>
-  <q-list>
-    <q-item
-      v-for="(followee, index) of agentFollowees"
-      :key="index"
-      class="q-px-none"
-    >
-      <avatar-with-popup
-        :agent-pub-key="followee.agentPubKey"
-        class="q-mr-md"
-      />
-      <q-item-section>
-        <q-item-label>
-          {{ followee.displayName }}
-        </q-item-label>
-        <q-item-label caption> @{{ followee.nickname }}</q-item-label>
-      </q-item-section>
-    </q-item>
-  </q-list>
+  <template v-if="loadingFollowees">
+    <q-list v-for="i of [0, 1, 2]" :key="i">
+      <ProfileSkeleton />
+    </q-list>
+  </template>
+
+  <template v-else>
+    <q-list>
+      <q-item
+        v-for="(followee, index) of agentFollowees"
+        :key="index"
+        class="q-px-none"
+      >
+        <avatar-with-popup
+          :agent-pub-key="followee.agentPubKey"
+          class="q-mr-md"
+        />
+        <q-item-section>
+          <q-item-label>
+            {{ followee.displayName }}
+          </q-item-label>
+          <q-item-label caption> @{{ followee.nickname }}</q-item-label>
+        </q-item-section>
+      </q-item>
+    </q-list>
+  </template>
 </template>
 
 <script setup lang="ts">
@@ -27,6 +35,7 @@ import { showError } from "@/utils/notification";
 import { AgentPubKey } from "@holochain/client";
 import { onMounted, ref, watch } from "vue";
 import AvatarWithPopup from "./AvatarWithPopup.vue";
+import ProfileSkeleton from "./ProfileSkeleton.vue";
 
 interface Followee {
   agentPubKey: AgentPubKey;
