@@ -12,13 +12,23 @@ export const PROFILE_FIELDS = {
   LOCATION: "Location",
 };
 
+export enum LinkTargetName {
+  Mention = "Mention",
+}
+
+export type LinkTarget = {
+  [LinkTargetName.Mention]: AgentPubKey;
+};
+
 export type CreateMewInput = {
   mewType: MewType;
   text: string | null;
+  links: LinkTarget[] | null;
 };
 
 export interface MewContent {
   text: string;
+  links: LinkTarget[] | null;
 }
 
 export enum MewTypeName {
