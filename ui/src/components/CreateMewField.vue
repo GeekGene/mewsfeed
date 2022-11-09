@@ -1,10 +1,9 @@
 <template>
   <div class="text-center">
-    <div id="mew-container" class="text-left" style="position: relative">
+    <div ref="mewContainer" class="text-left" style="position: relative">
       <q-card
-        id="mew-content"
         contenteditable="true"
-        class="q-mb-md q-pa-md"
+        class="mew-content text-body1 q-mb-md q-pa-md"
         bordered
         flat
         @keydown="onKeyDown"
@@ -29,15 +28,17 @@
 
           <q-list
             v-else
-            class="bg-white rounded-borders"
+            class="autocompleter-list bg-white rounded-borders"
             bordered
             dense
             separator
+            tabindex="-1"
           >
             <q-item
               v-for="(agent, index) in agentAutocompletions"
               :key="index"
               clickable
+              @keydown="onAutocompleteKeyDown"
               @click="onAutocompleteAgentSelect(agent)"
             >
               <q-item-section avatar class="q-pr-sm col-shrink">
@@ -61,6 +62,7 @@
     <q-btn
       :disable="isNewMewEmpty || saving"
       :loading="saving"
+      :tabindex="agentAutocompletions.length && 0"
       color="accent"
       @click="publishMew"
     >
@@ -70,7 +72,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import {
   CreateMewInput,
   LinkTarget,
@@ -82,6 +84,7 @@ import { PropType } from "vue";
 import { showError } from "@/utils/notification";
 import { useProfilesStore } from "@/services/profiles-store";
 import { Profile } from "@holochain-open-dev/profiles";
+import { debounce } from "quasar";
 
 const ANCHOR_DATA_ID_AGENT_PUB_KEY = "agentPubKey";
 
@@ -98,7 +101,21 @@ interface AgentAutocompletion {
 }
 
 const profilesStore = useProfilesStore();
+const mewContainer = ref<HTMLDivElement | null>(null);
 
+onMounted(() => {
+  // focus mew input field
+  setTimeout(
+    () =>
+      document
+        .getSelection()
+        ?.setPosition(
+          mewContainer.value?.querySelector(".mew-content") || null,
+          0
+        ),
+    0
+  );
+});
 const isNewMewEmpty = ref(true);
 const saving = computed(() => props.saving);
 
@@ -112,7 +129,7 @@ const agentAutocompletions = ref<AgentAutocompletion[]>([]);
 const autocompleterLoading = ref(false);
 
 const hideAutocompleter = () => {
-  const autocompleter = document.querySelector(".autocompleter");
+  const autocompleter = mewContainer.value?.querySelector(".autocompleter");
   if (autocompleter && autocompleter instanceof HTMLElement) {
     autocompleter.style.display = "none";
   }
@@ -134,13 +151,20 @@ const stripAnchorFromLink = (selection: Selection) => {
 
 const onInput = () =>
   (isNewMewEmpty.value =
-    document.getElementById("mew-content")?.textContent?.length === 0);
+    mewContainer.value?.querySelector(".mew-content")?.textContent?.length ===
+    0);
 
 const onKeyDown = (keyDownEvent: KeyboardEvent) => {
   if (keyDownEvent.key === "Enter") {
     keyDownEvent.preventDefault();
     if (keyDownEvent.metaKey && !isNewMewEmpty.value) {
       publishMew();
+    }
+  } else if (keyDownEvent.key === "ArrowDown") {
+    const firstListItem = mewContainer.value?.querySelector(".q-item");
+    if (firstListItem instanceof HTMLElement) {
+      keyDownEvent.preventDefault();
+      firstListItem.focus();
     }
   }
 };
@@ -158,8 +182,9 @@ const onKeyUp = (keyUpEvent: KeyboardEvent) => {
     selection?.anchorNode?.parentElement?.tagName === "A"
   ) {
     stripAnchorFromLink(selection);
-  } else if (keyUpEvent.key.length && content) {
-    onCaretPositionChange();
+  } else if (keyUpEvent.key.length === 1 && content) {
+    // all single characters
+    debouncedOnCaretPositionChange();
   }
 };
 
@@ -182,6 +207,12 @@ const loadAutocompleterUsers = async (nickname: string) => {
     agentAutocompletions.value = profiles
       .keys()
       .map((key) => ({ key, value: profiles.get(key) }));
+    agentAutocompletions.value = agentAutocompletions.value.concat(
+      agentAutocompletions.value
+    );
+    agentAutocompletions.value = agentAutocompletions.value.concat(
+      agentAutocompletions.value
+    );
   } catch (error) {
     showError(error);
   } finally {
@@ -189,11 +220,34 @@ const loadAutocompleterUsers = async (nickname: string) => {
   }
 };
 
-const onAutocompleteAgentSelect = (agent: AgentAutocompletion) => {
-  const mewNode = document.getElementById("mew-content");
-  if (!mewNode) {
-    return;
+const onAutocompleteKeyDown = (keyDownEvent: KeyboardEvent) => {
+  if (keyDownEvent.key === "ArrowDown") {
+    keyDownEvent.preventDefault();
+    const currentListItem = keyDownEvent.currentTarget;
+    if (currentListItem instanceof HTMLElement) {
+      const nextSibling = currentListItem.nextSibling;
+      if (nextSibling instanceof HTMLElement) {
+        nextSibling.focus();
+      }
+    }
+  } else if (keyDownEvent.key === "ArrowUp") {
+    keyDownEvent.preventDefault();
+    const currentListItem = keyDownEvent.currentTarget;
+    if (currentListItem instanceof HTMLElement) {
+      const previousSibling = currentListItem.previousSibling;
+      if (previousSibling instanceof HTMLElement) {
+        previousSibling.focus();
+      } else {
+        const mewContent = mewContainer.value?.querySelector(".mew-content");
+        if (mewContent instanceof HTMLElement) {
+          mewContent.focus();
+        }
+      }
+    }
   }
+};
+
+const onAutocompleteAgentSelect = (agent: AgentAutocompletion) => {
   const range = new Range();
   range.setStart(currentNode, currentAnchorOffset);
   range.setEnd(currentNode, currentFocusOffset);
@@ -210,7 +264,7 @@ const onAutocompleteAgentSelect = (agent: AgentAutocompletion) => {
 };
 
 const publishMew = () => {
-  const mewInput = document.getElementById("mew-content");
+  const mewInput = mewContainer.value?.querySelector(".mew-content");
   if (!mewInput) {
     return;
   }
@@ -281,23 +335,19 @@ const onCaretPositionChange = () => {
     range.setStart(selection.anchorNode, startOfWordIndex);
     currentNode = selection.anchorNode;
     const selectionRect = range.getBoundingClientRect();
-    const mewContentDiv = document.querySelector("#mew-container");
-    const autocompleter = document.querySelector(".autocompleter");
-    if (
-      autocompleter instanceof HTMLElement &&
-      mewContentDiv instanceof HTMLElement
-    ) {
+    const autocompleter = mewContainer.value?.querySelector(".autocompleter");
+    if (autocompleter instanceof HTMLElement && mewContainer.value) {
       autocompleter.style.top =
         Math.max(
           0,
-          selectionRect.top - mewContentDiv.getBoundingClientRect().top
+          selectionRect.top - mewContainer.value.getBoundingClientRect().top
         ) +
         AUTOCOMPLETER_MARGIN_TOP +
         "px";
       autocompleter.style.left =
         Math.max(
           0,
-          selectionRect.left - mewContentDiv.getBoundingClientRect().left
+          selectionRect.left - mewContainer.value.getBoundingClientRect().left
         ) + "px";
       autocompleter.style.display = "block";
 
@@ -313,16 +363,19 @@ const onCaretPositionChange = () => {
     hideAutocompleter();
   }
 };
+const debouncedOnCaretPositionChange = debounce(onCaretPositionChange, 300);
 </script>
 
 <style lang="sass">
-#mew-content
+.mew-content
   &:focus
     outline-color: $primary
   a
     color: $secondary
+    font-weight: 600
 
 .autocompleter
   position: absolute
   display: none
+  z-index: 1
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <base-dialog @close="onClose">
+  <base-dialog class="mew-dialog" @close="onClose">
     <template #title>
       <div class="text-subtitle1 text-medium">
         <slot name="title" />
@@ -11,12 +11,13 @@
         <slot name="content" />
       </div>
 
-      <CreateMewField
-        class="text-center"
-        :mew-type="mewType"
-        :saving="saving"
-        @publish-mew="onPublishMew"
-      />
+      <profiles-context :store="profilesStore">
+        <CreateMewField
+          :mew-type="mewType"
+          :saving="saving"
+          @publish-mew="onPublishMew"
+        />
+      </profiles-context>
     </template>
   </base-dialog>
 </template>
@@ -25,6 +26,7 @@
 import BaseDialog from "@/components/BaseDialog.vue";
 import CreateMewField from "@/components/CreateMewField.vue";
 import { ROUTES } from "@/router";
+import { useProfilesStore } from "@/services/profiles-store";
 import { useClutterStore } from "@/stores";
 import { CreateMewInput, MewType } from "@/types/types";
 import { showError } from "@/utils/notification";
@@ -36,6 +38,7 @@ const emit = defineEmits<{ (e: "mew-created"): void; (e: "close"): void }>();
 const onClose = () => emit("close");
 
 const clutterStore = useClutterStore();
+const profilesStore = useProfilesStore();
 const router = useRouter();
 const saving = ref(false);
 
@@ -57,3 +60,9 @@ const onPublishMew = async (mew: CreateMewInput) => {
   }
 };
 </script>
+
+<style lang="sass">
+.mew-dialog
+  .q-card.dialog
+    overflow: visible
+</style>

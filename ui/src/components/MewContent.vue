@@ -5,7 +5,7 @@
         <router-link
           v-if="contentPart[1]"
           :to="contentPart[1]"
-          class="text-secondary"
+          class="text-secondary text-bold"
         >
           {{ contentPart[0] }}
         </router-link>
