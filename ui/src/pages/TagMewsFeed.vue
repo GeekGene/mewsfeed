@@ -17,6 +17,7 @@ import { FeedMew, TAG_SYMBOLS } from "@/types/types";
 import { showError } from "@/utils/notification";
 import { useRouter } from "vue-router";
 import MewList from "../components/MewList.vue";
+import { deserializeHash } from "@holochain-open-dev/utils";
 
 const router = useRouter();
 const currentRoute = computed(() => router.currentRoute.value);
@@ -25,6 +26,11 @@ const tag = computed(() =>
   Array.isArray(currentRoute.value.params.tag)
     ? currentRoute.value.params.tag[0]
     : currentRoute.value.params.tag
+);
+const agentPubKey = computed(() =>
+  Array.isArray(currentRoute.value.query.agentPubKey)
+    ? currentRoute.value.query.agentPubKey[0]
+    : currentRoute.value.query.agentPubKey
 );
 
 const loading = ref(false);
@@ -38,7 +44,9 @@ const loadMewsFeed = async () => {
     } else if (tagSymbol.value === TAG_SYMBOLS.HASHTAG) {
       mews.value = await getMewsWithHashtag(tagSymbol.value + tag.value);
     } else if (tagSymbol.value === TAG_SYMBOLS.MENTION) {
-      mews.value = await getMewsWithMention(tagSymbol.value + tag.value);
+      mews.value = await getMewsWithMention(
+        deserializeHash(agentPubKey.value || "")
+      );
     }
   } catch (error) {
     showError(error);

@@ -78,7 +78,7 @@ pub fn create_original_mew(mew_content: MewContent) -> ExternResult<ActionHash> 
     let base = get_my_mews_base(MEW_PATH_SEGMENT, true)?;
 
     let _link_ah = create_link(base, mew_action_hash.clone(), LinkTypes::Mew, ())?;
-    parse_mew_text(mew_content.text, mew_action_hash.clone())?;
+    parse_mew_text(mew_content, mew_action_hash.clone())?;
     Ok(mew_action_hash)
 }
 
@@ -102,7 +102,7 @@ pub fn create_reply(
         LinkTypes::Reply,
         LinkTag::new(REPLY_PATH_SEGMENT),
     )?;
-    parse_mew_text(mew_content.text, reply_action_hash.clone())?;
+    parse_mew_text(mew_content, reply_action_hash.clone())?;
     Ok(reply_action_hash)
 }
 
@@ -146,7 +146,7 @@ pub fn create_quote(
         LinkTypes::Quote,
         LinkTag::new(QUOTE_PATH_SEGMENT),
     )?;
-    parse_mew_text(mew_content.text, quote_action_hash.clone())?;
+    parse_mew_text(mew_content, quote_action_hash.clone())?;
     Ok(quote_action_hash.into())
 }
 
@@ -413,14 +413,14 @@ pub fn get_mews_with_hashtag(hashtag: String) -> ExternResult<Vec<FeedMew>> {
 }
 
 #[hdk_extern]
-pub fn get_mews_with_cashtag(hashtag: String) -> ExternResult<Vec<FeedMew>> {
-    let path = Path::from(format!("cashtags.{}", hashtag));
+pub fn get_mews_with_cashtag(cashtag: String) -> ExternResult<Vec<FeedMew>> {
+    let path = Path::from(format!("cashtags.{}", cashtag));
     Ok(get_mews_from_path(path)?)
 }
 
 #[hdk_extern]
-pub fn get_mews_with_mention(hashtag: String) -> ExternResult<Vec<FeedMew>> {
-    let path = Path::from(format!("mentions.{}", hashtag));
+pub fn get_mews_with_mention(agent_pub_key: AgentPubKey) -> ExternResult<Vec<FeedMew>> {
+    let path = Path::from(format!("mentions.{}", agent_pub_key));
     Ok(get_mews_from_path(path)?)
 }
 
@@ -441,27 +441,32 @@ pub fn get_mews_from_path(path: Path) -> ExternResult<Vec<FeedMew>> {
     Ok(mews)
 }
 
-pub fn parse_mew_text(mew_text: String, mew_hash: ActionHash) -> ExternResult<()> {
-    let hashtag_regex = Regex::new(r"#\w+").unwrap();
-    let cashtag_regex = Regex::new(r"\$\w+").unwrap();
-    let mention_regex = Regex::new(r"@\w+").unwrap();
-    for mat in hashtag_regex.find_iter(&mew_text.clone()) {
+pub fn parse_mew_text(mew_content: MewContent, mew_hash: ActionHash) -> ExternResult<()> {
+    let hashtag_regex = Regex::new(r"#\S+").unwrap();
+    let cashtag_regex = Regex::new(r"\$\S+").unwrap();
+    // let mention_regex = Regex::new(r"@\S+").unwrap();
+    for mat in hashtag_regex.find_iter(&mew_content.text.clone()) {
         let hashtag = mat.as_str();
         let path = Path::from(format!("hashtags.{}", hashtag));
         let path_hash = path.path_entry_hash()?;
         let _link_ah = create_link(path_hash, mew_hash.clone(), LinkTypes::Tag, ())?;
     }
-    for mat in cashtag_regex.find_iter(&mew_text.clone()) {
+    for mat in cashtag_regex.find_iter(&mew_content.text.clone()) {
         let cashtag = mat.as_str();
         let path = Path::from(format!("cashtags.{}", cashtag));
         let path_hash = path.path_entry_hash()?;
         let _link_ah = create_link(path_hash, mew_hash.clone(), LinkTypes::Tag, ())?;
     }
-    for mat in mention_regex.find_iter(&mew_text.clone()) {
-        let mention = mat.as_str();
-        let path = Path::from(format!("mentions.{}", mention));
-        let path_hash = path.path_entry_hash()?;
-        let _link_ah = create_link(path_hash, mew_hash.clone(), LinkTypes::Tag, ())?;
+    if let Some(links) = mew_content.links {
+        for link in links {
+            match link {
+                LinkTarget::Mention(mention) => {
+                    let path = Path::from(format!("mentions.{}", mention));
+                    let path_hash = path.path_entry_hash()?;
+                    let _link_ah = create_link(path_hash, mew_hash.clone(), LinkTypes::Tag, ())?;
+                }
+            }
+        }
     }
     Ok(())
 }
