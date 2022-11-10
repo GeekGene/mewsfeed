@@ -20,6 +20,7 @@ pub enum MewType {
 #[derive(Clone)]
 pub enum LinkTarget {
     Mention(AgentPubKey),
+    URL(String),
 }
 
 #[derive(Debug, Serialize, Deserialize, SerializedBytes)]
@@ -96,7 +97,9 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         if mew_content.text.len() <= 200 {
                             Ok(ValidateCallbackResult::Valid)
                         } else {
-                            Ok(ValidateCallbackResult::Invalid("mew must not be longer than 200 chars".to_string()))
+                            Ok(ValidateCallbackResult::Invalid(
+                                "mew must not be longer than 200 characters".to_string(),
+                            ))
                         }
                     }
                 },

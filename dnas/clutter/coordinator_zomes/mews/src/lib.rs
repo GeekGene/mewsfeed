@@ -465,6 +465,7 @@ pub fn parse_mew_text(mew_content: MewContent, mew_hash: ActionHash) -> ExternRe
                     let path_hash = path.path_entry_hash()?;
                     let _link_ah = create_link(path_hash, mew_hash.clone(), LinkTypes::Tag, ())?;
                 }
+                _ => ()
             }
         }
     }

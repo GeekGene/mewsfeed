@@ -207,12 +207,6 @@ const loadAutocompleterUsers = async (nickname: string) => {
     agentAutocompletions.value = profiles
       .keys()
       .map((key) => ({ key, value: profiles.get(key) }));
-    agentAutocompletions.value = agentAutocompletions.value.concat(
-      agentAutocompletions.value
-    );
-    agentAutocompletions.value = agentAutocompletions.value.concat(
-      agentAutocompletions.value
-    );
   } catch (error) {
     showError(error);
   } finally {
@@ -368,6 +362,7 @@ const debouncedOnCaretPositionChange = debounce(onCaretPositionChange, 300);
 
 <style lang="sass">
 .mew-content
+  height: $body-font-size * $body-line-height * 2
   &:focus
     outline-color: $primary
   a
