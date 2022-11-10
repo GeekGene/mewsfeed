@@ -17,8 +17,8 @@
 </template>
 
 <script setup lang="ts">
-import { FeedMew, LinkTargetName, TAG_SYMBOLS } from "@/types/types";
-import { TAG_REGEX } from "@/utils/tags";
+import { FeedMew, LinkTargetName } from "@/types/types";
+import { TAG_REGEX, TAG_SYMBOLS } from "@/utils/tags";
 import { PATH, ROUTES } from "@/router";
 import { PropType } from "vue";
 import { RouteLocationRaw } from "vue-router";

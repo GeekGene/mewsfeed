@@ -13,11 +13,12 @@ import {
   getMewsWithMention,
 } from "@/services/clutter-dna";
 import { onMounted, computed, ref, watch } from "vue";
-import { FeedMew, TAG_SYMBOLS } from "@/types/types";
+import { FeedMew } from "@/types/types";
 import { showError } from "@/utils/notification";
 import { useRouter } from "vue-router";
 import MewList from "../components/MewList.vue";
 import { deserializeHash } from "@holochain-open-dev/utils";
+import { TAG_SYMBOLS } from "@/utils/tags";
 
 const router = useRouter();
 const currentRoute = computed(() => router.currentRoute.value);

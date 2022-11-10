@@ -442,9 +442,8 @@ pub fn get_mews_from_path(path: Path) -> ExternResult<Vec<FeedMew>> {
 }
 
 pub fn parse_mew_text(mew_content: MewContent, mew_hash: ActionHash) -> ExternResult<()> {
-    let hashtag_regex = Regex::new(r"#\S+").unwrap();
-    let cashtag_regex = Regex::new(r"\$\S+").unwrap();
-    // let mention_regex = Regex::new(r"@\S+").unwrap();
+    let hashtag_regex = Regex::new(r"#\w+").unwrap();
+    let cashtag_regex = Regex::new(r"\$\w+").unwrap();
     for mat in hashtag_regex.find_iter(&mew_content.text.clone()) {
         let hashtag = mat.as_str();
         let path = Path::from(format!("hashtags.{}", hashtag));
