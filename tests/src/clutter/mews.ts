@@ -4,9 +4,44 @@ import test from "tape";
 import {
   CreateMewInput,
   FeedMew,
+  LinkTargetName,
   MewTypeName,
 } from "../../../ui/src/types/types.js";
 import { clutterDna } from "../utils.js";
+
+test("Mew must not be longer than 200 chars", async (t) => {
+  const scenario = new Scenario();
+  const alice = await scenario.addPlayerWithHapp({
+    dnas: [{ source: clutterDna }],
+  });
+  const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
+
+  const createMewInput: CreateMewInput = {
+    mewType: {
+      original: null,
+    },
+    text: new Array(200).fill("a").join(""),
+  };
+  const mewHash: ActionHash = await aliceCallMewsZome(
+    "create_mew",
+    createMewInput
+  );
+  t.deepEqual(
+    mewHash.slice(0, 3),
+    Buffer.from([132, 41, 36]),
+    "alice created a mew of valid length"
+  );
+
+  createMewInput.text = new Array(201).fill("a").join("");
+  try {
+    await aliceCallMewsZome("create_mew", createMewInput);
+    t.fail("mew content longer than 200 chars is valid");
+  } catch (error) {
+    t.ok("mew content longer than 200 chars is invalid");
+  }
+
+  await scenario.cleanUp();
+});
 
 test("Following oneself should fail", async (t) => {
   const scenario = new Scenario();
@@ -166,6 +201,7 @@ test("Hashtag, cashtag and mention", async (t) => {
       original: null,
     },
     text: mewContent,
+    links: [{ [LinkTargetName.Mention]: alice.agentPubKey }],
   };
 
   const mewHash: ActionHash = await aliceCallMewsZome(
@@ -217,7 +253,7 @@ test("Hashtag, cashtag and mention", async (t) => {
 
   const mentionedMews: FeedMew[] = await aliceCallMewsZome(
     "get_mews_with_mention",
-    "@mention"
+    alice.agentPubKey
   );
   t.ok(mentionedMews.length === 1, "one mew with mention");
 

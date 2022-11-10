@@ -1,11 +1,5 @@
 import { ActionHash, AgentPubKey, Create, HoloHash } from "@holochain/client";
 
-export const TAG_SYMBOLS = {
-  CASHTAG: "$",
-  HASHTAG: "#",
-  MENTION: "@",
-};
-
 export const PROFILE_FIELDS = {
   DISPLAY_NAME: "Display name",
   BIO: "Bio",
@@ -23,12 +17,12 @@ export type LinkTarget = {
 export type CreateMewInput = {
   mewType: MewType;
   text: string | null;
-  links: LinkTarget[] | null;
+  links?: LinkTarget[];
 };
 
 export interface MewContent {
   text: string;
-  links: LinkTarget[] | null;
+  links?: LinkTarget[];
 }
 
 export enum MewTypeName {

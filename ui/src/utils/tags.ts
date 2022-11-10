@@ -1,6 +1,12 @@
-import { TAG_SYMBOLS } from "@/types/types";
+export const TAG_SYMBOLS = {
+  CASHTAG: "$",
+  HASHTAG: "#",
+  MENTION: "@",
+};
 
-const regexpString = Object.values(TAG_SYMBOLS).map(
-  (symbol) => `\\${symbol}\\S+`
-);
+const regexpString = [
+  `\\${TAG_SYMBOLS.CASHTAG}\\w+`,
+  `\\${TAG_SYMBOLS.HASHTAG}\\w+`,
+  `\\${TAG_SYMBOLS.MENTION}\\S+`,
+];
 export const TAG_REGEX = new RegExp(`\\B(${regexpString.join("|")})`, "gi");

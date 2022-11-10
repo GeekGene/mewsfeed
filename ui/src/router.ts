@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
-import { TAG_SYMBOLS } from "./types/types";
+import { TAG_SYMBOLS } from "./utils/tags";
 
 export const PATH = {
   [TAG_SYMBOLS.CASHTAG]: "cashtag",
