@@ -251,10 +251,11 @@ const onAutocompleteAgentSelect = (agent: AgentAutocompletion) => {
   anchor.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY] = agent.key.toString();
   range.deleteContents();
   range.insertNode(anchor);
+  // insert space after mention
+  const spaceNode = document.createTextNode(String.fromCharCode(160));
+  anchor.after(spaceNode);
   hideAutocompleter();
-  document
-    .getSelection()
-    ?.setPosition(anchor.childNodes[0], anchor.textContent.length);
+  document.getSelection()?.setPosition(spaceNode, 1);
 };
 
 const publishMew = () => {
@@ -285,7 +286,7 @@ const publishMew = () => {
   const createMewInput: CreateMewInput = {
     mewType: props.mewType,
     text: mewInput.textContent,
-    links: mentions.length ? mentions : null,
+    links: mentions.length ? mentions : undefined,
   };
   emit("publish-mew", createMewInput);
   mewInput.textContent = "";
