@@ -25,6 +25,7 @@ import {
   useClientStore,
 } from "./stores";
 import { CLUTTER_ROLE_ID } from "./stores/clutter";
+import { PROFILE_FIELDS } from "./types/types";
 
 const app = createApp(App);
 app.use(router);
@@ -83,7 +84,11 @@ const initProfileStore = async (client: any) => {
     new ProfilesService(cellClient),
     {
       avatarMode: "avatar-required",
-      additionalFields: ["Display name", "Bio", "Location"],
+      additionalFields: [
+        PROFILE_FIELDS.DISPLAY_NAME,
+        PROFILE_FIELDS.BIO,
+        PROFILE_FIELDS.LOCATION,
+      ],
     }
   );
 };

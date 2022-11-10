@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="hHh lpR fFf">
+  <q-layout view="hHh lpr fFf">
     <q-header elevated class="row justify-center">
       <q-toolbar class="col-12 col-md-6">
         <q-tabs v-model="tab" dense inline-label class="col-grow">
@@ -41,7 +41,7 @@
             </template>
             <template #no-option>
               <q-item>
-                <q-item-section class="text-grey">
+                <q-item-section>
                   {{
                     searchTerm.length < 3
                       ? "Minimum 3 characters required"
@@ -68,7 +68,7 @@
       </q-toolbar>
     </q-header>
 
-    <q-page-container class="row q-mt-xl">
+    <q-page-container class="row q-mt-xl bg-white">
       <q-space />
       <router-view class="col-12 col-md-6" />
       <q-space />
@@ -93,6 +93,7 @@ import { showError } from "@/utils/notification";
 import { ROUTES } from "@/router";
 import CreateMewDialog from "@/components/CreateMewDialog.vue";
 import { serializeHash } from "@holochain-open-dev/utils";
+import { PROFILE_FIELDS } from "@/types/types";
 
 const profilesStore = useProfilesStore();
 const router = useRouter();
@@ -122,7 +123,9 @@ const search = (
         );
         options.value = profilesMap.entries().map(([key, value]) => ({
           value: serializeHash(key),
-          label: `${value.fields["Display name"]} (@${value.nickname})`,
+          label: `${value.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
+            value.nickname
+          })`,
         }));
       } catch (error) {
         showError(error);

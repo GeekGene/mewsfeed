@@ -1,19 +1,6 @@
 <template>
   <q-list v-for="i of [0, 1, 2]" :key="i">
-    <q-item>
-      <q-item-section avatar>
-        <q-skeleton type="QAvatar" />
-      </q-item-section>
-
-      <q-item-section>
-        <q-item-label>
-          <q-skeleton type="text" />
-        </q-item-label>
-        <q-item-label caption>
-          <q-skeleton type="text" width="80%" />
-        </q-item-label>
-      </q-item-section>
-    </q-item>
+    <ProfileSkeleton />
 
     <q-item>
       <q-item-section avatar />
@@ -51,3 +38,7 @@
     </q-item>
   </q-list>
 </template>
+
+<script setup lang="ts">
+import ProfileSkeleton from "./ProfileSkeleton.vue";
+</script>

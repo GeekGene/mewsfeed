@@ -18,6 +18,7 @@
 <script setup lang="ts">
 import { follow, myFollowing, unfollow } from "@/services/clutter-dna";
 import { useProfilesStore } from "@/services/profiles-store";
+import { PROFILE_FIELDS } from "@/types/types";
 import { isSameAgentPubKey } from "@/utils/hash";
 import { showError, showMessage } from "@/utils/notification";
 import { Profile } from "@holochain-open-dev/profiles";
@@ -61,7 +62,9 @@ const toggleFollow = async () => {
     let profile: Profile | undefined;
     profileReadable.subscribe((p) => (profile = p));
     following.value = !following.value;
-    const name = `${profile?.fields["Display name"]} (@${profile?.nickname})`;
+    const name = `${profile?.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
+      profile?.nickname
+    })`;
     const message = following.value
       ? `You're following ${name} now`
       : `You're not following ${name} anymore`;

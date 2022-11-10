@@ -91,5 +91,6 @@ export const getMewsWithCashtag = async (cashtag: string): Promise<FeedMew[]> =>
 export const getMewsWithHashtag = async (hashtag: string): Promise<FeedMew[]> =>
   callZome(MewsFn.GetMewsWithHashtag, hashtag);
 
-export const getMewsWithMention = async (mention: string): Promise<FeedMew[]> =>
-  callZome(MewsFn.GetMewsWithMention, mention);
+export const getMewsWithMention = async (
+  agentPubKey: AgentPubKey
+): Promise<FeedMew[]> => callZome(MewsFn.GetMewsWithMention, agentPubKey);
