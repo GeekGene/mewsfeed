@@ -5,16 +5,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## Unreleased
 
 ### Added
+### Changed
+### Fixed
+### Removed
 
+## 2022-11-10 v0.7.0-alpha
+
+### Added
 - **BREAKING CHANGE**: Add links vector to mew content, which holds agent keys of user mentions in mews.
 - Add sections "Followed by" and "Following" to agent profile view.
 
 ### Changed
 - **BREAKING CHANGE**: Upgrade to Holochain v0.0.170.
-
-### Fixed
-
-### Removed
 
 ## 2022-09-29 v0.6.0-alpha
 
