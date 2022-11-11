@@ -61,7 +61,11 @@
 
         <div>
           <q-btn size="sm" flat @click="toggleLickMew">
-            <q-icon name="svguse:/icons.svg#lick" class="q-mr-xs" />
+            <q-icon
+              name="svguse:/icons.svg#lick"
+              :color="isLickedByMe ? 'pink-4' : 'transparent'"
+              class="q-mr-xs"
+            />
             {{ feedMew.licks.length }}
             <q-tooltip>Lick mew</q-tooltip>
           </q-btn>

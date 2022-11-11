@@ -13,9 +13,12 @@
         @input="onInput"
       />
 
-      <div v-if="isNewMewEmpty" class="help-text text-body1 text-grey">
-        You can mention people with @ and use #hashtags and $cashtags.
-      </div>
+      <q-icon name="help" color="grey" size="xs" class="help-text">
+        <q-tooltip class="text-body2" anchor="top middle" self="bottom middle">
+          You can mention people with @ and use #hashtags and $cashtags in your
+          mew.
+        </q-tooltip>
+      </q-icon>
 
       <div class="q-mb-md text-right text-caption text-grey">
         Press Ctrl/Cmd + Enter to publish
@@ -380,9 +383,9 @@ const debouncedOnCaretPositionChange = debounce(onCaretPositionChange, 300);
 
 .help-text
   position: absolute
-  pointer-events: none
-  top: map-get(map-get($spaces, "md"), "y") + 1
-  left: map-get(map-get($spaces, "md"), "x") + 1
+  cursor: default
+  top: 5px
+  right: 5px
 
 .autocompleter
   position: absolute
