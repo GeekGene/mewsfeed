@@ -3,7 +3,7 @@
     <div ref="mewContainer" class="text-left" style="position: relative">
       <q-card
         contenteditable="true"
-        class="mew-content text-body1 q-mb-md q-pa-md"
+        class="mew-content text-body1 q-pa-md"
         bordered
         flat
         @keydown="onKeyDown"
@@ -12,6 +12,15 @@
         @paste="onPaste"
         @input="onInput"
       />
+
+      <div v-if="isNewMewEmpty" class="help-text text-body1 text-grey">
+        Compose your mew here. You can mention people with @ and use #hashtags
+        and $cashtags.
+      </div>
+
+      <div class="q-mb-md text-right text-caption text-grey">
+        Press Ctrl/Cmd + Enter to publish
+      </div>
 
       <q-card class="autocompleter">
         <template v-if="currentAgentSearch.length < 3">
@@ -369,6 +378,12 @@ const debouncedOnCaretPositionChange = debounce(onCaretPositionChange, 300);
   a
     color: $secondary
     font-weight: 600
+
+.help-text
+  position: absolute
+  pointer-events: none
+  top: map-get(map-get($spaces, "md"), "y") + 1
+  left: map-get(map-get($spaces, "md"), "x") + 1
 
 .autocompleter
   position: absolute
