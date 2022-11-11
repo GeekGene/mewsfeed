@@ -60,22 +60,22 @@
         />
 
         <div>
-          <q-btn
-            size="sm"
-            :icon="isLickedByMe ? 'favorite' : 'favorite_border'"
-            flat
-            @click="toggleLickMew"
-          >
+          <q-btn size="sm" flat @click="toggleLickMew">
+            <q-icon name="svguse:/icons.svg#lick" class="q-mr-xs" />
             {{ feedMew.licks.length }}
+            <q-tooltip>Lick mew</q-tooltip>
           </q-btn>
           <q-btn size="sm" icon="reply" flat @click="replyToMew">
             {{ feedMew.replies.length }}
+            <q-tooltip>Reply to mew</q-tooltip>
           </q-btn>
           <q-btn size="sm" icon="forward" flat @click="mewMew">
             {{ feedMew.mewmews.length }}
+            <q-tooltip>Mewmew mew</q-tooltip>
           </q-btn>
           <q-btn size="sm" icon="format_quote" flat @click="quote">
             {{ feedMew.quotes.length }}
+            <q-tooltip>Quote mew</q-tooltip>
           </q-btn>
         </div>
       </q-item-section>

@@ -1,5 +1,5 @@
 <template>
-  <base-dialog class="mew-dialog" @close="onClose">
+  <base-dialog class="mew-dialog" style="min-width: 400px" @close="onClose">
     <template #title>
       <div class="text-subtitle1 text-medium">
         <slot name="title" />

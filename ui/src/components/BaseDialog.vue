@@ -1,6 +1,6 @@
 <template>
   <q-dialog v-model="isVisible" @hide="onClose">
-    <q-card class="dialog">
+    <q-card class="dialog" v-bind="$attrs">
       <q-card-section class="q-pb-sm">
         <div class="row justify-between items-center">
           <slot name="title" />

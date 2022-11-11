@@ -14,8 +14,7 @@
       />
 
       <div v-if="isNewMewEmpty" class="help-text text-body1 text-grey">
-        Compose your mew here. You can mention people with @ and use #hashtags
-        and $cashtags.
+        You can mention people with @ and use #hashtags and $cashtags.
       </div>
 
       <div class="q-mb-md text-right text-caption text-grey">
