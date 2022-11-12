@@ -15,7 +15,6 @@
           >
             Mew
           </q-btn>
-
           <q-select
             v-model="selection"
             :options="options"
@@ -32,12 +31,26 @@
             dark
             class="col q-mx-md"
             :options-dark="false"
-            dense
             @filter="search"
             @update:model-value="onAgentSelect"
           >
             <template #prepend>
               <q-icon name="search" color="white" />
+            </template>
+            <template #option="item">
+              <profiles-context :store="profilesStore">
+                <q-item clickable v-bind="item.itemProps" dense class="q-py-sm">
+                  <q-item-section avatar>
+                    <agent-avatar
+                      :agentPubKey="item.opt.agentPubKey"
+                      size="40"
+                    />
+                  </q-item-section>
+                  <q-item-section class="text-body2">
+                    {{ item.opt.label }}
+                  </q-item-section>
+                </q-item>
+              </profiles-context>
             </template>
             <template #no-option>
               <q-item>
@@ -85,22 +98,23 @@
 </template>
 
 <script setup lang="ts">
-import { useProfilesStore } from "@/services/profiles-store";
-import { QSelectOption } from "quasar";
-import { useRouter } from "vue-router";
-import { ref } from "vue";
-import { showError } from "@/utils/notification";
-import { ROUTES } from "@/router";
 import CreateMewDialog from "@/components/CreateMewDialog.vue";
-import { serializeHash } from "@holochain-open-dev/utils";
+import { ROUTES } from "@/router";
+import { useProfilesStore } from "@/services/profiles-store";
 import { PROFILE_FIELDS } from "@/types/types";
+import { showError } from "@/utils/notification";
+import { serializeHash } from "@holochain-open-dev/utils";
+import { AgentPubKey } from "@holochain/client";
+import { QSelectOption } from "quasar";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 
 const profilesStore = useProfilesStore();
 const router = useRouter();
 const tab = ref("");
 
 const searching = ref(false);
-const options = ref<QSelectOption[]>([]);
+const options = ref<Array<QSelectOption & { agentPubKey: AgentPubKey }>>([]);
 const selection = ref<QSelectOption | null>(null);
 const searchTerm = ref("");
 
@@ -123,6 +137,7 @@ const search = (
         );
         options.value = profilesMap.entries().map(([key, value]) => ({
           value: serializeHash(key),
+          agentPubKey: key,
           label: `${value.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
             value.nickname
           })`,
