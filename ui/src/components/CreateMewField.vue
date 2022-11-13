@@ -378,7 +378,8 @@ const debouncedOnCaretPositionChange = debounce(onCaretPositionChange, 300);
 
 <style lang="sass">
 .mew-content
-  height: $body-font-size * $body-line-height * 2
+  min-height: $body-font-size * $body-line-height * 2
+
   &:focus
     outline-color: $primary
   a
