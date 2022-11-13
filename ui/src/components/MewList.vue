@@ -2,12 +2,7 @@
   <mew-list-skeleton v-if="loading" />
 
   <q-list v-else bordered separator>
-    <mew-list-item
-      v-for="(mew, index) of mews"
-      :key="index"
-      :feed-mew="mew"
-      @refresh-feed="emit('refresh')"
-    />
+    <mew-list-item v-for="(mew, index) of mews" :key="index" :feed-mew="mew" />
   </q-list>
 </template>
 
@@ -27,6 +22,4 @@ defineProps({
     type: Boolean,
   },
 });
-
-const emit = defineEmits<{ (e: "refresh"): void }>();
 </script>

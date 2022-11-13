@@ -60,7 +60,12 @@
         />
 
         <div>
-          <q-btn size="sm" flat @click="toggleLickMew">
+          <q-btn
+            :disable="isUpdatingLick"
+            size="sm"
+            flat
+            @click="toggleLickMew"
+          >
             <q-icon
               name="svguse:/icons.svg#lick"
               :color="isLickedByMe ? 'pink-4' : 'transparent'"
@@ -138,20 +143,16 @@
 
 <script setup lang="ts">
 import { ROUTES } from "@/router";
-import {
-  createMew,
-  getFeedMewAndContext,
-  lickMew,
-  unlickMew,
-} from "@/services/clutter-dna";
+import { createMew, lickMew, unlickMew } from "@/services/clutter-dna";
 import { useProfilesStore } from "@/services/profiles-store";
+import { useClutterStore } from "@/stores";
 import {
   CreateMewInput,
   FeedMew,
   MewTypeName,
   PROFILE_FIELDS,
 } from "@/types/types";
-import { isSameAgentPubKey } from "@/utils/hash";
+import { isSameHash } from "@/utils/hash";
 import { useProfileUtils } from "@/utils/profile";
 import { Profile } from "@holochain-open-dev/profiles";
 import { serializeHash } from "@holochain-open-dev/utils";
@@ -165,6 +166,8 @@ import Timestamp from "./Timestamp.vue";
 const props = defineProps({
   feedMew: { type: Object as PropType<FeedMew>, required: true },
 });
+
+const store = useClutterStore();
 
 const profilesStore = useProfilesStore();
 const { isCurrentProfile, onAgentClick } = useProfileUtils();
@@ -183,16 +186,26 @@ const isOriginal = computed(
 );
 const isReply = computed(() => MewTypeName.Reply in props.feedMew.mew.mewType);
 const isQuote = computed(() => MewTypeName.Quote in props.feedMew.mew.mewType);
+
 const showOriginalMew = computed(() => isReply.value || isQuote.value);
 const slotName = computed(() => (showOriginalMew.value ? "header" : "default"));
-const originalMew = ref<FeedMew>();
+
+const originalMewHash =
+  MewTypeName.MewMew in props.feedMew.mew.mewType
+    ? props.feedMew.mew.mewType.mewMew
+    : MewTypeName.Reply in props.feedMew.mew.mewType
+    ? props.feedMew.mew.mewType.reply
+    : MewTypeName.Quote in props.feedMew.mew.mewType
+    ? props.feedMew.mew.mewType.quote
+    : new Uint8Array();
+const originalMew = computed(() =>
+  store.mewsFeed.find((m) => isSameHash(m.actionHash, originalMewHash))
+);
 const originalMewAuthor = ref<Profile>();
 const loadingOriginalMewAuthor = ref<boolean>();
 const reactionLabel = computed(() =>
   isMewMew.value ? "mewmewed from" : isReply.value ? "replied to" : "quoted"
 );
-
-const emit = defineEmits<{ (e: "refresh-feed"): void }>();
 
 onMounted(async () => {
   const agentProfileReadable = await profilesStore.value.fetchAgentProfile(
@@ -200,44 +213,37 @@ onMounted(async () => {
   );
   agentProfileReadable.subscribe((profile) => (agentProfile.value = profile));
 
-  if (MewTypeName.Original in props.feedMew.mew.mewType) {
+  if (MewTypeName.Original in props.feedMew.mew.mewType || !originalMew.value) {
     return;
   }
   // load original mew author if item is a reply, mewmew or quote
   loadingOriginalMewAuthor.value = true;
-  const originalMewHash =
-    MewTypeName.MewMew in props.feedMew.mew.mewType
-      ? props.feedMew.mew.mewType.mewMew
-      : MewTypeName.Reply in props.feedMew.mew.mewType
-      ? props.feedMew.mew.mewType.reply
-      : props.feedMew.mew.mewType.quote;
-  getFeedMewAndContext(originalMewHash)
-    .then((mew) => {
-      originalMew.value = mew;
-      profilesStore.value
-        .fetchAgentProfile(mew.action.author)
-        .then((profileReadable) => {
-          profileReadable.subscribe(
-            (profile) => (originalMewAuthor.value = profile)
-          );
-        });
+  profilesStore.value
+    .fetchAgentProfile(originalMew.value.action.author)
+    .then((profileReadable) => {
+      profileReadable.subscribe(
+        (profile) => (originalMewAuthor.value = profile)
+      );
     })
     .finally(() => (loadingOriginalMewAuthor.value = false));
 });
 
 const isReplying = ref(false);
 const isQuoting = ref(false);
+const isUpdatingLick = ref(false);
 const isLickedByMe = computed(() =>
-  props.feedMew.licks.some((lick) => isSameAgentPubKey(lick, myAgentPubKey))
+  props.feedMew.licks.some((lick) => isSameHash(lick, myAgentPubKey))
 );
 
 const toggleLickMew = async () => {
+  isUpdatingLick.value = true;
   if (isLickedByMe.value) {
     await unlickMew(props.feedMew.actionHash);
   } else {
     await lickMew(props.feedMew.actionHash);
   }
-  emit("refresh-feed");
+  await store.reloadMew(props.feedMew.actionHash);
+  isUpdatingLick.value = false;
 };
 
 const replyToMew = () => (isReplying.value = true);
@@ -248,7 +254,7 @@ const mewMew = async () => {
     text: null,
   };
   await createMew(mew);
-  emit("refresh-feed");
+  store.fetchMewsFeed();
 };
 
 const quote = () => (isQuoting.value = true);

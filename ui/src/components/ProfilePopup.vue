@@ -35,7 +35,7 @@
 <script setup lang="ts">
 import { useProfilesStore } from "@/services/profiles-store";
 import { PROFILE_FIELDS } from "@/types/types";
-import { isSameAgentPubKey } from "@/utils/hash";
+import { isSameHash } from "@/utils/hash";
 import { showError } from "@/utils/notification";
 import { useProfileUtils } from "@/utils/profile";
 import { Profile } from "@holochain-open-dev/profiles";
@@ -56,7 +56,7 @@ const router = useRouter();
 const profilesStore = useProfilesStore();
 const { onAgentClick } = useProfileUtils();
 const isMyProfile = computed(() =>
-  isSameAgentPubKey(props.agentPubKey, profilesStore.value.myAgentPubKey)
+  isSameHash(props.agentPubKey, profilesStore.value.myAgentPubKey)
 );
 const isCurrentProfile = computed(
   () =>

@@ -56,7 +56,7 @@ import FollowersList from "@/components/FollowersList.vue";
 import { mewsBy, myFollowing } from "@/services/clutter-dna";
 import { useProfilesStore } from "@/services/profiles-store";
 import { FeedMew, PROFILE_FIELDS } from "@/types/types";
-import { isSameAgentPubKey } from "@/utils/hash";
+import { isSameHash } from "@/utils/hash";
 import { showError } from "@/utils/notification";
 import { Profile } from "@holochain-open-dev/profiles";
 import { deserializeHash } from "@holochain-open-dev/utils";
@@ -83,7 +83,7 @@ const isFollowing = ref(false);
 const mews = ref<FeedMew[]>([]);
 
 const isMyProfile = computed(() =>
-  isSameAgentPubKey(agentPubKey.value, profilesStore.value.myAgentPubKey)
+  isSameHash(agentPubKey.value, profilesStore.value.myAgentPubKey)
 );
 
 const loadMews = async () => {
