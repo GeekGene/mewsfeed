@@ -290,7 +290,7 @@ const publishMew = async () => {
 
   const createMewInput: CreateMewInput = {
     mewType: props.mewType,
-    text: mewInput.textContent,
+    text: mewInput.textContent ? mewInput.textContent.trim() : null,
     links: mentions.length ? mentions : undefined,
   };
   try {
