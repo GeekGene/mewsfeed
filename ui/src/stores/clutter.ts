@@ -10,14 +10,16 @@ export const MEWS_ZOME_NAME = "mews";
 
 export const makeUseClutterStore = () => {
   return defineStore("clutter", {
-    state: () => ({ mewsFeed: [] as FeedMew[], isLoadingMewsFeed: false }),
+    state: () => ({
+      mewsFetcher: () => Promise.resolve([] as FeedMew[]),
+      mewsFeed: [] as FeedMew[],
+      isLoadingMewsFeed: false,
+    }),
     actions: {
       async fetchMewsFeed() {
         try {
           this.isLoadingMewsFeed = true;
-          this.mewsFeed = await callZome(MewsFn.MewsFeed, {
-            option: "",
-          });
+          this.mewsFeed = await this.mewsFetcher();
         } catch (error) {
           showError(error);
         } finally {

@@ -1,6 +1,9 @@
 <template>
   <q-page class="q-pb-lg">
-    <CreateMewField :mew-type="{ original: null }" @publish-mew="publishMew" />
+    <CreateMewField
+      :mew-type="{ original: null }"
+      @publish-mew="store.fetchMewsFeed"
+    />
 
     <h6 class="q-mb-md">Your Mews Feed</h6>
 
@@ -16,7 +19,7 @@
       <div class="text-subtitle1">Meeoow, nothing here yet!</div>
     </q-banner>
 
-    <MewList v-else :loading="store.isLoadingMewsFeed" :mews="store.mewsFeed" />
+    <MewList v-else />
   </q-page>
 </template>
 
@@ -25,10 +28,14 @@ import { onMounted } from "vue";
 import { useClutterStore } from "@/stores";
 import CreateMewField from "../components/CreateMewField.vue";
 import MewList from "../components/MewList.vue";
+import { callZome, MewsFn } from "@/services/clutter-dna";
+import { FeedMew } from "@/types/types";
 
 const store = useClutterStore();
 
-onMounted(() => store.fetchMewsFeed());
-
-const publishMew = async () => store.fetchMewsFeed();
+const mewsFetcher = callZome.bind(null, MewsFn.MewsFeed, {
+  option: "",
+}) as () => Promise<FeedMew[]>;
+store.mewsFetcher = mewsFetcher;
+onMounted(store.fetchMewsFeed);
 </script>
