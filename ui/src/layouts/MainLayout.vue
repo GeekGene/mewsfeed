@@ -86,14 +86,6 @@
       <router-view class="col-12 col-md-6" />
       <q-space />
     </q-page-container>
-
-    <create-mew-dialog
-      v-if="isCreatingMew"
-      :mew-type="{ original: null }"
-      @close="isCreatingMew = false"
-    >
-      <template #title>Create a mew:</template>
-    </create-mew-dialog>
   </q-layout>
 </template>
 
@@ -101,13 +93,15 @@
 import CreateMewDialog from "@/components/CreateMewDialog.vue";
 import { ROUTES } from "@/router";
 import { useProfilesStore } from "@/services/profiles-store";
-import { PROFILE_FIELDS } from "@/types/types";
+import { MewTypeName, PROFILE_FIELDS } from "@/types/types";
 import { showError } from "@/utils/notification";
 import { serializeHash } from "@holochain-open-dev/utils";
 import { AgentPubKey } from "@holochain/client";
-import { QSelectOption } from "quasar";
+import { QSelectOption, useQuasar } from "quasar";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+
+const $q = useQuasar();
 
 const profilesStore = useProfilesStore();
 const router = useRouter();
@@ -118,8 +112,11 @@ const options = ref<Array<QSelectOption & { agentPubKey: AgentPubKey }>>([]);
 const selection = ref<QSelectOption | null>(null);
 const searchTerm = ref("");
 
-const isCreatingMew = ref(false);
-const onAddMewClick = () => (isCreatingMew.value = true);
+const onAddMewClick = () =>
+  $q.dialog({
+    component: CreateMewDialog,
+    componentProps: { mewType: { [MewTypeName.Original]: null } },
+  });
 
 const search = (
   inputValue: string,

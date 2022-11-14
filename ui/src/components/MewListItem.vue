@@ -20,7 +20,7 @@
             @click="onAgentClick(feedMew.action.author)"
           >
             <span class="q-mr-xs text-primary text-weight-bold">
-              {{ displayName }}
+              {{ agentProfile?.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
             </span>
             <span>@{{ agentProfile?.nickname }}</span>
           </div>
@@ -56,7 +56,7 @@
 
         <mew-content
           :feed-mew="originalMew && isMewMew ? originalMew : feedMew"
-          class="q-mb-xs"
+          class="q-mb-xs cursor-pointer"
         />
 
         <div>
@@ -88,50 +88,6 @@
           </q-btn>
         </div>
       </q-item-section>
-
-      <create-mew-dialog
-        v-if="isReplying"
-        :mew-type="{ reply: feedMew.actionHash }"
-        @mew-created="onMewCreated"
-        @close="isReplying = false"
-      >
-        <template #title>
-          <span>
-            Reply to
-            <span class="q-mr-xs text-primary text-bold">{{
-              displayName
-            }}</span>
-            <span>@{{ nickname }}</span>
-          </span>
-        </template>
-        <template #content>
-          <div class="text-grey-7">
-            <mew-content :feed-mew="feedMew" />
-          </div>
-        </template>
-      </create-mew-dialog>
-
-      <create-mew-dialog
-        v-if="isQuoting"
-        :mew-type="{ quote: feedMew.actionHash }"
-        @mew-created="onMewCreated"
-        @close="isQuoting = false"
-      >
-        <template #title>
-          <span>
-            Quote
-            <span class="q-mr-xs text-primary text-bold">{{
-              displayName
-            }}</span>
-            <span>@{{ nickname }}</span>
-          </span>
-        </template>
-        <template #content>
-          <div class="text-grey-7">
-            <mew-content :feed-mew="feedMew" />
-          </div>
-        </template>
-      </create-mew-dialog>
     </template>
 
     <template v-if="showOriginalMew" #default>
@@ -156,7 +112,7 @@ import { isSameHash } from "@/utils/hash";
 import { useProfileUtils } from "@/utils/profile";
 import { Profile } from "@holochain-open-dev/profiles";
 import { serializeHash } from "@holochain-open-dev/utils";
-import { QExpansionItem, QItem } from "quasar";
+import { QExpansionItem, QItem, useQuasar } from "quasar";
 import { computed, onMounted, PropType, ref } from "vue";
 import AvatarWithPopup from "./AvatarWithPopup.vue";
 import CreateMewDialog from "./CreateMewDialog.vue";
@@ -167,15 +123,13 @@ const props = defineProps({
   feedMew: { type: Object as PropType<FeedMew>, required: true },
 });
 
+const $q = useQuasar();
+
 const store = useClutterStore();
 
 const profilesStore = useProfilesStore();
 const { isCurrentProfile, onAgentClick } = useProfileUtils();
-const agentProfile = ref();
-const displayName = computed(
-  () => agentProfile.value?.fields[PROFILE_FIELDS.DISPLAY_NAME]
-);
-const nickname = computed(() => agentProfile.value?.nickname);
+const agentProfile = ref<Profile>();
 const myAgentPubKey = profilesStore.value.myAgentPubKey;
 
 const isMewMew = computed(
@@ -207,6 +161,11 @@ const reactionLabel = computed(() =>
   isMewMew.value ? "mewmewed from" : isReply.value ? "replied to" : "quoted"
 );
 
+const isUpdatingLick = ref(false);
+const isLickedByMe = computed(() =>
+  props.feedMew.licks.some((lick) => isSameHash(lick, myAgentPubKey))
+);
+
 onMounted(async () => {
   const agentProfileReadable = await profilesStore.value.fetchAgentProfile(
     props.feedMew.action.author
@@ -228,13 +187,6 @@ onMounted(async () => {
     .finally(() => (loadingOriginalMewAuthor.value = false));
 });
 
-const isReplying = ref(false);
-const isQuoting = ref(false);
-const isUpdatingLick = ref(false);
-const isLickedByMe = computed(() =>
-  props.feedMew.licks.some((lick) => isSameHash(lick, myAgentPubKey))
-);
-
 const toggleLickMew = async () => {
   isUpdatingLick.value = true;
   if (isLickedByMe.value) {
@@ -246,7 +198,15 @@ const toggleLickMew = async () => {
   isUpdatingLick.value = false;
 };
 
-const replyToMew = () => (isReplying.value = true);
+const replyToMew = () =>
+  $q.dialog({
+    component: CreateMewDialog,
+    componentProps: {
+      mewType: { [MewTypeName.Reply]: props.feedMew.actionHash },
+      originalMew: props.feedMew,
+      originalAuthor: agentProfile.value,
+    },
+  });
 
 const mewMew = async () => {
   const mew: CreateMewInput = {
@@ -257,10 +217,13 @@ const mewMew = async () => {
   store.fetchMewsFeed();
 };
 
-const quote = () => (isQuoting.value = true);
-
-const onMewCreated = () => {
-  isReplying.value = false;
-  isQuoting.value = false;
-};
+const quote = () =>
+  $q.dialog({
+    component: CreateMewDialog,
+    componentProps: {
+      mewType: { [MewTypeName.Quote]: props.feedMew.actionHash },
+      originalMew: props.feedMew,
+      originalAuthor: agentProfile.value,
+    },
+  });
 </script>

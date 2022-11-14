@@ -21,7 +21,7 @@
       </q-icon>
 
       <div class="q-mb-md text-right text-caption text-grey">
-        Press Ctrl/Cmd + Enter to publish
+        Ctrl/Cmd + Enter to publish
       </div>
 
       <q-card class="autocompleter">
