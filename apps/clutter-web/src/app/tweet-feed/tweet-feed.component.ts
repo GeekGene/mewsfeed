@@ -12,7 +12,6 @@ import followers from '../../assets/data/mock-followers.json';
 import { TweetRecord, TweetSchema } from '../model/Tweet';
 import { UserRecord } from '../model/User';
 import { ClutterDnaService } from '../holochain/clutter-dna.service';
-import { TweetService } from '../tweet/tweet.service';
 import { UserService } from '../user/user.service';
 import { FeedMew } from '../types/types';
 import { zomeCall } from '../holochain/holochain.functions';
@@ -50,7 +49,6 @@ export class TweetFeedComponent implements OnInit, OnDestroy {
   navigationSubscription: any;
 
   constructor(
-    public tweetService: TweetService,
     public clutterDnaService: ClutterDnaService,
     public userService: UserService,
     public route: ActivatedRoute,

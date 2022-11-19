@@ -1,14 +1,14 @@
   <aside class="tweet-sidebar">
     <!-- https://github.com/artbrock/clutter/blob/develop/ui/src/components/MewListItem.vue -->
     <div class="thumbnail-container">
-      <img src="https://picsum.photos/47/47/?random&time={{ now }}" height="47" width="47" alt="picture of fred" class="thumbnail" />
+      <img src="https://picsum.photos/47/47/?random&time={{ 1 }}" height="47" width="47" alt="picture of fred" class="thumbnail" />
     </div>
   </aside>
   <article class="tweet">
     <div class="profile-description">
       <h3 class="profile-full-name">{{ user.name }}</h3>
       <span class="profile-handle"><a class="profile-link" routerLink="/user/{{user.id}}">{{ user.handle }}</a></span>
-      <span class="time-since-tweet">{{ feedMew.action.timestamp| amTimeAgo:true }} ago</span>
+      <span class="time-since-tweet">{{ timestamp }}</span>
     </div>
     <p class="tweet-text">
       {{ feedMew.mew.content.text }}
