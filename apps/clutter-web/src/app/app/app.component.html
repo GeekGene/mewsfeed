@@ -1,0 +1,7 @@
+
+<ng-container *ngIf="connected$ | async; else loading">
+    <router-outlet></router-outlet>
+</ng-container>
+<ng-template #loading>
+    connecting to holochain...
+</ng-template>

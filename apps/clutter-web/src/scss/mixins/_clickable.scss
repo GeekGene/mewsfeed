@@ -1,0 +1,27 @@
+@mixin clickable-link($default-color, $active-color) {
+  text-decoration: none;
+  color: $default-color;
+  &:hover, &.active, &:active {
+    color: $active-color;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+}
+
+@mixin clickable-icon-link($default-color, $active-color, $hover-color) {
+  text-decoration: none;
+  color: $default-color;
+  &.active {
+    color: $active-color;
+    cursor: pointer;
+  }
+  &:hover, &:active {
+    span, i {
+      cursor: pointer;
+      color: $hover-color;
+    }
+    span {
+      text-decoration: underline;
+    }
+  }
+}

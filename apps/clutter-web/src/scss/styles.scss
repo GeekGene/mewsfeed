@@ -1,0 +1,61 @@
+/* You can add global styles to this file, and also import other style files */
+$sass-path: 'apps/clutter-web/src/scss/'; // 'src/scss/';
+$mixin-path: $sass-path + 'mixins/';
+$module-path: $sass-path + 'modules/';
+$partial-path: $sass-path + 'partials/';
+$vendor-path: $sass-path + 'vendor/';
+
+//----------------------------------*\
+// SCSS MIXINS
+//----------------------------------*/
+
+@import 'apps/clutter-web/src/scss/mixins/_position.scss';
+@import 'apps/clutter-web/src/scss/mixins/_selection.scss';
+@import 'apps/clutter-web/src/scss/mixins/_font-default.scss';
+@import 'apps/clutter-web/src/scss/mixins/_image-resize.scss';
+@import 'apps/clutter-web/src/scss/mixins/_border-radius.scss';
+@import 'apps/clutter-web/src/scss/mixins/_clickable.scss';
+@import 'apps/clutter-web/src/scss/mixins/_screenreader.scss';
+@import 'apps/clutter-web/src/scss/mixins/_shapes.scss';
+
+//----------------------------------*\
+// CONFIG MODULES
+//----------------------------------*/
+
+// Config modules
+@import 'apps/clutter-web/src/scss/modules/_vars.scss';
+@import 'apps/clutter-web/src/scss/modules/_clearfix.scss';
+@import 'apps/clutter-web/src/scss/modules/_defaults.scss';
+
+//----------------------------------*\
+// PARTIALS
+//----------------------------------*/
+
+@import 'apps/clutter-web/src/scss/partials/_header.scss';
+@import 'apps/clutter-web/src/scss/partials/_nav.scss';
+@import 'apps/clutter-web/src/scss/partials/_sidebar.scss';
+@import 'apps/clutter-web/src/scss/partials/_main.scss';
+@import 'apps/clutter-web/src/scss/partials/_footer.scss';
+@import 'apps/clutter-web/src/scss/partials/_images.scss';
+@import 'apps/clutter-web/src/scss/partials/_twitter-feed.scss';
+
+//----------------------------------*\
+// OBJECTS & MODULES
+//----------------------------------*/
+
+@import 'apps/clutter-web/src/scss/modules/_buttons.scss';
+@import 'apps/clutter-web/src/scss/modules/_inputs.scss';
+@import 'apps/clutter-web/src/scss/modules/_lists.scss';
+@import 'apps/clutter-web/src/scss/modules/_typography.scss';
+@import 'apps/clutter-web/src/scss/modules/_misc.scss';
+@import 'apps/clutter-web/src/scss/modules/_app.scss';
+
+// Enhancement modules
+@import 'apps/clutter-web/src/scss/modules/_breakpoints.scss';
+@import 'apps/clutter-web/src/scss/modules/_print.scss';
+
+//----------------------------------*\
+// VENDOR
+//----------------------------------*/
+
+@import 'apps/clutter-web/src/scss/vendor/_external.scss';

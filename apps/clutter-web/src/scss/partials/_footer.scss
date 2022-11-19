@@ -1,0 +1,13 @@
+.footer, .footer-mobile {
+  padding: 20px 10px;
+}
+
+.footer-mobile {
+  background: $med-blue;
+  ul.footer-links {
+    justify-content: center;
+    a {
+      @include clickable-link($white, $light-grey);
+    }
+  }
+}

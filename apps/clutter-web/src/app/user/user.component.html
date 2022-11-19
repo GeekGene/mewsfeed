@@ -1,0 +1,158 @@
+<header class="header" role="banner">
+  <h1>Welcome to Clutter</h1>
+  <div class="left-toolbar">
+    <nav class="nav icon-menu" role="navigation">
+      <ul>
+        <li><a class="active" href="/"><i class="fas fa-home"></i><span>Home</span></a></li>
+        <!--
+        <li><a href="/"><i class="fas fa-at"></i><span>Connect</span></a></li>
+        <li><a href="/"><i class="fas fa-hashtag"></i><span>Discover</span></a></li>
+        <li><a href="/"><i class="fas fa-user-injured"></i><span>Me</span></a></li>
+        -->
+      </ul>
+    </nav>
+    <nav class="nav mobile-menu">
+      <i class="fas fa-list-ul menu-active-icon"></i>
+      <ul>
+        <li>
+          <a class="active" href="#">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+  <div class="logo">
+    <a href="#">
+      <img src="assets/icons/clutter.png" style="height: 100%; width: 100%; padding: 3px; object-fit: contain">
+    </a>
+  </div>
+  <div class="search-box">
+    <div class="search-container">
+      <input type="text" size="20" name="search-site" placeholder="Search" />
+      <i class="fas fa-search"></i>
+    </div>
+  </div>
+  <div class="right-toolbar">
+    <nav class="nav icon-menu" role="navigation">
+      <ul>
+        <li>
+          <a href="#"><i class="fas fa-sign-out-alt"></i></a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>
+<main class="main" role="main">
+  <div class="main-container">
+    <aside class="sidebar" role="complementary">
+      <section class="profile-meta block">
+        <div class="profile-images">
+          <div class="banner-container">
+            <img class="banner" src="https://picsum.photos/292/147/?random&now={{now}}" height="147" width="292" alt="Picture of fred's gardern" />
+          </div>
+          <div class="portrait-container">
+            <img class="portrait" src="https://picsum.photos/106/117/?random&now={{now}}" height="117" width="106" alt="Picture of Fred" />
+          </div>
+        </div>
+        <div class="profile-about">
+          <div class="name-container">
+            <h2 class="name">{{ user.name }}</h2>
+            <div class="handle">{{ user.handle }}</div>
+          </div>
+          <p class="about">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed accumsan eros dolor, non pharetra nibh volutpat vel.
+            In orci lorem, lobortis sed ipsum vel, egestas faucibus nunc. Donec vel ultrices mauris.
+          </p>
+        </div>
+        <div class="profile-stats">
+          <div class="tweet-count cell">
+            <div class="stat-label">Tweets</div>
+            <div class="stat-number">14.2K</div>
+          </div>
+          <div class="following-count cell">
+            <div class="stat-label">Following</div>
+            <div class="stat-number">2.7K</div>
+          </div>
+          <div class="follower-count cell">
+            <div class="stat-label">Follower</div>
+            <div class="stat-number">14.2K</div>
+          </div>
+        </div>
+      </section>
+      <section class="trends block">
+        <div class="trends-header">
+          <h2>Trends</h2>
+        </div>
+        <ul class="hash-tag-cloud link-cloud">
+          <li><a href="#" class="hash-tag">#travel</a></li>
+          <li><a href="#" class="hash-tag">#traveljapan2016</a></li>
+          <li><a href="#" class="hash-tag">#travelwithgf</a></li>
+          <li><a href="#" class="hash-tag">#travelmommy</a></li>
+          <li><a href="#" class="hash-tag">#travellingsederhana</a></li>
+          <li><a href="#" class="hash-tag">#travelangelz</a></li>
+          <li><a href="#" class="hash-tag">#TravelersChecklist</a></li>
+          <li><a href="#" class="hash-tag">#travelmacau</a></li>
+          <li><a href="#" class="hash-tag">#travelingwithRachel</a></li>
+          <li><a href="#" class="hash-tag">#travelbrAzil</a></li>
+          <li><a href="#" class="hash-tag">#travelaroundtheworld360</a></li>
+          <li><a href="#" class="hash-tag">#travellersdiaries</a></li>
+          <li><a href="#" class="hash-tag">#traveletting</a></li>
+          <li><a href="#" class="hash-tag">#travelsketching</a></li>
+          <li><a href="#" class="hash-tag">#travelwithyourheart</a></li>
+          <li><a href="#" class="hash-tag">#travelbagunik</a></li>
+          <li><a href="#" class="hash-tag">#travelagencyph</a></li>
+          <li><a href="#" class="hash-tag">#travelingrealtormom</a></li>
+          <li><a href="#" class="hash-tag">#travelingJewelers</a></li>
+          <li><a href="#" class="hash-tag">#traveltoshoot</a></li>
+          <li><a href="#" class="hash-tag">#TravelTampa</a></li>
+          <li><a href="#" class="hash-tag">#travelessencials</a></li>
+          <li><a href="#" class="hash-tag">#travelfuckincheap</a></li>
+          <li><a href="#" class="hash-tag">#traveloutside</a></li>
+          <li><a href="#" class="hash-tag">#travelbrochure</a></li>
+          <li><a href="#" class="hash-tag">#travelbesutiful</a></li>
+          <li><a href="#" class="hash-tag">#travelfortheworld</a></li>
+          <li><a href="#" class="hash-tag">#travelgramtraveling</a></li>
+          <li><a href="#" class="hash-tag">#travelstales</a></li>
+          <li><a href="#" class="hash-tag">#traveltheraphy</a></li>
+        </ul>
+      </section>
+      <footer class="footer block" role="contentinfo">
+        <ul class="footer-links link-cloud">
+          <li><a href="#">&copy; 2019 Trevor McKeown</a></li>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Help</a></li>
+          <li><a href="#">Terms</a></li>
+          <li><a href="#">Cookies</a></li>
+          <li><a href="#">Ads Info</a></li>
+          <li><a href="#">Brand</a></li>
+          <li><a href="#">Status</a></li>
+          <li><a href="#">Apps</a></li>
+          <li><a href="#">Jobs</a></li>
+          <li><a href="#">Advertise</a></li>
+          <li><a href="#">Media</a></li>
+          <li><a href="#">Developers</a></li>
+        </ul>
+      </footer>
+    </aside>
+    <app-tweet-feed class="twitter-feed block"></app-tweet-feed>
+  </div>
+</main>
+<footer class="footer-mobile">
+  <ul class="footer-links link-cloud">
+    <li><a href="#">&copy; 2019 Trevor McKeown</a></li>
+    <li><a href="#">About</a></li>
+    <li><a href="#">Help</a></li>
+    <li><a href="#">Terms</a></li>
+    <li><a href="#">Cookies</a></li>
+    <li><a href="#">Ads Info</a></li>
+    <li><a href="#">Brand</a></li>
+    <li><a href="#">Status</a></li>
+    <li><a href="#">Apps</a></li>
+    <li><a href="#">Jobs</a></li>
+    <li><a href="#">Advertise</a></li>
+    <li><a href="#">Media</a></li>
+    <li><a href="#">Developers</a></li>
+  </ul>
+</footer>
