@@ -20,8 +20,9 @@
         ],
         "tsConfig": "apps/clutter-web/tsconfig.app.json",
         "assets": [
-          "apps/clutter-web/src/favicon.ico",
+          "apps/clutter-web/src/favicon.png",
           "apps/clutter-web/src/assets/fonts",
+          "apps/clutter-web/src/assets/icons",
           "apps/clutter-web/src/assets/data"
         ],
         "styles": [
