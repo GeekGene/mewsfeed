@@ -11,6 +11,7 @@
     "lint": "eslint --fix --ext .ts ./ --ext .vue src"
   },
   "dependencies": {
+    "@holo-host/web-sdk": "^0.6.6-prerelease",
     "@holochain-open-dev/cell-client": "^0.7.1",
     "@holochain-open-dev/core-types": "^0.4.0",
     "@holochain-open-dev/profiles": "^0.4.3",

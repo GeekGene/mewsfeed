@@ -22,6 +22,7 @@ cachix use holochain-ci
 
 ```bash
 nix-shell
+git submodule update
 npm install
 ```
 
