@@ -38,27 +38,25 @@ export class ClutterDnaService {
   constructor(private holochainService: HolochainService) {}
 
   callClutterZomeObs<T>(
-    fnName: CallZomeRequest["fn_name"],
-    payload: CallZomeRequest["payload"]
+    fnName: CallZomeRequest['fn_name'],
+    payload: CallZomeRequest['payload']
   ): Observable<T> {
     return from(this.callClutterZome<T>(fnName, payload));
     // );.pipe(catchError(this.handleError<T>(fnName, [])));
   }
 
   async callClutterZome<T>(
-    fnName: CallZomeRequest["fn_name"],
-    payload: CallZomeRequest["payload"]
+    fnName: CallZomeRequest['fn_name'],
+    payload: CallZomeRequest['payload']
   ): Promise<T> {
-    const result: { type: 'ok'; data: T } =
+    const result: T = // { type: 'ok'; data: T } =
       await this.holochainService.callZome({
         roleId: CLUTTER_ROLE_ID,
         zomeName: MEWS_ZOME_NAME,
         fnName,
         payload,
       });
-    console.log('🚀 ~ ClutterDnaService ~ result', result);
-
-    return result.data;
+    return result;
   }
 
   // mew create / get / get by
@@ -79,47 +77,45 @@ export class ClutterDnaService {
   // actions follow, like
 
   follow = async (agent: AgentPubKey): Promise<null> =>
-    this.callClutterZome(MewsFn.Follow, agent);
+    this.callClutterZome<null>(MewsFn.Follow, agent);
 
   unfollow = async (agent: AgentPubKey): Promise<null> =>
-    this.callClutterZome(MewsFn.Unfollow, agent);
+    this.callClutterZome<null>(MewsFn.Unfollow, agent);
 
-  followers = async (agent: AgentPubKey): Promise<Array<AgentPubKey>> =>
-    this.callClutterZome(MewsFn.Followers, agent);
+  followers = async (agent: AgentPubKey): Promise<AgentPubKey[]> =>
+    this.callClutterZome<AgentPubKey[]>(MewsFn.Followers, agent);
 
-  following = async (agent: AgentPubKey): Promise<Array<AgentPubKey>> =>
-    this.callClutterZome(MewsFn.Following, agent);
+  following = async (agent: AgentPubKey): Promise<AgentPubKey[]> =>
+    this.callClutterZome<AgentPubKey[]>(MewsFn.Following, agent);
 
-  myFollowers = async (): Promise<Array<AgentPubKey>> =>
-    this.callClutterZome(MewsFn.MyFollowers, null);
+  myFollowers = async (): Promise<AgentPubKey[]> =>
+    this.callClutterZome<AgentPubKey[]>(MewsFn.MyFollowers, null);
 
-  myFollowing = async (): Promise<Array<AgentPubKey>> =>
-    this.callClutterZome(MewsFn.MyFollowing, null);
+  myFollowing = async (): Promise<AgentPubKey[]> =>
+    this.callClutterZome<AgentPubKey[]>(MewsFn.MyFollowing, null);
 
   lickMew = async (mew: ActionHash): Promise<null> =>
-    this.callClutterZome(MewsFn.LickMew, mew);
+    this.callClutterZome<null>(MewsFn.LickMew, mew);
 
   unlickMew = async (mew: ActionHash): Promise<null> =>
-    this.callClutterZome(MewsFn.UnlickMew, mew);
+    this.callClutterZome<null>(MewsFn.UnlickMew, mew);
 
   // feed and list
 
-  mewsFeed = async (options: FeedOptions): Promise<Array<FeedMew>> =>
-    this.callClutterZome(MewsFn.MewsFeed, options);
+  mewsFeed = async (options: FeedOptions): Promise<FeedMew[]> =>
+    this.callClutterZome<FeedMew[]>(MewsFn.MewsFeed, options);
 
   getFeedMewAndContext = async (
     mew_action_hash: ActionHash
   ): Promise<FeedMew> =>
-    this.callClutterZome(MewsFn.GetFeedMewAndContext, mew_action_hash);
+    this.callClutterZome<FeedMew>(MewsFn.GetFeedMewAndContext, mew_action_hash);
 
   getMewsWithCashtag = async (cashtag: string): Promise<FeedMew[]> =>
-    this.callClutterZome(MewsFn.GetMewsWithCashtag, cashtag);
+    this.callClutterZome<FeedMew[]>(MewsFn.GetMewsWithCashtag, cashtag);
 
   getMewsWithHashtag = async (hashtag: string): Promise<FeedMew[]> =>
-    this.callClutterZome(MewsFn.GetMewsWithHashtag, hashtag);
+    this.callClutterZome<FeedMew[]>(MewsFn.GetMewsWithHashtag, hashtag);
 
   getMewsWithMention = async (agentPubKey: AgentPubKey): Promise<FeedMew[]> =>
-    this.callClutterZome(MewsFn.GetMewsWithMention, agentPubKey);
-
-
+    this.callClutterZome<FeedMew[]>(MewsFn.GetMewsWithMention, agentPubKey);
 }

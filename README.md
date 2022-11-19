@@ -43,21 +43,24 @@ npm run build:happ
 npm run test
 ```
 
-## UI
+## Develop the UI
 
-To test out the UI:
+To run the Happ (Holochain+UI):
 
 ``` bash
-npm start
+npm run start (first terminal)
+npm run web (second terminal)
 ```
 
-To run another agent, open another terminal, and execute again:
+To run another agent, open another terminal(s), and execute again:
 
 ```bash
-npm start
+npm run start (third terminal)
+npm run web (fourth terminal)
 ```
 
 Each new agent that you create this way will get assigned its own port and get connected to the other agents.
+- TODO: pass port in Angular app
 
 ## Package
 

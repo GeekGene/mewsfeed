@@ -3,7 +3,7 @@ import {
   state,
   style,
   transition,
-  trigger
+  trigger,
 } from '@angular/animations';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
@@ -14,7 +14,8 @@ import { UserRecord } from '../model/User';
 import { ClutterDnaService } from '../holochain/clutter-dna.service';
 import { TweetService } from '../tweet/tweet.service';
 import { UserService } from '../user/user.service';
-import { from, tap } from 'rxjs';
+import { FeedMew } from '../types/types';
+import { zomeCall } from '../holochain/holochain.functions';
 
 @Component({
   selector: 'app-tweet-feed',
@@ -26,22 +27,22 @@ import { from, tap } from 'rxjs';
       state(
         'open',
         style({
-          opacity: 1
+          opacity: 1,
         })
       ),
       state(
         'closed',
         style({
-          opacity: 0
+          opacity: 0,
         })
       ),
       transition('open => closed', [animate('2s')]),
-      transition('closed => open', [animate('1s')])
-    ])
-  ]
+      transition('closed => open', [animate('1s')]),
+    ]),
+  ],
 })
 export class TweetFeedComponent implements OnInit, OnDestroy {
-  tweets: TweetRecord[] = [];
+  feedMews: FeedMew[] = [];
   isOpen = false;
   hide = true;
   user: UserRecord;
@@ -59,7 +60,7 @@ export class TweetFeedComponent implements OnInit, OnDestroy {
       // If it is a NavigationEnd event re-initalise the component
       if (e instanceof NavigationEnd) {
         this.initNewTweet();
-        this.getTweets();
+        this.getMews();
         this.getUser();
       }
     });
@@ -68,47 +69,16 @@ export class TweetFeedComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.initNewTweet();
     this.getUser();
-    this.getTweets();
-    const mewType = { original: null}
-
-    from(this.clutterDnaService.createMew({ mewType, text:'hello world'})).pipe(
-      tap((res) => {
-        console.log('🚀 ~ clutterDnaService ~ tap ~ createMew', res);
-      })
-    );
-
-    from(this.clutterDnaService.mewsFeed({ option: ''})).pipe(
-      tap((res) => {
-        console.log('🚀 ~ clutterDnaService ~ tap ~ mewsFeed', res);
-      })
-    );
+    this.getMews();
   }
 
   initNewTweet(data?: Partial<TweetSchema>): void {
     this.newTweet = data ? new TweetRecord(data) : new TweetRecord();
   }
 
-  getTweets(): void {
-    const id: string = this.route.snapshot.paramMap.get('id');
-    this.filterTweets(id);
-  }
-
-  filterTweets(id: string): void {
-    this.tweetService.getTweets().subscribe((tweets: TweetRecord[]) => {
-      const followed: string[] = this.getUsersFollowed(id);
-      followed.push(id);
-      this.tweets = tweets
-        .filter((tweet: TweetRecord) => followed.indexOf(tweet.userId) !== -1)
-        .slice(0, 20)
-        .sort((a, b) => {
-          if (a.created < b.created) {
-            return 1;
-          }
-          if (a.created > b.created) {
-            return -1;
-          }
-          return 0;
-        });
+  getMews(): void {
+    zomeCall(this.clutterDnaService.mewsFeed({ option: '' }), (res) => {
+      this.feedMews = res;
     });
   }
 
@@ -128,13 +98,14 @@ export class TweetFeedComponent implements OnInit, OnDestroy {
     this.hide = !this.hide;
   }
 
-  //add(tweetText: string, id?: string)
-  add(tweetText: string, id?: string) {
-    const userId: string = id !== undefined ? id : this.user.id;
-    this.initNewTweet({ userId, tweetText });
-    this.tweetService
-      .addTweet(this.newTweet)
-      .subscribe((tweet) => this.tweets.unshift(tweet));
+  add(text: string, id?: string): void {
+    zomeCall(
+      this.clutterDnaService.createMew({ mewType: { original: null }, text }),
+      (res) => {
+        console.log('🚀 ~ clutterDnaService ~ tap ~ createMew', res);
+        this.getMews();
+      }
+    );
   }
 
   ngOnDestroy(): void {
@@ -145,12 +116,4 @@ export class TweetFeedComponent implements OnInit, OnDestroy {
       this.navigationSubscription.unsubscribe();
     }
   }
-
-  /**
-   * Todo: Implement later
-   */
-  // delete(tweet: Tweet): void {
-  //   this.tweets = this.tweets.filter(t => t !== tweet);
-  //   this.tweetService.deleteTweet(tweet).subscribe();
-  // }
 }

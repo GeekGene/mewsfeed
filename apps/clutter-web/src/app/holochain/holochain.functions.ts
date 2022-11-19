@@ -1,3 +1,5 @@
+import { from, tap } from 'rxjs';
+
 export const presentHcSignal = (hcSignal) => {
   console.log('🚀 ~ presentHcSignal ~ hcSignal', hcSignal);
   return {
@@ -17,4 +19,14 @@ export const useSignalStore = () => {
       console.log('🚀 ~ useSignalStore ~ hcSignal', hcSignal);
     },
   };
+};
+
+export const zomeCall = <T>(call: Promise<T>, then: (res: T) => void) => {
+  from(call)
+    .pipe(
+      tap((res) => {
+        then(res);
+      })
+    )
+    .subscribe();
 };
