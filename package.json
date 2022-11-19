@@ -13,7 +13,7 @@
     "build:dnas": "npm run build:zomes && hc dna pack ./dnas/clutter/workdir",
     "build:zomes": "CARGO_TARGET_DIR=target cargo build --release --target wasm32-unknown-unknown",
     "// 1": "UI",
-    "web-only": "nx run clutter-web:serve",
+    "web": "nx run clutter-web:serve",
     "start": "npm run build:happ && npm run start:agent",
     "start:agent": "cross-env HC_PORT=$(port) concurrently \"npm run playground\" \"npm run start:happ\" \"sleep 5 && nx run clutter-web:serve\"",
     "start:happ": "hc s clean && echo pass | RUST_LOG=warn hc s --piped generate ./workdir/clutter.happ --run=$HC_PORT -a clutter network mdns",
@@ -39,6 +39,9 @@
     "@holochain-open-dev/profiles": "^0.4.3",
     "@holochain-open-dev/utils": "^0.3.1",
     "@holochain/client": "^0.8.0",
+    "angular-in-memory-web-api": "^0.14.0",
+    "moment": "^2.29.4",
+    "ngx-moment": "^6.0.2",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.11.4"

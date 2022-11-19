@@ -1,0 +1,19 @@
+.banner-container {
+  @include border-radius(10px 10px 0px 0px);
+  .banner {
+    @include border-radius(10px 10px 0px 0px);
+  }
+}
+
+.portrait-container, .thumbnail-container {
+  @include border-radius(10px 10px 10px 10px);
+  .portrait, .thumbnail {
+    @include border-radius(10px 10px 10px 10px);
+  }
+}
+
+.banner-container .banner img,
+.portrait-container .portrait img,
+.thumbnail-container .thumbnail img {
+  width:100%;
+}

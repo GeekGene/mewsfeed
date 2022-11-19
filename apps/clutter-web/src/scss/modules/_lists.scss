@@ -1,0 +1,64 @@
+.icon-menu {
+  ul, li, a {
+    @include flex-container();
+  }
+}
+
+header .icon-menu a, .mobile-menu ul li a {
+  @include clickable-icon-link($white, $light-blue, $med-grey);
+}
+
+.twitter-feed .icon-menu a {
+  font-size: 14px;
+  @include clickable-icon-link($med-grey3, $light-blue, $dark-grey);
+}
+
+ul.link-cloud {
+  @include flex-container(row wrap);
+  li {
+    margin-right: 5px;
+  }
+  a {
+    font-size: 14px;
+  }
+}
+
+ul.hash-tag-cloud a {
+  @include clickable-link($dark-blue, $light-blue);
+}
+
+ul.footer-links a {
+  @include clickable-link($med-grey3, $light-blue);
+}
+
+.mobile-menu {
+   width: 200px;
+   $border: 1px solid $light-grey;
+   &:hover ul, &:focus ul {
+     display: block;
+   }
+   ul {
+     display: none;
+     font-size: 16px;
+     background: $dark-blue;
+     border-left: $border;
+     border-right: $border;
+     margin-left: 15px;
+     li {
+       border-bottom: $border;
+       padding: 10px 10px;
+       a.active span {
+        text-decoration: underline;
+       }
+       i {
+         font-size: 16px;
+         padding-right: 10px;
+       }
+     }
+   }
+   i.menu-active-icon {
+    font-size: 30px;
+    margin: 10px 20px;
+    @include clickable-icon-link($white, $light-blue, $med-grey);
+  }
+}

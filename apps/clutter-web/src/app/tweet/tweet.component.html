@@ -1,0 +1,35 @@
+  <aside class="tweet-sidebar">
+    <div class="thumbnail-container">
+      <img src="https://picsum.photos/47/47/?random&time={{ now }}" height="47" width="47" alt="picture of fred" class="thumbnail" />
+    </div>
+    <!--
+    <div class="grey-line-long">&nbsp;</div>
+    <div class="grey-dot">&nbsp;</div>
+    <div class="grey-dot">&nbsp;</div>
+    <div class="grey-dot">&nbsp;</div>
+    <div class="grey-line-short">&nbsp;</div>
+    -->
+  </aside>
+  <article class="tweet">
+    <div class="profile-description">
+      <h3 class="profile-full-name">{{ user.name }}</h3>
+      <span class="profile-handle"><a class="profile-link" routerLink="/user/{{user.id}}">{{ user.handle }}</a></span>
+      <span class="time-since-tweet">{{ tweet.created | amTimeAgo:true }} ago</span>
+    </div>
+    <p class="tweet-text">
+      {{ tweet.tweetText }}
+    </p>
+    <div class="tweet-controls">
+      <nav class="icon-menu">
+        <ul>
+          <li><a href="/"><i class="fas fa-reply"></i></a></li>
+          <li><a href="/"><i class="fas fa-retweet"></i></a></li>
+          <li><a href="/"><i class="fas fa-star"></i></a></li>
+          <li><a href="/"><i class="fas fa-ellipsis-h"></i></a></li>
+        </ul>
+      </nav>
+      <div class="tweet-replies">
+        <a href="/">2 more replies</a>
+      </div>
+    </div>
+  </article>

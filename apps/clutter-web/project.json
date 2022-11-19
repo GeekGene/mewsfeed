@@ -12,6 +12,7 @@
       ],
       "options": {
         "outputPath": "dist/apps/clutter-web",
+        "resourcesOutputPath": "assets",
         "index": "apps/clutter-web/src/index.html",
         "main": "apps/clutter-web/src/main.ts",
         "polyfills": [
@@ -20,10 +21,11 @@
         "tsConfig": "apps/clutter-web/tsconfig.app.json",
         "assets": [
           "apps/clutter-web/src/favicon.ico",
-          "apps/clutter-web/src/assets"
+          "apps/clutter-web/src/assets/fonts",
+          "apps/clutter-web/src/assets/data"
         ],
         "styles": [
-          "apps/clutter-web/src/styles.css"
+          "apps/clutter-web/src/scss/styles.scss"
         ],
         "scripts": []
       },

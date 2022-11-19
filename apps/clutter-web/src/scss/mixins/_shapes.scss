@@ -1,0 +1,13 @@
+@mixin circle($size, $color) {
+  width: $size;
+  height: $size;
+  background:  $color;
+  border-radius: 50%;
+}
+
+@mixin vertical-line($width, $height, $color) {
+  width: $width;
+  height: $height;
+  background: $color;
+  border-radius: 25% 25%;
+}

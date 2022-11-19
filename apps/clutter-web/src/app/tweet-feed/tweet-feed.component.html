@@ -1,0 +1,24 @@
+  <div class="feed-header">
+    <h2 class="title">Tweets</h2>
+    <div class="button-container">
+      <div class="button" (click)="toggle()">Tweet</div>
+    </div>
+  </div>
+  <div [@openClose]="isOpen ? 'open' : 'closed'" class="compose-tweet" [ngClass]="hide ? 'display-none': null">
+    <form id="compose-tweet" name="compose-tweet">
+      <label for="new-tweet" class="not-visable">Compose a new Tweet</label>
+      <textarea type="text" id="new-tweet" name="new-tweet" ng-required
+        ng-minlength="4" ng-maxlength="280" size="10"
+        ng-attr-placeholder="Compose a new Tweet ..."
+        placeholder="Compose a new Tweet ..." rows="3" cols="74"
+        #newTweetText
+      ></textarea>
+    <div class="button-container">
+      <label for="submit-tweet" class="not-visable">Submit Tweet</label>
+      <button id="submit-tweet" type="button" form="compose-tweet" value="Submit Tweet" class="button" (click)="add(newTweetText.value); newTweetText.value=''">Submit</button>
+    </div>
+    </form>
+  </div>
+  <div class="feed">
+    <app-tweet class="full-tweet" *ngFor="let tweet of tweets" [tweet]="tweet"></app-tweet>
+  </div>

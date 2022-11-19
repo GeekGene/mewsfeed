@@ -1,0 +1,13 @@
+@include selection($selection-bg: #333, $selection-c: #fff, $selection-ts: none);
+
+.block {
+  border: $border;
+  width: 294px;
+  background: $white;
+  @include border-radius(10px 10px 10px 10px);
+  margin-bottom: 20px;
+}
+
+.display-none {
+  display: none !important;
+}

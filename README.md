@@ -1,7 +1,9 @@
 
 # Clutter
 
-WIP: Refactor to Nx/angular in progress
+- Clutter refactored with Nx/Angular fork of:
+- https://github.com/artbrock/clutter
+- https://github.com/mcknasty/twitter-angular-clone.github.io
 
 ## Project Management w/ Acorn
 
@@ -22,7 +24,6 @@ cachix use holochain-ci
 
 ```bash
 nix-shell
-git submodule update
 npm install
 ```
 

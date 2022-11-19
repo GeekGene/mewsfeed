@@ -1,0 +1,26 @@
+* {
+  box-sizing: border-box;
+  font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+html {
+  margin: 0px;
+}
+body {
+  @include font-default();
+  font-size: 13px;
+  font-weight: 300;
+  background: $med-grey;
+  color: $black;
+  margin: 0px;
+}
+
+a.link {
+ @include clickable-link($dark-blue, $light-blue);
+}
+
+ul {
+  list-style: none;
+  margin: 0px 0px;
+  padding: 0px;
+}

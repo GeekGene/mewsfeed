@@ -1,0 +1,125 @@
+
+.feed-header {
+  @include flex-container(row nowrap);
+  padding: 0px 10px;
+  margin-bottom: 20px;
+  border-bottom: $border;
+  .title {
+    color: $med-grey3;
+    font-weight: 200;
+    flex: 1;
+  }
+  .button-container .button {
+    margin-left: auto;
+  }
+}
+.button-container {
+  flex: 1;
+  margin: 8px 8px;
+  .button {
+    background-color: $med-blue;
+    color: $white;
+  }
+}
+.compose-tweet {
+  @include flex-container(column nowrap);
+  margin: 5px 0px 20px 0px;
+  padding: 0px 10px 20px 10px;
+  form textarea {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .button-container {
+    margin-left: auto;
+  }
+}
+
+.full-tweet {
+  @include flex-container(row nowrap);
+  padding: 0px 10px 0px 10px;
+  .tweet {
+    margin-bottom: 20px;
+  }
+  .profile-description, .tweet-text, .tweet-controls {
+    flex: 9;
+  }
+  .tweet-text {
+    margin-top: 5px;
+    margin-bottom: 0px;
+  }
+  .tweet-controls {
+    @include flex-container(column nowrap);
+    .tweet-replies, .icon-menu {
+      flex: 1;
+    }
+    .tweet-replies a {
+      @include clickable-link($dark-blue, $light-blue);
+    }
+  }
+}
+
+.full-tweet .tweet-sidebar {
+  @include flex-container(column nowrap);
+  margin-right: 15px;
+  .thumbnail-container {
+    flex: 2;
+  }
+  .grey-line-long {
+    @include vertical-line(3px, 100%, $med-grey3);
+    flex: 5;
+    margin: 2px auto;
+  }
+  .grey-dot {
+    @include circle(2.5px, $med-grey3);
+    flex: 0.12;
+    margin: 2px auto 2px auto;
+  }
+  .grey-line-short {
+    @include vertical-line(3px, 100%, $med-grey3);
+    flex: 0.25;
+    margin: 2px auto;
+  }
+}
+
+.full-tweet .profile-description {
+  @include flex-container(row wrap);
+  justify-content: flex-start;
+  font-size: 14px;
+  .profile-full-name, .profile-handle, .time-since-tweet {
+    margin: 5px 5px 5px 0px;
+  }
+  .profile-full-name {
+    font-size: 16px;
+  }
+  .profile-handle a {
+    font-weight: 400;
+    text-decoration: none;
+    color: $med-grey3;
+    &:hover, &:focus {
+      text-decoration: underline;
+      color: $dark-blue;
+    }
+  }
+  .profile-handle, .time-since-tweet {
+    color: $med-grey3;
+  }
+  .time-since-tweet {
+    margin-left: auto;
+  }
+}
+
+.full-tweet .icon-menu {
+  ul {
+    margin: 15px 0px;
+  }
+  li {
+    margin-right: 15px;
+  }
+  a {
+    font-size: 14px;
+    @include clickable-icon-link($med-grey3, $light-blue, $dark-grey);
+    i {
+    font-size: 16px;
+    }
+  }
+}
