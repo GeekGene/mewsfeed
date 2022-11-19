@@ -11,8 +11,10 @@ import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import followers from '../../assets/data/mock-followers.json';
 import { TweetRecord, TweetSchema } from '../model/Tweet';
 import { UserRecord } from '../model/User';
+import { ClutterDnaService } from '../holochain/clutter-dna.service';
 import { TweetService } from '../tweet/tweet.service';
 import { UserService } from '../user/user.service';
+import { from, tap } from 'rxjs';
 
 @Component({
   selector: 'app-tweet-feed',
@@ -48,6 +50,7 @@ export class TweetFeedComponent implements OnInit, OnDestroy {
 
   constructor(
     public tweetService: TweetService,
+    public clutterDnaService: ClutterDnaService,
     public userService: UserService,
     public route: ActivatedRoute,
     public router: Router
@@ -66,6 +69,19 @@ export class TweetFeedComponent implements OnInit, OnDestroy {
     this.initNewTweet();
     this.getUser();
     this.getTweets();
+    const mewType = { original: null}
+
+    from(this.clutterDnaService.createMew({ mewType, text:'hello world'})).pipe(
+      tap((res) => {
+        console.log('🚀 ~ clutterDnaService ~ tap ~ createMew', res);
+      })
+    );
+
+    from(this.clutterDnaService.mewsFeed({ option: ''})).pipe(
+      tap((res) => {
+        console.log('🚀 ~ clutterDnaService ~ tap ~ mewsFeed', res);
+      })
+    );
   }
 
   initNewTweet(data?: Partial<TweetSchema>): void {

@@ -15,7 +15,7 @@
     "// 1": "UI",
     "web": "nx run clutter-web:serve",
     "start": "npm run build:happ && npm run start:agent",
-    "start:agent": "cross-env HC_PORT=$(port) concurrently \"npm run playground\" \"npm run start:happ\" \"sleep 5 && nx run clutter-web:serve\"",
+    "start:agent": "cross-env HC_PORT=$(port) concurrently \"npm run playground\" \"npm run start:happ\"",
     "start:happ": "hc s clean && echo pass | RUST_LOG=warn hc s --piped generate ./workdir/clutter.happ --run=$HC_PORT -a clutter network mdns",
     "// 2": "TOOLS",
     "playground": "run-singleton \"holochain-playground\"",

@@ -1,1 +1,7 @@
-<router-outlet></router-outlet>
+
+<ng-container *ngIf="connected$ | async; else loading">
+    <router-outlet></router-outlet>
+</ng-container>
+<ng-template #loading>
+    loading...
+</ng-template>
