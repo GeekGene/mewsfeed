@@ -9,11 +9,11 @@
 
 - Angular Webapp
 
-![Preview of Clutter web](https://github.com/pegaltier/clutter/tree/develop/docs/clutter-web-preview.jpg)
+![Preview of Clutter web](./docs/clutter-web-preview.jpg)
 
 - Ionic Mobileapp
 
-![Preview of Clutter mobile](https://github.com/pegaltier/clutter/tree/develop/docs/clutter-mobile-preview.jpg)
+![Preview of Clutter mobile](https://raw.githubusercontent.com/pegaltier/clutter/develop/docs/clutter-web-preview.jpg)
 
 
 ## Project Management w/ Acorn
