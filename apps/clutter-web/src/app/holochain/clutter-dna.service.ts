@@ -5,7 +5,7 @@ import { deserializeHash } from '@holochain-open-dev/utils';
 import { ActionHash, AgentPubKey, CallZomeRequest } from '@holochain/client';
 import { from, Observable } from 'rxjs';
 import { CreateMewInput, FeedMew, FeedOptions, Mew } from '../types/types';
-import { HolochainService } from './holochain.service';
+import { HolochainService } from '@shared/util-holochain';
 //
 export const NATIVE_INSTALLED_APP_ID = 'clutter';
 export const CLUTTER_ROLE_ID = 'clutter';

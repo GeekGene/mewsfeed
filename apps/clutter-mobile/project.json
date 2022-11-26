@@ -100,6 +100,5 @@
       }
     }
   },
-  "tags": [],
-  "root": "apps/clutter-mobile"
+  "tags": []
 }

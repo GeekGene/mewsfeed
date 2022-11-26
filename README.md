@@ -45,18 +45,20 @@ npm run test
 
 ## Develop the UI
 
-To run the Happ (Holochain+UI):
+To run the Happ (Holochain + web UI + mobile UI):
 
 ``` bash
-npm run start (first terminal)
-npm run web (second terminal)
+npm run start (from first terminal)
+npm run web (from second terminal)
+npm run mobile (from third terminal)
 ```
 
 To run another agent, open another terminal(s), and execute again:
 
 ```bash
-npm run start (third terminal)
-npm run web (fourth terminal)
+npm run start (fourth terminal)
+npm run web (fifth terminal)
+npm run mobile (from sixth terminal)
 ```
 
 Each new agent that you create this way will get assigned its own port and get connected to the other agents.
@@ -82,3 +84,16 @@ We are using this tooling:
 - [hc](https://github.com/holochain/holochain/tree/develop/crates/hc): Holochain CLI to easily manage Holochain development instances.
 - [@holochain/tryorama](https://www.npmjs.com/package/@holochain/tryorama): test framework.
 - [@holochain/conductor-api](https://www.npmjs.com/package/@holochain/conductor-api): client library to connect to Holochain from the UI.
+
+## Nx
+
+```bash
+npm install --save-dev @nrwl/angular
+npx nx generate @nrwl/angular:application clutter-web --no-interactive
+npm install --save-dev --exact @nxtend/ionic-angular --legacy-peer-deps
+npm install --save-dev --exact @nxtend/capacitor --legacy-peer-deps
+npx nx generate @nxtend/ionic-angular:application clutter-mobile --capacitor false
+npx nx generate @nrwl/angular:library clutter/data-access-dna
+npx nx generate @nrwl/angular:library shared/util-holochain
+npx nx generate @nrwl/angular:library shared/util-common
+```
