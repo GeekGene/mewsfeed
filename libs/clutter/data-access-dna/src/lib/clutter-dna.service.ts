@@ -1,36 +1,17 @@
 import { Injectable } from '@angular/core';
+import { from, Observable } from 'rxjs';
 //
 import { AgentPubKeyB64 } from '@holochain-open-dev/core-types';
 import { deserializeHash } from '@holochain-open-dev/utils';
 import { ActionHash, AgentPubKey, CallZomeRequest } from '@holochain/client';
-import { from, Observable } from 'rxjs';
-import { CreateMewInput, FeedMew, FeedOptions, Mew } from './types/clutter-dna.types';
+//
+import { CreateMewInput, FeedMew, FeedOptions, Mew, MewsFn } from './clutter-dna.types';
 import { HolochainService } from '@shared/util-holochain';
 //
 export const NATIVE_INSTALLED_APP_ID = 'clutter';
 export const CLUTTER_ROLE_ID = 'clutter';
 export const MEWS_ZOME_NAME = 'mews';
 //
-export enum MewsFn {
-  CreateMew = 'create_mew',
-  GetMew = 'get_mew',
-  MewsFeed = 'mews_feed',
-  MewsBy = 'mews_by',
-  Follow = 'follow',
-  Followers = 'followers',
-  Following = 'following',
-  MyFollowers = 'my_followers',
-  MyFollowing = 'my_following',
-  Unfollow = 'unfollow',
-  LickMew = 'lick_mew',
-  UnlickMew = 'unlick_mew',
-  MyLicks = 'my_licks',
-  GetFeedMewAndContext = 'get_feed_mew_and_context',
-  GetMewsWithCashtag = 'get_mews_with_cashtag',
-  GetMewsWithHashtag = 'get_mews_with_hashtag',
-  GetMewsWithMention = 'get_mews_with_mention',
-}
-
 @Injectable({
   providedIn: 'root',
 })

@@ -1,5 +1,26 @@
 import { ActionHash, AgentPubKey, Create, HoloHash } from "@holochain/client";
 
+export enum MewsFn {
+  CreateMew = 'create_mew',
+  GetMew = 'get_mew',
+  MewsFeed = 'mews_feed',
+  MewsBy = 'mews_by',
+  Follow = 'follow',
+  Followers = 'followers',
+  Following = 'following',
+  MyFollowers = 'my_followers',
+  MyFollowing = 'my_following',
+  Unfollow = 'unfollow',
+  LickMew = 'lick_mew',
+  UnlickMew = 'unlick_mew',
+  MyLicks = 'my_licks',
+  GetFeedMewAndContext = 'get_feed_mew_and_context',
+  GetMewsWithCashtag = 'get_mews_with_cashtag',
+  GetMewsWithHashtag = 'get_mews_with_hashtag',
+  GetMewsWithMention = 'get_mews_with_mention',
+}
+
+
 export const PROFILE_FIELDS = {
   DISPLAY_NAME: "Display name",
   BIO: "Bio",
