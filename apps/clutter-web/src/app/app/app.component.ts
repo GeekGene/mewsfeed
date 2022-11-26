@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { HolochainService } from '../holochain/holochain.service';
+import { HolochainService } from '@shared/util-holochain';
 
 @Component({
   selector: 'app-root',

@@ -14,7 +14,7 @@ import { UserRecord } from '../model/User';
 import { ClutterDnaService } from '../holochain/clutter-dna.service';
 import { UserService } from '../user/user.service';
 import { FeedMew } from '../types/types';
-import { zomeCall } from '../holochain/holochain.functions';
+import { zomeCall } from '@shared/util-holochain';
 
 @Component({
   selector: 'app-tweet-feed',

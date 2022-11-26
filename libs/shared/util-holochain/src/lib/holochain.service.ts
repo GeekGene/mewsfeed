@@ -15,7 +15,7 @@ export class HolochainService {
   public connected$: Observable<boolean> = this.connected$$.asObservable();
   // path to your local hc app websocket
   // find the correct port in the log: App port attached at xxx
-  private appWsUrl = 'ws://localhost:35441';
+  private appWsUrl = 'ws://localhost:35865';
   private installedAppId = 'clutter';
   // see: https://github.com/artbrock/clutter/blob/develop/ui/src/stores/index.ts
   //
