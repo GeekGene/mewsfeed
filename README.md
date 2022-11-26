@@ -13,7 +13,7 @@
 
 - Ionic Mobileapp
 
-![Preview of Clutter mobile](https://raw.githubusercontent.com/pegaltier/clutter/develop/docs/clutter-web-preview.jpg)
+![Preview of Clutter mobile](./docs/clutter-mobile-preview.jpg)
 
 
 ## Project Management w/ Acorn
