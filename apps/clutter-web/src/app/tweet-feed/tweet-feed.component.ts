@@ -11,9 +11,8 @@ import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import followers from '../../assets/data/mock-followers.json';
 import { TweetRecord, TweetSchema } from '../model/Tweet';
 import { UserRecord } from '../model/User';
-import { ClutterDnaService } from '../holochain/clutter-dna.service';
 import { UserService } from '../user/user.service';
-import { FeedMew } from '../types/types';
+import { FeedMew, ClutterDnaService } from '@clutter/data-access-dna';
 import { zomeCall } from '@shared/util-holochain';
 
 @Component({

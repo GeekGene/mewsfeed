@@ -1,7 +1,7 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { generateReadableTimestamp } from './timestamp.functions'
+import { generateReadableTimestamp } from '@shared/util-common'
 import { UserRecord } from '../model/User';
-import { FeedMew } from '../types/types';
+import { FeedMew } from '@clutter/data-access-dna';
 
 @Component({
   selector: 'app-tweet',

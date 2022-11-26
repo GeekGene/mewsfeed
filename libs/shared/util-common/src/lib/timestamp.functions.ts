@@ -8,17 +8,17 @@ const timeFormatOptions: Intl.DateTimeFormatOptions = {
   minute: 'numeric',
 };
 
-export const generateReadableTimestamp = (holoTimestamp) => {
-  const timestamp = new Date(Number(holoTimestamp) / 1000);
+export const generateReadableTimestamp = (rawTimestamp: any) => {
+  const dateTimestamp = new Date(Number(rawTimestamp) / 1000);
 
   const formattedDate = new Intl.DateTimeFormat(
     'default',
     dateFormatOptions
-  ).format(timestamp);
+  ).format(dateTimestamp);
   const formattedTime = new Intl.DateTimeFormat(
     'default',
     timeFormatOptions
-  ).format(timestamp);
+  ).format(dateTimestamp);
   const formattedTimestamp = `${formattedTime} on ${formattedDate}`;
 
   return formattedTimestamp;
