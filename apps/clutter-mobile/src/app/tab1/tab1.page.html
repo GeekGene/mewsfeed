@@ -1,17 +1,31 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>
-      Tab 1
-    </ion-title>
+    <ion-buttons slot="start">
+      <ion-button>
+        <ion-icon slot="icon-only" name="menu-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button>
+        <ion-img [src]="'assets/icons/favicon.png'"style="height: 100%; width: 100%; padding: 3px; object-fit: contain"></ion-img>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 1</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <ion-slides [options]="opts">
+    <ion-slide *ngFor="let tweet of tweets">
+      <ion-avatar>
+        <img [src]="tweet.img" />
+      </ion-avatar>
+    </ion-slide>
+  </ion-slides>
 
-  <explore-container name="Tab 1 page"></explore-container>
+  <app-tweet *ngFor="let tweet of tweets" [tweet]="tweet"></app-tweet>
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button>
+      <ion-icon name="pencil"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>
