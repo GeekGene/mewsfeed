@@ -1,5 +1,5 @@
 <template>
-  <q-page class="row">
+  <q-page class="row" :style-fn="pageHeightCorrection">
     <div class="col-8">
       <h6 class="q-mt-none q-mb-md">Profile</h6>
       <q-spinner-pie v-if="loadingProfile" size="10%" color="primary" />
@@ -58,6 +58,7 @@ import { useProfilesStore } from "@/services/profiles-store";
 import { FeedMew, PROFILE_FIELDS } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
 import { showError } from "@/utils/notification";
+import { pageHeightCorrection } from "@/utils/page-layout";
 import { Profile } from "@holochain-open-dev/profiles";
 import { deserializeHash } from "@holochain-open-dev/utils";
 import { computed, onMounted, ref, watch } from "vue";

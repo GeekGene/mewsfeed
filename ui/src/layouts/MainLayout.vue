@@ -5,6 +5,7 @@
         <q-tabs v-model="tab" dense inline-label class="col-grow">
           <q-route-tab :to="{ name: ROUTES.home }">
             <q-icon name="svguse:/icons.svg#cat" size="lg" />
+            <q-tooltip>Den</q-tooltip>
           </q-route-tab>
 
           <q-btn
@@ -14,6 +15,7 @@
             @click="onAddMewClick"
           >
             Mew
+            <q-tooltip>Add a mew</q-tooltip>
           </q-btn>
           <q-select
             v-model="selection"
@@ -76,6 +78,7 @@
               :agentPubKey="profilesStore.myAgentPubKey"
               size="40"
             />
+            <q-tooltip>Your profile</q-tooltip>
           </q-route-tab>
         </q-tabs>
       </q-toolbar>

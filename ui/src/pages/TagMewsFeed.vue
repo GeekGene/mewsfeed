@@ -1,5 +1,5 @@
 <template>
-  <q-page>
+  <q-page :style-fn="pageHeightCorrection">
     <h6 class="q-mt-none q-mb-md">Mews with {{ tagSymbol }}{{ tag }}</h6>
 
     <MewList />
@@ -18,6 +18,7 @@ import MewList from "../components/MewList.vue";
 import { deserializeHash } from "@holochain-open-dev/utils";
 import { TAG_SYMBOLS } from "@/utils/tags";
 import { useClutterStore } from "@/stores";
+import { pageHeightCorrection } from "@/utils/page-layout";
 
 const store = useClutterStore();
 const router = useRouter();

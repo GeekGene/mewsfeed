@@ -1,5 +1,5 @@
 <template>
-  <q-page class="text-center" padding>
+  <q-page class="text-center" :style-fn="pageHeightCorrection">
     <h4>You've lost the thread</h4>
     <q-btn
       icon="explore"
@@ -13,4 +13,5 @@
 
 <script setup lang="ts">
 import { ROUTES } from "@/router";
+import { pageHeightCorrection } from "@/utils/page-layout";
 </script>

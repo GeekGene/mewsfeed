@@ -1,5 +1,5 @@
 <template>
-  <q-page class="q-pb-lg">
+  <q-page class="q-pb-lg" :style-fn="pageHeightCorrection">
     <CreateMewField
       :mew-type="{ original: null }"
       @publish-mew="store.fetchMewsFeed"
@@ -24,12 +24,13 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { callZome, MewsFn } from "@/services/clutter-dna";
 import { useClutterStore } from "@/stores";
+import { FeedMew } from "@/types/types";
+import { pageHeightCorrection } from "@/utils/page-layout";
+import { onMounted } from "vue";
 import CreateMewField from "../components/CreateMewField.vue";
 import MewList from "../components/MewList.vue";
-import { callZome, MewsFn } from "@/services/clutter-dna";
-import { FeedMew } from "@/types/types";
 
 const store = useClutterStore();
 
