@@ -21,7 +21,7 @@
               <span>@{{ originalAuthor.nickname }}</span>
             </template>
           </div>
-          <q-btn v-close-popup icon="close" flat round dense />
+          <q-btn icon="close" flat round dense @click="onDialogCancel" />
         </div>
       </q-card-section>
 
@@ -54,7 +54,8 @@ import { PropType } from "vue";
 import { useRouter } from "vue-router";
 import { Profile } from "@holochain-open-dev/profiles";
 
-const { dialogRef, onDialogHide, onDialogOK } = useDialogPluginComponent();
+const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
+  useDialogPluginComponent();
 
 defineProps({
   mewType: { type: Object as PropType<MewType>, required: true },
