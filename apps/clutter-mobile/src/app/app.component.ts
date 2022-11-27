@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { HolochainService } from '@shared/util-holochain';
 
 @Component({
   selector: 'root',
@@ -6,5 +7,11 @@ import { Component } from '@angular/core';
   styleUrls: ['app.component.scss'],
 })
 export class AppComponent {
-  constructor() {}
+
+  connected$ = this.holochainService.connected$;
+
+  constructor(private holochainService: HolochainService) {
+    this.holochainService.initialize();
+  }
+
 }

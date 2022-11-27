@@ -1,3 +1,8 @@
-<ion-app>
-  <ion-router-outlet></ion-router-outlet>
-</ion-app>
+<ng-container *ngIf="connected$ | async; else loading">
+  <ion-app>
+    <ion-router-outlet></ion-router-outlet>
+  </ion-app>
+</ng-container>
+<ng-template #loading>
+  connecting to holochain...
+</ng-template>
