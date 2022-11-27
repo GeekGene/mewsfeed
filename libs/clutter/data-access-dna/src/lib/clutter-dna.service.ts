@@ -8,7 +8,6 @@ import { ActionHash, AgentPubKey, CallZomeRequest } from '@holochain/client';
 import { CreateMewInput, FeedMew, FeedOptions, Mew, MewsFn } from './clutter-dna.types';
 import { HolochainService } from '@shared/util-holochain';
 //
-export const NATIVE_INSTALLED_APP_ID = 'clutter';
 export const CLUTTER_ROLE_ID = 'clutter';
 export const MEWS_ZOME_NAME = 'mews';
 //

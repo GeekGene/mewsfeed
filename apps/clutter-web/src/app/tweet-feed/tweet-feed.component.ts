@@ -48,10 +48,10 @@ export class TweetFeedComponent implements OnInit, OnDestroy {
   navigationSubscription: any;
 
   constructor(
-    public clutterDnaService: ClutterDnaService,
-    public userService: UserService,
-    public route: ActivatedRoute,
-    public router: Router
+    private clutterDnaService: ClutterDnaService,
+    private userService: UserService,
+    private route: ActivatedRoute,
+    private router: Router
   ) {
     this.navigationSubscription = this.router.events.subscribe((e: any) => {
       // If it is a NavigationEnd event re-initalise the component
@@ -95,7 +95,7 @@ export class TweetFeedComponent implements OnInit, OnDestroy {
     this.hide = !this.hide;
   }
 
-  add(text: string, id?: string): void {
+  createMew(text: string, id?: string): void {
     zomeCall(
       this.clutterDnaService.createMew({ mewType: { original: null }, text }),
       (res) => {

@@ -1,9 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { useSignalStore, presentHcSignal } from './holochain.functions';
 import { AppWebsocket, InstalledAppInfo } from '@holochain/client';
 import { BehaviorSubject, Observable } from 'rxjs';
-
-const HC_APP_TIMEOUT = 10_000;
 
 @Injectable({
   providedIn: 'root',
@@ -13,45 +11,51 @@ export class HolochainService {
     false
   );
   public connected$: Observable<boolean> = this.connected$$.asObservable();
-  // path to your local hc app websocket
-  // find the correct port in the log: App port attached at xxx
-  private appWsUrl = 'ws://localhost:35865';
-  private installedAppId = 'clutter';
-  // see: https://github.com/artbrock/clutter/blob/develop/ui/src/stores/index.ts
   //
   private client: AppWebsocket;
   private appInfo: InstalledAppInfo;
 
+  constructor(
+    @Inject('HOLOCHAIN_WS_URL') public holochainWsUrl: string,
+    @Inject('HOLOCHAIN_APP_ID') public holochainAppId: string,
+    @Inject('HOLOCHAIN_TIMEOUT_MS') public holochainTimeoutMs: number
+  ) {}
+
   async connect(): Promise<void> {
     console.log('🚀 ~ HolochainService ~ connect');
     const holochainClient = await AppWebsocket.connect(
-      this.appWsUrl,
-      HC_APP_TIMEOUT,
+      this.holochainWsUrl,
+      this.holochainTimeoutMs,
       (signal) => useSignalStore().handleSignal(presentHcSignal(signal))
     );
 
     this.client = holochainClient;
-    console.log('🚀 ~ HolochainService ~ connected ~ ', holochainClient);
+    console.log('🚀 ~ HolochainService ~ connected');
   }
 
   async loadAppInfo(): Promise<void> {
     console.log(
-      '🚀 ~ HolochainService ~ loadAppInfo ~ start',
-      this.installedAppId
+      '🚀 ~ HolochainService ~ loadAppInfo',
+      this.holochainAppId
     );
     try {
       const appInfo = await this.client.appInfo({
-        installed_app_id: this.installedAppId,
+        installed_app_id: this.holochainAppId,
       });
       this.appInfo = appInfo;
       this.connected$$.next(true);
-      console.log('🚀 ~ HolochainService ~ loaded AppInfo ~', appInfo);
+      console.log('🚀 ~ HolochainService ~ loadedAppInfo ~', appInfo);
     } catch (error) {
       console.error('appInfo() returned error.', error); // inspect(error)
     }
   }
 
   async initialize(): Promise<void> {
+    console.log('🚀 ~ HolochainService ~ initialize ~ ', {
+      holochainWsUrl: this.holochainWsUrl,
+      holochainAppId: this.holochainAppId,
+      holochainTimeoutMs: this.holochainTimeoutMs
+    });
     await this.connect();
     await this.loadAppInfo();
   }
@@ -82,7 +86,10 @@ export class HolochainService {
     console.log('🚀 ~ HolochainService ~ callZome ~ ', params);
 
     try {
-      const result = await this.client.callZome(params, HC_APP_TIMEOUT);
+      const result = await this.client.callZome(
+        params,
+        this.holochainTimeoutMs
+      );
 
       return result;
     } finally {

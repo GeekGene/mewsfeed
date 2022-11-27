@@ -8,7 +8,7 @@ const timeFormatOptions: Intl.DateTimeFormatOptions = {
   minute: 'numeric',
 };
 
-export const generateReadableTimestamp = (rawTimestamp: any) => {
+export const generateReadableTimestamp = (rawTimestamp: number): string => {
   const dateTimestamp = new Date(Number(rawTimestamp) / 1000);
 
   const formattedDate = new Intl.DateTimeFormat(

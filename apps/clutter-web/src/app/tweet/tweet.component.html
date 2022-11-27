@@ -1,7 +1,7 @@
   <aside class="tweet-sidebar">
     <!-- https://github.com/artbrock/clutter/blob/develop/ui/src/components/MewListItem.vue -->
     <div class="thumbnail-container">
-      <img src="https://picsum.photos/47/47/?random&time={{ 1 }}" height="47" width="47" alt="picture of fred" class="thumbnail" />
+      <img src="https://picsum.photos/47/47/?random&time={{ 1 }}" height="47" width="47" alt="picture of ?" class="thumbnail" />
     </div>
   </aside>
   <article class="tweet">
@@ -11,7 +11,7 @@
       <span class="time-since-tweet">{{ timestamp }}</span>
     </div>
     <p class="tweet-text">
-      {{ feedMew.mew.content.text }}
+      {{ feedMew.mew.content?.text }}
     </p>
     <div class="tweet-controls">
       <nav class="icon-menu">

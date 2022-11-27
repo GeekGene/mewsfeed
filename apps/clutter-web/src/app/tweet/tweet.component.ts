@@ -11,7 +11,7 @@ import { FeedMew } from '@clutter/data-access-dna';
 export class TweetComponent implements OnInit, OnChanges {
   @Input() feedMew: FeedMew;
   user: UserRecord = new UserRecord();
-  timestamp;
+  timestamp: string;
 
   constructor() {}
 
