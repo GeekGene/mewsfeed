@@ -6,7 +6,8 @@ import {
   FeedMew,
   LinkTargetName,
   MewTypeName,
-} from "../../../ui/src/types/types.js";
+} from "./clutter-dna.types.js";
+
 import { clutterDna } from "../utils.js";
 
 test("Mew must not be longer than 200 chars", async (t) => {
