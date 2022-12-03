@@ -1,21 +1,8 @@
 {
   "name": "tests",
   "version": "0.0.0",
-  "description": "",
   "type": "module",
-  "main": "src/index.js",
   "scripts": {
     "test": "RUST_BACKTRACE=1 RUST_LOG=holochain::core::ribosome::host_fn::debug=debug TRYORAMA_HOLOCHAIN_PATH=\"holochain\" node --loader ts-node/esm src/index.ts"
-  },
-  "author": "",
-  "license": "CAL-1.0",
-  "devDependencies": {
-    "@holochain-open-dev/core-types": "^0.4.0",
-    "@holochain/tryorama": "^0.8.0",
-    "@msgpack/msgpack": "^2.7.0",
-    "@types/tape": "^4.13.2",
-    "tape": "^5.2.2",
-    "ts-node": "^10.9.1",
-    "uuidv4": "^6.2.11"
   }
 }

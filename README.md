@@ -35,7 +35,7 @@ cachix use holochain-ci
 
 ```bash
 nix-shell
-npm install
+npm install --legacy-peer-deps
 ```
 
 This will install all the needed dependencies in your local environment, including `holochain`, `hc` and `npm`.
