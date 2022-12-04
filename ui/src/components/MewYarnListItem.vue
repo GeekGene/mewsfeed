@@ -107,7 +107,10 @@ import Timestamp from "./MewTimestamp.vue";
 
 const props = defineProps({
   feedMew: { type: Object as PropType<FeedMew>, required: true },
-  onPublishMew: { type: Function as PropType<() => void>, required: true },
+  onPublishMew: {
+    type: Function as PropType<() => Promise<void>>,
+    required: true,
+  },
   contentInsetLevel: { type: Number, default: undefined },
 });
 
@@ -189,7 +192,7 @@ const toggleLickMew = async () => {
     await lickMew(props.feedMew.actionHash);
   }
   emit("mew-licked", props.feedMew.actionHash);
-  store.reloadMew(props.feedMew.actionHash);
+  await props.onPublishMew();
   isUpdatingLick.value = false;
 };
 

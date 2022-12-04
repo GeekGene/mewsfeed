@@ -84,9 +84,7 @@ const onMewLicked = async (mewHash: ActionHash) => {
   }
 };
 
-const onPublishMew = () => {
-  fetchYarn();
-};
+const onPublishMew = async () => fetchYarn();
 
 const getMewHashFromRoute = () =>
   deserializeHash(
