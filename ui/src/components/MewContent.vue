@@ -6,6 +6,7 @@
           v-if="contentPart[1]"
           :to="contentPart[1]"
           class="text-secondary text-bold"
+          @click.stop
         >
           {{ contentPart[0] }}
         </router-link>
@@ -20,9 +21,12 @@
 import { FeedMew, LinkTargetName } from "@/types/types";
 import { TAG_REGEX, TAG_SYMBOLS } from "@/utils/tags";
 import { PATH, ROUTES } from "@/router";
-import { PropType } from "vue";
+import { computed, PropType } from "vue";
 import { RouteLocationRaw } from "vue-router";
 import { serializeHash } from "@holochain-open-dev/utils";
+
+type ContentPart = [string] | [string, RouteLocationRaw];
+
 const props = defineProps({
   feedMew: { type: Object as PropType<FeedMew>, required: true },
 });
@@ -30,16 +34,20 @@ const props = defineProps({
 const startsWithTag = (contentPart: string) =>
   Object.values(TAG_SYMBOLS).some((symbol) => contentPart.startsWith(symbol));
 
-const mentions = props.feedMew.mew.content?.links?.slice().reverse();
-const content = props.feedMew.mew.content?.text || "";
-const parts = content.split(TAG_REGEX).filter((part) => Boolean(part));
+const mentions = computed(() =>
+  props.feedMew.mew.content?.links?.slice().reverse()
+);
+const content = computed(() => props.feedMew.mew.content?.text || "");
+const parts = computed(() =>
+  content.value.split(TAG_REGEX).filter((part) => Boolean(part))
+);
 
-const contentParts: Array<[string] | [string, RouteLocationRaw]> = parts.map(
-  (part) => {
+const contentParts = computed<ContentPart[]>(() =>
+  parts.value.map((part) => {
     if (startsWithTag(part)) {
       let agentPubKey = "";
       if (part[0] === TAG_SYMBOLS.MENTION) {
-        const mention = mentions?.pop()?.[LinkTargetName.Mention];
+        const mention = mentions.value?.pop()?.[LinkTargetName.Mention];
         // formality, mention must exist
         agentPubKey = mention ? serializeHash(mention) : "";
       }
@@ -51,6 +59,6 @@ const contentParts: Array<[string] | [string, RouteLocationRaw]> = parts.map(
       return [part, to];
     }
     return [part];
-  }
+  })
 );
 </script>

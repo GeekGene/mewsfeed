@@ -6,6 +6,8 @@ export const PROFILE_FIELDS = {
   LOCATION: "Location",
 };
 
+export const TOOLTIP_DELAY = 400;
+
 export enum LinkTargetName {
   Mention = "Mention",
 }

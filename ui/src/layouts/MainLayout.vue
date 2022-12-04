@@ -5,7 +5,7 @@
         <q-tabs v-model="tab" dense inline-label class="col-grow">
           <q-route-tab :to="{ name: ROUTES.home }">
             <q-icon name="svguse:/icons.svg#cat" size="lg" />
-            <q-tooltip>Den</q-tooltip>
+            <q-tooltip :delay="TOOLTIP_DELAY">Den</q-tooltip>
           </q-route-tab>
 
           <q-btn
@@ -15,7 +15,7 @@
             @click="onAddMewClick"
           >
             Mew
-            <q-tooltip>Add a mew</q-tooltip>
+            <q-tooltip :delay="TOOLTIP_DELAY">Add a mew</q-tooltip>
           </q-btn>
           <q-select
             v-model="selection"
@@ -78,7 +78,7 @@
               :agentPubKey="profilesStore.myAgentPubKey"
               size="40"
             />
-            <q-tooltip>Your profile</q-tooltip>
+            <q-tooltip :delay="TOOLTIP_DELAY">Your profile</q-tooltip>
           </q-route-tab>
         </q-tabs>
       </q-toolbar>
@@ -96,7 +96,8 @@
 import CreateMewDialog from "@/components/CreateMewDialog.vue";
 import { ROUTES } from "@/router";
 import { useProfilesStore } from "@/services/profiles-store";
-import { MewTypeName, PROFILE_FIELDS } from "@/types/types";
+import { useClutterStore } from "@/stores";
+import { MewTypeName, PROFILE_FIELDS, TOOLTIP_DELAY } from "@/types/types";
 import { showError } from "@/utils/notification";
 import { serializeHash } from "@holochain-open-dev/utils";
 import { AgentPubKey } from "@holochain/client";
@@ -106,6 +107,7 @@ import { useRouter } from "vue-router";
 
 const $q = useQuasar();
 
+const store = useClutterStore();
 const profilesStore = useProfilesStore();
 const router = useRouter();
 const tab = ref("");
@@ -115,10 +117,18 @@ const options = ref<Array<QSelectOption & { agentPubKey: AgentPubKey }>>([]);
 const selection = ref<QSelectOption | null>(null);
 const searchTerm = ref("");
 
+const onPublishMew = () => {
+  if (router.currentRoute.value.name === ROUTES.feed) {
+    store.fetchMewsFeed();
+  } else {
+    router.push({ name: ROUTES.feed });
+  }
+};
+
 const onAddMewClick = () =>
   $q.dialog({
     component: CreateMewDialog,
-    componentProps: { mewType: { [MewTypeName.Original]: null } },
+    componentProps: { mewType: { [MewTypeName.Original]: null }, onPublishMew },
   });
 
 const search = (

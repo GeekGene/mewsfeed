@@ -14,13 +14,18 @@
       />
 
       <q-icon name="help" color="grey" size="xs" class="help-text">
-        <q-tooltip class="text-body2" anchor="top middle" self="bottom middle">
+        <q-tooltip
+          class="text-body2"
+          anchor="top middle"
+          self="bottom middle"
+          :delay="TOOLTIP_DELAY"
+        >
           You can mention people with @ and use #hashtags and $cashtags in a
           mew.
         </q-tooltip>
       </q-icon>
 
-      <div class="q-mb-md text-right text-caption text-grey">
+      <div class="q-mb-xs text-right text-caption text-grey">
         Ctrl/Cmd + Enter to publish
       </div>
 
@@ -95,6 +100,7 @@ import {
   LinkTargetName,
   MewType,
   PROFILE_FIELDS,
+  TOOLTIP_DELAY,
 } from "../types/types";
 
 const ANCHOR_DATA_ID_AGENT_PUB_KEY = "agentPubKey";

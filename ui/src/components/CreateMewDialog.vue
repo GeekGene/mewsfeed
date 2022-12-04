@@ -35,7 +35,7 @@
 
       <q-card-section>
         <profiles-context :store="profilesStore">
-          <CreateMewField :mew-type="mewType" @publish-mew="onPublishMew" />
+          <CreateMewField :mew-type="mewType" @publish-mew="_onMewPublish" />
         </profiles-context>
       </q-card-section>
     </q-card>
@@ -45,35 +45,27 @@
 <script setup lang="ts">
 import CreateMewField from "@/components/CreateMewField.vue";
 import MewContent from "./MewContent.vue";
-import { ROUTES } from "@/router";
 import { useProfilesStore } from "@/services/profiles-store";
-import { useClutterStore } from "@/stores";
 import { FeedMew, MewType, MewTypeName, PROFILE_FIELDS } from "@/types/types";
 import { useDialogPluginComponent } from "quasar";
 import { PropType } from "vue";
-import { useRouter } from "vue-router";
 import { Profile } from "@holochain-open-dev/profiles";
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 
-defineProps({
+const props = defineProps({
   mewType: { type: Object as PropType<MewType>, required: true },
+  onPublishMew: { type: Function as PropType<() => void>, required: true },
   originalMew: { type: Object as PropType<FeedMew>, default: () => ({}) },
   originalAuthor: { type: Object as PropType<Profile>, default: () => ({}) },
 });
 defineEmits([...useDialogPluginComponent.emits]);
 
-const store = useClutterStore();
 const profilesStore = useProfilesStore();
-const router = useRouter();
 
-const onPublishMew = () => {
-  if (router.currentRoute.value.name === ROUTES.feed) {
-    store.fetchMewsFeed();
-  } else {
-    router.push({ name: ROUTES.feed });
-  }
+const _onMewPublish = () => {
+  props.onPublishMew();
   onDialogOK();
 };
 </script>

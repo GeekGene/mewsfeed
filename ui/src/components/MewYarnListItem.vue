@@ -1,5 +1,5 @@
 <template>
-  <q-item class="items-start">
+  <q-item :inset-level="contentInsetLevel" class="items-start">
     <q-item-section avatar>
       <avatar-with-popup :agent-pub-key="feedMew.action.author" />
     </q-item-section>
@@ -24,36 +24,33 @@
             type="text"
             width="4rem"
           />
-          <template v-else-if="originalMew && originalMewAuthor">
-            <span class="q-mr-xs text-secondary">
-              {{ reactionLabel }}
+          <router-link
+            v-else-if="originalMew && originalMewAuthor"
+            :to="{
+              name: ROUTES.profiles,
+              params: { agent: serializeHash(originalMew.action.author) },
+            }"
+            class="text-secondary"
+          >
+            {{ reactionLabel }}
+            <span class="text-bold">
+              {{ originalMewAuthor.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
             </span>
-            <router-link
-              :to="{
-                name: ROUTES.profiles,
-                params: { agent: serializeHash(originalMew.action.author) },
-              }"
-              class="text-secondary"
-            >
-              <span class="text-bold">
-                {{ originalMewAuthor.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
-              </span>
-              @{{ originalMewAuthor.nickname }}
-            </router-link>
-          </template>
+            @{{ originalMewAuthor.nickname }}
+          </router-link>
         </span>
 
         <q-space />
 
         <span class="q-ml-md text-caption">
-          <timestamp :timestamp="feedMew.action.timestamp" />
+          <Timestamp :timestamp="feedMew.action.timestamp" />
         </span>
       </div>
 
-      <mew-content
-        :feed-mew="originalMew && isMewMew ? originalMew : feedMew"
+      <MewContent
+        :feed-mew="feedMew"
         class="q-my-sm cursor-pointer"
-        @click="onMewClick"
+        @click="onMewClick(feedMew)"
       />
 
       <div>
@@ -84,7 +81,7 @@
 </template>
 
 <script setup lang="ts">
-import router, { ROUTES } from "@/router";
+import { ROUTES } from "@/router";
 import { createMew, lickMew, unlickMew } from "@/services/clutter-dna";
 import { useProfilesStore } from "@/services/profiles-store";
 import { useClutterStore } from "@/stores";
@@ -99,8 +96,10 @@ import { isSameHash } from "@/utils/hash";
 import { useProfileUtils } from "@/utils/profile";
 import { Profile } from "@holochain-open-dev/profiles";
 import { serializeHash } from "@holochain-open-dev/utils";
-import { QItem, useQuasar } from "quasar";
+import { ActionHash } from "@holochain/client";
+import { useQuasar } from "quasar";
 import { computed, onMounted, PropType, ref } from "vue";
+import { useRouter } from "vue-router";
 import AvatarWithPopup from "./AvatarWithPopup.vue";
 import CreateMewDialog from "./CreateMewDialog.vue";
 import MewContent from "./MewContent.vue";
@@ -108,11 +107,16 @@ import Timestamp from "./MewTimestamp.vue";
 
 const props = defineProps({
   feedMew: { type: Object as PropType<FeedMew>, required: true },
+  onPublishMew: { type: Function as PropType<() => void>, required: true },
+  contentInsetLevel: { type: Number, default: undefined },
 });
+
+const emit = defineEmits<{ (e: "mew-licked", mewHash: ActionHash): void }>();
 
 const $q = useQuasar();
 
 const store = useClutterStore();
+const router = useRouter();
 
 const profilesStore = useProfilesStore();
 const { isCurrentProfile, onAgentClick } = useProfileUtils();
@@ -170,10 +174,10 @@ onMounted(async () => {
     .finally(() => (loadingOriginalMewAuthor.value = false));
 });
 
-const onMewClick = () => {
+const onMewClick = (mew: FeedMew) => {
   router.push({
     name: ROUTES.yarn,
-    params: { hash: serializeHash(props.feedMew.actionHash) },
+    params: { hash: serializeHash(mew.actionHash) },
   });
 };
 
@@ -184,16 +188,9 @@ const toggleLickMew = async () => {
   } else {
     await lickMew(props.feedMew.actionHash);
   }
-  await store.reloadMew(props.feedMew.actionHash);
+  emit("mew-licked", props.feedMew.actionHash);
+  store.reloadMew(props.feedMew.actionHash);
   isUpdatingLick.value = false;
-};
-
-const onPublishMew = () => {
-  if (router.currentRoute.value.name === ROUTES.feed) {
-    store.fetchMewsFeed();
-  } else {
-    router.push({ name: ROUTES.feed });
-  }
 };
 
 const replyToMew = () =>
@@ -201,7 +198,7 @@ const replyToMew = () =>
     component: CreateMewDialog,
     componentProps: {
       mewType: { [MewTypeName.Reply]: props.feedMew.actionHash },
-      onPublishMew,
+      onPublishMew: props.onPublishMew,
       originalMew: props.feedMew,
       originalAuthor: agentProfile.value,
     },
@@ -213,7 +210,7 @@ const mewMew = async () => {
     text: null,
   };
   await createMew(mew);
-  store.fetchMewsFeed();
+  props.onPublishMew();
 };
 
 const quote = () =>
@@ -221,7 +218,7 @@ const quote = () =>
     component: CreateMewDialog,
     componentProps: {
       mewType: { [MewTypeName.Quote]: props.feedMew.actionHash },
-      onPublishMew,
+      onPublishMew: props.onPublishMew,
       originalMew: props.feedMew,
       originalAuthor: agentProfile.value,
     },

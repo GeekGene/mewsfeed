@@ -29,8 +29,8 @@ import { useClutterStore } from "@/stores";
 import { FeedMew } from "@/types/types";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { onMounted } from "vue";
-import CreateMewField from "../components/CreateMewField.vue";
-import MewList from "../components/MewList.vue";
+import CreateMewField from "@/components/CreateMewField.vue";
+import MewList from "@/components/MewList.vue";
 
 const store = useClutterStore();
 
