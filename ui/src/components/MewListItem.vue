@@ -85,7 +85,12 @@
 
 <script setup lang="ts">
 import router, { ROUTES } from "@/router";
-import { createMew, lickMew, unlickMew } from "@/services/clutter-dna";
+import {
+  createMew,
+  getFeedMewAndContext,
+  lickMew,
+  unlickMew,
+} from "@/services/clutter-dna";
 import { useProfilesStore } from "@/services/profiles-store";
 import { useClutterStore } from "@/stores";
 import {
@@ -135,9 +140,7 @@ const originalMewHash =
     : MewTypeName.Quote in props.feedMew.mew.mewType
     ? props.feedMew.mew.mewType.quote
     : new Uint8Array();
-const originalMew = computed(() =>
-  store.mewsFeed.find((m) => isSameHash(m.actionHash, originalMewHash))
-);
+const originalMew = ref<FeedMew>();
 const originalMewAuthor = ref<Profile>();
 const loadingOriginalMewAuthor = ref<boolean>();
 const reactionLabel = computed(() =>
@@ -168,6 +171,9 @@ onMounted(async () => {
       );
     })
     .finally(() => (loadingOriginalMewAuthor.value = false));
+  getFeedMewAndContext(originalMewHash).then(
+    (mew) => (originalMew.value = mew)
+  );
 });
 
 const onMewClick = () => {

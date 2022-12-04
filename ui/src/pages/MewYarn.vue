@@ -15,7 +15,9 @@
       <q-card-section v-if="mew" class="yarn-container">
         <profiles-context :store="profilesStore">
           <q-list>
+            <MewListItemSkeleton v-if="isLoadingMew" />
             <MewYarnListItem
+              v-else
               :feed-mew="mew"
               :on-publish-mew="onPublishMew"
               class="q-mb-md bg-orange-1"
@@ -37,7 +39,8 @@
             </q-item>
           </q-list>
 
-          <q-list v-if="replies.length" bordered separator>
+          <MewListSkeleton v-if="isLoadingReplies" />
+          <q-list v-else-if="replies.length" bordered separator>
             <MewYarnListItem
               v-for="(reply, index) of replies"
               :key="index"
@@ -55,12 +58,15 @@
 
 <script setup lang="ts">
 import CreateMewField from "@/components/CreateMewField.vue";
+import MewListItemSkeleton from "@/components/MewListItemSkeleton.vue";
+import MewListSkeleton from "@/components/MewListSkeleton.vue";
 import MewYarnListItem from "@/components/MewYarnListItem.vue";
 import { ROUTES } from "@/router";
 import { getFeedMewAndContext } from "@/services/clutter-dna";
 import { useProfilesStore } from "@/services/profiles-store";
 import { FeedMew, MewTypeName } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
+import { showError } from "@/utils/notification";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { deserializeHash } from "@holochain-open-dev/utils";
 import { ActionHash } from "@holochain/client";
@@ -72,7 +78,9 @@ const profilesStore = useProfilesStore();
 const route = useRoute();
 
 const mew = ref<FeedMew>();
+const isLoadingMew = ref(false);
 const replies = ref<FeedMew[]>([]);
+const isLoadingReplies = ref(false);
 
 const onMewLicked = async (mewHash: ActionHash) => {
   const replyIndex = replies.value.findIndex((r) =>
@@ -95,11 +103,29 @@ const getMewHashFromRoute = () =>
 
 const fetchYarn = async () => {
   const mewHash = getMewHashFromRoute();
-  mew.value = await getFeedMewAndContext(mewHash);
-  const replyHashes = mew.value.replies.reverse(); // hashes are in ascending temporal order
-  replies.value = await Promise.all(
-    replyHashes.map((replyHash) => getFeedMewAndContext(replyHash))
-  );
+  try {
+    isLoadingMew.value = true;
+    mew.value = await getFeedMewAndContext(mewHash);
+  } catch (error) {
+    showError(error);
+  } finally {
+    isLoadingMew.value = false;
+  }
+
+  try {
+    isLoadingReplies.value = true;
+    const replyHashes = mew.value?.replies.reverse(); // hashes are in ascending temporal order
+    if (!replyHashes) {
+      return;
+    }
+    replies.value = await Promise.all(
+      replyHashes.map((replyHash) => getFeedMewAndContext(replyHash))
+    );
+  } catch (error) {
+    showError(error);
+  } finally {
+    isLoadingReplies.value = false;
+  }
 };
 
 onMounted(fetchYarn);
