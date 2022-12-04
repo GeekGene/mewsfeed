@@ -37,7 +37,13 @@
       </q-card>
 
       <h6 class="q-mb-md">Mews</h6>
-      <MewList :loading="loadingMews" :mews="mews" @refresh="loadMews" />
+      <EmptyMewsFeed v-if="!loadingMews && mews.length === 0" />
+      <MewList
+        v-else
+        :is-loading="loadingMews"
+        :mews="mews"
+        @refresh="loadMews"
+      />
     </div>
 
     <div class="follow-col col self-start q-pl-xl q-pr-md">
@@ -51,6 +57,7 @@
 
 <script setup lang="ts">
 import ButtonFollow from "@/components/ButtonFollow.vue";
+import EmptyMewsFeed from "@/components/EmptyMewsFeed.vue";
 import FolloweesList from "@/components/FolloweesList.vue";
 import FollowersList from "@/components/FollowersList.vue";
 import { mewsBy, myFollowing } from "@/services/clutter-dna";
@@ -130,8 +137,8 @@ onMounted(load);
 
 watch(
   () => route.params.agent,
-  () => {
-    if (route.params.agent) {
+  (value) => {
+    if (value) {
       load();
     }
   }

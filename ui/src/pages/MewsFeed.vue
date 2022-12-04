@@ -7,19 +7,15 @@
 
     <h6 class="q-mb-md">Your Mews Feed</h6>
 
-    <q-banner
+    <EmptyMewsFeed
       v-if="!store.isLoadingMewsFeed && store.mewsFeed.length === 0"
-      class="bg-grey-3"
-      dense
-      rounded
-    >
-      <template #avatar>
-        <q-icon name="pets" color="accent" />
-      </template>
-      <div class="text-subtitle1">Meeoow, nothing here yet!</div>
-    </q-banner>
+    />
 
-    <MewList v-else />
+    <MewList
+      v-else
+      :mews="store.mewsFeed"
+      :is-loading="store.isLoadingMewsFeed"
+    />
   </q-page>
 </template>
 
@@ -31,6 +27,7 @@ import { pageHeightCorrection } from "@/utils/page-layout";
 import { onMounted } from "vue";
 import CreateMewField from "@/components/CreateMewField.vue";
 import MewList from "@/components/MewList.vue";
+import EmptyMewsFeed from "@/components/EmptyMewsFeed.vue";
 
 const store = useClutterStore();
 
