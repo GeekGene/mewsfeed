@@ -111,10 +111,12 @@ const props = defineProps({
     type: Function as PropType<() => Promise<void>>,
     required: true,
   },
+  onLickMew: {
+    type: Function as PropType<(hash: ActionHash) => Promise<void>>,
+    required: true,
+  },
   contentInsetLevel: { type: Number, default: undefined },
 });
-
-const emit = defineEmits<{ (e: "mew-licked", mewHash: ActionHash): void }>();
 
 const $q = useQuasar();
 
@@ -191,8 +193,7 @@ const toggleLickMew = async () => {
   } else {
     await lickMew(props.feedMew.actionHash);
   }
-  emit("mew-licked", props.feedMew.actionHash);
-  await props.onPublishMew();
+  await props.onLickMew(props.feedMew.actionHash);
   isUpdatingLick.value = false;
 };
 

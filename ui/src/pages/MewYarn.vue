@@ -1,6 +1,6 @@
 <template>
   <q-page :style-fn="pageHeightCorrection">
-    <q-card>
+    <q-card flat>
       <q-card-section class="q-pb-none">
         <q-btn flat @click="$router.go(-1)">
           <q-icon
@@ -20,13 +20,13 @@
               v-else
               :feed-mew="mew"
               :on-publish-mew="onPublishMew"
+              :on-lick-mew="onLickMew"
               class="q-mb-md bg-orange-1"
-              @mew-licked="onMewLicked"
             />
 
             <q-item class="q-mb-md q-px-none">
               <div class="col-grow">
-                <div class="text-h6 text-medium">Reply</div>
+                <div class="q-mb-md text-h6 text-medium">Reply</div>
 
                 <profiles-context :store="profilesStore">
                   <CreateMewField
@@ -46,8 +46,8 @@
               :key="index"
               :feed-mew="reply"
               :on-publish-mew="onPublishMew"
+              :on-lick-mew="onLickMew"
               :content-inset-level="1"
-              @mew-licked="onMewLicked"
             />
           </q-list>
         </profiles-context>
@@ -82,13 +82,15 @@ const isLoadingMew = ref(false);
 const replies = ref<FeedMew[]>([]);
 const isLoadingReplies = ref(false);
 
-const onMewLicked = async (mewHash: ActionHash) => {
+const onLickMew = async (mewHash: ActionHash) => {
+  const feedMew = await getFeedMewAndContext(mewHash);
   const replyIndex = replies.value.findIndex((r) =>
     isSameHash(r.actionHash, mewHash)
   );
-  if (replyIndex !== -1) {
-    const mew = await getFeedMewAndContext(mewHash);
-    replies.value[replyIndex] = mew;
+  if (replyIndex === -1) {
+    mew.value = feedMew;
+  } else {
+    replies.value[replyIndex] = feedMew;
   }
 };
 
@@ -114,7 +116,7 @@ const fetchYarn = async () => {
 
   try {
     isLoadingReplies.value = true;
-    const replyHashes = mew.value?.replies.reverse(); // hashes are in ascending temporal order
+    const replyHashes = mew.value?.replies;
     if (!replyHashes) {
       return;
     }

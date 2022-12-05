@@ -76,7 +76,7 @@
     </div>
 
     <q-btn
-      :disable="isNewMewEmpty"
+      :disable="isMewEmpty"
       :loading="saving"
       :tabindex="agentAutocompletions.length && 0"
       color="accent"
@@ -122,7 +122,7 @@ const mewContainer = ref<HTMLDivElement | null>(null);
 
 onMounted(() => setTimeout(focusInputField, 0));
 
-const isNewMewEmpty = ref(true);
+const isMewEmpty = ref(true);
 const saving = ref(false);
 
 const currentAgentSearch = ref("");
@@ -161,14 +161,14 @@ const stripAnchorFromLink = (selection: Selection) => {
 };
 
 const onInput = () =>
-  (isNewMewEmpty.value =
+  (isMewEmpty.value =
     mewContainer.value?.querySelector(".mew-content")?.textContent?.length ===
     0);
 
 const onKeyDown = (keyDownEvent: KeyboardEvent) => {
   if (keyDownEvent.key === "Enter") {
     keyDownEvent.preventDefault();
-    if (keyDownEvent.metaKey && !isNewMewEmpty.value) {
+    if (keyDownEvent.metaKey && !isMewEmpty.value) {
       publishMew();
     }
   } else if (keyDownEvent.key === "ArrowDown") {
@@ -309,6 +309,7 @@ const publishMew = async () => {
   }
   emit("publish-mew");
   mewInput.textContent = "";
+  isMewEmpty.value = true;
   hideAutocompleter();
   focusInputField();
 };
