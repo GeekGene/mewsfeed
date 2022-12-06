@@ -5,7 +5,7 @@
     </q-list>
   </template>
 
-  <template v-else>
+  <template v-else-if="agentFollowees.length">
     <q-list>
       <q-item
         v-for="(followee, index) of agentFollowees"
@@ -25,6 +25,8 @@
       </q-item>
     </q-list>
   </template>
+
+  <EmptyMewsFeed v-else text="No followees yet" />
 </template>
 
 <script setup lang="ts">
@@ -35,6 +37,7 @@ import { showError } from "@/utils/notification";
 import { AgentPubKey } from "@holochain/client";
 import { onMounted, ref, watch } from "vue";
 import AvatarWithPopup from "./AvatarWithPopup.vue";
+import EmptyMewsFeed from "./EmptyMewsFeed.vue";
 import ProfileSkeleton from "./ProfileSkeleton.vue";
 
 interface Followee {
