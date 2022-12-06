@@ -1,4 +1,9 @@
-import { callZome, getFeedMewAndContext, MewsFn } from "@/services/clutter-dna";
+import {
+  callZome,
+  getFeedMewAndContext,
+  mewsFeed,
+  MewsFn,
+} from "@/services/clutter-dna";
 import { CreateMewInput, FeedMew } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
 import { showError } from "@/utils/notification";
@@ -11,7 +16,6 @@ export const MEWS_ZOME_NAME = "mews";
 export const makeUseClutterStore = () => {
   return defineStore("clutter", {
     state: () => ({
-      mewsFetcher: () => Promise.resolve([] as FeedMew[]),
       mewsFeed: [] as FeedMew[],
       isLoadingMewsFeed: false,
     }),
@@ -19,7 +23,7 @@ export const makeUseClutterStore = () => {
       async fetchMewsFeed() {
         try {
           this.isLoadingMewsFeed = true;
-          this.mewsFeed = await this.mewsFetcher();
+          this.mewsFeed = await mewsFeed({ option: "" });
         } catch (error) {
           showError(error);
         } finally {

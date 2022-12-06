@@ -20,9 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { callZome, MewsFn } from "@/services/clutter-dna";
 import { useClutterStore } from "@/stores";
-import { FeedMew } from "@/types/types";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { onMounted } from "vue";
 import CreateMewField from "@/components/CreateMewField.vue";
@@ -30,10 +28,5 @@ import MewList from "@/components/MewList.vue";
 import EmptyMewsFeed from "@/components/EmptyMewsFeed.vue";
 
 const store = useClutterStore();
-
-const mewsFetcher = callZome.bind(null, MewsFn.MewsFeed, {
-  option: "",
-}) as () => Promise<FeedMew[]>;
-store.mewsFetcher = mewsFetcher;
 onMounted(store.fetchMewsFeed);
 </script>
