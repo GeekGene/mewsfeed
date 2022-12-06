@@ -2,7 +2,7 @@
   <q-page :style-fn="pageHeightCorrection">
     <h6 class="q-mt-none q-mb-md">Mews with {{ tagSymbol }}{{ tag }}</h6>
 
-    <MewList />
+    <MewList :mews="mews" :is-loading="isLoading" />
   </q-page>
 </template>
 
@@ -12,15 +12,15 @@ import {
   getMewsWithHashtag,
   getMewsWithMention,
 } from "@/services/clutter-dna";
-import { onMounted, computed, watch } from "vue";
+import { onMounted, computed, watch, ref } from "vue";
 import { useRouter } from "vue-router";
 import MewList from "../components/MewList.vue";
 import { deserializeHash } from "@holochain-open-dev/utils";
 import { TAG_SYMBOLS } from "@/utils/tags";
-import { useClutterStore } from "@/stores";
 import { pageHeightCorrection } from "@/utils/page-layout";
+import { showError } from "@/utils/notification";
+import { FeedMew } from "@/types/types";
 
-const store = useClutterStore();
 const router = useRouter();
 const currentRoute = computed(() => router.currentRoute.value);
 const tagSymbol = computed(() => currentRoute.value.meta.tag);
@@ -35,18 +35,28 @@ const agentPubKey = computed(() =>
     : currentRoute.value.query.agentPubKey
 );
 
+const mews = ref<FeedMew[]>([]);
+const isLoading = ref(false);
+
 const loadMewsFeed = async () => {
-  if (tagSymbol.value === TAG_SYMBOLS.CASHTAG) {
-    return getMewsWithCashtag(tagSymbol.value + tag.value);
-  } else if (tagSymbol.value === TAG_SYMBOLS.HASHTAG) {
-    return getMewsWithHashtag(tagSymbol.value + tag.value);
-  } else {
-    return getMewsWithMention(deserializeHash(agentPubKey.value || ""));
+  try {
+    isLoading.value = true;
+    if (tagSymbol.value === TAG_SYMBOLS.CASHTAG) {
+      mews.value = await getMewsWithCashtag(tagSymbol.value + tag.value);
+    } else if (tagSymbol.value === TAG_SYMBOLS.HASHTAG) {
+      mews.value = await getMewsWithHashtag(tagSymbol.value + tag.value);
+    } else {
+      mews.value = await getMewsWithMention(
+        deserializeHash(agentPubKey.value || "")
+      );
+    }
+  } catch (error) {
+    showError(error);
+  } finally {
+    isLoading.value = false;
   }
 };
 
-store.mewsFetcher = loadMewsFeed;
-
-onMounted(store.fetchMewsFeed);
+onMounted(loadMewsFeed);
 watch(router.currentRoute, loadMewsFeed);
 </script>
