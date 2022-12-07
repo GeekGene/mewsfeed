@@ -5,7 +5,12 @@
     </q-list>
   </template>
 
-  <template v-else-if="followersOfAgent.length">
+  <EmptyMewsFeed
+    v-else-if="followersOfAgent.length == 0"
+    text="No followers yet"
+  />
+
+  <template v-else>
     <q-list>
       <q-item
         v-for="(followee, index) of followersOfAgent"
@@ -25,8 +30,6 @@
       </q-item>
     </q-list>
   </template>
-
-  <EmptyMewsFeed v-else text="No followers yet" />
 </template>
 
 <script setup lang="ts">

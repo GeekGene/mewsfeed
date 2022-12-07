@@ -94,8 +94,6 @@ const onLickMew = async (mewHash: ActionHash) => {
   }
 };
 
-const onPublishMew = async () => fetchYarn();
-
 const getMewHashFromRoute = () =>
   deserializeHash(
     typeof route.params.hash === "string"
@@ -103,7 +101,7 @@ const getMewHashFromRoute = () =>
       : route.params.hash[0]
   );
 
-const fetchYarn = async () => {
+const loadMew = async () => {
   const mewHash = getMewHashFromRoute();
   try {
     isLoadingMew.value = true;
@@ -113,7 +111,9 @@ const fetchYarn = async () => {
   } finally {
     isLoadingMew.value = false;
   }
+};
 
+const loadReplies = async () => {
   try {
     isLoadingReplies.value = true;
     const replyHashes = mew.value?.replies;
@@ -130,11 +130,18 @@ const fetchYarn = async () => {
   }
 };
 
-onMounted(fetchYarn);
+const loadYarn = async () => {
+  await loadMew();
+  loadReplies();
+};
+
+onMounted(loadYarn);
 
 watch(route, (value) => {
   if (value.name === ROUTES.yarn) {
-    fetchYarn();
+    loadYarn();
   }
 });
+
+const onPublishMew = async () => loadYarn();
 </script>
