@@ -1,5 +1,5 @@
 import { useClientStore } from "@/stores";
-import { CLUTTER_ROLE_ID, MEWS_ZOME_NAME } from "@/stores/clutter";
+import { CLUTTER_ROLE_NAME, MEWS_ZOME_NAME } from "@/stores/clutter";
 import { AgentPubKeyB64 } from "@holochain-open-dev/core-types";
 import { deserializeHash } from "@holochain-open-dev/utils";
 import { ActionHash, AgentPubKey, CallZomeRequest } from "@holochain/client";
@@ -30,7 +30,7 @@ export const callZome = async <T>(
   payload: CallZomeRequest["payload"]
 ) => {
   const result: { type: "ok"; data: T } = await useClientStore().callZome({
-    roleId: CLUTTER_ROLE_ID,
+    roleId: CLUTTER_ROLE_NAME,
     zomeName: MEWS_ZOME_NAME,
     fnName,
     payload,
