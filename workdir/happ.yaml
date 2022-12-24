@@ -3,7 +3,7 @@ manifest_version: "1"
 name: clutter
 description: ~
 roles:
-  - id: clutter
+  - name: clutter
     provisioning:
       strategy: create
       deferred: false

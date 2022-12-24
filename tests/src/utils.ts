@@ -3,8 +3,8 @@ import path from "path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export const clutterDna = {
-  path: path.join(__dirname, "../../dnas/clutter/workdir/clutter.dna"),
+export const clutterHapp = {
+  path: path.join(__dirname, "../../workdir/clutter.happ"),
 };
 
 export const sleep = (ms: number) =>
