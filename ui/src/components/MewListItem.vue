@@ -116,7 +116,7 @@ const props = defineProps({
   feedMew: { type: Object as PropType<FeedMew>, required: true },
   onToggleLickMew: {
     type: Function as PropType<(hash: ActionHash) => Promise<void>>,
-    default: () => ({}),
+    required: true,
   },
 });
 

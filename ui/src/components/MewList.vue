@@ -26,7 +26,7 @@ defineProps({
   isLoading: { type: Boolean, required: true },
   onToggleLickMew: {
     type: Function as PropType<(hash: ActionHash) => Promise<void>>,
-    default: () => ({}),
+    required: true,
   },
 });
 </script>

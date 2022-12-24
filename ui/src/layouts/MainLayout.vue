@@ -15,7 +15,7 @@
             @click="onAddMewClick"
           >
             Mew
-            <q-tooltip :delay="TOOLTIP_DELAY">Add a mew</q-tooltip>
+            <q-tooltip :delay="TOOLTIP_DELAY">Create a mew</q-tooltip>
           </q-btn>
           <q-select
             v-model="selection"
