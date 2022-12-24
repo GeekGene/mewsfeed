@@ -2,12 +2,17 @@
   <q-page :style-fn="pageHeightCorrection">
     <h6 class="q-mt-none q-mb-md">Mews with {{ tagSymbol }}{{ tag }}</h6>
 
-    <MewList :mews="mews" :is-loading="isLoading" />
+    <MewList
+      :mews="mews"
+      :is-loading="isLoading"
+      :on-toggle-lick-mew="onToggleLickMew"
+    />
   </q-page>
 </template>
 
 <script setup lang="ts">
 import {
+  getFeedMewAndContext,
   getMewsWithCashtag,
   getMewsWithHashtag,
   getMewsWithMention,
@@ -20,6 +25,8 @@ import { TAG_SYMBOLS } from "@/utils/tags";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { showError } from "@/utils/notification";
 import { FeedMew } from "@/types/types";
+import { ActionHash } from "@holochain/client";
+import { isSameHash } from "@/utils/hash";
 
 const router = useRouter();
 const currentRoute = computed(() => router.currentRoute.value);
@@ -59,4 +66,17 @@ const loadMewsFeed = async () => {
 
 onMounted(loadMewsFeed);
 watch(router.currentRoute, loadMewsFeed);
+
+const onToggleLickMew = async (hash: ActionHash) => {
+  try {
+    const index = mews.value.findIndex((mew) =>
+      isSameHash(hash, mew.actionHash)
+    );
+    if (index !== -1) {
+      mews.value[index] = await getFeedMewAndContext(hash);
+    }
+  } catch (error) {
+    showError(error);
+  }
+};
 </script>

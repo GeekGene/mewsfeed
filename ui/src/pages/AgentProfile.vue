@@ -42,6 +42,7 @@
         v-else
         :is-loading="loadingMews"
         :mews="mews"
+        :on-toggle-lick-mew="onToggleLickMew"
         @refresh="loadMews"
       />
     </div>
@@ -60,7 +61,11 @@ import ButtonFollow from "@/components/ButtonFollow.vue";
 import EmptyMewsFeed from "@/components/EmptyMewsFeed.vue";
 import FolloweesList from "@/components/FolloweesList.vue";
 import FollowersList from "@/components/FollowersList.vue";
-import { mewsBy, myFollowing } from "@/services/clutter-dna";
+import {
+  getFeedMewAndContext,
+  mewsBy,
+  myFollowing,
+} from "@/services/clutter-dna";
 import { useProfilesStore } from "@/services/profiles-store";
 import { FeedMew, PROFILE_FIELDS } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
@@ -68,6 +73,7 @@ import { showError } from "@/utils/notification";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { Profile } from "@holochain-open-dev/profiles";
 import { deserializeHash } from "@holochain-open-dev/utils";
+import { ActionHash } from "@holochain/client";
 import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import MewList from "../components/MewList.vue";
@@ -143,6 +149,19 @@ watch(
     }
   }
 );
+
+const onToggleLickMew = async (hash: ActionHash) => {
+  try {
+    const index = mews.value.findIndex((mew) =>
+      isSameHash(hash, mew.actionHash)
+    );
+    if (index !== -1) {
+      mews.value[index] = await getFeedMewAndContext(hash);
+    }
+  } catch (error) {
+    showError(error);
+  }
+};
 </script>
 
 <style lang="sass">
