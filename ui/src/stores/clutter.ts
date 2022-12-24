@@ -35,11 +35,9 @@ export const makeUseClutterStore = () => {
           const index = this.mewsFeed.findIndex((mew) =>
             isSameHash(actionHash, mew.actionHash)
           );
-          if (index === -1) {
-            return false;
+          if (index !== -1) {
+            this.mewsFeed[index] = await getFeedMewAndContext(actionHash);
           }
-          this.mewsFeed[index] = await getFeedMewAndContext(actionHash);
-          return true;
         } catch (error) {
           showError(error);
         }

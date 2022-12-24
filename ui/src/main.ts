@@ -71,8 +71,6 @@ const initProfileStore = async (client: any) => {
   const holochainClient = IS_HOLO_HOSTED
     ? new HoloClient(client, appInfo)
     : new HolochainClient(client);
-  console.log("hello");
-  client.on("sepp", () => console.log("hello"));
   const cell = appInfo.cell_data.find(
     (cell) => cell.role_name === CLUTTER_ROLE_NAME
   );

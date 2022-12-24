@@ -104,6 +104,7 @@ import { isSameHash } from "@/utils/hash";
 import { useProfileUtils } from "@/utils/profile";
 import { Profile } from "@holochain-open-dev/profiles";
 import { serializeHash } from "@holochain-open-dev/utils";
+import { ActionHash } from "@holochain/client";
 import { QItem, useQuasar } from "quasar";
 import { computed, onMounted, PropType, ref } from "vue";
 import AvatarWithPopup from "./AvatarWithPopup.vue";
@@ -113,6 +114,10 @@ import Timestamp from "./MewTimestamp.vue";
 
 const props = defineProps({
   feedMew: { type: Object as PropType<FeedMew>, required: true },
+  onToggleLickMew: {
+    type: Function as PropType<(hash: ActionHash) => Promise<void>>,
+    default: () => ({}),
+  },
 });
 
 const $q = useQuasar();
@@ -190,7 +195,7 @@ const toggleLickMew = async () => {
   } else {
     await lickMew(props.feedMew.actionHash);
   }
-  await store.reloadMew(props.feedMew.actionHash);
+  await props.onToggleLickMew(props.feedMew.actionHash);
   isUpdatingLick.value = false;
 };
 
