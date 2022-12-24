@@ -10,7 +10,7 @@ import { showError } from "@/utils/notification";
 import { ActionHash } from "@holochain/client";
 import { defineStore } from "pinia";
 
-export const CLUTTER_ROLE_ID = "clutter";
+export const CLUTTER_ROLE_NAME = "clutter";
 export const MEWS_ZOME_NAME = "mews";
 
 export const makeUseClutterStore = () => {

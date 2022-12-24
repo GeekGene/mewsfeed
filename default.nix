@@ -1,7 +1,7 @@
 let
   holonixPath = (import ./nix/sources.nix).holonix;
   holonix = import (holonixPath) {
-    holochainVersionId = "v0_0_170";
+    holochainVersionId = "v0_0_175";
   };
   nixpkgs = holonix.pkgs;
 in

@@ -24,7 +24,7 @@ import {
   NATIVE_INSTALLED_APP_ID,
   useClientStore,
 } from "./stores";
-import { CLUTTER_ROLE_ID } from "./stores/clutter";
+import { CLUTTER_ROLE_NAME } from "./stores/clutter";
 import { PROFILE_FIELDS } from "./types/types";
 
 const app = createApp(App);
@@ -71,8 +71,10 @@ const initProfileStore = async (client: any) => {
   const holochainClient = IS_HOLO_HOSTED
     ? new HoloClient(client, appInfo)
     : new HolochainClient(client);
+  console.log("hello");
+  client.on("sepp", () => console.log("hello"));
   const cell = appInfo.cell_data.find(
-    (cell) => cell.role_id === CLUTTER_ROLE_ID
+    (cell) => cell.role_name === CLUTTER_ROLE_NAME
   );
   if (!cell) {
     throw new Error('Could not find cell "clutter"');
