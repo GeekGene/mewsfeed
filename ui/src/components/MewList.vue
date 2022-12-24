@@ -9,6 +9,7 @@
       :key="index"
       :feed-mew="mew"
       :on-toggle-lick-mew="onToggleLickMew"
+      :on-publish-mew="onPublishMew"
     />
   </q-list>
 </template>
@@ -16,7 +17,7 @@
 <script setup lang="ts">
 import MewListItem from "@/components/MewListItem.vue";
 import MewListSkeleton from "@/components/MewListSkeleton.vue";
-import { FeedMew } from "@/types/types";
+import { CreateMewInput, FeedMew } from "@/types/types";
 import { ActionHash } from "@holochain/client";
 import { PropType } from "vue";
 import EmptyMewsFeed from "./EmptyMewsFeed.vue";
@@ -26,6 +27,10 @@ defineProps({
   isLoading: { type: Boolean, required: true },
   onToggleLickMew: {
     type: Function as PropType<(hash: ActionHash) => Promise<void>>,
+    required: true,
+  },
+  onPublishMew: {
+    type: Function as PropType<(mew?: CreateMewInput) => Promise<void>>,
     required: true,
   },
 });

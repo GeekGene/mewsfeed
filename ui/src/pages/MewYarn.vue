@@ -20,7 +20,7 @@
               v-else
               :feed-mew="mew"
               :on-publish-mew="onPublishMew"
-              :on-lick-mew="onLickMew"
+              :on-toggle-lick-mew="onLickMew"
               class="q-mb-md bg-orange-1"
             />
 
@@ -46,7 +46,7 @@
               :key="index"
               :feed-mew="reply"
               :on-publish-mew="onPublishMew"
-              :on-lick-mew="onLickMew"
+              :on-toggle-lick-mew="onLickMew"
               :content-inset-level="1"
             />
           </q-list>

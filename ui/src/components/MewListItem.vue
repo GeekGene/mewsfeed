@@ -57,7 +57,12 @@
       />
 
       <div>
-        <q-btn :disable="isUpdatingLick" size="sm" flat @click="toggleLickMew">
+        <q-btn
+          :disable="isUpdatingLick"
+          size="sm"
+          flat
+          @click="onToggleLickMew"
+        >
           <q-icon
             name="svguse:/icons.svg#lick"
             :color="isLickedByMe ? 'pink-4' : 'transparent'"
@@ -92,7 +97,6 @@ import {
   unlickMew,
 } from "@/services/clutter-dna";
 import { useProfilesStore } from "@/services/profiles-store";
-import { useClutterStore } from "@/stores";
 import {
   CreateMewInput,
   FeedMew,
@@ -118,11 +122,13 @@ const props = defineProps({
     type: Function as PropType<(hash: ActionHash) => Promise<void>>,
     required: true,
   },
+  onPublishMew: {
+    type: Function as PropType<(mew?: CreateMewInput) => Promise<void>>,
+    required: true,
+  },
 });
 
 const $q = useQuasar();
-
-const store = useClutterStore();
 
 const profilesStore = useProfilesStore();
 const { isCurrentProfile, onAgentClick } = useProfileUtils();
@@ -188,7 +194,7 @@ const onMewClick = () => {
   });
 };
 
-const toggleLickMew = async () => {
+const onToggleLickMew = async () => {
   isUpdatingLick.value = true;
   if (isLickedByMe.value) {
     await unlickMew(props.feedMew.actionHash);
@@ -199,20 +205,12 @@ const toggleLickMew = async () => {
   isUpdatingLick.value = false;
 };
 
-const onPublishMew = () => {
-  if (router.currentRoute.value.name === ROUTES.feed) {
-    store.fetchMewsFeed();
-  } else {
-    router.push({ name: ROUTES.feed });
-  }
-};
-
 const replyToMew = () =>
   $q.dialog({
     component: CreateMewDialog,
     componentProps: {
       mewType: { [MewTypeName.Reply]: props.feedMew.actionHash },
-      onPublishMew,
+      onPublishMew: props.onPublishMew,
       originalMew: props.feedMew,
       originalAuthor: agentProfile.value,
     },
@@ -224,7 +222,7 @@ const mewMew = async () => {
     text: null,
   };
   await createMew(mew);
-  store.fetchMewsFeed();
+  props.onPublishMew();
 };
 
 const quote = () =>
@@ -232,7 +230,7 @@ const quote = () =>
     component: CreateMewDialog,
     componentProps: {
       mewType: { [MewTypeName.Quote]: props.feedMew.actionHash },
-      onPublishMew,
+      onPublishMew: props.onPublishMew,
       originalMew: props.feedMew,
       originalAuthor: agentProfile.value,
     },

@@ -11,20 +11,22 @@
       :mews="store.mewsFeed"
       :is-loading="store.isLoadingMewsFeed"
       :on-toggle-lick-mew="onToggleLickMew"
+      :on-publish-mew="onPublishMew"
     />
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { useClutterStore } from "@/stores";
-import { pageHeightCorrection } from "@/utils/page-layout";
-import { onMounted } from "vue";
 import CreateMewField from "@/components/CreateMewField.vue";
 import MewList from "@/components/MewList.vue";
+import { useClutterStore } from "@/stores";
+import { pageHeightCorrection } from "@/utils/page-layout";
 import { ActionHash } from "@holochain/client";
+import { onMounted } from "vue";
 
 const store = useClutterStore();
 onMounted(store.fetchMewsFeed);
 
 const onToggleLickMew = (hash: ActionHash) => store.reloadMew(hash);
+const onPublishMew = async () => store.fetchMewsFeed();
 </script>

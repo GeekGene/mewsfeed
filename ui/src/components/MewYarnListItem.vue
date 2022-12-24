@@ -111,7 +111,7 @@ const props = defineProps({
     type: Function as PropType<() => Promise<void>>,
     required: true,
   },
-  onLickMew: {
+  onToggleLickMew: {
     type: Function as PropType<(hash: ActionHash) => Promise<void>>,
     required: true,
   },
@@ -193,7 +193,7 @@ const toggleLickMew = async () => {
   } else {
     await lickMew(props.feedMew.actionHash);
   }
-  await props.onLickMew(props.feedMew.actionHash);
+  await props.onToggleLickMew(props.feedMew.actionHash);
   isUpdatingLick.value = false;
 };
 
