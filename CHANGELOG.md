@@ -5,10 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## Unreleased
 
 ### Added
-- Thread view for a mew with all its replies.
 ### Changed
 ### Fixed
 ### Removed
+
+## 2022-12.25 v0.8.0-alpha
+### Added
+- Thread view for a mew with all its replies.
+### Changed
+- Upgrade to Holochain 0.0.175
 
 ## 2022-11-10 v0.7.0-alpha
 
