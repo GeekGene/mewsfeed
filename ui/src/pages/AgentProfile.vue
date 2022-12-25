@@ -43,7 +43,7 @@
         :is-loading="loadingMews"
         :mews="mews"
         :on-toggle-lick-mew="onToggleLickMew"
-        @refresh="loadMews"
+        :on-publish-mew="onPublishMew"
       />
     </div>
 
@@ -67,9 +67,9 @@ import {
   myFollowing,
 } from "@/services/clutter-dna";
 import { useProfilesStore } from "@/services/profiles-store";
-import { FeedMew, PROFILE_FIELDS } from "@/types/types";
+import { FeedMew, MewType, MewTypeName, PROFILE_FIELDS } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
-import { showError } from "@/utils/notification";
+import { showError, showMessage } from "@/utils/notification";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { Profile } from "@holochain-open-dev/profiles";
 import { deserializeHash } from "@holochain-open-dev/utils";
@@ -161,6 +161,17 @@ const onToggleLickMew = async (hash: ActionHash) => {
   } catch (error) {
     showError(error);
   }
+};
+
+const onPublishMew = async (mewType: MewType) => {
+  loadMews();
+  showMessage(
+    MewTypeName.Reply in mewType
+      ? "Replied to mew"
+      : MewTypeName.MewMew in mewType
+      ? "Mew mewmewed"
+      : "Quoted mew"
+  );
 };
 </script>
 
