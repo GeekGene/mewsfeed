@@ -18,12 +18,12 @@
 </template>
 
 <script setup lang="ts">
+import { PATH, ROUTES } from "@/router";
 import { FeedMew, LinkTargetName } from "@/types/types";
 import { TAG_REGEX, TAG_SYMBOLS } from "@/utils/tags";
-import { PATH, ROUTES } from "@/router";
+import { serializeHash } from "@holochain-open-dev/utils";
 import { computed, PropType } from "vue";
 import { RouteLocationRaw } from "vue-router";
-import { serializeHash } from "@holochain-open-dev/utils";
 
 type ContentPart = [string] | [string, RouteLocationRaw];
 

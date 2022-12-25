@@ -100,6 +100,7 @@ import { useProfilesStore } from "@/services/profiles-store";
 import {
   CreateMewInput,
   FeedMew,
+  MewType,
   MewTypeName,
   PROFILE_FIELDS,
   TOOLTIP_DELAY,
@@ -123,7 +124,7 @@ const props = defineProps({
     required: true,
   },
   onPublishMew: {
-    type: Function as PropType<(mew?: CreateMewInput) => Promise<void>>,
+    type: Function as PropType<(mewType: MewType) => Promise<void>>,
     required: true,
   },
 });
@@ -150,7 +151,7 @@ const originalMewHash =
     ? props.feedMew.mew.mewType.reply
     : MewTypeName.Quote in props.feedMew.mew.mewType
     ? props.feedMew.mew.mewType.quote
-    : new Uint8Array();
+    : props.feedMew.mew.mewType.original;
 const originalMew = ref<FeedMew>();
 const originalMewAuthor = ref<Profile>();
 const loadingOriginalMewAuthor = ref<boolean>();
@@ -169,22 +170,22 @@ onMounted(async () => {
   );
   agentProfileReadable.subscribe((profile) => (agentProfile.value = profile));
 
-  if (MewTypeName.Original in props.feedMew.mew.mewType || !originalMew.value) {
+  if (!originalMewHash) {
     return;
   }
   // load original mew author if item is a reply, mewmew or quote
-  loadingOriginalMewAuthor.value = true;
-  profilesStore.value
-    .fetchAgentProfile(originalMew.value.action.author)
-    .then((profileReadable) => {
-      profileReadable.subscribe(
-        (profile) => (originalMewAuthor.value = profile)
-      );
-    })
-    .finally(() => (loadingOriginalMewAuthor.value = false));
-  getFeedMewAndContext(originalMewHash).then(
-    (mew) => (originalMew.value = mew)
-  );
+  getFeedMewAndContext(originalMewHash).then((mew) => {
+    originalMew.value = mew;
+    loadingOriginalMewAuthor.value = true;
+    profilesStore.value
+      .fetchAgentProfile(mew.action.author)
+      .then((profileReadable) => {
+        profileReadable.subscribe(
+          (profile) => (originalMewAuthor.value = profile)
+        );
+      })
+      .finally(() => (loadingOriginalMewAuthor.value = false));
+  });
 });
 
 const onMewClick = () => {
@@ -217,12 +218,13 @@ const replyToMew = () =>
   });
 
 const mewMew = async () => {
+  const mewType = { mewMew: props.feedMew.actionHash };
   const mew: CreateMewInput = {
-    mewType: { mewMew: props.feedMew.actionHash },
+    mewType,
     text: null,
   };
   await createMew(mew);
-  props.onPublishMew();
+  props.onPublishMew(mewType);
 };
 
 const quote = () =>

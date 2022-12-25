@@ -6,6 +6,7 @@
       :mews="mews"
       :is-loading="isLoading"
       :on-toggle-lick-mew="onToggleLickMew"
+      :on-publish-mew="onPublishmew"
     />
   </q-page>
 </template>
@@ -17,16 +18,16 @@ import {
   getMewsWithHashtag,
   getMewsWithMention,
 } from "@/services/clutter-dna";
-import { onMounted, computed, watch, ref } from "vue";
+import { FeedMew, MewType, MewTypeName } from "@/types/types";
+import { isSameHash } from "@/utils/hash";
+import { showError, showMessage } from "@/utils/notification";
+import { pageHeightCorrection } from "@/utils/page-layout";
+import { TAG_SYMBOLS } from "@/utils/tags";
+import { deserializeHash } from "@holochain-open-dev/utils";
+import { ActionHash } from "@holochain/client";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import MewList from "../components/MewList.vue";
-import { deserializeHash } from "@holochain-open-dev/utils";
-import { TAG_SYMBOLS } from "@/utils/tags";
-import { pageHeightCorrection } from "@/utils/page-layout";
-import { showError } from "@/utils/notification";
-import { FeedMew } from "@/types/types";
-import { ActionHash } from "@holochain/client";
-import { isSameHash } from "@/utils/hash";
 
 const router = useRouter();
 const currentRoute = computed(() => router.currentRoute.value);
@@ -78,5 +79,16 @@ const onToggleLickMew = async (hash: ActionHash) => {
   } catch (error) {
     showError(error);
   }
+};
+
+const onPublishmew = async (mewType: MewType) => {
+  loadMewsFeed();
+  showMessage(
+    MewTypeName.Reply in mewType
+      ? "Replied to mew"
+      : MewTypeName.MewMew in mewType
+      ? "Mew mewmewed"
+      : "Quoted mew"
+  );
 };
 </script>

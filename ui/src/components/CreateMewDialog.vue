@@ -44,19 +44,22 @@
 
 <script setup lang="ts">
 import CreateMewField from "@/components/CreateMewField.vue";
-import MewContent from "./MewContent.vue";
 import { useProfilesStore } from "@/services/profiles-store";
 import { FeedMew, MewType, MewTypeName, PROFILE_FIELDS } from "@/types/types";
+import { Profile } from "@holochain-open-dev/profiles";
 import { useDialogPluginComponent } from "quasar";
 import { PropType } from "vue";
-import { Profile } from "@holochain-open-dev/profiles";
+import MewContent from "./MewContent.vue";
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 
 const props = defineProps({
   mewType: { type: Object as PropType<MewType>, required: true },
-  onPublishMew: { type: Function as PropType<() => void>, required: true },
+  onPublishMew: {
+    type: Function as PropType<(mewType: MewType) => void>,
+    required: true,
+  },
   originalMew: { type: Object as PropType<FeedMew>, default: () => ({}) },
   originalAuthor: { type: Object as PropType<Profile>, default: () => ({}) },
 });
@@ -65,7 +68,7 @@ defineEmits([...useDialogPluginComponent.emits]);
 const profilesStore = useProfilesStore();
 
 const _onMewPublish = () => {
-  props.onPublishMew();
+  props.onPublishMew(props.mewType);
   onDialogOK();
 };
 </script>

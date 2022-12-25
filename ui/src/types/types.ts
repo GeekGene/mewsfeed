@@ -63,6 +63,10 @@ export interface FeedMew {
   mewmews: HoloHash[];
 }
 
+export interface FeedOptions {
+  option: string;
+}
+
 export interface NotificationOptions {
   color?: string;
   textColor?: string;
@@ -82,8 +86,4 @@ export interface NotificationOptions {
     | "center";
   actions?: Array<() => void>;
   onDismiss?: () => void;
-}
-
-export interface FeedOptions {
-  option: string;
 }

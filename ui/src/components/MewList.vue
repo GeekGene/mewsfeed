@@ -17,7 +17,7 @@
 <script setup lang="ts">
 import MewListItem from "@/components/MewListItem.vue";
 import MewListSkeleton from "@/components/MewListSkeleton.vue";
-import { CreateMewInput, FeedMew } from "@/types/types";
+import { FeedMew, MewType } from "@/types/types";
 import { ActionHash } from "@holochain/client";
 import { PropType } from "vue";
 import EmptyMewsFeed from "./EmptyMewsFeed.vue";
@@ -30,7 +30,7 @@ defineProps({
     required: true,
   },
   onPublishMew: {
-    type: Function as PropType<(mew?: CreateMewInput) => Promise<void>>,
+    type: Function as PropType<(mewType: MewType) => Promise<void>>,
     required: true,
   },
 });
