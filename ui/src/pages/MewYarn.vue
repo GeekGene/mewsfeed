@@ -20,7 +20,7 @@
               v-else
               :feed-mew="mew"
               :on-publish-mew="onPublishMew"
-              :on-toggle-lick-mew="onLickMew"
+              :on-toggle-lick-mew="onToggleLickMew"
               class="q-mb-md bg-orange-1"
             />
 
@@ -46,7 +46,7 @@
               :key="index"
               :feed-mew="reply"
               :on-publish-mew="onPublishMew"
-              :on-toggle-lick-mew="onLickMew"
+              :on-toggle-lick-mew="onToggleLickMew"
               :content-inset-level="1"
             />
           </q-list>
@@ -82,7 +82,7 @@ const isLoadingMew = ref(false);
 const replies = ref<FeedMew[]>([]);
 const isLoadingReplies = ref(false);
 
-const onLickMew = async (mewHash: ActionHash) => {
+const onToggleLickMew = async (mewHash: ActionHash) => {
   const feedMew = await getFeedMewAndContext(mewHash);
   const replyIndex = replies.value.findIndex((r) =>
     isSameHash(r.actionHash, mewHash)

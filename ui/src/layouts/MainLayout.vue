@@ -1,7 +1,7 @@
 <template>
   <q-layout view="hHh lpr fFf">
     <q-header elevated class="row justify-center">
-      <q-toolbar class="col-12 col-md-6 col-xl-4">
+      <q-toolbar class="col-12 col-md-6 col-xl-5">
         <q-tabs v-model="tab" dense inline-label class="col-grow">
           <q-route-tab :to="{ name: ROUTES.home }">
             <q-icon name="svguse:/icons.svg#cat" size="lg" />
@@ -86,7 +86,7 @@
 
     <q-page-container class="row q-mt-xl bg-white">
       <q-space />
-      <router-view class="col-12 col-md-6 col-xl-4" />
+      <router-view class="col-12 col-md-6 col-xl-5" />
       <q-space />
     </q-page-container>
   </q-layout>

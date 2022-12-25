@@ -173,9 +173,9 @@ onMounted(async () => {
   if (!originalMewHash) {
     return;
   }
-  // load original mew author if item is a reply, mewmew or quote
   getFeedMewAndContext(originalMewHash).then((mew) => {
     originalMew.value = mew;
+    // load original mew author
     loadingOriginalMewAuthor.value = true;
     profilesStore.value
       .fetchAgentProfile(mew.action.author)

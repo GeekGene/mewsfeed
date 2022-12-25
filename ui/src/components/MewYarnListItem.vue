@@ -48,7 +48,7 @@
       </div>
 
       <MewContent
-        :feed-mew="feedMew"
+        :feed-mew="isMewMew && originalMew ? originalMew : feedMew"
         class="q-my-sm cursor-pointer"
         @click="onMewClick(feedMew)"
       />
@@ -82,9 +82,13 @@
 
 <script setup lang="ts">
 import { ROUTES } from "@/router";
-import { createMew, lickMew, unlickMew } from "@/services/clutter-dna";
+import {
+  createMew,
+  getFeedMewAndContext,
+  lickMew,
+  unlickMew,
+} from "@/services/clutter-dna";
 import { useProfilesStore } from "@/services/profiles-store";
-import { useClutterStore } from "@/stores";
 import {
   CreateMewInput,
   FeedMew,
@@ -120,7 +124,6 @@ const props = defineProps({
 
 const $q = useQuasar();
 
-const store = useClutterStore();
 const router = useRouter();
 
 const profilesStore = useProfilesStore();
@@ -143,10 +146,8 @@ const originalMewHash =
     ? props.feedMew.mew.mewType.reply
     : MewTypeName.Quote in props.feedMew.mew.mewType
     ? props.feedMew.mew.mewType.quote
-    : new Uint8Array();
-const originalMew = computed(() =>
-  store.mewsFeed.find((m) => isSameHash(m.actionHash, originalMewHash))
-);
+    : props.feedMew.mew.mewType.original;
+const originalMew = ref<FeedMew>();
 const originalMewAuthor = ref<Profile>();
 const loadingOriginalMewAuthor = ref<boolean>();
 const reactionLabel = computed(() =>
@@ -164,19 +165,22 @@ onMounted(async () => {
   );
   agentProfileReadable.subscribe((profile) => (agentProfile.value = profile));
 
-  if (MewTypeName.Original in props.feedMew.mew.mewType || !originalMew.value) {
+  if (!originalMewHash) {
     return;
   }
-  // load original mew author if item is a reply, mewmew or quote
-  loadingOriginalMewAuthor.value = true;
-  profilesStore.value
-    .fetchAgentProfile(originalMew.value.action.author)
-    .then((profileReadable) => {
-      profileReadable.subscribe(
-        (profile) => (originalMewAuthor.value = profile)
-      );
-    })
-    .finally(() => (loadingOriginalMewAuthor.value = false));
+  getFeedMewAndContext(originalMewHash).then((mew) => {
+    originalMew.value = mew;
+    // load original mew author
+    loadingOriginalMewAuthor.value = true;
+    profilesStore.value
+      .fetchAgentProfile(mew.action.author)
+      .then((profileReadable) => {
+        profileReadable.subscribe(
+          (profile) => (originalMewAuthor.value = profile)
+        );
+      })
+      .finally(() => (loadingOriginalMewAuthor.value = false));
+  });
 });
 
 const onMewClick = (mew: FeedMew) => {
