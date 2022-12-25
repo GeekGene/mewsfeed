@@ -1,68 +1,82 @@
 <template>
-  <base-dialog class="mew-dialog" @close="onClose">
-    <template #title>
-      <div class="text-subtitle1 text-medium">
-        <slot name="title" />
-      </div>
-    </template>
+  <q-dialog ref="dialogRef" @hide="onDialogHide">
+    <q-card class="q-dialog-plugin dialog">
+      <q-card-section class="q-pb-sm">
+        <div class="row justify-between items-center">
+          <div class="text-subtitle1 text-medium">
+            <template v-if="MewTypeName.Original in mewType">
+              Create a mew:
+            </template>
+            <template v-if="MewTypeName.Reply in mewType">Reply to </template>
+            <template v-if="MewTypeName.Quote in mewType">Quote </template>
 
-    <template #content>
-      <div class="q-mb-md text-subtitle1">
-        <slot name="content" />
-      </div>
+            <template
+              v-if="
+                MewTypeName.Reply in mewType || MewTypeName.Quote in mewType
+              "
+            >
+              <span class="q-mr-xs text-primary text-bold">{{
+                originalAuthor.fields[PROFILE_FIELDS.DISPLAY_NAME]
+              }}</span>
+              <span>@{{ originalAuthor.nickname }}</span>
+            </template>
+          </div>
+          <q-btn icon="close" flat round dense @click="onDialogCancel" />
+        </div>
+      </q-card-section>
 
-      <profiles-context :store="profilesStore">
-        <CreateMewField
-          :mew-type="mewType"
-          :saving="saving"
-          @publish-mew="onPublishMew"
-        />
-      </profiles-context>
-    </template>
-  </base-dialog>
+      <q-card-section
+        v-if="MewTypeName.Reply in mewType || MewTypeName.Quote in mewType"
+      >
+        <div class="q-mb-md text-subtitle1 text-grey-7">
+          <mew-content :feed-mew="originalMew" />
+        </div>
+      </q-card-section>
+
+      <q-card-section>
+        <profiles-context :store="profilesStore">
+          <CreateMewField :mew-type="mewType" @publish-mew="_onMewPublish" />
+        </profiles-context>
+      </q-card-section>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup lang="ts">
-import BaseDialog from "@/components/BaseDialog.vue";
 import CreateMewField from "@/components/CreateMewField.vue";
-import { ROUTES } from "@/router";
 import { useProfilesStore } from "@/services/profiles-store";
-import { useClutterStore } from "@/stores";
-import { CreateMewInput, MewType } from "@/types/types";
-import { showError } from "@/utils/notification";
-import { PropType, ref } from "vue";
-import { useRouter } from "vue-router";
+import { FeedMew, MewType, MewTypeName, PROFILE_FIELDS } from "@/types/types";
+import { Profile } from "@holochain-open-dev/profiles";
+import { useDialogPluginComponent } from "quasar";
+import { PropType } from "vue";
+import MewContent from "./MewContent.vue";
 
-defineProps({ mewType: { type: Object as PropType<MewType>, required: true } });
-const emit = defineEmits<{ (e: "mew-created"): void; (e: "close"): void }>();
-const onClose = () => emit("close");
+const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
+  useDialogPluginComponent();
 
-const clutterStore = useClutterStore();
+const props = defineProps({
+  mewType: { type: Object as PropType<MewType>, required: true },
+  onPublishMew: {
+    type: Function as PropType<(mewType: MewType) => void>,
+    required: true,
+  },
+  originalMew: { type: Object as PropType<FeedMew>, default: () => ({}) },
+  originalAuthor: { type: Object as PropType<Profile>, default: () => ({}) },
+});
+defineEmits([...useDialogPluginComponent.emits]);
+
 const profilesStore = useProfilesStore();
-const router = useRouter();
-const saving = ref(false);
 
-const onPublishMew = async (mew: CreateMewInput) => {
-  try {
-    saving.value = true;
-    await useClutterStore().createMew(mew);
-    emit("mew-created");
-    if (router.currentRoute.value.name === ROUTES.feed) {
-      clutterStore.fetchMewsFeed();
-    } else {
-      router.push({ name: ROUTES.feed });
-    }
-    onClose();
-  } catch (error) {
-    showError(error);
-  } finally {
-    saving.value = false;
-  }
+const _onMewPublish = () => {
+  props.onPublishMew(props.mewType);
+  onDialogOK();
 };
 </script>
 
-<style lang="sass">
-.mew-dialog
-  .q-card.dialog
-    overflow: visible
+<style lang="sass" scoped>
+.dialog
+  min-width: 400px
+  max-width: 600px
+  max-height: calc(100vh - 100px)
+  overflow: visible
 </style>

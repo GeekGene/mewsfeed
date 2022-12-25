@@ -1,5 +1,5 @@
 <template>
-  <q-page class="row">
+  <q-page class="row" :style-fn="pageHeightCorrection">
     <div class="col-8">
       <h6 class="q-mt-none q-mb-md">Profile</h6>
       <q-spinner-pie v-if="loadingProfile" size="10%" color="primary" />
@@ -37,7 +37,14 @@
       </q-card>
 
       <h6 class="q-mb-md">Mews</h6>
-      <MewList :loading="loadingMews" :mews="mews" @refresh="loadMews" />
+      <EmptyMewsFeed v-if="!loadingMews && mews.length === 0" />
+      <MewList
+        v-else
+        :is-loading="loadingMews"
+        :mews="mews"
+        :on-toggle-lick-mew="onToggleLickMew"
+        :on-publish-mew="onPublishMew"
+      />
     </div>
 
     <div class="follow-col col self-start q-pl-xl q-pr-md">
@@ -51,15 +58,22 @@
 
 <script setup lang="ts">
 import ButtonFollow from "@/components/ButtonFollow.vue";
+import EmptyMewsFeed from "@/components/EmptyMewsFeed.vue";
 import FolloweesList from "@/components/FolloweesList.vue";
 import FollowersList from "@/components/FollowersList.vue";
-import { mewsBy, myFollowing } from "@/services/clutter-dna";
+import {
+  getFeedMewAndContext,
+  mewsBy,
+  myFollowing,
+} from "@/services/clutter-dna";
 import { useProfilesStore } from "@/services/profiles-store";
-import { FeedMew, PROFILE_FIELDS } from "@/types/types";
-import { isSameAgentPubKey } from "@/utils/hash";
-import { showError } from "@/utils/notification";
+import { FeedMew, MewType, MewTypeName, PROFILE_FIELDS } from "@/types/types";
+import { isSameHash } from "@/utils/hash";
+import { showError, showMessage } from "@/utils/notification";
+import { pageHeightCorrection } from "@/utils/page-layout";
 import { Profile } from "@holochain-open-dev/profiles";
 import { deserializeHash } from "@holochain-open-dev/utils";
+import { ActionHash } from "@holochain/client";
 import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import MewList from "../components/MewList.vue";
@@ -83,7 +97,7 @@ const isFollowing = ref(false);
 const mews = ref<FeedMew[]>([]);
 
 const isMyProfile = computed(() =>
-  isSameAgentPubKey(agentPubKey.value, profilesStore.value.myAgentPubKey)
+  isSameHash(agentPubKey.value, profilesStore.value.myAgentPubKey)
 );
 
 const loadMews = async () => {
@@ -129,12 +143,36 @@ onMounted(load);
 
 watch(
   () => route.params.agent,
-  () => {
-    if (route.params.agent) {
+  (value) => {
+    if (value) {
       load();
     }
   }
 );
+
+const onToggleLickMew = async (hash: ActionHash) => {
+  try {
+    const index = mews.value.findIndex((mew) =>
+      isSameHash(hash, mew.actionHash)
+    );
+    if (index !== -1) {
+      mews.value[index] = await getFeedMewAndContext(hash);
+    }
+  } catch (error) {
+    showError(error);
+  }
+};
+
+const onPublishMew = async (mewType: MewType) => {
+  loadMews();
+  showMessage(
+    MewTypeName.Reply in mewType
+      ? "Replied to mew"
+      : MewTypeName.MewMew in mewType
+      ? "Mew mewmewed"
+      : "Quoted mew"
+  );
+};
 </script>
 
 <style lang="sass">

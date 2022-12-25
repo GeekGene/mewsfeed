@@ -30,7 +30,7 @@ export const callZome = async <T>(
   payload: CallZomeRequest["payload"]
 ) => {
   const result: { type: "ok"; data: T } = await useClientStore().callZome({
-    roleId: CLUTTER_ROLE_NAME,
+    roleName: CLUTTER_ROLE_NAME,
     zomeName: MEWS_ZOME_NAME,
     fnName,
     payload,

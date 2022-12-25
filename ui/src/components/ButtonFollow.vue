@@ -19,7 +19,7 @@
 import { follow, myFollowing, unfollow } from "@/services/clutter-dna";
 import { useProfilesStore } from "@/services/profiles-store";
 import { PROFILE_FIELDS } from "@/types/types";
-import { isSameAgentPubKey } from "@/utils/hash";
+import { isSameHash } from "@/utils/hash";
 import { showError, showMessage } from "@/utils/notification";
 import { Profile } from "@holochain-open-dev/profiles";
 import { AgentPubKey } from "@holochain/client";
@@ -42,7 +42,7 @@ onMounted(async () => {
     loading.value = true;
     const currentMyFollowing = await myFollowing();
     following.value = currentMyFollowing.some((agent) =>
-      isSameAgentPubKey(agent, props.agentPubKey)
+      isSameHash(agent, props.agentPubKey)
     );
   } catch (error) {
     showError(error);

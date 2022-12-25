@@ -45,7 +45,7 @@ export type ClientStore = StoreDefinition<
   {
     isReady: boolean;
     callZome: (params: {
-      roleId: string;
+      roleName: string;
       zomeName: string;
       fnName: string;
       payload: any;

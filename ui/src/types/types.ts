@@ -6,6 +6,8 @@ export const PROFILE_FIELDS = {
   LOCATION: "Location",
 };
 
+export const TOOLTIP_DELAY = 400;
+
 export enum LinkTargetName {
   Mention = "Mention",
 }
@@ -61,6 +63,10 @@ export interface FeedMew {
   mewmews: HoloHash[];
 }
 
+export interface FeedOptions {
+  option: string;
+}
+
 export interface NotificationOptions {
   color?: string;
   textColor?: string;
@@ -80,8 +86,4 @@ export interface NotificationOptions {
     | "center";
   actions?: Array<() => void>;
   onDismiss?: () => void;
-}
-
-export interface FeedOptions {
-  option: string;
 }

@@ -1,24 +1,33 @@
 <template>
-  <q-page>
+  <q-page :style-fn="pageHeightCorrection">
     <h6 class="q-mt-none q-mb-md">Mews with {{ tagSymbol }}{{ tag }}</h6>
 
-    <MewList :loading="loading" :mews="mews" @refresh="loadMewsFeed" />
+    <MewList
+      :mews="mews"
+      :is-loading="isLoading"
+      :on-toggle-lick-mew="onToggleLickMew"
+      :on-publish-mew="onPublishmew"
+    />
   </q-page>
 </template>
 
 <script setup lang="ts">
 import {
+  getFeedMewAndContext,
   getMewsWithCashtag,
   getMewsWithHashtag,
   getMewsWithMention,
 } from "@/services/clutter-dna";
-import { onMounted, computed, ref, watch } from "vue";
-import { FeedMew } from "@/types/types";
-import { showError } from "@/utils/notification";
+import { FeedMew, MewType, MewTypeName } from "@/types/types";
+import { isSameHash } from "@/utils/hash";
+import { showError, showMessage } from "@/utils/notification";
+import { pageHeightCorrection } from "@/utils/page-layout";
+import { TAG_SYMBOLS } from "@/utils/tags";
+import { deserializeHash } from "@holochain-open-dev/utils";
+import { ActionHash } from "@holochain/client";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import MewList from "../components/MewList.vue";
-import { deserializeHash } from "@holochain-open-dev/utils";
-import { TAG_SYMBOLS } from "@/utils/tags";
 
 const router = useRouter();
 const currentRoute = computed(() => router.currentRoute.value);
@@ -34,17 +43,17 @@ const agentPubKey = computed(() =>
     : currentRoute.value.query.agentPubKey
 );
 
-const loading = ref(false);
 const mews = ref<FeedMew[]>([]);
+const isLoading = ref(false);
 
 const loadMewsFeed = async () => {
   try {
-    loading.value = true;
+    isLoading.value = true;
     if (tagSymbol.value === TAG_SYMBOLS.CASHTAG) {
       mews.value = await getMewsWithCashtag(tagSymbol.value + tag.value);
     } else if (tagSymbol.value === TAG_SYMBOLS.HASHTAG) {
       mews.value = await getMewsWithHashtag(tagSymbol.value + tag.value);
-    } else if (tagSymbol.value === TAG_SYMBOLS.MENTION) {
+    } else {
       mews.value = await getMewsWithMention(
         deserializeHash(agentPubKey.value || "")
       );
@@ -52,10 +61,34 @@ const loadMewsFeed = async () => {
   } catch (error) {
     showError(error);
   } finally {
-    loading.value = false;
+    isLoading.value = false;
   }
 };
 
 onMounted(loadMewsFeed);
 watch(router.currentRoute, loadMewsFeed);
+
+const onToggleLickMew = async (hash: ActionHash) => {
+  try {
+    const index = mews.value.findIndex((mew) =>
+      isSameHash(hash, mew.actionHash)
+    );
+    if (index !== -1) {
+      mews.value[index] = await getFeedMewAndContext(hash);
+    }
+  } catch (error) {
+    showError(error);
+  }
+};
+
+const onPublishmew = async (mewType: MewType) => {
+  loadMewsFeed();
+  showMessage(
+    MewTypeName.Reply in mewType
+      ? "Replied to mew"
+      : MewTypeName.MewMew in mewType
+      ? "Mew mewmewed"
+      : "Quoted mew"
+  );
+};
 </script>

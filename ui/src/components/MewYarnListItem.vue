@@ -1,5 +1,5 @@
 <template>
-  <q-item class="items-start">
+  <q-item :inset-level="contentInsetLevel" class="items-start">
     <q-item-section avatar>
       <avatar-with-popup :agent-pub-key="feedMew.action.author" />
     </q-item-section>
@@ -24,45 +24,37 @@
             type="text"
             width="4rem"
           />
-          <template v-else-if="originalMew && originalMewAuthor">
-            <span class="q-mr-xs text-secondary">
-              {{ reactionLabel }}
+          <router-link
+            v-else-if="originalMew && originalMewAuthor"
+            :to="{
+              name: ROUTES.profiles,
+              params: { agent: serializeHash(originalMew.action.author) },
+            }"
+            class="text-secondary"
+          >
+            {{ reactionLabel }}
+            <span class="text-bold">
+              {{ originalMewAuthor.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
             </span>
-            <router-link
-              :to="{
-                name: ROUTES.profiles,
-                params: { agent: serializeHash(originalMew.action.author) },
-              }"
-              class="text-secondary"
-            >
-              <span class="text-bold">
-                {{ originalMewAuthor.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
-              </span>
-              @{{ originalMewAuthor.nickname }}
-            </router-link>
-          </template>
+            @{{ originalMewAuthor.nickname }}
+          </router-link>
         </span>
 
         <q-space />
 
         <span class="q-ml-md text-caption">
-          <timestamp :timestamp="feedMew.action.timestamp" />
+          <Timestamp :timestamp="feedMew.action.timestamp" />
         </span>
       </div>
 
-      <mew-content
-        :feed-mew="originalMew && isMewMew ? originalMew : feedMew"
+      <MewContent
+        :feed-mew="isMewMew && originalMew ? originalMew : feedMew"
         class="q-my-sm cursor-pointer"
-        @click="onMewClick"
+        @click="onMewClick(feedMew)"
       />
 
       <div>
-        <q-btn
-          :disable="isUpdatingLick"
-          size="sm"
-          flat
-          @click="onToggleLickMew"
-        >
+        <q-btn :disable="isUpdatingLick" size="sm" flat @click="toggleLickMew">
           <q-icon
             name="svguse:/icons.svg#lick"
             :color="isLickedByMe ? 'pink-4' : 'transparent'"
@@ -89,7 +81,7 @@
 </template>
 
 <script setup lang="ts">
-import router, { ROUTES } from "@/router";
+import { ROUTES } from "@/router";
 import {
   createMew,
   getFeedMewAndContext,
@@ -100,7 +92,6 @@ import { useProfilesStore } from "@/services/profiles-store";
 import {
   CreateMewInput,
   FeedMew,
-  MewType,
   MewTypeName,
   PROFILE_FIELDS,
   TOOLTIP_DELAY,
@@ -110,8 +101,9 @@ import { useProfileUtils } from "@/utils/profile";
 import { Profile } from "@holochain-open-dev/profiles";
 import { serializeHash } from "@holochain-open-dev/utils";
 import { ActionHash } from "@holochain/client";
-import { QItem, useQuasar } from "quasar";
+import { useQuasar } from "quasar";
 import { computed, onMounted, PropType, ref } from "vue";
+import { useRouter } from "vue-router";
 import AvatarWithPopup from "./AvatarWithPopup.vue";
 import CreateMewDialog from "./CreateMewDialog.vue";
 import MewContent from "./MewContent.vue";
@@ -119,17 +111,20 @@ import Timestamp from "./MewTimestamp.vue";
 
 const props = defineProps({
   feedMew: { type: Object as PropType<FeedMew>, required: true },
+  onPublishMew: {
+    type: Function as PropType<() => Promise<void>>,
+    required: true,
+  },
   onToggleLickMew: {
     type: Function as PropType<(hash: ActionHash) => Promise<void>>,
     required: true,
   },
-  onPublishMew: {
-    type: Function as PropType<(mewType: MewType) => Promise<void>>,
-    required: true,
-  },
+  contentInsetLevel: { type: Number, default: undefined },
 });
 
 const $q = useQuasar();
+
+const router = useRouter();
 
 const profilesStore = useProfilesStore();
 const { isCurrentProfile, onAgentClick } = useProfileUtils();
@@ -188,14 +183,14 @@ onMounted(async () => {
   });
 });
 
-const onMewClick = () => {
+const onMewClick = (mew: FeedMew) => {
   router.push({
     name: ROUTES.yarn,
-    params: { hash: serializeHash(props.feedMew.actionHash) },
+    params: { hash: serializeHash(mew.actionHash) },
   });
 };
 
-const onToggleLickMew = async () => {
+const toggleLickMew = async () => {
   isUpdatingLick.value = true;
   if (isLickedByMe.value) {
     await unlickMew(props.feedMew.actionHash);
@@ -218,13 +213,12 @@ const replyToMew = () =>
   });
 
 const mewMew = async () => {
-  const mewType = { mewMew: props.feedMew.actionHash };
   const mew: CreateMewInput = {
-    mewType,
+    mewType: { mewMew: props.feedMew.actionHash },
     text: null,
   };
   await createMew(mew);
-  props.onPublishMew(mewType);
+  props.onPublishMew();
 };
 
 const quote = () =>
