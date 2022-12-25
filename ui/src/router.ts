@@ -12,6 +12,7 @@ export const ROUTES = {
   myProfile: "myProfile",
   profiles: "profiles",
   feed: "feed",
+  yarn: "yarn",
   [PATH[TAG_SYMBOLS.CASHTAG]]: PATH[TAG_SYMBOLS.CASHTAG],
   [PATH[TAG_SYMBOLS.HASHTAG]]: PATH[TAG_SYMBOLS.HASHTAG],
   [PATH[TAG_SYMBOLS.MENTION]]: PATH[TAG_SYMBOLS.MENTION],
@@ -37,6 +38,11 @@ const routes: RouteRecordRaw[] = [
     path: "/feed",
     name: ROUTES.feed,
     component: () => import("./pages/MewsFeed.vue"),
+  },
+  {
+    path: "/yarn/:hash",
+    name: ROUTES.yarn,
+    component: () => import("./pages/MewYarn.vue"),
   },
   {
     path: `/${PATH[TAG_SYMBOLS.CASHTAG]}/:tag`,

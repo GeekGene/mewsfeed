@@ -13,7 +13,7 @@ import { ProfilesService, ProfilesStore } from "@holochain-open-dev/profiles";
 import { AppInfoResponse } from "@holochain/client";
 import "@quasar/extras/material-icons/material-icons.css";
 import { createPinia } from "pinia";
-import { Notify, Quasar } from "quasar";
+import { Dialog, Notify, Quasar } from "quasar";
 import "quasar/src/css/index.sass";
 import { createApp, ref, watch } from "vue";
 import App from "./App.vue";
@@ -30,7 +30,7 @@ import { PROFILE_FIELDS } from "./types/types";
 const app = createApp(App);
 app.use(router);
 app.use(Quasar, {
-  plugins: { Notify },
+  plugins: { Dialog, Notify },
 });
 app.use(createPinia());
 
@@ -71,8 +71,6 @@ const initProfileStore = async (client: any) => {
   const holochainClient = IS_HOLO_HOSTED
     ? new HoloClient(client, appInfo)
     : new HolochainClient(client);
-  console.log("hello");
-  client.on("sepp", () => console.log("hello"));
   const cell = appInfo.cell_data.find(
     (cell) => cell.role_name === CLUTTER_ROLE_NAME
   );

@@ -1,10 +1,11 @@
 <template>
   <q-layout view="hHh lpr fFf">
     <q-header elevated class="row justify-center">
-      <q-toolbar class="col-12 col-md-6">
+      <q-toolbar class="col-12 col-md-6 col-xl-5">
         <q-tabs v-model="tab" dense inline-label class="col-grow">
           <q-route-tab :to="{ name: ROUTES.home }">
             <q-icon name="svguse:/icons.svg#cat" size="lg" />
+            <q-tooltip :delay="TOOLTIP_DELAY">Den</q-tooltip>
           </q-route-tab>
 
           <q-btn
@@ -14,8 +15,8 @@
             @click="onAddMewClick"
           >
             Mew
+            <q-tooltip :delay="TOOLTIP_DELAY">Create a mew</q-tooltip>
           </q-btn>
-
           <q-select
             v-model="selection"
             :options="options"
@@ -32,12 +33,26 @@
             dark
             class="col q-mx-md"
             :options-dark="false"
-            dense
             @filter="search"
             @update:model-value="onAgentSelect"
           >
             <template #prepend>
               <q-icon name="search" color="white" />
+            </template>
+            <template #option="item">
+              <profiles-context :store="profilesStore">
+                <q-item clickable v-bind="item.itemProps" dense class="q-py-sm">
+                  <q-item-section avatar>
+                    <agent-avatar
+                      :agentPubKey="item.opt.agentPubKey"
+                      size="40"
+                    />
+                  </q-item-section>
+                  <q-item-section class="text-body2">
+                    {{ item.opt.label }}
+                  </q-item-section>
+                </q-item>
+              </profiles-context>
             </template>
             <template #no-option>
               <q-item>
@@ -63,6 +78,7 @@
               :agentPubKey="profilesStore.myAgentPubKey"
               size="40"
             />
+            <q-tooltip :delay="TOOLTIP_DELAY">Your profile</q-tooltip>
           </q-route-tab>
         </q-tabs>
       </q-toolbar>
@@ -70,42 +86,50 @@
 
     <q-page-container class="row q-mt-xl bg-white">
       <q-space />
-      <router-view class="col-12 col-md-6" />
+      <router-view class="col-12 col-md-6 col-xl-5" />
       <q-space />
     </q-page-container>
-
-    <create-mew-dialog
-      v-if="isCreatingMew"
-      :mew-type="{ original: null }"
-      @close="isCreatingMew = false"
-    >
-      <template #title>Create a mew:</template>
-    </create-mew-dialog>
   </q-layout>
 </template>
 
 <script setup lang="ts">
-import { useProfilesStore } from "@/services/profiles-store";
-import { QSelectOption } from "quasar";
-import { useRouter } from "vue-router";
-import { ref } from "vue";
-import { showError } from "@/utils/notification";
-import { ROUTES } from "@/router";
 import CreateMewDialog from "@/components/CreateMewDialog.vue";
+import { ROUTES } from "@/router";
+import { useProfilesStore } from "@/services/profiles-store";
+import { useClutterStore } from "@/stores";
+import { MewTypeName, PROFILE_FIELDS, TOOLTIP_DELAY } from "@/types/types";
+import { showError } from "@/utils/notification";
 import { serializeHash } from "@holochain-open-dev/utils";
-import { PROFILE_FIELDS } from "@/types/types";
+import { AgentPubKey } from "@holochain/client";
+import { QSelectOption, useQuasar } from "quasar";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 
+const $q = useQuasar();
+
+const store = useClutterStore();
 const profilesStore = useProfilesStore();
 const router = useRouter();
 const tab = ref("");
 
 const searching = ref(false);
-const options = ref<QSelectOption[]>([]);
+const options = ref<Array<QSelectOption & { agentPubKey: AgentPubKey }>>([]);
 const selection = ref<QSelectOption | null>(null);
 const searchTerm = ref("");
 
-const isCreatingMew = ref(false);
-const onAddMewClick = () => (isCreatingMew.value = true);
+const onPublishMew = () => {
+  if (router.currentRoute.value.name === ROUTES.feed) {
+    store.fetchMewsFeed();
+  } else {
+    router.push({ name: ROUTES.feed });
+  }
+};
+
+const onAddMewClick = () =>
+  $q.dialog({
+    component: CreateMewDialog,
+    componentProps: { mewType: { [MewTypeName.Original]: null }, onPublishMew },
+  });
 
 const search = (
   inputValue: string,
@@ -123,6 +147,7 @@ const search = (
         );
         options.value = profilesMap.entries().map(([key, value]) => ({
           value: serializeHash(key),
+          agentPubKey: key,
           label: `${value.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
             value.nickname
           })`,

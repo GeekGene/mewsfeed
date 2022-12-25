@@ -3,7 +3,7 @@
     <div ref="mewContainer" class="text-left" style="position: relative">
       <q-card
         contenteditable="true"
-        class="mew-content text-body1 q-mb-md q-pa-md"
+        class="mew-content text-body1 q-pa-md"
         bordered
         flat
         @keydown="onKeyDown"
@@ -12,6 +12,22 @@
         @paste="onPaste"
         @input="onInput"
       />
+
+      <q-icon name="help" color="grey" size="xs" class="help-text">
+        <q-tooltip
+          class="text-body2"
+          anchor="top middle"
+          self="bottom middle"
+          :delay="TOOLTIP_DELAY"
+        >
+          You can mention people with @ and use #hashtags and $cashtags in a
+          mew.
+        </q-tooltip>
+      </q-icon>
+
+      <div class="q-mb-xs text-right text-caption text-grey">
+        Ctrl/Cmd + Enter to publish
+      </div>
 
       <q-card class="autocompleter">
         <template v-if="currentAgentSearch.length < 3">
@@ -60,7 +76,7 @@
     </div>
 
     <q-btn
-      :disable="isNewMewEmpty || saving"
+      :disable="isMewEmpty"
       :loading="saving"
       :tabindex="agentAutocompletions.length && 0"
       color="accent"
@@ -72,27 +88,27 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { useProfilesStore } from "@/services/profiles-store";
+import { useClutterStore } from "@/stores";
+import { showError } from "@/utils/notification";
+import { Profile } from "@holochain-open-dev/profiles";
+import { debounce } from "quasar";
+import { onMounted, PropType, ref } from "vue";
 import {
   CreateMewInput,
   LinkTarget,
   LinkTargetName,
   MewType,
   PROFILE_FIELDS,
+  TOOLTIP_DELAY,
 } from "../types/types";
-import { PropType } from "vue";
-import { showError } from "@/utils/notification";
-import { useProfilesStore } from "@/services/profiles-store";
-import { Profile } from "@holochain-open-dev/profiles";
-import { debounce } from "quasar";
 
 const ANCHOR_DATA_ID_AGENT_PUB_KEY = "agentPubKey";
 
-const emit = defineEmits<{ (e: "publish-mew", mew: CreateMewInput): void }>();
+const emit = defineEmits<{ (e: "publish-mew"): void }>();
 
 const props = defineProps({
   mewType: { type: Object as PropType<MewType>, required: true },
-  saving: { type: Boolean, default: false },
 });
 
 interface AgentAutocompletion {
@@ -100,24 +116,14 @@ interface AgentAutocompletion {
   value: Profile;
 }
 
+const store = useClutterStore();
 const profilesStore = useProfilesStore();
 const mewContainer = ref<HTMLDivElement | null>(null);
 
-onMounted(() => {
-  // focus mew input field
-  setTimeout(
-    () =>
-      document
-        .getSelection()
-        ?.setPosition(
-          mewContainer.value?.querySelector(".mew-content") || null,
-          0
-        ),
-    0
-  );
-});
-const isNewMewEmpty = ref(true);
-const saving = computed(() => props.saving);
+onMounted(() => setTimeout(focusInputField, 0));
+
+const isMewEmpty = ref(true);
+const saving = ref(false);
 
 const currentAgentSearch = ref("");
 let currentAnchorOffset: number;
@@ -127,6 +133,11 @@ let currentNode: Node;
 const AUTOCOMPLETER_MARGIN_TOP = 20;
 const agentAutocompletions = ref<AgentAutocompletion[]>([]);
 const autocompleterLoading = ref(false);
+
+const focusInputField = () =>
+  document
+    .getSelection()
+    ?.setPosition(mewContainer.value?.querySelector(".mew-content") || null, 0);
 
 const hideAutocompleter = () => {
   const autocompleter = mewContainer.value?.querySelector(".autocompleter");
@@ -150,14 +161,14 @@ const stripAnchorFromLink = (selection: Selection) => {
 };
 
 const onInput = () =>
-  (isNewMewEmpty.value =
+  (isMewEmpty.value =
     mewContainer.value?.querySelector(".mew-content")?.textContent?.length ===
     0);
 
 const onKeyDown = (keyDownEvent: KeyboardEvent) => {
   if (keyDownEvent.key === "Enter") {
     keyDownEvent.preventDefault();
-    if (keyDownEvent.metaKey && !isNewMewEmpty.value) {
+    if (keyDownEvent.metaKey && !isMewEmpty.value) {
       publishMew();
     }
   } else if (keyDownEvent.key === "ArrowDown") {
@@ -258,7 +269,7 @@ const onAutocompleteAgentSelect = (agent: AgentAutocompletion) => {
   document.getSelection()?.setPosition(spaceNode, 1);
 };
 
-const publishMew = () => {
+const publishMew = async () => {
   const mewInput = mewContainer.value?.querySelector(".mew-content");
   if (!mewInput) {
     return;
@@ -285,11 +296,22 @@ const publishMew = () => {
 
   const createMewInput: CreateMewInput = {
     mewType: props.mewType,
-    text: mewInput.textContent,
+    text: mewInput.textContent ? mewInput.textContent.trim() : null,
     links: mentions.length ? mentions : undefined,
   };
-  emit("publish-mew", createMewInput);
+  try {
+    saving.value = true;
+    await store.createMew(createMewInput);
+  } catch (error) {
+    showError(error);
+  } finally {
+    saving.value = false;
+  }
+  emit("publish-mew");
   mewInput.textContent = "";
+  isMewEmpty.value = true;
+  hideAutocompleter();
+  focusInputField();
 };
 
 const onCaretPositionChange = () => {
@@ -363,12 +385,19 @@ const debouncedOnCaretPositionChange = debounce(onCaretPositionChange, 300);
 
 <style lang="sass">
 .mew-content
-  height: $body-font-size * $body-line-height * 2
+  min-height: $body-font-size * $body-line-height * 2
+
   &:focus
     outline-color: $primary
   a
     color: $secondary
     font-weight: 600
+
+.help-text
+  position: absolute
+  cursor: default
+  top: 5px
+  right: 5px
 
 .autocompleter
   position: absolute

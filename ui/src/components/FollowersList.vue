@@ -5,6 +5,11 @@
     </q-list>
   </template>
 
+  <EmptyMewsFeed
+    v-else-if="followersOfAgent.length == 0"
+    text="No followers yet"
+  />
+
   <template v-else>
     <q-list>
       <q-item
@@ -35,6 +40,7 @@ import { showError } from "@/utils/notification";
 import { AgentPubKey } from "@holochain/client";
 import { onMounted, ref, watch } from "vue";
 import AvatarWithPopup from "./AvatarWithPopup.vue";
+import EmptyMewsFeed from "./EmptyMewsFeed.vue";
 import ProfileSkeleton from "./ProfileSkeleton.vue";
 
 interface Follower {

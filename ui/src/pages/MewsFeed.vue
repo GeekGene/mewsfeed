@@ -1,43 +1,32 @@
 <template>
-  <q-page class="q-pb-lg">
-    <CreateMewField :mew-type="{ original: null }" @publish-mew="publishMew" />
+  <q-page class="q-pb-lg" :style-fn="pageHeightCorrection">
+    <CreateMewField
+      :mew-type="{ original: null }"
+      @publish-mew="store.fetchMewsFeed"
+    />
 
     <h6 class="q-mb-md">Your Mews Feed</h6>
 
-    <q-banner
-      v-if="!store.isLoadingMewsFeed && store.mewsFeed.length === 0"
-      class="bg-grey-3"
-      dense
-      rounded
-    >
-      <template #avatar>
-        <q-icon name="pets" color="accent" />
-      </template>
-      <div class="text-subtitle1">Meeoow, nothing here yet!</div>
-    </q-banner>
-
     <MewList
-      v-else
-      :loading="store.isLoadingMewsFeed"
       :mews="store.mewsFeed"
-      @refresh="store.fetchMewsFeed"
+      :is-loading="store.isLoadingMewsFeed"
+      :on-toggle-lick-mew="onToggleLickMew"
+      :on-publish-mew="onPublishMew"
     />
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
-import { CreateMewInput } from "../types/types";
+import CreateMewField from "@/components/CreateMewField.vue";
+import MewList from "@/components/MewList.vue";
 import { useClutterStore } from "@/stores";
-import CreateMewField from "../components/CreateMewField.vue";
-import MewList from "../components/MewList.vue";
+import { pageHeightCorrection } from "@/utils/page-layout";
+import { ActionHash } from "@holochain/client";
+import { onMounted } from "vue";
 
 const store = useClutterStore();
+onMounted(store.fetchMewsFeed);
 
-onMounted(() => store.fetchMewsFeed());
-
-const publishMew = async (newMew: CreateMewInput) => {
-  await store.createMew(newMew);
-  store.fetchMewsFeed();
-};
+const onToggleLickMew = (hash: ActionHash) => store.reloadMew(hash);
+const onPublishMew = async () => store.fetchMewsFeed();
 </script>
