@@ -29,6 +29,17 @@
         Ctrl/Cmd + Enter to publish
       </div>
 
+      <q-card class="link-text q-px-md q-py-sm" style="min-width: 13rem">
+        <q-input
+          v-model="linkText"
+          type="text"
+          placeholder="Link description (optional)"
+          dense
+          borderless
+          @keyup="onLinkTextKeyDown"
+        />
+      </q-card>
+
       <q-card class="autocompleter">
         <template v-if="currentAgentSearch.length < 3">
           <q-card-section>Min. 3 letters</q-card-section>
@@ -61,9 +72,8 @@
                 <agent-avatar :agentPubKey="agent.key" size="30" />
               </q-item-section>
               <q-item-section>
-                {{ agent.value.fields[PROFILE_FIELDS.DISPLAY_NAME] }} @{{
-                  agent.value.nickname
-                }}
+                {{ agent.value.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
+                {{ TAG_SYMBOLS.MENTION }}{{ agent.value.nickname }}
               </q-item-section>
             </q-item>
 
@@ -91,6 +101,7 @@
 import { useProfilesStore } from "@/services/profiles-store";
 import { useClutterStore } from "@/stores";
 import { showError } from "@/utils/notification";
+import { TAG_SYMBOLS } from "@/utils/tags";
 import { Profile } from "@holochain-open-dev/profiles";
 import { debounce } from "quasar";
 import { onMounted, PropType, ref } from "vue";
@@ -104,6 +115,7 @@ import {
 } from "../types/types";
 
 const ANCHOR_DATA_ID_AGENT_PUB_KEY = "agentPubKey";
+const ANCHOR_DATA_ID_URL = "url";
 
 const emit = defineEmits<{ (e: "publish-mew"): void }>();
 
@@ -125,12 +137,14 @@ onMounted(() => setTimeout(focusInputField, 0));
 const isMewEmpty = ref(true);
 const saving = ref(false);
 
+const linkText = ref("");
+
 const currentAgentSearch = ref("");
 let currentAnchorOffset: number;
 let currentFocusOffset: number;
 let currentNode: Node;
 
-const AUTOCOMPLETER_MARGIN_TOP = 20;
+const POPUP_MARGIN_TOP = 20;
 const agentAutocompletions = ref<AgentAutocompletion[]>([]);
 const autocompleterLoading = ref(false);
 
@@ -139,10 +153,10 @@ const focusInputField = () =>
     .getSelection()
     ?.setPosition(mewContainer.value?.querySelector(".mew-content") || null, 0);
 
-const hideAutocompleter = () => {
-  const autocompleter = mewContainer.value?.querySelector(".autocompleter");
-  if (autocompleter && autocompleter instanceof HTMLElement) {
-    autocompleter.style.display = "none";
+const hideElement = (selector: string) => {
+  const element = mewContainer.value?.querySelector(selector);
+  if (element && element instanceof HTMLElement) {
+    element.style.display = "none";
   }
 };
 
@@ -187,7 +201,8 @@ const onKeyUp = (keyUpEvent: KeyboardEvent) => {
   const content = keyUpEvent.currentTarget.textContent;
   const selection = document.getSelection();
   if (keyUpEvent.key === " ") {
-    hideAutocompleter();
+    hideElement(".autocompleter");
+    hideElement(".link-text");
   } else if (
     (keyUpEvent.key === "Backspace" || keyUpEvent.key === "Delete") &&
     selection?.anchorNode?.parentElement?.tagName === "A"
@@ -199,7 +214,7 @@ const onKeyUp = (keyUpEvent: KeyboardEvent) => {
   }
 };
 
-const onMouseUp = () => hideAutocompleter();
+const onMouseUp = () => hideElement(".autocompleter");
 
 const onPaste = (event: ClipboardEvent) => {
   event.preventDefault();
@@ -222,6 +237,30 @@ const loadAutocompleterUsers = async (nickname: string) => {
     showError(error);
   } finally {
     autocompleterLoading.value = false;
+  }
+};
+
+const onLinkTextKeyDown = (keyDownEvent: KeyboardEvent) => {
+  if (keyDownEvent.key === "Enter") {
+    const range = new Range();
+    range.setStart(currentNode, currentAnchorOffset);
+    range.setEnd(currentNode, currentFocusOffset);
+    const url = range.extractContents().textContent;
+
+    const anchor = document.createElement("a");
+    anchor.href = "#";
+    anchor.textContent = linkText.value
+      ? TAG_SYMBOLS.URL + linkText.value
+      : url;
+    anchor.dataset[ANCHOR_DATA_ID_URL] = url ?? undefined;
+    range.insertNode(anchor);
+    // insert space after link
+    const spaceNode = document.createTextNode(String.fromCharCode(160));
+    anchor.after(spaceNode);
+
+    hideElement(".link-text");
+    document.getSelection()?.setPosition(spaceNode, 1);
+    linkText.value = "";
   }
 };
 
@@ -258,14 +297,14 @@ const onAutocompleteAgentSelect = (agent: AgentAutocompletion) => {
   range.setEnd(currentNode, currentFocusOffset);
   const anchor = document.createElement("a");
   anchor.href = "#";
-  anchor.textContent = "@" + agent.value.nickname;
+  anchor.textContent = TAG_SYMBOLS.MENTION + agent.value.nickname;
   anchor.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY] = agent.key.toString();
   range.deleteContents();
   range.insertNode(anchor);
   // insert space after mention
   const spaceNode = document.createTextNode(String.fromCharCode(160));
   anchor.after(spaceNode);
-  hideAutocompleter();
+  hideElement(".autocompleter");
   document.getSelection()?.setPosition(spaceNode, 1);
 };
 
@@ -276,28 +315,32 @@ const publishMew = async () => {
   }
 
   // build link array
-  const mentions: LinkTarget[] = [];
+  const links: LinkTarget[] = [];
   for (let i = 0; i < mewInput.children.length; i++) {
     const element = mewInput.children.item(i);
     if (
       element &&
       element.tagName === "A" &&
-      element instanceof HTMLAnchorElement &&
-      element.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY]
+      element instanceof HTMLAnchorElement
     ) {
-      const agentPubKeyString = element.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY];
-      // dunno why this is an error; an array is array-like
-      // eslint-disable-next-line
-      // @ts-ignore
-      const agentPubKey = Uint8Array.from(agentPubKeyString.split(","));
-      mentions.push({ [LinkTargetName.Mention]: agentPubKey });
+      if (element.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY]) {
+        const agentPubKeyString = element.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY];
+        // dunno why this is an error; an array is array-like
+        // eslint-disable-next-line
+        // @ts-ignore
+        const agentPubKey = Uint8Array.from(agentPubKeyString.split(","));
+        links.push({ [LinkTargetName.Mention]: agentPubKey });
+      } else if (element.dataset[ANCHOR_DATA_ID_URL]) {
+        const url = element.dataset[ANCHOR_DATA_ID_URL];
+        links.push({ [LinkTargetName.URL]: url });
+      }
     }
   }
 
   const createMewInput: CreateMewInput = {
     mewType: props.mewType,
     text: mewInput.textContent ? mewInput.textContent.trim() : null,
-    links: mentions.length ? mentions : undefined,
+    links: links.length ? links : undefined,
   };
   try {
     saving.value = true;
@@ -310,7 +353,7 @@ const publishMew = async () => {
   emit("publish-mew");
   mewInput.textContent = "";
   isMewEmpty.value = true;
-  hideAutocompleter();
+  hideElement(".autocompleter");
   focusInputField();
 };
 
@@ -341,32 +384,10 @@ const onCaretPositionChange = () => {
   const startOfWordIndex = lastSpaceIndex === -1 ? 0 : lastSpaceIndex + 1;
   const currentWord = content.substring(startOfWordIndex, endOfWordIndex);
 
-  if (
-    currentWord.length &&
-    currentWord.startsWith("@") &&
-    /^@\w+/.test(currentWord) &&
-    selection.anchorNode
-  ) {
+  if (currentWord.length && selection.anchorNode) {
     // current word starts with @ and is followed by at least another word character
-    const range = new Range();
-    range.setStart(selection.anchorNode, startOfWordIndex);
-    currentNode = selection.anchorNode;
-    const selectionRect = range.getBoundingClientRect();
-    const autocompleter = mewContainer.value?.querySelector(".autocompleter");
-    if (autocompleter instanceof HTMLElement && mewContainer.value) {
-      autocompleter.style.top =
-        Math.max(
-          0,
-          selectionRect.top - mewContainer.value.getBoundingClientRect().top
-        ) +
-        AUTOCOMPLETER_MARGIN_TOP +
-        "px";
-      autocompleter.style.left =
-        Math.max(
-          0,
-          selectionRect.left - mewContainer.value.getBoundingClientRect().left
-        ) + "px";
-      autocompleter.style.display = "block";
+    if (new RegExp(`^${TAG_SYMBOLS.MENTION}\\w+`).test(currentWord)) {
+      showElement(selection.anchorNode, startOfWordIndex, ".autocompleter");
 
       const nicknameChars = currentWord.substring(1);
       currentAgentSearch.value = nicknameChars;
@@ -375,12 +396,49 @@ const onCaretPositionChange = () => {
         currentAnchorOffset = startOfWordIndex;
         currentFocusOffset = endOfWordIndex;
       }
+      // current word is a hyper link
+    } else if (
+      new RegExp(`^\\${TAG_SYMBOLS.URL}https?://\\w+\\.\\S{2,}`).test(
+        currentWord
+      )
+    ) {
+      showElement(selection.anchorNode, startOfWordIndex, ".link-text");
+      currentAnchorOffset = startOfWordIndex;
+      currentFocusOffset = endOfWordIndex;
     }
   } else {
-    hideAutocompleter();
+    hideElement(".autocompleter");
+    hideElement(".link-text");
   }
 };
 const debouncedOnCaretPositionChange = debounce(onCaretPositionChange, 300);
+
+const showElement = (
+  anchorNode: Node,
+  startOfWordIndex: number,
+  selector: string
+) => {
+  const range = new Range();
+  range.setStart(anchorNode, startOfWordIndex);
+  currentNode = anchorNode;
+  const selectionRect = range.getBoundingClientRect();
+  const element = mewContainer.value?.querySelector(selector);
+  if (element instanceof HTMLElement && mewContainer.value) {
+    element.style.top =
+      Math.max(
+        0,
+        selectionRect.top - mewContainer.value.getBoundingClientRect().top
+      ) +
+      POPUP_MARGIN_TOP +
+      "px";
+    element.style.left =
+      Math.max(
+        0,
+        selectionRect.left - mewContainer.value.getBoundingClientRect().left
+      ) + "px";
+    element.style.display = "block";
+  }
+};
 </script>
 
 <style lang="sass">
@@ -399,7 +457,7 @@ const debouncedOnCaretPositionChange = debounce(onCaretPositionChange, 300);
   top: 5px
   right: 5px
 
-.autocompleter
+.autocompleter, .link-text
   position: absolute
   display: none
   z-index: 1

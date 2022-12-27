@@ -10,11 +10,16 @@ export const TOOLTIP_DELAY = 400;
 
 export enum LinkTargetName {
   Mention = "Mention",
+  URL = "URL",
 }
 
-export type LinkTarget = {
-  [LinkTargetName.Mention]: AgentPubKey;
-};
+export type LinkTarget =
+  | {
+      [LinkTargetName.Mention]: AgentPubKey;
+    }
+  | {
+      [LinkTargetName.URL]: string;
+    };
 
 export type CreateMewInput = {
   mewType: MewType;
