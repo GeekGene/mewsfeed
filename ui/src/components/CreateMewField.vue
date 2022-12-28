@@ -20,8 +20,8 @@
           self="bottom middle"
           :delay="TOOLTIP_DELAY"
         >
-          You can mention people with @ and use #hashtags and $cashtags in a
-          mew.
+          You can mention people with @ and use #hashtags and $cashtags as well
+          as ^links in a mew.
         </q-tooltip>
       </q-icon>
 
@@ -201,8 +201,8 @@ const onKeyUp = (keyUpEvent: KeyboardEvent) => {
   const content = keyUpEvent.currentTarget.textContent;
   const selection = document.getSelection();
   if (keyUpEvent.key === " ") {
-    hideElement(".autocompleter");
-    hideElement(".link-text");
+    hideAutocompleter();
+    hideLinkTextInput();
   } else if (
     (keyUpEvent.key === "Backspace" || keyUpEvent.key === "Delete") &&
     selection?.anchorNode?.parentElement?.tagName === "A"
@@ -214,7 +214,10 @@ const onKeyUp = (keyUpEvent: KeyboardEvent) => {
   }
 };
 
-const onMouseUp = () => hideElement(".autocompleter");
+const onMouseUp = () => {
+  hideAutocompleter();
+  hideLinkTextInput();
+};
 
 const onPaste = (event: ClipboardEvent) => {
   event.preventDefault();
@@ -223,6 +226,8 @@ const onPaste = (event: ClipboardEvent) => {
     const pastedNode = document.createTextNode(data);
     document.getSelection()?.getRangeAt(0).insertNode(pastedNode);
     document.getSelection()?.setPosition(pastedNode, pastedNode.length);
+    onCaretPositionChange();
+    onInput();
   }
 };
 
@@ -258,7 +263,7 @@ const onLinkTextKeyDown = (keyDownEvent: KeyboardEvent) => {
     const spaceNode = document.createTextNode(String.fromCharCode(160));
     anchor.after(spaceNode);
 
-    hideElement(".link-text");
+    hideLinkTextInput();
     document.getSelection()?.setPosition(spaceNode, 1);
     linkText.value = "";
   }
@@ -304,7 +309,7 @@ const onAutocompleteAgentSelect = (agent: AgentAutocompletion) => {
   // insert space after mention
   const spaceNode = document.createTextNode(String.fromCharCode(160));
   anchor.after(spaceNode);
-  hideElement(".autocompleter");
+  hideAutocompleter();
   document.getSelection()?.setPosition(spaceNode, 1);
 };
 
@@ -353,7 +358,7 @@ const publishMew = async () => {
   emit("publish-mew");
   mewInput.textContent = "";
   isMewEmpty.value = true;
-  hideElement(".autocompleter");
+  hideAutocompleter();
   focusInputField();
 };
 
@@ -371,7 +376,7 @@ const onCaretPositionChange = () => {
   const endOfWordIndex = selection.anchorOffset + endOfAheadIndex;
 
   // find start of word that the caret is positioned at
-  const behind = content.substring(0, selection.anchorOffset);
+  const behind = content.substring(0, selection.anchorOffset - 1);
   let lastSpaceIndex = -1;
   // find last index of space, which can be " " (32) or "&nbsp;" (160)
   for (let i = behind.length - 1; i >= 0; i--) {
@@ -396,19 +401,15 @@ const onCaretPositionChange = () => {
         currentAnchorOffset = startOfWordIndex;
         currentFocusOffset = endOfWordIndex;
       }
-      // current word is a hyper link
-    } else if (
-      new RegExp(`^\\${TAG_SYMBOLS.URL}https?://\\w+\\.\\S{2,}`).test(
-        currentWord
-      )
-    ) {
+      // current word is a URL
+    } else if (URL_REGEX.test(currentWord)) {
       showElement(selection.anchorNode, startOfWordIndex, ".link-text");
       currentAnchorOffset = startOfWordIndex;
       currentFocusOffset = endOfWordIndex;
+    } else {
+      hideAutocompleter();
+      hideLinkTextInput();
     }
-  } else {
-    hideElement(".autocompleter");
-    hideElement(".link-text");
   }
 };
 const debouncedOnCaretPositionChange = debounce(onCaretPositionChange, 300);
@@ -439,6 +440,11 @@ const showElement = (
     element.style.display = "block";
   }
 };
+const hideAutocompleter = hideElement.bind(null, ".autocompleter");
+const hideLinkTextInput = hideElement.bind(null, ".link-text");
+const URL_REGEX = new RegExp(
+  `^(http[s]?:\\/\\/(www\\.)?|www\\.){1}([0-9A-Za-z-\\.@:%_\\+~#=]+)+((\\.[a-zA-Z]{2,3})+)(/(.)*)?(\\?(.)*)?`
+);
 </script>
 
 <style lang="sass">
