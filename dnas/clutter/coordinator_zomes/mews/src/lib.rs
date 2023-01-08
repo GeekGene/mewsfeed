@@ -497,6 +497,7 @@ fn create_mew_tag_links(path_stem: &str, content: &str, mew_hash: ActionHash) ->
      // Link from Path cashtags.mytag -> mew
      let path = Path::from(format!("{}.{}", path_stem, content));
      let path_hash = path.path_entry_hash()?;
+     path.typed(LinkTypes::Tag)?.ensure()?;
      let _link_ah = create_link(path_hash.clone(), mew_hash, LinkTypes::Tag, ())?;
  
      // Create Path for sliced hashtag (first 3 characters) under hashtags_search.myt
@@ -508,6 +509,7 @@ fn create_mew_tag_links(path_stem: &str, content: &str, mew_hash: ActionHash) ->
 
      let search_path = Path::from(format!("tags_search.{}.{}", path_stem, prefix));
      let search_path_hash = search_path.path_entry_hash()?;
+     search_path.typed(LinkTypes::TagPrefix)?.ensure()?;
      let _link_search_tag = create_link(search_path_hash, path_hash.clone(), LinkTypes::TagPrefix, tag_word.as_bytes().to_vec())?;
 
     Ok(())
