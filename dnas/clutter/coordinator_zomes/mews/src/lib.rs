@@ -476,8 +476,8 @@ pub fn search_cashtags(query: String) -> ExternResult<Vec<String>> {
 }
 
 fn search_tags(path_stem: String, content: String) -> ExternResult<Vec<String>> {
-    let prefix = &content[0..3];
-    let path = Path::from(format!("tags_search.{}.{}", path_stem, prefix));
+    let prefix: String = content.chars().take(3).collect();
+    let path = Path::from(format!("{}_search.{}", path_stem, prefix));
 
     let links = get_links(path.path_entry_hash()?, LinkTypes::TagPrefix, None)?;
 
@@ -494,23 +494,22 @@ fn search_tags(path_stem: String, content: String) -> ExternResult<Vec<String>> 
 }
 
 fn create_mew_tag_links(path_stem: &str, content: &str, mew_hash: ActionHash) -> ExternResult<()> {
-     // Link from Path cashtags.mytag -> mew
-     let path = Path::from(format!("{}.{}", path_stem, content));
-     let path_hash = path.path_entry_hash()?;
-     path.typed(LinkTypes::Tag)?.ensure()?;
-     let _link_ah = create_link(path_hash.clone(), mew_hash, LinkTypes::Tag, ())?;
+    // Link from Path cashtags.mytag -> mew
+    let path = Path::from(format!("{}_search.{}", path_stem, content));
+    let path_hash = path.path_entry_hash()?;
+    path.typed(LinkTypes::Tag)?.ensure()?;
+    let _link_ah = create_link(path_hash.clone(), mew_hash, LinkTypes::Tag, ())?;
  
-     // Create Path for sliced hashtag (first 3 characters) under hashtags_search.myt
-     // Link from Path hashtags.myt -> hashtags.mytag Path 
-     let tag_word =  &content[1..];
-     let tag_lowercase = content.to_lowercase();
-     let tag_lowercase_word =  &tag_lowercase[1..];
-     let (prefix, _) = tag_lowercase_word.split_at(3);
-
-     let search_path = Path::from(format!("tags_search.{}.{}", path_stem, prefix));
-     let search_path_hash = search_path.path_entry_hash()?;
-     search_path.typed(LinkTypes::TagPrefix)?.ensure()?;
-     let _link_search_tag = create_link(search_path_hash, path_hash.clone(), LinkTypes::TagPrefix, tag_word.as_bytes().to_vec())?;
+    // Create Path for sliced hashtag (first 3 characters) under hashtags_search.myt
+    // Link from Path hashtags.myt -> hashtags.mytag Path 
+    let word: String =  content.chars().skip(1).collect();
+    let word_lowercase = word.to_lowercase();
+    let prefix: String = word_lowercase.chars().take(3).collect();
+ 
+    let search_path = Path::from(format!("{}_search.{}", path_stem, prefix));
+    let search_path_hash = search_path.path_entry_hash()?;
+    search_path.typed(LinkTypes::TagPrefix)?.ensure()?;
+    let _link_search_tag = create_link(search_path_hash, path_hash.clone(), LinkTypes::TagPrefix, word.as_bytes().to_vec())?;
 
     Ok(())
 }
