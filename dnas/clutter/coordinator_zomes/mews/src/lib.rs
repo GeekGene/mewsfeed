@@ -453,11 +453,12 @@ pub fn parse_mew_text(mew_content: MewContent, mew_hash: ActionHash) -> ExternRe
     
         // Create Path for sliced hashtag (first 3 characters) under hashtags_search.myt
         // Link from hashtags.myt Path -> hashtags.mytag Path 
-        let mat_lowercase = mat.as_str().to_lowercase();
-        let (prefix, _) = mat_lowercase[1..].split_at(3);
+        let tag_lowercase = mat.as_str().to_lowercase();
+        let tag_lowercase_word =  &tag_lowercase[1..];
+        let (prefix, _) = tag_lowercase_word.split_at(3);
         let search_path = Path::from(format!("tags_search.hashtags.{}", prefix));
         let search_path_hash = search_path.path_entry_hash()?;
-        let _link_search_tag = create_link(search_path_hash, path_hash.clone(), LinkTypes::TagPrefix, hashtag.as_bytes().to_vec())?;
+        let _link_search_tag = create_link(search_path_hash, path_hash.clone(), LinkTypes::TagPrefix, tag_lowercase_word.as_bytes().to_vec())?;
     }
     for mat in cashtag_regex.find_iter(&mew_content.text.clone()) {
         // Link from Path cashtags.mytag -> mew
@@ -468,11 +469,12 @@ pub fn parse_mew_text(mew_content: MewContent, mew_hash: ActionHash) -> ExternRe
     
         // Create Path for sliced hashtag (first 3 characters) under hashtags_search.myt
         // Link from Path hashtags.myt -> hashtags.mytag Path 
-        let mat_lowercase = mat.as_str().to_lowercase();
-        let (prefix, _) = mat_lowercase[1..].split_at(3);
+        let tag_lowercase = mat.as_str().to_lowercase();
+        let tag_lowercase_word =  &tag_lowercase[1..];
+        let (prefix, _) = tag_lowercase_word.split_at(3);
         let search_path = Path::from(format!("tags_search.cashtags.{}", prefix));
         let search_path_hash = search_path.path_entry_hash()?;
-        let _link_search_tag = create_link(search_path_hash, path_hash.clone(), LinkTypes::TagPrefix, cashtag.as_bytes().to_vec())?;
+        let _link_search_tag = create_link(search_path_hash, path_hash.clone(), LinkTypes::TagPrefix, tag_lowercase_word.as_bytes().to_vec())?;
     }
     if let Some(links) = mew_content.links {
         for link in links {
