@@ -445,36 +445,10 @@ pub fn parse_mew_text(mew_content: MewContent, mew_hash: ActionHash) -> ExternRe
     let hashtag_regex = Regex::new(r"#\w+").unwrap();
     let cashtag_regex = Regex::new(r"\$\w+").unwrap();
     for mat in hashtag_regex.find_iter(&mew_content.text.clone()) {
-        // Link from hashtags.mytag Path -> mew
-        let hashtag = mat.as_str();
-        let path = Path::from(format!("hashtags.{}", hashtag));
-        let path_hash = path.path_entry_hash()?;
-        let _link_ah = create_link(path_hash.clone(), mew_hash.clone(), LinkTypes::Tag, ())?;
-    
-        // Create Path for sliced hashtag (first 3 characters) under hashtags_search.myt
-        // Link from hashtags.myt Path -> hashtags.mytag Path 
-        let tag_lowercase = mat.as_str().to_lowercase();
-        let tag_lowercase_word =  &tag_lowercase[1..];
-        let (prefix, _) = tag_lowercase_word.split_at(3);
-        let search_path = Path::from(format!("tags_search.hashtags.{}", prefix));
-        let search_path_hash = search_path.path_entry_hash()?;
-        let _link_search_tag = create_link(search_path_hash, path_hash.clone(), LinkTypes::TagPrefix, tag_lowercase_word.as_bytes().to_vec())?;
+        create_mew_tag_links("hashtags", mat.as_str(), mew_hash.clone())?;
     }
     for mat in cashtag_regex.find_iter(&mew_content.text.clone()) {
-        // Link from Path cashtags.mytag -> mew
-        let cashtag = mat.as_str();
-        let path = Path::from(format!("cashtags.{}", cashtag));
-        let path_hash = path.path_entry_hash()?;
-        let _link_ah = create_link(path_hash.clone(), mew_hash.clone(), LinkTypes::Tag, ())?;
-    
-        // Create Path for sliced hashtag (first 3 characters) under hashtags_search.myt
-        // Link from Path hashtags.myt -> hashtags.mytag Path 
-        let tag_lowercase = mat.as_str().to_lowercase();
-        let tag_lowercase_word =  &tag_lowercase[1..];
-        let (prefix, _) = tag_lowercase_word.split_at(3);
-        let search_path = Path::from(format!("tags_search.cashtags.{}", prefix));
-        let search_path_hash = search_path.path_entry_hash()?;
-        let _link_search_tag = create_link(search_path_hash, path_hash.clone(), LinkTypes::TagPrefix, tag_lowercase_word.as_bytes().to_vec())?;
+       create_mew_tag_links("cashtags", mat.as_str(), mew_hash.clone())?;
     }
     if let Some(links) = mew_content.links {
         for link in links {
@@ -517,4 +491,24 @@ fn search_tags(path_stem: String, content: String) -> ExternResult<Vec<String>> 
         .collect();
 
     Ok(tags)
+}
+
+fn create_mew_tag_links(path_stem: &str, content: &str, mew_hash: ActionHash) -> ExternResult<()> {
+     // Link from Path cashtags.mytag -> mew
+     let path = Path::from(format!("{}.{}", path_stem, content));
+     let path_hash = path.path_entry_hash()?;
+     let _link_ah = create_link(path_hash.clone(), mew_hash, LinkTypes::Tag, ())?;
+ 
+     // Create Path for sliced hashtag (first 3 characters) under hashtags_search.myt
+     // Link from Path hashtags.myt -> hashtags.mytag Path 
+     let tag_word =  &content[1..];
+     let tag_lowercase = content.to_lowercase();
+     let tag_lowercase_word =  &tag_lowercase[1..];
+     let (prefix, _) = tag_lowercase_word.split_at(3);
+
+     let search_path = Path::from(format!("tags_search.{}.{}", path_stem, prefix));
+     let search_path_hash = search_path.path_entry_hash()?;
+     let _link_search_tag = create_link(search_path_hash, path_hash.clone(), LinkTypes::TagPrefix, tag_word.as_bytes().to_vec())?;
+
+    Ok(())
 }
