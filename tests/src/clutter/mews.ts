@@ -259,6 +259,75 @@ test("Hashtag, cashtag and mention", async (t) => {
   await scenario.cleanUp();
 });
 
+test("Search - should return hashtags and cashtags", async (t) => {
+  const scenario = new Scenario();
+  const alice = await scenario.addPlayerWithHappBundle(clutterHapp);
+  const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
+
+  const mewContent =
+    "My Mew with #hashtag #سعيدة #😃😃😃 and $cashtag and @mention";
+  const createMewInput: CreateMewInput = {
+    mewType: {
+      original: null,
+    },
+    text: mewContent,
+    links: [{ [LinkTargetName.Mention]: alice.agentPubKey }],
+  };
+
+  const mewHash: ActionHash = await aliceCallMewsZome(
+    "create_mew",
+    createMewInput
+  );
+  t.deepEqual(
+    mewHash.slice(0, 3),
+    Buffer.from([132, 41, 36]),
+    "alice created a valid mew"
+  );
+
+  await pause(100);
+
+  const hashtags: string[] = await aliceCallMewsZome(
+    "search_hashtags",
+    "has"
+  );
+  t.ok(hashtags.length === 1, "one hashtag");
+  t.equal(
+    hashtags[0],
+    "hashtag",
+    "hashtag search result matches"
+  );
+
+  const arabicHashtags: string[] = await aliceCallMewsZome(
+    "search_hashtags",
+    "سعي"
+  );
+  t.ok(arabicHashtags.length === 1, "one arabic hashtag");
+  t.equal(
+    arabicHashtags[0],
+    "سعيدة",
+    "hashtag search result matches"
+  );
+
+  // get hashtag containing emojis -- invalid hashtag!
+  const emojiHashtags: string[] = await aliceCallMewsZome(
+    "search_hashtags",
+    "😃😃😃"
+  );
+  t.ok(emojiHashtags.length === 0, "no emoji hashtags");
+
+  const cashtags: string[] = await aliceCallMewsZome(
+    "search_cashtags",
+    "cas"
+  );
+  t.ok(cashtags.length === 1, "one cashtag");
+  t.equal(
+    cashtags[0],
+    "cashtag",
+    "hashtag search result matches"
+  );
+  await scenario.cleanUp();
+});
+
 test("Mews Feed - should include own mews", async (t) => {
   const scenario = new Scenario();
   const alice = await scenario.addPlayerWithHappBundle(clutterHapp);
