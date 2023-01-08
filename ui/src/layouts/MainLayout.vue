@@ -149,7 +149,7 @@ const search = (
 ) => {
   searchTerm.value = inputValue;
   updateFn(async () => {
-    // Replace leading '@', '#', or '$' if first character of search query
+    // Remove leading '@', '#', or '$' character from search query
     inputValue = inputValue.replace(/^[@#$]/, '');
 
     if (inputValue === "" || inputValue.length < 3) {
