@@ -299,7 +299,7 @@ test("Search - should return hashtags and cashtags", async (t) => {
 
   const arabicHashtags: string[] = await aliceCallMewsZome(
     "search_hashtags",
-    "سعي"
+    "سعيدة"
   );
   t.ok(arabicHashtags.length === 1, "one arabic hashtag");
   t.equal(

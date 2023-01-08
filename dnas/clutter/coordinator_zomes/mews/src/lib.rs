@@ -477,7 +477,7 @@ pub fn search_cashtags(query: String) -> ExternResult<Vec<String>> {
 
 fn search_tags(path_stem: String, content: String) -> ExternResult<Vec<String>> {
     let prefix: String = content.chars().take(3).collect();
-    let path = Path::from(format!("{}_search.{}", path_stem, prefix));
+    let path = Path::from(format!("search_{}.{}", path_stem, prefix));
 
     let links = get_links(path.path_entry_hash()?, LinkTypes::TagPrefix, None)?;
 
@@ -495,7 +495,7 @@ fn search_tags(path_stem: String, content: String) -> ExternResult<Vec<String>> 
 
 fn create_mew_tag_links(path_stem: &str, content: &str, mew_hash: ActionHash) -> ExternResult<()> {
     // Link from Path cashtags.mytag -> mew
-    let path = Path::from(format!("{}_search.{}", path_stem, content));
+    let path = Path::from(format!("{}.{}", path_stem, content));
     let path_hash = path.path_entry_hash()?;
     path.typed(LinkTypes::Tag)?.ensure()?;
     let _link_ah = create_link(path_hash.clone(), mew_hash, LinkTypes::Tag, ())?;
@@ -506,7 +506,7 @@ fn create_mew_tag_links(path_stem: &str, content: &str, mew_hash: ActionHash) ->
     let word_lowercase = word.to_lowercase();
     let prefix: String = word_lowercase.chars().take(3).collect();
  
-    let search_path = Path::from(format!("{}_search.{}", path_stem, prefix));
+    let search_path = Path::from(format!("search_{}.{}", path_stem, prefix));
     let search_path_hash = search_path.path_entry_hash()?;
     search_path.typed(LinkTypes::TagPrefix)?.ensure()?;
     let _link_search_tag = create_link(search_path_hash, path_hash.clone(), LinkTypes::TagPrefix, word.as_bytes().to_vec())?;
