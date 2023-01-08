@@ -34,13 +34,13 @@
             class="col q-mx-md"
             :options-dark="false"
             @filter="search"
-            @update:model-value="onAgentSelect"
+            @update:model-value="onSearchResultSelect"
           >
             <template #prepend>
               <q-icon name="search" color="white" />
             </template>
             <template #option="item">
-              <profiles-context :store="profilesStore">
+              <profiles-context :store="profilesStore" v-if="item.opt.agentPubKey">
                 <q-item clickable v-bind="item.itemProps" dense class="q-py-sm">
                   <q-item-section avatar>
                     <agent-avatar
@@ -53,6 +53,16 @@
                   </q-item-section>
                 </q-item>
               </profiles-context>
+              <q-item clickable v-bind="item.itemProps" dense class="q-py-sm" v-else-if="item.opt.hashtag">
+                  <q-item-section class="text-body2">
+                    {{ item.opt.label }}
+                  </q-item-section>
+              </q-item>
+              <q-item clickable v-bind="item.itemProps" dense class="q-py-sm" v-else-if="item.opt.cashtag">
+                  <q-item-section class="text-body2">
+                    {{ item.opt.label }}
+                  </q-item-section>
+              </q-item>
             </template>
             <template #no-option>
               <q-item>
@@ -94,8 +104,9 @@
 
 <script setup lang="ts">
 import CreateMewDialog from "@/components/CreateMewDialog.vue";
-import { ROUTES } from "@/router";
+import { PATH, ROUTES } from "@/router";
 import { useProfilesStore } from "@/services/profiles-store";
+import { searchCashtags, searchHashtags } from "@/services/clutter-dna";
 import { useClutterStore } from "@/stores";
 import { MewTypeName, PROFILE_FIELDS, TOOLTIP_DELAY } from "@/types/types";
 import { showError } from "@/utils/notification";
@@ -103,7 +114,8 @@ import { serializeHash } from "@holochain-open-dev/utils";
 import { AgentPubKey } from "@holochain/client";
 import { QSelectOption, useQuasar } from "quasar";
 import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { RouteRecordRaw, RouterLinkProps, useRouter } from "vue-router";
+import { TAG_SYMBOLS } from "@/utils/tags";
 
 const $q = useQuasar();
 
@@ -113,7 +125,7 @@ const router = useRouter();
 const tab = ref("");
 
 const searching = ref(false);
-const options = ref<Array<QSelectOption & { agentPubKey: AgentPubKey }>>([]);
+const options = ref<Array<QSelectOption<RouteRecordRaw> & { agentPubKey?: AgentPubKey, hashtag?: string, cashtag?: string}>>([]);
 const selection = ref<QSelectOption | null>(null);
 const searchTerm = ref("");
 
@@ -137,6 +149,9 @@ const search = (
 ) => {
   searchTerm.value = inputValue;
   updateFn(async () => {
+    // Replace leading '@', '#', or '$' if first character of search query
+    inputValue = inputValue.replace(/^[@#$]/, '');
+
     if (inputValue === "" || inputValue.length < 3) {
       options.value = [];
     } else {
@@ -144,14 +159,33 @@ const search = (
         searching.value = true;
         const profilesMap = await profilesStore.value.searchProfiles(
           inputValue
+        );        
+        const hashtags = await searchHashtags(
+          inputValue
         );
-        options.value = profilesMap.entries().map(([key, value]) => ({
-          value: serializeHash(key),
-          agentPubKey: key,
-          label: `${value.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
-            value.nickname
-          })`,
-        }));
+        const cashtags = await searchCashtags(
+          inputValue
+        );
+
+        options.value = [
+          ...profilesMap.entries().map(([key, value]) => ({
+            agentPubKey: key,
+            value: { name: ROUTES.profiles, params: { agent: serializeHash(key) } },
+            label: `${value.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
+              value.nickname
+            })`,
+          })),
+          ...hashtags.map((hashtag) => ({
+            hashtag, 
+            value: {name: ROUTES[PATH[TAG_SYMBOLS.HASHTAG]], params: {tag: hashtag}},
+            label: `#${hashtag}`
+          })),
+          ...cashtags.map((cashtag) => ({
+            cashtag, 
+            value: {name: ROUTES[PATH[TAG_SYMBOLS.CASHTAG]], params: {tag: cashtag}},
+            label: `$${cashtag}`
+          }))
+        ];
       } catch (error) {
         showError(error);
       } finally {
@@ -161,8 +195,8 @@ const search = (
   });
 };
 
-const onAgentSelect = (option: QSelectOption) => {
-  router.push({ name: ROUTES.profiles, params: { agent: option.value } });
+const onSearchResultSelect = (option: QSelectOption) => {
+  router.push(option.value);
   selection.value = null;
 };
 </script>
