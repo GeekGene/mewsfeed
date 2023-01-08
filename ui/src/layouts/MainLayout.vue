@@ -40,7 +40,7 @@
               <q-icon name="search" color="white" />
             </template>
             <template #option="item">
-              <profiles-context :store="profilesStore" v-if="item.opt.agentPubKey">
+              <profiles-context :store="profilesStore" v-if="item.opt.resultType === SearchResult.Agent">
                 <q-item clickable v-bind="item.itemProps" dense class="q-py-sm">
                   <q-item-section avatar>
                     <agent-avatar
@@ -53,12 +53,12 @@
                   </q-item-section>
                 </q-item>
               </profiles-context>
-              <q-item clickable v-bind="item.itemProps" dense class="q-py-sm" v-else-if="item.opt.hashtag">
+              <q-item clickable v-bind="item.itemProps" dense class="q-py-sm" v-else-if="item.opt.resultType === SearchResult.Hashtag">
                   <q-item-section class="text-body2">
                     {{ item.opt.label }}
                   </q-item-section>
               </q-item>
-              <q-item clickable v-bind="item.itemProps" dense class="q-py-sm" v-else-if="item.opt.cashtag">
+              <q-item clickable v-bind="item.itemProps" dense class="q-py-sm" v-else-if="item.opt.resultType === SearchResult.Cashtag">
                   <q-item-section class="text-body2">
                     {{ item.opt.label }}
                   </q-item-section>
@@ -108,13 +108,13 @@ import { PATH, ROUTES } from "@/router";
 import { useProfilesStore } from "@/services/profiles-store";
 import { searchCashtags, searchHashtags } from "@/services/clutter-dna";
 import { useClutterStore } from "@/stores";
-import { MewTypeName, PROFILE_FIELDS, TOOLTIP_DELAY } from "@/types/types";
+import { MewTypeName, PROFILE_FIELDS, TOOLTIP_DELAY, SearchResult } from "@/types/types";
 import { showError } from "@/utils/notification";
 import { serializeHash } from "@holochain-open-dev/utils";
 import { AgentPubKey } from "@holochain/client";
 import { QSelectOption, useQuasar } from "quasar";
 import { ref } from "vue";
-import { RouteRecordRaw, RouterLinkProps, useRouter } from "vue-router";
+import { RouteLocationRaw, useRouter } from "vue-router";
 import { TAG_SYMBOLS } from "@/utils/tags";
 
 const $q = useQuasar();
@@ -125,7 +125,7 @@ const router = useRouter();
 const tab = ref("");
 
 const searching = ref(false);
-const options = ref<Array<QSelectOption<RouteRecordRaw> & { agentPubKey?: AgentPubKey, hashtag?: string, cashtag?: string}>>([]);
+const options = ref<Array<QSelectOption<RouteLocationRaw> & { agentPubKey?: AgentPubKey, resultType: SearchResult }>>([]);
 const selection = ref<QSelectOption | null>(null);
 const searchTerm = ref("");
 
@@ -169,6 +169,7 @@ const search = (
 
         options.value = [
           ...profilesMap.entries().map(([key, value]) => ({
+            resultType: SearchResult.Agent,
             agentPubKey: key,
             value: { name: ROUTES.profiles, params: { agent: serializeHash(key) } },
             label: `${value.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
@@ -176,12 +177,12 @@ const search = (
             })`,
           })),
           ...hashtags.map((hashtag) => ({
-            hashtag, 
+            resultType: SearchResult.Hashtag,
             value: {name: ROUTES[PATH[TAG_SYMBOLS.HASHTAG]], params: {tag: hashtag}},
             label: `#${hashtag}`
           })),
           ...cashtags.map((cashtag) => ({
-            cashtag, 
+            resultType: SearchResult.Cashtag,
             value: {name: ROUTES[PATH[TAG_SYMBOLS.CASHTAG]], params: {tag: cashtag}},
             label: `$${cashtag}`
           }))
