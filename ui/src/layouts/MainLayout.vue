@@ -157,15 +157,11 @@ const search = (
     } else {
       try {
         searching.value = true;
-        const profilesMap = await profilesStore.value.searchProfiles(
-          inputValue
-        );        
-        const hashtags = await searchHashtags(
-          inputValue
-        );
-        const cashtags = await searchCashtags(
-          inputValue
-        );
+        const [profilesMap, hashtags, cashtags] = await Promise.all([
+          profilesStore.value.searchProfiles(inputValue), 
+          searchHashtags(inputValue), 
+          searchCashtags(inputValue)
+        ]);
 
         options.value = [
           ...profilesMap.entries().map(([key, value]) => ({
