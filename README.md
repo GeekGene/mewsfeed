@@ -28,6 +28,7 @@ This will install all the needed dependencies in your local environment, includi
 5. Install git submodule dependency (ui-common-library)
 
 ```bash
+git submodule init
 git submodule update --remote --recursive
 ```
 
