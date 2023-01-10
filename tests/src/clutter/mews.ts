@@ -286,27 +286,16 @@ test("Search - should return hashtags and cashtags", async (t) => {
 
   await pause(100);
 
-  const hashtags: string[] = await aliceCallMewsZome(
-    "search_hashtags",
-    "has"
-  );
+  const hashtags: string[] = await aliceCallMewsZome("search_hashtags", "has");
   t.ok(hashtags.length === 1, "one hashtag");
-  t.equal(
-    hashtags[0],
-    "hashtag",
-    "hashtag search result matches"
-  );
+  t.equal(hashtags[0], "hashtag", "hashtag search result matches");
 
   const arabicHashtags: string[] = await aliceCallMewsZome(
     "search_hashtags",
     "سعيدة"
   );
   t.ok(arabicHashtags.length === 1, "one arabic hashtag");
-  t.equal(
-    arabicHashtags[0],
-    "سعيدة",
-    "hashtag search result matches"
-  );
+  t.equal(arabicHashtags[0], "سعيدة", "hashtag search result matches");
 
   // get hashtag containing emojis -- invalid hashtag!
   const emojiHashtags: string[] = await aliceCallMewsZome(
@@ -315,16 +304,9 @@ test("Search - should return hashtags and cashtags", async (t) => {
   );
   t.ok(emojiHashtags.length === 0, "no emoji hashtags");
 
-  const cashtags: string[] = await aliceCallMewsZome(
-    "search_cashtags",
-    "cas"
-  );
+  const cashtags: string[] = await aliceCallMewsZome("search_cashtags", "cas");
   t.ok(cashtags.length === 1, "one cashtag");
-  t.equal(
-    cashtags[0],
-    "cashtag",
-    "hashtag search result matches"
-  );
+  t.equal(cashtags[0], "cashtag", "hashtag search result matches");
   await scenario.cleanUp();
 });
 

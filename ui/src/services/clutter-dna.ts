@@ -97,10 +97,8 @@ export const getMewsWithMention = async (
   agentPubKey: AgentPubKey
 ): Promise<FeedMew[]> => callZome(MewsFn.GetMewsWithMention, agentPubKey);
 
-export const searchCashtags = async (
-  query: string
-): Promise<string[]> => callZome(MewsFn.SearchCashtags, query);
+export const searchCashtags = async (query: string): Promise<string[]> =>
+  callZome(MewsFn.SearchCashtags, query);
 
-export const searchHashtags = async (
-  query: string
-): Promise<string[]> => callZome(MewsFn.SearchHashtags, query);
+export const searchHashtags = async (query: string): Promise<string[]> =>
+  callZome(MewsFn.SearchHashtags, query);

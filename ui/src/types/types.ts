@@ -96,5 +96,5 @@ export interface NotificationOptions {
 export enum SearchResult {
   Agent,
   Hashtag,
-  Cashtag
+  Cashtag,
 }
