@@ -42,9 +42,6 @@ const props = defineProps({
   feedMew: { type: Object as PropType<FeedMew>, required: true },
 });
 
-const startsWithTag = (contentPart: string) =>
-  Object.values(TAG_SYMBOLS).some((symbol) => contentPart.startsWith(symbol));
-
 const links = computed(() =>
   props.feedMew.mew.content?.links?.slice().reverse()
 );
@@ -55,7 +52,7 @@ const parts = computed(() =>
 
 const contentParts = computed<ContentPart[]>(() =>
   parts.value.map((part) => {
-    if (startsWithTag(part)) {
+    if (part.match(TAG_REGEX)) {
       let agentPubKey: string | undefined = undefined;
       if (part[0] === TAG_SYMBOLS.MENTION || part[0] === TAG_SYMBOLS.URL) {
         const link = links.value?.pop();
