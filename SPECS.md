@@ -48,10 +48,10 @@
      - [x] #hashtags
      - [x] $cashtags ?
      - [x] ^links (in UI triggers a link constructor)
-- [ ] Search for
+- [x] Search for
      - [ ] @user mentions
-     - [ ] #hashtags
-     - [ ] $cashtags
+     - [x] #hashtags
+     - [x] $cashtags
  - [ ] Open social preview (e.g. thumbnail, mewmew box, etc)
  - [ ] Attach / Upload Picture (file sharing mixin/zome)
      - [ ] Enforce 5mb size limit (UI should auto-scale down images above it)
