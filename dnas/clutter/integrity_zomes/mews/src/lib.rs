@@ -9,6 +9,7 @@ pub enum EntryTypes {
 
 #[hdk_entry_helper]
 #[serde(rename_all = "camelCase")]
+#[derive(Clone)]
 pub enum MewType {
     Original,
     Reply(ActionHash),
@@ -44,6 +45,7 @@ pub struct MewContent {
 
 #[hdk_entry_helper]
 #[serde(rename_all = "camelCase")]
+#[derive(Clone)]
 pub struct Mew {
     pub mew_type: MewType,
     pub content: Option<MewContent>,
@@ -57,6 +59,7 @@ pub struct FeedOptions {
 
 #[hdk_entry_helper]
 #[serde(rename_all = "camelCase")]
+#[derive(Clone)]
 pub struct FeedMew {
     pub mew: Mew,
     pub action: Action,

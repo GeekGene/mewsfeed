@@ -1,6 +1,6 @@
 <template>
   <div class="column">
-    <div class="text-body1" style="overflow-wrap: anywhere">
+    <div class="text-body1 text-left" style="overflow-wrap: anywhere">
       <span v-for="(contentPart, index) of contentParts" :key="index">
         <template v-if="Array.isArray(contentPart)">
           <a

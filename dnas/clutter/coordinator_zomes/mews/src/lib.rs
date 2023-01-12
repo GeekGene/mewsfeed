@@ -268,6 +268,23 @@ pub fn mews_feed(_options: FeedOptions) -> ExternResult<Vec<FeedMew>> {
     Ok(feed)
 }
 
+#[hdk_extern]
+pub fn most_licked_mews_feed(count: usize) -> ExternResult<Vec<FeedMew>> {
+    // Get mews from feed, with at least 1 lick, sorted by licks count descending
+    let mews_feed = mews_feed(FeedOptions { option: "".into() })?;
+    let mut mews_with_licks: Vec<FeedMew> = mews_feed
+        .clone()
+        .into_iter()
+        .filter(|a| a.licks.len() > 0)
+        .collect(); 
+    mews_with_licks.sort_by(|a, b| b.licks.len().cmp(&a.licks.len()));
+
+    // Take first mews up to 'count'
+    let most_licked_mews_feed = mews_with_licks.into_iter().take(count).collect();
+    
+    Ok(most_licked_mews_feed)
+}
+
 // *** Liking ***
 
 #[hdk_extern]

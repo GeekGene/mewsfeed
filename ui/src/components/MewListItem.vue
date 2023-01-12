@@ -56,7 +56,7 @@
         @click="onMewClick"
       />
 
-      <div>
+      <div class="text-left">
         <q-btn
           :disable="isUpdatingLick"
           size="sm"
