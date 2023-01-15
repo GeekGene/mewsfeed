@@ -1,6 +1,11 @@
 use hdk::prelude::*;
 use mews_integrity::*;
+use hc_time_index::*;
 use regex::Regex;
+use chrono::{NaiveDateTime, DateTime, Duration, Utc};
+
+mod time_index;
+use time_index::*;
 
 fn get_my_mews_base(base_type: &str, ensure: bool) -> ExternResult<EntryHash> {
     let me: AgentPubKey = agent_info()?.agent_latest_pubkey;
@@ -65,6 +70,14 @@ pub fn create_mew(mew: CreateMewInput) -> ExternResult<ActionHash> {
             }
         },
     };
+
+    // Add record to time index
+    let mew_record = get(mew_action_hash.clone(), GetOptions { strategy: GetStrategy::Content })?
+        .ok_or(wasm_error!(WasmErrorInner::Guest("Failed to get mew_record".into())))?;
+    let indexable_mew_record = IndexableRecord::from(mew_record);
+    let _result = index_entry("index_mews_by_timestamp".into(), indexable_mew_record, (), LinkTypes::TimeIndexToMew, LinkTypes::TimeIndex)
+        .map_err(|e| wasm_error!(WasmErrorInner::Guest(e.into())))?;
+    
     Ok(mew_action_hash)
 }
 
@@ -269,18 +282,36 @@ pub fn mews_feed(_options: FeedOptions) -> ExternResult<Vec<FeedMew>> {
 }
 
 #[hdk_extern]
-pub fn most_licked_mews_feed(count: usize) -> ExternResult<Vec<FeedMew>> {
-    // Get mews from feed, with at least 1 lick, sorted by licks count descending
-    let mews_feed = mews_feed(FeedOptions { option: "".into() })?;
-    let mut mews_with_licks: Vec<FeedMew> = mews_feed
-        .clone()
+pub fn most_licked_mews_recently(input: MostLickedMewsRecentlyInput) -> ExternResult<Vec<FeedMew>> {
+    let timestamp = sys_time()?.as_seconds_and_nanos();
+    let current_datetime = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(timestamp.0, timestamp.1), Utc);
+    let yesterday_datetime = current_datetime - Duration::hours(input.from_hours_ago.into());
+
+    // Get all mews with created in last 24 hours
+    let mew_links: Vec<Link> = get_links_for_time_span(
+        "index_mews_by_timestamp".into(), 
+        yesterday_datetime, 
+        current_datetime,
+        None,
+        None,
+        LinkTypes::TimeIndexToMew,
+        LinkTypes::TimeIndex
+    ).map_err(|e| wasm_error!(WasmErrorInner::Guest(e.into())))?;
+    let mew_records: Vec<Record> = mew_links
         .into_iter()
+        .filter_map(|l| get(ActionHash::from(l.target), GetOptions { ..Default::default() }).unwrap_or(None))
+        .collect();
+
+    // Sort mews by licks count, descending
+    let mut mews_today_with_licks: Vec<FeedMew> = mew_records
+        .into_iter()
+        .map(|record| get_feed_mew_and_context(record.action_hashed().hash.clone()).unwrap())
         .filter(|a| a.licks.len() > 0)
-        .collect(); 
-    mews_with_licks.sort_by(|a, b| b.licks.len().cmp(&a.licks.len()));
+        .collect();
+    mews_today_with_licks.sort_by(|a, b| b.licks.len().cmp(&a.licks.len()));
 
     // Take first mews up to 'count'
-    let most_licked_mews_feed = mews_with_licks.into_iter().take(count).collect();
+    let most_licked_mews_feed = mews_today_with_licks.into_iter().take(input.count.into()).collect();
     
     Ok(most_licked_mews_feed)
 }

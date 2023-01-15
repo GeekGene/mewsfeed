@@ -70,6 +70,12 @@ pub struct FeedMew {
     pub mewmews: Vec<AnyLinkableHash>,
 }
 
+#[derive(Serialize, Deserialize, SerializedBytes, Debug)]
+pub struct MostLickedMewsRecentlyInput {
+    pub count: u8,
+    pub from_hours_ago: u32,
+}
+
 #[hdk_link_types]
 pub enum LinkTypes {
     Mew,
@@ -80,6 +86,8 @@ pub enum LinkTypes {
     Quote,
     Tag,
     TagPrefix,
+    TimeIndexToMew,
+    TimeIndex
 }
 
 pub const MEW_PATH_SEGMENT: &str = "mew";
