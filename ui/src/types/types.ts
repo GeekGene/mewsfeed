@@ -72,6 +72,11 @@ export interface FeedOptions {
   option: string;
 }
 
+export interface MostLickedMewsOptions {
+  count: number;
+  from_hours_ago: number;
+}
+
 export interface NotificationOptions {
   color?: string;
   textColor?: string;
