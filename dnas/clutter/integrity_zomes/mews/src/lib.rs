@@ -73,7 +73,7 @@ pub struct FeedMew {
 #[derive(Serialize, Deserialize, SerializedBytes, Debug)]
 pub struct MostLickedMewsRecentlyInput {
     pub count: u8,
-    pub from_hours_ago: u32,
+    pub from_seconds_ago: u32,
 }
 
 #[hdk_link_types]

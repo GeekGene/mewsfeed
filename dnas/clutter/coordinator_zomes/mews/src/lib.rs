@@ -284,14 +284,14 @@ pub fn mews_feed(_options: FeedOptions) -> ExternResult<Vec<FeedMew>> {
 #[hdk_extern]
 pub fn most_licked_mews_recently(input: MostLickedMewsRecentlyInput) -> ExternResult<Vec<FeedMew>> {
     let timestamp = sys_time()?.as_seconds_and_nanos();
-    let current_datetime = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(timestamp.0, timestamp.1), Utc);
-    let yesterday_datetime = current_datetime - Duration::hours(input.from_hours_ago.into());
+    let until_datetime = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(timestamp.0, timestamp.1), Utc);
+    let from_datetime = until_datetime - Duration::seconds(input.from_seconds_ago.into());
 
     // Get all mews with created in last 24 hours
     let mew_links: Vec<Link> = get_links_for_time_span(
         "index_mews_by_timestamp".into(), 
-        yesterday_datetime, 
-        current_datetime,
+        from_datetime, 
+        until_datetime,
         None,
         None,
         LinkTypes::TimeIndexToMew,

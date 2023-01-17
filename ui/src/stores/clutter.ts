@@ -54,19 +54,19 @@ export const makeUseClutterStore = () => {
           ] = await Promise.all([
             mostLickedMewsRecently({
               count: 5,
-              from_hours_ago: 24,
+              from_seconds_ago: 24 * 60 * 60,
             }),
             mostLickedMewsRecently({
               count: 5,
-              from_hours_ago: 24 * 7,
+              from_seconds_ago: 24 * 60 * 60 * 7,
             }),
             mostLickedMewsRecently({
               count: 5,
-              from_hours_ago: 24 * 31,
+              from_seconds_ago: 24 * 60 * 60 * 31,
             }),
             mostLickedMewsRecently({
               count: 5,
-              from_hours_ago: 24 * 365,
+              from_seconds_ago: 24 * 60 * 60 * 365,
             }),
           ]);
           mostLickedMewsToday.forEach((feedMew) => {

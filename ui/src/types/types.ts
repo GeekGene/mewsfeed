@@ -74,7 +74,7 @@ export interface FeedOptions {
 
 export interface MostLickedMewsOptions {
   count: number;
-  from_hours_ago: number;
+  from_seconds_ago: number;
 }
 
 export interface NotificationOptions {
