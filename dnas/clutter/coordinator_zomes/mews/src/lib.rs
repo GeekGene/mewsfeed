@@ -10,9 +10,9 @@ use time_index::*;
 #[hdk_extern]
 fn init(_: ()) -> ExternResult<InitCallbackResult> {
     let _index = get_current_index(
-        "index_mews_by_timestamp".into(), 
+        TIME_INDEX_NAME.into(), 
         None,
-        LinkTypes::TimeIndex
+        TIME_INDEX_PATH_LINK_TYPE
     );
 
     Ok(InitCallbackResult::Pass)
@@ -86,7 +86,7 @@ pub fn create_mew(mew: CreateMewInput) -> ExternResult<ActionHash> {
     let mew_record = get(mew_action_hash.clone(), GetOptions { strategy: GetStrategy::Content })?
         .ok_or(wasm_error!(WasmErrorInner::Guest("Failed to get mew_record".into())))?;
     let indexable_mew_record = IndexableRecord::from(mew_record);
-    let _result = index_entry("index_mews_by_timestamp".into(), indexable_mew_record, (), LinkTypes::TimeIndexToMew, LinkTypes::TimeIndex)
+    let _result = index_entry(TIME_INDEX_NAME.into(), indexable_mew_record, (), TIME_INDEX_LINK_TYPE, TIME_INDEX_PATH_LINK_TYPE)
         .map_err(|e| wasm_error!(WasmErrorInner::Guest(e.into())))?;
     
     Ok(mew_action_hash)
@@ -300,13 +300,13 @@ pub fn most_licked_mews_recently(input: MostLickedMewsRecentlyInput) -> ExternRe
 
     // Get all mews with created in last 24 hours
     let mew_links: Vec<Link> = get_links_for_time_span(
-        "index_mews_by_timestamp".into(), 
+        TIME_INDEX_NAME.into(), 
         from_datetime, 
         until_datetime,
         None,
         None,
-        LinkTypes::TimeIndexToMew,
-        LinkTypes::TimeIndex
+        TIME_INDEX_LINK_TYPE,
+        TIME_INDEX_PATH_LINK_TYPE,
     ).map_err(|e| wasm_error!(WasmErrorInner::Guest(e.into())))?;
     let mew_records: Vec<Record> = mew_links
         .into_iter()

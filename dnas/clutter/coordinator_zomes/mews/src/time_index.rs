@@ -1,6 +1,11 @@
 use hdk::prelude::*;
 use chrono::{NaiveDateTime, DateTime, Utc};
 use hc_time_index::IndexableEntry;
+use mews_integrity::LinkTypes;
+
+pub const TIME_INDEX_NAME: &str = "index_mews_by_timestamp";
+pub const TIME_INDEX_LINK_TYPE: LinkTypes = LinkTypes::TimeIndexToMew;
+pub const TIME_INDEX_PATH_LINK_TYPE: LinkTypes = LinkTypes::TimeIndex;
 
 #[derive(Serialize, Deserialize, Debug, Clone, SerializedBytes)]
 pub struct IndexableRecord {
