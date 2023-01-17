@@ -55,26 +55,15 @@
 <script setup lang="ts">
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { useClutterStore } from "@/stores";
-import { onMounted, onUpdated, ref } from "vue";
+import { onMounted, ref } from "vue";
 import { ActionHash } from "@holochain/client";
 import MewList from "@/components/MewList.vue";
 
 const store = useClutterStore();
 const tabSelected = ref<string>("this_week");
 
-onMounted(() => {
-  store.fetchMostLickedMewsRecently();
-});
-onUpdated(() => {
-  store.fetchMostLickedMewsRecently();
-});
+onMounted(store.fetchMostLickedMewsRecently);
 
-const onToggleLickMew = async (hash: ActionHash) => {
-  console.log("licked");
-  store.reloadMew(hash);
-};
-const onPublishMew = async () => {
-  console.log("published");
-  store.fetchMostLickedMewsRecently();
-};
+const onToggleLickMew = async (hash: ActionHash) => store.reloadMew(hash);
+const onPublishMew = () => store.fetchMostLickedMewsRecently();
 </script>
