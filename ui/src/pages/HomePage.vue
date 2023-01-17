@@ -1,7 +1,7 @@
 <template>
   <q-page class="text-center" :style-fn="pageHeightCorrection">
     <h6>Meeow, you're in!</h6>
-    <div v-if="store.mostLickedMewsToday?.length === 0">
+    <div v-if="store.mostLickedMewsThisYear?.length === 0">
       <h2>Welcome to the Clutter</h2>
       <q-img width="40%" src="@/assets/img/cat-eating-bird-circle.png" />
     </div>
