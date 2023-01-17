@@ -7,6 +7,17 @@ use chrono::{NaiveDateTime, DateTime, Duration, Utc};
 mod time_index;
 use time_index::*;
 
+#[hdk_extern]
+fn init(_: ()) -> ExternResult<InitCallbackResult> {
+    let _index = get_current_index(
+        "index_mews_by_timestamp".into(), 
+        None,
+        LinkTypes::TimeIndex
+    );
+
+    Ok(InitCallbackResult::Pass)
+}
+
 fn get_my_mews_base(base_type: &str, ensure: bool) -> ExternResult<EntryHash> {
     let me: AgentPubKey = agent_info()?.agent_latest_pubkey;
     get_mews_base(me.into(), base_type, ensure)
