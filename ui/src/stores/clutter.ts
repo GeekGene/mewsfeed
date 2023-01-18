@@ -3,9 +3,14 @@ import {
   getFeedMewAndContext,
   mewsFeed,
   MewsFn,
-  mostLickedMewsRecently,
+  mewsTopList,
 } from "@/services/clutter-dna";
-import { CreateMewInput, FeedMew } from "@/types/types";
+import {
+  CreateMewInput,
+  FeedMew,
+  TopMewsInteractions,
+  TopMewsTimespans,
+} from "@/types/types";
 import { showError } from "@/utils/notification";
 import { serializeHash } from "@holochain-open-dev/utils";
 import { ActionHash } from "@holochain/client";
@@ -18,13 +23,40 @@ export const makeUseClutterStore = () => {
   return defineStore("clutter", {
     state: () => ({
       mews: new Map<string, FeedMew>(),
-      mewsFeedAh: new Set<string>([]),
-      mostLickedMewsTodayAh: new Set<string>([]),
-      mostLickedMewsThisWeekAh: new Set<string>([]),
-      mostLickedMewsThisMonthAh: new Set<string>([]),
-      mostLickedMewsThisYearAh: new Set<string>([]),
+      mewsFeedAh: [] as string[],
+      topMewsAh: {
+        licks: {
+          day: [] as string[],
+          week: [] as string[],
+          month: [] as string[],
+          year: [] as string[],
+        },
+        replies: {
+          day: [] as string[],
+          week: [] as string[],
+          month: [] as string[],
+          year: [] as string[],
+        },
+        mewmews: {
+          day: [] as string[],
+          week: [] as string[],
+          month: [] as string[],
+          year: [] as string[],
+        },
+        quotes: {
+          day: [] as string[],
+          week: [] as string[],
+          month: [] as string[],
+          year: [] as string[],
+        },
+      },
       isLoadingMewsFeed: false,
-      isLoadingMostLickedMewsRecently: false,
+      isLoadingTop: {
+        licks: false,
+        replies: false,
+        mewmews: false,
+        quotes: false,
+      },
     }),
     actions: {
       async fetchMewsFeed() {
@@ -32,10 +64,10 @@ export const makeUseClutterStore = () => {
           this.isLoadingMewsFeed = true;
           const response = await mewsFeed({ option: "" });
 
-          response.forEach((feedMew) => {
+          this.mewsFeedAh = response.map((feedMew) => {
             const serializedAh = serializeHash(feedMew.actionHash);
             this.mews.set(serializedAh, feedMew);
-            this.mewsFeedAh.add(serializedAh);
+            return serializedAh;
           });
         } catch (error) {
           showError(error);
@@ -43,60 +75,52 @@ export const makeUseClutterStore = () => {
           this.isLoadingMewsFeed = false;
         }
       },
-      async fetchMostLickedMewsRecently() {
+      async fetchTopMews(interaction: TopMewsInteractions) {
         try {
-          this.isLoadingMostLickedMewsRecently = true;
-          const [
-            mostLickedMewsToday,
-            mostLickedMewsThisWeek,
-            mostLickedMewsThisMonth,
-            mostLickedMewsThisYear,
-          ] = await Promise.all([
-            mostLickedMewsRecently({
-              count: 5,
-              from_seconds_ago: 24 * 60 * 60,
-            }),
-            mostLickedMewsRecently({
-              count: 5,
-              from_seconds_ago: 24 * 60 * 60 * 7,
-            }),
-            mostLickedMewsRecently({
-              count: 5,
-              from_seconds_ago: 24 * 60 * 60 * 31,
-            }),
-            mostLickedMewsRecently({
-              count: 5,
-              from_seconds_ago: 24 * 60 * 60 * 365,
-            }),
-          ]);
-          mostLickedMewsToday.forEach((feedMew) => {
-            const serializedAh = serializeHash(feedMew.actionHash);
-
-            this.mews.set(serializedAh, feedMew);
-            this.mostLickedMewsTodayAh.add(serializedAh);
+          this.isLoadingTop[interaction] = true;
+          const [mews_day, mews_week, mews_month, mews_year] =
+            await Promise.all([
+              mewsTopList(interaction, {
+                count: 5,
+                from_seconds_ago: 24 * 60 * 60,
+              }),
+              mewsTopList(interaction, {
+                count: 5,
+                from_seconds_ago: 24 * 60 * 60 * 7,
+              }),
+              mewsTopList(interaction, {
+                count: 5,
+                from_seconds_ago: 24 * 60 * 60 * 31,
+              }),
+              mewsTopList(interaction, {
+                count: 5,
+                from_seconds_ago: 24 * 60 * 60 * 365,
+              }),
+            ]);
+          this.topMewsAh[interaction]["day"] = mews_day.map((feedMew) => {
+            const hash = serializeHash(feedMew.actionHash);
+            this.mews.set(hash, feedMew);
+            return hash;
           });
-          mostLickedMewsThisWeek.forEach((feedMew) => {
-            const serializedAh = serializeHash(feedMew.actionHash);
-
-            this.mews.set(serializedAh, feedMew);
-            this.mostLickedMewsThisWeekAh.add(serializedAh);
+          this.topMewsAh[interaction]["week"] = mews_week.map((feedMew) => {
+            const hash = serializeHash(feedMew.actionHash);
+            this.mews.set(hash, feedMew);
+            return hash;
           });
-          mostLickedMewsThisMonth.forEach((feedMew) => {
-            const serializedAh = serializeHash(feedMew.actionHash);
-
-            this.mews.set(serializedAh, feedMew);
-            this.mostLickedMewsThisMonthAh.add(serializedAh);
+          this.topMewsAh[interaction]["month"] = mews_month.map((feedMew) => {
+            const hash = serializeHash(feedMew.actionHash);
+            this.mews.set(hash, feedMew);
+            return hash;
           });
-          mostLickedMewsThisYear.forEach((feedMew) => {
-            const serializedAh = serializeHash(feedMew.actionHash);
-
-            this.mews.set(serializedAh, feedMew);
-            this.mostLickedMewsThisYearAh.add(serializedAh);
+          this.topMewsAh[interaction]["year"] = mews_year.map((feedMew) => {
+            const hash = serializeHash(feedMew.actionHash);
+            this.mews.set(hash, feedMew);
+            return hash;
           });
         } catch (error) {
           showError(error);
         } finally {
-          this.isLoadingMostLickedMewsRecently = false;
+          this.isLoadingTop[interaction] = false;
         }
       },
       async reloadMew(actionHash: ActionHash) {
@@ -112,26 +136,18 @@ export const makeUseClutterStore = () => {
       async createMew(mew: CreateMewInput) {
         return callZome(MewsFn.CreateMew, mew);
       },
+      topMewsList(
+        interaction: TopMewsInteractions,
+        timespan: TopMewsTimespans
+      ) {
+        return this.topMewsAh[interaction][timespan]
+          .map((actionHash) => this.mews.get(actionHash))
+          .filter((x) => x !== undefined) as FeedMew[];
+      },
     },
     getters: {
       mewsFeed: (state) =>
         [...state.mewsFeedAh.values()]
-          .map((actionHash) => state.mews.get(actionHash))
-          .filter((x) => x !== undefined) as FeedMew[],
-      mostLickedMewsToday: (state) =>
-        [...state.mostLickedMewsTodayAh]
-          .map((actionHash) => state.mews.get(actionHash))
-          .filter((x) => x !== undefined) as FeedMew[],
-      mostLickedMewsThisWeek: (state) =>
-        [...state.mostLickedMewsThisWeekAh]
-          .map((actionHash) => state.mews.get(actionHash))
-          .filter((x) => x !== undefined) as FeedMew[],
-      mostLickedMewsThisMonth: (state) =>
-        [...state.mostLickedMewsThisMonthAh]
-          .map((actionHash) => state.mews.get(actionHash))
-          .filter((x) => x !== undefined) as FeedMew[],
-      mostLickedMewsThisYear: (state) =>
-        [...state.mostLickedMewsThisYearAh]
           .map((actionHash) => state.mews.get(actionHash))
           .filter((x) => x !== undefined) as FeedMew[],
     },

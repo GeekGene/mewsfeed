@@ -72,7 +72,7 @@ export interface FeedOptions {
   option: string;
 }
 
-export interface MostLickedMewsOptions {
+export interface GetRecentMewsInput {
   count: number;
   from_seconds_ago: number;
 }
@@ -103,3 +103,6 @@ export enum SearchResult {
   Hashtag,
   Cashtag,
 }
+
+export type TopMewsInteractions = "licks" | "mewmews" | "replies" | "quotes";
+export type TopMewsTimespans = "day" | "week" | "month" | "year";

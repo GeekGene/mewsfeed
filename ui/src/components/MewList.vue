@@ -31,7 +31,7 @@ defineProps({
   },
   onPublishMew: {
     type: Function as PropType<(mewType: MewType) => Promise<void>>,
-    required: true,
+    default: () => Promise.resolve(),
   },
 });
 </script>

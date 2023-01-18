@@ -7,16 +7,20 @@ import {
   CreateMewInput,
   FeedMew,
   FeedOptions,
+  GetRecentMewsInput,
   Mew,
-  MostLickedMewsOptions,
+  TopMewsInteractions,
 } from "../types/types";
 
 export enum MewsFn {
   CreateMew = "create_mew",
   GetMew = "get_mew",
   MewsFeed = "mews_feed",
-  MostLickedMewsRecently = "most_licked_mews_recently",
   MewsBy = "mews_by",
+  MewsMostLicked = "mews_most_licked",
+  MewsMostMewmewed = "mews_most_mewmewed",
+  MewsMostReplied = "mews_most_replied",
+  MewsMostQuoted = "mews_most_quoted",
   Follow = "follow",
   Followers = "followers",
   Following = "following",
@@ -56,10 +60,6 @@ export const getMew = async (mew: ActionHash): Promise<Mew> =>
 export const mewsFeed = async (options: FeedOptions): Promise<Array<FeedMew>> =>
   callZome(MewsFn.MewsFeed, options);
 
-export const mostLickedMewsRecently = async (
-  options: MostLickedMewsOptions
-): Promise<Array<FeedMew>> => callZome(MewsFn.MostLickedMewsRecently, options);
-
 export const mewsBy = async (
   agent: AgentPubKey | AgentPubKeyB64
 ): Promise<Array<FeedMew>> =>
@@ -67,6 +67,23 @@ export const mewsBy = async (
     MewsFn.MewsBy,
     typeof agent === "string" ? deserializeHash(agent) : agent
   );
+
+export const mewsTopList = async (
+  interaction: TopMewsInteractions,
+  options: GetRecentMewsInput
+): Promise<Array<FeedMew>> => {
+  if (interaction === "licks") {
+    return callZome(MewsFn.MewsMostLicked, options);
+  } else if (interaction === "mewmews") {
+    return callZome(MewsFn.MewsMostMewmewed, options);
+  } else if (interaction === "quotes") {
+    return callZome(MewsFn.MewsMostQuoted, options);
+  } else if (interaction === "replies") {
+    return callZome(MewsFn.MewsMostReplied, options);
+  } else {
+    throw Error("Interaction type must be defined");
+  }
+};
 
 export const follow = async (agent: AgentPubKey): Promise<null> =>
   callZome(MewsFn.Follow, agent);

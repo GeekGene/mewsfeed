@@ -292,8 +292,7 @@ pub fn mews_feed(_options: FeedOptions) -> ExternResult<Vec<FeedMew>> {
     Ok(feed)
 }
 
-#[hdk_extern]
-pub fn most_licked_mews_recently(input: MostLickedMewsRecentlyInput) -> ExternResult<Vec<FeedMew>> {
+fn mews_recently_created(input: GetRecentMewsInput) -> ExternResult<Vec<FeedMew>> {
     let timestamp = sys_time()?.as_seconds_and_nanos();
     let until_datetime = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(timestamp.0, timestamp.1), Utc);
     let from_datetime = until_datetime - Duration::seconds(input.from_seconds_ago.into());
@@ -308,23 +307,83 @@ pub fn most_licked_mews_recently(input: MostLickedMewsRecentlyInput) -> ExternRe
         TIME_INDEX_LINK_TYPE,
         TIME_INDEX_PATH_LINK_TYPE,
     ).map_err(|e| wasm_error!(WasmErrorInner::Guest(e.into())))?;
-    let mew_records: Vec<Record> = mew_links
+    
+    let feedmews: Vec<FeedMew> = mew_links
         .into_iter()
         .filter_map(|l| get(ActionHash::from(l.target), GetOptions { ..Default::default() }).unwrap_or(None))
+        .map(|record| get_feed_mew_and_context(record.action_hashed().hash.clone()).unwrap())
         .collect();
+
+    Ok(feedmews)
+}
+
+#[hdk_extern]
+pub fn mews_most_licked(input: GetRecentMewsInput) -> ExternResult<Vec<FeedMew>> {
+    let feedmews = mews_recently_created(input.clone())?;
 
     // Sort mews by licks count, descending
-    let mut mews_today_with_licks: Vec<FeedMew> = mew_records
+    let mut feedmews_with_licks: Vec<FeedMew> = feedmews
         .into_iter()
-        .map(|record| get_feed_mew_and_context(record.action_hashed().hash.clone()).unwrap())
         .filter(|a| a.licks.len() > 0)
         .collect();
-    mews_today_with_licks.sort_by(|a, b| b.licks.len().cmp(&a.licks.len()));
+    feedmews_with_licks.sort_by(|a, b| b.licks.len().cmp(&a.licks.len()));
 
     // Take first mews up to 'count'
-    let most_licked_mews_feed = mews_today_with_licks.into_iter().take(input.count.into()).collect();
+    let mews = feedmews_with_licks.into_iter().take(input.count.into()).collect();
     
-    Ok(most_licked_mews_feed)
+    Ok(mews)
+}
+
+#[hdk_extern]
+pub fn mews_most_replied(input: GetRecentMewsInput) -> ExternResult<Vec<FeedMew>> {
+    let feedmews = mews_recently_created(input.clone())?;
+
+    // Sort mews by mewmews count, descending
+    let mut feedmews_with_replies: Vec<FeedMew> = feedmews
+        .into_iter()
+        .filter(|a| a.replies.len() > 0)
+        .collect();
+    feedmews_with_replies.sort_by(|a, b| b.replies.len().cmp(&a.replies.len()));
+
+    // Take first mews up to 'count'
+    let mews = feedmews_with_replies.into_iter().take(input.count.into()).collect();
+    
+    Ok(mews)
+}
+
+
+#[hdk_extern]
+pub fn mews_most_mewmewed(input: GetRecentMewsInput) -> ExternResult<Vec<FeedMew>> {
+    let feedmews = mews_recently_created(input.clone())?;
+
+    // Sort mews by mewmews count, descending
+    let mut feedmews_with_mewmews: Vec<FeedMew> = feedmews
+        .into_iter()
+        .filter(|a| a.mewmews.len() > 0)
+        .collect();
+    feedmews_with_mewmews.sort_by(|a, b| b.mewmews.len().cmp(&a.mewmews.len()));
+
+    // Take first mews up to 'count'
+    let mews = feedmews_with_mewmews.into_iter().take(input.count.into()).collect();
+    
+    Ok(mews)
+}
+
+#[hdk_extern]
+pub fn mews_most_quoted(input: GetRecentMewsInput) -> ExternResult<Vec<FeedMew>> {
+    let feedmews = mews_recently_created(input.clone())?;
+
+    // Sort mews by quotes count, descending
+    let mut feedmews_with_quotes: Vec<FeedMew> = feedmews
+        .into_iter()
+        .filter(|a| a.quotes.len() > 0)
+        .collect();
+    feedmews_with_quotes.sort_by(|a, b| b.quotes.len().cmp(&a.quotes.len()));
+
+    // Take first mews up to 'count'
+    let mews = feedmews_with_quotes.into_iter().take(input.count.into()).collect();
+    
+    Ok(mews)
 }
 
 // *** Liking ***

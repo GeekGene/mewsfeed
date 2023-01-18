@@ -70,8 +70,8 @@ pub struct FeedMew {
     pub mewmews: Vec<AnyLinkableHash>,
 }
 
-#[derive(Serialize, Deserialize, SerializedBytes, Debug)]
-pub struct MostLickedMewsRecentlyInput {
+#[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
+pub struct GetRecentMewsInput {
     pub count: u8,
     pub from_seconds_ago: u32,
 }
