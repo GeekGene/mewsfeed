@@ -8,29 +8,25 @@ pub const TIME_INDEX_LINK_TYPE: LinkTypes = LinkTypes::TimeIndexToMew;
 pub const TIME_INDEX_PATH_LINK_TYPE: LinkTypes = LinkTypes::TimeIndex;
 
 #[derive(Serialize, Deserialize, Debug, Clone, SerializedBytes)]
-pub struct IndexableRecord {
-    pub record_datetime: DateTime<Utc>,
-    pub record_ah: ActionHash,
-}
+pub struct IndexableRecord(Record);
 
 impl From<Record> for IndexableRecord {
-  fn from(record: Record) -> Self {
-      let record_timestamp = record.action().timestamp().as_seconds_and_nanos();
-      let record_datetime = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(record_timestamp.0, record_timestamp.1), Utc);
-
-      Self {
-          record_ah: record.action_hashed().clone().hash,
-          record_datetime,
-      }
-  }
+    fn from(record: Record) -> Self {
+        IndexableRecord(record)
+    }
 }
 
 impl IndexableEntry for IndexableRecord {
-  fn entry_time(&self) -> DateTime<Utc> {
-      self.record_datetime
-  }
+    fn entry_time(&self) -> DateTime<Utc> {
+        let record_timestamp = self.0.action().timestamp().as_seconds_and_nanos();
+        let datetime = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(record_timestamp.0, record_timestamp.1), Utc);
 
-  fn hash(&self) -> ExternResult<AnyLinkableHash> {
-      Ok(AnyLinkableHash::from(self.record_ah.clone()))
-  }
+        datetime
+    }
+  
+    fn hash(&self) -> ExternResult<EntryHash> {
+        let hash = EntryHash::from(self.0.action_hashed().entry_hash().unwrap().clone());
+
+        Ok(hash)
+    }
 }

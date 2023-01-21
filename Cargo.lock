@@ -536,8 +536,8 @@ dependencies = [
 
 [[package]]
 name = "hc_time_index"
-version = "0.2.0"
-source = "git+https://github.com/mattyg/holochain-time-index.git?branch=develop#077c9e62868ca5201ff23f93d1d687f4eef4ef09"
+version = "0.1.0"
+source = "git+https://github.com/holochain-open-dev/holochain-time-index.git#e814be16d919ba33c0e0a3fe38b7beb3cd9c54cb"
 dependencies = [
  "chrono",
  "hdi",

@@ -310,7 +310,7 @@ fn mews_recently_created(input: GetRecentMewsInput) -> ExternResult<Vec<FeedMew>
     
     let feedmews: Vec<FeedMew> = mew_links
         .into_iter()
-        .filter_map(|l| get(ActionHash::from(l.target), GetOptions { ..Default::default() }).unwrap_or(None))
+        .filter_map(|l| get(EntryHash::from(l.target), GetOptions { ..Default::default() }).unwrap_or(None))
         .map(|record| get_feed_mew_and_context(record.action_hashed().hash.clone()).unwrap())
         .collect();
 
