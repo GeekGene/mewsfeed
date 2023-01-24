@@ -1,4 +1,11 @@
 use hdi::prelude::*;
+use strum_macros::EnumIter;
+
+#[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
+pub struct DnaProperties {
+    pub ranking_agents_count: usize,
+    pub ranking_count: usize,
+}
 
 #[hdk_entry_defs]
 #[unit_enum(UnitEntryTypes)]
@@ -57,9 +64,8 @@ pub struct FeedOptions {
     pub option: String,
 }
 
-#[hdk_entry_helper]
+#[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[derive(Clone)]
 pub struct FeedMew {
     pub mew: Mew,
     pub action: Action,
@@ -76,6 +82,45 @@ pub struct GetRecentMewsInput {
     pub from_seconds_ago: u32,
 }
 
+#[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone, EnumIter)]
+pub enum MewRanking {
+    MostLicks,
+    MostReplies,
+    MostQuotes,
+    MostMewmews,
+}
+
+#[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
+pub struct GetRankedMewsByYearInput {
+    pub ranking_type: MewRanking,
+    pub count: u32,
+    pub year: u32,
+}
+
+#[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
+pub struct GetRankedMewsByMonthInput {
+    pub ranking_type: MewRanking,
+    pub count: u32,
+    pub year: u32,
+    pub month: u32
+}
+
+#[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
+pub struct GetRankedMewsByWeekInput {
+    pub ranking_type: MewRanking,
+    pub count: u32,
+    pub year: u32,
+    pub iso_week: u32
+}
+
+#[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
+pub struct GetRankedMewsByDayInput {
+    pub ranking_type: MewRanking,
+    pub count: u32,
+    pub year: u32,
+    pub ordinal: u32
+}
+
 #[hdk_link_types]
 pub enum LinkTypes {
     Mew,
@@ -87,7 +132,11 @@ pub enum LinkTypes {
     Tag,
     TagPrefix,
     TimeIndexToMew,
-    TimeIndex
+    TimeIndex,
+    RankingIndexMewsMostLicks,
+    RankingIndexMewsMostReplies,
+    RankingIndexMewsMostQuotes,
+    RankingIndexMewsMostMewmews
 }
 
 pub const MEW_PATH_SEGMENT: &str = "mew";
@@ -119,6 +168,32 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             },
             _ => Ok(ValidateCallbackResult::Valid),
         },
+        /* OpType::RegisterCreateLink { target_address, tag, link_type, .. } => match link_type {
+            LinkTypes::RankingIndexMostLicks => {
+                let record = must_get_valid_record(ActionHash::from(target_address))?;
+
+                let _: Mew = record
+                    .entry()
+                    .to_app_option()
+                    .unwrap()
+                    .ok_or(wasm_error!(WasmErrorInner::Guest(String::from("Malformed mew"))))?;
+
+                Ok(ValidateCallbackResult::Valid)
+            }
+            LinkTypes::RankingIndexMostReplies => {
+                
+                Ok(ValidateCallbackResult::Valid)
+            }
+            LinkTypes::RankingIndexMostQuotes => {
+                
+                Ok(ValidateCallbackResult::Valid)
+            }
+            LinkTypes::RankingIndexMostMewmews => {
+                
+                Ok(ValidateCallbackResult::Valid)
+            }
+            _ => Ok(ValidateCallbackResult::Valid),
+        }*/
         _ => Ok(ValidateCallbackResult::Valid),
     }
 }

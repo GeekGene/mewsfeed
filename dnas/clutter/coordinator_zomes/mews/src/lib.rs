@@ -1,11 +1,19 @@
-use hdk::prelude::*;
+use hdk::{prelude::*, hash_path::path::Component};
 use mews_integrity::*;
 use hc_time_index::*;
 use regex::Regex;
-use chrono::{NaiveDateTime, DateTime, Duration, Utc};
+use chrono::{NaiveDateTime, DateTime, Duration, Utc, Datelike};
+use strum::IntoEnumIterator;
+use hc_lib_ranking_index::RankingIndex;
 
 mod time_index;
 use time_index::*;
+
+mod traits;
+use traits::*;
+
+mod utils;
+use utils::*;
 
 #[hdk_extern]
 fn init(_: ()) -> ExternResult<InitCallbackResult> {
@@ -15,6 +23,8 @@ fn init(_: ()) -> ExternResult<InitCallbackResult> {
         TIME_INDEX_PATH_LINK_TYPE
     );
 
+    schedule("scheduled_check_publish_rankings")?;
+    
     Ok(InitCallbackResult::Pass)
 }
 
@@ -356,7 +366,6 @@ pub fn mews_most_replied(input: GetRecentMewsInput) -> ExternResult<Vec<FeedMew>
     Ok(mews)
 }
 
-
 #[hdk_extern]
 pub fn mews_most_mewmewed(input: GetRecentMewsInput) -> ExternResult<Vec<FeedMew>> {
     let feedmews = mews_recently_created(input.clone())?;
@@ -635,4 +644,137 @@ fn create_mew_tag_links(path_stem: &str, content: &str, mew_hash: ActionHash) ->
     let _link_search_tag = create_link(search_path_hash, path_hash.clone(), LinkTypes::TagPrefix, word.as_bytes().to_vec())?;
 
     Ok(())
+}
+
+// *** Rankings ***
+#[hdk_extern(infallible)]
+fn scheduled_check_publish_rankings(_: Option<Schedule>) -> Option<Schedule> {
+    let timestamp = sys_time().unwrap().as_seconds_and_nanos();
+    let datetime = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(timestamp.0, timestamp.1), Utc);
+    let year = datetime.year();
+    let month = datetime.month();
+    let iso_week = datetime.iso_week().week();
+    let ordinal = datetime.ordinal();
+
+    for ranking_type in MewRanking::iter() {
+        // Year
+        check_generate_rankings(
+            ranking_type.clone(),
+            Path::from(format!("rankings_index.by_year.{}", year - 1)),
+            date_range_year(year)
+        ).unwrap();
+
+        // Month 
+        check_generate_rankings(
+            ranking_type.clone(),
+            Path::from(format!("rankings_index.by_month.{}.{}", year, month - 1)),
+            date_range_month(year, month)
+        ).unwrap();
+
+        // Week
+        check_generate_rankings(
+            ranking_type.clone(),
+            Path::from(format!("rankings_index.by_week.{}.{}", year, iso_week - 1)),
+            date_range_week(year, iso_week)
+        ).unwrap();
+
+        // Day
+        check_generate_rankings(
+            ranking_type,
+            Path::from(format!("rankings_index.by_day.{}.{}", year, ordinal - 1)),
+            date_range_day(year, ordinal)
+        ).unwrap();
+    }
+
+    // Scheduled to run daily at 12:00AM, collecting the previous days rankings
+    Some(Schedule::Persisted("0 0 * * *".into()))
+}
+
+pub fn check_generate_rankings(ranking_type: MewRanking, base_path: Path, date_range: (DateTime<Utc>, DateTime<Utc>)) -> ExternResult<()> {
+    // Get DNA properties
+    let dna_properties = DnaProperties::try_from(dna_info()?.properties)
+        .map_err(|err| wasm_error!(WasmErrorInner::Guest(err.into())))?;
+    let ranking_agents_count = dna_properties.ranking_agents_count;
+    let ranking_count = dna_properties.ranking_count;
+    
+    // Ensure base_path exists
+    let ranking_link_type = match ranking_type {
+        MewRanking::MostLicks => LinkTypes::RankingIndexMewsMostLicks,
+        MewRanking::MostReplies => LinkTypes::RankingIndexMewsMostReplies,
+        MewRanking::MostQuotes => LinkTypes::RankingIndexMewsMostQuotes,
+        MewRanking::MostMewmews => LinkTypes::RankingIndexMewsMostMewmews,
+    };
+    let typed_base_path = base_path.clone().typed(ranking_link_type)?;
+    typed_base_path.ensure()?;
+
+    // Check if there are already RANKING_AGENTS_COUNT redundant ranking indexes
+    let existing_ranking_agents = get_links(typed_base_path.path_entry_hash()?, ranking_link_type, None)?;
+    if existing_ranking_agents.len() < ranking_agents_count {                 
+        // Generate new ranking index
+        let ranking_index = RankingIndex::new_with_default_mod(ScopedLinkType::try_from(ranking_link_type)?);
+
+        // Associate my ranking index with my agent pub key
+        let mut ranking_base_path = base_path.clone();
+        ranking_base_path.append_component(Component::from(format!("{}", agent_info()?.agent_initial_pubkey)));
+       
+        // Generate rankings
+        let mut feedmews = mews_created_in_date_range(date_range.0, date_range.1)?;
+        feedmews.sort_by_key(|a| ranking_type.score(a.clone()));
+        let feedmews_counted: Vec<FeedMew> = feedmews.into_iter().take(ranking_count).collect();
+
+        // Save rankings to my ranking index
+        for feedmew in feedmews_counted {
+            ranking_index.create_ranking(
+                AnyLinkableHash::from(feedmew.clone().action_hash), 
+                ranking_type.score(feedmew), 
+                None
+            )?;
+        }
+    }
+
+    Ok(())
+}
+
+/// Generates an eventually-consistent "psuedo-consensus" view of Rankings, aggregating the ranking indexes generated by multiple other agents
+/// The process is:
+///     - get all rankings links
+///     - de-duplicate identical rankings by different agents (i.e. matching base, target and link type)
+///     - calculate ranking yourself, sort by ranking
+///     - take first `count` of list
+/// 
+/// Trust Model:
+///     - Inclusion of entries in rankings list: 1/N (where N is the number of agents generating ranking indices for a round)
+///     - Sorting of rankings list: 0/N (every agent performs their own sorting and top X selection)
+pub fn get_rankings_consensus(ranking_type: MewRanking, base_path: Path, count: u32) -> ExternResult<Vec<FeedMew>> {
+    // Ensure base_path exists
+    let ranking_link_type = match ranking_type {
+        MewRanking::MostLicks => LinkTypes::RankingIndexMewsMostLicks,
+        MewRanking::MostReplies => LinkTypes::RankingIndexMewsMostReplies,
+        MewRanking::MostQuotes => LinkTypes::RankingIndexMewsMostQuotes,
+        MewRanking::MostMewmews => LinkTypes::RankingIndexMewsMostMewmews,
+    };
+    let base_path_typed = base_path.typed(ranking_link_type)?;
+    
+    let all_rankings = base_path_typed.children()?;
+    
+    // De-duplicate ranking links
+    let mut ranking_links_set = HashSet::new();
+    for ranking_link in all_rankings {
+        ranking_links_set.insert(DedupableLink(ranking_link));
+    }
+
+    // Get FeedMews
+    let mut feedmews: Vec<FeedMew> = ranking_links_set
+        .into_iter()
+        .filter_map(|l| get(ActionHash::from(l.0.target), GetOptions { ..Default::default() }).unwrap_or(None))
+        .map(|record| get_feed_mew_and_context(record.action_hashed().hash.clone()).unwrap())
+        .collect();
+
+    // Order by score, descending
+    feedmews.sort_by_key(|a| ranking_type.score(a.clone()));
+
+    // Take first count
+    let feedmews_ranked_counted = feedmews.into_iter().take(count.try_into().unwrap()).collect();
+
+    Ok(feedmews_ranked_counted)
 }

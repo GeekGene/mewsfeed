@@ -77,6 +77,40 @@ export interface GetRecentMewsInput {
   from_seconds_ago: number;
 }
 
+export enum MewRanking {
+  MostLicks,
+  MostReplies,
+  MostQuotes,
+  MostMewmews,
+}
+
+export interface GetRankedMewsByYearInput {
+  ranking_type: MewRanking;
+  count: number;
+  year: number;
+}
+
+export interface GetRankedMewsByMonthInput {
+  ranking_type: MewRanking;
+  count: number;
+  year: number;
+  month: number;
+}
+
+export interface GetRankedMewsByWeekInput {
+  ranking_type: MewRanking;
+  count: number;
+  year: number;
+  iso_week: number;
+}
+
+export interface GetRankedMewsByDayInput {
+  ranking_link_type: MewRanking;
+  count: number;
+  year: number;
+  ordinal: number;
+}
+
 export interface NotificationOptions {
   color?: string;
   textColor?: string;

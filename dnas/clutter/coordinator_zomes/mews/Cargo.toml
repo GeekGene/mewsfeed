@@ -12,6 +12,9 @@ derive_more = "0"
 regex = "1"
 serde = "1"
 chrono = { version = "0.4.22", default-features = false, features = ["clock", "std", "oldtime", "serde"] }
+strum = "0.24"
+strum_macros = "0.24"
 mews_integrity = {path = "../../integrity_zomes/mews"}
 hdk = {version = "0.0.163", features = ["encoding"]}
 hc_time_index = {git = "https://github.com/holochain-open-dev/holochain-time-index.git", package = "hc_time_index"}
+hc_lib_ranking_index = {git = "https://github.com/mattyg/ranking-index", branch = "feat/support-anylinkablehash-hc-175", package = "hc_lib_ranking_index"}

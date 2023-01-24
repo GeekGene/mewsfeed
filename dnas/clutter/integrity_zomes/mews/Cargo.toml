@@ -9,5 +9,7 @@ name = "mews_integrity"
 
 [dependencies]
 serde = "1"
+strum = "0.24"
+strum_macros = "0.24"
 
 hdi = "=0.1.10"
