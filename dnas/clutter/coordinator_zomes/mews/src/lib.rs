@@ -298,6 +298,11 @@ fn mews_recently_created(input: GetRecentMewsInput) -> ExternResult<Vec<FeedMew>
     let from_datetime = until_datetime - Duration::seconds(input.from_seconds_ago.into());
 
     // Get all mews with created in last 24 hours
+    mews_created_in_date_range(from_datetime, until_datetime)
+}
+
+
+fn mews_created_in_date_range(from_datetime: DateTime<Utc>, until_datetime: DateTime<Utc>) -> ExternResult<Vec<FeedMew>> {
     let mew_links: Vec<Link> = get_links_for_time_span(
         TIME_INDEX_NAME.into(), 
         from_datetime, 
