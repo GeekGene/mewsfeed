@@ -3,7 +3,7 @@ use strum_macros::EnumIter;
 
 #[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
 pub struct DnaProperties {
-    pub ranking_agents_count: usize,
+    pub redundant_rankings_count: usize,
     pub ranking_count: usize,
 }
 

@@ -7,6 +7,8 @@ integrity:
   properties:
     enforce_spam_limit: 20
     max_chunk_interval: 1000 # 1 second
+    redundant_rankings_count: 3
+    ranking_count: 10
   zomes:
     - name: profiles_integrity
       bundled: ../../../target/wasm32-unknown-unknown/release/profiles_integrity.wasm

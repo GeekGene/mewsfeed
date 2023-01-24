@@ -694,7 +694,7 @@ pub fn check_generate_rankings(ranking_type: MewRanking, base_path: Path, date_r
     // Get DNA properties
     let dna_properties = DnaProperties::try_from(dna_info()?.properties)
         .map_err(|err| wasm_error!(WasmErrorInner::Guest(err.into())))?;
-    let ranking_agents_count = dna_properties.ranking_agents_count;
+    let redundant_rankings_count = dna_properties.redundant_rankings_count;
     let ranking_count = dna_properties.ranking_count;
     
     // Ensure base_path exists
@@ -707,9 +707,9 @@ pub fn check_generate_rankings(ranking_type: MewRanking, base_path: Path, date_r
     let typed_base_path = base_path.clone().typed(ranking_link_type)?;
     typed_base_path.ensure()?;
 
-    // Check if there are already RANKING_AGENTS_COUNT redundant ranking indexes
+    // Check if there are already redundant_rankings_count redundant ranking indexes
     let existing_ranking_agents = get_links(typed_base_path.path_entry_hash()?, ranking_link_type, None)?;
-    if existing_ranking_agents.len() < ranking_agents_count {                 
+    if existing_ranking_agents.len() < redundant_rankings_count {                 
         // Generate new ranking index
         let ranking_index = RankingIndex::new_with_default_mod(ScopedLinkType::try_from(ranking_link_type)?);
 
