@@ -745,7 +745,13 @@ pub fn check_generate_rankings(ranking_type: MewRanking, base_path: Path, date_r
 /// Trust Model:
 ///     - Inclusion of entries in rankings list: 1/N (where N is the number of agents generating ranking indices for a round)
 ///     - Sorting of rankings list: 0/N (every agent performs their own sorting and top X selection)
-pub fn get_rankings_consensus(ranking_type: MewRanking, base_path: Path, count: u32) -> ExternResult<Vec<FeedMew>> {
+pub fn get_rankings_consensus(ranking_type: MewRanking, base_path: Path) -> ExternResult<Vec<FeedMew>> {
+    // Get DNA properties
+    let dna_properties = DnaProperties::try_from(dna_info()?.properties)
+        .map_err(|err| wasm_error!(WasmErrorInner::Guest(err.into())))?;
+    let count = dna_properties.ranking_count;
+    
+
     // Ensure base_path exists
     let ranking_link_type = match ranking_type {
         MewRanking::MostLicks => LinkTypes::RankingIndexMewsMostLicks,
@@ -777,4 +783,37 @@ pub fn get_rankings_consensus(ranking_type: MewRanking, base_path: Path, count: 
     let feedmews_ranked_counted = feedmews.into_iter().take(count.try_into().unwrap()).collect();
 
     Ok(feedmews_ranked_counted)
+}
+
+#[hdk_extern]
+pub fn get_rankings_consensus_by_year(input: GetRankedMewsByYearInput) -> ExternResult<Vec<FeedMew>> {
+    get_rankings_consensus(
+        input.ranking_type,
+        Path::from(format!("rankings_index.by_year.{}", input.year))
+    )
+}
+
+#[hdk_extern]
+pub fn get_rankings_consensus_by_month(input: GetRankedMewsByMonthInput) -> ExternResult<Vec<FeedMew>> {
+    get_rankings_consensus(
+        input.ranking_type,
+        Path::from(format!("rankings_index.by_month.{}.{}", input.year, input.month))
+    )
+}
+
+#[hdk_extern]
+pub fn get_rankings_consensus_by_week(input: GetRankedMewsByWeekInput) -> ExternResult<Vec<FeedMew>> {
+    get_rankings_consensus(
+        input.ranking_type,
+        Path::from(format!("rankings_index.by_week.{}.{}", input.year, input.iso_week))
+
+    )
+}
+
+#[hdk_extern]
+pub fn get_rankings_consensus_by_day(input: GetRankedMewsByDayInput) -> ExternResult<Vec<FeedMew>> {
+    get_rankings_consensus(
+        input.ranking_type,
+        Path::from(format!("rankings_index.by_day.{}.{}", input.year, input.ordinal))
+    )
 }
