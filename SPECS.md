@@ -25,7 +25,7 @@
    - [x] Location
  - [x] Search for users (by pathname/anchor)
      - [x] three character autocomplete
-     - [ ] Disambiguation page for usernames
+     - [ ] ~~Disambiguation page for usernames~~ (autocomplete in mew input)
  - [x] User Page
  - [x] Follow / Unfollow users (by agentkey on their page)
      - [x] Follow
@@ -47,11 +47,11 @@
      - [x] @user mentions
      - [x] #hashtags
      - [x] $cashtags ?
-     - [ ] ^links (in UI triggers a link constructor)
-- [ ] Search for
+     - [x] ^links (in UI triggers a link constructor)
+- [x] Search for
      - [ ] @user mentions
-     - [ ] #hashtags
-     - [ ] $cashtags
+     - [x] #hashtags
+     - [x] $cashtags
  - [ ] Open social preview (e.g. thumbnail, mewmew box, etc)
  - [ ] Attach / Upload Picture (file sharing mixin/zome)
      - [ ] Enforce 5mb size limit (UI should auto-scale down images above it)
@@ -67,7 +67,7 @@
 - [x] Preview Profile
 - [ ] **sPin a Yarn** (feature unique to clutter)
   - [ ] Limit N pinned yarns (2?)
-  - [ ] Threaded / Git/branching view for yarn
+  - [-] Threaded / Git/branching view for yarn (partly done)
 - [ ] $cashtag transaction accounting
   - [ ] tx grammar
   - [ ] accounting nodes

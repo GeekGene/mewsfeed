@@ -76,6 +76,7 @@ pub enum LinkTypes {
     Mewmew,
     Quote,
     Tag,
+    TagPrefix,
 }
 
 pub const MEW_PATH_SEGMENT: &str = "mew";
