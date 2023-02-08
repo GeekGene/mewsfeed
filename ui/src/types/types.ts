@@ -92,3 +92,9 @@ export interface NotificationOptions {
   actions?: Array<() => void>;
   onDismiss?: () => void;
 }
+
+export enum SearchResult {
+  Agent,
+  Hashtag,
+  Cashtag,
+}
