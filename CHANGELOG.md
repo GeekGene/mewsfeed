@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## Unreleased
 - Human-readable timestamps
 - Search for hashtags, cashtags
+- Display URL in tooltip when hovering over mew links
 
 ### Added
 - URL hyperlinks in mews.
