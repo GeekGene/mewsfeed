@@ -12,7 +12,9 @@
     <q-tab :ripple="false" name="year" label="This Year" />
   </q-tabs>
 
-  <h6 class="q-mb-sm">Top Licks 👅</h6>
+  <h6 class="q-mb-sm">
+    Top Licks <q-icon name="svguse:/icons.svg#lick" color="pink-4" />
+  </h6>
   <MewList
     class="q-mb-xl"
     :mews="store.topMewsList('licks', tabSelected)"
