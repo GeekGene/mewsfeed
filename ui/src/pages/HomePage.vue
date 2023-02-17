@@ -29,7 +29,6 @@ onMounted(() => {
 });
 
 const hasTopMewsLists = computed(() => {
-  console.log(store.topMewsAh);
   return (
     store.topMewsAh["licks"]["year"]?.length === 0 &&
     store.topMewsAh["replies"]["year"]?.length === 0 &&
