@@ -1,14 +1,14 @@
 <template>
   <q-page class="text-center" :style-fn="pageHeightCorrection">
     <div v-if="hasTopMewsLists">
-      <h6>Meeow, you're in!</h6>
-      <h2>Welcome to the Clutter</h2>
-      <q-img width="40%" src="@/assets/img/cat-eating-bird-circle.png" />
-    </div>
-    <div v-else>
       <h6 class="q-mb-none q-mt-none">Meeow, you're in!</h6>
       <h2 class="q-mt-sm">Welcome to the Clutter</h2>
       <TopMewsList />
+    </div>
+    <div v-else>
+      <h6>Meeow, you're in!</h6>
+      <h2>Welcome to the Clutter</h2>
+      <q-img width="40%" src="@/assets/img/cat-eating-bird-circle.png" />
     </div>
   </q-page>
 </template>
@@ -30,10 +30,10 @@ onMounted(() => {
 
 const hasTopMewsLists = computed(() => {
   return (
-    store.topMewsAh["licks"]["year"]?.length === 0 &&
-    store.topMewsAh["replies"]["year"]?.length === 0 &&
-    store.topMewsAh["mewmews"]["year"]?.length === 0 &&
-    store.topMewsAh["quotes"]["year"]?.length === 0
+    store.topMewsAh["licks"]["year"]?.length > 0 ||
+    store.topMewsAh["replies"]["year"]?.length > 0 ||
+    store.topMewsAh["mewmews"]["year"]?.length > 0 ||
+    store.topMewsAh["quotes"]["year"]?.length > 0
   );
 });
 </script>
