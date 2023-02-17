@@ -1,31 +1,34 @@
 <template>
   <q-page class="text-center" :style-fn="pageHeightCorrection">
-    <div v-if="hasTopMewsLists">
-      <h6 class="q-mb-none q-mt-none">Meeow, you're in!</h6>
-      <h2 class="q-mt-sm">Welcome to the Clutter</h2>
-      <TopMewsList />
-    </div>
-    <div v-else>
-      <h6>Meeow, you're in!</h6>
-      <h2>Welcome to the Clutter</h2>
-      <q-img width="40%" src="@/assets/img/cat-eating-bird-circle.png" />
-    </div>
+    <h6 class="q-mb-none q-mt-none">Meeow, you're in!</h6>
+    <h2 class="q-mt-sm">Welcome to the Clutter</h2>
+    <q-spinner-pie
+      v-if="loading"
+      color="secondary"
+      size="md"
+      class="q-mx-lg q-my-xs"
+    />
+    <TopMewsList v-else-if="hasTopMewsLists" />
+    <q-img v-else width="40%" src="@/assets/img/cat-eating-bird-circle.png" />
   </q-page>
 </template>
 
 <script setup lang="ts">
 import { useClutterStore } from "@/stores";
 import { pageHeightCorrection } from "@/utils/page-layout";
-import { computed, onMounted } from "vue";
+import { computed, onMounted, ref } from "vue";
 import TopMewsList from "@/components/TopMewsList.vue";
 
 const store = useClutterStore();
+const loading = ref<boolean>(true);
 
-onMounted(() => {
-  store.fetchTopMews("licks");
-  store.fetchTopMews("replies");
-  store.fetchTopMews("mewmews");
-  store.fetchTopMews("quotes");
+onMounted(async () => {
+  await store.fetchTopMews("licks");
+  await store.fetchTopMews("replies");
+  await store.fetchTopMews("mewmews");
+  await store.fetchTopMews("quotes");
+
+  loading.value = false;
 });
 
 const hasTopMewsLists = computed(() => {
