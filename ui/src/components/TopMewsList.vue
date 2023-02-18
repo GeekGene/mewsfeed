@@ -13,7 +13,7 @@
   </q-tabs>
 
   <h6 class="q-mb-sm">
-    Top Licks <q-icon name="svguse:/icons.svg#lick" color="pink-4" />
+    Most Licks <q-icon name="svguse:/icons.svg#lick" color="pink-4" />
   </h6>
   <MewList
     class="q-mb-xl"
@@ -30,7 +30,7 @@
   />
 
   <h6 class="q-mb-sm items-center col">
-    Top Mewmews <q-icon size="sm" name="forward" flat />
+    Most Mewmews <q-icon size="sm" name="forward" flat />
   </h6>
   <MewList
     class="q-mb-xl"
@@ -40,7 +40,7 @@
   />
 
   <h6 class="q-mb-sm">
-    Top Quotes <q-icon size="sm" name="format_quote" flat />
+    Most Quoted <q-icon size="sm" name="format_quote" flat />
   </h6>
   <MewList
     class="q-mb-xl"
