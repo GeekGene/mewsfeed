@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use hdk::prelude::*;
 use mews_integrity::*;
 use hc_time_index::*;
@@ -292,12 +293,11 @@ pub fn mews_feed(_options: FeedOptions) -> ExternResult<Vec<FeedMew>> {
     Ok(feed)
 }
 
-fn mews_recently_created(input: GetRecentMewsInput) -> ExternResult<Vec<FeedMew>> {
-    let timestamp = sys_time()?.as_seconds_and_nanos();
-    let until_datetime = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(timestamp.0, timestamp.1), Utc);
-    let from_datetime = until_datetime - Duration::seconds(input.from_seconds_ago.into());
 
-    // Get all mews with created in last 24 hours
+// *** Mews Rankings ***
+
+fn mews_created_within_timespan(from_datetime: DateTime<Utc>, until_datetime: DateTime<Utc>) -> ExternResult<Vec<FeedMew>> {
+    // Get all mews with created within time period
     let mew_links: Vec<Link> = get_links_for_time_span(
         TIME_INDEX_NAME.into(), 
         from_datetime, 
@@ -317,73 +317,91 @@ fn mews_recently_created(input: GetRecentMewsInput) -> ExternResult<Vec<FeedMew>
     Ok(feedmews)
 }
 
-#[hdk_extern]
-pub fn mews_most_licked(input: GetRecentMewsInput) -> ExternResult<Vec<FeedMew>> {
-    let feedmews = mews_recently_created(input.clone())?;
+fn filter_feedmews_by_timespan(feedmews: Vec<FeedMew>, from: DateTime<Utc>, until: DateTime<Utc>) -> Vec<FeedMew> {
+    let feedmews_filtered: Vec<FeedMew> = feedmews
+        .into_iter()
+        .filter(|f| -> bool {
+            let timestamp = f.action.timestamp().as_seconds_and_nanos();
+
+            let timestamp_within_timespan = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(timestamp.0, timestamp.1), Utc) >= from && 
+                DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(timestamp.0, timestamp.1), Utc) <= until;
+        
+            timestamp_within_timespan
+        })
+        .collect();
+
+    feedmews_filtered
+}
+
+fn mews_in_recent_timespans(filter_by: impl Fn(&FeedMew) -> bool, sort_by: impl Fn(&FeedMew, &FeedMew) -> Ordering, count: u8) -> ExternResult<FeedMewsInRecentTimePeriods> {
+    // Calculate timespan of current year
+    let timestamp = sys_time()?.as_seconds_and_nanos();
+    let until_datetime = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(timestamp.0, timestamp.1), Utc);
+    let from_datetime = until_datetime - Duration::seconds(24 * 60 * 60 * 365);
+
+    // Fetch all mews from this year
+    let feedmews_year = mews_created_within_timespan(from_datetime, until_datetime)?;
 
     // Sort mews by licks count, descending
-    let mut feedmews_with_licks: Vec<FeedMew> = feedmews
+    let mut feedmews_year_sorted: Vec<FeedMew> = feedmews_year.clone()
         .into_iter()
-        .filter(|a| a.licks.len() > 0)
+        .filter(filter_by)
         .collect();
-    feedmews_with_licks.sort_by(|a, b| b.licks.len().cmp(&a.licks.len()));
+    feedmews_year_sorted.sort_by(sort_by);
 
-    // Take first mews up to 'count'
-    let mews = feedmews_with_licks.into_iter().take(input.count.into()).collect();
-    
-    Ok(mews)
+    // Filter into sub-lists of mews created this year, month, week, and day
+    let feedmews_month_sorted = filter_feedmews_by_timespan(feedmews_year_sorted.clone(), until_datetime - Duration::seconds(24 * 60 * 60 * 31), until_datetime);
+    let feedmews_week_sorted = filter_feedmews_by_timespan(feedmews_month_sorted.clone(), until_datetime - Duration::seconds(24 * 60 * 60 * 7), until_datetime);
+    let feedmews_day_sorted = filter_feedmews_by_timespan(feedmews_week_sorted.clone(), until_datetime - Duration::seconds(24 * 60 * 60), until_datetime);
+
+    // Take first mews up to 'count' for each sub-list
+    let feedmews_year_sorted_counted = feedmews_year_sorted.into_iter().take(count.into()).collect();
+    let feedmews_month_sorted_counted = feedmews_month_sorted.into_iter().take(count.into()).collect();
+    let feedmews_week_sorted_counted = feedmews_week_sorted.into_iter().take(count.into()).collect();
+    let feedmews_day_sorted_counted = feedmews_day_sorted.into_iter().take(count.into()).collect();
+
+    Ok(FeedMewsInRecentTimePeriods {
+        day: feedmews_day_sorted_counted,
+        week: feedmews_week_sorted_counted,
+        month: feedmews_month_sorted_counted,
+        year: feedmews_year_sorted_counted,
+    })
 }
 
 #[hdk_extern]
-pub fn mews_most_replied(input: GetRecentMewsInput) -> ExternResult<Vec<FeedMew>> {
-    let feedmews = mews_recently_created(input.clone())?;
-
-    // Sort mews by mewmews count, descending
-    let mut feedmews_with_replies: Vec<FeedMew> = feedmews
-        .into_iter()
-        .filter(|a| a.replies.len() > 0)
-        .collect();
-    feedmews_with_replies.sort_by(|a, b| b.replies.len().cmp(&a.replies.len()));
-
-    // Take first mews up to 'count'
-    let mews = feedmews_with_replies.into_iter().take(input.count.into()).collect();
-    
-    Ok(mews)
-}
-
-
-#[hdk_extern]
-pub fn mews_most_mewmewed(input: GetRecentMewsInput) -> ExternResult<Vec<FeedMew>> {
-    let feedmews = mews_recently_created(input.clone())?;
-
-    // Sort mews by mewmews count, descending
-    let mut feedmews_with_mewmews: Vec<FeedMew> = feedmews
-        .into_iter()
-        .filter(|a| a.mewmews.len() > 0)
-        .collect();
-    feedmews_with_mewmews.sort_by(|a, b| b.mewmews.len().cmp(&a.mewmews.len()));
-
-    // Take first mews up to 'count'
-    let mews = feedmews_with_mewmews.into_iter().take(input.count.into()).collect();
-    
-    Ok(mews)
+pub fn mews_most_licked(count: u8) -> ExternResult<FeedMewsInRecentTimePeriods> {
+    mews_in_recent_timespans(
+        |a| a.licks.len() > 0,
+        |a, b| b.licks.len().cmp(&a.licks.len()),
+        count
+    )
 }
 
 #[hdk_extern]
-pub fn mews_most_quoted(input: GetRecentMewsInput) -> ExternResult<Vec<FeedMew>> {
-    let feedmews = mews_recently_created(input.clone())?;
+pub fn mews_most_replied(count: u8) -> ExternResult<FeedMewsInRecentTimePeriods> {
+    mews_in_recent_timespans(
+        |a| a.replies.len() > 0,
+        |a, b| b.replies.len().cmp(&a.replies.len()),
+        count
+    )
+}
 
-    // Sort mews by quotes count, descending
-    let mut feedmews_with_quotes: Vec<FeedMew> = feedmews
-        .into_iter()
-        .filter(|a| a.quotes.len() > 0)
-        .collect();
-    feedmews_with_quotes.sort_by(|a, b| b.quotes.len().cmp(&a.quotes.len()));
+#[hdk_extern]
+pub fn mews_most_mewmewed(count: u8) -> ExternResult<FeedMewsInRecentTimePeriods> {
+    mews_in_recent_timespans(
+        |a| a.mewmews.len() > 0,
+        |a, b| b.mewmews.len().cmp(&a.mewmews.len()),
+        count
+    )
+}
 
-    // Take first mews up to 'count'
-    let mews = feedmews_with_quotes.into_iter().take(input.count.into()).collect();
-    
-    Ok(mews)
+#[hdk_extern]
+pub fn mews_most_quoted(count: u8) -> ExternResult<FeedMewsInRecentTimePeriods> {
+    mews_in_recent_timespans(
+        |a| a.quotes.len() > 0,
+        |a, b| b.quotes.len().cmp(&a.quotes.len()),
+        count
+    )
 }
 
 // *** Liking ***

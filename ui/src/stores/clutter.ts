@@ -78,25 +78,14 @@ export const makeUseClutterStore = () => {
       async fetchTopMews(interaction: TopMewsInteractions) {
         try {
           this.isLoadingTop[interaction] = true;
-          const [mews_day, mews_week, mews_month, mews_year] =
-            await Promise.all([
-              mewsTopList(interaction, {
-                count: 5,
-                from_seconds_ago: 24 * 60 * 60,
-              }),
-              mewsTopList(interaction, {
-                count: 5,
-                from_seconds_ago: 24 * 60 * 60 * 7,
-              }),
-              mewsTopList(interaction, {
-                count: 5,
-                from_seconds_ago: 24 * 60 * 60 * 31,
-              }),
-              mewsTopList(interaction, {
-                count: 5,
-                from_seconds_ago: 24 * 60 * 60 * 365,
-              }),
-            ]);
+
+          const {
+            day: mews_day,
+            week: mews_week,
+            month: mews_month,
+            year: mews_year,
+          } = await mewsTopList(interaction, 5);
+
           this.topMewsAh[interaction]["day"] = mews_day.map((feedMew) => {
             const hash = serializeHash(feedMew.actionHash);
             this.mews.set(hash, feedMew);

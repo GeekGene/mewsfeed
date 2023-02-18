@@ -72,9 +72,11 @@ export interface FeedOptions {
   option: string;
 }
 
-export interface GetRecentMewsInput {
-  count: number;
-  from_seconds_ago: number;
+export interface FeedMewsInRecentTimePeriods {
+  day: FeedMew[];
+  week: FeedMew[];
+  month: FeedMew[];
+  year: FeedMew[];
 }
 
 export interface NotificationOptions {

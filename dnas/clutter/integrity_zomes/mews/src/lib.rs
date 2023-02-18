@@ -71,9 +71,11 @@ pub struct FeedMew {
 }
 
 #[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
-pub struct GetRecentMewsInput {
-    pub count: u8,
-    pub from_seconds_ago: u32,
+pub struct FeedMewsInRecentTimePeriods {
+    pub day: Vec<FeedMew>,
+    pub week: Vec<FeedMew>,
+    pub month: Vec<FeedMew>,
+    pub year: Vec<FeedMew>,
 }
 
 #[hdk_link_types]

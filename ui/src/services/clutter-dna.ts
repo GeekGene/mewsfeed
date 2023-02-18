@@ -6,8 +6,8 @@ import { ActionHash, AgentPubKey, CallZomeRequest } from "@holochain/client";
 import {
   CreateMewInput,
   FeedMew,
+  FeedMewsInRecentTimePeriods,
   FeedOptions,
-  GetRecentMewsInput,
   Mew,
   TopMewsInteractions,
 } from "../types/types";
@@ -70,16 +70,16 @@ export const mewsBy = async (
 
 export const mewsTopList = async (
   interaction: TopMewsInteractions,
-  options: GetRecentMewsInput
-): Promise<Array<FeedMew>> => {
+  count: number
+): Promise<FeedMewsInRecentTimePeriods> => {
   if (interaction === "licks") {
-    return callZome(MewsFn.MewsMostLicked, options);
+    return callZome(MewsFn.MewsMostLicked, count);
   } else if (interaction === "mewmews") {
-    return callZome(MewsFn.MewsMostMewmewed, options);
+    return callZome(MewsFn.MewsMostMewmewed, count);
   } else if (interaction === "quotes") {
-    return callZome(MewsFn.MewsMostQuoted, options);
+    return callZome(MewsFn.MewsMostQuoted, count);
   } else if (interaction === "replies") {
-    return callZome(MewsFn.MewsMostReplied, options);
+    return callZome(MewsFn.MewsMostReplied, count);
   } else {
     throw Error("Interaction type must be defined");
   }
