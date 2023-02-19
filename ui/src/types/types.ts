@@ -72,6 +72,11 @@ export interface FeedOptions {
   option: string;
 }
 
+export interface GetRecentMewsInput {
+  count: number;
+  current_timestamp: number; // unix timestamp
+}
+
 export interface FeedMewsInRecentTimePeriods {
   day: FeedMew[];
   week: FeedMew[];

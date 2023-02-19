@@ -333,10 +333,10 @@ fn filter_feedmews_by_timespan(feedmews: Vec<FeedMew>, from: DateTime<Utc>, unti
     feedmews_filtered
 }
 
-fn mews_in_recent_timespans(filter_by: impl Fn(&FeedMew) -> bool, sort_by: impl Fn(&FeedMew, &FeedMew) -> Ordering, count: u8) -> ExternResult<FeedMewsInRecentTimePeriods> {
+fn mews_in_recent_timespans(current_timestamp: Timestamp, count: u8, filter_by: impl Fn(&FeedMew) -> bool, sort_by: impl Fn(&FeedMew, &FeedMew) -> Ordering) -> ExternResult<FeedMewsInRecentTimePeriods> {
     // Calculate timespan of current year
-    let timestamp = sys_time()?.as_seconds_and_nanos();
-    let until_datetime = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(timestamp.0, timestamp.1), Utc);
+    let (seconds, nanos) = current_timestamp.as_seconds_and_nanos();
+    let until_datetime = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(seconds, nanos), Utc);
     let from_datetime = until_datetime - Duration::seconds(24 * 60 * 60 * 365);
 
     // Fetch all mews from this year
@@ -369,38 +369,42 @@ fn mews_in_recent_timespans(filter_by: impl Fn(&FeedMew) -> bool, sort_by: impl 
 }
 
 #[hdk_extern]
-pub fn mews_most_licked(count: u8) -> ExternResult<FeedMewsInRecentTimePeriods> {
+pub fn mews_most_licked(input: GetRecentMewsInput) -> ExternResult<FeedMewsInRecentTimePeriods> {
     mews_in_recent_timespans(
+        input.current_timestamp,
+        input.count,
         |a| a.licks.len() > 0,
         |a, b| b.licks.len().cmp(&a.licks.len()),
-        count
     )
 }
 
 #[hdk_extern]
-pub fn mews_most_replied(count: u8) -> ExternResult<FeedMewsInRecentTimePeriods> {
+pub fn mews_most_replied(input: GetRecentMewsInput) -> ExternResult<FeedMewsInRecentTimePeriods> {
     mews_in_recent_timespans(
+        input.current_timestamp,
+        input.count,
         |a| a.replies.len() > 0,
         |a, b| b.replies.len().cmp(&a.replies.len()),
-        count
     )
 }
 
 #[hdk_extern]
-pub fn mews_most_mewmewed(count: u8) -> ExternResult<FeedMewsInRecentTimePeriods> {
+pub fn mews_most_mewmewed(input: GetRecentMewsInput) -> ExternResult<FeedMewsInRecentTimePeriods> {
     mews_in_recent_timespans(
+        input.current_timestamp,
+        input.count,
         |a| a.mewmews.len() > 0,
         |a, b| b.mewmews.len().cmp(&a.mewmews.len()),
-        count
     )
 }
 
 #[hdk_extern]
-pub fn mews_most_quoted(count: u8) -> ExternResult<FeedMewsInRecentTimePeriods> {
+pub fn mews_most_quoted(input: GetRecentMewsInput) -> ExternResult<FeedMewsInRecentTimePeriods> {
     mews_in_recent_timespans(
+        input.current_timestamp,
+        input.count,
         |a| a.quotes.len() > 0,
         |a, b| b.quotes.len().cmp(&a.quotes.len()),
-        count
     )
 }
 

@@ -8,6 +8,7 @@ import {
   FeedMew,
   FeedMewsInRecentTimePeriods,
   FeedOptions,
+  GetRecentMewsInput,
   Mew,
   TopMewsInteractions,
 } from "../types/types";
@@ -70,16 +71,16 @@ export const mewsBy = async (
 
 export const mewsTopList = async (
   interaction: TopMewsInteractions,
-  count: number
+  input: GetRecentMewsInput
 ): Promise<FeedMewsInRecentTimePeriods> => {
   if (interaction === "licks") {
-    return callZome(MewsFn.MewsMostLicked, count);
+    return callZome(MewsFn.MewsMostLicked, input);
   } else if (interaction === "mewmews") {
-    return callZome(MewsFn.MewsMostMewmewed, count);
+    return callZome(MewsFn.MewsMostMewmewed, input);
   } else if (interaction === "quotes") {
-    return callZome(MewsFn.MewsMostQuoted, count);
+    return callZome(MewsFn.MewsMostQuoted, input);
   } else if (interaction === "replies") {
-    return callZome(MewsFn.MewsMostReplied, count);
+    return callZome(MewsFn.MewsMostReplied, input);
   } else {
     throw Error("Interaction type must be defined");
   }

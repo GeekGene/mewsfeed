@@ -4,10 +4,12 @@ import test from "tape";
 import {
   CreateMewInput,
   FeedMew,
+  FeedMewsInRecentTimePeriods,
   LinkTargetName,
   MewTypeName,
 } from "../../../ui/src/types/types.js";
 import { clutterHapp, sleep } from "../utils.js";
+import dayjs from "dayjs";
 
 test("Mew must not be longer than 200 chars", async (t) => {
   const scenario = new Scenario();
@@ -741,21 +743,118 @@ test("Mew Interaction - quoting a mew should be linked correctly", async (t) => 
   await scenario.cleanUp();
 });
 
+test("Most Licked Mews - should only contain mews created within timespan", async (t) => {
+  const scenario = new Scenario();
+  const alice = await scenario.addPlayerWithHappBundle(clutterHapp);
+  const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
+
+  const mewContent = "test-mew";
+  const mewInput: CreateMewInput = {
+    mewType: { [MewTypeName.Original]: null },
+    text: mewContent,
+  };
+  const actionHash = await aliceCallMewsZome("create_mew", mewInput);
+  await aliceCallMewsZome("lick_mew", actionHash);
+
+  let aliceMewsFeed: FeedMewsInRecentTimePeriods = await aliceCallMewsZome(
+    "mews_most_licked",
+    {
+      count: 5,
+      current_timestamp: dayjs().valueOf() * 1000,
+    }
+  );
+  t.ok(
+    aliceMewsFeed.day.length === 1,
+    "alice's most_licked_mews_recently includes her mew"
+  );
+  t.equal(
+    aliceMewsFeed.day[0].mew.content?.text,
+    mewContent,
+    "mew content matches"
+  );
+
+  await sleep(10000);
+
+  aliceMewsFeed = await aliceCallMewsZome("mews_most_licked", {
+    count: 5,
+    current_timestamp: dayjs().add(1, "day").valueOf() * 1000,
+  });
+
+  t.ok(
+    aliceMewsFeed.day.length === 0 &&
+      aliceMewsFeed.week.length === 1 &&
+      aliceMewsFeed.month.length === 1 &&
+      aliceMewsFeed.year.length === 1,
+    "alice's mews_most_licked day does not include older mews"
+  );
+
+  aliceMewsFeed = await aliceCallMewsZome("mews_most_licked", {
+    count: 5,
+    current_timestamp: dayjs().add(1, "week").valueOf() * 1000,
+  });
+
+  t.ok(
+    aliceMewsFeed.day.length === 0 &&
+      aliceMewsFeed.week.length === 0 &&
+      aliceMewsFeed.month.length === 1 &&
+      aliceMewsFeed.year.length === 1,
+    "alice's mews_most_licked week does not include older mews"
+  );
+
+  aliceMewsFeed = await aliceCallMewsZome("mews_most_licked", {
+    count: 5,
+    current_timestamp: dayjs().add(32, "days").valueOf() * 1000,
+  });
+
+  t.ok(
+    aliceMewsFeed.day.length === 0 &&
+      aliceMewsFeed.week.length === 0 &&
+      aliceMewsFeed.month.length === 0 &&
+      aliceMewsFeed.year.length === 1,
+    "alice's mews_most_licked month does not include older mews"
+  );
+
+  aliceMewsFeed = await aliceCallMewsZome("mews_most_licked", {
+    count: 5,
+    current_timestamp: dayjs().add(1, "year").add(1, "day").valueOf() * 1000,
+  });
+
+  t.ok(
+    aliceMewsFeed.day.length === 0 &&
+      aliceMewsFeed.week.length === 0 &&
+      aliceMewsFeed.month.length === 0 &&
+      aliceMewsFeed.year.length === 0,
+    "alice's mews_most_licked year does not include older mews"
+  );
+
+  await scenario.cleanUp();
+});
+
 test("Most Licked Mews - should only contain licked mews", async (t) => {
   const scenario = new Scenario();
   const alice = await scenario.addPlayerWithHappBundle(clutterHapp);
   const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
 
-  const aliceMostLickedMewsInitial: FeedMew[] = await aliceCallMewsZome(
-    "most_licked_mews_recently",
-    {
+  const aliceMostLickedMewsInitial: FeedMewsInRecentTimePeriods =
+    await aliceCallMewsZome("mews_most_licked", {
       count: 5,
-      from_seconds_ago: 24 * 60 * 60,
-    }
+      current_timestamp: Date.now() * 1000,
+    });
+  t.ok(
+    aliceMostLickedMewsInitial.day.length === 0,
+    "mews_most_licked day is initially empty"
   );
   t.ok(
-    aliceMostLickedMewsInitial.length === 0,
-    "most_licked_mews_recently is initially empty"
+    aliceMostLickedMewsInitial.week.length === 0,
+    "mews_most_licked week is initially empty"
+  );
+  t.ok(
+    aliceMostLickedMewsInitial.month.length === 0,
+    "mews_most_licked month is initially empty"
+  );
+  t.ok(
+    aliceMostLickedMewsInitial.year.length === 0,
+    "mews_most_licked year is initially empty"
   );
 
   const mewContent = "test-mew";
@@ -765,16 +864,28 @@ test("Most Licked Mews - should only contain licked mews", async (t) => {
   };
   await aliceCallMewsZome("create_mew", mewInput);
 
-  const aliceMewsFeed: FeedMew[] = await aliceCallMewsZome(
-    "most_licked_mews_recently",
+  const aliceMewsFeed: FeedMewsInRecentTimePeriods = await aliceCallMewsZome(
+    "mews_most_licked",
     {
       count: 5,
-      from_seconds_ago: 24 * 60 * 60,
+      current_timestamp: Date.now() * 1000,
     }
   );
   t.ok(
-    aliceMewsFeed.length === 0,
-    "alice's most_licked_mews_recently does not include her mew"
+    aliceMewsFeed.day.length === 0,
+    "alice's mews_most_licked day does not include her mew"
+  );
+  t.ok(
+    aliceMewsFeed.week.length === 0,
+    "alice's mews_most_licked week does not include her mew"
+  );
+  t.ok(
+    aliceMewsFeed.month.length === 0,
+    "alice's mews_most_licked month does not include her mew"
+  );
+  t.ok(
+    aliceMewsFeed.year.length === 0,
+    "alice's mews_most_licked year does not include her mew"
   );
 
   await scenario.cleanUp();
@@ -800,16 +911,28 @@ test("Most Licked Mews - should include mews of non-followed agent", async (t) =
 
   await pause(300);
 
-  const bobMewsFeedInitial: FeedMew[] = await bobCallMewsZome(
-    "most_licked_mews_recently",
+  const bobMewsFeedInitial: FeedMewsInRecentTimePeriods = await bobCallMewsZome(
+    "mews_most_licked",
     {
       count: 5,
-      from_seconds_ago: 24 * 60 * 60,
+      current_timestamp: Date.now() * 1000,
     }
   );
   t.ok(
-    bobMewsFeedInitial.length === 1,
-    `bob's most_licked_mews_recently includes 1 mew`
+    bobMewsFeedInitial.day.length === 1,
+    `bob's mews_most_licked day includes 1 mew`
+  );
+  t.ok(
+    bobMewsFeedInitial.week.length === 1,
+    `bob's mews_most_licked week includes 1 mew`
+  );
+  t.ok(
+    bobMewsFeedInitial.month.length === 1,
+    `bob's mews_most_licked month includes 1 mew`
+  );
+  t.ok(
+    bobMewsFeedInitial.year.length === 1,
+    `bob's mews_most_licked year includes 1 mew`
   );
 
   await scenario.cleanUp();
@@ -878,77 +1001,42 @@ test("Most Licked Mews - should be ordered number of licks in descending order",
 
   await pause(100);
 
-  const aliceMostLickedMews: FeedMew[] = await aliceCallMewsZome(
-    "most_licked_mews_recently",
-    {
+  const aliceMostLickedMews: FeedMewsInRecentTimePeriods =
+    await aliceCallMewsZome("mews_most_licked", {
       count: 5,
-      from_seconds_ago: 24 * 60 * 60,
-    }
-  );
+      current_timestamp: Date.now() * 1000,
+    });
 
   t.ok(
-    aliceMostLickedMews.length === 3,
-    "alice's most_licked_mews_recently feed includes all 3 licked mews"
+    aliceMostLickedMews.day.length === 3,
+    "alice's mews_most_licked day feed includes all 3 licked mews"
+  );
+  t.ok(
+    aliceMostLickedMews.week.length === 3,
+    "alice's mews_most_licked week feed includes all 3 licked mews"
+  );
+  t.ok(
+    aliceMostLickedMews.month.length === 3,
+    "alice's mews_most_licked month feed includes all 3 licked mews"
+  );
+  t.ok(
+    aliceMostLickedMews.year.length === 3,
+    "alice's mews_most_licked year feed includes all 3 licked mews"
   );
   t.equal(
-    aliceMostLickedMews[0].mew.content?.text,
+    aliceMostLickedMews.day[0].mew.content?.text,
     fourthMewContent,
     "mew 1 in feed is fourth mew"
   );
   t.equal(
-    aliceMostLickedMews[1].mew.content?.text,
+    aliceMostLickedMews.day[1].mew.content?.text,
     secondMewContent,
     "mew 2 in feed is second mew"
   );
   t.equal(
-    aliceMostLickedMews[2].mew.content?.text,
+    aliceMostLickedMews.day[2].mew.content?.text,
     thirdMewContent,
     "mew 3 in feed is third mew"
-  );
-
-  await scenario.cleanUp();
-});
-
-test("Most Licked Mews - should only contain mews created within from_seconds_ago", async (t) => {
-  const scenario = new Scenario();
-  const alice = await scenario.addPlayerWithHappBundle(clutterHapp);
-  const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
-
-  const mewContent = "test-mew";
-  const mewInput: CreateMewInput = {
-    mewType: { [MewTypeName.Original]: null },
-    text: mewContent,
-  };
-  const actionHash = await aliceCallMewsZome("create_mew", mewInput);
-  await aliceCallMewsZome("lick_mew", actionHash);
-
-  let aliceMewsFeed: FeedMew[] = await aliceCallMewsZome(
-    "most_licked_mews_recently",
-    {
-      count: 5,
-      from_seconds_ago: 24 * 60 * 60,
-    }
-  );
-  t.ok(
-    aliceMewsFeed.length === 1,
-    "alice's most_licked_mews_recently includes her mew"
-  );
-  t.equal(
-    aliceMewsFeed[0].mew.content?.text,
-    mewContent,
-    "mew content matches"
-  );
-
-  await sleep(10000);
-
-  aliceMewsFeed = await aliceCallMewsZome("most_licked_mews_recently", {
-    count: 5,
-    from_seconds_ago: 5,
-  });
-
-  t.ok(
-    aliceMewsFeed.length === 0,
-    "alice's most_licked_mews_recently does not include older mews"
   );
 
   await scenario.cleanUp();

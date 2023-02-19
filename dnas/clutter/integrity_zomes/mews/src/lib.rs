@@ -78,6 +78,12 @@ pub struct FeedMewsInRecentTimePeriods {
     pub year: Vec<FeedMew>,
 }
 
+#[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
+pub struct GetRecentMewsInput {
+    pub count: u8,
+    pub current_timestamp: Timestamp,
+}
+
 #[hdk_link_types]
 pub enum LinkTypes {
     Mew,

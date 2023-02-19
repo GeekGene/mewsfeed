@@ -84,7 +84,10 @@ export const makeUseClutterStore = () => {
             week: mews_week,
             month: mews_month,
             year: mews_year,
-          } = await mewsTopList(interaction, 5);
+          } = await mewsTopList(interaction, {
+            count: 5,
+            current_timestamp: Date.now() * 1000,
+          });
 
           this.topMewsAh[interaction]["day"] = mews_day.map((feedMew) => {
             const hash = serializeHash(feedMew.actionHash);
