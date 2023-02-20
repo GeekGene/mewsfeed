@@ -6,7 +6,7 @@ integrity:
   origin_time: 2022-10-05T00:00:00.000000Z
   properties:
     enforce_spam_limit: 20
-    max_chunk_interval: 1000 # 1 second
+    max_chunk_interval: 86400000 # 1 day in ms
   zomes:
     - name: profiles_integrity
       bundled: ../../../target/wasm32-unknown-unknown/release/profiles_integrity.wasm
