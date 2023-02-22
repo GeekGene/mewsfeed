@@ -3,7 +3,8 @@
     <div ref="mewContainer" class="text-left" style="position: relative">
       <q-card
         contenteditable="true"
-        class="mew-content text-body1 q-pa-md"
+        class="mew-content text-body1 q-pa-md overflow-auto"
+        style="word-break: break-all"
         bordered
         flat
         @keydown="onKeyDown"
@@ -12,21 +13,18 @@
         @paste="onPaste"
         @input="onInput"
       />
-
-      <q-icon name="help" color="grey" size="xs" class="help-text">
-        <q-tooltip
-          class="text-body2"
-          anchor="top middle"
-          self="bottom middle"
-          :delay="TOOLTIP_DELAY"
+      <div class="flex justify-between q-pa-sm">
+        <div
+          :class="{
+            'text-red text-bold': isMewFull,
+            'text-caption text-grey': !isMewFull,
+          }"
         >
-          You can mention people with @ and use #hashtags and $cashtags as well
-          as ^links in a mew.
-        </q-tooltip>
-      </q-icon>
-
-      <div class="q-mb-xs text-right text-caption text-grey">
-        Ctrl/Cmd + Enter to publish
+          {{ mewContentLength }} / {{ MAX_MEW_LENGTH }} Characters
+        </div>
+        <div class="q-mb-xs text-right text-caption text-grey">
+          Ctrl/Cmd + Enter to publish
+        </div>
       </div>
 
       <q-card class="link-text q-px-md q-py-sm" style="min-width: 13rem">
@@ -83,6 +81,18 @@
           </q-list>
         </template>
       </q-card>
+
+      <q-icon name="help" color="grey" size="xs" class="help-text">
+        <q-tooltip
+          class="text-body2"
+          anchor="top middle"
+          self="bottom middle"
+          :delay="TOOLTIP_DELAY"
+        >
+          You can mention people with @ and use #hashtags and $cashtags as well
+          as ^links in a mew.
+        </q-tooltip>
+      </q-icon>
     </div>
 
     <q-btn
@@ -104,7 +114,7 @@ import { showError } from "@/utils/notification";
 import { TAG_SYMBOLS } from "@/utils/tags";
 import { Profile } from "@holochain-open-dev/profiles";
 import { debounce } from "quasar";
-import { onMounted, PropType, ref } from "vue";
+import { onMounted, PropType, ref, computed } from "vue";
 import {
   CreateMewInput,
   LinkTarget,
@@ -134,8 +144,12 @@ const mewContainer = ref<HTMLDivElement | null>(null);
 
 onMounted(() => setTimeout(focusInputField, 0));
 
-const isMewEmpty = ref(true);
 const saving = ref(false);
+
+const MAX_MEW_LENGTH = 200;
+const mewContentLength = ref(0);
+const isMewEmpty = computed(() => mewContentLength.value === 0);
+const isMewFull = computed(() => mewContentLength.value === MAX_MEW_LENGTH);
 
 const linkText = ref("");
 
@@ -147,6 +161,13 @@ let currentNode: Node;
 const POPUP_MARGIN_TOP = 20;
 const agentAutocompletions = ref<AgentAutocompletion[]>([]);
 const autocompleterLoading = ref(false);
+
+const updateMewContentLength = () => {
+  const textContent =
+    mewContainer.value?.querySelector(".mew-content")?.textContent;
+
+  mewContentLength.value = textContent ? textContent.length : 0;
+};
 
 const focusInputField = () =>
   document
@@ -174,10 +195,21 @@ const stripAnchorFromLink = (selection: Selection) => {
   }
 };
 
-const onInput = () =>
-  (isMewEmpty.value =
-    mewContainer.value?.querySelector(".mew-content")?.textContent?.length ===
-    0);
+const onInput = (event: KeyboardEvent | ClipboardEvent) => {
+  const textContent =
+    mewContainer.value?.querySelector(".mew-content")?.textContent;
+
+  if (
+    textContent &&
+    textContent.length === MAX_MEW_LENGTH &&
+    (event as KeyboardEvent).key !== "Backspace" &&
+    (event as KeyboardEvent).key !== "Delete"
+  ) {
+    event.preventDefault();
+  }
+
+  updateMewContentLength();
+};
 
 const onKeyDown = (keyDownEvent: KeyboardEvent) => {
   if (keyDownEvent.key === "Enter") {
@@ -191,7 +223,11 @@ const onKeyDown = (keyDownEvent: KeyboardEvent) => {
       keyDownEvent.preventDefault();
       firstListItem.focus();
     }
+  } else {
+    onInput(keyDownEvent);
   }
+
+  updateMewContentLength();
 };
 
 const onKeyUp = (keyUpEvent: KeyboardEvent) => {
@@ -222,12 +258,15 @@ const onMouseUp = () => {
 const onPaste = (event: ClipboardEvent) => {
   event.preventDefault();
   const data = event.clipboardData?.getData("text/plain");
-  if (data) {
+
+  if (data && data.length + mewContentLength.value > MAX_MEW_LENGTH) {
+    return;
+  } else if (data) {
     const pastedNode = document.createTextNode(data);
     document.getSelection()?.getRangeAt(0).insertNode(pastedNode);
     document.getSelection()?.setPosition(pastedNode, pastedNode.length);
     onCaretPositionChange();
-    onInput();
+    onInput(event);
   }
 };
 
@@ -365,7 +404,7 @@ const publishMew = async () => {
   }
   emit("publish-mew");
   mewInput.textContent = "";
-  isMewEmpty.value = true;
+  mewContentLength.value = 0;
   hideAutocompleter();
   focusInputField();
 };
