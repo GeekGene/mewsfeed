@@ -164,8 +164,11 @@ const agentAutocompletions = ref<AgentAutocompletion[]>([]);
 const autocompleterLoading = ref(false);
 
 const updateMewContentLength = () => {
-  const textContent =
-    mewContainer.value?.querySelector(".mew-content")?.textContent;
+  const textContent = (
+    mewContainer.value?.querySelector(
+      ".mew-content"
+    ) as null | ElementWithInnerText
+  )?.innerText;
 
   mewContentLength.value = textContent ? textContent.length : 0;
 };
