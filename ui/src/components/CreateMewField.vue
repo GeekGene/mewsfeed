@@ -16,8 +16,8 @@
       <div class="flex justify-between q-pa-sm">
         <div
           :class="{
-            'text-red text-bold': isMewFull,
-            'text-caption text-grey': !isMewFull,
+            'text-red text-bold': isMewFull || isMewOverfull,
+            'text-caption text-grey': !isMewFull && !isMewOverfull,
           }"
         >
           {{ mewContentLength }} / {{ MAX_MEW_LENGTH }} Characters
@@ -96,7 +96,7 @@
     </div>
 
     <q-btn
-      :disable="isMewEmpty"
+      :disable="isMewEmpty || isMewOverfull"
       :loading="saving"
       :tabindex="agentAutocompletions.length && 0"
       color="accent"
@@ -151,6 +151,7 @@ const MAX_MEW_LENGTH = 200;
 const mewContentLength = ref(0);
 const isMewEmpty = computed(() => mewContentLength.value === 0);
 const isMewFull = computed(() => mewContentLength.value === MAX_MEW_LENGTH);
+const isMewOverfull = computed(() => mewContentLength.value > MAX_MEW_LENGTH);
 
 const linkText = ref("");
 
@@ -162,16 +163,6 @@ let currentNode: Node;
 const POPUP_MARGIN_TOP = 20;
 const agentAutocompletions = ref<AgentAutocompletion[]>([]);
 const autocompleterLoading = ref(false);
-
-const updateMewContentLength = () => {
-  const textContent = (
-    mewContainer.value?.querySelector(
-      ".mew-content"
-    ) as null | ElementWithInnerText
-  )?.innerText;
-
-  mewContentLength.value = textContent ? textContent.trim().length : 0;
-};
 
 const focusInputField = () =>
   document
@@ -199,40 +190,59 @@ const stripAnchorFromLink = (selection: Selection) => {
   }
 };
 
-const onInput = (event: KeyboardEvent | ClipboardEvent) => {
-  const textContent =
-    mewContainer.value?.querySelector(".mew-content")?.textContent;
+const getTextContent = (): string => {
+  const text = (
+    mewContainer.value?.querySelector(
+      ".mew-content"
+    ) as null | ElementWithInnerText
+  )?.innerText;
 
+  return text ? text.trim() : "";
+};
+
+const setMewContentLength = () => {
+  const text = getTextContent();
+  mewContentLength.value = text.length;
+};
+
+const onInput = (event: KeyboardEvent) => {
+  setMewContentLength();
+
+  // Disallow adding characters if content is already too long
   if (
-    textContent &&
-    textContent.length === MAX_MEW_LENGTH &&
-    (event as KeyboardEvent).key !== "Backspace" &&
-    (event as KeyboardEvent).key !== "Delete"
+    (isMewFull.value || isMewOverfull.value) &&
+    event.key !== "Backspace" &&
+    event.key !== "Delete" &&
+    !(event.key === "a" && event.ctrlKey) &&
+    event.key !== "ArrowLeft" &&
+    event.key !== "ArrowRight" &&
+    event.key !== "ArrowUp" &&
+    event.key !== "ArrowDown"
   ) {
     event.preventDefault();
   }
-
-  updateMewContentLength();
 };
 
-const onKeyDown = (keyDownEvent: KeyboardEvent) => {
-  if (keyDownEvent.key === "Enter") {
-    if (keyDownEvent.metaKey && !isMewEmpty.value) {
-      publishMew();
-    } else if (!keyDownEvent.shiftKey) {
-      keyDownEvent.preventDefault();
-    }
-  } else if (keyDownEvent.key === "ArrowDown") {
+const onKeyDown = (event: KeyboardEvent) => {
+  setMewContentLength();
+
+  if (
+    event.key === "Enter" &&
+    event.metaKey &&
+    !(isMewEmpty.value || isMewOverfull.value)
+  ) {
+    publishMew();
+  } else if (event.key === "Enter" && !event.shiftKey) {
+    event.preventDefault();
+  } else if (event.key === "ArrowDown") {
     const firstListItem = mewContainer.value?.querySelector(".q-item");
     if (firstListItem instanceof HTMLElement) {
-      keyDownEvent.preventDefault();
+      event.preventDefault();
       firstListItem.focus();
     }
   } else {
-    onInput(keyDownEvent);
+    onInput(event);
   }
-
-  updateMewContentLength();
 };
 
 const onKeyUp = (keyUpEvent: KeyboardEvent) => {
@@ -271,7 +281,8 @@ const onPaste = (event: ClipboardEvent) => {
     document.getSelection()?.getRangeAt(0).insertNode(pastedNode);
     document.getSelection()?.setPosition(pastedNode, pastedNode.length);
     onCaretPositionChange();
-    onInput(event);
+
+    setMewContentLength();
   }
 };
 
@@ -395,10 +406,11 @@ const publishMew = async () => {
     }
   }
 
-  // Replace more than 2 consecutive newlines with only a single newline
+  // Replace more than 2 consecutive newlines with only 2 newlines
   const text = mewInput.innerText
-    ? mewInput.innerText.trim().replace(/\n\n+/g, "\n")
+    ? mewInput.innerText.trim().replace(/\n\n\n+/g, "\n\n")
     : null;
+
   const createMewInput: CreateMewInput = {
     mewType: props.mewType,
     text,
