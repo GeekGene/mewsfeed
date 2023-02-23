@@ -5,27 +5,10 @@
       style="overflow-wrap: anywhere; white-space: pre-line"
     >
       <span v-for="(contentPart, index) of contentParts" :key="index">
-        <template v-if="Array.isArray(contentPart)">
-          <a
-            v-if="typeof contentPart[1] === 'string'"
-            :href="contentPart[1]"
-            target="_blank"
-            @click.stop
-          >
-            {{ contentPart[0] }}
-            <q-tooltip :delay="TOOLTIP_DELAY">{{ contentPart[1] }}</q-tooltip>
-          </a>
-
-          <router-link
-            v-else
-            :to="contentPart[1]"
-            class="text-secondary text-bold"
-            @click.stop
-          >
-            {{ contentPart[0] }}
-          </router-link>
-        </template>
-
+        <MewContentPart
+          v-if="Array.isArray(contentPart)"
+          :content-part="contentPart"
+        />
         <template v-else>{{ contentPart }}</template>
       </span>
     </div>
@@ -34,11 +17,12 @@
 
 <script setup lang="ts">
 import { PATH, ROUTES } from "@/router";
-import { FeedMew, LinkTargetName, TOOLTIP_DELAY } from "@/types/types";
+import { FeedMew, LinkTargetName } from "@/types/types";
 import { TAG_REGEX, TAG_SYMBOLS } from "@/utils/tags";
 import { serializeHash } from "@holochain-open-dev/utils";
 import { computed, PropType } from "vue";
 import { RouteLocationRaw } from "vue-router";
+import MewContentPart from "./MewContentPart.vue";
 
 type ContentPart = string | [string, RouteLocationRaw] | [string, string];
 
