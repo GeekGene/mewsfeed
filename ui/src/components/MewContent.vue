@@ -10,7 +10,11 @@
             @click.stop
           >
             {{ contentPart[0] }}
-            <q-tooltip :delay="TOOLTIP_DELAY">{{ contentPart[1] }}</q-tooltip>
+            <q-tooltip
+              v-if="contentPart[0] !== contentPart[1]"
+              :delay="TOOLTIP_DELAY"
+              >{{ contentPart[1] }}</q-tooltip
+            >
           </a>
 
           <router-link
@@ -32,7 +36,12 @@
 <script setup lang="ts">
 import { PATH, ROUTES } from "@/router";
 import { FeedMew, LinkTargetName, TOOLTIP_DELAY } from "@/types/types";
-import { TAG_REGEX, TAG_SYMBOLS } from "@/utils/tags";
+import {
+  isRawUrl,
+  isTag,
+  splitMewTextIntoParts,
+  TAG_SYMBOLS,
+} from "@/utils/tags";
 import { serializeHash } from "@holochain-open-dev/utils";
 import { computed, PropType } from "vue";
 import { RouteLocationRaw } from "vue-router";
@@ -47,13 +56,11 @@ const links = computed(() =>
   props.feedMew.mew.content?.links?.slice().reverse()
 );
 const content = computed(() => props.feedMew.mew.content?.text || "");
-const parts = computed(() =>
-  content.value.split(TAG_REGEX).filter((part) => Boolean(part))
-);
+const parts = computed(() => splitMewTextIntoParts(content.value));
 
 const contentParts = computed<ContentPart[]>(() =>
   parts.value.map((part) => {
-    if (part.match(TAG_REGEX)) {
+    if (isTag(part)) {
       let agentPubKey: string | undefined = undefined;
       if (part[0] === TAG_SYMBOLS.MENTION || part[0] === TAG_SYMBOLS.URL) {
         const link = links.value?.pop();
@@ -74,7 +81,10 @@ const contentParts = computed<ContentPart[]>(() =>
         query: { agentPubKey },
       };
       return [part, to];
+    } else if (isRawUrl(part)) {
+      return [part, part];
     }
+
     return part;
   })
 );
