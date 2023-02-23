@@ -6,7 +6,11 @@
     @click.stop
   >
     {{ props.contentPart[0] }}
-    <q-tooltip :delay="TOOLTIP_DELAY">{{ props.contentPart[1] }}</q-tooltip>
+    <q-tooltip
+      v-if="contentPart[0] !== contentPart[1]"
+      :delay="TOOLTIP_DELAY"
+      >{{ props.contentPart[1] }}</q-tooltip
+    >
   </a>
 
   <RouterLink

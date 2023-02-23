@@ -111,7 +111,7 @@
 import { useProfilesStore } from "@/services/profiles-store";
 import { useClutterStore } from "@/stores";
 import { showError } from "@/utils/notification";
-import { TAG_SYMBOLS } from "@/utils/tags";
+import { RAW_URL_REGEX, TAG_SYMBOLS } from "@/utils/tags";
 import { Profile } from "@holochain-open-dev/profiles";
 import { debounce } from "quasar";
 import { onMounted, PropType, ref, computed } from "vue";
@@ -449,8 +449,10 @@ const publishMew = async () => {
   }
   emit("publish-mew");
   mewInput.textContent = "";
+  linkText.value = "";
   mewContentLength.value = 0;
   hideAutocompleter();
+  hideLinkTextInput();
   focusInputField();
 };
 
@@ -494,7 +496,7 @@ const onCaretPositionChange = () => {
         currentFocusOffset = endOfWordIndex;
       }
       // current word is a URL
-    } else if (URL_REGEX.test(currentWord)) {
+    } else if (RAW_URL_REGEX.test(currentWord)) {
       showElement(selection.anchorNode, startOfWordIndex, ".link-text");
       currentAnchorOffset = startOfWordIndex;
       currentFocusOffset = endOfWordIndex;
@@ -534,9 +536,6 @@ const showElement = (
 };
 const hideAutocompleter = hideElement.bind(null, ".autocompleter");
 const hideLinkTextInput = hideElement.bind(null, ".link-text");
-const URL_REGEX = new RegExp(
-  `^(http[s]?:\\/\\/(www\\.)?|www\\.){1}([0-9A-Za-z-\\.@:%_\\+~#=]+)+((\\.[a-zA-Z]{2,3})+)(/(.)*)?(\\?(.)*)?`
-);
 </script>
 
 <style lang="sass">
