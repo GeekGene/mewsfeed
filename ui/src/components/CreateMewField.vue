@@ -365,8 +365,10 @@ const publishMew = async () => {
   }
   emit("publish-mew");
   mewInput.textContent = "";
+  linkText.value = "";
   isMewEmpty.value = true;
   hideAutocompleter();
+  hideLinkTextInput();
   focusInputField();
 };
 
