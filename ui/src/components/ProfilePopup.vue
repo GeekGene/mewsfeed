@@ -1,6 +1,9 @@
 <template>
   <q-card v-bind="$attrs" class="text-body1">
-    <q-card-section class="row justify-between items-center">
+    <q-card-section
+      class="row justify-between items-center"
+      style="white-space: nowrap"
+    >
       <agent-avatar
         :agentPubKey="agentPubKey"
         :store="profilesStore"
