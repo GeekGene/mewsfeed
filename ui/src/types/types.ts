@@ -98,3 +98,7 @@ export enum SearchResult {
   Hashtag,
   Cashtag,
 }
+
+export interface ElementWithInnerText extends Element {
+  innerText: string;
+}

@@ -117,6 +117,7 @@ import { debounce } from "quasar";
 import { onMounted, PropType, ref, computed } from "vue";
 import {
   CreateMewInput,
+  ElementWithInnerText,
   LinkTarget,
   LinkTargetName,
   MewType,
@@ -213,9 +214,10 @@ const onInput = (event: KeyboardEvent | ClipboardEvent) => {
 
 const onKeyDown = (keyDownEvent: KeyboardEvent) => {
   if (keyDownEvent.key === "Enter") {
-    keyDownEvent.preventDefault();
     if (keyDownEvent.metaKey && !isMewEmpty.value) {
       publishMew();
+    } else if (!keyDownEvent.shiftKey) {
+      keyDownEvent.preventDefault();
     }
   } else if (keyDownEvent.key === "ArrowDown") {
     const firstListItem = mewContainer.value?.querySelector(".q-item");
@@ -361,7 +363,9 @@ const onAutocompleteAgentSelect = (agent: AgentAutocompletion) => {
 };
 
 const publishMew = async () => {
-  const mewInput = mewContainer.value?.querySelector(".mew-content");
+  const mewInput = mewContainer.value?.querySelector(
+    ".mew-content"
+  ) as ElementWithInnerText;
   if (!mewInput) {
     return;
   }
@@ -377,10 +381,9 @@ const publishMew = async () => {
     ) {
       if (element.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY]) {
         const agentPubKeyString = element.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY];
-        // dunno why this is an error; an array is array-like
-        // eslint-disable-next-line
-        // @ts-ignore
-        const agentPubKey = Uint8Array.from(agentPubKeyString.split(","));
+        const agentPubKey = Uint8Array.from(
+          agentPubKeyString.split(",") as Iterable<number>
+        );
         links.push({ [LinkTargetName.Mention]: agentPubKey });
       } else if (element.dataset[ANCHOR_DATA_ID_URL]) {
         const url = element.dataset[ANCHOR_DATA_ID_URL];
@@ -389,9 +392,13 @@ const publishMew = async () => {
     }
   }
 
+  // Replace more than 2 consecutive newlines with only a single newline
+  const text = mewInput.innerText
+    ? mewInput.innerText.trim().replace(/\n\n+/g, "\n")
+    : null;
   const createMewInput: CreateMewInput = {
     mewType: props.mewType,
-    text: mewInput.textContent ? mewInput.textContent.trim() : null,
+    text,
     links: links.length ? links : undefined,
   };
   try {
