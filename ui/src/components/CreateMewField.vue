@@ -190,25 +190,30 @@ const stripAnchorFromLink = (selection: Selection) => {
   }
 };
 
-const getTextContent = (): string => {
+const getRawText = (): string => {
   const text = (
     mewContainer.value?.querySelector(
       ".mew-content"
     ) as null | ElementWithInnerText
   )?.innerText;
 
+  return text ? text : "";
+};
+
+const getTrimmedText = (): string => {
+  const text = getRawText();
   return text ? text.trim() : "";
 };
 
 const setMewContentLength = () => {
-  const text = getTextContent();
+  const text = getTrimmedText();
   mewContentLength.value = text.length;
 };
 
 const onInput = (event: KeyboardEvent) => {
   setMewContentLength();
 
-  // Disallow adding characters if content is already too long
+  // Prevent input of characters if mew is already full
   if (
     (isMewFull.value || isMewOverfull.value) &&
     event.key !== "Backspace" &&
@@ -226,19 +231,42 @@ const onInput = (event: KeyboardEvent) => {
 const onKeyDown = (event: KeyboardEvent) => {
   setMewContentLength();
 
+  // Support Meta + Enter keys to publish
   if (
     event.key === "Enter" &&
     event.metaKey &&
     !(isMewEmpty.value || isMewOverfull.value)
   ) {
     publishMew();
-  } else if (event.key === "Enter" && !event.shiftKey) {
-    event.preventDefault();
-  } else if (event.key === "ArrowDown") {
+  }
+
+  // Support KeyDown or Tab keys to focus on first item displayed in agents list (after typing an agent tag)
+  else if (event.key === "ArrowDown" || event.key === "Tab") {
     const firstListItem = mewContainer.value?.querySelector(".q-item");
     if (firstListItem instanceof HTMLElement) {
       event.preventDefault();
       firstListItem.focus();
+    }
+  }
+
+  // Prevent input of leading line breaks
+  // Prevent input of trailing line breaks if mew is already full
+  else if (
+    event.key === "Enter" &&
+    (isMewEmpty.value || isMewFull.value || isMewOverfull.value)
+  ) {
+    event.preventDefault();
+  }
+
+  // Prevent input of more than 3 consecutive line breaks
+  else if (
+    event.key === "Enter" &&
+    !(isMewEmpty.value || isMewOverfull.value)
+  ) {
+    const textContent = getRawText();
+
+    if (textContent.slice(-3) === "\n\n\n") {
+      event.preventDefault();
     }
   } else {
     onInput(event);
@@ -406,14 +434,9 @@ const publishMew = async () => {
     }
   }
 
-  // Replace more than 2 consecutive newlines with only 2 newlines
-  const text = mewInput.innerText
-    ? mewInput.innerText.trim().replace(/\n\n\n+/g, "\n\n")
-    : null;
-
   const createMewInput: CreateMewInput = {
     mewType: props.mewType,
-    text,
+    text: getTrimmedText(),
     links: links.length ? links : undefined,
   };
   try {
