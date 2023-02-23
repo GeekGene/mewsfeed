@@ -170,7 +170,7 @@ const updateMewContentLength = () => {
     ) as null | ElementWithInnerText
   )?.innerText;
 
-  mewContentLength.value = textContent ? textContent.length : 0;
+  mewContentLength.value = textContent ? textContent.trim().length : 0;
 };
 
 const focusInputField = () =>
