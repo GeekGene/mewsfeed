@@ -113,7 +113,6 @@ import { useClutterStore } from "@/stores";
 import { showError } from "@/utils/notification";
 import { RAW_URL_REGEX, TAG_SYMBOLS } from "@/utils/tags";
 import { Profile } from "@holochain-open-dev/profiles";
-import { debounce } from "quasar";
 import { onMounted, PropType, ref, computed } from "vue";
 import {
   CreateMewInput,
@@ -289,7 +288,7 @@ const onKeyUp = (keyUpEvent: KeyboardEvent) => {
     stripAnchorFromLink(selection);
   } else if (keyUpEvent.key.length === 1 && content) {
     // all single characters
-    debouncedOnCaretPositionChange();
+    onCaretPositionChange();
   }
 };
 
@@ -506,7 +505,6 @@ const onCaretPositionChange = () => {
     }
   }
 };
-const debouncedOnCaretPositionChange = debounce(onCaretPositionChange, 300);
 
 const showElement = (
   anchorNode: Node,
