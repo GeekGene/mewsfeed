@@ -16,19 +16,17 @@
   <RouterLink
     v-else-if="(props.contentPart[1] as RouteLocationNamedRaw).name === 'handle'"
     :to="props.contentPart[1]"
-    class="text-secondary text-bold relative"
+    class="text-secondary text-bold"
+    style="position: relative; display: inline-block; overflow: visible"
     @click.stop
     @mouseenter="showProfilePopup"
     @mouseleave="hideProfilePopup"
   >
     {{ props.contentPart[0] }}
     <ProfilePopup
-      v-if="
-        (props.contentPart[1] as RouteLocationNamedRaw).query?.agentPubKey &&
-        isProfilePopupVisible
-      "
-      style="z-index: 20"
-      class="absolute text-black"
+      v-show="isProfilePopupVisible"
+      style="z-index: 20; position: absolute; left: -65px; width: 200px"
+      class="text-black text-body1 shadow-3"
       :agent-pub-key="deserializeHash(((props.contentPart[1] as RouteLocationNamedRaw).query as LocationQueryRaw)?.agentPubKey as LocationQueryValueRaw as string)"
     />
   </RouterLink>

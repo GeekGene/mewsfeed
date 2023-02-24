@@ -1,5 +1,5 @@
 <template>
-  <q-card v-bind="$attrs" class="text-body1">
+  <q-card v-bind="$attrs" class="text-body1 q-px-md q-py-sm">
     <q-card-section
       class="row justify-between items-center"
       style="white-space: nowrap"
@@ -13,22 +13,26 @@
       />
       <div
         :class="['q-mr-lg', { 'cursor-pointer': !isCurrentProfile }]"
+        class="q-mt-sm"
         @click="onAgentClick(agentPubKey)"
       >
-        <div class="text-primary text-weight-medium">
+        <div
+          class="text-primary text-weight-medium"
+          style="white-space: break-word"
+        >
           {{ displayName }}
         </div>
         <div>@{{ nickname }}</div>
       </div>
       <ButtonFollow v-if="!isMyProfile" :agent-pub-key="agentPubKey" />
     </q-card-section>
-    <q-card-section class="row">
-      <div class="q-mr-md">
-        <div><label class="text-weight-medium">Bio:</label></div>
-        <div><label class="text-weight-medium">Location:</label></div>
-      </div>
-      <div class="col-grow">
+    <q-card-section>
+      <div class="row justify-start">
+        <div><label class="text-weight-bold q-mr-sm">Bio:</label></div>
         <div>{{ bio }}</div>
+      </div>
+      <div class="row justify-start q-mt-md">
+        <div><label class="text-weight-bold q-mr-sm">Location:</label></div>
         <div>{{ location }}</div>
       </div>
     </q-card-section>
