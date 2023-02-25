@@ -60,20 +60,24 @@ const loadFollowers = async () => {
   try {
     loadingFollowers.value = true;
     const followerAgentPubKeys = await followers(props.agentPubKey);
-    const profilesReadable = await profilesStore.value.fetchAgentsProfiles(
-      followerAgentPubKeys
+    const _followers = await Promise.all(
+      followerAgentPubKeys.map((agentPubKey) => {
+        return profilesStore.value.client
+          .getAgentProfile(agentPubKey)
+          .then((profile) => {
+            if (!profile) {
+              return null;
+            }
+            const follower: Follower = {
+              agentPubKey,
+              nickname: profile.nickname,
+              displayName: profile.fields[PROFILE_FIELDS.DISPLAY_NAME],
+            };
+            return follower;
+          });
+      })
     );
-    profilesReadable.subscribe((profiles) => {
-      followersOfAgent.value = followerAgentPubKeys.map((agentPubKey) => {
-        const profile = profiles.get(agentPubKey);
-        const follower: Follower = {
-          agentPubKey,
-          nickname: profile.nickname,
-          displayName: profile.fields[PROFILE_FIELDS.DISPLAY_NAME],
-        };
-        return follower;
-      });
-    });
+    followersOfAgent.value = _followers.filter(Boolean) as Follower[];
   } catch (error) {
     showError(error);
   } finally {
