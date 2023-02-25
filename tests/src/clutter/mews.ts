@@ -87,7 +87,7 @@ test("Following", async (t) => {
 
   // bob starts following alice
   await bobCallMewsZome("follow", alice.agentPubKey);
-  await pause(500);
+  await pause(1000);
 
   const aliceFollowers: AgentPubKey[] = await aliceCallMewsZome("my_followers");
   t.deepEqual(aliceFollowers, [bob.agentPubKey], "bob follows alice");
@@ -164,7 +164,7 @@ test("Mews by", async (t) => {
   );
   t.ok(mewsByBob.length === 0, "mews by bob is empty");
 
-  await pause(500);
+  await pause(1000);
 
   const mewsByAliceInBobsCell: FeedMew[] = await bobCallMewsZome(
     "mews_by",
@@ -205,7 +205,7 @@ test("Hashtag, cashtag and mention", async (t) => {
     "alice created a valid mew"
   );
 
-  await pause(500);
+  await pause(1000);
 
   const hashtaggedMews: FeedMew[] = await aliceCallMewsZome(
     "get_mews_with_hashtag",
@@ -253,7 +253,7 @@ test("Hashtag, cashtag and mention", async (t) => {
 
 test("Search - should return hashtags and cashtags", async (t) => {
   const scenario = new Scenario();
-  const alice = await scenario.addPlayerWithHappBundle(clutterHapp);
+  const alice = await scenario.addPlayerWithApp(clutterHapp);
   const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
 
   const mewContent =
@@ -276,7 +276,7 @@ test("Search - should return hashtags and cashtags", async (t) => {
     "alice created a valid mew"
   );
 
-  await pause(100);
+  await pause(1000);
 
   const hashtags: string[] = await aliceCallMewsZome("search_hashtags", "has");
   t.ok(hashtags.length === 1, "one hashtag");
@@ -399,7 +399,7 @@ test("Mews Feed - should not include mews of non-followed agent", async (t) => {
   await carolCallMewsZome("create_mew", carolMewInput);
 
   await bobCallMewsZome("follow", alice.agentPubKey);
-  await pause(500);
+  await pause(1000);
 
   const bobMewsFeed: FeedMew[] = await bobCallMewsZome("mews_feed", {
     option: "",
@@ -432,7 +432,7 @@ test("Mews Feed - un-following should exclude agent's mews from feed", async (t)
   await aliceCallMewsZome("create_mew", aliceMewInput);
 
   await bobCallMewsZome("follow", alice.agentPubKey);
-  await pause(500);
+  await pause(1000);
 
   const bobMewsFeedWhenFollowing: FeedMew[] = await bobCallMewsZome(
     "mews_feed",
@@ -499,7 +499,7 @@ test("Mews Feed - should be ordered by timestamp in descending order", async (t)
   await aliceCallMewsZome("follow", bob.agentPubKey);
   await aliceCallMewsZome("follow", carol.agentPubKey);
 
-  await pause(500);
+  await pause(1000);
 
   const aliceMewsFeed: FeedMew[] = await aliceCallMewsZome("mews_feed", {
     option: "",
