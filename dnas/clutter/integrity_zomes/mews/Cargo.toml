@@ -10,4 +10,4 @@ name = "mews_integrity"
 [dependencies]
 serde = "1"
 
-hdi = "0.2.0-beta-rc.1"
+hdi = "0.2"
