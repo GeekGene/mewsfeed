@@ -4,13 +4,13 @@ import "@holochain-open-dev/profiles/profile-prompt";
 import "@holochain-open-dev/profiles/profiles-context";
 
 import "@/css/main.sass";
+import { ProfilesClient, ProfilesStore } from "@holochain-open-dev/profiles";
 import {
-  CellClient,
-  HolochainClient,
-  HoloClient,
-} from "@holochain-open-dev/cell-client";
-import { ProfilesService, ProfilesStore } from "@holochain-open-dev/profiles";
-import { AppInfoResponse } from "@holochain/client";
+  AdminWebsocket,
+  AppAgentWebsocket,
+  AppInfoResponse,
+  CellType,
+} from "@holochain/client";
 import "@quasar/extras/material-icons/material-icons.css";
 import { createPinia } from "pinia";
 import { Dialog, Notify, Quasar } from "quasar";
@@ -21,6 +21,7 @@ import router from "./router";
 import { PROFILES_STORE } from "./services/profiles-store";
 import {
   IS_HOLO_HOSTED,
+  NATIVE_HC_URI,
   NATIVE_INSTALLED_APP_ID,
   useClientStore,
 } from "./stores";
@@ -68,22 +69,45 @@ const initProfileStore = async (client: any) => {
   const appInfo: AppInfoResponse = await client.appInfo({
     installed_app_id: NATIVE_INSTALLED_APP_ID,
   });
-  const holochainClient = IS_HOLO_HOSTED
-    ? new HoloClient(client, appInfo)
-    : new HolochainClient(client);
-  console.log("hello");
-  client.on("sepp", () => console.log("hello"));
-  const cell = appInfo.cell_data.find(
-    (cell) => cell.role_name === CLUTTER_ROLE_NAME
+  const holochainClient = await AppAgentWebsocket.connect(
+    NATIVE_HC_URI,
+    NATIVE_INSTALLED_APP_ID
   );
-  if (!cell) {
+  if (!(CellType.Provisioned in appInfo.cell_info[CLUTTER_ROLE_NAME][0])) {
     throw new Error('Could not find cell "clutter"');
   }
-  const cellClient = new CellClient(holochainClient, cell);
+  const cell = appInfo.cell_info[CLUTTER_ROLE_NAME][0][CellType.Provisioned];
+
+  // const { cell_id } =
+  //   appInfo.cell_info[CLUTTER_ROLE_NAME][0][CellType.Provisioned];
+
+  // const cellIdB64 =
+  //   encodeHashToBase64(cell_id[0]) + encodeHashToBase64(cell_id[1]);
+  // const signingCredentialsJson = localStorage.getItem(cellIdB64);
+  // let signingCredentials: SigningCredentials | null =
+  //   signingCredentialsJson && JSON.parse(signingCredentialsJson);
+  // console.log("signing cred", signingCredentials);
+  // if (!signingCredentials) {
+  //   const [keyPair, signingKey] = generateSigningKeyPair();
+  //   const adminWs = await AdminWebsocket.connect("ws://localhost:65000");
+  //   const capSecret = await adminWs.grantSigningKey(
+  //     cell_id,
+  //     { [GrantedFunctionsType.All]: null },
+  //     signingKey
+  //   );
+  //   signingCredentials = {
+  //     capSecret,
+  //     keyPair,
+  //     signingKey,
+  //   };
+  // }
+  // setSigningCredentials(cell_id, signingCredentials);
+  // localStorage.setItem(cellIdB64, JSON.stringify(signingCredentials));
+
+  const adminWs = await AdminWebsocket.connect("ws://localhost:65000");
+  await adminWs.authorizeSigningCredentials(cell.cell_id);
   profilesStore.value = new ProfilesStore(
-    // eslint-disable-next-line
-    // @ts-ignore
-    new ProfilesService(cellClient),
+    new ProfilesClient(holochainClient, CLUTTER_ROLE_NAME),
     {
       avatarMode: "avatar-required",
       additionalFields: [
