@@ -129,7 +129,7 @@ const router = useRouter();
 const profilesStore = useProfilesStore();
 const { isCurrentProfile, onAgentClick } = useProfileUtils();
 const agentProfile = ref<Profile>();
-const myAgentPubKey = profilesStore.value.myAgentPubKey;
+const myAgentPubKey = profilesStore.value.client.client.myPubKey;
 
 const isMewMew = computed(
   () => MewTypeName.MewMew in props.feedMew.mew.mewType
@@ -160,10 +160,9 @@ const isLickedByMe = computed(() =>
 );
 
 onMounted(async () => {
-  const agentProfileReadable = await profilesStore.value.fetchAgentProfile(
+  agentProfile.value = await profilesStore.value.client.getAgentProfile(
     props.feedMew.action.author
   );
-  agentProfileReadable.subscribe((profile) => (agentProfile.value = profile));
 
   if (!originalMewHash) {
     return;
@@ -172,13 +171,9 @@ onMounted(async () => {
     originalMew.value = mew;
     // load original mew author
     loadingOriginalMewAuthor.value = true;
-    profilesStore.value
-      .fetchAgentProfile(mew.action.author)
-      .then((profileReadable) => {
-        profileReadable.subscribe(
-          (profile) => (originalMewAuthor.value = profile)
-        );
-      })
+    profilesStore.value.client
+      .getAgentProfile(mew.action.author)
+      .then((profile) => (originalMewAuthor.value = profile))
       .finally(() => (loadingOriginalMewAuthor.value = false));
   });
 });
