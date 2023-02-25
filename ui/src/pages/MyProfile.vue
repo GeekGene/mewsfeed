@@ -2,7 +2,7 @@
   <q-page :style-fn="pageHeightCorrection">
     <div class="row">
       <div>
-        <q-card class="col-6 self-start q-mb-xl q-px-xl q-py-lg text-body1">
+        <q-card class="self-start q-mb-xl q-px-xl q-py-lg text-body1">
           <my-profile />
         </q-card>
       </div>
@@ -26,7 +26,7 @@ import { useProfilesStore } from "@/services/profiles-store";
 import { pageHeightCorrection } from "@/utils/page-layout";
 
 const profilesStore = useProfilesStore();
-const myAgentPubKey = profilesStore.value.myAgentPubKey;
+const myAgentPubKey = profilesStore.value.client.client.myPubKey;
 </script>
 
 <style lang="sass">
