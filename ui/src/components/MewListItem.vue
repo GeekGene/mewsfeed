@@ -31,7 +31,9 @@
             <router-link
               :to="{
                 name: ROUTES.profiles,
-                params: { agent: serializeHash(originalMew.action.author) },
+                params: {
+                  agent: encodeHashToBase64(originalMew.action.author),
+                },
               }"
               class="text-secondary"
             >
@@ -108,8 +110,7 @@ import {
 import { isSameHash } from "@/utils/hash";
 import { useProfileUtils } from "@/utils/profile";
 import { Profile } from "@holochain-open-dev/profiles";
-import { serializeHash } from "@holochain-open-dev/utils";
-import { ActionHash } from "@holochain/client";
+import { ActionHash, encodeHashToBase64 } from "@holochain/client";
 import { QItem, useQuasar } from "quasar";
 import { computed, onMounted, PropType, ref } from "vue";
 import AvatarWithPopup from "./AvatarWithPopup.vue";
@@ -186,7 +187,7 @@ onMounted(async () => {
 const onMewClick = () => {
   router.push({
     name: ROUTES.yarn,
-    params: { hash: serializeHash(props.feedMew.actionHash) },
+    params: { hash: encodeHashToBase64(props.feedMew.actionHash) },
   });
 };
 

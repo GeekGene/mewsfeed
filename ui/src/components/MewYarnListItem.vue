@@ -28,7 +28,7 @@
             v-else-if="originalMew && originalMewAuthor"
             :to="{
               name: ROUTES.profiles,
-              params: { agent: serializeHash(originalMew.action.author) },
+              params: { agent: encodeHashToBase64(originalMew.action.author) },
             }"
             class="text-secondary"
           >
@@ -99,8 +99,7 @@ import {
 import { isSameHash } from "@/utils/hash";
 import { useProfileUtils } from "@/utils/profile";
 import { Profile } from "@holochain-open-dev/profiles";
-import { serializeHash } from "@holochain-open-dev/utils";
-import { ActionHash } from "@holochain/client";
+import { ActionHash, encodeHashToBase64 } from "@holochain/client";
 import { useQuasar } from "quasar";
 import { computed, onMounted, PropType, ref } from "vue";
 import { useRouter } from "vue-router";
@@ -181,7 +180,7 @@ onMounted(async () => {
 const onMewClick = (mew: FeedMew) => {
   router.push({
     name: ROUTES.yarn,
-    params: { hash: serializeHash(mew.actionHash) },
+    params: { hash: encodeHashToBase64(mew.actionHash) },
   });
 };
 

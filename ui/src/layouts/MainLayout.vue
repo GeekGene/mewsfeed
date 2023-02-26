@@ -127,8 +127,7 @@ import {
   SearchResult,
 } from "@/types/types";
 import { showError } from "@/utils/notification";
-import { serializeHash } from "@holochain-open-dev/utils";
-import { AgentPubKey } from "@holochain/client";
+import { AgentPubKey, encodeHashToBase64 } from "@holochain/client";
 import { QSelectOption, useQuasar } from "quasar";
 import { ref } from "vue";
 import { RouteLocationRaw, useRouter } from "vue-router";
@@ -209,7 +208,7 @@ const search = (
             agentPubKey: key,
             value: {
               name: ROUTES.profiles,
-              params: { agent: serializeHash(key) },
+              params: { agent: encodeHashToBase64(key) },
             },
             label: `${value.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
               value.nickname

@@ -38,8 +38,8 @@ import { PROFILE_FIELDS } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
 import { showError } from "@/utils/notification";
 import { useProfileUtils } from "@/utils/profile";
-import { serializeHash } from "@holochain-open-dev/utils";
-import { AgentPubKey } from "@holochain/client";
+
+import { AgentPubKey, encodeHashToBase64 } from "@holochain/client";
 import { computed, onMounted, PropType, ref } from "vue";
 import { useRouter } from "vue-router";
 import ButtonFollow from "./ButtonFollow.vue";
@@ -60,7 +60,8 @@ const isMyProfile = computed(() =>
 );
 const isCurrentProfile = computed(
   () =>
-    router.currentRoute.value.params.agent === serializeHash(props.agentPubKey)
+    router.currentRoute.value.params.agent ===
+    encodeHashToBase64(props.agentPubKey)
 );
 
 const nickname = ref("");

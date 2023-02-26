@@ -71,8 +71,7 @@ import { FeedMew, MewType, MewTypeName, PROFILE_FIELDS } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
 import { showError, showMessage } from "@/utils/notification";
 import { pageHeightCorrection } from "@/utils/page-layout";
-import { deserializeHash } from "@holochain-open-dev/utils";
-import { ActionHash } from "@holochain/client";
+import { ActionHash, decodeHashFromBase64 } from "@holochain/client";
 import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import MewList from "../components/MewList.vue";
@@ -80,7 +79,7 @@ import MewList from "../components/MewList.vue";
 const profilesStore = useProfilesStore();
 const route = useRoute();
 const agentPubKey = computed(() =>
-  deserializeHash(
+  decodeHashFromBase64(
     Array.isArray(route.params.agent)
       ? route.params.agent[0]
       : route.params.agent
