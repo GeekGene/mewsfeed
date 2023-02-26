@@ -3,7 +3,7 @@
     <q-card-section class="row justify-between items-center">
       <agent-avatar
         :agentPubKey="agentPubKey"
-        :store="profilesStore"
+        :_store="profilesStore"
         size="50"
         :class="['q-mr-lg', { 'cursor-pointer': !isCurrentProfile }]"
         @click="onAgentClick(agentPubKey)"
@@ -38,7 +38,6 @@ import { PROFILE_FIELDS } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
 import { showError } from "@/utils/notification";
 import { useProfileUtils } from "@/utils/profile";
-import { Profile } from "@holochain-open-dev/profiles";
 import { serializeHash } from "@holochain-open-dev/utils";
 import { AgentPubKey } from "@holochain/client";
 import { computed, onMounted, PropType, ref } from "vue";
@@ -51,12 +50,13 @@ const props = defineProps({
     required: true,
   },
 });
+console.log("profilepopup", props.agentPubKey);
 
 const router = useRouter();
 const profilesStore = useProfilesStore();
 const { onAgentClick } = useProfileUtils();
 const isMyProfile = computed(() =>
-  isSameHash(props.agentPubKey, profilesStore.value.myAgentPubKey)
+  isSameHash(props.agentPubKey, profilesStore.value.client.client.myPubKey)
 );
 const isCurrentProfile = computed(
   () =>
@@ -72,11 +72,9 @@ const loading = ref(false);
 onMounted(async () => {
   try {
     loading.value = true;
-    let profile: Profile | undefined;
-    const profileReadable = await profilesStore.value.fetchAgentProfile(
+    const profile = await profilesStore.value.client.getAgentProfile(
       props.agentPubKey
     );
-    profileReadable.subscribe((p) => (profile = p));
     if (profile) {
       nickname.value = profile.nickname;
       displayName.value = profile.fields[PROFILE_FIELDS.DISPLAY_NAME];
