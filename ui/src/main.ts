@@ -10,6 +10,11 @@ import {
   AppAgentWebsocket,
   AppInfoResponse,
   CellType,
+  encodeHashToBase64,
+  generateSigningKeyPair,
+  GrantedFunctionsType,
+  setSigningCredentials,
+  SigningCredentials,
 } from "@holochain/client";
 import "@quasar/extras/material-icons/material-icons.css";
 import { createPinia } from "pinia";
@@ -27,6 +32,16 @@ import {
 } from "./stores";
 import { CLUTTER_ROLE_NAME } from "./stores/clutter";
 import { PROFILE_FIELDS } from "./types/types";
+
+interface SigningCredentialsJson
+  extends Omit<SigningCredentials, "capSecret" | "keyPair" | "signingKey"> {
+  capSecret: number[];
+  keyPair: {
+    publicKey: number[];
+    secretKey: number[];
+  };
+  signingKey: number[];
+}
 
 const app = createApp(App);
 app.use(router);
@@ -76,38 +91,57 @@ const initProfileStore = async (client: any) => {
   if (!(CellType.Provisioned in appInfo.cell_info[CLUTTER_ROLE_NAME][0])) {
     throw new Error('Could not find cell "clutter"');
   }
-  const cell = appInfo.cell_info[CLUTTER_ROLE_NAME][0][CellType.Provisioned];
 
-  // const { cell_id } =
-  //   appInfo.cell_info[CLUTTER_ROLE_NAME][0][CellType.Provisioned];
+  // set up zome call signing when run outside of launcher
+  const __HC_LAUNCHER_ENV__ = "__HC_LAUNCHER_ENV__";
+  if (typeof window === "object" && !(__HC_LAUNCHER_ENV__ in window)) {
+    const { cell_id } =
+      appInfo.cell_info[CLUTTER_ROLE_NAME][0][CellType.Provisioned];
 
-  // const cellIdB64 =
-  //   encodeHashToBase64(cell_id[0]) + encodeHashToBase64(cell_id[1]);
-  // const signingCredentialsJson = localStorage.getItem(cellIdB64);
-  // let signingCredentials: SigningCredentials | null =
-  //   signingCredentialsJson && JSON.parse(signingCredentialsJson);
-  // console.log("signing cred", signingCredentials);
-  // if (!signingCredentials) {
-  //   const [keyPair, signingKey] = generateSigningKeyPair();
-  //   const adminWs = await AdminWebsocket.connect("ws://localhost:65000");
-  //   const capSecret = await adminWs.grantSigningKey(
-  //     cell_id,
-  //     { [GrantedFunctionsType.All]: null },
-  //     signingKey
-  //   );
-  //   signingCredentials = {
-  //     capSecret,
-  //     keyPair,
-  //     signingKey,
-  //   };
-  // }
-  // setSigningCredentials(cell_id, signingCredentials);
-  // localStorage.setItem(cellIdB64, JSON.stringify(signingCredentials));
+    const cellIdB64 =
+      encodeHashToBase64(cell_id[0]) + encodeHashToBase64(cell_id[1]);
+    const storedSigningCredentials = localStorage.getItem(cellIdB64);
+    let signingCredentialsJson: SigningCredentialsJson | null =
+      storedSigningCredentials && JSON.parse(storedSigningCredentials);
+    let signingCredentials: SigningCredentials | null =
+      signingCredentialsJson && {
+        capSecret: Uint8Array.from(signingCredentialsJson.capSecret),
+        keyPair: {
+          publicKey: Uint8Array.from(signingCredentialsJson.keyPair.publicKey),
+          secretKey: Uint8Array.from(signingCredentialsJson.keyPair.secretKey),
+        },
+        signingKey: Uint8Array.from(signingCredentialsJson.signingKey),
+      };
 
-  const adminWs = await AdminWebsocket.connect(
-    `ws://localhost:${import.meta.env.VITE_HC_ADMIN_PORT}`
-  );
-  await adminWs.authorizeSigningCredentials(cell.cell_id);
+    if (!signingCredentials) {
+      localStorage.clear();
+      const [keyPair, signingKey] = generateSigningKeyPair();
+      const adminWs = await AdminWebsocket.connect(
+        `ws://localhost:${import.meta.env.VITE_HC_ADMIN_PORT}`
+      );
+      const capSecret = await adminWs.grantSigningKey(
+        cell_id,
+        { [GrantedFunctionsType.All]: null },
+        signingKey
+      );
+      signingCredentials = {
+        capSecret,
+        keyPair,
+        signingKey,
+      };
+      signingCredentialsJson = {
+        capSecret: Array.from(capSecret),
+        keyPair: {
+          publicKey: Array.from(keyPair.publicKey),
+          secretKey: Array.from(keyPair.secretKey),
+        },
+        signingKey: Array.from(signingKey),
+      };
+    }
+    setSigningCredentials(cell_id, signingCredentials);
+    localStorage.setItem(cellIdB64, JSON.stringify(signingCredentialsJson));
+  }
+
   profilesStore.value = new ProfilesStore(
     new ProfilesClient(holochainClient, CLUTTER_ROLE_NAME),
     {
