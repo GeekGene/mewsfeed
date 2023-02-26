@@ -2,7 +2,7 @@
   "name": "clutter-ui-vue",
   "description": "A UI for Clutter based on Vue",
   "author": "Jost Schulte",
-  "version": "0.0.1",
+  "version": "0.9.0-alpha",
   "type": "module",
   "scripts": {
     "start": "VITE_HC_PORT=$HC_PORT VITE_HC_ADMIN_PORT=$HC_ADMIN_PORT vite",
