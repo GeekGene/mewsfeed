@@ -10,4 +10,4 @@ name = "mews_integrity"
 [dependencies]
 serde = "1"
 
-hdi = "=0.1.10"
+hdi = "0.2"

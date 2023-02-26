@@ -1,8 +1,12 @@
 import { useClientStore } from "@/stores";
 import { CLUTTER_ROLE_NAME, MEWS_ZOME_NAME } from "@/stores/clutter";
-import { AgentPubKeyB64 } from "@holochain-open-dev/core-types";
-import { deserializeHash } from "@holochain-open-dev/utils";
-import { ActionHash, AgentPubKey, CallZomeRequest } from "@holochain/client";
+import {
+  ActionHash,
+  AgentPubKey,
+  AgentPubKeyB64,
+  CallZomeRequest,
+  decodeHashFromBase64,
+} from "@holochain/client";
 import { CreateMewInput, FeedMew, FeedOptions, Mew } from "../types/types";
 
 export enum MewsFn {
@@ -54,7 +58,7 @@ export const mewsBy = async (
 ): Promise<Array<FeedMew>> =>
   callZome(
     MewsFn.MewsBy,
-    typeof agent === "string" ? deserializeHash(agent) : agent
+    typeof agent === "string" ? decodeHashFromBase64(agent) : agent
   );
 
 export const follow = async (agent: AgentPubKey): Promise<null> =>

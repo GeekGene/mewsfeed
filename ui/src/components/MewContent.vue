@@ -33,7 +33,7 @@
 import { PATH, ROUTES } from "@/router";
 import { FeedMew, LinkTargetName, TOOLTIP_DELAY } from "@/types/types";
 import { TAG_REGEX, TAG_SYMBOLS } from "@/utils/tags";
-import { serializeHash } from "@holochain-open-dev/utils";
+import { encodeHashToBase64 } from "@holochain/client";
 import { computed, PropType } from "vue";
 import { RouteLocationRaw } from "vue-router";
 
@@ -62,7 +62,7 @@ const contentParts = computed<ContentPart[]>(() =>
         }
         if (LinkTargetName.Mention in link) {
           const mention = link[LinkTargetName.Mention];
-          agentPubKey = serializeHash(mention);
+          agentPubKey = encodeHashToBase64(mention);
         } else if (LinkTargetName.URL in link) {
           const url = link[LinkTargetName.URL];
           return [part, url];
