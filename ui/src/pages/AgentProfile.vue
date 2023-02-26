@@ -10,7 +10,7 @@
             <agent-avatar
               :agentPubKey="agentPubKey"
               size="50"
-              class="q-mr-lg"
+              :class="['q-mr-lg', { 'cursor-pointer': !isMyProfile }]"
             />
             <div class="q-mr-lg text-primary text-weight-medium">
               {{ displayName }}
