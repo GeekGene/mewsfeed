@@ -5,7 +5,7 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "start": "VITE_HC_PORT=$HC_PORT vite",
+    "start": "VITE_HC_PORT=$HC_PORT VITE_HC_ADMIN_PORT=$HC_ADMIN_PORT vite",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
     "lint": "eslint --fix --ext .ts ./ --ext .vue src"

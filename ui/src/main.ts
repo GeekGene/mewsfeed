@@ -104,7 +104,9 @@ const initProfileStore = async (client: any) => {
   // setSigningCredentials(cell_id, signingCredentials);
   // localStorage.setItem(cellIdB64, JSON.stringify(signingCredentials));
 
-  const adminWs = await AdminWebsocket.connect("ws://localhost:65000");
+  const adminWs = await AdminWebsocket.connect(
+    `ws://localhost:${import.meta.env.VITE_HC_ADMIN_PORT}`
+  );
   await adminWs.authorizeSigningCredentials(cell.cell_id);
   profilesStore.value = new ProfilesStore(
     new ProfilesClient(holochainClient, CLUTTER_ROLE_NAME),
