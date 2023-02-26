@@ -10,6 +10,7 @@
             @click.stop
           >
             {{ contentPart[0] }}
+            <q-tooltip :delay="TOOLTIP_DELAY">{{ contentPart[1] }}</q-tooltip>
           </a>
 
           <router-link
@@ -30,9 +31,9 @@
 
 <script setup lang="ts">
 import { PATH, ROUTES } from "@/router";
-import { FeedMew, LinkTargetName } from "@/types/types";
+import { FeedMew, LinkTargetName, TOOLTIP_DELAY } from "@/types/types";
 import { TAG_REGEX, TAG_SYMBOLS } from "@/utils/tags";
-import { serializeHash } from "@holochain-open-dev/utils";
+import { encodeHashToBase64 } from "@holochain/client";
 import { computed, PropType } from "vue";
 import { RouteLocationRaw } from "vue-router";
 
@@ -41,9 +42,6 @@ type ContentPart = string | [string, RouteLocationRaw] | [string, string];
 const props = defineProps({
   feedMew: { type: Object as PropType<FeedMew>, required: true },
 });
-
-const startsWithTag = (contentPart: string) =>
-  Object.values(TAG_SYMBOLS).some((symbol) => contentPart.startsWith(symbol));
 
 const links = computed(() =>
   props.feedMew.mew.content?.links?.slice().reverse()
@@ -55,7 +53,7 @@ const parts = computed(() =>
 
 const contentParts = computed<ContentPart[]>(() =>
   parts.value.map((part) => {
-    if (startsWithTag(part)) {
+    if (part.match(TAG_REGEX)) {
       let agentPubKey: string | undefined = undefined;
       if (part[0] === TAG_SYMBOLS.MENTION || part[0] === TAG_SYMBOLS.URL) {
         const link = links.value?.pop();
@@ -64,7 +62,7 @@ const contentParts = computed<ContentPart[]>(() =>
         }
         if (LinkTargetName.Mention in link) {
           const mention = link[LinkTargetName.Mention];
-          agentPubKey = serializeHash(mention);
+          agentPubKey = encodeHashToBase64(mention);
         } else if (LinkTargetName.URL in link) {
           const url = link[LinkTargetName.URL];
           return [part, url];

@@ -234,10 +234,20 @@ const onPaste = (event: ClipboardEvent) => {
 const loadAutocompleterUsers = async (nickname: string) => {
   try {
     autocompleterLoading.value = true;
-    const profiles = await profilesStore.value.searchProfiles(nickname);
-    agentAutocompletions.value = profiles
-      .keys()
-      .map((key) => ({ key, value: profiles.get(key) }));
+    const profilesLoaded = new Promise<ReadonlyMap<Uint8Array, Profile>>(
+      (resolve) => {
+        profilesStore.value.searchProfiles(nickname).subscribe((profiles) => {
+          if (profiles.status === "complete") {
+            resolve(profiles.value);
+          }
+        });
+      }
+    );
+    const profiles = await profilesLoaded;
+    agentAutocompletions.value = Array.from(profiles).map(([key, value]) => ({
+      key,
+      value,
+    }));
   } catch (error) {
     showError(error);
   } finally {
@@ -254,9 +264,17 @@ const onLinkTextKeyDown = (keyDownEvent: KeyboardEvent) => {
 
     const anchor = document.createElement("a");
     anchor.href = "#";
-    anchor.textContent = linkText.value
-      ? TAG_SYMBOLS.URL + linkText.value
-      : url;
+
+    // Wrap link text in brackets if it has multiple words
+    const linkTextValue = linkText.value?.trim();
+    if (linkTextValue?.includes(" ")) {
+      anchor.textContent = `${TAG_SYMBOLS.URL}[${linkTextValue}]`;
+    } else if (linkText.value) {
+      anchor.textContent = TAG_SYMBOLS.URL + linkTextValue;
+    } else {
+      anchor.textContent = url;
+    }
+
     anchor.dataset[ANCHOR_DATA_ID_URL] = url ?? undefined;
     range.insertNode(anchor);
     // insert space after link

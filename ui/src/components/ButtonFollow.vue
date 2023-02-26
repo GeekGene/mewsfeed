@@ -21,7 +21,6 @@ import { useProfilesStore } from "@/services/profiles-store";
 import { PROFILE_FIELDS } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
 import { showError, showMessage } from "@/utils/notification";
-import { Profile } from "@holochain-open-dev/profiles";
 import { AgentPubKey } from "@holochain/client";
 import { onMounted, PropType, ref } from "vue";
 
@@ -53,14 +52,12 @@ onMounted(async () => {
 
 const toggleFollow = async () => {
   try {
-    const [profileReadable] = await Promise.all([
-      profilesStore.value.fetchAgentProfile(props.agentPubKey),
+    const [profile] = await Promise.all([
+      profilesStore.value.client.getAgentProfile(props.agentPubKey),
       following.value
         ? await unfollow(props.agentPubKey)
         : await follow(props.agentPubKey),
     ]);
-    let profile: Profile | undefined;
-    profileReadable.subscribe((p) => (profile = p));
     following.value = !following.value;
     const name = `${profile?.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
       profile?.nickname

@@ -110,7 +110,7 @@ pub const QUOTE_PATH_SEGMENT: &str = "quote";
 pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
     match op.to_type::<EntryTypes, LinkTypes>().unwrap() {
         OpType::StoreEntry(entry) => match entry {
-            OpEntry::CreateEntry { entry_type, .. } => match entry_type {
+            OpEntry::CreateEntry { app_entry, .. } => match app_entry {
                 EntryTypes::Mew(mew) => match mew.content {
                     None => Ok(ValidateCallbackResult::Valid),
                     Some(mew_content) => {

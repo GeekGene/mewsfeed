@@ -13,5 +13,5 @@ regex = "1"
 serde = "1"
 chrono = { version = "0.4.22", default-features = false, features = ["clock", "std", "oldtime", "serde"] }
 mews_integrity = {path = "../../integrity_zomes/mews"}
-hdk = {version = "0.0.163", features = ["encoding"]}
 hc_time_index = {git = "https://github.com/holochain-open-dev/holochain-time-index.git", package = "hc_time_index"}
+hdk = {version = "0.1", features = ["encoding"]}

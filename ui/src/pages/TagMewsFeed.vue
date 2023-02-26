@@ -23,8 +23,7 @@ import { isSameHash } from "@/utils/hash";
 import { showError, showMessage } from "@/utils/notification";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { TAG_SYMBOLS } from "@/utils/tags";
-import { deserializeHash } from "@holochain-open-dev/utils";
-import { ActionHash } from "@holochain/client";
+import { ActionHash, decodeHashFromBase64 } from "@holochain/client";
 import { computed, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import MewList from "../components/MewList.vue";
@@ -55,7 +54,7 @@ const loadMewsFeed = async () => {
       mews.value = await getMewsWithHashtag(tagSymbol.value + tag.value);
     } else {
       mews.value = await getMewsWithMention(
-        deserializeHash(agentPubKey.value || "")
+        decodeHashFromBase64(agentPubKey.value || "")
       );
     }
   } catch (error) {

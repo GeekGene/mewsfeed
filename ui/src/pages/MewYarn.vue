@@ -68,8 +68,7 @@ import { FeedMew, MewTypeName } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
 import { showError } from "@/utils/notification";
 import { pageHeightCorrection } from "@/utils/page-layout";
-import { deserializeHash } from "@holochain-open-dev/utils";
-import { ActionHash } from "@holochain/client";
+import { ActionHash, decodeHashFromBase64 } from "@holochain/client";
 import { onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 
@@ -95,7 +94,7 @@ const onToggleLickMew = async (mewHash: ActionHash) => {
 };
 
 const getMewHashFromRoute = () =>
-  deserializeHash(
+  decodeHashFromBase64(
     typeof route.params.hash === "string"
       ? route.params.hash
       : route.params.hash[0]

@@ -31,7 +31,9 @@
             <router-link
               :to="{
                 name: ROUTES.profiles,
-                params: { agent: serializeHash(originalMew.action.author) },
+                params: {
+                  agent: encodeHashToBase64(originalMew.action.author),
+                },
               }"
               class="text-secondary"
             >
@@ -108,8 +110,7 @@ import {
 import { isSameHash } from "@/utils/hash";
 import { useProfileUtils } from "@/utils/profile";
 import { Profile } from "@holochain-open-dev/profiles";
-import { serializeHash } from "@holochain-open-dev/utils";
-import { ActionHash } from "@holochain/client";
+import { ActionHash, encodeHashToBase64 } from "@holochain/client";
 import { QItem, useQuasar } from "quasar";
 import { computed, onMounted, PropType, ref } from "vue";
 import AvatarWithPopup from "./AvatarWithPopup.vue";
@@ -134,7 +135,7 @@ const $q = useQuasar();
 const profilesStore = useProfilesStore();
 const { isCurrentProfile, onAgentClick } = useProfileUtils();
 const agentProfile = ref<Profile>();
-const myAgentPubKey = profilesStore.value.myAgentPubKey;
+const myAgentPubKey = profilesStore.value.client.client.myPubKey;
 
 const isMewMew = computed(
   () => MewTypeName.MewMew in props.feedMew.mew.mewType
@@ -165,10 +166,9 @@ const isLickedByMe = computed(() =>
 );
 
 onMounted(async () => {
-  const agentProfileReadable = await profilesStore.value.fetchAgentProfile(
+  agentProfile.value = await profilesStore.value.client.getAgentProfile(
     props.feedMew.action.author
   );
-  agentProfileReadable.subscribe((profile) => (agentProfile.value = profile));
 
   if (!originalMewHash) {
     return;
@@ -177,13 +177,9 @@ onMounted(async () => {
     originalMew.value = mew;
     // load original mew author
     loadingOriginalMewAuthor.value = true;
-    profilesStore.value
-      .fetchAgentProfile(mew.action.author)
-      .then((profileReadable) => {
-        profileReadable.subscribe(
-          (profile) => (originalMewAuthor.value = profile)
-        );
-      })
+    profilesStore.value.client
+      .getAgentProfile(mew.action.author)
+      .then((profile) => (originalMewAuthor.value = profile))
       .finally(() => (loadingOriginalMewAuthor.value = false));
   });
 });
@@ -191,7 +187,7 @@ onMounted(async () => {
 const onMewClick = () => {
   router.push({
     name: ROUTES.yarn,
-    params: { hash: serializeHash(props.feedMew.actionHash) },
+    params: { hash: encodeHashToBase64(props.feedMew.actionHash) },
   });
 };
 

@@ -99,10 +99,7 @@
           />
 
           <q-route-tab :to="{ name: ROUTES.myProfile }">
-            <agent-avatar
-              :agentPubKey="profilesStore.myAgentPubKey"
-              size="40"
-            />
+            <agent-avatar :agentPubKey="myAgentPubKey" size="40" />
             <q-tooltip :delay="TOOLTIP_DELAY">Your profile</q-tooltip>
           </q-route-tab>
         </q-tabs>
@@ -130,12 +127,18 @@ import {
   SearchResult,
 } from "@/types/types";
 import { showError } from "@/utils/notification";
-import { serializeHash } from "@holochain-open-dev/utils";
-import { AgentPubKey } from "@holochain/client";
+import { AgentPubKey, encodeHashToBase64 } from "@holochain/client";
 import { QSelectOption, useQuasar } from "quasar";
 import { ref } from "vue";
 import { RouteLocationRaw, useRouter } from "vue-router";
 import { TAG_SYMBOLS } from "@/utils/tags";
+import { Profile } from "@holochain-open-dev/profiles";
+import { computed } from "vue";
+
+type SearchResultOption = QSelectOption<RouteLocationRaw> & {
+  agentPubKey?: AgentPubKey;
+  resultType: SearchResult;
+};
 
 const $q = useQuasar();
 
@@ -144,15 +147,12 @@ const profilesStore = useProfilesStore();
 const router = useRouter();
 const tab = ref("");
 
+const myAgentPubKey = computed(
+  () => profilesStore.value.client.client.myPubKey
+);
+
 const searching = ref(false);
-const options = ref<
-  Array<
-    QSelectOption<RouteLocationRaw> & {
-      agentPubKey?: AgentPubKey;
-      resultType: SearchResult;
-    }
-  >
->([]);
+const options = ref<SearchResultOption[]>([]);
 const selection = ref<QSelectOption | null>(null);
 const searchTerm = ref("");
 
@@ -184,24 +184,40 @@ const search = (
     } else {
       try {
         searching.value = true;
-        const [profilesMap, hashtags, cashtags] = await Promise.all([
-          profilesStore.value.searchProfiles(inputValue),
+
+        const profilesSubscription = new Promise<
+          ReadonlyMap<Uint8Array, Profile>
+        >((resolve) => {
+          profilesStore.value.searchProfiles(inputValue).subscribe((value) => {
+            if (value.status === "complete") {
+              resolve(value.value);
+            }
+          });
+        });
+
+        const [profiles, hashtags, cashtags] = await Promise.all([
+          profilesSubscription,
           searchHashtags(inputValue),
           searchCashtags(inputValue),
         ]);
 
-        options.value = [
-          ...profilesMap.entries().map(([key, value]) => ({
+        const profileOptions: SearchResultOption[] = [];
+        profiles.forEach((value, key) => {
+          profileOptions.push({
             resultType: SearchResult.Agent,
             agentPubKey: key,
             value: {
               name: ROUTES.profiles,
-              params: { agent: serializeHash(key) },
+              params: { agent: encodeHashToBase64(key) },
             },
             label: `${value.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
               value.nickname
             })`,
-          })),
+          });
+        });
+
+        options.value = [
+          ...profileOptions,
           ...hashtags.map((hashtag) => ({
             resultType: SearchResult.Hashtag,
             value: {
