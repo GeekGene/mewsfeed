@@ -316,10 +316,20 @@ const onPaste = (event: ClipboardEvent) => {
 const loadAutocompleterUsers = async (nickname: string) => {
   try {
     autocompleterLoading.value = true;
-    const profiles = await profilesStore.value.searchProfiles(nickname);
-    agentAutocompletions.value = profiles
-      .keys()
-      .map((key) => ({ key, value: profiles.get(key) }));
+    const profilesLoaded = new Promise<ReadonlyMap<Uint8Array, Profile>>(
+      (resolve) => {
+        profilesStore.value.searchProfiles(nickname).subscribe((profiles) => {
+          if (profiles.status === "complete") {
+            resolve(profiles.value);
+          }
+        });
+      }
+    );
+    const profiles = await profilesLoaded;
+    agentAutocompletions.value = Array.from(profiles).map(([key, value]) => ({
+      key,
+      value,
+    }));
   } catch (error) {
     showError(error);
   } finally {

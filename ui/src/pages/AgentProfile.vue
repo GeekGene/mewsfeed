@@ -10,7 +10,7 @@
             <agent-avatar
               :agentPubKey="agentPubKey"
               size="50"
-              class="q-mr-lg"
+              :class="['q-mr-lg', { 'cursor-pointer': !isMyProfile }]"
             />
             <div class="q-mr-lg text-primary text-weight-medium">
               {{ displayName }}
@@ -71,9 +71,7 @@ import { FeedMew, MewType, MewTypeName, PROFILE_FIELDS } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
 import { showError, showMessage } from "@/utils/notification";
 import { pageHeightCorrection } from "@/utils/page-layout";
-import { Profile } from "@holochain-open-dev/profiles";
-import { deserializeHash } from "@holochain-open-dev/utils";
-import { ActionHash } from "@holochain/client";
+import { ActionHash, decodeHashFromBase64 } from "@holochain/client";
 import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import MewList from "../components/MewList.vue";
@@ -81,7 +79,7 @@ import MewList from "../components/MewList.vue";
 const profilesStore = useProfilesStore();
 const route = useRoute();
 const agentPubKey = computed(() =>
-  deserializeHash(
+  decodeHashFromBase64(
     Array.isArray(route.params.agent)
       ? route.params.agent[0]
       : route.params.agent
@@ -97,7 +95,7 @@ const isFollowing = ref(false);
 const mews = ref<FeedMew[]>([]);
 
 const isMyProfile = computed(() =>
-  isSameHash(agentPubKey.value, profilesStore.value.myAgentPubKey)
+  isSameHash(agentPubKey.value, profilesStore.value.client.client.myPubKey)
 );
 
 const loadMews = async () => {
@@ -114,12 +112,10 @@ const loadMews = async () => {
 const loadProfile = async () => {
   try {
     loadingProfile.value = true;
-    const [profileReadable, currentMyFollowing] = await Promise.all([
-      profilesStore.value.fetchAgentProfile(agentPubKey.value),
+    const [profile, currentMyFollowing] = await Promise.all([
+      profilesStore.value.client.getAgentProfile(agentPubKey.value),
       myFollowing(),
     ]);
-    let profile: Profile | undefined;
-    profileReadable.subscribe((p) => (profile = p));
     if (profile) {
       nickname.value = profile.nickname;
       displayName.value = profile.fields[PROFILE_FIELDS.DISPLAY_NAME];
