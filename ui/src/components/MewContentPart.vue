@@ -27,7 +27,7 @@
       v-show="isProfilePopupVisible"
       style="z-index: 20; position: absolute; left: -65px; width: 200px"
       class="text-black text-body1 shadow-3"
-      :agent-pub-key="deserializeHash(((props.contentPart[1] as RouteLocationNamedRaw).query as LocationQueryRaw)?.agentPubKey as LocationQueryValueRaw as string)"
+      :agent-pub-key="decodeHashFromBase64(((props.contentPart[1] as RouteLocationNamedRaw).query as LocationQueryRaw)?.agentPubKey as LocationQueryValueRaw as string)"
     />
   </RouterLink>
   <RouterLink
@@ -41,7 +41,7 @@
 </template>
 <script setup lang="ts">
 import { TOOLTIP_DELAY } from "@/types/types";
-import { deserializeHash } from "@holochain-open-dev/utils";
+import { decodeHashFromBase64 } from "@holochain/client";
 import { PropType, ref } from "vue";
 import {
   LocationQueryRaw,
