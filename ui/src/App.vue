@@ -19,8 +19,12 @@ import HoloLogin from "@/components/HoloLogin.vue";
 import MainLayout from "@/layouts/MainLayout.vue";
 import { useProfilesStore } from "./services/profiles-store";
 import { IS_HOLO_HOSTED } from "./stores";
+import { useThemeStore } from "./stores/theme";
 
 const profilesStore = useProfilesStore();
+const themeStore = useThemeStore();
+
+themeStore.applyActiveTheme();
 </script>
 
 <style lang="sass">

@@ -32,6 +32,7 @@ import {
 } from "./stores";
 import { CLUTTER_ROLE_NAME } from "./stores/clutter";
 import { PROFILE_FIELDS } from "./types/types";
+import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
 
 interface SigningCredentialsJson
   extends Omit<SigningCredentials, "capSecret" | "keyPair" | "signingKey"> {
@@ -48,7 +49,9 @@ app.use(router);
 app.use(Quasar, {
   plugins: { Dialog, Notify },
 });
-app.use(createPinia());
+const pinia = createPinia();
+pinia.use(piniaPluginPersistedstate);
+app.use(pinia);
 
 const profilesStore = ref<ProfilesStore>();
 app.provide(PROFILES_STORE, profilesStore);

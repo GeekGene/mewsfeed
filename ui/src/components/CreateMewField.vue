@@ -55,7 +55,7 @@
 
           <q-list
             v-else
-            class="autocompleter-list bg-white rounded-borders"
+            class="autocompleter-list rounded-borders"
             bordered
             dense
             separator

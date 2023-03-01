@@ -98,3 +98,22 @@ export enum SearchResult {
   Hashtag,
   Cashtag,
 }
+
+export interface ThemeColors {
+  primary: string;
+  secondary: string;
+  accent: string;
+  dark: string;
+  positive: string;
+  negative: string;
+  info: string;
+  warning: string;
+}
+
+export interface Theme {
+  name: string;
+  colors?: ThemeColors;
+  darkMode: boolean;
+  backgroundImageBase64?: string;
+  backgroundColor?: string;
+}
