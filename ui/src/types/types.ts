@@ -6,13 +6,20 @@ export const PROFILE_FIELDS = {
   LOCATION: "Location",
 };
 
+export const TOOLTIP_DELAY = 400;
+
 export enum LinkTargetName {
   Mention = "Mention",
+  URL = "URL",
 }
 
-export type LinkTarget = {
-  [LinkTargetName.Mention]: AgentPubKey;
-};
+export type LinkTarget =
+  | {
+      [LinkTargetName.Mention]: AgentPubKey;
+    }
+  | {
+      [LinkTargetName.URL]: string;
+    };
 
 export type CreateMewInput = {
   mewType: MewType;
@@ -59,4 +66,35 @@ export interface FeedMew {
   quotes: HoloHash[];
   licks: AgentPubKey[];
   mewmews: HoloHash[];
+}
+
+export interface FeedOptions {
+  option: string;
+}
+
+export interface NotificationOptions {
+  color?: string;
+  textColor?: string;
+  message?: string;
+  caption?: string;
+  html?: boolean;
+  icon?: string;
+  position?:
+    | "top-left"
+    | "top-right"
+    | "bottom-left"
+    | "bottom-right"
+    | "top"
+    | "bottom"
+    | "left"
+    | "right"
+    | "center";
+  actions?: Array<() => void>;
+  onDismiss?: () => void;
+}
+
+export enum SearchResult {
+  Agent,
+  Hashtag,
+  Cashtag,
 }

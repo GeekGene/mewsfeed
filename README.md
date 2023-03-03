@@ -1,24 +1,9 @@
 
-# Clutter
+# Clutter is now MewsFeed
 
-## Refactored with Nx/Angular
-- https://github.com/artbrock/clutter
-- https://github.com/mcknasty/twitter-angular-clone.github.io
+We are currently working towards the first major release of MewsFeed.
 
-## Preview
-
-- Angular Webapp
-
-![Preview of Clutter web](./docs/clutter-web-preview.jpg)
-
-- Ionic Mobileapp
-
-![Preview of Clutter mobile](./docs/clutter-mobile-preview.jpg)
-
-
-## Project Management w/ Acorn
-
-We use Sprillow's Holochain app [Acorn](https://github.com/lightningrodlabs/acorn) v1.0.2-alpha ([download](https://github.com/lightningrodlabs/acorn/releases/tag/v1.0.2-alpha)) for project management. If you wish to join us there, please [download the app](https://github.com/lightningrodlabs/acorn/releases/tag/v1.0.2-alpha), install it, click "Join a project" and paste in this secret: `blunt budding gatherer spilt simply`.
+Collaborate on GitHub and join our Discord: https://discord.gg/D3BykUZumM
 
 ## Environment Setup
 
@@ -35,10 +20,17 @@ cachix use holochain-ci
 
 ```bash
 nix-shell
-npm install --legacy-peer-deps
+npm install
 ```
 
 This will install all the needed dependencies in your local environment, including `holochain`, `hc` and `npm`.
+
+5. Install git submodule dependency (ui-common-library)
+
+```bash
+git submodule init
+git submodule update --remote --recursive
+```
 
 ## Building the DNA
 
@@ -54,26 +46,21 @@ npm run build:happ
 npm run test
 ```
 
-## Develop the UI
+## UI
 
-To run the Happ (Holochain + web UI + mobile UI):
+To test out the UI:
 
 ``` bash
-npm run start (from first terminal)
-npm run web (from second terminal)
-npm run mobile (from third terminal)
+npm start
 ```
 
-To run another agent, open another terminal(s), and execute again:
+To run another agent, open another terminal, and execute again:
 
 ```bash
-npm run start (fourth terminal)
-npm run web (fifth terminal)
-npm run mobile (from sixth terminal)
+npm start
 ```
 
 Each new agent that you create this way will get assigned its own port and get connected to the other agents.
-- TODO: pass port in Angular app
 
 ## Package
 
@@ -95,16 +82,3 @@ We are using this tooling:
 - [hc](https://github.com/holochain/holochain/tree/develop/crates/hc): Holochain CLI to easily manage Holochain development instances.
 - [@holochain/tryorama](https://www.npmjs.com/package/@holochain/tryorama): test framework.
 - [@holochain/conductor-api](https://www.npmjs.com/package/@holochain/conductor-api): client library to connect to Holochain from the UI.
-
-## Nx
-
-```bash
-npm install --save-dev @nrwl/angular
-npx nx generate @nrwl/angular:application clutter-web --no-interactive
-npm install --save-dev --exact @nxtend/ionic-angular --legacy-peer-deps
-npm install --save-dev --exact @nxtend/capacitor --legacy-peer-deps
-npx nx generate @nxtend/ionic-angular:application clutter-mobile --capacitor false
-npx nx generate @nrwl/angular:library clutter/data-access-dna
-npx nx generate @nrwl/angular:library shared/util-holochain
-npx nx generate @nrwl/angular:library shared/util-common
-```

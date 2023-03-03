@@ -17,4 +17,6 @@ target/
 
 ## ui files
 dist.zip
-.angular
+
+## angular fles
+.angular/

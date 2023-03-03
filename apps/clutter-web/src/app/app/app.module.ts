@@ -9,13 +9,14 @@ import { imports } from './imports';
   imports: [...imports],
   providers: [
     // path to your local hc app websocket
-    // find the correct port in the log: App port attached at xxx
-    { provide: 'HOLOCHAIN_WS_URL', useValue: 'ws://localhost:45533' },
+    // find the correct port in the log: App port and admin attached
+    { provide: 'HOLOCHAIN_WS_APP_URL', useValue: 'ws://localhost:44399' },
+    { provide: 'HOLOCHAIN_WS_ADMIN_URL', useValue: 'ws://localhost:36751' },
     // name of your holochain dna app
     // see: https://github.com/artbrock/clutter/blob/develop/ui/src/stores/index.ts
     { provide: 'HOLOCHAIN_APP_ID', useValue: 'clutter' },
     // holochain timeout in milliseconds
-    { provide: 'HOLOCHAIN_TIMEOUT_MS', useValue: 11_000 },
+    { provide: 'HOLOCHAIN_TIMEOUT_MS', useValue: 10_000 },
   ],
   bootstrap: [AppComponent],
 })

@@ -2,13 +2,12 @@ import { Injectable } from '@angular/core';
 import { from, Observable } from 'rxjs';
 //
 import { AgentPubKeyB64 } from '@holochain-open-dev/core-types';
-import { deserializeHash } from '@holochain-open-dev/utils';
-import { ActionHash, AgentPubKey, CallZomeRequest } from '@holochain/client';
+import { ActionHash, AgentPubKey, CallZomeRequest, decodeHashFromBase64 } from '@holochain/client';
 //
 import { CreateMewInput, FeedMew, FeedOptions, Mew, MewsFn } from './clutter-dna.types';
 import { HolochainService } from '@shared/util-holochain';
 //
-export const CLUTTER_ROLE_ID = 'clutter';
+export const CLUTTER_ROLE_NAME = 'clutter';
 export const MEWS_ZOME_NAME = 'mews';
 //
 @Injectable({
@@ -31,7 +30,7 @@ export class ClutterDnaService {
   ): Promise<T> {
     const result: T = // { type: 'ok'; data: T } =
       await this.holochainService.callZome({
-        roleId: CLUTTER_ROLE_ID,
+        roleName: CLUTTER_ROLE_NAME,
         zomeName: MEWS_ZOME_NAME,
         fnName,
         payload,
@@ -51,7 +50,7 @@ export class ClutterDnaService {
   ): Promise<Array<FeedMew>> =>
     this.callClutterZome(
       MewsFn.MewsBy,
-      typeof agent === 'string' ? deserializeHash(agent) : agent
+      typeof agent === 'string' ? decodeHashFromBase64(agent) : agent
     );
 
   // actions follow, like
