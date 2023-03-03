@@ -57,7 +57,6 @@ export class HolochainService {
         installed_app_id: this.holochainAppId,
       });
       this.appInfo = appInfo;
-      this.connected$$.next(true);
       console.log('🚀 ~ HolochainService ~ loadedAppInfo ~', appInfo);
     } catch (error) {
       console.error('appInfo() returned error.', error); // inspect(error)
@@ -75,6 +74,7 @@ export class HolochainService {
     await this.connect();
     await this.loadAppInfo();
     await this.sign(roleName);
+    this.connected$$.next(true);
   }
 
   async sign(roleName: string): Promise<void> {
