@@ -1,0 +1,25 @@
+.tweet-info {
+  font-size: 0.9em;
+}
+
+.name {
+  font-weight: 600;
+}
+
+.handle {
+  padding-left: 4px;
+  color: var(--ion-color-medium);
+}
+
+.wrapper {
+  border-bottom: 1px solid var(--ion-color-light);
+}
+
+.highlight {
+  color: var(--ion-color-primary);
+}
+
+.preview-img {
+  border: 1px solid var(--ion-color-light);
+  border-radius: 10px;
+}

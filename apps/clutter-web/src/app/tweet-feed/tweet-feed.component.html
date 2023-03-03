@@ -1,0 +1,49 @@
+<div class="feed-header">
+  <h2 class="title">Mews</h2>
+  <div class="button-container">
+    <div class="button" (click)="toggle()">Mew</div>
+  </div>
+</div>
+<div
+  [@openClose]="isOpen ? 'open' : 'closed'"
+  class="compose-tweet"
+  [ngClass]="hide ? 'display-none' : null"
+>
+  <form id="compose-tweet" name="compose-tweet">
+    <label for="new-tweet" class="not-visable">Compose a new Mew</label>
+    <textarea
+      type="text"
+      id="new-tweet"
+      name="new-tweet"
+      ng-required
+      ng-minlength="4"
+      ng-maxlength="280"
+      size="10"
+      ng-attr-placeholder="Compose a new Mew ..."
+      placeholder="Compose a new Mew ..."
+      rows="3"
+      cols="74"
+      #newTweetText
+    ></textarea>
+    <div class="button-container">
+      <label for="submit-tweet" class="not-visable">Submit Mew</label>
+      <button
+        id="submit-tweet"
+        type="button"
+        form="compose-tweet"
+        value="Submit Tweet"
+        class="button"
+        (click)="createMew(newTweetText.value); newTweetText.value = ''"
+      >
+        Submit
+      </button>
+    </div>
+  </form>
+</div>
+<div class="feed">
+  <app-tweet
+    class="full-tweet"
+    *ngFor="let feedMew of feedMews"
+    [feedMew]="feedMew"
+  ></app-tweet>
+</div>

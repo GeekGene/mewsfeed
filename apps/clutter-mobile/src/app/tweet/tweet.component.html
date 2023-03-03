@@ -1,0 +1,49 @@
+<ion-row class="wrapper">
+  <ion-col size="2">
+    <ion-avatar>
+      <!-- <ion-img [src]="feedMew.img"></ion-img>-->
+    </ion-avatar>
+  </ion-col>
+  <ion-col size="10">
+    <ion-row class="tweet-info">
+      <ion-col size="12">
+        <!-- <span class="name">{{ feedMew.username }}</span>
+        <span class="handle">@{{ feedMew.handle }}</span>-->
+        <span class="handle">- {{ timestamp }}</span>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col size="12">
+        <div [innerHtml]="feedMew.mew.content?.text"></div>
+        <!--
+        <img class="preview-img" [src]="feedMew.attachment" *ngIf="feedMew.attachment">
+         -->
+      </ion-col>
+    </ion-row>
+    <ion-row class="ion-justify-content-start">
+      <ion-col>
+        <ion-button fill="clear" color="medium" size="small">
+          <ion-icon name="chatbubble-outline" slot="start"></ion-icon>
+          {{ feedMew.quotes.length }}
+        </ion-button>
+      </ion-col>
+      <ion-col>
+        <ion-button fill="clear" [color]="feedMew.mewmews.length ? 'primary' : 'medium'" size="small">
+          <ion-icon name="repeat-outline" slot="start"></ion-icon>
+          {{ feedMew.mewmews.length }}
+        </ion-button>
+      </ion-col>
+      <ion-col>
+        <ion-button fill="clear" [color]="feedMew.licks.length ? 'primary' : 'medium'" size="small">
+          <ion-icon name="heart-outline" slot="start"></ion-icon>
+          {{ feedMew.licks.length }}
+        </ion-button>
+      </ion-col>
+      <ion-col>
+        <ion-button fill="clear" color="medium" size="small">
+          <ion-icon name="share-outline" slot="start"></ion-icon>
+        </ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-col>
+</ion-row>

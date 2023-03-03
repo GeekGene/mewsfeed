@@ -1,0 +1,29 @@
+  <aside class="tweet-sidebar">
+    <!-- https://github.com/artbrock/clutter/blob/develop/ui/src/components/MewListItem.vue -->
+    <div class="thumbnail-container">
+      <img src="https://picsum.photos/47/47/?random&time={{ 1 }}" height="47" width="47" alt="picture of ?" class="thumbnail" />
+    </div>
+  </aside>
+  <article class="tweet">
+    <div class="profile-description">
+      <h3 class="profile-full-name">{{ user.name }}</h3>
+      <span class="profile-handle"><a class="profile-link" routerLink="/user/{{user.id}}">{{ user.handle }}</a></span>
+      <span class="time-since-tweet">{{ timestamp }}</span>
+    </div>
+    <p class="tweet-text">
+      {{ feedMew.mew.content?.text }}
+    </p>
+    <div class="tweet-controls">
+      <nav class="icon-menu">
+        <ul>
+          <li>{{ feedMew.licks.length }}<i class="fas fa-star"></i></li>
+          <li><a href="/">{{ feedMew.replies.length }}<i class="fas fa-reply"></i></a></li>
+          <li><a href="/">{{ feedMew.mewmews.length }}<i class="fas fa-retweet"></i></a></li>
+          <li><a href="/">{{ feedMew.quotes.length }}<i class="fas fa-ellipsis-h"></i></a></li>
+        </ul>
+      </nav>
+      <div class="tweet-replies">
+        <!-- <a href="/">2 more replies</a> -->
+      </div>
+    </div>
+  </article>

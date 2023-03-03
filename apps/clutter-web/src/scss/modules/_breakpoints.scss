@@ -1,0 +1,106 @@
+@media only screen and (min-width:320px) {
+
+}
+@media only screen and (min-width:480px) {
+  .header {
+    .search-box { display: flex; }
+  }
+  .main {
+    padding: 0px 25px;
+  }
+  #compose-tweet {
+    margin: 0px auto;
+    textarea {
+      width: 30em;
+    }
+  }
+  .twitter-feed {
+    max-width: 450px;
+  }
+}
+/** Custom Break point **/
+@media only screen and (min-width:634px) {
+  #compose-tweet textarea {
+    width: 40em;
+  }
+  .twitter-feed {
+    max-width: 615px;
+  }
+}
+
+@media only screen and (min-width:768px) {
+  .main .main-container .twitter-feed {
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+  .main {
+    padding: 0px 0px;
+  }
+  #compose-tweet textarea {
+    width: 51em;
+  }
+  .twitter-feed {
+    max-width: 755px;
+  }
+}
+@media only screen and (min-width:1024px) {
+  .header {
+    .left-toolbar {
+      flex: 1;
+      order: 1;
+      .nav.icon-menu {
+        display: block;
+      }
+    }
+    .logo {
+      display: flex;
+      flex: 1.85;
+      order: 2;
+      a {
+        margin-right: auto;
+      }
+    }
+    .search-box {
+      display: flex;
+      flex: 1;
+      order: 3;
+      .search-container {
+        margin-left: auto;
+        margin-right: 0px;
+      }
+    }
+    .right-toolbar {
+      display: flex;
+      flex: 0.15;
+      order: 4;
+    }
+    .left-toolbar .nav.mobile-menu {display: none;}
+  }
+  .main .main-container {
+    .sidebar {
+      display: flex;
+    }
+    .twitter-feed {
+      margin-left: 0px;
+      margin-right: 0px;
+      .tweet {
+        min-width: 488px;
+      }
+    }
+  }
+  .footer-mobile {
+    display: none;
+  }
+  #compose-tweet textarea {
+    width: 39em;
+  }
+}
+@media only screen and (min-width:1140px) {
+
+}
+@media only screen and (min-width:1280px) {
+
+}
+@media print, (-o-min-device-pixel-ratio: 5/4), (-webkit-min-device-pixel-ratio: 1.25), (min-resolution: 120dpi) {
+
+}

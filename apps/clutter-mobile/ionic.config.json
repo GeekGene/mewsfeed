@@ -1,0 +1,7 @@
+{
+  "name": "clutter-mobile",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

@@ -1,0 +1,62 @@
+h1 {
+  @include font-default;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 26.4px;
+}
+
+h2 {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 19.4px;
+}
+
+h3 {
+  @include font-default;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 15.4px;
+}
+
+h4 {
+  font-size: 14px;
+  color: $med-grey3;
+  font-weight: 200;
+}
+
+p {
+  @include font-default;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+blockquote {
+  @include font-default;
+  font-size: 21px;
+  font-weight: 400;
+  line-height: 30px;
+}
+
+pre {
+  @include font-default;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 18.5714px;
+}
+
+input {
+  @include font-default;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: $med-grey3;
+  font-weight: 200;
+}
+
+.stat-number {
+  font-size: 14px;
+  color: $black;
+  font-weight: 600;
+}

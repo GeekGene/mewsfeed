@@ -1,0 +1,60 @@
+$border: 2px solid $med-grey2;
+
+.sidebar {
+  .trends {
+    h2 {
+      color: $med-grey3;
+      font-weight: 200;
+    }
+    padding: 5px 10px;
+  }
+  .footer {
+    padding: 20px 10px;
+  }
+  .sidebar .profile-meta {
+    @include flex-container(column nowrap);
+    h3 {
+      @include screenreader();
+    }
+  }
+}
+
+.sidebar .profile-meta .profile-about {
+  padding: 10px 10px;
+  .name-container, .about {
+    width: 100%;
+  }
+  .name-container {
+    h2 {
+      margin-bottom: 5px;
+    }
+    .handle {
+      font-size: 16px;
+    }
+  }
+}
+
+.sidebar .profile-meta .portrait-container {
+  margin-left: 96px;
+  margin-top: -135px;
+}
+
+.sidebar .profile-meta .profile-stats {
+  @include flex-container();
+  border-top: $border;
+  .cell {
+    @include flex-container(column nowrap);
+    flex: 1;
+    border-right: $border;
+    padding: 10px 10px;
+    .stat-label {
+      margin: 10px 0px 2px 0px;
+    }
+    .stat-label, .stat-number {
+      margin-right: auto;
+    }
+  }
+  .cell:last-child {
+    border-right: none;
+  }
+}

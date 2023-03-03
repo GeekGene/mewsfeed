@@ -1,0 +1,18 @@
+@mixin image-resize-width ($height) {
+  height: $height;
+  width: auto;
+}
+
+@mixin image-resize-height ($width) {
+  height: auto;
+  width: $width;
+}
+
+@mixin image-flip() {
+  -moz-transform: scaleX(-1);
+  -o-transform: scaleX(-1);
+  -webkit-transform: scaleX(-1);
+  transform: scaleX(-1);
+  filter: FlipH;
+  -ms-filter: "FlipH";
+}
