@@ -25,7 +25,10 @@
         </q-tooltip>
       </q-icon>
 
-      <div class="q-mb-xs text-right text-caption text-grey">
+      <div
+        class="q-mb-xs text-right text-caption"
+        style="color: var(--q-content)"
+      >
         Ctrl/Cmd + Enter to publish
       </div>
 

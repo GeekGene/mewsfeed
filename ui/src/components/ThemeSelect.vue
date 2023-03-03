@@ -1,10 +1,11 @@
 <template>
-  <q-select
-    v-model="selectedThemeName"
-    class="text-white"
-    :options="themeStore.themeNames"
-    filled
-  />
+  <div class="bg-info">
+    <q-select
+      v-model="selectedThemeName"
+      :options="themeStore.themeNames"
+      filled
+    />
+  </div>
 </template>
 
 <script setup lang="ts">

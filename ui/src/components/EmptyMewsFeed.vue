@@ -1,5 +1,5 @@
 <template>
-  <q-banner class="bg-grey-3" dense rounded>
+  <q-banner class="bg-info" dense rounded>
     <template #avatar>
       <q-icon name="pets" color="accent" />
     </template>

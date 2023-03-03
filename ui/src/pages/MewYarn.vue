@@ -1,7 +1,7 @@
 <template>
   <q-page :style-fn="pageHeightCorrection">
-    <q-card flat>
-      <q-card-section class="q-pb-none">
+    <div>
+      <q-card-section class="q-pb-none" style="color: var(--q-content)">
         <q-btn flat @click="$router.go(-1)">
           <q-icon
             name="arrow_right_alt"
@@ -21,12 +21,17 @@
               :feed-mew="mew"
               :on-publish-mew="onPublishMew"
               :on-toggle-lick-mew="onToggleLickMew"
-              class="q-mb-md bg-orange-1"
+              class="q-mb-md bg-info"
             />
 
             <q-item class="q-mb-md q-px-none">
               <div class="col-grow">
-                <div class="q-mb-md text-h6 text-medium">Reply</div>
+                <div
+                  class="q-mb-md text-h6 text-medium"
+                  style="color: var(--q-info)"
+                >
+                  Reply
+                </div>
 
                 <profiles-context :store="profilesStore">
                   <CreateMewField
@@ -40,7 +45,7 @@
           </q-list>
 
           <MewListSkeleton v-if="isLoadingReplies" />
-          <q-list v-else-if="replies.length" bordered separator>
+          <div v-else-if="replies.length">
             <MewYarnListItem
               v-for="(reply, index) of replies"
               :key="index"
@@ -49,10 +54,10 @@
               :on-toggle-lick-mew="onToggleLickMew"
               :content-inset-level="1"
             />
-          </q-list>
+          </div>
         </profiles-context>
       </q-card-section>
-    </q-card>
+    </div>
   </q-page>
 </template>
 

@@ -1,5 +1,5 @@
 <template>
-  <q-item class="items-start">
+  <q-item class="items-start bg-info text-light my-2 cursor-pointer">
     <q-item-section avatar>
       <avatar-with-popup :agent-pub-key="feedMew.action.author" />
     </q-item-section>
@@ -10,9 +10,9 @@
           :class="{
             'cursor-pointer': !isCurrentProfile(feedMew.action.author),
           }"
-          @click="onAgentClick(feedMew.action.author)"
+          @click.stop="onAgentClick(feedMew.action.author)"
         >
-          <span class="q-mr-xs text-primary text-weight-bold">
+          <span class="q-mr-xs text-accent text-weight-bold">
             {{ agentProfile?.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
           </span>
           <span>@{{ agentProfile?.nickname }}</span>
@@ -54,8 +54,7 @@
 
       <mew-content
         :feed-mew="originalMew && isMewMew ? originalMew : feedMew"
-        class="q-my-sm cursor-pointer"
-        @click="onMewClick"
+        class="q-my-sm"
       />
 
       <div>
@@ -63,7 +62,7 @@
           :disable="isUpdatingLick"
           size="sm"
           flat
-          @click="onToggleLickMew"
+          @click.stop="onToggleLickMew"
         >
           <q-icon
             name="svguse:/icons.svg#lick"
@@ -73,15 +72,15 @@
           {{ feedMew.licks.length }}
           <q-tooltip :delay="TOOLTIP_DELAY">Lick mew</q-tooltip>
         </q-btn>
-        <q-btn size="sm" icon="reply" flat @click="replyToMew">
+        <q-btn size="sm" icon="reply" flat @click.stop="replyToMew">
           {{ feedMew.replies.length }}
           <q-tooltip :delay="TOOLTIP_DELAY">Reply to mew</q-tooltip>
         </q-btn>
-        <q-btn size="sm" icon="forward" flat @click="mewMew">
+        <q-btn size="sm" icon="forward" flat @click.stop="mewMew">
           {{ feedMew.mewmews.length }}
           <q-tooltip :delay="TOOLTIP_DELAY">Mewmew mew</q-tooltip>
         </q-btn>
-        <q-btn size="sm" icon="format_quote" flat @click="quote">
+        <q-btn size="sm" icon="format_quote" flat @click.stop="quote">
           {{ feedMew.quotes.length }}
           <q-tooltip :delay="TOOLTIP_DELAY">Quote mew</q-tooltip>
         </q-btn>
@@ -183,13 +182,6 @@ onMounted(async () => {
       .finally(() => (loadingOriginalMewAuthor.value = false));
   });
 });
-
-const onMewClick = () => {
-  router.push({
-    name: ROUTES.yarn,
-    params: { hash: encodeHashToBase64(props.feedMew.actionHash) },
-  });
-};
 
 const onToggleLickMew = async () => {
   isUpdatingLick.value = true;

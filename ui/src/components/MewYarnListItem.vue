@@ -1,5 +1,10 @@
 <template>
-  <q-item :inset-level="contentInsetLevel" class="items-start">
+  <q-item
+    :inset-level="contentInsetLevel"
+    class="items-start"
+    style="color: var(--q-content)"
+    padded
+  >
     <q-item-section avatar>
       <avatar-with-popup :agent-pub-key="feedMew.action.author" />
     </q-item-section>

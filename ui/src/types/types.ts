@@ -108,6 +108,7 @@ export interface ThemeColors {
   negative: string;
   info: string;
   warning: string;
+  content: string;
 }
 
 export interface Theme {
@@ -116,4 +117,5 @@ export interface Theme {
   darkMode: boolean;
   backgroundImageBase64?: string;
   backgroundColor?: string;
+  backgroundOpacity?: number;
 }

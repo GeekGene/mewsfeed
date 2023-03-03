@@ -5,7 +5,7 @@
       @publish-mew="store.fetchMewsFeed"
     />
 
-    <h6 class="q-mb-md">Your Mews Feed</h6>
+    <h6 class="q-mb-md" style="color: var(--q-content)">Your Mews Feed</h6>
 
     <MewList
       :mews="store.mewsFeed"
@@ -23,8 +23,10 @@ import { useClutterStore } from "@/stores";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { ActionHash } from "@holochain/client";
 import { onMounted } from "vue";
+import { useThemeStore } from "../stores/theme";
 
 const store = useClutterStore();
+const themeStore = useThemeStore();
 onMounted(store.fetchMewsFeed);
 
 const onToggleLickMew = (hash: ActionHash) => store.reloadMew(hash);

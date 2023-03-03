@@ -1,6 +1,17 @@
 <template>
   <q-layout view="hHh lpr fFf" :style="themeStore.activeThemeLayoutStyle">
-    <q-header elevated class="row justify-center">
+    <div
+      v-if="themeStore.activeTheme.backgroundOpacity"
+      :style="`
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-color: black;
+        opacity: ${themeStore.activeTheme.backgroundOpacity};
+        z-index: 1;
+      `"
+    ></div>
+    <q-header elevated class="row justify-center" style="z-index: 20">
       <q-toolbar class="col-12 col-md-6 col-xl-5">
         <q-tabs v-model="tab" dense inline-label class="col-grow">
           <q-route-tab :to="{ name: ROUTES.home }">
@@ -102,14 +113,13 @@
             <agent-avatar :agentPubKey="myAgentPubKey" size="40" />
             <q-tooltip :delay="TOOLTIP_DELAY">Your profile</q-tooltip>
           </q-route-tab>
-          <ThemeSelect />
         </q-tabs>
       </q-toolbar>
     </q-header>
 
     <q-page-container class="row q-mt-xl">
       <q-space />
-      <router-view class="col-12 col-md-6 col-xl-5" />
+      <router-view class="col-12 col-md-6 col-xl-5" style="z-index: 10" />
       <q-space />
     </q-page-container>
   </q-layout>
@@ -136,7 +146,6 @@ import { TAG_SYMBOLS } from "@/utils/tags";
 import { Profile } from "@holochain-open-dev/profiles";
 import { computed } from "vue";
 import { useThemeStore } from "../stores/theme";
-import ThemeSelect from "../components/ThemeSelect.vue";
 
 type SearchResultOption = QSelectOption<RouteLocationRaw> & {
   agentPubKey?: AgentPubKey;
