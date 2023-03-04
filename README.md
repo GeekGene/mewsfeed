@@ -82,3 +82,32 @@ We are using this tooling:
 - [hc](https://github.com/holochain/holochain/tree/develop/crates/hc): Holochain CLI to easily manage Holochain development instances.
 - [@holochain/tryorama](https://www.npmjs.com/package/@holochain/tryorama): test framework.
 - [@holochain/conductor-api](https://www.npmjs.com/package/@holochain/conductor-api): client library to connect to Holochain from the UI.
+
+
+## Refactored with Nx/Angular
+
+- https://github.com/artbrock/clutter
+- https://github.com/mcknasty/twitter-angular-clone.github.io
+
+### Preview
+
+- Angular Webapp
+
+![Preview of Clutter web](./docs/clutter-web-preview.jpg)
+
+- Ionic Mobileapp
+
+![Preview of Clutter mobile](./docs/clutter-mobile-preview.jpg)
+
+### Nx
+
+```bash
+npx nx@latest init
+npm install --save-dev @nrwl/angular
+npx nx generate @nrwl/angular:application clutter-web --no-interactive
+npm install --save-dev --exact @nxtend/ionic-angular --legacy-peer-deps
+npm install --save-dev --exact @nxtend/capacitor --legacy-peer-deps
+npx nx generate @nxtend/ionic-angular:application clutter-mobile --capacitor false
+npx nx generate @nrwl/angular:library clutter/data-access-dna
+npx nx generate @nrwl/angular:library shared/util-holochain
+npx nx generate @nrwl/angular:library shared/util-common
