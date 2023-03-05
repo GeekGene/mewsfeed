@@ -84,9 +84,10 @@ We are using this tooling:
 - [@holochain/conductor-api](https://www.npmjs.com/package/@holochain/conductor-api): client library to connect to Holochain from the UI.
 
 
-## Refactored with Nx/Angular
+## Refactored with Nx/Angular/Ionic
 
 - https://github.com/artbrock/clutter
+- https://devdactic.com/twitter-ui-with-ionic
 - https://github.com/mcknasty/twitter-angular-clone.github.io
 
 ### Preview
