@@ -57,7 +57,6 @@ const props = defineProps({
     required: true,
   },
 });
-console.log("profilepopup", props.agentPubKey);
 
 const router = useRouter();
 const profilesStore = useProfilesStore();
