@@ -400,17 +400,24 @@ const onAutocompleteAgentSelect = (agent: AgentAutocompletion) => {
   const range = new Range();
   range.setStart(currentNode, currentAnchorOffset);
   range.setEnd(currentNode, currentFocusOffset);
+
+  // Insert mention link: '@' + agent username
   const anchor = document.createElement("a");
   anchor.href = "#";
   anchor.textContent = TAG_SYMBOLS.MENTION + agent.value.nickname;
   anchor.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY] = agent.key.toString();
   range.deleteContents();
   range.insertNode(anchor);
+
   // insert space after mention
   const spaceNode = document.createTextNode(String.fromCharCode(160));
   anchor.after(spaceNode);
+
+  // reset autocomplete input
   hideAutocompleter();
   document.getSelection()?.setPosition(spaceNode, 1);
+
+  setMewContentLength();
 };
 
 const publishMew = async () => {
