@@ -111,7 +111,7 @@
 import { useProfilesStore } from "@/services/profiles-store";
 import { useClutterStore } from "@/stores";
 import { showError } from "@/utils/notification";
-import { RAW_URL_REGEX, TAG_SYMBOLS } from "@/utils/tags";
+import { isMentionTag, isRawUrl, TAG_SYMBOLS } from "@/utils/tags";
 import { Profile } from "@holochain-open-dev/profiles";
 import { onMounted, PropType, ref, computed } from "vue";
 import {
@@ -501,7 +501,7 @@ const onCaretPositionChange = () => {
 
   if (currentWord.length && selection.anchorNode) {
     // current word starts with @ and is followed by at least another word character
-    if (new RegExp(`^${TAG_SYMBOLS.MENTION}\\w+`).test(currentWord)) {
+    if (isMentionTag(currentWord)) {
       showElement(selection.anchorNode, startOfWordIndex, ".autocompleter");
 
       const nicknameChars = currentWord.substring(1);
@@ -512,7 +512,7 @@ const onCaretPositionChange = () => {
         currentFocusOffset = endOfWordIndex;
       }
       // current word is a URL
-    } else if (RAW_URL_REGEX.test(currentWord)) {
+    } else if (isRawUrl(currentWord)) {
       showElement(selection.anchorNode, startOfWordIndex, ".link-text");
       currentAnchorOffset = startOfWordIndex;
       currentFocusOffset = endOfWordIndex;
