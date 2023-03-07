@@ -115,7 +115,7 @@ export interface Theme {
   name: string;
   colors?: ThemeColors;
   darkMode: boolean;
-  backgroundImageBase64?: string;
+  backgroundImage?: string;
   backgroundColor?: string;
   backgroundOpacity?: number;
 }
