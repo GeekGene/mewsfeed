@@ -1,7 +1,7 @@
 import "@holochain-open-dev/profiles/agent-avatar";
 import "@holochain-open-dev/profiles/my-profile";
-import "@holochain-open-dev/profiles/profile-prompt";
 import "@holochain-open-dev/profiles/profiles-context";
+import "@holochain-open-dev/profiles/create-profile";
 
 import "@/css/main.sass";
 import { ProfilesClient, ProfilesStore } from "@holochain-open-dev/profiles";

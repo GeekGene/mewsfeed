@@ -103,8 +103,8 @@ import { useClutterStore } from "@/stores";
 import { showError } from "@/utils/notification";
 import { TAG_SYMBOLS } from "@/utils/tags";
 import { Profile } from "@holochain-open-dev/profiles";
-import { debounce } from "quasar";
-import { onMounted, PropType, ref } from "vue";
+import { debounce, useQuasar } from "quasar";
+import { onMounted, onUnmounted, PropType, ref } from "vue";
 import {
   CreateMewInput,
   LinkTarget,
@@ -113,6 +113,7 @@ import {
   PROFILE_FIELDS,
   TOOLTIP_DELAY,
 } from "../types/types";
+import CreateProfileDialog from "../components/CreateProfileDialog.vue";
 
 const ANCHOR_DATA_ID_AGENT_PUB_KEY = "agentPubKey";
 const ANCHOR_DATA_ID_URL = "url";
@@ -130,9 +131,16 @@ interface AgentAutocompletion {
 
 const store = useClutterStore();
 const profilesStore = useProfilesStore();
+const $q = useQuasar();
 const mewContainer = ref<HTMLDivElement | null>(null);
+const myProfile = ref<undefined | Profile>(undefined);
 
 onMounted(() => setTimeout(focusInputField, 0));
+
+const unsubscribe = profilesStore.value.myProfile.subscribe((res: any) => {
+  myProfile.value = res.value;
+});
+onUnmounted(unsubscribe);
 
 const isMewEmpty = ref(true);
 const saving = ref(false);
@@ -334,6 +342,19 @@ const onAutocompleteAgentSelect = (agent: AgentAutocompletion) => {
 const publishMew = async () => {
   const mewInput = mewContainer.value?.querySelector(".mew-content");
   if (!mewInput) {
+    return;
+  }
+
+  // Prompt user to create profile if they don't have one
+  if (!myProfile.value) {
+    $q.dialog({
+      component: CreateProfileDialog,
+      componentProps: {},
+    }).onOk(() => {
+      setTimeout(() => {
+        publishMew();
+      }, 200);
+    });
     return;
   }
 

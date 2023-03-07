@@ -1,16 +1,12 @@
 <template>
   <holo-login v-if="IS_HOLO_HOSTED">
     <profiles-context v-if="profilesStore" :store="profilesStore">
-      <profile-prompt>
-        <main-layout />
-      </profile-prompt>
+      <main-layout />
     </profiles-context>
   </holo-login>
 
   <profiles-context v-else :store="profilesStore">
-    <profile-prompt>
-      <main-layout />
-    </profile-prompt>
+    <main-layout />
   </profiles-context>
 </template>
 
