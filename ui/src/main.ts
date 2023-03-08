@@ -1,10 +1,13 @@
-import "@holochain-open-dev/profiles/agent-avatar";
-import "@holochain-open-dev/profiles/my-profile";
-import "@holochain-open-dev/profiles/profiles-context";
-import "@holochain-open-dev/profiles/create-profile";
+import "@holochain-open-dev/profiles-dev/ui/agent-avatar";
+import "@holochain-open-dev/profiles-dev/ui/my-profile";
+import "@holochain-open-dev/profiles-dev/ui/profiles-context";
+import "@holochain-open-dev/profiles-dev/ui/create-profile";
 
 import "@/css/main.sass";
-import { ProfilesClient, ProfilesStore } from "@holochain-open-dev/profiles";
+import {
+  ProfilesClient,
+  ProfilesStore,
+} from "@holochain-open-dev/profiles-dev/ui";
 import {
   AdminWebsocket,
   AppAgentWebsocket,

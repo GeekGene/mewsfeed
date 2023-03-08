@@ -3,7 +3,7 @@
     <q-card class="q-dialog-plugin dialog">
       <create-profile
         :_store="profilesStore"
-        @profile-created="onDialogOK"
+        @profile-created="(data: any) => onDialogOK(data.detail.profile)"
       ></create-profile>
     </q-card>
   </q-dialog>

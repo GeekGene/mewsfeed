@@ -109,14 +109,15 @@ import {
 } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
 import { useProfileUtils } from "@/utils/profile";
-import { Profile } from "@holochain-open-dev/profiles";
+import { Profile } from "@holochain-open-dev/profiles-dev/ui";
 import { ActionHash, encodeHashToBase64 } from "@holochain/client";
 import { QItem, useQuasar } from "quasar";
-import { computed, onMounted, PropType, ref } from "vue";
+import { computed, onMounted, onUnmounted, PropType, ref } from "vue";
 import AvatarWithPopup from "./AvatarWithPopup.vue";
 import CreateMewDialog from "./CreateMewDialog.vue";
 import MewContent from "./MewContent.vue";
 import Timestamp from "./MewTimestamp.vue";
+import CreateProfileDialog from "../components/CreateProfileDialog.vue";
 
 const props = defineProps({
   feedMew: { type: Object as PropType<FeedMew>, required: true },
@@ -135,7 +136,13 @@ const $q = useQuasar();
 const profilesStore = useProfilesStore();
 const { isCurrentProfile, onAgentClick } = useProfileUtils();
 const agentProfile = ref<Profile>();
+const myProfile = ref<Profile>();
 const myAgentPubKey = profilesStore.value.client.client.myPubKey;
+
+const unsubscribe = profilesStore.value.myProfile.subscribe((res: any) => {
+  myProfile.value = res.value;
+});
+onUnmounted(unsubscribe);
 
 const isMewMew = computed(
   () => MewTypeName.MewMew in props.feedMew.mew.mewType
@@ -192,6 +199,17 @@ const onMewClick = () => {
 };
 
 const onToggleLickMew = async () => {
+  // Prompt user to create profile if they don't have one
+  if (!myProfile.value) {
+    $q.dialog({
+      component: CreateProfileDialog,
+    }).onOk((profile) => {
+      myProfile.value = profile;
+      onToggleLickMew();
+    });
+    return;
+  }
+
   isUpdatingLick.value = true;
   if (isLickedByMe.value) {
     await unlickMew(props.feedMew.actionHash);
@@ -214,6 +232,17 @@ const replyToMew = () =>
   });
 
 const mewMew = async () => {
+  // Prompt user to create profile if they don't have one
+  if (!myProfile.value) {
+    $q.dialog({
+      component: CreateProfileDialog,
+    }).onOk((profile) => {
+      myProfile.value = profile;
+      mewMew();
+    });
+    return;
+  }
+
   const mewType = { mewMew: props.feedMew.actionHash };
   const mew: CreateMewInput = {
     mewType,

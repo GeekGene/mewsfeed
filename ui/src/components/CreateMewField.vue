@@ -102,7 +102,7 @@ import { useProfilesStore } from "@/services/profiles-store";
 import { useClutterStore } from "@/stores";
 import { showError } from "@/utils/notification";
 import { TAG_SYMBOLS } from "@/utils/tags";
-import { Profile } from "@holochain-open-dev/profiles";
+import { Profile } from "@holochain-open-dev/profiles-dev/ui";
 import { debounce, useQuasar } from "quasar";
 import { onMounted, onUnmounted, PropType, ref } from "vue";
 import {
@@ -242,20 +242,16 @@ const onPaste = (event: ClipboardEvent) => {
 const loadAutocompleterUsers = async (nickname: string) => {
   try {
     autocompleterLoading.value = true;
-    const profilesLoaded = new Promise<ReadonlyMap<Uint8Array, Profile>>(
-      (resolve) => {
-        profilesStore.value.searchProfiles(nickname).subscribe((profiles) => {
-          if (profiles.status === "complete") {
-            resolve(profiles.value);
-          }
-        });
-      }
+    const agentPubKeys = await profilesStore.value.client.searchAgents(nickname);
+    const agentProfiles = await profilesStore.value.agentsProfiles(agentPubKeys);
+    agentAutocompletions.value = await Promise.all(
+      profiles.map((agentPubKey, i) => {
+        return {
+          key: agentPubKey,
+          value: agentPubKey,
+        };
+      })
     );
-    const profiles = await profilesLoaded;
-    agentAutocompletions.value = Array.from(profiles).map(([key, value]) => ({
-      key,
-      value,
-    }));
   } catch (error) {
     showError(error);
   } finally {

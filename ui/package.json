@@ -5,13 +5,14 @@
   "version": "0.9.0-alpha",
   "type": "module",
   "scripts": {
-    "start": "VITE_HC_PORT=$HC_PORT VITE_HC_ADMIN_PORT=$HC_ADMIN_PORT vite",
+    "start": "vite --port $UI_PORT --clearScreen false",
+    "start:browser": "VITE_HC_PORT=$HC_PORT VITE_HC_ADMIN_PORT=$HC_ADMIN_PORT vite",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
     "lint": "eslint --fix --ext .ts ./ --ext .vue src"
   },
   "dependencies": {
-    "@holochain-open-dev/profiles": "^0.10.1",
+    "@holochain-open-dev/profiles-dev": "file:../../profiles",
     "@holochain/client": "^0.12.3",
     "@quasar/extras": "^1.15.4",
     "dayjs": "^1.11.7",

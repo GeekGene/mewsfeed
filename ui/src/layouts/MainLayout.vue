@@ -132,9 +132,8 @@ import { QSelectOption, useQuasar } from "quasar";
 import { ref } from "vue";
 import { RouteLocationRaw, useRouter } from "vue-router";
 import { TAG_SYMBOLS } from "@/utils/tags";
-import { Profile } from "@holochain-open-dev/profiles";
+import { Profile } from "@holochain-open-dev/profiles-dev/ui";
 import { computed, onUnmounted } from "vue";
-import CreateProfileDialog from "../components/CreateProfileDialog.vue";
 
 type SearchResultOption = QSelectOption<RouteLocationRaw> & {
   agentPubKey?: AgentPubKey;
@@ -172,20 +171,13 @@ const onPublishMew = () => {
 };
 
 const onAddMewClick = () => {
-  if (myProfile.value) {
-    $q.dialog({
-      component: CreateMewDialog,
-      componentProps: {
-        mewType: { [MewTypeName.Original]: null },
-        onPublishMew,
-      },
-    });
-  } else {
-    $q.dialog({
-      component: CreateProfileDialog,
-      componentProps: {},
-    });
-  }
+  $q.dialog({
+    component: CreateMewDialog,
+    componentProps: {
+      mewType: { [MewTypeName.Original]: null },
+      onPublishMew,
+    },
+  });
 };
 
 const search = (
@@ -203,18 +195,20 @@ const search = (
       try {
         searching.value = true;
 
-        const profilesSubscription = new Promise<
-          ReadonlyMap<Uint8Array, Profile>
+        const profilesPromise = new Promise<
+          ReadonlyMap<Uint8Array, Profile | undefined>
         >((resolve) => {
-          profilesStore.value.searchProfiles(inputValue).subscribe((value) => {
-            if (value.status === "complete") {
-              resolve(value.value);
-            }
+          profilesStore.value.client.searchAgents(inputValue).then((agents) => {
+            profilesStore.value.agentsProfiles(agents).subscribe((value) => {
+              if (value.status === "complete") {
+                resolve(value.value);
+              }
+            });
           });
         });
 
         const [profiles, hashtags, cashtags] = await Promise.all([
-          profilesSubscription,
+          profilesPromise,
           searchHashtags(inputValue),
           searchCashtags(inputValue),
         ]);

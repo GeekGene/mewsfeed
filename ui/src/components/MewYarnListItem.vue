@@ -98,7 +98,7 @@ import {
 } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
 import { useProfileUtils } from "@/utils/profile";
-import { Profile } from "@holochain-open-dev/profiles";
+import { Profile } from "@holochain-open-dev/profiles-dev/ui";
 import { ActionHash, encodeHashToBase64 } from "@holochain/client";
 import { useQuasar } from "quasar";
 import { computed, onMounted, PropType, ref } from "vue";
