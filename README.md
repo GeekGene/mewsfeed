@@ -19,11 +19,12 @@ npm install
 
 This will install all the needed dependencies in your local environment, including `holochain`, `hc` and `npm`.
 
-~~5. Install git submodule dependency (ui-common-library)~~ (not necessary with this Angular fork)
+~~5. Install git submodule dependency (ui-common-library)~~ 
 
 ```bash
-~~git submodule init~~
-~~git submodule update --remote --recursive~~
+# not necessary with this Angular fork
+git submodule init
+git submodule update --remote --recursive
 ```
 
 ## Building the DNA
