@@ -6,11 +6,14 @@
   "prefix": "app",
   "targets": {
     "build": {
-      "executor": "@angular-devkit/build-angular:browser",
+      "executor": "@nrwl/angular:webpack-browser",
       "outputs": [
         "{options.outputPath}"
       ],
       "options": {
+        "customWebpackConfig": {
+          "path": "apps/clutter-web/webpack.config.js"
+        },
         "outputPath": "dist/apps/clutter-web",
         "resourcesOutputPath": "assets",
         "index": "apps/clutter-web/src/index.html",
@@ -58,7 +61,7 @@
       "defaultConfiguration": "production"
     },
     "serve": {
-      "executor": "@angular-devkit/build-angular:dev-server",
+      "executor": "@nrwl/angular:webpack-dev-server",
       "configurations": {
         "production": {
           "browserTarget": "clutter-web:build:production"

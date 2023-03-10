@@ -7,13 +7,7 @@ Collaborate on GitHub and join our Discord: https://discord.gg/D3BykUZumM
 
 ## Environment Setup
 
-1. Install the holochain dev environment (only nix-shell is required): https://developer.holochain.org/docs/install/
-2. Enable Holochain cachix with:
-
-```bash
-nix-env -iA cachix -f https://cachix.org/api/v1/install
-cachix use holochain-ci
-```
+1. Install the holochain dev environment (only nix-shell is required): https://developer.holochain.org/quick-start/
 
 3. Clone this repo and `cd` inside of it.
 4. Enter the nix shell by running this in the root folder of the repository: 
@@ -25,11 +19,11 @@ npm install
 
 This will install all the needed dependencies in your local environment, including `holochain`, `hc` and `npm`.
 
-5. Install git submodule dependency (ui-common-library)
+~~5. Install git submodule dependency (ui-common-library)~~ (not necessary with this Angular fork)
 
 ```bash
-git submodule init
-git submodule update --remote --recursive
+~~git submodule init~~
+~~git submodule update --remote --recursive~~
 ```
 
 ## Building the DNA
@@ -89,6 +83,7 @@ We are using this tooling:
 - https://github.com/artbrock/clutter
 - https://devdactic.com/twitter-ui-with-ionic
 - https://github.com/mcknasty/twitter-angular-clone.github.io
+- https://nx.dev/recipes/environment-variables/use-environment-variables-in-angular
 
 ### Preview
 
@@ -112,3 +107,15 @@ npx nx generate @nxtend/ionic-angular:application clutter-mobile --capacitor fal
 npx nx generate @nrwl/angular:library clutter/data-access-dna
 npx nx generate @nrwl/angular:library shared/util-holochain
 npx nx generate @nrwl/angular:library shared/util-common
+
+### WSL
+
+```bash
+# start wsl session & start deamon as root: https://nixos.org/manual/nix/stable/installation/multi-user.html
+wsl
+sudo su -
+nix-daemon
+# start another wsl session and enjoy your nix commands
+wsl
+nix develop --extra-experimental-features nix-command --extra-experimental-features flakes
+```
