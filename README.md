@@ -108,6 +108,7 @@ npx nx generate @nxtend/ionic-angular:application clutter-mobile --capacitor fal
 npx nx generate @nrwl/angular:library clutter/data-access-dna
 npx nx generate @nrwl/angular:library shared/util-holochain
 npx nx generate @nrwl/angular:library shared/util-common
+```
 
 ### WSL
 
