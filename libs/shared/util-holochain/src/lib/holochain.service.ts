@@ -84,6 +84,7 @@ export class HolochainService {
     }
 
     // set up zome call signing when run outside of launcher
+    // see https://github.com/holochain/holochain-client-js   
     const __HC_LAUNCHER_ENV__ = "__HC_LAUNCHER_ENV__";
     if (typeof window === "object" && !(__HC_LAUNCHER_ENV__ in window)) {
       const { cell_id } =
@@ -135,6 +136,8 @@ export class HolochainService {
     }
   }
 
+  // TODO: When holo host is ready for use, their client will be fully compatible with AppAgentClient 
+  // https://github.com/holochain/holochain-client-js/blob/a435f9edd7fa4f837faebdd3cd2abf0c080404ce/src/api/app-agent/types.ts#L79
   public async callZome({ roleName, zomeName, fnName, payload = null }) {
     if (!this.appInfo) {
       throw new Error('Tried to make a zome call before storing appInfo');
