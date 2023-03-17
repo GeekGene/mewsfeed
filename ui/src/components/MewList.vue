@@ -38,7 +38,6 @@ defineProps({
 });
 
 const onMewClick = (actionHash: Uint8Array) => {
-  console.log('going!');
   router.push({
     name: ROUTES.yarn,
     params: { hash: encodeHashToBase64(actionHash) },
