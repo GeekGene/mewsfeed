@@ -23,11 +23,7 @@ pub fn create_mew(mew: CreateMewInput) -> ExternResult<ActionHash> {
                 text: mew_string,
                 links: mew.links,
             })?,
-            None => {
-                return Err(wasm_error!(WasmErrorInner::Guest(
-                    "mew must contain text".to_string()
-                )))
-            }
+            None => return Err(wasm_error!(WasmErrorInner::Guest("mew must contain text".to_string()))),
         },
         MewType::Reply(original_action_hash) => match mew.text {
             Some(mew_string) => create_reply(
@@ -37,18 +33,10 @@ pub fn create_mew(mew: CreateMewInput) -> ExternResult<ActionHash> {
                 },
                 original_action_hash,
             )?,
-            None => {
-                return Err(wasm_error!(WasmErrorInner::Guest(
-                    "reply mew must contain text".to_string()
-                )))
-            }
+            None => return Err(wasm_error!(WasmErrorInner::Guest("reply mew must contain text".to_string()))),
         },
         MewType::MewMew(original_action_hash) => match mew.text {
-            Some(_) => {
-                return Err(wasm_error!(WasmErrorInner::Guest(
-                    "mewmew must not contain text".to_string()
-                )))
-            }
+            Some(_) => return Err(wasm_error!(WasmErrorInner::Guest("mewmew must not contain text".to_string()))),
             None => create_mewmew(original_action_hash)?,
         },
         MewType::Quote(original_entry_hash) => match mew.text {
@@ -59,11 +47,7 @@ pub fn create_mew(mew: CreateMewInput) -> ExternResult<ActionHash> {
                 },
                 original_entry_hash,
             )?,
-            None => {
-                return Err(wasm_error!(WasmErrorInner::Guest(
-                    "quote must contain text".to_string()
-                )))
-            }
+            None => return Err(wasm_error!(WasmErrorInner::Guest("quote must contain text".to_string()))),
         },
     };
     Ok(mew_action_hash)
@@ -83,10 +67,7 @@ pub fn create_original_mew(mew_content: MewContent) -> ExternResult<ActionHash> 
     Ok(mew_action_hash)
 }
 
-pub fn create_reply(
-    mew_content: MewContent,
-    original_action_hash: ActionHash,
-) -> ExternResult<ActionHash> {
+pub fn create_reply(mew_content: MewContent, original_action_hash: ActionHash) -> ExternResult<ActionHash> {
     let mew = Mew {
         mew_type: MewType::Reply(original_action_hash.clone()),
         content: Some(mew_content.clone()),
@@ -127,10 +108,7 @@ pub fn create_mewmew(original_action_hash: ActionHash) -> ExternResult<ActionHas
     Ok(mewmew_action_hash)
 }
 
-pub fn create_quote(
-    mew_content: MewContent,
-    original_action_hash: ActionHash,
-) -> ExternResult<ActionHash> {
+pub fn create_quote(mew_content: MewContent, original_action_hash: ActionHash) -> ExternResult<ActionHash> {
     let mew = Mew {
         mew_type: MewType::Quote(original_action_hash.clone()),
         content: Some(mew_content.clone()),
@@ -155,75 +133,41 @@ pub fn create_quote(
 
 #[hdk_extern]
 pub fn get_mew(action_hash: ActionHash) -> ExternResult<Mew> {
-    let element = get(action_hash, GetOptions::default())?.ok_or(wasm_error!(
-        WasmErrorInner::Guest(String::from("Mew not found"))
-    ))?;
+    let element = get(action_hash, GetOptions::default())?.ok_or(wasm_error!(WasmErrorInner::Guest(String::from("Mew not found"))))?;
 
-    let mew: Mew =
-        element
-            .entry()
-            .to_app_option()
-            .unwrap()
-            .ok_or(wasm_error!(WasmErrorInner::Guest(String::from(
-                "Malformed mew"
-            ))))?;
+    let mew: Mew = element
+        .entry()
+        .to_app_option()
+        .unwrap()
+        .ok_or(wasm_error!(WasmErrorInner::Guest(String::from("Malformed mew"))))?;
 
     Ok(mew)
 }
 
 #[hdk_extern]
 pub fn get_feed_mew_and_context(action_hash: ActionHash) -> ExternResult<FeedMew> {
-    let element = get(action_hash.clone(), GetOptions::default())?.ok_or(wasm_error!(
-        WasmErrorInner::Guest(String::from("Mew not found"))
-    ))?;
-    let mew: Mew =
-        element
-            .entry()
-            .to_app_option()
-            .unwrap()
-            .ok_or(wasm_error!(WasmErrorInner::Guest(String::from(
-                "Malformed mew"
-            ))))?;
+    let element =
+        get(action_hash.clone(), GetOptions::default())?.ok_or(wasm_error!(WasmErrorInner::Guest(String::from("Mew not found"))))?;
+    let mew: Mew = element
+        .entry()
+        .to_app_option()
+        .unwrap()
+        .ok_or(wasm_error!(WasmErrorInner::Guest(String::from("Malformed mew"))))?;
 
-    let lick_links = get_links(
-        action_hash.clone(),
-        LinkTypes::Lick,
-        Some(LinkTag::new(LICK_PATH_SEGMENT)),
-    )?;
+    let lick_links = get_links(action_hash.clone(), LinkTypes::Lick, Some(LinkTag::new(LICK_PATH_SEGMENT)))?;
     let licks: Vec<AgentPubKey> = lick_links
         .into_iter()
         .map(|link| AgentPubKey::from(EntryHash::from(link.target)).into())
         .collect();
 
-    let reply_links = get_links(
-        action_hash.clone(),
-        LinkTypes::Reply,
-        Some(LinkTag::new(REPLY_PATH_SEGMENT)),
-    )?;
-    let replies: Vec<AnyLinkableHash> = reply_links
-        .into_iter()
-        .map(|link| link.target.into())
-        .collect();
+    let reply_links = get_links(action_hash.clone(), LinkTypes::Reply, Some(LinkTag::new(REPLY_PATH_SEGMENT)))?;
+    let replies: Vec<AnyLinkableHash> = reply_links.into_iter().map(|link| link.target.into()).collect();
 
-    let mewmew_links = get_links(
-        action_hash.clone(),
-        LinkTypes::Mewmew,
-        Some(LinkTag::new(MEWMEW_PATH_SEGMENT)),
-    )?;
-    let mewmews: Vec<AnyLinkableHash> = mewmew_links
-        .into_iter()
-        .map(|mewmew| mewmew.target.into())
-        .collect();
+    let mewmew_links = get_links(action_hash.clone(), LinkTypes::Mewmew, Some(LinkTag::new(MEWMEW_PATH_SEGMENT)))?;
+    let mewmews: Vec<AnyLinkableHash> = mewmew_links.into_iter().map(|mewmew| mewmew.target.into()).collect();
 
-    let quote_links = get_links(
-        action_hash.clone(),
-        LinkTypes::Quote,
-        Some(LinkTag::new(QUOTE_PATH_SEGMENT)),
-    )?;
-    let quotes: Vec<AnyLinkableHash> = quote_links
-        .into_iter()
-        .map(|link| link.target.into())
-        .collect();
+    let quote_links = get_links(action_hash.clone(), LinkTypes::Quote, Some(LinkTag::new(QUOTE_PATH_SEGMENT)))?;
+    let quotes: Vec<AnyLinkableHash> = quote_links.into_iter().map(|link| link.target.into()).collect();
 
     let feed_mew_and_context = FeedMew {
         mew,
@@ -277,12 +221,7 @@ pub fn lick_mew(action_hash: ActionHash) -> ExternResult<()> {
 
     let base = get_my_mews_base(LICK_PATH_SEGMENT, true)?;
     let _my_lick_ah = create_link(base, action_hash.clone(), LinkTypes::Lick, ())?;
-    let _mew_lick_ah = create_link(
-        action_hash.clone(),
-        me.clone(),
-        LinkTypes::Lick,
-        LinkTag::new(LICK_PATH_SEGMENT),
-    )?;
+    let _mew_lick_ah = create_link(action_hash.clone(), me.clone(), LinkTypes::Lick, LinkTag::new(LICK_PATH_SEGMENT))?;
     Ok(())
 }
 
@@ -334,9 +273,7 @@ pub fn follow(agent: AgentPubKey) -> ExternResult<()> {
     let them_target: EntryHash = AgentPubKey::from(agent.clone()).into();
 
     if me_target == them_target {
-        return Err(wasm_error!(WasmErrorInner::Guest(String::from(
-            "Cannot follow yourself."
-        ))));
+        return Err(wasm_error!(WasmErrorInner::Guest(String::from("Cannot follow yourself."))));
     }
 
     let me = get_my_mews_base(FOLLOWING_PATH_SEGMENT, true)?;
@@ -445,11 +382,7 @@ pub fn get_mews_from_path(path: Path) -> ExternResult<Vec<FeedMew>> {
     let links = get_links(path_hash, LinkTypes::Tag, None)?;
     let mut mews: Vec<FeedMew> = links
         .into_iter()
-        .map(|link| {
-            get(ActionHash::from(link.target), GetOptions::default())
-                .unwrap()
-                .unwrap()
-        })
+        .map(|link| get(ActionHash::from(link.target), GetOptions::default()).unwrap().unwrap())
         .map(|element| get_feed_mew_and_context(element.signed_action().as_hash().clone()).unwrap())
         .collect();
     mews.sort_by(|a, b| b.action.timestamp().cmp(&a.action.timestamp()));
@@ -499,11 +432,8 @@ fn search_tags(path_stem: String, content: String) -> ExternResult<Vec<String>> 
     let tags: Vec<String> = links
         .into_iter()
         .map(|link| {
-            String::from_utf8(link.tag.into_inner()).map_err(|_| {
-                wasm_error!(WasmErrorInner::Guest(
-                    "Failed to convert link tag to string".into()
-                ))
-            })
+            String::from_utf8(link.tag.into_inner())
+                .map_err(|_| wasm_error!(WasmErrorInner::Guest("Failed to convert link tag to string".into())))
         })
         .filter_map(Result::ok)
         .collect();
@@ -527,12 +457,7 @@ fn create_mew_tag_links(path_stem: &str, content: &str, mew_hash: ActionHash) ->
     let search_path = Path::from(format!("search_{}.{}", path_stem, prefix));
     let search_path_hash = search_path.path_entry_hash()?;
     search_path.typed(LinkTypes::TagPrefix)?.ensure()?;
-    let _link_search_tag = create_link(
-        search_path_hash,
-        path_hash.clone(),
-        LinkTypes::TagPrefix,
-        word.as_bytes().to_vec(),
-    )?;
+    let _link_search_tag = create_link(search_path_hash, path_hash.clone(), LinkTypes::TagPrefix, word.as_bytes().to_vec())?;
 
     Ok(())
 }
