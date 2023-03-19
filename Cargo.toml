@@ -3,6 +3,8 @@ resolver = "2"
 members = [
     "dnas/*/integrity_zomes/*",
     "dnas/*/coordinator_zomes/*",
+    "dnas/trust_atom_integrity_zome",
+    "dnas/trust_atom_zome",
 ]
 
 [profile.dev]

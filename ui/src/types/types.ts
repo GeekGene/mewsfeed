@@ -82,6 +82,17 @@ export interface Mew {
   content: MewContent | null;
 }
 
+export interface FollowInput {
+  agent: AgentPubKey;
+  followTopics: FollowTopicInput[];
+  followOther: boolean;
+}
+
+export interface FollowTopicInput {
+  topic: string;
+  weight: string;
+}
+
 export interface FeedMew {
   mew: Mew;
   action: Create;
@@ -90,6 +101,17 @@ export interface FeedMew {
   quotes: HoloHash[];
   licks: AgentPubKey[];
   mewmews: HoloHash[];
+}
+
+export interface RecommendedInput {
+  now: number; // microseconds since epoch
+  oldestMewSeconds: number | null;
+}
+
+export interface TrustFeedMew {
+  feedMew: FeedMew;
+  weight: number;
+  topic: string | null;
 }
 
 export interface FeedOptions {
@@ -140,4 +162,9 @@ export interface SigningCredentialsJson
 export interface MewsfeedDnaProperties {
   mew_characters_min?: number;
   mew_characters_max?: number;
+}
+
+export interface TrustGraphAtomData {
+  topic: string;
+  weight: number;
 }

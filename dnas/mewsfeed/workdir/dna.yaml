@@ -12,6 +12,10 @@ integrity:
       bundled: ../../../target/wasm32-unknown-unknown/release/profiles_integrity.wasm
     - name: mews_integrity
       bundled: ../../../target/wasm32-unknown-unknown/release/mews_integrity.wasm
+    - name: trust_atom_integrity
+      bundled: ../../../target/wasm32-unknown-unknown/release/trust_atom_integrity_zome.wasm
+      hash: ~
+      dependencies: ~
 coordinator:
   zomes:
     - name: profiles
@@ -22,3 +26,8 @@ coordinator:
       bundled: ../../../target/wasm32-unknown-unknown/release/mews.wasm
       dependencies:
         - name: mews_integrity
+    - name: trust_atom
+      bundled: ../../../target/wasm32-unknown-unknown/release/trust_atom_zome.wasm
+      dependencies:
+        - name: trust_atom_integrity
+      hash: ~

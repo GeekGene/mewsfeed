@@ -31,6 +31,28 @@ pub struct CreateMewInput {
     pub links: Option<Vec<LinkTarget>>,
 }
 
+#[derive(Debug, Serialize, Deserialize, SerializedBytes)]
+#[serde(rename_all = "camelCase")]
+pub struct RecommendedInput {
+    pub now: hdi::prelude::Timestamp,
+    pub oldest_mew_seconds: Option<u64>,
+}
+
+#[derive(Debug, Serialize, Deserialize, SerializedBytes)]
+#[serde(rename_all = "camelCase")]
+pub struct FollowInput {
+    pub agent: AgentPubKey,
+    pub follow_topics: Vec<FollowTopicInput>,
+    pub follow_other: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, SerializedBytes)]
+#[serde(rename_all = "camelCase")]
+pub struct FollowTopicInput {
+    pub topic: String,
+    pub weight: String,
+}
+
 #[hdk_entry_helper]
 #[serde(rename_all = "camelCase")]
 #[derive(Clone)]
@@ -65,6 +87,14 @@ pub struct FeedMew {
     pub quotes: Vec<AnyLinkableHash>,
     pub licks: Vec<AgentPubKey>,
     pub mewmews: Vec<AnyLinkableHash>,
+}
+
+#[hdk_entry_helper]
+#[serde(rename_all = "camelCase")]
+pub struct TrustFeedMew {
+    pub feed_mew: FeedMew,
+    pub weight: f32,
+    pub topic: Option<String>,
 }
 
 #[hdk_link_types]

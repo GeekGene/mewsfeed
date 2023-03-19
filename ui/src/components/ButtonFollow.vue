@@ -18,7 +18,7 @@
 <script setup lang="ts">
 import { follow, myFollowing, unfollow } from "@/services/mewsfeed-dna";
 import { useProfilesStore } from "@/services/profiles-store";
-import { PROFILE_FIELDS } from "@/types/types";
+import { FollowInput, FollowTopicInput, PROFILE_FIELDS } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
 import { showError, showMessage } from "@/utils/notification";
 import { useMyProfile } from "@/utils/profile";
@@ -55,12 +55,31 @@ onMounted(async () => {
 const toggleFollow = () => {
   runWhenMyProfileExists(async () => {
     try {
-      const [profile] = await Promise.all([
-        profilesStore.value.client.getAgentProfile(props.agentPubKey),
-        following.value
-          ? await unfollow(props.agentPubKey)
-          : await follow(props.agentPubKey),
-      ]);
+      let followInput: FollowInput;
+      let profile;
+      if (following.value) {
+        // unfollow:
+        [profile] = await Promise.all([
+          profilesStore.value.client.getAgentProfile(props.agentPubKey),
+          await unfollow(props.agentPubKey),
+        ]);
+      } else {
+        // follow:
+        const topics: FollowTopicInput[] = [
+          // TODO make these dynamic -- from trust atom vue compoment
+          { topic: "food", weight: "1.0" },
+          { topic: "forest", weight: "0.2" },
+        ];
+        followInput = {
+          agent: props.agentPubKey,
+          followTopics: topics,
+          followOther: false,
+        };
+        [profile] = await Promise.all([
+          profilesStore.value.client.getAgentProfile(props.agentPubKey),
+          await follow(followInput),
+        ]);
+      }
       following.value = !following.value;
       const name = `${profile?.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
         profile?.nickname

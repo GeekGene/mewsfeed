@@ -7,12 +7,20 @@ import {
   CallZomeRequest,
   decodeHashFromBase64,
 } from "@holochain/client";
-import { CreateMewInput, FeedMew, FeedOptions, Mew } from "../types/types";
+import {
+  CreateMewInput,
+  FeedMew,
+  FeedOptions,
+  Mew,
+  RecommendedInput,
+  TrustFeedMew,
+} from "../types/types";
 
 export enum MewsFn {
   CreateMew = "create_mew",
   GetMew = "get_mew",
   MewsFeed = "mews_feed",
+  BasketFeed = "recommended",
   MewsBy = "mews_by",
   Follow = "follow",
   Followers = "followers",
@@ -53,6 +61,10 @@ export const getMew = async (mew: ActionHash): Promise<Mew> =>
 export const mewsFeed = async (options: FeedOptions): Promise<Array<FeedMew>> =>
   callZome(MewsFn.MewsFeed, options);
 
+export const basketFeed = async (
+  input: RecommendedInput
+): Promise<Array<TrustFeedMew>> => callZome(MewsFn.BasketFeed, input);
+
 export const mewsBy = async (
   agent: AgentPubKey | AgentPubKeyB64
 ): Promise<Array<FeedMew>> =>
@@ -61,8 +73,8 @@ export const mewsBy = async (
     typeof agent === "string" ? decodeHashFromBase64(agent) : agent
   );
 
-export const follow = async (agent: AgentPubKey): Promise<null> =>
-  callZome(MewsFn.Follow, agent);
+export const follow = async (input): Promise<null> =>
+  callZome(MewsFn.Follow, input);
 
 export const unfollow = async (agent: AgentPubKey): Promise<null> =>
   callZome(MewsFn.Unfollow, agent);

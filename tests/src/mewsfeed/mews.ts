@@ -4,6 +4,7 @@ import test from "tape";
 import {
   CreateMewInput,
   FeedMew,
+  FollowInput,
   LinkTargetName,
   MewTypeName,
 } from "../../../ui/src/types/types.js";
@@ -132,10 +133,15 @@ test("Following oneself should fail", async (t) => {
   await runScenario(
     async (scenario) => {
       const alice = await scenario.addPlayerWithApp(mewsfeedHapp);
+      const followInput: FollowInput = {
+        agent: alice.agentPubKey,
+        followTopics: [],
+        followOther: true,
+      };
 
       try {
         await alice.cells[0].callZome(
-          { zome_name: "mews", fn_name: "follow" },
+          { zome_name: "mews", fn_name: "follow", payload: followInput },
           60000
         );
         t.fail();
@@ -186,7 +192,12 @@ test("Following", async (t) => {
       );
 
       // bob starts following alice
-      await bobCallMewsZome("follow", alice.agentPubKey, 60000);
+      const followInput: FollowInput = {
+        agent: alice.agentPubKey,
+        followTopics: [],
+        followOther: true,
+      };
+      await bobCallMewsZome("follow", followInput, 60000);
       await pause(1000);
 
       const aliceFollowers: AgentPubKey[] = await aliceCallMewsZome(
@@ -236,6 +247,57 @@ test("Following", async (t) => {
     { timeout: 60000 }
   );
 });
+
+// test("Following with TrustAtoms", async (t) => {
+//   const scenario = new Scenario();
+//   const [alice, bob, carol] = await scenario.addPlayersWithApps([
+//     { appBundleSource: clutterHapp },
+//     { appBundleSource: clutterHapp },
+//     { appBundleSource: clutterHapp },
+//   ]);
+
+//   const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
+//   const bobCallMewsZome = getZomeCaller(bob.cells[0], "mews");
+//   const carolCallMewsZome = getZomeCaller(carol.cells[0], "mews");
+
+//   await scenario.shareAllAgents();
+
+//   // bob starts following alice, in the area of "art"
+//   await bobCallMewsZome("follow", {
+//     agent: alice.agentPubKey,
+//     trust_atoms: [{ topic: "art", weight: "1.0" }],
+//   });
+//   await bobCallMewsZome("follow", {
+//     agent: carol.agentPubKey,
+//     trust_atoms: [{ topic: "cars", weight: "0.5" }],
+//   });
+//   await pause(1000);
+
+//   const agentsBobFollowsAndTrustatoms: AgentPubKey[] = await bobCallMewsZome(
+//     "following", // who bob is following
+//     {
+//       agent: bob.agentPubKey,
+//       // topic: "art",
+//       include_trust_atoms: true,
+//     }
+//   );
+//   t.deepEqual(
+//     agentsBobFollowsAndTrustatoms,
+//     [
+//       {
+//         agent: alice.agentPubKey,
+//         trust_atoms: [{ topic: "art", weight: "1.0" }],
+//       },
+//       {
+//         agent: carol.agentPubKey,
+//         trust_atoms: [{ topic: "cars", weight: "0.5" }],
+//       },
+//     ],
+//     "agents Bob Follows And Trustatoms"
+//   );
+
+//   await scenario.cleanUp();
+// });
 
 test("Mews by", async (t) => {
   await runScenario(
@@ -523,7 +585,12 @@ test("Mews Feed - should include mews of followed agent", async (t) => {
         "bob's mews feed is initially empty"
       );
 
-      await bobCallMewsZome("follow", alice.agentPubKey, 60000);
+      const followInput: FollowInput = {
+        agent: alice.agentPubKey,
+        followTopics: [],
+        followOther: true,
+      };
+      await bobCallMewsZome("follow", followInput, 60000);
 
       const bobMewsFeed: FeedMew[] = await bobCallMewsZome(
         "mews_feed",
@@ -571,7 +638,12 @@ test("Mews Feed - should not include mews of non-followed agent", async (t) => {
       };
       await carolCallMewsZome("create_mew", carolMewInput, 60000);
 
-      await bobCallMewsZome("follow", alice.agentPubKey, 60000);
+      const followInput: FollowInput = {
+        agent: alice.agentPubKey,
+        followTopics: [],
+        followOther: true,
+      };
+      await bobCallMewsZome("follow", followInput, 60000);
       await pause(1000);
 
       const bobMewsFeed: FeedMew[] = await bobCallMewsZome(
@@ -611,7 +683,12 @@ test("Mews Feed - un-following should exclude agent's mews from feed", async (t)
       };
       await aliceCallMewsZome("create_mew", aliceMewInput, 60000);
 
-      await bobCallMewsZome("follow", alice.agentPubKey, 60000);
+      const followInput: FollowInput = {
+        agent: alice.agentPubKey,
+        followTopics: [],
+        followOther: true,
+      };
+      await bobCallMewsZome("follow", followInput, 60000);
       await pause(1000);
 
       const bobMewsFeedWhenFollowing: FeedMew[] = await bobCallMewsZome(
@@ -687,8 +764,19 @@ test("Mews Feed - should be ordered by timestamp in descending order", async (t)
       await aliceCallMewsZome("create_mew", fourthMewInput, 60000);
 
       // alice starts following bob and carol
-      await aliceCallMewsZome("follow", bob.agentPubKey, 60000);
-      await aliceCallMewsZome("follow", carol.agentPubKey, 60000);
+      let followInput: FollowInput = {
+        agent: bob.agentPubKey,
+        followTopics: [],
+        followOther: true,
+      };
+      await aliceCallMewsZome("follow", followInput, 60000);
+
+      followInput = {
+        agent: carol.agentPubKey,
+        followTopics: [],
+        followOther: true,
+      };
+      await aliceCallMewsZome("follow", followInput, 60000);
 
       await pause(1000);
 
