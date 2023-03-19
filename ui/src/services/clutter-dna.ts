@@ -44,32 +44,6 @@ export const callZome = async <T>(
   return result.data;
 };
 
-const callZomeTrustAtom = async <T>(
-  fnName: CallZomeRequest["fn_name"],
-  payload: CallZomeRequest["payload"]
-) => {
-  const result: { type: "ok"; data: T } = await useClientStore().callZome({
-    roleName: "",
-    zomeName: "trust_atom_zome",
-    fnName,
-    payload,
-  });
-  return result.data;
-};
-
-const _callZome = async <T>(
-  fnName: CallZomeRequest["fn_name"],
-  payload: CallZomeRequest["payload"]
-) => {
-  const result: { type: "ok"; data: T } = await useClientStore().callZome({
-    roleName: CLUTTER_ROLE_NAME,
-    zomeName: MEWS_ZOME_NAME,
-    fnName,
-    payload,
-  });
-  return result.data;
-};
-
 export const createMew = async (mew: CreateMewInput) =>
   callZome(MewsFn.CreateMew, mew);
 
@@ -87,9 +61,8 @@ export const mewsBy = async (
     typeof agent === "string" ? decodeHashFromBase64(agent) : agent
   );
 
-export const follow = async (agent: AgentPubKey): Promise<null> => {
-  return callZome(MewsFn.Follow, agent);
-};
+export const follow = async (agent: AgentPubKey): Promise<null> =>
+  callZome(MewsFn.Follow, agent);
 
 export const unfollow = async (agent: AgentPubKey): Promise<null> =>
   callZome(MewsFn.Unfollow, agent);
