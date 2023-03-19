@@ -14,6 +14,9 @@ path = "dnas/mewsfeed/zomes/coordinator/agent_pins"
 [workspace.dependencies.agent_pins_integrity]
 path = "dnas/mewsfeed/zomes/integrity/agent_pins"
 
+[workspace.dependencies.helpers]
+path = "dnas/mewsfeed/helpers"
+
 [workspace.dependencies.follows]
 path = "dnas/mewsfeed/zomes/coordinator/follows"
 
@@ -52,3 +55,8 @@ path = "crates/hc_call_utils"
 
 [workspace.dependencies.hc_link_pagination]
 path = "crates/hc_link_pagination"
+[workspace.dependencies.trust_atom]
+path = "dnas/mewsfeed/zomes/coordinator/trust_atom"
+
+[workspace.dependencies.trust_atom_integrity]
+path = "dnas/mewsfeed/zomes/integrity/trust_atom"

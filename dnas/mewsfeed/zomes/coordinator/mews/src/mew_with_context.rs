@@ -59,6 +59,8 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                     author_profile,
                     is_pinned,
                     original_mew: None,
+                    weight: None, // TODO is this correct?
+                    topic: None,  // TODO is this correct?
                 }),
                 MewType::Reply(response_to_hash)
                 | MewType::Quote(response_to_hash)
@@ -103,6 +105,8 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                                     author_profile: original_mew_author_profile,
                                     deleted_timestamp: original_mew_deleted_timestamp,
                                 }),
+                                weight: None, // TODO we probably need to fetch these for the current agent -- same mew has diff topic/weight when viewed by diff agents
+                                topic: None,
                             })
                         }
                         _ => Err(wasm_error!(WasmErrorInner::Guest(String::from(

@@ -2,7 +2,9 @@
   "name": "tests",
   "private": true,
   "scripts": {
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "test:watch:pattern": "set -x && vitest watch --testNamePattern ${PATTERN}"
   },
   "dependencies": {
     "@holochain/client": "^0.14.1",

@@ -1,5 +1,3 @@
-pub mod follower_to_creators;
-pub use follower_to_creators::*;
 use hdi::prelude::*;
 
 #[derive(Serialize, Deserialize)]
@@ -8,6 +6,7 @@ pub enum LinkTypes {
     FollowerToCreators,
     CreatorToFollowers,
 }
+
 #[hdk_extern]
 pub fn genesis_self_check(_data: GenesisSelfCheckData) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Valid)
@@ -21,7 +20,7 @@ pub fn validate_agent_joining(
 #[allow(unused_variables)]
 #[hdk_extern]
 pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
-    match op.flattened::<(), LinkTypes>()? {
+    match op.flattened::<(), ()>()? {
         FlatOp::StoreEntry(store_entry) => match store_entry {
             OpEntry::CreateEntry { app_entry, action } => Ok(ValidateCallbackResult::Valid),
             OpEntry::UpdateEntry {
@@ -54,14 +53,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             target_address,
             tag,
             action,
-        } => match link_type {
-            LinkTypes::FollowerToCreators => {
-                validate_create_link_follower_to_creators(action, base_address, target_address, tag)
-            }
-            LinkTypes::CreatorToFollowers => {
-                validate_create_link_creator_to_followers(action, base_address, target_address, tag)
-            }
-        },
+        } => Ok(ValidateCallbackResult::Valid),
         FlatOp::RegisterDeleteLink {
             link_type,
             base_address,
@@ -69,22 +61,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             tag,
             original_action,
             action,
-        } => match link_type {
-            LinkTypes::FollowerToCreators => validate_delete_link_follower_to_creators(
-                action,
-                original_action,
-                base_address,
-                target_address,
-                tag,
-            ),
-            LinkTypes::CreatorToFollowers => validate_delete_link_creator_to_followers(
-                action,
-                original_action,
-                base_address,
-                target_address,
-                tag,
-            ),
-        },
+        } => Ok(ValidateCallbackResult::Valid),
         FlatOp::StoreRecord(store_record) => match store_record {
             OpRecord::CreateEntry { app_entry, action } => Ok(ValidateCallbackResult::Valid),
             OpRecord::UpdateEntry {
@@ -98,64 +75,6 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 action,
                 ..
             } => Ok(ValidateCallbackResult::Valid),
-            OpRecord::CreateLink {
-                base_address,
-                target_address,
-                tag,
-                link_type,
-                action,
-            } => match link_type {
-                LinkTypes::FollowerToCreators => validate_create_link_follower_to_creators(
-                    action,
-                    base_address,
-                    target_address,
-                    tag,
-                ),
-                LinkTypes::CreatorToFollowers => validate_create_link_creator_to_followers(
-                    action,
-                    base_address,
-                    target_address,
-                    tag,
-                ),
-            },
-            OpRecord::DeleteLink {
-                original_action_hash,
-                base_address,
-                action,
-            } => {
-                let record = must_get_valid_record(original_action_hash)?;
-                let create_link = match record.action() {
-                    Action::CreateLink(create_link) => create_link.clone(),
-                    _ => {
-                        return Ok(ValidateCallbackResult::Invalid(
-                            "The action that a DeleteLink deletes must be a CreateLink".to_string(),
-                        ));
-                    }
-                };
-                let link_type =
-                    match LinkTypes::from_type(create_link.zome_index, create_link.link_type)? {
-                        Some(lt) => lt,
-                        None => {
-                            return Ok(ValidateCallbackResult::Valid);
-                        }
-                    };
-                match link_type {
-                    LinkTypes::FollowerToCreators => validate_delete_link_follower_to_creators(
-                        action,
-                        create_link.clone(),
-                        base_address,
-                        create_link.target_address,
-                        create_link.tag,
-                    ),
-                    LinkTypes::CreatorToFollowers => validate_delete_link_creator_to_followers(
-                        action,
-                        create_link.clone(),
-                        base_address,
-                        create_link.target_address,
-                        create_link.tag,
-                    ),
-                }
-            }
             OpRecord::CreatePrivateEntry { .. } => Ok(ValidateCallbackResult::Valid),
             OpRecord::UpdatePrivateEntry { .. } => Ok(ValidateCallbackResult::Valid),
             OpRecord::CreateCapClaim { .. } => Ok(ValidateCallbackResult::Valid),

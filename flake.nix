@@ -18,9 +18,17 @@
             inputsFrom = [ holonix.devShells.${system}.holonix ];
             packages = with pkgs; [
               # add further packages from nixpkgs
+              cargo-nextest
               cargo-watch
-              nodejs
+              nodejs-18_x
+              sqlite # temporary workaround, should be fixed in holochain-0.1.5
             ];
+
+            shellHook = ''
+              unset CARGO_TARGET_DIR
+              unset CARGO_HOME
+            '';
+
           };
         };
     };

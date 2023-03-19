@@ -48,10 +48,10 @@ To test out the UI:
 npm start
 ```
 
-To run another agent, open another terminal, and execute again:
+To run 2 agents:
 
 ```bash
-npm start
+npm run network 2
 ```
 
 Each new agent that you create this way will get assigned its own port and get connected to the other agents.

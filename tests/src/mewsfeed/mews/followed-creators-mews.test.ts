@@ -3,20 +3,13 @@ import { runScenario, pause } from "@holochain/tryorama";
 import { ActionHash, Record } from "@holochain/client";
 import { createMew } from "./common";
 import { FeedMew, Mew, MewTypeName } from "../../../../ui/src/types/types";
-import { mewsfeedAppBundleSource } from "../../common";
+import { createAgents } from "../../common";
 
 test("create a Mew and get followed creators mews", async () => {
   await runScenario(
     async (scenario) => {
-      // Set up the app to be installed
-      const appSource = { appBundleSource: mewsfeedAppBundleSource };
-
-      // Add 2 players with the test app to the Scenario. The returned players
-      // can be destructured.
-      const [alice, bob] = await scenario.addPlayersWithApps([
-        appSource,
-        appSource,
-      ]);
+      // Add 2 players with the test app to the Scenario.
+      const [alice, bob] = await createAgents(scenario);
 
       // Shortcut peer discovery through gossip and register all agents in every
       // conductor of the scenario.
@@ -61,15 +54,8 @@ test("create a Mew and get followed creators mews", async () => {
 test("Followed creators mews should include mews of followed creator", async () => {
   await runScenario(
     async (scenario) => {
-      // Set up the app to be installed
-      const appSource = { appBundleSource: mewsfeedAppBundleSource };
-
-      // Add 2 players with the test app to the Scenario. The returned players
-      // can be destructured.
-      const [alice, bob] = await scenario.addPlayersWithApps([
-        appSource,
-        appSource,
-      ]);
+      // Add 2 players with the test app to the Scenario.
+      const [alice, bob] = await createAgents(scenario);
 
       // Shortcut peer discovery through gossip and register all agents in every
       // conductor of the scenario.
@@ -97,10 +83,9 @@ test("Followed creators mews should include mews of followed creator", async () 
         "bob's mews feed is initially empty"
       );
 
-      await bob.cells[0].callZome({
-        zome_name: "follows",
-        fn_name: "follow",
-        payload: alice.agentPubKey,
+      await bob.follow({
+        agent: alice.agentPubKey,
+        follow_topics: [],
       });
 
       const bobMewsFeed: FeedMew[] = await bob.cells[0].callZome({
@@ -123,12 +108,8 @@ test("Followed creators mews should include mews of followed creator", async () 
 test("Followed creators mews should include own mews", async () => {
   await runScenario(
     async (scenario) => {
-      // Set up the app to be installed
-      const appSource = { appBundleSource: mewsfeedAppBundleSource };
-
-      // Add 2 players with the test app to the Scenario. The returned players
-      // can be destructured.
-      const [alice] = await scenario.addPlayersWithApps([appSource]);
+      // Add 2 players with the test app to the Scenario.
+      const [alice] = await createAgents(scenario);
 
       // Shortcut peer discovery through gossip and register all agents in every
       // conductor of the scenario.
@@ -179,16 +160,8 @@ test("Followed creators mews should include own mews", async () => {
 test("Followed creators mews should not include mews of non-followed creator", async () => {
   await runScenario(
     async (scenario) => {
-      // Set up the app to be installed
-      const appSource = { appBundleSource: mewsfeedAppBundleSource };
-
-      // Add 2 players with the test app to the Scenario. The returned players
-      // can be destructured.
-      const [alice, bob, carol] = await scenario.addPlayersWithApps([
-        appSource,
-        appSource,
-        appSource,
-      ]);
+      // Add 2 players with the test app to the Scenario.
+      const [alice, bob, carol] = await createAgents(scenario);
 
       // Shortcut peer discovery through gossip and register all agents in every
       // conductor of the scenario.
@@ -218,10 +191,9 @@ test("Followed creators mews should not include mews of non-followed creator", a
         payload: carolMewInput,
       });
 
-      await bob.cells[0].callZome({
-        zome_name: "follows",
-        fn_name: "follow",
-        payload: alice.agentPubKey,
+      await bob.follow({
+        agent: alice.agentPubKey,
+        follow_topics: [],
       });
       await pause(2500);
 
@@ -245,15 +217,8 @@ test("Followed creators mews should not include mews of non-followed creator", a
 test("Unfollowing should exclude creators mews from feed", async () => {
   await runScenario(
     async (scenario) => {
-      // Set up the app to be installed
-      const appSource = { appBundleSource: mewsfeedAppBundleSource };
-
-      // Add 2 players with the test app to the Scenario. The returned players
-      // can be destructured.
-      const [alice, bob] = await scenario.addPlayersWithApps([
-        appSource,
-        appSource,
-      ]);
+      // Add 2 players with the test app to the Scenario.
+      const [alice, bob] = await createAgents(scenario);
 
       // Shortcut peer discovery through gossip and register all agents in every
       // conductor of the scenario.
@@ -271,10 +236,9 @@ test("Unfollowing should exclude creators mews from feed", async () => {
         payload: aliceMewInput,
       });
 
-      await bob.cells[0].callZome({
-        zome_name: "follows",
-        fn_name: "follow",
-        payload: alice.agentPubKey,
+      await bob.follow({
+        agent: alice.agentPubKey,
+        follow_topics: [],
       });
       await pause(2500);
 
@@ -314,16 +278,8 @@ test("Unfollowing should exclude creators mews from feed", async () => {
 test("Followed creators mews should be ordered by timestamp in descending order", async () => {
   await runScenario(
     async (scenario) => {
-      // Set up the app to be installed
-      const appSource = { appBundleSource: mewsfeedAppBundleSource };
-
-      // Add 2 players with the test app to the Scenario. The returned players
-      // can be destructured.
-      const [alice, bob, carol] = await scenario.addPlayersWithApps([
-        appSource,
-        appSource,
-        appSource,
-      ]);
+      // Add 2 players with the test app to the Scenario.
+      const [ann, bob, cat] = await createAgents(scenario);
 
       // Shortcut peer discovery through gossip and register all agents in every
       // conductor of the scenario.
@@ -377,15 +333,13 @@ test("Followed creators mews should be ordered by timestamp in descending order"
         payload: fourthMewInput,
       });
       // alice starts following bob and carol
-      await alice.cells[0].callZome({
-        zome_name: "follows",
-        fn_name: "follow",
-        payload: bob.agentPubKey,
+      await alice.follow({
+        agent: bob.agentPubKey,
+        follow_topics: [],
       });
-      await alice.cells[0].callZome({
-        zome_name: "follows",
-        fn_name: "follow",
-        payload: carol.agentPubKey,
+      await alice.follow({
+        agent: carol.agentPubKey,
+        follow_topics: [],
       });
 
       await pause(2500);

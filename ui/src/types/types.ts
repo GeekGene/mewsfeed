@@ -76,6 +76,21 @@ export type MewType =
       [MewTypeName.Quote]: ActionHash;
     };
 
+export interface FollowInput {
+  agent: AgentPubKey;
+  follow_topics: FollowTopicInput[];
+}
+
+export interface FollowTopicInput {
+  topic: string;
+  weight: string;
+}
+
+export interface RecommendedInput {
+  now: number; // microseconds since epoch
+  oldestMewSeconds: number | null;
+}
+
 export interface FeedMew {
   mew: Mew;
   action: Create;

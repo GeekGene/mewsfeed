@@ -15,7 +15,11 @@
     "network:launcher": "hc s clean && npm run build:happ && UI_PORT=8888 concurrently \"npm start -w ui\" \"npm run launch:happ:launcher\" \"holochain-playground\"",
     "launch:happ:launcher": "echo \"pass\" | RUST_LOG=warn hc launch --piped -n $AGENTS workdir/mewsfeed.happ --ui-port $UI_PORT network mdns",
     "test": "npm run build:happ && npm t -w tests",
-    "test:watch": "cargo watch --clear -- npm test",
+    "test:watch": "cargo watch --clear --ignore '{tests/**,ui/**}' -- npm run test:watch:metal",
+    "test:watch:metal": "npm run build:happ && npm run -w tests test:watch",
+    "test:watch:pattern": "cargo watch --clear --ignore '{tests/**,ui/**}' -- npm run test:watch:pattern:metal",
+    "test:watch:pattern:metal": "npm run build:happ && npm run -w tests test:watch:pattern",
+    "start:happ:browser": "hc s clean && echo pass | RUST_LOG=warn hc s --piped -f=$HC_ADMIN_PORT generate ./workdir/mewsfeed.happ --run=$HC_PORT -a mewsfeed network mdns",
     "package": "npm run build:happ && npm run package:ui && hc web-app pack workdir",
     "package:ui": "npm run build -w ui && cd ui/dist && bestzip ../dist.zip *",
     "build:happ": "rm -f dnas/**/workdir/*.dna && npm run build:dnas && hc app pack ./workdir",
@@ -26,7 +30,8 @@
     "cargo:clippy": "cargo clippy --all-targets --all-features -- -D warnings",
     "cargo:clippy:watch": "cargo watch --clear -- npm run cargo:clippy",
     "cargo:fmt": "cargo fmt",
-    "cargo:fmt:check": "cargo fmt --check"
+    "cargo:fmt:check": "cargo fmt --check",
+    "checks": "npm run cargo:fmt && npm run cargo:clippy && npm run lint"
   },
   "devDependencies": {
     "@holochain-playground/cli": "^0.1.1",

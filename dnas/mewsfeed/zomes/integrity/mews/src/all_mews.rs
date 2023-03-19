@@ -1,6 +1,12 @@
 use hdi::prelude::*;
 use hdk::prelude::Path;
 
+#[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
+pub struct RecommendedInput {
+    pub now: hdi::prelude::Timestamp,
+    pub oldest_mew_seconds: Option<u64>,
+}
+
 pub fn validate_create_link_all_mews(
     _action: CreateLink,
     base_address: AnyLinkableHash,

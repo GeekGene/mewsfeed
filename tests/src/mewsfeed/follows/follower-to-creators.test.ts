@@ -1,20 +1,14 @@
 import { assert, test, expect } from "vitest";
 import { runScenario, pause } from "@holochain/tryorama";
-import { AgentPubKey, Record } from "@holochain/client";
-import { mewsfeedAppBundleSource } from "../../common";
+import { Record } from "@holochain/client";
+import { createAgents } from "../../common";
 
 test("link a Follower to a Creator", async () => {
   await runScenario(
     async (scenario) => {
-      // Set up the app to be installed
-      const appSource = { appBundleSource: mewsfeedAppBundleSource };
-
       // Add 2 players with the test app to the Scenario. The returned players
       // can be destructured.
-      const [alice, bob] = await scenario.addPlayersWithApps([
-        appSource,
-        appSource,
-      ]);
+      const [alice, bob] = await createAgents(scenario);
 
       // Shortcut peer discovery through gossip and register all agents in every
       // conductor of the scenario.
@@ -104,22 +98,18 @@ test("link a Follower to a Creator", async () => {
 test("Agent cannot follow themselves", async () => {
   await runScenario(
     async (scenario) => {
-      // Set up the app to be installed
-      const appSource = { appBundleSource: mewsfeedAppBundleSource };
-
       // Add 2 players with the test app to the Scenario. The returned players
       // can be destructured.
-      const [alice] = await scenario.addPlayersWithApps([appSource]);
+      const [alice] = await createAgents(scenario);
 
       // Shortcut peer discovery through gossip and register all agents in every
       // conductor of the scenario.
       await scenario.shareAllAgents();
 
       // Alice tries to follow herself
-      const response = alice.cells[0].callZome({
-        zome_name: "follows",
-        fn_name: "follow",
-        payload: alice.agentPubKey,
+      const response = alice.follow({
+        agent: alice.agentPubKey,
+        follow_topics: [],
       });
       await expect(response).rejects.toHaveProperty(
         "data.data",
@@ -135,15 +125,9 @@ test("Agent cannot follow themselves", async () => {
 test("Agent can only change their own follows", async () => {
   await runScenario(
     async (scenario) => {
-      // Set up the app to be installed
-      const appSource = { appBundleSource: mewsfeedAppBundleSource };
-
       // Add 2 players with the test app to the Scenario. The returned players
       // can be destructured.
-      const [alice, bob] = await scenario.addPlayersWithApps([
-        appSource,
-        appSource,
-      ]);
+      const [alice, bob] = await createAgents(scenario);
 
       // Shortcut peer discovery through gossip and register all agents in every
       // conductor of the scenario.
@@ -153,10 +137,9 @@ test("Agent can only change their own follows", async () => {
       const targetAddress = bob.agentPubKey;
 
       // Alice follows bob
-      await alice.cells[0].callZome({
-        zome_name: "follows",
-        fn_name: "follow",
-        payload: targetAddress,
+      await alice.follow({
+        agent: targetAddress,
+        follow_topics: [],
       });
 
       await pause(1200);

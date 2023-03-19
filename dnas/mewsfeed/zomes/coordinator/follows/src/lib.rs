@@ -1,6 +1,7 @@
 use hdk::prelude::*;
 pub mod follower_to_creators;
 use follows_integrity::LinkTypes;
+// use trust_atom_types::LinkTypes as TrustAtomLinkTypes;
 
 #[hdk_extern]
 pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
@@ -12,10 +13,12 @@ pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
 pub enum Signal {
     LinkCreated {
         action: SignedActionHashed,
+        // link_type: TrustAtomLinkTypes,
         link_type: LinkTypes,
     },
     LinkDeleted {
         action: SignedActionHashed,
+        // link_type: TrustAtomLinkTypes,
         link_type: LinkTypes,
     },
 }
@@ -33,6 +36,7 @@ fn signal_action(action: SignedActionHashed) -> ExternResult<()> {
     match action.hashed.content.clone() {
         Action::CreateLink(create_link) => {
             if let Ok(Some(link_type)) =
+                // TODO if needed, we can check the link tag to determine type and direction
                 LinkTypes::from_type(create_link.zome_index, create_link.link_type)
             {
                 emit_signal(Signal::LinkCreated { action, link_type })?;
@@ -47,6 +51,7 @@ fn signal_action(action: SignedActionHashed) -> ExternResult<()> {
             match record.action() {
                 Action::CreateLink(create_link) => {
                     if let Ok(Some(link_type)) =
+                        // TODO if needed, we can check the link tag to determine type and direction
                         LinkTypes::from_type(create_link.zome_index, create_link.link_type)
                     {
                         emit_signal(Signal::LinkDeleted { action, link_type })?;
