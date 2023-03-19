@@ -92,6 +92,8 @@ test("Following", async (t) => {
   const aliceFollowers: AgentPubKey[] = await aliceCallMewsZome("my_followers");
   t.deepEqual(aliceFollowers, [bob.agentPubKey], "bob follows alice");
 
+  // TODO CHECK THAT TRUSTGRAPH LINKS WERE CREATED
+
   const followersOfAlice: AgentPubKey[] = await aliceCallMewsZome(
     "followers",
     alice.agentPubKey

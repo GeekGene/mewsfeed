@@ -12,6 +12,8 @@
     "start:agent": "cross-env HC_PORT=$(port) HC_ADMIN_PORT=$(port) concurrently \"npm run playground\" \"npm run start:happ\" \"sleep 5 && npm run start -w ui\"",
     "restart:agent": "cross-env HC_PORT=$(port) HC_ADMIN_PORT=$(port) concurrently \"npm run playground\" \"npm run restart:happ\" \"sleep 5 && npm run start -w ui\"",
     "test": "npm run build:happ && npm t -w tests",
+    "test:clear": "clear && npm test",
+    "test:watch": "cargo watch -- npm run test:clear",
     "start:happ": "hc s clean && echo pass | RUST_LOG=warn hc s --piped -f=$HC_ADMIN_PORT generate ./workdir/clutter.happ --run=$HC_PORT -a clutter network mdns",
     "restart:happ": "echo pass | RUST_LOG=warn hc s --piped -f=$HC_ADMIN_PORT run -p=$HC_PORT",
     "package": "npm run build:happ && npm run package:ui && hc web-app pack workdir",

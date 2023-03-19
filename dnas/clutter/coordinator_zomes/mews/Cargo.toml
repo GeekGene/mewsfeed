@@ -14,3 +14,6 @@ serde = "1"
 
 mews_integrity = {path = "../../integrity_zomes/mews"}
 hdk = {version = "0.1", features = ["encoding"]}
+
+trust_atom_types = {git = "https://github.com/trustgraph/trustgraph-holochain.git", package = "trust_atom_types"}
+# trust_atom_types = { path= "/Users/knight/code/trustgraph/trustgraph-holochain/zomes/trust_atom_types"}

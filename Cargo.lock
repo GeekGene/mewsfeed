@@ -59,6 +59,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "23b62fc65de8e4e7f52534fb52b0f3ed04746ae267519eef2a83941e8085068b"
 
 [[package]]
+name = "arrayvec"
+version = "0.7.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8da52d66c7071e2e3fa2a1e5c6d088fec47b593032b254f5e980de8ea54454d6"
+
+[[package]]
 name = "autocfg"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -122,7 +128,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "afa748e348ad3be8263be728124b24a24f268266f6f5d58af9d75f6a40b5c587"
 dependencies = [
  "arrayref",
- "arrayvec",
+ "arrayvec 0.5.2",
  "constant_time_eq",
 ]
 
@@ -133,6 +139,51 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "69cce20737498f97b993470a6e536b8523f0af7892a4f928cceb1ac5e52ebe7e"
 dependencies = [
  "generic-array",
+]
+
+[[package]]
+name = "borsh"
+version = "0.10.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "40f9ca3698b2e4cb7c15571db0abc5551dca417a21ae8140460b50309bb2cc62"
+dependencies = [
+ "borsh-derive",
+ "hashbrown 0.12.3",
+]
+
+[[package]]
+name = "borsh-derive"
+version = "0.10.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "598b3eacc6db9c3ee57b22707ad8f6a8d2f6d442bfe24ffeb8cbb70ca59e6a35"
+dependencies = [
+ "borsh-derive-internal",
+ "borsh-schema-derive-internal",
+ "proc-macro-crate",
+ "proc-macro2",
+ "syn",
+]
+
+[[package]]
+name = "borsh-derive-internal"
+version = "0.10.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "186b734fa1c9f6743e90c95d7233c9faab6360d1a96d4ffa19d9cfd1e9350f8a"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "borsh-schema-derive-internal"
+version = "0.10.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "99b7ff1008316626f485991b960ade129253d4034014616b94f309a15366cc49"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -167,6 +218,12 @@ name = "byteorder"
 version = "1.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
+
+[[package]]
+name = "bytes"
+version = "1.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "89b2fd2a0dcf38d7971e2194b6b6eebab45ae01067456a7fd93d5547a61b70be"
 
 [[package]]
 name = "camino"
@@ -690,9 +747,9 @@ dependencies = [
 
 [[package]]
 name = "hdi"
-version = "0.2.0"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "344ddd3db53dec1352aca06ca5048d305a2c20149cf3117e9669ac567e71c109"
+checksum = "8046116c32434837d28ad1b443802e2444a38d8cdb69caca9169414364fe0b69"
 dependencies = [
  "hdk_derive",
  "holo_hash",
@@ -707,9 +764,9 @@ dependencies = [
 
 [[package]]
 name = "hdk"
-version = "0.1.0"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ab34bc763d15b2d91d26008487b189547da9c184b5bcd448242ac255f483443e"
+checksum = "0cbecb374a53eba516cbfefaad21f4bc805f4c731b81bd800a9a9e0239004eb3"
 dependencies = [
  "getrandom",
  "hdi",
@@ -727,9 +784,9 @@ dependencies = [
 
 [[package]]
 name = "hdk_derive"
-version = "0.1.0"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "596ab116a5f8977ef7d630b065b233ab73b5cded613688a487c666f8e6e63291"
+checksum = "fa8eade453438a832944ab3f4006482f6bb5693997ff58e3049f23a8f8c617a4"
 dependencies = [
  "darling 0.14.1",
  "heck",
@@ -764,9 +821,9 @@ checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
 name = "holo_hash"
-version = "0.1.0"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "270268effa8c72be70eeb0c3d3944f58a3885daf355cd3597300bf4b33bfee1b"
+checksum = "9cffb2fb9ce1d2ce4c98d4cc9d625ddb92f6982f47094ed2e36fa93f5a096f36"
 dependencies = [
  "base64",
  "blake2b_simd",
@@ -780,9 +837,9 @@ dependencies = [
 
 [[package]]
 name = "holochain_integrity_types"
-version = "0.1.0"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3c3cf7e728e70ab5aac0c89e437879ee529894d6aa2b6d6ca5d59527fda38157"
+checksum = "b0630a221701e40ddf0fb369ead8eb6e18e3ec84241b3c77f803ea137930017b"
 dependencies = [
  "holo_hash",
  "holochain_serialized_bytes",
@@ -850,9 +907,9 @@ dependencies = [
 
 [[package]]
 name = "holochain_zome_types"
-version = "0.1.0"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9725c45ba4fff602c0ac548945ddbb44cb255ee934336efd43262fff8bec8e49"
+checksum = "df99af259b89d8309121d2a81852f8e468dc587332ce59a93130f4e1149758b4"
 dependencies = [
  "holo_hash",
  "holochain_integrity_types",
@@ -1103,6 +1160,7 @@ dependencies = [
  "mews_integrity",
  "regex",
  "serde",
+ "trust_atom_types",
 ]
 
 [[package]]
@@ -1230,6 +1288,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e0a7ae3ac2f1173085d398531c705756c94a4c56843785df85a60c1a0afac116"
 
 [[package]]
+name = "ppv-lite86"
+version = "0.2.17"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5b40af805b3121feab8a3c29f04d8ad262fa8e0561883e7653e024ae4479e6de"
+
+[[package]]
+name = "proc-macro-crate"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1d6ea3c4595b96363c13943497db34af4460fb474a95c43f4446ad341b8c9785"
+dependencies = [
+ "toml",
+]
+
+[[package]]
 name = "proc-macro-error"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1303,6 +1376,36 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bbe448f377a7d6961e30f5955f9b8d106c3f5e449d493ee1b125c1d43c2b5179"
 dependencies = [
  "proc-macro2",
+]
+
+[[package]]
+name = "rand"
+version = "0.8.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "34af8d1a0e25924bc5b7c43c079c942339d8f0a8b57c39049bef581b46327404"
+dependencies = [
+ "libc",
+ "rand_chacha",
+ "rand_core",
+]
+
+[[package]]
+name = "rand_chacha"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e6c10a63a0fa32252be49d21e7709d4d4baf8d231c2dbce1eaa8141b9b127d88"
+dependencies = [
+ "ppv-lite86",
+ "rand_core",
+]
+
+[[package]]
+name = "rand_core"
+version = "0.6.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ec0be4795e2f6a28069bec0b5ff3e2ac9bafc99e6a9a7dc3547996c5c816922c"
+dependencies = [
+ "getrandom",
 ]
 
 [[package]]
@@ -1441,6 +1544,24 @@ dependencies = [
  "byteorder",
  "rmp",
  "serde",
+]
+
+[[package]]
+name = "rust_decimal"
+version = "1.29.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2b1b21b8760b0ef8ae5b43d40913ff711a2053cb7ff892a34facff7a6365375a"
+dependencies = [
+ "arrayvec 0.7.2",
+ "borsh",
+ "bytecheck",
+ "byteorder",
+ "bytes",
+ "num-traits",
+ "rand",
+ "rkyv",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -1767,6 +1888,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "toml"
+version = "0.5.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f4f7f0dd8d50a853a531c426359045b1998f04219d88799810762cd4ad314234"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "toolchain_find"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1818,6 +1948,57 @@ name = "trilean"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "683ba5022fe6dbd7133cad150478ccf51bdb6d861515181e5fc6b4323d4fa424"
+
+[[package]]
+name = "trust_atom"
+version = "0.1.1-dev"
+source = "git+https://github.com/trustgraph/trustgraph-holochain.git#17882cb5b775a642519f4a8b722cc58b666e75e9"
+dependencies = [
+ "hdk",
+ "rust_decimal",
+ "serde",
+ "trust_atom_integrity",
+ "trust_atom_types",
+]
+
+[[package]]
+name = "trust_atom_integrity"
+version = "0.1.1-dev"
+source = "git+https://github.com/trustgraph/trustgraph-holochain.git#17882cb5b775a642519f4a8b722cc58b666e75e9"
+dependencies = [
+ "hdi",
+ "rust_decimal",
+ "serde",
+]
+
+[[package]]
+name = "trust_atom_integrity_zome"
+version = "0.0.1"
+dependencies = [
+ "hdk",
+ "rust_decimal",
+ "serde",
+ "trust_atom_integrity",
+]
+
+[[package]]
+name = "trust_atom_types"
+version = "0.1.1-dev"
+source = "git+https://github.com/trustgraph/trustgraph-holochain.git#17882cb5b775a642519f4a8b722cc58b666e75e9"
+dependencies = [
+ "hdk",
+ "serde",
+]
+
+[[package]]
+name = "trust_atom_zome"
+version = "0.0.1"
+dependencies = [
+ "hdk",
+ "rust_decimal",
+ "serde",
+ "trust_atom",
+]
 
 [[package]]
 name = "typenum"

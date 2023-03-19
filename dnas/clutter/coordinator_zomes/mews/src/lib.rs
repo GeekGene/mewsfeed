@@ -1,6 +1,7 @@
 use hdk::prelude::*;
 use mews_integrity::*;
 use regex::Regex;
+use trust_atom_types::TrustAtomInput;
 
 fn get_my_mews_base(base_type: &str, ensure: bool) -> ExternResult<EntryHash> {
     let me: AgentPubKey = agent_info()?.agent_latest_pubkey;
@@ -342,7 +343,21 @@ pub fn follow(agent: AgentPubKey) -> ExternResult<()> {
     let _following_link_ah = create_link(me, them_target, LinkTypes::Follow, ())?;
 
     let them = get_mews_base(agent, FOLLOWER_PATH_SEGMENT, true)?;
-    let _follower_link_ah = create_link(them, me_target, LinkTypes::Follow, ())?;
+    let _follower_link_ah = create_link(them.clone(), me_target, LinkTypes::Follow, ())?;
+
+    call(
+        CallTargetCell::Local,
+        ZomeName::from("trust_atom"),
+        FunctionName::from("create_trust_atom"),
+        None,
+        TrustAtomInput {
+            target: AnyLinkableHash::from(them),
+            content: Some("Such a good post!".to_string()),
+            value: Some("1".to_string()),
+            extra: None,
+        },
+    )?;
+
     Ok(())
 }
 
@@ -448,7 +463,7 @@ pub fn parse_mew_text(mew_content: MewContent, mew_hash: ActionHash) -> ExternRe
         create_mew_tag_links("hashtags", mat.as_str(), mew_hash.clone())?;
     }
     for mat in cashtag_regex.find_iter(&mew_content.text.clone()) {
-       create_mew_tag_links("cashtags", mat.as_str(), mew_hash.clone())?;
+        create_mew_tag_links("cashtags", mat.as_str(), mew_hash.clone())?;
     }
     if let Some(links) = mew_content.links {
         for link in links {
@@ -458,7 +473,7 @@ pub fn parse_mew_text(mew_content: MewContent, mew_hash: ActionHash) -> ExternRe
                     let path_hash = path.path_entry_hash()?;
                     let _link_ah = create_link(path_hash, mew_hash.clone(), LinkTypes::Tag, ())?;
                 }
-                _ => ()
+                _ => (),
             }
         }
     }
@@ -483,10 +498,13 @@ fn search_tags(path_stem: String, content: String) -> ExternResult<Vec<String>> 
 
     let tags: Vec<String> = links
         .into_iter()
-        .map(|link| 
-            String::from_utf8(link.tag.into_inner()).map_err(|_| wasm_error!(WasmErrorInner::Guest("Failed to convert link tag to string".into())))
-
-        )
+        .map(|link| {
+            String::from_utf8(link.tag.into_inner()).map_err(|_| {
+                wasm_error!(WasmErrorInner::Guest(
+                    "Failed to convert link tag to string".into()
+                ))
+            })
+        })
         .filter_map(Result::ok)
         .collect();
 
@@ -499,17 +517,22 @@ fn create_mew_tag_links(path_stem: &str, content: &str, mew_hash: ActionHash) ->
     let path_hash = path.path_entry_hash()?;
     path.typed(LinkTypes::Tag)?.ensure()?;
     let _link_ah = create_link(path_hash.clone(), mew_hash, LinkTypes::Tag, ())?;
- 
+
     // Create Path for sliced hashtag (first 3 characters) under hashtags_search.myt
-    // Link from Path hashtags.myt -> hashtags.mytag Path 
-    let word: String =  content.chars().skip(1).collect();
+    // Link from Path hashtags.myt -> hashtags.mytag Path
+    let word: String = content.chars().skip(1).collect();
     let word_lowercase = word.to_lowercase();
     let prefix: String = word_lowercase.chars().take(3).collect();
- 
+
     let search_path = Path::from(format!("search_{}.{}", path_stem, prefix));
     let search_path_hash = search_path.path_entry_hash()?;
     search_path.typed(LinkTypes::TagPrefix)?.ensure()?;
-    let _link_search_tag = create_link(search_path_hash, path_hash.clone(), LinkTypes::TagPrefix, word.as_bytes().to_vec())?;
+    let _link_search_tag = create_link(
+        search_path_hash,
+        path_hash.clone(),
+        LinkTypes::TagPrefix,
+        word.as_bytes().to_vec(),
+    )?;
 
     Ok(())
 }

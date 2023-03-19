@@ -5,6 +5,8 @@ members = [
     "dnas/clutter/integrity_zomes/mews",
     "dnas/clutter/coordinator_zomes/profiles",
     "dnas/clutter/coordinator_zomes/mews",
+    "dnas/trust_atom_integrity_zome",
+    "dnas/trust_atom_zome",
 ]
 
 [profile.dev]
