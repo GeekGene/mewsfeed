@@ -91,6 +91,8 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
         quotes,
         licks,
         mewmews,
+        weight: None, // TODO is this correct?
+        topic: None,  // TODO is this correct?
     };
     Ok(feed_mew_and_context)
 }

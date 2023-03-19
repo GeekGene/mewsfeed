@@ -2,6 +2,7 @@ import {
   callZome,
   getFeedMewAndContext,
   mewsFeed,
+  basketFeed,
   MewsFn,
 } from "@/services/mewsfeed-dna";
 import { Mew, FeedMew } from "@/types/types";
@@ -17,7 +18,9 @@ export const makeUseMewsfeedStore = () => {
   return defineStore("mewsfeed", {
     state: () => ({
       mewsFeed: [] as FeedMew[],
+      basketFeed: [] as TrustFeedMew[],
       isLoadingMewsFeed: false,
+      isLoadingBasketFeed: false,
     }),
     actions: {
       async fetchMewsFeed() {
@@ -28,6 +31,20 @@ export const makeUseMewsfeedStore = () => {
           showError(error);
         } finally {
           this.isLoadingMewsFeed = false;
+        }
+      },
+      async fetchBasketFeed() {
+        try {
+          this.isLoadingBasketFeed = true;
+          this.basketFeed = await basketFeed({
+            now: new Date().getTime() * 1000, // microseconds since epoch
+            oldestMewSeconds: null,
+          });
+          console.log({ basketFeed: this.basketFeed });
+        } catch (error) {
+          showError(error);
+        } finally {
+          this.isLoadingBasketFeed = false;
         }
       },
       async reloadMew(actionHash: ActionHash) {

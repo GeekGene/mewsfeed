@@ -44,6 +44,7 @@ pub enum LinkTypes {
     MewToResponses,
     MentionToMews,
     HashtagToMews,
+    HashtagByAuthorToMews,
     CashtagToMews,
 }
 
@@ -136,7 +137,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             LinkTypes::MentionToMews => {
                 validate_create_link_mention_to_mews(action, base_address, target_address, tag)
             }
-            LinkTypes::HashtagToMews => {
+            LinkTypes::HashtagToMews | LinkTypes::HashtagByAuthorToMews => {
                 validate_create_link_hashtag_to_mews(action, base_address, target_address, tag)
             }
             LinkTypes::CashtagToMews => {
@@ -203,13 +204,15 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 target_address,
                 tag,
             ),
-            LinkTypes::HashtagToMews => validate_delete_link_hashtag_to_mews(
-                action,
-                original_action,
-                base_address,
-                target_address,
-                tag,
-            ),
+            LinkTypes::HashtagToMews | LinkTypes::HashtagByAuthorToMews => {
+                validate_delete_link_hashtag_to_mews(
+                    action,
+                    original_action,
+                    base_address,
+                    target_address,
+                    tag,
+                )
+            }
         },
         FlatOp::StoreRecord(store_record) => match store_record {
             OpRecord::CreateEntry { app_entry, action } => match app_entry {
@@ -357,7 +360,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 LinkTypes::MentionToMews => {
                     validate_create_link_mention_to_mews(action, base_address, target_address, tag)
                 }
-                LinkTypes::HashtagToMews => {
+                LinkTypes::HashtagToMews | LinkTypes::HashtagByAuthorToMews => {
                     validate_create_link_hashtag_to_mews(action, base_address, target_address, tag)
                 }
                 LinkTypes::CashtagToMews => {
@@ -442,13 +445,15 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         create_link.target_address,
                         create_link.tag,
                     ),
-                    LinkTypes::HashtagToMews => validate_delete_link_hashtag_to_mews(
-                        action,
-                        create_link.clone(),
-                        base_address,
-                        create_link.target_address,
-                        create_link.tag,
-                    ),
+                    LinkTypes::HashtagToMews | LinkTypes::HashtagByAuthorToMews => {
+                        validate_delete_link_hashtag_to_mews(
+                            action,
+                            create_link.clone(),
+                            base_address,
+                            create_link.target_address,
+                            create_link.tag,
+                        )
+                    }
                 }
             }
             OpRecord::CreatePrivateEntry { .. } => Ok(ValidateCallbackResult::Valid),

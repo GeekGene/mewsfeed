@@ -11,5 +11,7 @@ name = "mews"
 hdk = { workspace = true }
 serde = { workspace = true }
 regex = "1"
-mews_integrity = { workspace = true } 
+mews_integrity = { workspace = true }
 prefix_index = { git = "https://github.com/mattyg/holochain-prefix-index.git", tag = "0.3.0", module = "prefix_index"}
+trust_atom_types = {git = "https://github.com/trustgraph/trustgraph-holochain.git", package = "trust_atom_types"}
+# trust_atom_types = { path= "/Users/knight/code/trustgraph/trustgraph-holochain/zomes/trust_atom_types"}

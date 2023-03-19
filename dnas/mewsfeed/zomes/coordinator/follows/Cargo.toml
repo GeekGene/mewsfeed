@@ -13,4 +13,4 @@ holochain_integrity_types = { workspace = true }
 
 serde = { workspace = true }
 
-follows_integrity = { workspace = true } 
+follows_integrity = { workspace = true }

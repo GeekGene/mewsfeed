@@ -31,3 +31,9 @@ path = "dnas/mewsfeed/zomes/coordinator/profiles"
 
 [workspace.dependencies.profiles_integrity]
 path = "dnas/mewsfeed/zomes/integrity/profiles"
+
+[workspace.dependencies.trust_atom]
+path = "dnas/mewsfeed/zomes/coordinator/trust_atom"
+
+[workspace.dependencies.trust_atom_integrity]
+path = "dnas/mewsfeed/zomes/integrity/trust_atom"

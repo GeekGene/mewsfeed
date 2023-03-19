@@ -42,6 +42,13 @@
         <div class="flex justify-end q-mx-sm">
           <holo-identicon :hash="agentPubKey" size="30"></holo-identicon>
         </div>
+        <TrustGraphWrapper v-model="trustGraphAtoms"></TrustGraphWrapper>
+        <ButtonFollow
+          v-if="!isMyProfile"
+          :agent-pub-key="agentPubKey"
+          :topic="topic"
+          :weight="weight"
+        />
       </q-card>
 
       <h6 class="q-mb-md">Mews</h6>
@@ -87,6 +94,7 @@ import ButtonFollow from "@/components/ButtonFollow.vue";
 import EmptyMewsFeed from "@/components/EmptyMewsFeed.vue";
 import FolloweesList from "@/components/FolloweesList.vue";
 import FollowersList from "@/components/FollowersList.vue";
+import TrustGraphWrapper from "@/components/TrustGraphWrapper.vue";
 import {
   followers,
   following,
@@ -94,7 +102,13 @@ import {
   mewsBy,
 } from "@/services/mewsfeed-dna";
 import { useProfilesStore } from "@/services/profiles-store";
-import { FeedMew, MewType, MewTypeName, PROFILE_FIELDS } from "@/types/types";
+import {
+  FeedMew,
+  MewType,
+  MewTypeName,
+  PROFILE_FIELDS,
+  TrustGraphAtomData,
+} from "@/types/types";
 import { isSameHash } from "@/utils/hash";
 import { showError, showMessage } from "@/utils/notification";
 import { pageHeightCorrection } from "@/utils/page-layout";
@@ -121,6 +135,10 @@ const loadingProfile = ref(false);
 const profile = ref<Profile>();
 const isFollowing = ref(false);
 const mews = ref<FeedMew[]>([]);
+const trustGraphAtoms = ref<TrustGraphAtomData[]>([]);
+
+const topic = ref("");
+const weight = ref(1.0);
 
 const isMyProfile = computed(() =>
   isSameHash(agentPubKey.value, profilesStore.value.client.client.myPubKey)

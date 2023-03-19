@@ -2,7 +2,9 @@
   "name": "tests",
   "private": true,
   "scripts": {
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "test:watch:pattern": "vitest watch --testNamePattern ${PATTERN}"
   },
   "dependencies": {
     "@msgpack/msgpack": "^2.7.0",
