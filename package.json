@@ -14,7 +14,7 @@
     "test": "npm run build:happ && time npm t -w tests",
     "test:sweet:watch": "cargo watch --clear -- npm run test:sweet:clear",
     "test:sweet:clear": "clear && npm run test:sweet",
-    "test:sweet": "rm dnas/**/workdir/*.dna && npm run build:happ && time cargo test -- --nocapture",
+    "test:sweet": "rm dnas/**/workdir/*.dna && npm run build:happ && set -x && RUST_BACKTRACE=1 time cargo test -- --nocapture",
     "start:happ": "hc s clean && echo pass | RUST_LOG=warn hc s --piped -f=$HC_ADMIN_PORT generate ./workdir/clutter.happ --run=$HC_PORT -a clutter network mdns",
     "restart:happ": "echo pass | RUST_LOG=warn hc s --piped -f=$HC_ADMIN_PORT run -p=$HC_PORT",
     "package": "npm run build:happ && npm run package:ui && hc web-app pack workdir",

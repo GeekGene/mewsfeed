@@ -65,16 +65,16 @@ pub async fn setup_conductors(n: usize) -> (SweetConductorBatch, Vec<AgentPubKey
 // TESTS:
 
 #[tokio::test(flavor = "multi_thread")]
+#[should_panic]
 pub async fn mew_must_not_be_longer_than_200_chars() {
     // try {
     let (conductor, alice, cell1): (SweetConductor, AgentPubKey, SweetCell) =
         setup_1_conductor().await;
 
     let long_mew = std::iter::repeat('a').take(200).collect::<String>();
-
-    let createMewInput = CreateMewInput {
-        mew_type: MewType::Original,
+    let mut createMewInput = CreateMewInput {
         text: Some(long_mew),
+        mew_type: MewType::Original,
         links: None,
     };
 
@@ -85,24 +85,20 @@ pub async fn mew_must_not_be_longer_than_200_chars() {
     let bytes = mewHash.get_raw_39();
     let leading_bytes = bytes.get(..3).unwrap();
     assert_eq!(leading_bytes, &[132, 41, 36]);
+
+    let too_long_mew = std::iter::repeat('a').take(201).collect::<String>();
+    createMewInput = CreateMewInput {
+        text: Some(too_long_mew),
+        mew_type: MewType::Original,
+        links: None,
+    };
+
+    // assert_panics!("Expected panic did not occur", {
+    let x: () = conductor
+        .call(&cell1.zome("mews"), "create_mew", createMewInput)
+        .await;
+    // });
 }
-
-//     createMewInput.text = new Array(201).fill("a").join("");
-//     try {
-
-//         conductor
-//     .call(
-//       &cell1.zome("mews"),
-//       "create_trust_atom" valid")
-//     } catch (error) {
-//     )
-//     .await;
-
-//     }
-//   } catch (error) {
-//     console.error("error", error);
-//   }
-// });
 
 // #[tokio::test(flavor = "multi_thread")]
 // pub async fn following_oneself_should_fail() {
@@ -160,7 +156,7 @@ pub async fn mew_must_not_be_longer_than_200_chars() {
 //     conductor
 //     .call(
 //       &cell1.zome("mews"),
-//       "create_trust_atom" alice")
+//       "create_mew" alice")
 
 //     )
 //     .await;
@@ -396,7 +392,7 @@ pub async fn mew_must_not_be_longer_than_200_chars() {
 //     conductor
 //     .call(
 //       &cell1.zome("mews"),
-//       "create_trust_atom" hashtag")
+//       "create_mew" hashtag")
 //   t.equal(hashtags[0], "hashtag", "hashtag search result matches");
 //     )
 //     .await;
@@ -429,7 +425,7 @@ pub async fn mew_must_not_be_longer_than_200_chars() {
 //     conductor
 //     .call(
 //       &cell1.zome("mews"),
-//       "create_trust_atom" cashtag")
+//       "create_mew" cashtag")
 //   t.equal(cashtags[0], "cashtag", "hashtag search result matches");
 //     )
 //     .await;
@@ -465,7 +461,7 @@ pub async fn mew_must_not_be_longer_than_200_chars() {
 //     .await;
 
 //       &cell1.zome("mews"),
-//       "create_trust_atom",
+//       "create_mew",
 //       trust_atom_input,
 //   let aliceMewsFeed: FeedMew[] =
 //     conductor
@@ -504,7 +500,7 @@ pub async fn mew_must_not_be_longer_than_200_chars() {
 //     .await;
 
 //       &cell1.zome("mews"),
-//       "create_trust_atom",
+//       "create_mew",
 //       trust_atom_input,
 //   let bobMewsFeedInitial: FeedMew[] = await bobCallMewsZome("mews_feed", {
 //     option: "",
@@ -547,7 +543,7 @@ pub async fn mew_must_not_be_longer_than_200_chars() {
 //     .await;
 
 //       &cell1.zome("mews"),
-//       "create_trust_atom",
+//       "create_mew",
 //       trust_atom_input,
 //   let carolMewContent = "carol-test-mew";
 //   let carolMewInput: CreateMewInput = {
@@ -592,7 +588,7 @@ pub async fn mew_must_not_be_longer_than_200_chars() {
 //     .await;
 
 //       &cell1.zome("mews"),
-//       "create_trust_atom",
+//       "create_mew",
 //       trust_atom_input,
 //   await bobCallMewsZome("follow", alice.agentPubKey);
 //   await pause(1000);
@@ -639,7 +635,7 @@ pub async fn mew_must_not_be_longer_than_200_chars() {
 //     .await;
 
 //       &cell1.zome("mews"),
-//       "create_trust_atom",
+//       "create_mew",
 //       trust_atom_input,
 //   let secondMewContent = "second-test-mew";
 //   let secondMewInput: CreateMewInput = {
@@ -668,7 +664,7 @@ pub async fn mew_must_not_be_longer_than_200_chars() {
 //     .await;
 
 //       &cell1.zome("mews"),
-//       "create_trust_atom",
+//       "create_mew",
 //       trust_atom_input,
 //   // alice starts following bob and carol
 
@@ -677,12 +673,12 @@ pub async fn mew_must_not_be_longer_than_200_chars() {
 
 //     .await;
 //       &cell1.zome("mews"),
-//       "create_trust_atom",
+//       "create_mew",
 //       trust_atom_input,
 //     .await;
 
 //       &cell1.zome("mews"),
-//       "create_trust_atom",
+//       "create_mew",
 //       trust_atom_input,
 //   await pause(1000);
 
@@ -742,13 +738,13 @@ pub async fn mew_must_not_be_longer_than_200_chars() {
 //     .await;
 
 //       &cell1.zome("mews"),
-//       "create_trust_atom",
+//       "create_mew",
 //       trust_atom_input,
 //   let myLikes: ActionHash[] =
 //     conductor
 //     .call(
 //       &cell1.zome("mews"),
-//       "create_trust_atom" like")
+//       "create_mew" like")
 //   assert_eq!(myLikes[0], mewHeaderHash, "alice's like is the mew she created");
 //     )
 //     .await;
@@ -780,18 +776,18 @@ pub async fn mew_must_not_be_longer_than_200_chars() {
 
 //     .await;
 //       &cell1.zome("mews"),
-//       "create_trust_atom",
+//       "create_mew",
 //       trust_atom_input,
 //     .await;
 
 //       &cell1.zome("mews"),
-//       "create_trust_atom",
+//       "create_mew",
 //       trust_atom_input,
 //   let myLikes: ActionHash[] =
 //     conductor
 //     .call(
 //       &cell1.zome("mews"),
-//       "create_trust_atom" likes")
+//       "create_mew" likes")
 
 //     )
 //     .await;
