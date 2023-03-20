@@ -1,5 +1,8 @@
 import { Inject, Injectable } from '@angular/core';
 // import { useSignalStore, presentHcSignal } from './holochain.functions';
+// https://github.com/mattyg/herddit/blob/main/ui/src/App.vue
+// https://github.com/holochain/holochain-client-js/blob/main/src/api/app-agent/websocket.ts
+// AppAgentWebsocket
 import { AdminWebsocket, AppWebsocket, AppInfo, CellType, encodeHashToBase64, SigningCredentials, generateSigningKeyPair, GrantedFunctionsType, setSigningCredentials } from '@holochain/client';
 import { BehaviorSubject, Observable } from 'rxjs';
 

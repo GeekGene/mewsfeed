@@ -6,11 +6,14 @@
   "prefix": "app",
   "targets": {
     "build": {
-      "executor": "@angular-devkit/build-angular:browser",
+      "executor": "@nrwl/angular:webpack-browser",
       "outputs": [
         "{options.outputPath}"
       ],
       "options": {
+        "customWebpackConfig": {
+          "path": "apps/clutter-web/webpack.config.js"
+        },
         "outputPath": "dist/apps/clutter-mobile",
         "index": "apps/clutter-mobile/src/index.html",
         "main": "apps/clutter-mobile/src/main.ts",
@@ -63,7 +66,7 @@
       "defaultConfiguration": "production"
     },
     "serve": {
-      "executor": "@angular-devkit/build-angular:dev-server",
+      "executor": "@nrwl/angular:webpack-dev-server",
       "configurations": {
         "production": {
           "browserTarget": "clutter-mobile:build:production"

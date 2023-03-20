@@ -11,7 +11,7 @@ export class AppComponent {
   connected$ = this.holochainService.connected$;
 
   constructor(private holochainService: HolochainService) {
-    this.holochainService.initialize();
+    this.holochainService.initialize('clutter');
   }
 
 }
