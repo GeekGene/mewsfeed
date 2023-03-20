@@ -7,7 +7,7 @@ use holochain::sweettest::{
     SweetAgents, SweetAppBatch, SweetCell, SweetConductor, SweetConductorBatch, SweetDnaFile,
 };
 
-use mews::*;
+// use mews::*;
 use mews_integrity::*;
 
 const DNA_FILEPATH: &str = "../../workdir/clutter.dna";
@@ -16,40 +16,40 @@ const DNA_FILEPATH: &str = "../../workdir/clutter.dna";
 
 #[tokio::test(flavor = "multi_thread")]
 pub async fn mew_can_be_200_chars() {
-    let (conductor, alice, cell1): (SweetConductor, AgentPubKey, SweetCell) =
+    let (conductor, _alice, cell1): (SweetConductor, AgentPubKey, SweetCell) =
         setup_1_conductor().await;
 
     let long_mew = std::iter::repeat('a').take(200).collect::<String>();
-    let createMewInput = CreateMewInput {
+    let create_mew_input = CreateMewInput {
         text: Some(long_mew),
         mew_type: MewType::Original,
         links: None,
     };
 
-    let mewHash: ActionHash = conductor
-        .call(&cell1.zome("mews"), "create_mew", createMewInput)
+    let mew_hash: ActionHash = conductor
+        .call(&cell1.zome("mews"), "create_mew", create_mew_input)
         .await;
 
-    let bytes = mewHash.get_raw_39();
+    let bytes = mew_hash.get_raw_39();
     let leading_bytes = bytes.get(..3).unwrap();
     assert_eq!(leading_bytes, &[132, 41, 36]);
 }
 
-#[should_panic(expected = "CellError")]
+#[should_panic(expected = "mew must not be longer than 200 characters")]
 #[tokio::test(flavor = "multi_thread")]
 pub async fn mew_must_not_be_longer_than_200_chars() {
-    let (conductor, alice, cell1): (SweetConductor, AgentPubKey, SweetCell) =
+    let (conductor, _alice, cell1): (SweetConductor, AgentPubKey, SweetCell) =
         setup_1_conductor().await;
 
     let too_long_mew = std::iter::repeat('a').take(201).collect::<String>();
-    let createMewInput = CreateMewInput {
+    let create_mew_input = CreateMewInput {
         text: Some(too_long_mew),
         mew_type: MewType::Original,
         links: None,
     };
 
     let _: () = conductor
-        .call(&cell1.zome("mews"), "create_mew", createMewInput)
+        .call(&cell1.zome("mews"), "create_mew", create_mew_input)
         .await;
 }
 
@@ -220,23 +220,23 @@ pub async fn mew_must_not_be_longer_than_200_chars() {
 
 //   let mewContent =
 //     "My Mew with #hashtag #سعيدة #😃😃😃 and $cashtag and @mention";
-//   let createMewInput: CreateMewInput = {
+//   let create_mew_input: CreateMewInput = {
 //     mew_typeOriginal,
 //     text: Some(mewContent),
 //     links: [{ [LinkTargetName.Mention]: alice.agentPubKey }],
 //   };
 
-//   let mewHash: ActionHash =
+//   let mew_hash: ActionHash =
 //     conductor
 //     .call(
 //       &cell1.zome("mews"),
 //     "create_mew",
-//     createMewInput
+//     create_mew_input
 //     )
 //     .await;
 
 //   assert_eq!(
-//     mewHash.slice(0, 3),
+//     mew_hash.slice(0, 3),
 //     Buffer.from([132, 41, 36]),
 //     "alice created a valid mew"
 //   );
@@ -318,23 +318,23 @@ pub async fn mew_must_not_be_longer_than_200_chars() {
 
 //   let mewContent =
 //     "My Mew with #hashtag #سعيدة #😃😃😃 and $cashtag and @mention";
-//   let createMewInput: CreateMewInput = {
+//   let create_mew_input: CreateMewInput = {
 //     mew_typeOriginal,
 //     text: Some(mewContent),
 //     links: [{ [LinkTargetName.Mention]: alice.agentPubKey }],
 //   };
 
-//   let mewHash: ActionHash =
+//   let mew_hash: ActionHash =
 //     conductor
 //     .call(
 //       &cell1.zome("mews"),
 //     "create_mew",
-//     createMewInput
+//     create_mew_input
 //     )
 //     .await;
 
 //   assert_eq!(
-//     mewHash.slice(0, 3),
+//     mew_hash.slice(0, 3),
 //     Buffer.from([132, 41, 36]),
 //     "alice created a valid mew"
 //   );
