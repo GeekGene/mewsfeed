@@ -11,7 +11,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-and-test:
+  tryorama:
+    timeout-minutes: 300
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -22,7 +23,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install nix
-        uses: cachix/install-nix-action@v19
+        uses: cachix/install-nix-action@v20
 
       - name: Set up cachix
         uses: cachix/cachix-action@v12
@@ -33,12 +34,57 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
-            .cargo
+            .cargo/bin/
+            .cargo/registry/index/
+            .cargo/registry/cache/
+            .cargo/git/db/
             target
           key: ${{ runner.os }}-build-${{ hashFiles('Cargo.lock') }}
 
-      - name: Build Happ
-        run: nix develop -c $SHELL -c "npm ci && npm run build:happ"
+      - name: Install nix packages
+        run: nix develop -c $SHELL -c "echo Nix packages installed"
+
+      - name: Install JS packages
+        run: nix develop -c $SHELL -c "npm ci"
 
       - name: Test with tryorama
         run: nix develop -c $SHELL -c "npm test"
+
+  sweettest:
+    timeout-minutes: 300
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install nix
+        uses: cachix/install-nix-action@v20
+
+      - name: Set up cachix
+        uses: cachix/cachix-action@v12
+        with:
+          name: holochain-ci
+
+      - name: Cache Cargo and Rust Build
+        uses: actions/cache@v2
+        with:
+          path: |
+            .cargo/bin/
+            .cargo/registry/index/
+            .cargo/registry/cache/
+            .cargo/git/db/
+            target
+          key: ${{ runner.os }}-build-${{ hashFiles('Cargo.lock') }}
+
+      - name: Install nix packages
+        run: nix develop -c $SHELL -c "echo Nix packages installed"
+
+      - name: Install JS packages
+        run: nix develop -c $SHELL -c "npm ci"
+
+      - name: Test with tryorama
+        run: nix develop -c $SHELL -c "npm run test:sweet"
