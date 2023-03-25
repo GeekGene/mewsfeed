@@ -3,7 +3,8 @@
     <div ref="mewContainer" class="text-left" style="position: relative">
       <q-card
         contenteditable="true"
-        class="mew-content text-body1 q-pa-md"
+        class="mew-content text-body1 q-pa-md overflow-auto"
+        style="word-break: break-all"
         bordered
         flat
         @keydown="onKeyDown"
@@ -12,7 +13,6 @@
         @paste="onPaste"
         @input="onInput"
       />
-
       <q-icon name="help" color="grey" size="xs" class="help-text">
         <q-tooltip
           class="text-body2"
@@ -25,11 +25,21 @@
         </q-tooltip>
       </q-icon>
 
-      <div
-        class="q-mb-xs text-right text-caption"
-        style="color: var(--q-content)"
-      >
-        Ctrl/Cmd + Enter to publish
+      <div class="flex justify-between q-pa-sm">
+        <div
+          :class="{
+            'text-red text-bold': isMewFull || isMewOverfull,
+            'text-caption text-grey': !isMewFull && !isMewOverfull,
+          }"
+        >
+          {{ mewContentLength }} / {{ MAX_MEW_LENGTH }} Characters
+        </div>
+        <div
+          class="q-mb-xs text-right text-caption"
+          style="color: var(--q-content)"
+        >
+          Ctrl/Cmd + Enter to publish
+        </div>
       </div>
 
       <q-card class="link-text q-px-md q-py-sm" style="min-width: 13rem">
@@ -86,10 +96,22 @@
           </q-list>
         </template>
       </q-card>
+
+      <q-icon name="help" color="grey" size="xs" class="help-text">
+        <q-tooltip
+          class="text-body2"
+          anchor="top middle"
+          self="bottom middle"
+          :delay="TOOLTIP_DELAY"
+        >
+          You can mention people with @ and use #hashtags and $cashtags as well
+          as ^links in a mew.
+        </q-tooltip>
+      </q-icon>
     </div>
 
     <q-btn
-      :disable="isMewEmpty"
+      :disable="isMewEmpty || isMewOverfull"
       :loading="saving"
       :tabindex="agentAutocompletions.length && 0"
       color="accent"
@@ -104,12 +126,12 @@
 import { useProfilesStore } from "@/services/profiles-store";
 import { useClutterStore } from "@/stores";
 import { showError } from "@/utils/notification";
-import { TAG_SYMBOLS } from "@/utils/tags";
+import { isMentionTag, isRawUrl, TAG_SYMBOLS } from "@/utils/tags";
 import { Profile } from "@holochain-open-dev/profiles";
-import { debounce } from "quasar";
-import { onMounted, PropType, ref } from "vue";
+import { onMounted, PropType, ref, computed } from "vue";
 import {
   CreateMewInput,
+  ElementWithInnerText,
   LinkTarget,
   LinkTargetName,
   MewType,
@@ -137,8 +159,13 @@ const mewContainer = ref<HTMLDivElement | null>(null);
 
 onMounted(() => setTimeout(focusInputField, 0));
 
-const isMewEmpty = ref(true);
 const saving = ref(false);
+
+const MAX_MEW_LENGTH = 200;
+const mewContentLength = ref(0);
+const isMewEmpty = computed(() => mewContentLength.value === 0);
+const isMewFull = computed(() => mewContentLength.value === MAX_MEW_LENGTH);
+const isMewOverfull = computed(() => mewContentLength.value > MAX_MEW_LENGTH);
 
 const linkText = ref("");
 
@@ -177,23 +204,86 @@ const stripAnchorFromLink = (selection: Selection) => {
   }
 };
 
-const onInput = () =>
-  (isMewEmpty.value =
-    mewContainer.value?.querySelector(".mew-content")?.textContent?.length ===
-    0);
+const getRawText = (): string => {
+  const text = (
+    mewContainer.value?.querySelector(
+      ".mew-content"
+    ) as null | ElementWithInnerText
+  )?.innerText;
 
-const onKeyDown = (keyDownEvent: KeyboardEvent) => {
-  if (keyDownEvent.key === "Enter") {
-    keyDownEvent.preventDefault();
-    if (keyDownEvent.metaKey && !isMewEmpty.value) {
-      publishMew();
-    }
-  } else if (keyDownEvent.key === "ArrowDown") {
+  return text ? text : "";
+};
+
+const getTrimmedText = (): string => {
+  const text = getRawText();
+  return text ? text.trim() : "";
+};
+
+const setMewContentLength = () => {
+  const text = getTrimmedText();
+  mewContentLength.value = text.length;
+};
+
+const onInput = (event: KeyboardEvent) => {
+  setMewContentLength();
+
+  // Prevent input of characters if mew is already full
+  if (
+    (isMewFull.value || isMewOverfull.value) &&
+    event.key !== "Backspace" &&
+    event.key !== "Delete" &&
+    !(event.key === "a" && event.ctrlKey) &&
+    event.key !== "ArrowLeft" &&
+    event.key !== "ArrowRight" &&
+    event.key !== "ArrowUp" &&
+    event.key !== "ArrowDown"
+  ) {
+    event.preventDefault();
+  }
+};
+
+const onKeyDown = (event: KeyboardEvent) => {
+  setMewContentLength();
+
+  // Support Meta + Enter keys to publish
+  if (
+    event.key === "Enter" &&
+    event.metaKey &&
+    !(isMewEmpty.value || isMewOverfull.value)
+  ) {
+    publishMew();
+  }
+
+  // Support KeyDown or Tab keys to focus on first item displayed in agents list (after typing an agent tag)
+  else if (event.key === "ArrowDown" || event.key === "Tab") {
     const firstListItem = mewContainer.value?.querySelector(".q-item");
     if (firstListItem instanceof HTMLElement) {
-      keyDownEvent.preventDefault();
+      event.preventDefault();
       firstListItem.focus();
     }
+  }
+
+  // Prevent input of leading line breaks
+  // Prevent input of trailing line breaks if mew is already full
+  else if (
+    event.key === "Enter" &&
+    (isMewEmpty.value || isMewFull.value || isMewOverfull.value)
+  ) {
+    event.preventDefault();
+  }
+
+  // Prevent input of more than 3 consecutive line breaks
+  else if (
+    event.key === "Enter" &&
+    !(isMewEmpty.value || isMewOverfull.value)
+  ) {
+    const textContent = getRawText();
+
+    if (textContent.slice(-3) === "\n\n\n") {
+      event.preventDefault();
+    }
+  } else {
+    onInput(event);
   }
 };
 
@@ -213,7 +303,7 @@ const onKeyUp = (keyUpEvent: KeyboardEvent) => {
     stripAnchorFromLink(selection);
   } else if (keyUpEvent.key.length === 1 && content) {
     // all single characters
-    debouncedOnCaretPositionChange();
+    onCaretPositionChange();
   }
 };
 
@@ -225,12 +315,16 @@ const onMouseUp = () => {
 const onPaste = (event: ClipboardEvent) => {
   event.preventDefault();
   const data = event.clipboardData?.getData("text/plain");
-  if (data) {
+
+  if (data && data.length + mewContentLength.value > MAX_MEW_LENGTH) {
+    return;
+  } else if (data) {
     const pastedNode = document.createTextNode(data);
     document.getSelection()?.getRangeAt(0).insertNode(pastedNode);
     document.getSelection()?.setPosition(pastedNode, pastedNode.length);
     onCaretPositionChange();
-    onInput();
+
+    setMewContentLength();
   }
 };
 
@@ -321,21 +415,30 @@ const onAutocompleteAgentSelect = (agent: AgentAutocompletion) => {
   const range = new Range();
   range.setStart(currentNode, currentAnchorOffset);
   range.setEnd(currentNode, currentFocusOffset);
+
+  // Insert mention link: '@' + agent username
   const anchor = document.createElement("a");
   anchor.href = "#";
   anchor.textContent = TAG_SYMBOLS.MENTION + agent.value.nickname;
   anchor.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY] = agent.key.toString();
   range.deleteContents();
   range.insertNode(anchor);
+
   // insert space after mention
   const spaceNode = document.createTextNode(String.fromCharCode(160));
   anchor.after(spaceNode);
+
+  // reset autocomplete input
   hideAutocompleter();
   document.getSelection()?.setPosition(spaceNode, 1);
+
+  setMewContentLength();
 };
 
 const publishMew = async () => {
-  const mewInput = mewContainer.value?.querySelector(".mew-content");
+  const mewInput = mewContainer.value?.querySelector(
+    ".mew-content"
+  ) as ElementWithInnerText;
   if (!mewInput) {
     return;
   }
@@ -351,10 +454,9 @@ const publishMew = async () => {
     ) {
       if (element.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY]) {
         const agentPubKeyString = element.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY];
-        // dunno why this is an error; an array is array-like
-        // eslint-disable-next-line
-        // @ts-ignore
-        const agentPubKey = Uint8Array.from(agentPubKeyString.split(","));
+        const agentPubKey = Uint8Array.from(
+          agentPubKeyString.split(",") as Iterable<number>
+        );
         links.push({ [LinkTargetName.Mention]: agentPubKey });
       } else if (element.dataset[ANCHOR_DATA_ID_URL]) {
         const url = element.dataset[ANCHOR_DATA_ID_URL];
@@ -365,7 +467,7 @@ const publishMew = async () => {
 
   const createMewInput: CreateMewInput = {
     mewType: props.mewType,
-    text: mewInput.textContent ? mewInput.textContent.trim() : null,
+    text: getTrimmedText(),
     links: links.length ? links : undefined,
   };
   try {
@@ -378,8 +480,10 @@ const publishMew = async () => {
   }
   emit("publish-mew");
   mewInput.textContent = "";
-  isMewEmpty.value = true;
+  linkText.value = "";
+  mewContentLength.value = 0;
   hideAutocompleter();
+  hideLinkTextInput();
   focusInputField();
 };
 
@@ -412,7 +516,7 @@ const onCaretPositionChange = () => {
 
   if (currentWord.length && selection.anchorNode) {
     // current word starts with @ and is followed by at least another word character
-    if (new RegExp(`^${TAG_SYMBOLS.MENTION}\\w+`).test(currentWord)) {
+    if (isMentionTag(currentWord)) {
       showElement(selection.anchorNode, startOfWordIndex, ".autocompleter");
 
       const nicknameChars = currentWord.substring(1);
@@ -423,7 +527,7 @@ const onCaretPositionChange = () => {
         currentFocusOffset = endOfWordIndex;
       }
       // current word is a URL
-    } else if (URL_REGEX.test(currentWord)) {
+    } else if (isRawUrl(currentWord)) {
       showElement(selection.anchorNode, startOfWordIndex, ".link-text");
       currentAnchorOffset = startOfWordIndex;
       currentFocusOffset = endOfWordIndex;
@@ -433,7 +537,6 @@ const onCaretPositionChange = () => {
     }
   }
 };
-const debouncedOnCaretPositionChange = debounce(onCaretPositionChange, 300);
 
 const showElement = (
   anchorNode: Node,
@@ -463,9 +566,6 @@ const showElement = (
 };
 const hideAutocompleter = hideElement.bind(null, ".autocompleter");
 const hideLinkTextInput = hideElement.bind(null, ".link-text");
-const URL_REGEX = new RegExp(
-  `^(http[s]?:\\/\\/(www\\.)?|www\\.){1}([0-9A-Za-z-\\.@:%_\\+~#=]+)+((\\.[a-zA-Z]{2,3})+)(/(.)*)?(\\?(.)*)?`
-);
 </script>
 
 <style lang="sass">

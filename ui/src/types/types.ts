@@ -119,3 +119,7 @@ export interface Theme {
   backgroundColor?: string;
   backgroundOpacity?: number;
 }
+
+export interface ElementWithInnerText extends Element {
+  innerText: string;
+}
