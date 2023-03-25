@@ -30,6 +30,7 @@ This will install all the needed dependencies in your local environment, includi
 ```bash
 git submodule init
 git submodule update --remote --recursive
+cd ui/ui-common-library && npm i && cd ../
 ```
 
 ## Building the DNA
