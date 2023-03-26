@@ -7,10 +7,10 @@
     "tests"
   ],
   "scripts": {
-    "start": "AGENTS=2 npm run network",
-    "network": "hc s clean && npm run build:happ && UI_PORT=8888 concurrently \"npm start -w ui\" \"npm run launch:happ\" \"holochain-playground\"",
+    "start:launcher": "AGENTS=2 npm run network:launcher",
+    "network:launcher": "hc s clean && npm run build:happ && UI_PORT=8888 concurrently \"npm start -w ui\" \"npm run launch:happ\" \"holochain-playground\"",
     "launch:happ": "echo \"pass\" | RUST_LOG=warn hc launch --piped -n $AGENTS workdir/clutter.happ --ui-port $UI_PORT network mdns",
-    "start:browser": "AGENTS=2 npm run network:browser",
+    "start": "AGENTS=2 npm run network:browser",
     "network:browser": "npm run build:happ && concurrently-repeat \"npm run start:agent:browser\" $AGENTS",
     "start:agent:browser": "cross-env HC_PORT=$(port) HC_ADMIN_PORT=$(port) concurrently \"npm run playground\" \"npm run start:happ:browser\" \"sleep 5 && npm run start:browser -w ui\"",
     "restart:agent:browser": "cross-env HC_PORT=$(port) HC_ADMIN_PORT=$(port) concurrently \"npm run playground\" \"npm run restart:happ:browser\" \"sleep 5 && npm run start:browser -w ui\"",
