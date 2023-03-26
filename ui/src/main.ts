@@ -141,7 +141,7 @@ const initProfileStore = async (client: any) => {
   profilesStore.value = new ProfilesStore(
     new ProfilesClient(holochainClient, CLUTTER_ROLE_NAME),
     {
-      avatarMode: "avatar-required",
+      avatarMode: "avatar-optional",
       additionalFields: [
         {
           name: PROFILE_FIELDS.DISPLAY_NAME,
