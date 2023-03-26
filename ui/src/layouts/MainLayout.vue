@@ -132,7 +132,7 @@ import { QSelectOption, useQuasar } from "quasar";
 import { ref } from "vue";
 import { RouteLocationRaw, useRouter } from "vue-router";
 import { TAG_SYMBOLS } from "@/utils/tags";
-import { Profile } from "@holochain-open-dev/profiles-dev/ui";
+import { Profile } from "@holochain-open-dev/profiles";
 import { computed, onUnmounted } from "vue";
 
 type SearchResultOption = QSelectOption<RouteLocationRaw> & {

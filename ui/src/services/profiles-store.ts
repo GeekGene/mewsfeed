@@ -1,4 +1,4 @@
-import { ProfilesStore } from "@holochain-open-dev/profiles-dev/ui";
+import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { inject, InjectionKey, Ref } from "vue";
 
 export const PROFILES_STORE: InjectionKey<Ref<ProfilesStore>> = Symbol();

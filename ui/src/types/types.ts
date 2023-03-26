@@ -98,3 +98,17 @@ export enum SearchResult {
   Hashtag,
   Cashtag,
 }
+
+export interface ElementWithInnerText extends Element {
+  innerText: string;
+}
+
+export interface SigningCredentialsJson
+  extends Omit<SigningCredentials, "capSecret" | "keyPair" | "signingKey"> {
+  capSecret: number[];
+  keyPair: {
+    publicKey: number[];
+    secretKey: number[];
+  };
+  signingKey: number[];
+}

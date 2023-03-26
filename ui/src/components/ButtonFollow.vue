@@ -21,7 +21,7 @@ import { useProfilesStore } from "@/services/profiles-store";
 import { PROFILE_FIELDS } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
 import { showError, showMessage } from "@/utils/notification";
-import { Profile } from "@holochain-open-dev/profiles-dev/ui";
+import { Profile } from "@holochain-open-dev/profiles";
 import { AgentPubKey } from "@holochain/client";
 import { useQuasar } from "quasar";
 import { onMounted, onUnmounted, PropType, ref } from "vue";

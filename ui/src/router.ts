@@ -1,5 +1,12 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import { TAG_SYMBOLS } from "./utils/tags";
+import HomePage from "./pages/HomePage.vue";
+import MewsFeed from "./pages/MewsFeed.vue";
+import MyProfile from "./pages/MyProfile.vue";
+import AgentProfile from "./pages/AgentProfile.vue";
+import MewYarn from "./pages/MewYarn.vue";
+import TagMewsFeed from "./pages/TagMewsFeed.vue";
+import NotFound from "./pages/NotFound.vue";
 
 export const PATH = {
   [TAG_SYMBOLS.CASHTAG]: "cashtag",
@@ -22,47 +29,47 @@ const routes: RouteRecordRaw[] = [
   {
     path: "/",
     name: ROUTES.home,
-    component: () => import("./pages/HomePage.vue"),
+    component: HomePage,
   },
   {
     path: "/my-profile/",
     name: ROUTES.myProfile,
-    component: () => import("./pages/MyProfile.vue"),
+    component: MyProfile,
   },
   {
     path: "/profiles/:agent",
     name: ROUTES.profiles,
-    component: () => import("./pages/AgentProfile.vue"),
+    component: AgentProfile,
   },
   {
     path: "/feed",
     name: ROUTES.feed,
-    component: () => import("./pages/MewsFeed.vue"),
+    component: MewsFeed,
   },
   {
     path: "/yarn/:hash",
     name: ROUTES.yarn,
-    component: () => import("./pages/MewYarn.vue"),
+    component: MewYarn,
   },
   {
     path: `/${PATH[TAG_SYMBOLS.CASHTAG]}/:tag`,
     name: ROUTES[PATH[TAG_SYMBOLS.CASHTAG]],
-    component: () => import("./pages/TagMewsFeed.vue"),
+    component: TagMewsFeed,
     meta: { tag: TAG_SYMBOLS.CASHTAG },
   },
   {
     path: `/${PATH[TAG_SYMBOLS.HASHTAG]}/:tag`,
     name: ROUTES[PATH[TAG_SYMBOLS.HASHTAG]],
-    component: () => import("./pages/TagMewsFeed.vue"),
+    component: TagMewsFeed,
     meta: { tag: TAG_SYMBOLS.HASHTAG },
   },
   {
     path: `/${PATH[TAG_SYMBOLS.MENTION]}/:tag`,
     name: ROUTES[PATH[TAG_SYMBOLS.MENTION]],
-    component: () => import("./pages/TagMewsFeed.vue"),
+    component: TagMewsFeed,
     meta: { tag: TAG_SYMBOLS.MENTION },
   },
-  { path: "/:pathMatch(.*)", component: () => import("./pages/NotFound.vue") },
+  { path: "/:pathMatch(.*)", component: NotFound },
 ];
 
 const router = createRouter({

@@ -1,8 +1,9 @@
 <template>
   <q-dialog ref="dialogRef" @hide="onDialogHide">
-    <q-card class="q-dialog-plugin dialog">
+    <q-card>
       <create-profile
-        :_store="profilesStore"
+        :store="profilesStore"
+        class="q-pa-sm"
         @profile-created="(data: any) => onDialogOK(data.detail.profile)"
       ></create-profile>
     </q-card>
