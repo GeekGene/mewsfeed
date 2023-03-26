@@ -66,7 +66,7 @@
         >
           <q-icon
             name="svguse:/icons.svg#lick"
-            :color="isLickedByMe ? 'pink-4' : 'transparent'"
+            :color="isLickedByMe ? 'pink-4' : 'text-positive'"
             class="q-mr-xs"
           />
           {{ feedMew.licks.length }}

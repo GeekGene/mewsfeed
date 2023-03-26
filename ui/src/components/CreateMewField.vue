@@ -29,8 +29,9 @@
         <div
           :class="{
             'text-red text-bold': isMewFull || isMewOverfull,
-            'text-caption text-grey': !isMewFull && !isMewOverfull,
+            'text-caption': !isMewFull && !isMewOverfull,
           }"
+          style="color: var(--q-content)"
         >
           {{ mewContentLength }} / {{ MAX_MEW_LENGTH }} Characters
         </div>
