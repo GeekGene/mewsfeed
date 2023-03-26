@@ -3,7 +3,6 @@ import {
   getZomeCaller,
   pause,
   runScenario,
-  Scenario,
 } from "@holochain/tryorama";
 import test from "tape";
 import {

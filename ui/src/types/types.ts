@@ -1,4 +1,10 @@
-import { ActionHash, AgentPubKey, Create, HoloHash } from "@holochain/client";
+import {
+  ActionHash,
+  AgentPubKey,
+  Create,
+  HoloHash,
+  SigningCredentials,
+} from "@holochain/client";
 
 export const PROFILE_FIELDS = {
   DISPLAY_NAME: "Display name",
