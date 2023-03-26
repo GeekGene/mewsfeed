@@ -26,12 +26,12 @@
       </div>
       <ButtonFollow v-if="!isMyProfile" :agent-pub-key="agentPubKey" />
     </q-card-section>
-    <q-card-section>
-      <div class="row justify-start">
+    <q-card-section v-if="bio || location">
+      <div v-if="bio" class="row justify-start">
         <div><label class="text-weight-bold q-mr-sm">Bio:</label></div>
         <div>{{ bio }}</div>
       </div>
-      <div class="row justify-start q-mt-md">
+      <div v-if="location" class="row justify-start q-mt-md">
         <div><label class="text-weight-bold q-mr-sm">Location:</label></div>
         <div>{{ location }}</div>
       </div>
