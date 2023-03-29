@@ -133,7 +133,8 @@ import { ref } from "vue";
 import { RouteLocationRaw, useRouter } from "vue-router";
 import { TAG_SYMBOLS } from "@/utils/tags";
 import { Profile } from "@holochain-open-dev/profiles";
-import { computed, onUnmounted } from "vue";
+import { computed } from "vue";
+import { useMyProfile } from "@/utils/profile";
 
 type SearchResultOption = QSelectOption<RouteLocationRaw> & {
   agentPubKey?: AgentPubKey;
@@ -141,21 +142,15 @@ type SearchResultOption = QSelectOption<RouteLocationRaw> & {
 };
 
 const $q = useQuasar();
-
 const store = useClutterStore();
 const profilesStore = useProfilesStore();
 const router = useRouter();
+const { myProfile, runWhenMyProfileExists } = useMyProfile();
 const tab = ref("");
-const myProfile = ref<undefined | Profile>(undefined);
 
 const myAgentPubKey = computed(
   () => profilesStore.value.client.client.myPubKey
 );
-
-const unsubscribe = profilesStore.value.myProfile.subscribe((res: any) => {
-  myProfile.value = res.value;
-});
-onUnmounted(unsubscribe);
 
 const searching = ref(false);
 const options = ref<SearchResultOption[]>([]);
@@ -171,13 +166,15 @@ const onPublishMew = () => {
 };
 
 const onAddMewClick = () => {
-  $q.dialog({
-    component: CreateMewDialog,
-    componentProps: {
-      mewType: { [MewTypeName.Original]: null },
-      onPublishMew,
-    },
-  });
+  runWhenMyProfileExists(() =>
+    $q.dialog({
+      component: CreateMewDialog,
+      componentProps: {
+        mewType: { [MewTypeName.Original]: null },
+        onPublishMew,
+      },
+    })
+  );
 };
 
 const search = (

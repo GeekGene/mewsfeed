@@ -21,11 +21,9 @@ import { useProfilesStore } from "@/services/profiles-store";
 import { PROFILE_FIELDS } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
 import { showError, showMessage } from "@/utils/notification";
-import { Profile } from "@holochain-open-dev/profiles";
+import { useMyProfile } from "@/utils/profile";
 import { AgentPubKey } from "@holochain/client";
-import { useQuasar } from "quasar";
-import { onMounted, onUnmounted, PropType, ref } from "vue";
-import CreateProfileDialog from "../components/CreateProfileDialog.vue";
+import { onMounted, PropType, ref } from "vue";
 
 const props = defineProps({
   agentPubKey: {
@@ -35,16 +33,10 @@ const props = defineProps({
 });
 
 const profilesStore = useProfilesStore();
-const $q = useQuasar();
+const { runWhenMyProfileExists } = useMyProfile();
 
 const loading = ref(false);
 const following = ref(false);
-
-const myProfile = ref<Profile>();
-const unsubscribe = profilesStore.value.myProfile.subscribe((res: any) => {
-  myProfile.value = res.value;
-});
-onUnmounted(unsubscribe);
 
 onMounted(async () => {
   try {
@@ -60,35 +52,26 @@ onMounted(async () => {
   }
 });
 
-const toggleFollow = async () => {
-  // Prompt user to create profile if they don't have one
-  if (!myProfile.value) {
-    $q.dialog({
-      component: CreateProfileDialog,
-    }).onOk((profile) => {
-      myProfile.value = profile;
-      toggleFollow();
-    });
-    return;
-  }
-
-  try {
-    const [profile] = await Promise.all([
-      profilesStore.value.client.getAgentProfile(props.agentPubKey),
-      following.value
-        ? await unfollow(props.agentPubKey)
-        : await follow(props.agentPubKey),
-    ]);
-    following.value = !following.value;
-    const name = `${profile?.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
-      profile?.nickname
-    })`;
-    const message = following.value
-      ? `You're following ${name} now`
-      : `You're not following ${name} anymore`;
-    showMessage(message);
-  } catch (error) {
-    showError(error);
-  }
+const toggleFollow = () => {
+  runWhenMyProfileExists(async () => {
+    try {
+      const [profile] = await Promise.all([
+        profilesStore.value.client.getAgentProfile(props.agentPubKey),
+        following.value
+          ? await unfollow(props.agentPubKey)
+          : await follow(props.agentPubKey),
+      ]);
+      following.value = !following.value;
+      const name = `${profile?.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
+        profile?.nickname
+      })`;
+      const message = following.value
+        ? `You're following ${name} now`
+        : `You're not following ${name} anymore`;
+      showMessage(message);
+    } catch (error) {
+      showError(error);
+    }
+  });
 };
 </script>
