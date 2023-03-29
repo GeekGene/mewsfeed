@@ -31,7 +31,7 @@ import {
   useClientStore,
 } from "./stores";
 import { CLUTTER_ROLE_NAME } from "./stores/clutter";
-import { SigningCredentials, PROFILE_FIELDS } from "./types/types";
+import { SigningCredentialsJson, PROFILE_FIELDS } from "./types/types";
 
 // Shoelace
 import "@shoelace-style/shoelace/dist/themes/light.css";
