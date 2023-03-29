@@ -25,7 +25,8 @@ const profilesStore = useProfilesStore();
   -webkit-font-smoothing: antialiased
   -moz-osx-font-smoothing: grayscale
 
-profiles-context
-  --mdc-theme-primary: #{$primary}
-  --mdc-theme-secondary: #{$primary}
+:root,
+:host
+  --sl-color-primary-600: #{$primary} !important
+  --sl-color-primary-500: #{$primary} !important
 </style>
