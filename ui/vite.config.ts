@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import { quasar, transformAssetUrls } from "@quasar/vite-plugin";
 import path from "node:path";
 import vue from "@vitejs/plugin-vue";
-import { viteStaticCopy } from 'vite-plugin-static-copy';
+import { viteStaticCopy } from "vite-plugin-static-copy";
 
 export default defineConfig({
   server: {
@@ -35,10 +35,13 @@ export default defineConfig({
     viteStaticCopy({
       targets: [
         {
-          src: path.resolve(__dirname, '../node_modules/@shoelace-style/shoelace/dist/assets'),
-          dest: path.resolve(__dirname, 'dist/shoelace')
-        }
-      ]
+          src: path.resolve(
+            __dirname,
+            "../node_modules/@shoelace-style/shoelace/dist/assets"
+          ),
+          dest: path.resolve(__dirname, "dist/shoelace"),
+        },
+      ],
     }),
   ],
 });
