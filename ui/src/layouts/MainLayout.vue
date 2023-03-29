@@ -132,9 +132,8 @@ import { QSelectOption, useQuasar } from "quasar";
 import { ref } from "vue";
 import { RouteLocationRaw, useRouter } from "vue-router";
 import { TAG_SYMBOLS } from "@/utils/tags";
-import { Profile } from "@holochain-open-dev/profiles";
 import { computed } from "vue";
-import { useMyProfile } from "@/utils/profile";
+import { useMyProfile, useSearchProfiles } from "@/utils/profile";
 
 type SearchResultOption = QSelectOption<RouteLocationRaw> & {
   agentPubKey?: AgentPubKey;
@@ -146,6 +145,7 @@ const store = useClutterStore();
 const profilesStore = useProfilesStore();
 const router = useRouter();
 const { myProfile, runWhenMyProfileExists } = useMyProfile();
+const { searchProfiles } = useSearchProfiles();
 const tab = ref("");
 
 const myAgentPubKey = computed(
@@ -192,38 +192,25 @@ const search = (
       try {
         searching.value = true;
 
-        const profilesPromise = new Promise<
-          ReadonlyMap<Uint8Array, Profile | undefined>
-        >((resolve) => {
-          profilesStore.value.client.searchAgents(inputValue).then((agents) => {
-            profilesStore.value.agentsProfiles(agents).subscribe((value) => {
-              if (value.status === "complete") {
-                resolve(value.value);
-              }
-            });
-          });
-        });
-
         const [profiles, hashtags, cashtags] = await Promise.all([
-          profilesPromise,
+          searchProfiles(inputValue),
           searchHashtags(inputValue),
           searchCashtags(inputValue),
         ]);
 
-        const profileOptions: SearchResultOption[] = [];
-        profiles.forEach((value, key) => {
-          profileOptions.push({
+        const profileOptions: SearchResultOption[] = profiles.map(
+          ([agentPubKey, profile]) => ({
             resultType: SearchResult.Agent,
-            agentPubKey: key,
+            agentPubKey,
             value: {
               name: ROUTES.profiles,
-              params: { agent: encodeHashToBase64(key) },
+              params: { agent: encodeHashToBase64(agentPubKey) },
             },
-            label: `${value.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
-              value.nickname
+            label: `${profile.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
+              profile.nickname
             })`,
-          });
-        });
+          })
+        );
 
         options.value = [
           ...profileOptions,

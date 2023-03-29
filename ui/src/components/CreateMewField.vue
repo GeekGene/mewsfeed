@@ -60,18 +60,18 @@
             tabindex="-1"
           >
             <q-item
-              v-for="(agent, index) in agentAutocompletions"
-              :key="index"
+              v-for="([agentPubKey, profile], i) in agentAutocompletions"
+              :key="i"
               clickable
               @keydown="onAutocompleteKeyDown"
-              @click="onAutocompleteAgentSelect(agent)"
+              @click="onAutocompleteAgentSelect(agentPubKey, profile)"
             >
               <q-item-section avatar class="q-pr-sm col-shrink">
-                <agent-avatar :agentPubKey="agent.key" size="30" />
+                <agent-avatar :agentPubKey="agentPubKey" size="30" />
               </q-item-section>
               <q-item-section>
-                {{ agent.value.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
-                {{ TAG_SYMBOLS.MENTION }}{{ agent.value.nickname }}
+                {{ profile.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
+                {{ TAG_SYMBOLS.MENTION }}{{ profile.nickname }}
               </q-item-section>
             </q-item>
 
@@ -108,13 +108,12 @@
 </template>
 
 <script setup lang="ts">
-import { useProfilesStore } from "@/services/profiles-store";
 import { useClutterStore } from "@/stores";
 import { showError } from "@/utils/notification";
+import { useSearchProfiles, useMyProfile } from "@/utils/profile";
 import { Profile } from "@holochain-open-dev/profiles";
-import { debounce, useQuasar } from "quasar";
 import { isMentionTag, isRawUrl, TAG_SYMBOLS } from "@/utils/tags";
-import { onMounted, PropType, ref, computed, onUnmounted } from "vue";
+import { onMounted, PropType, ref, computed } from "vue";
 import {
   CreateMewInput,
   ElementWithInnerText,
@@ -124,7 +123,7 @@ import {
   PROFILE_FIELDS,
   TOOLTIP_DELAY,
 } from "../types/types";
-import CreateProfileDialog from "../components/CreateProfileDialog.vue";
+import { AgentPubKey } from "@holochain/client";
 
 const ANCHOR_DATA_ID_AGENT_PUB_KEY = "agentPubKey";
 const ANCHOR_DATA_ID_URL = "url";
@@ -135,23 +134,12 @@ const props = defineProps({
   mewType: { type: Object as PropType<MewType>, required: true },
 });
 
-interface AgentAutocompletion {
-  key: Uint8Array;
-  value: Profile;
-}
-
 const store = useClutterStore();
-const profilesStore = useProfilesStore();
-const $q = useQuasar();
+const { searchProfiles } = useSearchProfiles();
+const { runWhenMyProfileExists } = useMyProfile();
 const mewContainer = ref<HTMLDivElement | null>(null);
-const myProfile = ref<undefined | Profile>(undefined);
 
 onMounted(() => setTimeout(focusInputField, 0));
-
-const unsubscribe = profilesStore.value.myProfile.subscribe((res: any) => {
-  myProfile.value = res.value;
-});
-onUnmounted(unsubscribe);
 
 const MAX_MEW_LENGTH = 200;
 const mewContentLength = ref(0);
@@ -168,7 +156,7 @@ let currentFocusOffset: number;
 let currentNode: Node;
 
 const POPUP_MARGIN_TOP = 20;
-const agentAutocompletions = ref<AgentAutocompletion[]>([]);
+const agentAutocompletions = ref<Array<[AgentPubKey, Profile]>>([]);
 const autocompleterLoading = ref(false);
 
 const focusInputField = () =>
@@ -324,16 +312,7 @@ const onPaste = (event: ClipboardEvent) => {
 const loadAutocompleterUsers = async (nickname: string) => {
   try {
     autocompleterLoading.value = true;
-    const agentPubKeys = await profilesStore.value.client.searchAgents(nickname);
-    const agentProfiles = await profilesStore.value.agentsProfiles(agentPubKeys);
-    agentAutocompletions.value = await Promise.all(
-      profiles.map((agentPubKey, i) => {
-        return {
-          key: agentPubKey,
-          value: agentPubKey,
-        };
-      })
-    );
+    agentAutocompletions.value = await searchProfiles(nickname);
   } catch (error) {
     showError(error);
   } finally {
@@ -400,7 +379,7 @@ const onAutocompleteKeyDown = (keyDownEvent: KeyboardEvent) => {
   }
 };
 
-const onAutocompleteAgentSelect = (agent: AgentAutocompletion) => {
+const onAutocompleteAgentSelect = (agent: AgentPubKey, profile: Profile) => {
   const range = new Range();
   range.setStart(currentNode, currentAnchorOffset);
   range.setEnd(currentNode, currentFocusOffset);
@@ -408,8 +387,8 @@ const onAutocompleteAgentSelect = (agent: AgentAutocompletion) => {
   // Insert mention link: '@' + agent username
   const anchor = document.createElement("a");
   anchor.href = "#";
-  anchor.textContent = TAG_SYMBOLS.MENTION + agent.value.nickname;
-  anchor.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY] = agent.key.toString();
+  anchor.textContent = TAG_SYMBOLS.MENTION + profile.nickname;
+  anchor.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY] = agent.toString();
   range.deleteContents();
   range.insertNode(anchor);
 
@@ -424,69 +403,59 @@ const onAutocompleteAgentSelect = (agent: AgentAutocompletion) => {
   setMewContentLength();
 };
 
-const publishMew = async () => {
-  const mewInput = mewContainer.value?.querySelector(
-    ".mew-content"
-  ) as ElementWithInnerText;
-  if (!mewInput) {
-    return;
-  }
+const publishMew = () => {
+  runWhenMyProfileExists(async () => {
+    const mewInput = mewContainer.value?.querySelector(
+      ".mew-content"
+    ) as ElementWithInnerText;
+    if (!mewInput) {
+      return;
+    }
 
-  // Prompt user to create profile if they don't have one
-  if (!myProfile.value) {
-    $q.dialog({
-      component: CreateProfileDialog,
-      componentProps: {},
-    }).onOk(() => {
-      setTimeout(() => {
-        publishMew();
-      }, 200);
-    });
-    return;
-  }
-
-  // build link array
-  const links: LinkTarget[] = [];
-  for (let i = 0; i < mewInput.children.length; i++) {
-    const element = mewInput.children.item(i);
-    if (
-      element &&
-      element.tagName === "A" &&
-      element instanceof HTMLAnchorElement
-    ) {
-      if (element.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY]) {
-        const agentPubKeyString = element.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY];
-        const agentPubKey = Uint8Array.from(
-          agentPubKeyString.split(",") as Iterable<number>
-        );
-        links.push({ [LinkTargetName.Mention]: agentPubKey });
-      } else if (element.dataset[ANCHOR_DATA_ID_URL]) {
-        const url = element.dataset[ANCHOR_DATA_ID_URL];
-        links.push({ [LinkTargetName.URL]: url });
+    // build link array
+    const links: LinkTarget[] = [];
+    for (let i = 0; i < mewInput.children.length; i++) {
+      const element = mewInput.children.item(i);
+      if (
+        element &&
+        element.tagName === "A" &&
+        element instanceof HTMLAnchorElement
+      ) {
+        if (element.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY]) {
+          const agentPubKeyString =
+            element.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY];
+          const agentPubKey = Uint8Array.from(
+            agentPubKeyString.split(",") as Iterable<number>
+          );
+          links.push({ [LinkTargetName.Mention]: agentPubKey });
+        } else if (element.dataset[ANCHOR_DATA_ID_URL]) {
+          const url = element.dataset[ANCHOR_DATA_ID_URL];
+          links.push({ [LinkTargetName.URL]: url });
+        }
       }
     }
-  }
 
-  const createMewInput: CreateMewInput = {
-    mewType: props.mewType,
-    text: getTrimmedText(),
-    links: links.length ? links : undefined,
-  };
-  try {
-    saving.value = true;
-    await store.createMew(createMewInput);
-  } catch (error) {
-    showError(error);
-  } finally {
-    saving.value = false;
-  }
-  emit("publish-mew");
-  mewInput.textContent = "";
-  linkText.value = "";
-  mewContentLength.value = 0;
-  hideAutocompleter();
-  hideLinkTextInput();
-  focusInputField();
+    const createMewInput: CreateMewInput = {
+      mewType: props.mewType,
+      text: getTrimmedText(),
+      links: links.length ? links : undefined,
+    };
+    try {
+      saving.value = true;
+      await store.createMew(createMewInput);
+    } catch (error) {
+      showError(error);
+    } finally {
+      saving.value = false;
+    }
+    emit("publish-mew");
+    mewInput.textContent = "";
+    linkText.value = "";
+    mewContentLength.value = 0;
+    hideAutocompleter();
+    hideLinkTextInput();
+    focusInputField();
+  });
 };
 
 const onCaretPositionChange = () => {

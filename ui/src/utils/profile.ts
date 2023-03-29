@@ -53,3 +53,20 @@ export const useMyProfile = () => {
 
   return { myProfile, runWhenMyProfileExists };
 };
+
+export const useSearchProfiles = () => {
+  const profilesStore = useProfilesStore();
+
+  const searchProfiles = (
+    input: string
+  ): Promise<Array<[Uint8Array, Profile]>> =>
+    new Promise((resolve, reject) => {
+      profilesStore.value.searchProfiles(input).subscribe((res: any) => {
+        if (res.status === "complete") {
+          resolve(Array.from(res.value.entries()));
+        } else if (res.status === "error") reject(res);
+      });
+    });
+
+  return { searchProfiles };
+};
