@@ -48,6 +48,8 @@
                   <q-item-section avatar>
                     <agent-avatar
                       :agentPubKey="item.opt.agentPubKey"
+                      :show-on-hover="false"
+                      :copy-on-click="false"
                       size="40"
                     />
                   </q-item-section>
@@ -99,7 +101,12 @@
           />
 
           <q-route-tab v-if="myProfile" :to="{ name: ROUTES.myProfile }">
-            <agent-avatar :agentPubKey="myAgentPubKey" size="40" />
+            <agent-avatar
+              :agentPubKey="myAgentPubKey"
+              :show-on-hover="false"
+              :copy-on-click="false"
+              size="40"
+            />
             <q-tooltip :delay="TOOLTIP_DELAY">Your profile</q-tooltip>
           </q-route-tab>
         </q-tabs>

@@ -67,7 +67,12 @@
               @click="onAutocompleteAgentSelect(agentPubKey, profile)"
             >
               <q-item-section avatar class="q-pr-sm col-shrink">
-                <agent-avatar :agentPubKey="agentPubKey" size="30" />
+                <agent-avatar
+                  :agentPubKey="agentPubKey"
+                  :show-on-hover="false"
+                  :copy-on-click="false"
+                  size="30"
+                />
               </q-item-section>
               <q-item-section>
                 {{ profile.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
