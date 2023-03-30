@@ -13,9 +13,9 @@
               :class="['q-mr-lg', { 'cursor-pointer': !isMyProfile }]"
             />
             <div class="q-mr-lg text-primary text-weight-medium">
-              {{ displayName }}
+              {{ profile?.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
             </div>
-            <div class="text-primary">@{{ nickname }}</div>
+            <div class="text-primary">@{{ profile?.nickname }}</div>
           </div>
           <ButtonFollow v-if="!isMyProfile" :agentPubKey="agentPubKey" />
         </q-card-section>
@@ -30,8 +30,8 @@
             </div>
           </div>
           <div class="col-grow">
-            <div>{{ bio }}</div>
-            <div>{{ location }}</div>
+            <div>{{ profile?.fields[PROFILE_FIELDS.BIO] }}</div>
+            <div>{{ profile?.fields[PROFILE_FIELDS.LOCATION] }}</div>
           </div>
         </q-card-section>
       </q-card>
@@ -71,6 +71,7 @@ import { FeedMew, MewType, MewTypeName, PROFILE_FIELDS } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
 import { showError, showMessage } from "@/utils/notification";
 import { pageHeightCorrection } from "@/utils/page-layout";
+import { Profile } from "@holochain-open-dev/profiles";
 import { ActionHash, decodeHashFromBase64 } from "@holochain/client";
 import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
@@ -83,10 +84,7 @@ const agentPubKey = computed(() =>
 );
 const loadingMews = ref(false);
 const loadingProfile = ref(false);
-const nickname = ref("");
-const displayName = ref("");
-const bio = ref("");
-const location = ref("");
+const profile = ref<Profile>();
 const isFollowing = ref(false);
 const mews = ref<FeedMew[]>([]);
 
@@ -108,15 +106,12 @@ const loadMews = async () => {
 const loadProfile = async () => {
   try {
     loadingProfile.value = true;
-    const [profile, currentMyFollowing] = await Promise.all([
+    const [profileData, currentMyFollowing] = await Promise.all([
       profilesStore.value.client.getAgentProfile(agentPubKey.value),
       myFollowing(),
     ]);
-    if (profile) {
-      nickname.value = profile.nickname;
-      displayName.value = profile.fields[PROFILE_FIELDS.DISPLAY_NAME];
-      bio.value = profile.fields[PROFILE_FIELDS.BIO];
-      location.value = profile.fields[PROFILE_FIELDS.LOCATION];
+    if (profileData) {
+      profile.value = profileData;
     }
     isFollowing.value = currentMyFollowing.includes(agentPubKey.value);
   } catch (error) {
