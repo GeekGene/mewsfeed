@@ -48,8 +48,10 @@
                   <q-item-section avatar>
                     <agent-avatar
                       :agentPubKey="item.opt.agentPubKey"
+                      disable-tooltip
+                      disable-copy
                       size="40"
-                    />
+                    ></agent-avatar>
                   </q-item-section>
                   <q-item-section class="text-body2">
                     {{ item.opt.label }}
@@ -98,8 +100,13 @@
             label="Mews Feed"
           />
 
-          <q-route-tab :to="{ name: ROUTES.myProfile }">
-            <agent-avatar :agentPubKey="myAgentPubKey" size="40" />
+          <q-route-tab v-if="myProfile" :to="{ name: ROUTES.myProfile }">
+            <agent-avatar
+              :agentPubKey="myAgentPubKey"
+              size="40"
+              disable-tooltip
+              disable-copy
+            />
             <q-tooltip :delay="TOOLTIP_DELAY">Your profile</q-tooltip>
           </q-route-tab>
         </q-tabs>
@@ -129,11 +136,11 @@ import {
 import { showError } from "@/utils/notification";
 import { AgentPubKey, encodeHashToBase64 } from "@holochain/client";
 import { QSelectOption, useQuasar } from "quasar";
-import { ref } from "vue";
+import { ref, toRaw } from "vue";
 import { RouteLocationRaw, useRouter } from "vue-router";
 import { TAG_SYMBOLS } from "@/utils/tags";
-import { Profile } from "@holochain-open-dev/profiles";
 import { computed } from "vue";
+import { useMyProfile, useSearchProfiles } from "@/utils/profile";
 
 type SearchResultOption = QSelectOption<RouteLocationRaw> & {
   agentPubKey?: AgentPubKey;
@@ -141,10 +148,11 @@ type SearchResultOption = QSelectOption<RouteLocationRaw> & {
 };
 
 const $q = useQuasar();
-
 const store = useClutterStore();
 const profilesStore = useProfilesStore();
 const router = useRouter();
+const { myProfile, runWhenMyProfileExists } = useMyProfile();
+const { searchProfiles } = useSearchProfiles();
 const tab = ref("");
 
 const myAgentPubKey = computed(
@@ -164,11 +172,17 @@ const onPublishMew = () => {
   }
 };
 
-const onAddMewClick = () =>
-  $q.dialog({
-    component: CreateMewDialog,
-    componentProps: { mewType: { [MewTypeName.Original]: null }, onPublishMew },
-  });
+const onAddMewClick = () => {
+  runWhenMyProfileExists(() =>
+    $q.dialog({
+      component: CreateMewDialog,
+      componentProps: {
+        mewType: { [MewTypeName.Original]: null },
+        onPublishMew,
+      },
+    })
+  );
+};
 
 const search = (
   inputValue: string,
@@ -185,36 +199,25 @@ const search = (
       try {
         searching.value = true;
 
-        const profilesSubscription = new Promise<
-          ReadonlyMap<Uint8Array, Profile>
-        >((resolve) => {
-          profilesStore.value.searchProfiles(inputValue).subscribe((value) => {
-            if (value.status === "complete") {
-              resolve(value.value);
-            }
-          });
-        });
-
         const [profiles, hashtags, cashtags] = await Promise.all([
-          profilesSubscription,
+          searchProfiles(inputValue),
           searchHashtags(inputValue),
           searchCashtags(inputValue),
         ]);
 
-        const profileOptions: SearchResultOption[] = [];
-        profiles.forEach((value, key) => {
-          profileOptions.push({
+        const profileOptions: SearchResultOption[] = profiles.map(
+          ([agentPubKey, profile]) => ({
             resultType: SearchResult.Agent,
-            agentPubKey: key,
+            agentPubKey,
             value: {
               name: ROUTES.profiles,
-              params: { agent: encodeHashToBase64(key) },
+              params: { agent: encodeHashToBase64(agentPubKey) },
             },
-            label: `${value.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
-              value.nickname
+            label: `${profile.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
+              profile.nickname
             })`,
-          });
-        });
+          })
+        );
 
         options.value = [
           ...profileOptions,
@@ -245,7 +248,7 @@ const search = (
 };
 
 const onSearchResultSelect = (option: QSelectOption) => {
-  router.push(option.value);
+  router.push(toRaw(option.value));
   selection.value = null;
 };
 </script>

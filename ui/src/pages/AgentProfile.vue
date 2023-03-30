@@ -17,7 +17,7 @@
             </div>
             <div class="text-primary">@{{ nickname }}</div>
           </div>
-          <ButtonFollow v-if="!isMyProfile" :agent-pub-key="agentPubKey" />
+          <ButtonFollow v-if="!isMyProfile" :agentPubKey="agentPubKey" />
         </q-card-section>
 
         <q-card-section class="flex">
@@ -49,9 +49,9 @@
 
     <div class="follow-col col self-start q-pl-xl q-pr-md">
       <h6 class="q-mt-none q-mb-md">Following</h6>
-      <FolloweesList :agent-pub-key="agentPubKey" />
+      <FolloweesList :agentPubKey="agentPubKey" />
       <h6 class="q-mb-md">Followed by</h6>
-      <FollowersList :agent-pub-key="agentPubKey" />
+      <FollowersList :agentPubKey="agentPubKey" />
     </div>
   </q-page>
 </template>
@@ -79,11 +79,7 @@ import MewList from "../components/MewList.vue";
 const profilesStore = useProfilesStore();
 const route = useRoute();
 const agentPubKey = computed(() =>
-  decodeHashFromBase64(
-    Array.isArray(route.params.agent)
-      ? route.params.agent[0]
-      : route.params.agent
-  )
+  decodeHashFromBase64(route.params.agent as string)
 );
 const loadingMews = ref(false);
 const loadingProfile = ref(false);

@@ -1,10 +1,10 @@
-import "@holochain-open-dev/profiles/agent-avatar";
-import "@holochain-open-dev/profiles/my-profile";
-import "@holochain-open-dev/profiles/profile-prompt";
-import "@holochain-open-dev/profiles/profiles-context";
+import "@holochain-open-dev/profiles/elements/agent-avatar.js";
+import "@holochain-open-dev/profiles/elements/my-profile.js";
+import "@holochain-open-dev/profiles/elements/profiles-context.js";
+import "@holochain-open-dev/profiles/elements/create-profile.js";
 
 import "@/css/main.sass";
-import { ProfilesClient, ProfilesStore } from "@holochain-open-dev/profiles";
+import { ProfilesStore, ProfilesClient } from "@holochain-open-dev/profiles";
 import {
   AdminWebsocket,
   AppAgentWebsocket,
@@ -31,17 +31,13 @@ import {
   useClientStore,
 } from "./stores";
 import { CLUTTER_ROLE_NAME } from "./stores/clutter";
-import { PROFILE_FIELDS } from "./types/types";
+import { SigningCredentialsJson, PROFILE_FIELDS } from "./types/types";
 
-interface SigningCredentialsJson
-  extends Omit<SigningCredentials, "capSecret" | "keyPair" | "signingKey"> {
-  capSecret: number[];
-  keyPair: {
-    publicKey: number[];
-    secretKey: number[];
-  };
-  signingKey: number[];
-}
+// Shoelace
+import "@shoelace-style/shoelace/dist/themes/light.css";
+import "@shoelace-style/shoelace/dist/themes/dark.css";
+import { setBasePath } from "@shoelace-style/shoelace/dist/utilities/base-path";
+setBasePath("shoelace");
 
 const app = createApp(App);
 app.use(router);
@@ -145,11 +141,24 @@ const initProfileStore = async (client: any) => {
   profilesStore.value = new ProfilesStore(
     new ProfilesClient(holochainClient, CLUTTER_ROLE_NAME),
     {
-      avatarMode: "avatar-required",
+      avatarMode: "avatar-optional",
       additionalFields: [
-        PROFILE_FIELDS.DISPLAY_NAME,
-        PROFILE_FIELDS.BIO,
-        PROFILE_FIELDS.LOCATION,
+        {
+          name: PROFILE_FIELDS.DISPLAY_NAME,
+          label: PROFILE_FIELDS.DISPLAY_NAME,
+          required: false,
+        },
+
+        {
+          name: PROFILE_FIELDS.BIO,
+          label: PROFILE_FIELDS.BIO,
+          required: false,
+        },
+        {
+          name: PROFILE_FIELDS.LOCATION,
+          label: PROFILE_FIELDS.LOCATION,
+          required: false,
+        },
       ],
     }
   );

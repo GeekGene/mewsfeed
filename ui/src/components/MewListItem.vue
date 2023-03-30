@@ -1,7 +1,7 @@
 <template>
   <q-item class="items-start">
     <q-item-section avatar>
-      <avatar-with-popup :agent-pub-key="feedMew.action.author" />
+      <AvatarWithPopup :agentPubKey="feedMew.action.author" />
     </q-item-section>
 
     <q-item-section>
@@ -59,12 +59,7 @@
       />
 
       <div>
-        <q-btn
-          :disable="isUpdatingLick"
-          size="sm"
-          flat
-          @click="onToggleLickMew"
-        >
+        <q-btn :disable="isUpdatingLick" size="sm" flat @click="toggleLickMew">
           <q-icon
             name="svguse:/icons.svg#lick"
             :color="isLickedByMe ? 'pink-4' : 'transparent'"
@@ -117,6 +112,7 @@ import AvatarWithPopup from "./AvatarWithPopup.vue";
 import CreateMewDialog from "./CreateMewDialog.vue";
 import MewContent from "./MewContent.vue";
 import Timestamp from "./MewTimestamp.vue";
+import { useMyProfile } from "@/utils/profile";
 
 const props = defineProps({
   feedMew: { type: Object as PropType<FeedMew>, required: true },
@@ -136,6 +132,7 @@ const profilesStore = useProfilesStore();
 const { isCurrentProfile, onAgentClick } = useProfileUtils();
 const agentProfile = ref<Profile>();
 const myAgentPubKey = profilesStore.value.client.client.myPubKey;
+const { runWhenMyProfileExists } = useMyProfile();
 
 const isMewMew = computed(
   () => MewTypeName.MewMew in props.feedMew.mew.mewType
@@ -191,46 +188,56 @@ const onMewClick = () => {
   });
 };
 
-const onToggleLickMew = async () => {
-  isUpdatingLick.value = true;
-  if (isLickedByMe.value) {
-    await unlickMew(props.feedMew.actionHash);
-  } else {
-    await lickMew(props.feedMew.actionHash);
-  }
-  await props.onToggleLickMew(props.feedMew.actionHash);
-  isUpdatingLick.value = false;
+const toggleLickMew = async () => {
+  runWhenMyProfileExists(async () => {
+    isUpdatingLick.value = true;
+    if (isLickedByMe.value) {
+      await unlickMew(props.feedMew.actionHash);
+    } else {
+      await lickMew(props.feedMew.actionHash);
+    }
+    await props.onToggleLickMew(props.feedMew.actionHash);
+    isUpdatingLick.value = false;
+  });
 };
 
-const replyToMew = () =>
-  $q.dialog({
-    component: CreateMewDialog,
-    componentProps: {
-      mewType: { [MewTypeName.Reply]: props.feedMew.actionHash },
-      onPublishMew: props.onPublishMew,
-      originalMew: props.feedMew,
-      originalAuthor: agentProfile.value,
-    },
+const replyToMew = () => {
+  runWhenMyProfileExists(() => {
+    $q.dialog({
+      component: CreateMewDialog,
+      componentProps: {
+        mewType: { [MewTypeName.Reply]: props.feedMew.actionHash },
+        onPublishMew: props.onPublishMew,
+        originalMew: props.feedMew,
+        originalAuthor: agentProfile.value,
+      },
+    });
   });
+};
 
 const mewMew = async () => {
-  const mewType = { mewMew: props.feedMew.actionHash };
-  const mew: CreateMewInput = {
-    mewType,
-    text: null,
-  };
-  await createMew(mew);
-  props.onPublishMew(mewType);
+  runWhenMyProfileExists(async () => {
+    const mewType = { mewMew: props.feedMew.actionHash };
+    const mew: CreateMewInput = {
+      mewType,
+      text: null,
+    };
+    await createMew(mew);
+    props.onPublishMew(mewType);
+  });
 };
 
-const quote = () =>
-  $q.dialog({
-    component: CreateMewDialog,
-    componentProps: {
-      mewType: { [MewTypeName.Quote]: props.feedMew.actionHash },
-      onPublishMew: props.onPublishMew,
-      originalMew: props.feedMew,
-      originalAuthor: agentProfile.value,
-    },
+const quote = () => {
+  runWhenMyProfileExists(() => {
+    $q.dialog({
+      component: CreateMewDialog,
+      componentProps: {
+        mewType: { [MewTypeName.Quote]: props.feedMew.actionHash },
+        onPublishMew: props.onPublishMew,
+        originalMew: props.feedMew,
+        originalAuthor: agentProfile.value,
+      },
+    });
   });
+};
 </script>

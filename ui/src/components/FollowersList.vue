@@ -17,10 +17,7 @@
         :key="index"
         class="q-px-none"
       >
-        <avatar-with-popup
-          :agent-pub-key="followee.agentPubKey"
-          class="q-mr-md"
-        />
+        <AvatarWithPopup :agentPubKey="followee.agentPubKey" class="q-mr-md" />
         <q-item-section>
           <q-item-label>
             {{ followee.displayName }}

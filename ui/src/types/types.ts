@@ -1,4 +1,10 @@
-import { ActionHash, AgentPubKey, Create, HoloHash } from "@holochain/client";
+import {
+  ActionHash,
+  AgentPubKey,
+  Create,
+  HoloHash,
+  SigningCredentials,
+} from "@holochain/client";
 
 export const PROFILE_FIELDS = {
   DISPLAY_NAME: "Display name",
@@ -101,4 +107,14 @@ export enum SearchResult {
 
 export interface ElementWithInnerText extends Element {
   innerText: string;
+}
+
+export interface SigningCredentialsJson
+  extends Omit<SigningCredentials, "capSecret" | "keyPair" | "signingKey"> {
+  capSecret: number[];
+  keyPair: {
+    publicKey: number[];
+    secretKey: number[];
+  };
+  signingKey: number[];
 }

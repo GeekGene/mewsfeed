@@ -5,15 +5,17 @@
   "version": "0.9.0-alpha",
   "type": "module",
   "scripts": {
-    "start": "VITE_HC_PORT=$HC_PORT VITE_HC_ADMIN_PORT=$HC_ADMIN_PORT vite",
+    "start": "vite --port $UI_PORT --clearScreen false",
+    "start:browser": "VITE_HC_PORT=$HC_PORT VITE_HC_ADMIN_PORT=$HC_ADMIN_PORT vite",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
     "lint": "eslint --fix --ext .ts ./ --ext .vue src"
   },
   "dependencies": {
-    "@holochain-open-dev/profiles": "^0.10.1",
+    "@holochain-open-dev/profiles": "^0.12.4",
     "@holochain/client": "^0.12.3",
     "@quasar/extras": "^1.15.4",
+    "@shoelace-style/shoelace": "^2.3.0",
     "dayjs": "^1.11.7",
     "pinia": "^2.0.23",
     "quasar": "^2.9.2",
@@ -25,6 +27,7 @@
     "@vitejs/plugin-vue": "^3.1.2",
     "sass": "^1.55.0",
     "vite": "^3.1.6",
+    "vite-plugin-static-copy": "^0.13.1",
     "vue-tsc": "^1.0.9"
   }
 }
