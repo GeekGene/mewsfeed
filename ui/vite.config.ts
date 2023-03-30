@@ -37,7 +37,8 @@ export default defineConfig({
             tag.includes("agent-avatar") ||
             tag.includes("edit-profile") ||
             tag.includes("create-profile") ||
-            tag.includes("my-profile"),
+            tag.includes("my-profile") ||
+            tag.includes("holo-identicon"),
         },
       },
     }),

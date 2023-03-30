@@ -34,6 +34,10 @@
             <div>{{ profile?.fields[PROFILE_FIELDS.LOCATION] }}</div>
           </div>
         </q-card-section>
+
+        <div class="flex justify-end q-mx-md q-pb-sm">
+          <holo-identicon :hash="agentPubKey" size="20"></holo-identicon>
+        </div>
       </q-card>
 
       <h6 class="q-mb-md">Mews</h6>
