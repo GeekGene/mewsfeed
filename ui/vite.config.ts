@@ -23,6 +23,7 @@ export default defineConfig({
             "../node_modules/@shoelace-style/shoelace/dist/assets"
           ),
           dest: path.resolve(__dirname, "dist/shoelace"),
+          dereference: true,
         },
       ],
     }),
