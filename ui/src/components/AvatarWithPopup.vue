@@ -1,6 +1,7 @@
 <template>
   <agent-avatar
     :agentPubKey="agentPubKey"
+    disable-tooltip
     size="50"
     :class="[
       'self-start',

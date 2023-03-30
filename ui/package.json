@@ -12,7 +12,7 @@
     "lint": "eslint --fix --ext .ts ./ --ext .vue src"
   },
   "dependencies": {
-    "@holochain-open-dev/profiles": "^0.12.1",
+    "@holochain-open-dev/profiles": "^0.12.4",
     "@holochain/client": "^0.12.3",
     "@quasar/extras": "^1.15.4",
     "@shoelace-style/shoelace": "^2.3.0",

@@ -48,10 +48,10 @@
                   <q-item-section avatar>
                     <agent-avatar
                       :agentPubKey="item.opt.agentPubKey"
-                      :show-on-hover="false"
-                      :copy-on-click="false"
+                      disable-tooltip
+                      disable-copy
                       size="40"
-                    />
+                    ></agent-avatar>
                   </q-item-section>
                   <q-item-section class="text-body2">
                     {{ item.opt.label }}
@@ -103,9 +103,9 @@
           <q-route-tab v-if="myProfile" :to="{ name: ROUTES.myProfile }">
             <agent-avatar
               :agentPubKey="myAgentPubKey"
-              :show-on-hover="false"
-              :copy-on-click="false"
               size="40"
+              disable-tooltip
+              disable-copy
             />
             <q-tooltip :delay="TOOLTIP_DELAY">Your profile</q-tooltip>
           </q-route-tab>
@@ -136,7 +136,7 @@ import {
 import { showError } from "@/utils/notification";
 import { AgentPubKey, encodeHashToBase64 } from "@holochain/client";
 import { QSelectOption, useQuasar } from "quasar";
-import { ref } from "vue";
+import { ref, toRaw } from "vue";
 import { RouteLocationRaw, useRouter } from "vue-router";
 import { TAG_SYMBOLS } from "@/utils/tags";
 import { computed } from "vue";
@@ -248,7 +248,7 @@ const search = (
 };
 
 const onSearchResultSelect = (option: QSelectOption) => {
-  router.push(option.value);
+  router.push(toRaw(option.value));
   selection.value = null;
 };
 </script>

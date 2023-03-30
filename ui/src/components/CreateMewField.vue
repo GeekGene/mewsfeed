@@ -69,10 +69,10 @@
               <q-item-section avatar class="q-pr-sm col-shrink">
                 <agent-avatar
                   :agentPubKey="agentPubKey"
-                  :show-on-hover="false"
-                  :copy-on-click="false"
+                  disable-tooltip
+                  disable-copy
                   size="30"
-                />
+                ></agent-avatar>
               </q-item-section>
               <q-item-section>
                 {{ profile.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
