@@ -24,7 +24,7 @@
         </div>
         <div>@{{ nickname }}</div>
       </div>
-      <ButtonFollow v-if="!isMyProfile" :agent-pub-key="agentPubKey" />
+      <ButtonFollow v-if="!isMyProfile" :agentPubKey="agentPubKey" />
     </q-card-section>
     <q-card-section v-if="bio || location">
       <div v-if="bio" class="row justify-start">

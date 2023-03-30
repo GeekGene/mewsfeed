@@ -27,7 +27,7 @@
       v-show="isProfilePopupVisible"
       style="z-index: 20; position: absolute; left: -65px; width: 200px"
       class="text-black text-body1 shadow-3"
-      :agent-pub-key="decodeHashFromBase64(((props.contentPart[1] as RouteLocationNamedRaw).query as LocationQueryRaw)?.agentPubKey as LocationQueryValueRaw as string)"
+      :agentPubKey="decodeHashFromBase64(((props.contentPart[1] as RouteLocationNamedRaw).query as LocationQueryRaw)?.agentPubKey as LocationQueryValueRaw as string)"
     />
   </RouterLink>
   <RouterLink

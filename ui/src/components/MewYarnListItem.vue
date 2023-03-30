@@ -1,7 +1,7 @@
 <template>
   <q-item :inset-level="contentInsetLevel" class="items-start">
     <q-item-section avatar>
-      <avatar-with-popup :agent-pub-key="feedMew.action.author" />
+      <AvatarWithPopup :agentPubKey="feedMew.action.author" />
     </q-item-section>
 
     <q-item-section>

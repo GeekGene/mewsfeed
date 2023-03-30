@@ -19,7 +19,7 @@
       no-focus
     >
       <ProfilePopup
-        :agent-pub-key="agentPubKey"
+        :agentPubKey="agentPubKey"
         @mouseenter="keepShowingProfile"
         @mouseleave="hideProfile"
       />

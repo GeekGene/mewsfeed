@@ -11,9 +11,9 @@
 
       <div class="follow-col col self-start">
         <h6 class="q-mt-none q-mb-md">Following</h6>
-        <FolloweesList :agent-pub-key="myAgentPubKey" />
+        <FolloweesList :agentPubKey="myAgentPubKey" />
         <h6 class="q-mb-md">Followed by</h6>
-        <FollowersList :agent-pub-key="myAgentPubKey" />
+        <FollowersList :agentPubKey="myAgentPubKey" />
       </div>
     </div>
   </q-page>
