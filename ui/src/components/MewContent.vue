@@ -45,7 +45,7 @@ const contentParts = computed<ContentPart[]>(() =>
   parts.value.map((part) => {
     if (isTag(part)) {
       let agentPubKey: string | undefined = undefined;
-      if (part[0] === TAG_SYMBOLS.MENTION || part[0] === TAG_SYMBOLS.URL) {
+      if (part[0] === TAG_SYMBOLS.MENTION || part[0] === TAG_SYMBOLS.LINK) {
         const link = links.value?.pop();
         if (!link) {
           return part;

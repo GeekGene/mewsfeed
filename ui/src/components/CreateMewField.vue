@@ -27,14 +27,22 @@
         </div>
       </div>
 
-      <q-card class="link-text q-px-md q-py-sm" style="min-width: 13rem">
+      <q-card
+        class="link-target-input-container q-px-md q-py-sm"
+        style="min-width: 13rem"
+      >
         <q-input
-          v-model="linkText"
+          ref="linkTargetInput"
+          v-model="linkTarget"
           type="text"
-          placeholder="Link description (optional)"
+          placeholder="Paste a URL to create a link"
           dense
           borderless
-          @keyup="onLinkTextKeyDown"
+          :rules="[(val: string) => (val?.length === 0 || isRawUrl(val)) || 'Link target must be valid URL']"
+          @keydown.enter="createLinkTag"
+          @keydown.space="createLinkTag"
+          @keydown.tab="createLinkTag"
+          @blur="resetLinkTargetInput"
         />
       </q-card>
 
@@ -117,7 +125,7 @@ import { useClutterStore } from "@/stores";
 import { showError } from "@/utils/notification";
 import { useSearchProfiles, useMyProfile } from "@/utils/profile";
 import { Profile } from "@holochain-open-dev/profiles";
-import { isMentionTag, isRawUrl, TAG_SYMBOLS } from "@/utils/tags";
+import { isMentionTag, isRawUrl, isLinkTag, TAG_SYMBOLS } from "@/utils/tags";
 import { onMounted, PropType, ref, computed } from "vue";
 import {
   CreateMewInput,
@@ -132,6 +140,11 @@ import { AgentPubKey } from "@holochain/client";
 
 const ANCHOR_DATA_ID_AGENT_PUB_KEY = "agentPubKey";
 const ANCHOR_DATA_ID_URL = "url";
+const POPUP_MARGIN_TOP = 20;
+const MAX_MEW_LENGTH = 200;
+let currentAnchorOffset: number;
+let currentFocusOffset: number;
+let currentNode: Node;
 
 const emit = defineEmits<{ (e: "publish-mew"): void }>();
 
@@ -142,73 +155,173 @@ const props = defineProps({
 const store = useClutterStore();
 const { searchProfiles } = useSearchProfiles();
 const { runWhenMyProfileExists } = useMyProfile();
+
 const mewContainer = ref<HTMLDivElement | null>(null);
-
-onMounted(() => setTimeout(focusInputField, 0));
-
-const MAX_MEW_LENGTH = 200;
 const mewContentLength = ref(0);
-const isMewEmpty = computed(() => mewContentLength.value === 0);
-const isMewFull = computed(() => mewContentLength.value === MAX_MEW_LENGTH);
-const isMewOverfull = computed(() => mewContentLength.value > MAX_MEW_LENGTH);
 const saving = ref(false);
-
-const linkText = ref("");
-
+const linkTarget = ref();
+const linkTargetInput = ref();
 const currentAgentSearch = ref("");
-let currentAnchorOffset: number;
-let currentFocusOffset: number;
-let currentNode: Node;
-
-const POPUP_MARGIN_TOP = 20;
 const agentAutocompletions = ref<Array<[AgentPubKey, Profile]>>([]);
 const autocompleterLoading = ref(false);
 
-const focusInputField = () =>
-  document
-    .getSelection()
-    ?.setPosition(mewContainer.value?.querySelector(".mew-content") || null, 0);
+const isMewEmpty = computed(() => mewContentLength.value === 0);
+const isMewFull = computed(() => mewContentLength.value === MAX_MEW_LENGTH);
+const isMewOverfull = computed(() => mewContentLength.value > MAX_MEW_LENGTH);
 
-const hideElement = (selector: string) => {
-  const element = mewContainer.value?.querySelector(selector);
-  if (element && element instanceof HTMLElement) {
-    element.style.display = "none";
-  }
-};
+onMounted(() => setTimeout(focusInputField, 0));
 
-const stripAnchorFromLink = (selection: Selection) => {
-  if (!selection.anchorNode?.parentElement) {
-    return;
-  }
-  const parentElement = selection.anchorNode.parentElement;
-  const linkContent = parentElement.firstChild?.cloneNode();
-  if (linkContent) {
-    const offset = selection.anchorOffset;
-    parentElement.after(linkContent);
-    parentElement.remove();
-    selection.setPosition(linkContent, offset);
-  }
-};
-
-const getRawText = (): string => {
-  const text = (
-    mewContainer.value?.querySelector(
+const publishMew = () => {
+  runWhenMyProfileExists(async () => {
+    const mewInput = mewContainer.value?.querySelector(
       ".mew-content"
-    ) as null | ElementWithInnerText
-  )?.innerText;
+    ) as ElementWithInnerText;
+    if (!mewInput) {
+      return;
+    }
 
-  return text ? text : "";
+    // build link array
+    const links: LinkTarget[] = [];
+    for (let i = 0; i < mewInput.children.length; i++) {
+      const element = mewInput.children.item(i);
+      if (
+        element &&
+        element.tagName === "A" &&
+        element instanceof HTMLAnchorElement
+      ) {
+        if (element.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY]) {
+          const agentPubKeyString =
+            element.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY];
+          const agentPubKey = Uint8Array.from(
+            agentPubKeyString.split(",") as Iterable<number>
+          );
+          links.push({ [LinkTargetName.Mention]: agentPubKey });
+        } else if (element.dataset[ANCHOR_DATA_ID_URL]) {
+          const url = element.dataset[ANCHOR_DATA_ID_URL];
+          links.push({ [LinkTargetName.URL]: url });
+        }
+      }
+    }
+
+    const createMewInput: CreateMewInput = {
+      mewType: props.mewType,
+      text: getTrimmedText(),
+      links: links.length ? links : undefined,
+    };
+    try {
+      saving.value = true;
+      await store.createMew(createMewInput);
+    } catch (error) {
+      showError(error);
+    } finally {
+      saving.value = false;
+    }
+    emit("publish-mew");
+    mewInput.textContent = "";
+    mewContentLength.value = 0;
+    hideAutocompleter();
+    resetLinkTargetInput();
+    focusInputField();
+  });
 };
 
-const getTrimmedText = (): string => {
-  const text = getRawText();
-  return text ? text.trim() : "";
+/**
+ * Link Tag Handling
+ */
+const createLinkTag = (e: Event) => {
+  if (!isRawUrl(linkTarget.value)) return;
+  e.preventDefault();
+
+  // Extract label text
+  const range = new Range();
+  range.setStart(currentNode, currentAnchorOffset);
+  range.setEnd(currentNode, currentFocusOffset);
+  const label = range.extractContents().textContent;
+
+  // Create html link element
+  const anchor = document.createElement("a");
+  anchor.textContent = label;
+  anchor.href = "#";
+  anchor.dataset[ANCHOR_DATA_ID_URL] = linkTarget.value;
+  range.insertNode(anchor);
+
+  // insert space after html link
+  const spaceNode = document.createTextNode(String.fromCharCode(160));
+  anchor.after(spaceNode);
+
+  // reset input
+  resetLinkTargetInput();
+  document.getSelection()?.setPosition(spaceNode, 1);
 };
 
-const setMewContentLength = () => {
-  const text = getTrimmedText();
-  mewContentLength.value = text.length;
+/**
+ * Profile Tag Handling
+ */
+const loadAutocompleterUsers = async (nickname: string) => {
+  try {
+    autocompleterLoading.value = true;
+    agentAutocompletions.value = await searchProfiles(nickname);
+  } catch (error) {
+    showError(error);
+  } finally {
+    autocompleterLoading.value = false;
+  }
 };
+
+const onAutocompleteKeyDown = (keyDownEvent: KeyboardEvent) => {
+  if (keyDownEvent.key === "ArrowDown") {
+    keyDownEvent.preventDefault();
+    const currentListItem = keyDownEvent.currentTarget;
+    if (currentListItem instanceof HTMLElement) {
+      const nextSibling = currentListItem.nextSibling;
+      if (nextSibling instanceof HTMLElement) {
+        nextSibling.focus();
+      }
+    }
+  } else if (keyDownEvent.key === "ArrowUp") {
+    keyDownEvent.preventDefault();
+    const currentListItem = keyDownEvent.currentTarget;
+    if (currentListItem instanceof HTMLElement) {
+      const previousSibling = currentListItem.previousSibling;
+      if (previousSibling instanceof HTMLElement) {
+        previousSibling.focus();
+      } else {
+        const mewContent = mewContainer.value?.querySelector(".mew-content");
+        if (mewContent instanceof HTMLElement) {
+          mewContent.focus();
+        }
+      }
+    }
+  }
+};
+
+const onAutocompleteAgentSelect = (agent: AgentPubKey, profile: Profile) => {
+  const range = new Range();
+  range.setStart(currentNode, currentAnchorOffset);
+  range.setEnd(currentNode, currentFocusOffset);
+
+  // Insert mention link: '@' + agent username
+  const anchor = document.createElement("a");
+  anchor.href = "#";
+  anchor.textContent = TAG_SYMBOLS.MENTION + profile.nickname;
+  anchor.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY] = agent.toString();
+  range.deleteContents();
+  range.insertNode(anchor);
+
+  // insert space after mention
+  const spaceNode = document.createTextNode(String.fromCharCode(160));
+  anchor.after(spaceNode);
+
+  // reset autocomplete input
+  hideAutocompleter();
+  document.getSelection()?.setPosition(spaceNode, 1);
+
+  setMewContentLength();
+};
+
+/**
+ * Text Input Handling
+ */
 
 const onInput = (event: KeyboardEvent) => {
   setMewContentLength();
@@ -281,7 +394,7 @@ const onKeyUp = (keyUpEvent: KeyboardEvent) => {
   const selection = document.getSelection();
   if (keyUpEvent.key === " ") {
     hideAutocompleter();
-    hideLinkTextInput();
+    resetLinkTargetInput();
   } else if (
     (keyUpEvent.key === "Backspace" || keyUpEvent.key === "Delete") &&
     selection?.anchorNode?.parentElement?.tagName === "A"
@@ -295,7 +408,7 @@ const onKeyUp = (keyUpEvent: KeyboardEvent) => {
 
 const onMouseUp = () => {
   hideAutocompleter();
-  hideLinkTextInput();
+  resetLinkTargetInput();
 };
 
 const onPaste = (event: ClipboardEvent) => {
@@ -312,155 +425,6 @@ const onPaste = (event: ClipboardEvent) => {
 
     setMewContentLength();
   }
-};
-
-const loadAutocompleterUsers = async (nickname: string) => {
-  try {
-    autocompleterLoading.value = true;
-    agentAutocompletions.value = await searchProfiles(nickname);
-  } catch (error) {
-    showError(error);
-  } finally {
-    autocompleterLoading.value = false;
-  }
-};
-
-const onLinkTextKeyDown = (keyDownEvent: KeyboardEvent) => {
-  if (keyDownEvent.key === "Enter") {
-    const range = new Range();
-    range.setStart(currentNode, currentAnchorOffset);
-    range.setEnd(currentNode, currentFocusOffset);
-    const url = range.extractContents().textContent;
-
-    const anchor = document.createElement("a");
-    anchor.href = "#";
-
-    // Wrap link text in brackets if it has multiple words
-    const linkTextValue = linkText.value?.trim();
-    if (linkTextValue?.includes(" ")) {
-      anchor.textContent = `${TAG_SYMBOLS.URL}[${linkTextValue}]`;
-    } else if (linkText.value) {
-      anchor.textContent = TAG_SYMBOLS.URL + linkTextValue;
-    } else {
-      anchor.textContent = url;
-    }
-
-    anchor.dataset[ANCHOR_DATA_ID_URL] = url ?? undefined;
-    range.insertNode(anchor);
-    // insert space after link
-    const spaceNode = document.createTextNode(String.fromCharCode(160));
-    anchor.after(spaceNode);
-
-    hideLinkTextInput();
-    document.getSelection()?.setPosition(spaceNode, 1);
-    linkText.value = "";
-  }
-};
-
-const onAutocompleteKeyDown = (keyDownEvent: KeyboardEvent) => {
-  if (keyDownEvent.key === "ArrowDown") {
-    keyDownEvent.preventDefault();
-    const currentListItem = keyDownEvent.currentTarget;
-    if (currentListItem instanceof HTMLElement) {
-      const nextSibling = currentListItem.nextSibling;
-      if (nextSibling instanceof HTMLElement) {
-        nextSibling.focus();
-      }
-    }
-  } else if (keyDownEvent.key === "ArrowUp") {
-    keyDownEvent.preventDefault();
-    const currentListItem = keyDownEvent.currentTarget;
-    if (currentListItem instanceof HTMLElement) {
-      const previousSibling = currentListItem.previousSibling;
-      if (previousSibling instanceof HTMLElement) {
-        previousSibling.focus();
-      } else {
-        const mewContent = mewContainer.value?.querySelector(".mew-content");
-        if (mewContent instanceof HTMLElement) {
-          mewContent.focus();
-        }
-      }
-    }
-  }
-};
-
-const onAutocompleteAgentSelect = (agent: AgentPubKey, profile: Profile) => {
-  const range = new Range();
-  range.setStart(currentNode, currentAnchorOffset);
-  range.setEnd(currentNode, currentFocusOffset);
-
-  // Insert mention link: '@' + agent username
-  const anchor = document.createElement("a");
-  anchor.href = "#";
-  anchor.textContent = TAG_SYMBOLS.MENTION + profile.nickname;
-  anchor.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY] = agent.toString();
-  range.deleteContents();
-  range.insertNode(anchor);
-
-  // insert space after mention
-  const spaceNode = document.createTextNode(String.fromCharCode(160));
-  anchor.after(spaceNode);
-
-  // reset autocomplete input
-  hideAutocompleter();
-  document.getSelection()?.setPosition(spaceNode, 1);
-
-  setMewContentLength();
-};
-
-const publishMew = () => {
-  runWhenMyProfileExists(async () => {
-    const mewInput = mewContainer.value?.querySelector(
-      ".mew-content"
-    ) as ElementWithInnerText;
-    if (!mewInput) {
-      return;
-    }
-
-    // build link array
-    const links: LinkTarget[] = [];
-    for (let i = 0; i < mewInput.children.length; i++) {
-      const element = mewInput.children.item(i);
-      if (
-        element &&
-        element.tagName === "A" &&
-        element instanceof HTMLAnchorElement
-      ) {
-        if (element.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY]) {
-          const agentPubKeyString =
-            element.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY];
-          const agentPubKey = Uint8Array.from(
-            agentPubKeyString.split(",") as Iterable<number>
-          );
-          links.push({ [LinkTargetName.Mention]: agentPubKey });
-        } else if (element.dataset[ANCHOR_DATA_ID_URL]) {
-          const url = element.dataset[ANCHOR_DATA_ID_URL];
-          links.push({ [LinkTargetName.URL]: url });
-        }
-      }
-    }
-
-    const createMewInput: CreateMewInput = {
-      mewType: props.mewType,
-      text: getTrimmedText(),
-      links: links.length ? links : undefined,
-    };
-    try {
-      saving.value = true;
-      await store.createMew(createMewInput);
-    } catch (error) {
-      showError(error);
-    } finally {
-      saving.value = false;
-    }
-    emit("publish-mew");
-    mewInput.textContent = "";
-    linkText.value = "";
-    mewContentLength.value = 0;
-    hideAutocompleter();
-    hideLinkTextInput();
-    focusInputField();
-  });
 };
 
 const onCaretPositionChange = () => {
@@ -503,15 +467,62 @@ const onCaretPositionChange = () => {
         currentFocusOffset = endOfWordIndex;
       }
       // current word is a URL
-    } else if (isRawUrl(currentWord)) {
-      showElement(selection.anchorNode, startOfWordIndex, ".link-text");
+    } else if (isLinkTag(currentWord)) {
+      showElement(
+        selection.anchorNode,
+        startOfWordIndex,
+        ".link-target-input-container"
+      );
       currentAnchorOffset = startOfWordIndex;
       currentFocusOffset = endOfWordIndex;
     } else {
       hideAutocompleter();
-      hideLinkTextInput();
+      resetLinkTargetInput();
     }
   }
+};
+
+/**
+ * Helper Utils
+ */
+
+const focusInputField = () =>
+  document
+    .getSelection()
+    ?.setPosition(mewContainer.value?.querySelector(".mew-content") || null, 0);
+
+const stripAnchorFromLink = (selection: Selection) => {
+  if (!selection.anchorNode?.parentElement) {
+    return;
+  }
+  const parentElement = selection.anchorNode.parentElement;
+  const linkContent = parentElement.firstChild?.cloneNode();
+  if (linkContent) {
+    const offset = selection.anchorOffset;
+    parentElement.after(linkContent);
+    parentElement.remove();
+    selection.setPosition(linkContent, offset);
+  }
+};
+
+const getRawText = (): string => {
+  const text = (
+    mewContainer.value?.querySelector(
+      ".mew-content"
+    ) as null | ElementWithInnerText
+  )?.innerText;
+
+  return text ? text : "";
+};
+
+const getTrimmedText = (): string => {
+  const text = getRawText();
+  return text ? text.trim() : "";
+};
+
+const setMewContentLength = () => {
+  const text = getTrimmedText();
+  mewContentLength.value = text.length;
 };
 
 const showElement = (
@@ -540,8 +551,21 @@ const showElement = (
     element.style.display = "block";
   }
 };
+
+const hideElement = (selector: string) => {
+  const element = mewContainer.value?.querySelector(selector);
+  if (element && element instanceof HTMLElement) {
+    element.style.display = "none";
+  }
+};
+
+const resetLinkTargetInput = () => {
+  hideElement(".link-target-input-container");
+  linkTargetInput.value.resetValidation();
+  linkTarget.value = undefined;
+};
+
 const hideAutocompleter = hideElement.bind(null, ".autocompleter");
-const hideLinkTextInput = hideElement.bind(null, ".link-text");
 </script>
 
 <style lang="sass">
@@ -560,7 +584,7 @@ const hideLinkTextInput = hideElement.bind(null, ".link-text");
   top: 5px
   right: 5px
 
-.autocompleter, .link-text
+.autocompleter, .link-target-input-container
   position: absolute
   display: none
   z-index: 1
