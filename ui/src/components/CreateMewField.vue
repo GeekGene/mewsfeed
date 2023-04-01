@@ -38,7 +38,7 @@
           placeholder="Paste a URL to create a link"
           dense
           borderless
-          :rules="[(val: string) => (val?.length === 0 || isRawUrl(val)) || 'Link target must be valid URL']"
+          :rules="[(val: string) => isRawUrl(val) || 'Link target must be valid URL']"
           @keydown.enter="createLinkTag"
           @keydown.space="createLinkTag"
           @keydown.tab="createLinkTag"
