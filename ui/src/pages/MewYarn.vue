@@ -93,15 +93,8 @@ const onToggleLickMew = async (mewHash: ActionHash) => {
   }
 };
 
-const getMewHashFromRoute = () =>
-  decodeHashFromBase64(
-    typeof route.params.hash === "string"
-      ? route.params.hash
-      : route.params.hash[0]
-  );
-
 const loadMew = async () => {
-  const mewHash = getMewHashFromRoute();
+  const mewHash = decodeHashFromBase64(route.params.hash as string);
   try {
     isLoadingMew.value = true;
     mew.value = await getFeedMewAndContext(mewHash);

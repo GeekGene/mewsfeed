@@ -153,14 +153,6 @@ const agentProfile = ref<Profile>();
 const myAgentPubKey = profilesStore.value.client.client.myPubKey;
 const { runWhenMyProfileExists } = useMyProfile();
 
-const isMewMew = computed(
-  () => MewTypeName.MewMew in props.feedMew.mew.mewType
-);
-const isOriginal = computed(
-  () => MewTypeName.Original in props.feedMew.mew.mewType
-);
-const isReply = computed(() => MewTypeName.Reply in props.feedMew.mew.mewType);
-
 const originalMewHash =
   MewTypeName.MewMew in props.feedMew.mew.mewType
     ? props.feedMew.mew.mewType.mewMew
@@ -169,14 +161,22 @@ const originalMewHash =
     : MewTypeName.Quote in props.feedMew.mew.mewType
     ? props.feedMew.mew.mewType.quote
     : props.feedMew.mew.mewType.original;
+
 const originalMew = ref<FeedMew>();
 const originalMewAuthor = ref<Profile>();
 const loadingOriginalMewAuthor = ref<boolean>();
+const isUpdatingLick = ref(false);
+
+const isMewMew = computed(
+  () => MewTypeName.MewMew in props.feedMew.mew.mewType
+);
+const isOriginal = computed(
+  () => MewTypeName.Original in props.feedMew.mew.mewType
+);
+const isReply = computed(() => MewTypeName.Reply in props.feedMew.mew.mewType);
 const reactionLabel = computed(() =>
   isMewMew.value ? "mewmewed from" : isReply.value ? "replied to" : "quoted"
 );
-
-const isUpdatingLick = ref(false);
 const isLickedByMe = computed(() =>
   props.feedMew.licks.some((lick) => isSameHash(lick, myAgentPubKey))
 );
