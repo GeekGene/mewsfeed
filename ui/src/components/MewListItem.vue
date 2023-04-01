@@ -1,17 +1,12 @@
 <template>
-  <q-item class="items-start">
+  <q-item class="items-start cursor-pointer" @click.passive="onMewClick">
     <q-item-section avatar>
       <AvatarWithPopup :agentPubKey="feedMew.action.author" />
     </q-item-section>
 
     <q-item-section>
       <div class="row q-mb-sm">
-        <div
-          :class="{
-            'cursor-pointer': !isCurrentProfile(feedMew.action.author),
-          }"
-          @click="onAgentClick(feedMew.action.author)"
-        >
+        <div @click.stop.prevent="onAgentClick(feedMew.action.author)">
           <span class="q-mr-xs text-primary text-weight-bold">
             {{ agentProfile?.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
           </span>
@@ -55,11 +50,15 @@
       <mew-content
         :feed-mew="originalMew && isMewMew ? originalMew : feedMew"
         class="q-my-sm cursor-pointer"
-        @click="onMewClick"
       />
 
       <div>
-        <q-btn :disable="isUpdatingLick" size="sm" flat @click="toggleLickMew">
+        <q-btn
+          :disable="isUpdatingLick"
+          size="sm"
+          flat
+          @click.stop.prevent="toggleLickMew"
+        >
           <q-icon
             name="svguse:/icons.svg#lick"
             :color="isLickedByMe ? 'pink-4' : 'transparent'"
@@ -68,15 +67,15 @@
           {{ feedMew.licks.length }}
           <q-tooltip :delay="TOOLTIP_DELAY">Lick mew</q-tooltip>
         </q-btn>
-        <q-btn size="sm" icon="reply" flat @click="replyToMew">
+        <q-btn size="sm" icon="reply" flat @click.stop.prevent="replyToMew">
           {{ feedMew.replies.length }}
           <q-tooltip :delay="TOOLTIP_DELAY">Reply to mew</q-tooltip>
         </q-btn>
-        <q-btn size="sm" icon="forward" flat @click="mewMew">
+        <q-btn size="sm" icon="forward" flat @click.stop.prevent="mewMew">
           {{ feedMew.mewmews.length }}
           <q-tooltip :delay="TOOLTIP_DELAY">Mewmew mew</q-tooltip>
         </q-btn>
-        <q-btn size="sm" icon="format_quote" flat @click="quote">
+        <q-btn size="sm" icon="format_quote" flat @click.stop.prevent="quote">
           {{ feedMew.quotes.length }}
           <q-tooltip :delay="TOOLTIP_DELAY">Quote mew</q-tooltip>
         </q-btn>
@@ -129,7 +128,7 @@ const props = defineProps({
 const $q = useQuasar();
 
 const profilesStore = useProfilesStore();
-const { isCurrentProfile, onAgentClick } = useProfileUtils();
+const { onAgentClick } = useProfileUtils();
 const agentProfile = ref<Profile>();
 const myAgentPubKey = profilesStore.value.client.client.myPubKey;
 const { runWhenMyProfileExists } = useMyProfile();
