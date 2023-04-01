@@ -15,7 +15,6 @@ const regexpString = [
   `\\B\\${TAG_SYMBOLS.CASHTAG}\\w+`,
   `\\B\\${TAG_SYMBOLS.HASHTAG}\\w+`,
   MENTION_TAG_REGEX.source,
-  `\\B\\${TAG_SYMBOLS.LINK}\\[[\\S ]+\\]`, // multi-word labeled url
   LINK_TAG_REGEX.source, // single-word labeled url
 ];
 
