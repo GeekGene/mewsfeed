@@ -1,5 +1,8 @@
 <template>
-  <q-item class="items-start cursor-pointer" @click.passive="onMewClick">
+  <q-item
+    class="items-start cursor-pointer"
+    @click.passive="navigateToYarn(feedMew.actionHash)"
+  >
     <q-item-section avatar>
       <AvatarWithPopup :agentPubKey="feedMew.action.author" />
     </q-item-section>
@@ -52,32 +55,45 @@
         class="q-my-sm cursor-pointer"
       />
 
-      <div>
+      <div class="row justify-between">
+        <div>
+          <q-btn
+            :disable="isUpdatingLick"
+            size="sm"
+            flat
+            @click.stop.prevent="toggleLickMew"
+          >
+            <q-icon
+              name="svguse:/icons.svg#lick"
+              :color="isLickedByMe ? 'pink-4' : 'transparent'"
+              class="q-mr-xs"
+            />
+            {{ feedMew.licks.length }}
+            <q-tooltip :delay="TOOLTIP_DELAY">Lick mew</q-tooltip>
+          </q-btn>
+          <q-btn size="sm" icon="reply" flat @click.stop.prevent="replyToMew">
+            {{ feedMew.replies.length }}
+            <q-tooltip :delay="TOOLTIP_DELAY">Reply to mew</q-tooltip>
+          </q-btn>
+          <q-btn size="sm" icon="forward" flat @click.stop.prevent="mewMew">
+            {{ feedMew.mewmews.length }}
+            <q-tooltip :delay="TOOLTIP_DELAY">Mewmew mew</q-tooltip>
+          </q-btn>
+          <q-btn size="sm" icon="format_quote" flat @click.stop.prevent="quote">
+            {{ feedMew.quotes.length }}
+            <q-tooltip :delay="TOOLTIP_DELAY">Quote mew</q-tooltip>
+          </q-btn>
+        </div>
+
         <q-btn
-          :disable="isUpdatingLick"
-          size="sm"
+          v-if="showYarnLink && !isOriginal && originalMew"
           flat
-          @click.stop.prevent="toggleLickMew"
+          color="dark"
+          size="sm"
+          @click.stop="originalMew && navigateToYarn(originalMew.actionHash)"
         >
-          <q-icon
-            name="svguse:/icons.svg#lick"
-            :color="isLickedByMe ? 'pink-4' : 'transparent'"
-            class="q-mr-xs"
-          />
-          {{ feedMew.licks.length }}
-          <q-tooltip :delay="TOOLTIP_DELAY">Lick mew</q-tooltip>
-        </q-btn>
-        <q-btn size="sm" icon="reply" flat @click.stop.prevent="replyToMew">
-          {{ feedMew.replies.length }}
-          <q-tooltip :delay="TOOLTIP_DELAY">Reply to mew</q-tooltip>
-        </q-btn>
-        <q-btn size="sm" icon="forward" flat @click.stop.prevent="mewMew">
-          {{ feedMew.mewmews.length }}
-          <q-tooltip :delay="TOOLTIP_DELAY">Mewmew mew</q-tooltip>
-        </q-btn>
-        <q-btn size="sm" icon="format_quote" flat @click.stop.prevent="quote">
-          {{ feedMew.quotes.length }}
-          <q-tooltip :delay="TOOLTIP_DELAY">Quote mew</q-tooltip>
+          <q-icon name="svguse:/icons.svg#yarn" size="sm" color="dark" flat />
+          <q-tooltip :delay="TOOLTIP_DELAY">Original Yarn</q-tooltip>
         </q-btn>
       </div>
     </q-item-section>
@@ -122,6 +138,10 @@ const props = defineProps({
   onPublishMew: {
     type: Function as PropType<(mewType: MewType) => Promise<void>>,
     required: true,
+  },
+  showYarnLink: {
+    type: Boolean,
+    default: true,
   },
 });
 
@@ -180,10 +200,10 @@ const loadOriginalMew = async (actionHash: ActionHash) => {
   loadingOriginalMewAuthor.value = false;
 };
 
-const onMewClick = () => {
+const navigateToYarn = (actionHash: ActionHash) => {
   router.push({
     name: ROUTES.yarn,
-    params: { hash: encodeHashToBase64(props.feedMew.actionHash) },
+    params: { hash: encodeHashToBase64(actionHash) },
   });
 };
 

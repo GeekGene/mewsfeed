@@ -2,7 +2,7 @@
   <q-page :style-fn="pageHeightCorrection">
     <q-card flat>
       <q-card-section class="q-pb-none">
-        <q-btn flat @click="$router.go(-1)">
+        <q-btn flat @click="$router.back()">
           <q-icon
             name="arrow_right_alt"
             size="lg"
@@ -16,7 +16,7 @@
         <profiles-context :store="profilesStore">
           <q-list>
             <MewListItemSkeleton v-if="isLoadingMew" />
-            <MewYarnListItem
+            <MewListItem
               v-else
               :feed-mew="mew"
               :on-publish-mew="onPublishMew"
@@ -41,13 +41,13 @@
 
           <MewListSkeleton v-if="isLoadingReplies" />
           <q-list v-else-if="replies.length" bordered separator>
-            <MewYarnListItem
-              v-for="(reply, index) of replies"
-              :key="index"
+            <MewListItem
+              v-for="(reply, i) of replies"
+              :key="i"
               :feed-mew="reply"
               :on-publish-mew="onPublishMew"
               :on-toggle-lick-mew="onToggleLickMew"
-              :content-inset-level="1"
+              :show-yarn-link="false"
             />
           </q-list>
         </profiles-context>
@@ -60,7 +60,7 @@
 import CreateMewField from "@/components/CreateMewField.vue";
 import MewListItemSkeleton from "@/components/MewListItemSkeleton.vue";
 import MewListSkeleton from "@/components/MewListSkeleton.vue";
-import MewYarnListItem from "@/components/MewYarnListItem.vue";
+import MewListItem from "@/components/MewListItem.vue";
 import { ROUTES } from "@/router";
 import { getFeedMewAndContext } from "@/services/clutter-dna";
 import { useProfilesStore } from "@/services/profiles-store";
