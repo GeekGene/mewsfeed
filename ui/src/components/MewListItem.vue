@@ -167,19 +167,19 @@ onMounted(async () => {
     props.feedMew.action.author
   );
 
-  if (!originalMewHash) {
-    return;
-  }
-  getFeedMewAndContext(originalMewHash).then((mew) => {
-    originalMew.value = mew;
-    // load original mew author
-    loadingOriginalMewAuthor.value = true;
-    profilesStore.value.client
-      .getAgentProfile(mew.action.author)
-      .then((profile) => (originalMewAuthor.value = profile))
-      .finally(() => (loadingOriginalMewAuthor.value = false));
-  });
+  if (originalMewHash) loadOriginalMew(originalMewHash);
 });
+
+const loadOriginalMew = async (actionHash: ActionHash) => {
+  originalMew.value = await getFeedMewAndContext(actionHash);
+
+  // load original mew author
+  loadingOriginalMewAuthor.value = true;
+  originalMewAuthor.value = await profilesStore.value.client.getAgentProfile(
+    originalMew.value.action.author
+  );
+  loadingOriginalMewAuthor.value = false;
+};
 
 const onMewClick = () => {
   router.push({
