@@ -17,14 +17,14 @@
 
 <script setup lang="ts">
 import { PATH, ROUTES } from "@/router";
-import { FeedMew, LinkTargetName } from "@/types/types";
+import { FeedMew, LinkTargetName, MentionLinkTarget } from "@/types/types";
 import {
   isRawUrl,
   isTag,
   splitMewTextIntoParts,
   TAG_SYMBOLS,
 } from "@/utils/tags";
-import { encodeHashToBase64 } from "@holochain/client";
+import { AgentPubKey, encodeHashToBase64 } from "@holochain/client";
 import { computed, PropType } from "vue";
 import { RouteLocationRaw } from "vue-router";
 import MewContentPart from "./MewContentPart.vue";
@@ -43,26 +43,39 @@ const parts = computed(() => splitMewTextIntoParts(content.value));
 
 const contentParts = computed<ContentPart[]>(() =>
   parts.value.map((part) => {
-    if (isTag(part)) {
-      let agentPubKey: string | undefined = undefined;
-      if (part[0] === TAG_SYMBOLS.MENTION || part[0] === TAG_SYMBOLS.URL) {
-        const link = links.value?.pop();
-        if (!link) {
-          return part;
-        }
-        if (LinkTargetName.Mention in link) {
-          const mention = link[LinkTargetName.Mention];
-          agentPubKey = encodeHashToBase64(mention);
-        } else if (LinkTargetName.URL in link) {
-          const url = link[LinkTargetName.URL];
-          return [part, url];
-        }
-      }
+    if (isTag(part) && part[0] === TAG_SYMBOLS.MENTION) {
+      const link = links.value?.pop();
+      if (!link) return part;
+
+      const agentPubKey = (link as MentionLinkTarget)[
+        LinkTargetName.Mention
+      ] as AgentPubKey;
+      const agentPubKeyB64 = encodeHashToBase64(agentPubKey);
+      const to: RouteLocationRaw = {
+        name: ROUTES[PATH[part[0]]],
+        params: { tag: part.substring(1), agentPubKey: agentPubKeyB64 },
+      };
+
+      return [part, to];
+    } else if (isTag(part) && part[0] === TAG_SYMBOLS.URL) {
+      const link = links.value?.pop();
+      if (!link) return part;
+
       const to: RouteLocationRaw = {
         name: ROUTES[PATH[part[0]]],
         params: { tag: part.substring(1) },
-        query: { agentPubKey },
       };
+
+      return [part, to];
+    } else if (
+      isTag(part) &&
+      (part[0] === TAG_SYMBOLS.CASHTAG || part[0] === TAG_SYMBOLS.HASHTAG)
+    ) {
+      const to: RouteLocationRaw = {
+        name: ROUTES[PATH[part[0]]],
+        params: { tag: part.substring(1) },
+      };
+
       return [part, to];
     } else if (isRawUrl(part)) {
       return [part, part];

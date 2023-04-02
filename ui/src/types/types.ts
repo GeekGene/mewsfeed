@@ -19,13 +19,15 @@ export enum LinkTargetName {
   URL = "URL",
 }
 
-export type LinkTarget =
-  | {
-      [LinkTargetName.Mention]: AgentPubKey;
-    }
-  | {
-      [LinkTargetName.URL]: string;
-    };
+export interface MentionLinkTarget {
+  [LinkTargetName.Mention]: AgentPubKey;
+}
+
+export interface UrlLinkTarget {
+  [LinkTargetName.URL]: string;
+}
+
+export type LinkTarget = MentionLinkTarget | UrlLinkTarget;
 
 export type CreateMewInput = {
   mewType: MewType;
