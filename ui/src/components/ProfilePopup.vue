@@ -9,12 +9,12 @@
         :store="profilesStore"
         size="50"
         :class="['q-mr-lg', { 'cursor-pointer': !isCurrentProfile }]"
-        @click="onAgentClick(agentPubKey)"
+        @click.capture.prevent="onAgentClick(agentPubKey)"
       />
       <div
         :class="['q-mr-lg', { 'cursor-pointer': !isCurrentProfile }]"
         class="q-mt-sm"
-        @click="onAgentClick(agentPubKey)"
+        @click.capture.prevent="onAgentClick(agentPubKey)"
       >
         <div
           class="text-primary text-weight-medium"
