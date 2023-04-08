@@ -35,8 +35,8 @@
           </div>
         </q-card-section>
 
-        <div class="flex justify-end q-mx-md q-pb-sm">
-          <holo-identicon :hash="agentPubKey" size="20"></holo-identicon>
+        <div class="flex justify-end q-mx-sm">
+          <holo-identicon :hash="agentPubKey" size="30"></holo-identicon>
         </div>
       </q-card>
 
