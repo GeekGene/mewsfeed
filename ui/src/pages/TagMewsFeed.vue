@@ -26,7 +26,7 @@ import { showError, showMessage } from "@/utils/notification";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { TAG_SYMBOLS } from "@/utils/tags";
 import { ActionHash, decodeHashFromBase64 } from "@holochain/client";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import MewList from "../components/MewList.vue";
 
@@ -55,6 +55,9 @@ const loadMewsFeed = async () => {
 };
 
 onMounted(loadMewsFeed);
+watch(route, () => {
+  loadMewsFeed();
+});
 
 const onToggleLickMew = async (hash: ActionHash) => {
   try {
