@@ -8,7 +8,7 @@
     </q-item-section>
 
     <q-item-section>
-      <div class="row q-mb-sm">
+      <div class="row items-start justify-start q-mb-sm">
         <div @click.stop.prevent="onAgentClick(feedMew.action.author)">
           <span class="q-mr-xs text-primary text-weight-bold">
             {{ agentProfile?.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
@@ -22,7 +22,10 @@
             type="text"
             width="4rem"
           />
-          <template v-else-if="originalMew && originalMewAuthor">
+          <div
+            v-else-if="originalMew && originalMewAuthor"
+            class="row justify-start items-start"
+          >
             <span class="q-mr-xs text-secondary">
               {{ reactionLabel }}
             </span>
@@ -40,7 +43,27 @@
               </span>
               @{{ originalMewAuthor.nickname }}
             </router-link>
-          </template>
+            <q-btn
+              v-if="showYarnLink"
+              class="q-mx-sm"
+              padding="none"
+              margin="none"
+              flat
+              color="dark"
+              size="xs"
+              @click.stop="
+                originalMew && navigateToYarn(originalMew.actionHash)
+              "
+            >
+              <q-icon
+                name="svguse:/icons.svg#yarn"
+                size="xs"
+                color="dark"
+                flat
+              />
+              <q-tooltip :delay="TOOLTIP_DELAY">Original Yarn</q-tooltip>
+            </q-btn>
+          </div>
         </span>
 
         <q-space />
@@ -84,17 +107,6 @@
             <q-tooltip :delay="TOOLTIP_DELAY">Quote mew</q-tooltip>
           </q-btn>
         </div>
-
-        <q-btn
-          v-if="showYarnLink && !isOriginal && originalMew"
-          flat
-          color="dark"
-          size="sm"
-          @click.stop="originalMew && navigateToYarn(originalMew.actionHash)"
-        >
-          <q-icon name="svguse:/icons.svg#yarn" size="sm" color="dark" flat />
-          <q-tooltip :delay="TOOLTIP_DELAY">Original Yarn</q-tooltip>
-        </q-btn>
       </div>
     </q-item-section>
   </q-item>
