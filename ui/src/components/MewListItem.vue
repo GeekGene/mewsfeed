@@ -45,7 +45,7 @@
             </router-link>
             <q-btn
               v-if="showYarnLink"
-              class="q-mx-sm"
+              class="q-mx-sm q-px-sm"
               padding="none"
               margin="none"
               flat
@@ -58,7 +58,7 @@
               <q-icon
                 name="svguse:/icons.svg#yarn"
                 size="xs"
-                color="dark"
+                color="secondary"
                 flat
               />
               <q-tooltip :delay="TOOLTIP_DELAY">Original Yarn</q-tooltip>
