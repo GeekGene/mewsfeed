@@ -2,7 +2,11 @@
   <q-page class="row" :style-fn="pageHeightCorrection">
     <div class="col-8">
       <h6 class="q-mt-none q-mb-md">Profile</h6>
-      <q-spinner-pie v-if="loadingProfile" size="10%" color="primary" />
+      <q-spinner-pie
+        v-if="loadingProfile || !agentPubKey"
+        size="10%"
+        color="primary"
+      />
 
       <q-card v-else v-bind="$attrs" square class="q-mb-md text-body1">
         <q-card-section class="flex justify-between">

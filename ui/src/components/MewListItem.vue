@@ -1,17 +1,15 @@
 <template>
-  <q-item class="items-start">
+  <q-item
+    class="items-start cursor-pointer"
+    @click.passive="navigateToYarn(feedMew.actionHash)"
+  >
     <q-item-section avatar>
       <AvatarWithPopup :agentPubKey="feedMew.action.author" />
     </q-item-section>
 
     <q-item-section>
-      <div class="row q-mb-sm">
-        <div
-          :class="{
-            'cursor-pointer': !isCurrentProfile(feedMew.action.author),
-          }"
-          @click="onAgentClick(feedMew.action.author)"
-        >
+      <div class="row items-start justify-start q-mb-sm">
+        <div @click.stop.prevent="onAgentClick(feedMew.action.author)">
           <span class="q-mr-xs text-primary text-weight-bold">
             {{ agentProfile?.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
           </span>
@@ -24,7 +22,10 @@
             type="text"
             width="4rem"
           />
-          <template v-else-if="originalMew && originalMewAuthor">
+          <div
+            v-else-if="originalMew && originalMewAuthor"
+            class="row justify-start items-start"
+          >
             <span class="q-mr-xs text-secondary">
               {{ reactionLabel }}
             </span>
@@ -42,7 +43,27 @@
               </span>
               @{{ originalMewAuthor.nickname }}
             </router-link>
-          </template>
+            <q-btn
+              v-if="showYarnLink"
+              class="q-mx-sm q-px-sm"
+              padding="none"
+              margin="none"
+              flat
+              color="dark"
+              size="xs"
+              @click.stop="
+                originalMew && navigateToYarn(originalMew.actionHash)
+              "
+            >
+              <q-icon
+                name="svguse:/icons.svg#yarn"
+                size="xs"
+                color="secondary"
+                flat
+              />
+              <q-tooltip :delay="TOOLTIP_DELAY">Original Yarn</q-tooltip>
+            </q-btn>
+          </div>
         </span>
 
         <q-space />
@@ -55,31 +76,37 @@
       <mew-content
         :feed-mew="originalMew && isMewMew ? originalMew : feedMew"
         class="q-my-sm cursor-pointer"
-        @click="onMewClick"
       />
 
-      <div>
-        <q-btn :disable="isUpdatingLick" size="sm" flat @click="toggleLickMew">
-          <q-icon
-            name="svguse:/icons.svg#lick"
-            :color="isLickedByMe ? 'pink-4' : 'transparent'"
-            class="q-mr-xs"
-          />
-          {{ feedMew.licks.length }}
-          <q-tooltip :delay="TOOLTIP_DELAY">Lick mew</q-tooltip>
-        </q-btn>
-        <q-btn size="sm" icon="reply" flat @click="replyToMew">
-          {{ feedMew.replies.length }}
-          <q-tooltip :delay="TOOLTIP_DELAY">Reply to mew</q-tooltip>
-        </q-btn>
-        <q-btn size="sm" icon="forward" flat @click="mewMew">
-          {{ feedMew.mewmews.length }}
-          <q-tooltip :delay="TOOLTIP_DELAY">Mewmew mew</q-tooltip>
-        </q-btn>
-        <q-btn size="sm" icon="format_quote" flat @click="quote">
-          {{ feedMew.quotes.length }}
-          <q-tooltip :delay="TOOLTIP_DELAY">Quote mew</q-tooltip>
-        </q-btn>
+      <div class="row justify-between">
+        <div>
+          <q-btn
+            :disable="isUpdatingLick"
+            size="sm"
+            flat
+            @click.stop.prevent="toggleLickMew"
+          >
+            <q-icon
+              name="svguse:/icons.svg#lick"
+              :color="isLickedByMe ? 'pink-4' : 'transparent'"
+              class="q-mr-xs"
+            />
+            {{ feedMew.licks.length }}
+            <q-tooltip :delay="TOOLTIP_DELAY">Lick mew</q-tooltip>
+          </q-btn>
+          <q-btn size="sm" icon="reply" flat @click.stop.prevent="replyToMew">
+            {{ feedMew.replies.length }}
+            <q-tooltip :delay="TOOLTIP_DELAY">Reply to mew</q-tooltip>
+          </q-btn>
+          <q-btn size="sm" icon="forward" flat @click.stop.prevent="mewMew">
+            {{ feedMew.mewmews.length }}
+            <q-tooltip :delay="TOOLTIP_DELAY">Mewmew mew</q-tooltip>
+          </q-btn>
+          <q-btn size="sm" icon="format_quote" flat @click.stop.prevent="quote">
+            {{ feedMew.quotes.length }}
+            <q-tooltip :delay="TOOLTIP_DELAY">Quote mew</q-tooltip>
+          </q-btn>
+        </div>
       </div>
     </q-item-section>
   </q-item>
@@ -124,23 +151,19 @@ const props = defineProps({
     type: Function as PropType<(mewType: MewType) => Promise<void>>,
     required: true,
   },
+  showYarnLink: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const $q = useQuasar();
 
 const profilesStore = useProfilesStore();
-const { isCurrentProfile, onAgentClick } = useProfileUtils();
+const { onAgentClick } = useProfileUtils();
 const agentProfile = ref<Profile>();
 const myAgentPubKey = profilesStore.value.client.client.myPubKey;
 const { runWhenMyProfileExists } = useMyProfile();
-
-const isMewMew = computed(
-  () => MewTypeName.MewMew in props.feedMew.mew.mewType
-);
-const isOriginal = computed(
-  () => MewTypeName.Original in props.feedMew.mew.mewType
-);
-const isReply = computed(() => MewTypeName.Reply in props.feedMew.mew.mewType);
 
 const originalMewHash =
   MewTypeName.MewMew in props.feedMew.mew.mewType
@@ -150,14 +173,22 @@ const originalMewHash =
     : MewTypeName.Quote in props.feedMew.mew.mewType
     ? props.feedMew.mew.mewType.quote
     : props.feedMew.mew.mewType.original;
+
 const originalMew = ref<FeedMew>();
 const originalMewAuthor = ref<Profile>();
 const loadingOriginalMewAuthor = ref<boolean>();
+const isUpdatingLick = ref(false);
+
+const isMewMew = computed(
+  () => MewTypeName.MewMew in props.feedMew.mew.mewType
+);
+const isOriginal = computed(
+  () => MewTypeName.Original in props.feedMew.mew.mewType
+);
+const isReply = computed(() => MewTypeName.Reply in props.feedMew.mew.mewType);
 const reactionLabel = computed(() =>
   isMewMew.value ? "mewmewed from" : isReply.value ? "replied to" : "quoted"
 );
-
-const isUpdatingLick = ref(false);
 const isLickedByMe = computed(() =>
   props.feedMew.licks.some((lick) => isSameHash(lick, myAgentPubKey))
 );
@@ -167,24 +198,24 @@ onMounted(async () => {
     props.feedMew.action.author
   );
 
-  if (!originalMewHash) {
-    return;
-  }
-  getFeedMewAndContext(originalMewHash).then((mew) => {
-    originalMew.value = mew;
-    // load original mew author
-    loadingOriginalMewAuthor.value = true;
-    profilesStore.value.client
-      .getAgentProfile(mew.action.author)
-      .then((profile) => (originalMewAuthor.value = profile))
-      .finally(() => (loadingOriginalMewAuthor.value = false));
-  });
+  if (originalMewHash) loadOriginalMew(originalMewHash);
 });
 
-const onMewClick = () => {
+const loadOriginalMew = async (actionHash: ActionHash) => {
+  originalMew.value = await getFeedMewAndContext(actionHash);
+
+  // load original mew author
+  loadingOriginalMewAuthor.value = true;
+  originalMewAuthor.value = await profilesStore.value.client.getAgentProfile(
+    originalMew.value.action.author
+  );
+  loadingOriginalMewAuthor.value = false;
+};
+
+const navigateToYarn = (actionHash: ActionHash) => {
   router.push({
     name: ROUTES.yarn,
-    params: { hash: encodeHashToBase64(props.feedMew.actionHash) },
+    params: { hash: encodeHashToBase64(actionHash) },
   });
 };
 

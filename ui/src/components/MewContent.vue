@@ -43,7 +43,9 @@ const parts = computed(() => splitMewTextIntoParts(content.value));
 
 const contentParts = computed<ContentPart[]>(() =>
   parts.value.map((part) => {
-    if (isTag(part) && part[0] === TAG_SYMBOLS.MENTION) {
+    const partIsTag = isTag(part);
+
+    if (partIsTag && part[0] === TAG_SYMBOLS.MENTION) {
       const link = links.value?.pop();
       if (!link) return part;
 
@@ -57,7 +59,7 @@ const contentParts = computed<ContentPart[]>(() =>
       };
 
       return [part, to];
-    } else if (isTag(part) && part[0] === TAG_SYMBOLS.URL) {
+    } else if (partIsTag && part[0] === TAG_SYMBOLS.LINK) {
       const link = links.value?.pop();
       if (!link) return part;
 
@@ -68,7 +70,7 @@ const contentParts = computed<ContentPart[]>(() =>
 
       return [part, to];
     } else if (
-      isTag(part) &&
+      partIsTag &&
       (part[0] === TAG_SYMBOLS.CASHTAG || part[0] === TAG_SYMBOLS.HASHTAG)
     ) {
       const to: RouteLocationRaw = {
