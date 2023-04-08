@@ -2,6 +2,7 @@ import "@holochain-open-dev/profiles/elements/agent-avatar.js";
 import "@holochain-open-dev/profiles/elements/my-profile.js";
 import "@holochain-open-dev/profiles/elements/profiles-context.js";
 import "@holochain-open-dev/profiles/elements/create-profile.js";
+import "@holochain-open-dev/elements/elements/holo-identicon.js";
 
 import "@/css/main.sass";
 import { ProfilesStore, ProfilesClient } from "@holochain-open-dev/profiles";
