@@ -18,11 +18,7 @@
       :offset="[-10, 5]"
       no-focus
     >
-      <ProfilePopup
-        :agentPubKey="agentPubKey"
-        @mouseenter="keepShowingProfile"
-        @mouseleave="hideProfile"
-      />
+      <ProfilePopup :agentPubKey="agentPubKey" />
     </q-menu>
   </agent-avatar>
 </template>
@@ -63,6 +59,4 @@ const hideProfile = () => {
     PROFILE_SHOW_HIDE_DELAY
   );
 };
-
-const keepShowingProfile = () => window.clearTimeout(popupHideTimeout.value);
 </script>
