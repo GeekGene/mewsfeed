@@ -1,5 +1,5 @@
 <template>
-  <q-card v-bind="$attrs" class="text-body1 q-px-md q-py-sm">
+  <q-card v-bind="$attrs" class="text-body1">
     <q-card-section
       class="row justify-between items-center"
       style="white-space: nowrap"
@@ -36,6 +36,9 @@
         <div>{{ location }}</div>
       </div>
     </q-card-section>
+    <div class="flex justify-end q-mx-sm">
+      <holo-identicon :hash="agentPubKey" size="30"></holo-identicon>
+    </div>
   </q-card>
 </template>
 
