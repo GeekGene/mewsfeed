@@ -17,7 +17,10 @@
         :key="index"
         class="q-px-none"
       >
-        <AvatarWithPopup :agentPubKey="followee.agentPubKey" class="q-mr-md" />
+        <ProfileAvatarWithPopup
+          :agentPubKey="followee.agentPubKey"
+          class="q-mr-md"
+        />
         <q-item-section>
           <q-item-label>
             {{ followee.displayName }}
@@ -36,7 +39,7 @@ import { PROFILE_FIELDS } from "@/types/types";
 import { showError } from "@/utils/notification";
 import { AgentPubKey } from "@holochain/client";
 import { onMounted, ref, watch } from "vue";
-import AvatarWithPopup from "./AvatarWithPopup.vue";
+import ProfileAvatarWithPopup from "./ProfileAvatarWithPopup.vue";
 import EmptyMewsFeed from "./EmptyMewsFeed.vue";
 import ProfileSkeleton from "./ProfileSkeleton.vue";
 

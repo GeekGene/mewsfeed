@@ -64,7 +64,7 @@ const routes: RouteRecordRaw[] = [
     meta: { tag: TAG_SYMBOLS.HASHTAG },
   },
   {
-    path: `/${PATH[TAG_SYMBOLS.MENTION]}/:tag`,
+    path: `/${PATH[TAG_SYMBOLS.MENTION]}/:tag/:agentPubKey`,
     name: ROUTES[PATH[TAG_SYMBOLS.MENTION]],
     component: TagMewsFeed,
     meta: { tag: TAG_SYMBOLS.MENTION },
