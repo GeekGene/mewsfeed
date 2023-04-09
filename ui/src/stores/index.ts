@@ -1,10 +1,10 @@
-import { makeUseClutterStore } from "@/stores/clutter";
+import { makeUseMewsfeedStore } from "@/stores/mewsfeed";
 import { StoreDefinition } from "pinia";
 import makeUseClientStore from "uicommon/stores/useClientStore";
 import makeUseHolochainStore from "uicommon/stores/useHolochainStore";
 import makeUseHoloStore from "uicommon/stores/useHoloStore";
 
-export const NATIVE_INSTALLED_APP_ID = "clutter";
+export const NATIVE_INSTALLED_APP_ID = "mewsfeed";
 export const NATIVE_HC_URI = `ws://localhost:${import.meta.env.VITE_HC_PORT}`;
 export const IS_HOLO_HOSTED = Boolean(import.meta.env.VITE_IS_HOLO_HOSTED);
 
@@ -33,7 +33,7 @@ export const useHoloStore: HoloStore = makeUseHoloStore({
     chaperoneUrl: CHAPERONE_URL,
     authFormCustomization: {
       publisherName: "Holo Ltd.",
-      appName: "Clutter",
+      appName: "MewsFeed",
       skipRegistration: false,
       anonymousAllowed: true,
     },
@@ -61,9 +61,9 @@ export const useClientStore: ClientStore = makeUseClientStore({
   useInterfaceStore: IS_HOLO_HOSTED ? useHoloStore : useHolochainStore,
   // onInit: () => {
   //   useSignalStore().addCallback((signal: AppSignal) =>
-  //     useClutterStore().handleSignal(signal)
+  //     useMewsfeedStore().handleSignal(signal)
   //   );
   // },
 });
 
-export const useClutterStore = makeUseClutterStore();
+export const useMewsfeedStore = makeUseMewsfeedStore();

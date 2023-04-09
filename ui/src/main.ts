@@ -31,7 +31,7 @@ import {
   NATIVE_INSTALLED_APP_ID,
   useClientStore,
 } from "./stores";
-import { CLUTTER_ROLE_NAME } from "./stores/clutter";
+import { MEWSFEED_ROLE_NAME } from "./stores/mewsfeed";
 import { SigningCredentialsJson, PROFILE_FIELDS } from "./types/types";
 
 // Shoelace
@@ -85,15 +85,15 @@ const initProfileStore = async (client: any) => {
     NATIVE_HC_URI,
     NATIVE_INSTALLED_APP_ID
   );
-  if (!(CellType.Provisioned in appInfo.cell_info[CLUTTER_ROLE_NAME][0])) {
-    throw new Error('Could not find cell "clutter"');
+  if (!(CellType.Provisioned in appInfo.cell_info[MEWSFEED_ROLE_NAME][0])) {
+    throw new Error('Could not find cell "mewsfeed"');
   }
 
   // set up zome call signing when run outside of launcher
   const __HC_LAUNCHER_ENV__ = "__HC_LAUNCHER_ENV__";
   if (typeof window === "object" && !(__HC_LAUNCHER_ENV__ in window)) {
     const { cell_id } =
-      appInfo.cell_info[CLUTTER_ROLE_NAME][0][CellType.Provisioned];
+      appInfo.cell_info[MEWSFEED_ROLE_NAME][0][CellType.Provisioned];
 
     const cellIdB64 =
       encodeHashToBase64(cell_id[0]) + encodeHashToBase64(cell_id[1]);
@@ -140,7 +140,7 @@ const initProfileStore = async (client: any) => {
   }
 
   profilesStore.value = new ProfilesStore(
-    new ProfilesClient(holochainClient, CLUTTER_ROLE_NAME),
+    new ProfilesClient(holochainClient, MEWSFEED_ROLE_NAME),
     {
       avatarMode: "avatar-optional",
       additionalFields: [

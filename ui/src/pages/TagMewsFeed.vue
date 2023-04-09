@@ -17,7 +17,7 @@ import {
   getMewsWithCashtag,
   getMewsWithHashtag,
   getMewsWithMention,
-} from "@/services/clutter-dna";
+} from "@/services/mewsfeed-dna";
 import { FeedMew, MewType, MewTypeName } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
 import { showError, showMessage } from "@/utils/notification";

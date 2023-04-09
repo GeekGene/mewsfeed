@@ -1,6 +1,6 @@
 ---
 manifest_version: "1"
-name: clutter
+name: mewsfeed
 integrity:
   uuid: 00000000-0000-0000-0000-000000000000
   origin_time: 2022-10-05T00:00:00.000000Z

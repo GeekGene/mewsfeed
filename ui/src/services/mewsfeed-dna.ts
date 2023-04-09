@@ -1,5 +1,5 @@
 import { useClientStore } from "@/stores";
-import { CLUTTER_ROLE_NAME, MEWS_ZOME_NAME } from "@/stores/clutter";
+import { MEWSFEED_ROLE_NAME, MEWS_ZOME_NAME } from "@/stores/mewsfeed";
 import {
   ActionHash,
   AgentPubKey,
@@ -36,7 +36,7 @@ export const callZome = async <T>(
   payload: CallZomeRequest["payload"]
 ) => {
   const result: { type: "ok"; data: T } = await useClientStore().callZome({
-    roleName: CLUTTER_ROLE_NAME,
+    roleName: MEWSFEED_ROLE_NAME,
     zomeName: MEWS_ZOME_NAME,
     fnName,
     payload,

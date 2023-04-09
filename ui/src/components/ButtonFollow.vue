@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { follow, myFollowing, unfollow } from "@/services/clutter-dna";
+import { follow, myFollowing, unfollow } from "@/services/mewsfeed-dna";
 import { useProfilesStore } from "@/services/profiles-store";
 import { PROFILE_FIELDS } from "@/types/types";
 import { isSameHash } from "@/utils/hash";

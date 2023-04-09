@@ -1,6 +1,6 @@
 {
-  "name": "clutter-ui-vue",
-  "description": "A UI for Clutter based on Vue",
+  "name": "mewsfeed-ui-vue",
+  "description": "A UI for MewsFeed based on Vue",
   "author": "Jost Schulte",
   "version": "0.9.0-alpha",
   "type": "module",

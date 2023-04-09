@@ -121,7 +121,7 @@
 </template>
 
 <script setup lang="ts">
-import { useClutterStore } from "@/stores";
+import { useMewsfeedStore } from "@/stores";
 import { showError } from "@/utils/notification";
 import { useSearchProfiles, useMyProfile } from "@/utils/profile";
 import { Profile } from "@holochain-open-dev/profiles";
@@ -152,7 +152,7 @@ const props = defineProps({
   mewType: { type: Object as PropType<MewType>, required: true },
 });
 
-const store = useClutterStore();
+const store = useMewsfeedStore();
 const { searchProfiles } = useSearchProfiles();
 const { runWhenMyProfileExists } = useMyProfile();
 

@@ -1,4 +1,4 @@
-# Clutter Specs
+# Mewsfeed Specs
 
 [![hackmd-github-sync-badge](https://hackmd.io/DSAyoLf1TbWpDwTZNcTrOg/badge)](https://hackmd.io/DSAyoLf1TbWpDwTZNcTrOg)
 
@@ -65,7 +65,7 @@
 
 ### Later Passes / Future Features
 - [x] Preview Profile
-- [ ] **sPin a Yarn** (feature unique to clutter)
+- [ ] **sPin a Yarn** (feature unique to mewsfeed)
   - [ ] Limit N pinned yarns (2?)
   - [-] Threaded / Git/branching view for yarn (partly done)
 - [ ] $cashtag transaction accounting
@@ -101,7 +101,7 @@
 
 ### Component DNAs
 
-#### Clutter App
+#### MewsFeed App
 
 ###### Entry Defs
 
@@ -159,7 +159,7 @@ struct FeedMew {
 MewsFeed: Vec[FeedMews]
 ```
 
-### Structuring Links in Clutter
+### Structuring Links in MewsFeed
 
 Use PATHS for a bunch of stuff to find things in standard places. For example:
 ```

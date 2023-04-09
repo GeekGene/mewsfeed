@@ -125,8 +125,8 @@
 import CreateMewDialog from "@/components/CreateMewDialog.vue";
 import { PATH, ROUTES } from "@/router";
 import { useProfilesStore } from "@/services/profiles-store";
-import { searchCashtags, searchHashtags } from "@/services/clutter-dna";
-import { useClutterStore } from "@/stores";
+import { searchCashtags, searchHashtags } from "@/services/mewsfeed-dna";
+import { useMewsfeedStore } from "@/stores";
 import {
   MewTypeName,
   PROFILE_FIELDS,
@@ -148,7 +148,7 @@ type SearchResultOption = QSelectOption<RouteLocationRaw> & {
 };
 
 const $q = useQuasar();
-const store = useClutterStore();
+const store = useMewsfeedStore();
 const profilesStore = useProfilesStore();
 const router = useRouter();
 const { myProfile, runWhenMyProfileExists } = useMyProfile();

@@ -1,1 +1,1 @@
-export * from "./clutter/mews.js";
+export * from "./mewsfeed/mews.js";

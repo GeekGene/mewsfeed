@@ -62,7 +62,7 @@ import MewListItemSkeleton from "@/components/MewListItemSkeleton.vue";
 import MewListSkeleton from "@/components/MewListSkeleton.vue";
 import MewListItem from "@/components/MewListItem.vue";
 import { ROUTES } from "@/router";
-import { getFeedMewAndContext } from "@/services/clutter-dna";
+import { getFeedMewAndContext } from "@/services/mewsfeed-dna";
 import { useProfilesStore } from "@/services/profiles-store";
 import { FeedMew, MewTypeName } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
