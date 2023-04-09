@@ -7,9 +7,9 @@ import {
   LinkTargetName,
   MewTypeName,
 } from "../../../ui/src/types/types.js";
-import { mewsfeedHapp } from "../utils.js";
+import { mewsfeedHapp, mewsfeedHappNoLengthLimits } from "../utils.js";
 
-test("Mew must not be longer than 200 chars", async (t) => {
+test("Mew must not be longer than DNA property mew_characters_max chars", async (t) => {
   await runScenario(
     async (scenario) => {
       const alice = await scenario.addPlayerWithApp(mewsfeedHapp);
@@ -35,10 +35,93 @@ test("Mew must not be longer than 200 chars", async (t) => {
       createMewInput.text = new Array(201).fill("a").join("");
       try {
         await aliceCallMewsZome("create_mew", createMewInput, 60000);
-        t.fail("mew content longer than 200 chars is valid");
+        t.fail("mew content longer than mew_characters_max is valid");
       } catch (error) {
-        t.ok("mew content longer than 200 chars is invalid");
+        t.pass("mew content longer than mew_characters_max is invalid");
       }
+    },
+    true,
+    { timeout: 60000 }
+  );
+});
+
+test("Mew must not be shorter than DNA property mew_characters_min chars", async (t) => {
+  await runScenario(
+    async (scenario) => {
+      const alice = await scenario.addPlayerWithApp(mewsfeedHapp);
+      const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
+
+      const createMewInput: CreateMewInput = {
+        mewType: {
+          original: null,
+        },
+        text: new Array(10).fill("a").join(""),
+      };
+      const mewHash: ActionHash = await aliceCallMewsZome(
+        "create_mew",
+        createMewInput,
+        60000
+      );
+      t.deepEqual(
+        mewHash.slice(0, 3),
+        Buffer.from([132, 41, 36]),
+        "alice created a mew of valid length"
+      );
+
+      createMewInput.text = new Array(2).fill("a").join("");
+      try {
+        await aliceCallMewsZome("create_mew", createMewInput, 60000);
+        t.fail("mew content shorter than mew_characters_min is valid");
+      } catch (error) {
+        t.pass("mew content shorter than mew_characters_min is invalid");
+      }
+    },
+    true,
+    { timeout: 60000 }
+  );
+});
+
+test("Mew can be any length if DNA property mew_charactres_min and mew_characters_max not set", async (t) => {
+  await runScenario(
+    async (scenario) => {
+      const alice = await scenario.addPlayerWithApp(mewsfeedHappNoLengthLimits);
+      const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
+
+      // 0 charactres
+      const createMewInput2: CreateMewInput = {
+        mewType: {
+          original: null,
+        },
+        text: "",
+      };
+      const mewHash2: ActionHash = await aliceCallMewsZome(
+        "create_mew",
+        createMewInput2,
+        60000
+      );
+      t.deepEqual(
+        mewHash2.slice(0, 3),
+        Buffer.from([132, 41, 36]),
+        "alice created a mew of valid length 0"
+      );
+
+      // 1000 charactres
+      const createMewInput3: CreateMewInput = {
+        mewType: {
+          original: null,
+        },
+        text: new Array(1000).fill("a").join(""),
+      };
+      const mewHash3: ActionHash = await aliceCallMewsZome(
+        "create_mew",
+        createMewInput3,
+        60000
+      );
+      t.deepEqual(
+        mewHash3.slice(0, 3),
+        Buffer.from([132, 41, 36]),
+        "alice created a mew of valid length 1000"
+      );
     },
     true,
     { timeout: 60000 }
