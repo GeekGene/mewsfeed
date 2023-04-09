@@ -4,7 +4,7 @@
     @click.passive="navigateToYarn(feedMew.actionHash)"
   >
     <q-item-section avatar>
-      <AvatarWithPopup :agentPubKey="feedMew.action.author" />
+      <ProfileAvatarWithPopup :agentPubKey="feedMew.action.author" />
     </q-item-section>
 
     <q-item-section>
@@ -135,7 +135,7 @@ import { Profile } from "@holochain-open-dev/profiles";
 import { ActionHash, encodeHashToBase64 } from "@holochain/client";
 import { QItem, useQuasar } from "quasar";
 import { computed, onMounted, PropType, ref } from "vue";
-import AvatarWithPopup from "./AvatarWithPopup.vue";
+import ProfileAvatarWithPopup from "./ProfileAvatarWithPopup.vue";
 import CreateMewDialog from "./CreateMewDialog.vue";
 import MewContent from "./MewContent.vue";
 import Timestamp from "./MewTimestamp.vue";

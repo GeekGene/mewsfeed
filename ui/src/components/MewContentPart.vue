@@ -13,23 +13,12 @@
     >
   </a>
 
-  <RouterLink
+  <ProfileNameWithPopup
     v-else-if="(props.contentPart[1] as RouteLocationNamedRaw).name === 'handle'"
     :to="props.contentPart[1]"
-    class="text-secondary text-bold"
-    style="position: relative; display: inline-block; overflow: visible"
-    @click.stop
-    @mouseenter="showProfilePopup"
-    @mouseleave="hideProfilePopup"
-  >
-    {{ props.contentPart[0] }}
-    <ProfilePopup
-      v-show="isProfilePopupVisible"
-      style="z-index: 20; position: absolute; left: -65px; width: 200px"
-      class="text-black text-body1 shadow-3"
-      :agentPubKey="decodeHashFromBase64(((props.contentPart[1] as RouteLocationNamedRaw).params as RouteParams)?.agentPubKey as LocationQueryValueRaw as string)"
-    />
-  </RouterLink>
+    :nickname="props.contentPart[0]"
+    :agentPubKey="decodeHashFromBase64(((props.contentPart[1] as RouteLocationNamedRaw).params as RouteParams)?.agentPubKey as LocationQueryValueRaw as string)"
+  />
   <RouterLink
     v-else
     :to="props.contentPart[1]"
@@ -42,33 +31,20 @@
 <script setup lang="ts">
 import { TOOLTIP_DELAY } from "@/types/types";
 import { decodeHashFromBase64 } from "@holochain/client";
-import { PropType, ref } from "vue";
+import { PropType } from "vue";
 import {
   LocationQueryValueRaw,
   RouteLocationNamedRaw,
   RouteLocationRaw,
   RouteParams,
 } from "vue-router";
-import ProfilePopup from "./ProfilePopup.vue";
+import ProfileNameWithPopup from "./ProfileNameWithPopup.vue";
 
 type ContentPart = string | [string, RouteLocationRaw] | [string, string];
 
 const props = defineProps({
   contentPart: { type: Object as PropType<ContentPart>, required: true },
 });
-
-const isProfilePopupVisible = ref(false);
-
-const showProfilePopup = () => {
-  setTimeout(() => {
-    if (!isProfilePopupVisible.value) {
-      isProfilePopupVisible.value = true;
-    }
-  }, TOOLTIP_DELAY);
-};
-const hideProfilePopup = () => {
-  isProfilePopupVisible.value = false;
-};
 </script>
 
 <style lang="sass">
