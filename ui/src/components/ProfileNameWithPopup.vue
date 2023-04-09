@@ -1,7 +1,7 @@
 <template>
   <RouterLink
     :to="to"
-    class="text-secondary text-bold"
+    class="text-secondary text-weight-bold"
     style="position: relative; display: inline-block; overflow: visible"
     @click.stop
     @mouseenter="showProfile"

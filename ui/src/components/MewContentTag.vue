@@ -1,0 +1,55 @@
+<template>
+  <a
+    v-if="contentPart.href && contentPart.tagType === MewTagType.RawUrl"
+    :href="contentPart.href"
+    target="_blank"
+    @click.stop
+  >
+    {{ contentPart.text }}
+  </a>
+  <a
+    v-else-if="contentPart.href && contentPart.tagType === MewTagType.Link"
+    :href="contentPart.href"
+    target="_blank"
+    @click.stop
+  >
+    {{ contentPart.text }}
+    <q-tooltip :delay="TOOLTIP_DELAY">{{ contentPart.route }}</q-tooltip>
+  </a>
+
+  <ProfileNameWithPopup
+    v-else-if="contentPart.route && contentPart.tagType === MewTagType.Mention"
+    :to="contentPart.route"
+    :nickname="contentPart.text"
+    :agentPubKey="decodeHashFromBase64((contentPart.route as RouteLocationNamedRaw).params?.agentPubKey as LocationQueryValueRaw as string)"
+  />
+  <RouterLink
+    v-else-if="
+      contentPart.route &&
+      (contentPart.tagType === MewTagType.Cashtag ||
+        contentPart.tagType === MewTagType.Hashtag)
+    "
+    :to="contentPart.route"
+    class="text-secondary text-bold"
+    @click.stop
+  >
+    {{ contentPart.text }}
+  </RouterLink>
+</template>
+<script setup lang="ts">
+import { TOOLTIP_DELAY, MewContentPart, MewTagType } from "@/types/types";
+import { decodeHashFromBase64 } from "@holochain/client";
+import { PropType } from "vue";
+import { LocationQueryValueRaw, RouteLocationNamedRaw } from "vue-router";
+import ProfileNameWithPopup from "./ProfileNameWithPopup.vue";
+
+defineProps({
+  contentPart: { type: Object as PropType<MewContentPart>, required: true },
+});
+</script>
+
+<style lang="sass">
+a
+    color: $secondary
+    font-weight: 600
+</style>
