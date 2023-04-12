@@ -4,17 +4,23 @@
     @click.passive="navigateToYarn(feedMew.actionHash)"
   >
     <q-item-section avatar>
-      <AvatarWithPopup :agentPubKey="feedMew.action.author" />
+      <ProfileAvatarWithPopup :agentPubKey="feedMew.action.author" />
     </q-item-section>
 
     <q-item-section>
       <div class="row items-start justify-start q-mb-sm">
-        <div @click.stop.prevent="onAgentClick(feedMew.action.author)">
+        <RouterLink
+          :to="{
+            name: ROUTES.profiles,
+            params: { agent: encodeHashToBase64(feedMew.action.author) },
+          }"
+          @click.stop.prevent
+        >
           <span class="q-mr-xs text-primary text-weight-bold">
             {{ agentProfile?.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
           </span>
           <span>@{{ agentProfile?.nickname }}</span>
-        </div>
+        </RouterLink>
 
         <span v-if="!isOriginal" class="q-ml-md">
           <q-skeleton
@@ -130,12 +136,11 @@ import {
   TOOLTIP_DELAY,
 } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
-import { useProfileUtils } from "@/utils/profile";
 import { Profile } from "@holochain-open-dev/profiles";
 import { ActionHash, encodeHashToBase64 } from "@holochain/client";
 import { QItem, useQuasar } from "quasar";
 import { computed, onMounted, PropType, ref } from "vue";
-import AvatarWithPopup from "./AvatarWithPopup.vue";
+import ProfileAvatarWithPopup from "./ProfileAvatarWithPopup.vue";
 import CreateMewDialog from "./CreateMewDialog.vue";
 import MewContent from "./MewContent.vue";
 import Timestamp from "./MewTimestamp.vue";
@@ -160,7 +165,6 @@ const props = defineProps({
 const $q = useQuasar();
 
 const profilesStore = useProfilesStore();
-const { onAgentClick } = useProfileUtils();
 const agentProfile = ref<Profile>();
 const myAgentPubKey = profilesStore.value.client.client.myPubKey;
 const { runWhenMyProfileExists } = useMyProfile();

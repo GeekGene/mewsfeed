@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig, PluginOption } from "vite";
 import { quasar, transformAssetUrls } from "@quasar/vite-plugin";
 import path from "node:path";
 import vue from "@vitejs/plugin-vue";
@@ -26,7 +26,7 @@ export default defineConfig({
           dereference: true,
         },
       ],
-    }),
+    }) as PluginOption,
 
     vue({
       template: {
@@ -45,6 +45,6 @@ export default defineConfig({
 
     quasar({
       sassVariables: "src/css/quasar.variables.sass",
-    }),
+    }) as PluginOption,
   ],
 });

@@ -1,30 +1,8 @@
-import { ROUTES } from "@/router";
-import { AgentPubKey, encodeHashToBase64 } from "@holochain/client";
-import { useRoute, useRouter } from "vue-router";
 import { onUnmounted, ref } from "vue";
 import { useProfilesStore } from "@/services/profiles-store";
 import { Profile } from "@holochain-open-dev/profiles";
 import { useQuasar } from "quasar";
 import CreateProfileDialog from "@/components/CreateProfileDialog.vue";
-
-export const useProfileUtils = () => {
-  const route = useRoute();
-  const router = useRouter();
-
-  const isCurrentProfile = (agentPubKey: AgentPubKey) =>
-    route.params.agent === encodeHashToBase64(agentPubKey);
-
-  const onAgentClick = (agentPubKey: AgentPubKey) => {
-    if (!isCurrentProfile(agentPubKey)) {
-      router.push({
-        name: ROUTES.profiles,
-        params: { agent: encodeHashToBase64(agentPubKey) },
-      });
-    }
-  };
-
-  return { isCurrentProfile, onAgentClick };
-};
 
 export const useMyProfile = () => {
   const profilesStore = useProfilesStore();

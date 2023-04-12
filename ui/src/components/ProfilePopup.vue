@@ -1,45 +1,61 @@
 <template>
-  <q-card v-bind="$attrs" class="text-body1">
-    <q-card-section
-      class="row justify-between items-center"
-      style="white-space: nowrap"
-    >
-      <agent-avatar
-        :agentPubKey="agentPubKey"
-        :store="profilesStore"
-        size="50"
-        :class="['q-mr-lg', { 'cursor-pointer': !isCurrentProfile }]"
-        @click="onAgentClick(agentPubKey)"
-      />
-      <div
-        :class="['q-mr-lg', { 'cursor-pointer': !isCurrentProfile }]"
-        class="q-mt-sm"
-        @click="onAgentClick(agentPubKey)"
+  <RouterLink
+    :to="{
+      name: ROUTES.profiles,
+      params: { agent: encodeHashToBase64(agentPubKey) },
+    }"
+    style="z-index: 200; width: 350px; position: absolute"
+    @click.stop
+  >
+    <q-card v-bind="$attrs" class="text-body1 bg-white">
+      <q-card-section
+        class="row justify-between items-center"
+        style="white-space: nowrap"
       >
-        <div
-          class="text-primary text-weight-medium"
-          style="white-space: break-word"
-        >
-          {{ displayName }}
+        <div class="row">
+          <agent-avatar
+            :agentPubKey="agentPubKey"
+            :store="profilesStore"
+            size="50"
+            :class="['q-mr-lg', { 'cursor-pointer': !isCurrentProfile }]"
+          />
+          <div
+            :class="['q-mr-lg', { 'cursor-pointer': !isCurrentProfile }]"
+            class="q-mt-sm"
+          >
+            <div
+              class="text-primary text-weight-medium"
+              style="white-space: break-word"
+            >
+              {{ displayName }}
+            </div>
+            <div>@{{ nickname }}</div>
+          </div>
         </div>
-        <div>@{{ nickname }}</div>
+        <ButtonFollow v-if="!isMyProfile" :agentPubKey="agentPubKey" />
+      </q-card-section>
+      <q-card-section v-if="bio || location" class="text-black">
+        <div v-if="bio" class="row justify-start">
+          <div>
+            <label class="text-weight-bold q-mr-sm">Bio:</label>
+          </div>
+          <div>{{ bio }}</div>
+        </div>
+        <div v-if="location" class="row justify-start q-mt-md">
+          <div>
+            <label class="text-weight-bold q-mr-sm">Location:</label>
+          </div>
+          <div>{{ location }}</div>
+        </div>
+      </q-card-section>
+      <div
+        class="row justify-end items-start q-mx-sm"
+        style="white-space: nowrap"
+      >
+        <holo-identicon :hash="agentPubKey" size="30"></holo-identicon>
       </div>
-      <ButtonFollow v-if="!isMyProfile" :agentPubKey="agentPubKey" />
-    </q-card-section>
-    <q-card-section v-if="bio || location">
-      <div v-if="bio" class="row justify-start">
-        <div><label class="text-weight-bold q-mr-sm">Bio:</label></div>
-        <div>{{ bio }}</div>
-      </div>
-      <div v-if="location" class="row justify-start q-mt-md">
-        <div><label class="text-weight-bold q-mr-sm">Location:</label></div>
-        <div>{{ location }}</div>
-      </div>
-    </q-card-section>
-    <div class="flex justify-end q-mx-sm">
-      <holo-identicon :hash="agentPubKey" size="30"></holo-identicon>
-    </div>
-  </q-card>
+    </q-card>
+  </RouterLink>
 </template>
 
 <script setup lang="ts">
@@ -47,8 +63,7 @@ import { useProfilesStore } from "@/services/profiles-store";
 import { PROFILE_FIELDS } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
 import { showError } from "@/utils/notification";
-import { useProfileUtils } from "@/utils/profile";
-
+import { ROUTES } from "@/router";
 import { AgentPubKey, encodeHashToBase64 } from "@holochain/client";
 import { computed, onMounted, PropType, ref } from "vue";
 import { useRouter } from "vue-router";
@@ -63,7 +78,7 @@ const props = defineProps({
 
 const router = useRouter();
 const profilesStore = useProfilesStore();
-const { onAgentClick } = useProfileUtils();
+
 const isMyProfile = computed(() =>
   isSameHash(props.agentPubKey, profilesStore.value.client.client.myPubKey)
 );
