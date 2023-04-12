@@ -1,31 +1,34 @@
 <template>
-  <agent-avatar
-    :agentPubKey="agentPubKey"
-    disable-tooltip
-    size="50"
-    :class="[
-      'self-start',
-      { 'cursor-pointer': !isCurrentProfile(agentPubKey) },
-    ]"
-    @click="onAgentClick(agentPubKey)"
+  <RouterLink
+    class="text-secondary text-bold"
+    style="position: relative; display: inline-block; overflow: visible"
+    :to="{
+      name: ROUTES.profiles,
+      params: { agent: encodeHashToBase64(agentPubKey) },
+    }"
+    @click.stop
     @mouseenter="showProfile"
     @mouseleave="hideProfile"
   >
-    <q-menu
-      v-model="isPopupVisible"
-      anchor="bottom middle"
-      self="top middle"
-      :offset="[-10, 5]"
-      no-focus
+    <agent-avatar
+      :agentPubKey="agentPubKey"
+      disable-tooltip
+      size="50"
+      class="self-start"
     >
-      <ProfilePopup :agentPubKey="agentPubKey" />
-    </q-menu>
-  </agent-avatar>
+    </agent-avatar>
+
+    <ProfilePopup
+      v-show="isPopupVisible"
+      :agentPubKey="agentPubKey"
+      style="left: -15px; top: 30px"
+    />
+  </RouterLink>
 </template>
 
 <script setup lang="ts">
-import { useProfileUtils } from "@/utils/profile";
-import { AgentPubKey } from "@holochain/client";
+import { ROUTES } from "@/router";
+import { AgentPubKey, encodeHashToBase64 } from "@holochain/client";
 import { PropType, ref } from "vue";
 import ProfilePopup from "./ProfilePopup.vue";
 
@@ -38,14 +41,11 @@ defineProps({
 
 const PROFILE_SHOW_HIDE_DELAY = 400; // in ms
 
-const { isCurrentProfile, onAgentClick } = useProfileUtils();
-
 const isPopupVisible = ref<boolean>(false);
 const popupHideTimeout = ref<number>(0);
 const popupShowTimeout = ref<number>(0);
 
 const showProfile = () => {
-  isPopupVisible.value = false;
   popupShowTimeout.value = window.setTimeout(
     () => (isPopupVisible.value = true),
     PROFILE_SHOW_HIDE_DELAY

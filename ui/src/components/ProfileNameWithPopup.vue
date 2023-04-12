@@ -1,6 +1,11 @@
 <template>
   <RouterLink
-    :to="to"
+    :to="
+      to || {
+        name: ROUTES.profiles,
+        params: { agent: encodeHashToBase64(agentPubKey) },
+      }
+    "
     class="text-secondary text-bold"
     style="position: relative; display: inline-block; overflow: visible"
     @click.stop
@@ -9,37 +14,26 @@
   >
     {{ nickname }}
 
-    <q-menu
-      v-model="isPopupVisible"
-      anchor="bottom middle"
-      self="top middle"
-      no-focus
-    >
-      <ProfilePopup :agentPubKey="agentPubKey" />
-    </q-menu>
+    <ProfilePopup
+      v-show="isPopupVisible"
+      :agentPubKey="agentPubKey"
+      style="left: -15px; top: 15px"
+    />
   </RouterLink>
 </template>
 
 <script setup lang="ts">
-import { AgentPubKey } from "@holochain/client";
-import { PropType, ref } from "vue";
+import { ref } from "vue";
+import { encodeHashToBase64 } from "@holochain/client";
+import { ROUTES } from "@/router";
 import { RouteLocationRaw, RouterLink } from "vue-router";
 import ProfilePopup from "./ProfilePopup.vue";
 
-defineProps({
-  to: {
-    type: Object as PropType<RouteLocationRaw>,
-    required: true,
-  },
-  nickname: {
-    type: String,
-    required: true,
-  },
-  agentPubKey: {
-    type: Object as PropType<AgentPubKey>,
-    required: true,
-  },
-});
+defineProps<{
+  to?: RouteLocationRaw;
+  nickname: string;
+  agentPubKey: Uint8Array;
+}>();
 
 const PROFILE_SHOW_HIDE_DELAY = 400; // in ms
 
@@ -48,7 +42,8 @@ const popupHideTimeout = ref<number>(0);
 const popupShowTimeout = ref<number>(0);
 
 const showProfile = () => {
-  isPopupVisible.value = false;
+  window.clearTimeout(popupHideTimeout.value);
+
   popupShowTimeout.value = window.setTimeout(
     () => (isPopupVisible.value = true),
     PROFILE_SHOW_HIDE_DELAY
@@ -57,6 +52,7 @@ const showProfile = () => {
 
 const hideProfile = () => {
   window.clearTimeout(popupShowTimeout.value);
+
   popupHideTimeout.value = window.setTimeout(
     () => (isPopupVisible.value = false),
     PROFILE_SHOW_HIDE_DELAY
