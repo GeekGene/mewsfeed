@@ -12,13 +12,14 @@
     @mouseenter="showProfile"
     @mouseleave="hideProfile"
   >
-    {{ nickname }}
-
-    <ProfilePopup
-      v-show="isPopupVisible"
-      :agentPubKey="agentPubKey"
-      style="left: -15px; top: 15px"
-    />
+    <div>
+      <div><slot></slot></div>
+      <ProfilePopup
+        v-show="isPopupVisible"
+        :agentPubKey="agentPubKey"
+        style="left: -15px"
+      />
+    </div>
   </RouterLink>
 </template>
 
@@ -31,7 +32,6 @@ import ProfilePopup from "./ProfilePopup.vue";
 
 defineProps<{
   to?: RouteLocationRaw;
-  nickname: string;
   agentPubKey: Uint8Array;
 }>();
 

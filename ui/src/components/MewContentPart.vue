@@ -13,12 +13,13 @@
     >
   </a>
 
-  <ProfileNameWithPopup
+  <LinkProfilePopup
     v-else-if="(props.contentPart[1] as RouteLocationNamedRaw).name === 'handle'"
-    :to="props.contentPart[1]"
-    :nickname="props.contentPart[0]"
     :agentPubKey="decodeHashFromBase64(((props.contentPart[1] as RouteLocationNamedRaw).params as RouteParams)?.agentPubKey as LocationQueryValueRaw as string)"
-  />
+    :to="props.contentPart[1]"
+  >
+    {{ props.contentPart[0] }}
+  </LinkProfilePopup>
   <RouterLink
     v-else
     :to="props.contentPart[1]"
@@ -38,7 +39,7 @@ import {
   RouteLocationRaw,
   RouteParams,
 } from "vue-router";
-import ProfileNameWithPopup from "./ProfileNameWithPopup.vue";
+import LinkProfilePopup from "./LinkProfilePopup.vue";
 
 type ContentPart = string | [string, RouteLocationRaw] | [string, string];
 
