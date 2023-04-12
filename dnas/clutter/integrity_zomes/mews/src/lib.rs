@@ -88,6 +88,7 @@ pub const MEWMEW_PATH_SEGMENT: &str = "mewmew";
 pub const QUOTE_PATH_SEGMENT: &str = "quote";
 
 #[hdk_extern]
+#[allow(clippy::collapsible_match)]
 pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
     match op.to_type::<EntryTypes, LinkTypes>().unwrap() {
         OpType::StoreEntry(entry) => match entry {

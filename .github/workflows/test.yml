@@ -43,3 +43,9 @@ jobs:
 
       - name: Test with tryorama
         run: nix develop -c $SHELL -c "npm test"
+
+      - name: Clippy
+        run: nix develop -c $SHELL -c "npm run cargo:clippy"
+
+      - name: Check rust formatting
+        run: nix develop -c $SHELL -c "npm run cargo:fmt:check"

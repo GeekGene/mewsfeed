@@ -22,7 +22,11 @@
     "build:dnas": "npm run build:zomes && hc dna pack ./dnas/clutter/workdir",
     "build:zomes": "CARGO_TARGET_DIR=target cargo build --release --target wasm32-unknown-unknown",
     "playground": "run-singleton \"holochain-playground\"",
-    "lint": "eslint --fix --ext .ts tests --ext .ts ui/src --ext .vue ui/src"
+    "lint": "eslint --fix --ext .ts tests --ext .ts ui/src --ext .vue ui/src",
+    "cargo:clippy": "cargo clippy --all-targets --all-features -- -D warnings",
+    "cargo:clippy:watch": "cargo watch --clear -- npm run cargo:clippy",
+    "cargo:fmt": "cargo fmt",
+    "cargo:fmt:check": "cargo fmt --check"
   },
   "devDependencies": {
     "@holochain-playground/cli": "^0.1.0",
