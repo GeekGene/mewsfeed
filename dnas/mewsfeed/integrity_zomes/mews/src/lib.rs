@@ -94,6 +94,7 @@ pub struct DnaProperties {
 }
 
 #[hdk_extern]
+#[allow(clippy::collapsible_match)]
 pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
     let properties =DnaProperties::try_from(dna_info()?.properties)
         .map_err(|e| wasm_error!(WasmErrorInner::Guest(e.into())))?;

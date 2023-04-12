@@ -5,7 +5,7 @@ use itertools::Itertools;
 
 fn get_my_mews_base(base_type: &str, ensure: bool) -> ExternResult<EntryHash> {
     let me: AgentPubKey = agent_info()?.agent_latest_pubkey;
-    get_mews_base(me.into(), base_type, ensure)
+    get_mews_base(me, base_type, ensure)
 }
 
 fn get_mews_base(agent: AgentPubKey, base_type: &str, _ensure: bool) -> ExternResult<EntryHash> {
@@ -98,7 +98,7 @@ pub fn create_reply(
     let _link_ah = create_link(base, reply_action_hash.clone(), LinkTypes::Mew, ())?;
     // link off original entry as reply
     let _reply_link_ah = create_link(
-        original_action_hash.clone(),
+        original_action_hash,
         reply_action_hash.clone(),
         LinkTypes::Reply,
         LinkTag::new(REPLY_PATH_SEGMENT),
@@ -109,7 +109,7 @@ pub fn create_reply(
 
 pub fn create_mewmew(original_action_hash: ActionHash) -> ExternResult<ActionHash> {
     let mew = Mew {
-        mew_type: MewType::MewMew(original_action_hash.clone().into()),
+        mew_type: MewType::MewMew(original_action_hash.clone()),
         content: None,
     };
     let mewmew_action_hash = create_entry(EntryTypes::Mew(mew))?;
@@ -119,7 +119,7 @@ pub fn create_mewmew(original_action_hash: ActionHash) -> ExternResult<ActionHas
     let _link_ah = create_link(base, mewmew_action_hash.clone(), LinkTypes::Mew, ())?;
     // link off original entry as mewmew
     let _quote_link_ah = create_link(
-        original_action_hash.clone(),
+        original_action_hash,
         mewmew_action_hash.clone(),
         LinkTypes::Mewmew,
         LinkTag::new(MEWMEW_PATH_SEGMENT),
@@ -142,13 +142,13 @@ pub fn create_quote(
     let _link_ah = create_link(base, quote_action_hash.clone(), LinkTypes::Mew, ())?;
     // link off original entry as quote
     let _quote_link_ah = create_link(
-        original_action_hash.clone(),
+        original_action_hash,
         quote_action_hash.clone(),
         LinkTypes::Quote,
         LinkTag::new(QUOTE_PATH_SEGMENT),
     )?;
     parse_mew_text(mew_content, quote_action_hash.clone())?;
-    Ok(quote_action_hash.into())
+    Ok(quote_action_hash)
 }
 
 // *** Getting mews ***
@@ -192,7 +192,7 @@ pub fn get_feed_mew_and_context(action_hash: ActionHash) -> ExternResult<FeedMew
     )?;
     let licks: Vec<AgentPubKey> = lick_links
         .into_iter()
-        .map(|link| AgentPubKey::from(EntryHash::from(link.target)).into())
+        .map(|link| AgentPubKey::from(EntryHash::from(link.target)))
         .collect();
 
     let reply_links = get_links(
@@ -200,10 +200,7 @@ pub fn get_feed_mew_and_context(action_hash: ActionHash) -> ExternResult<FeedMew
         LinkTypes::Reply,
         Some(LinkTag::new(REPLY_PATH_SEGMENT)),
     )?;
-    let replies: Vec<AnyLinkableHash> = reply_links
-        .into_iter()
-        .map(|link| link.target.into())
-        .collect();
+    let replies: Vec<AnyLinkableHash> = reply_links.into_iter().map(|link| link.target).collect();
 
     let mewmew_links = get_links(
         action_hash.clone(),
@@ -212,18 +209,15 @@ pub fn get_feed_mew_and_context(action_hash: ActionHash) -> ExternResult<FeedMew
     )?;
     let mewmews: Vec<AnyLinkableHash> = mewmew_links
         .into_iter()
-        .map(|mewmew| mewmew.target.into())
+        .map(|mewmew| mewmew.target)
         .collect();
 
     let quote_links = get_links(
-        action_hash.clone(),
+        action_hash,
         LinkTypes::Quote,
         Some(LinkTag::new(QUOTE_PATH_SEGMENT)),
     )?;
-    let quotes: Vec<AnyLinkableHash> = quote_links
-        .into_iter()
-        .map(|link| link.target.into())
-        .collect();
+    let quotes: Vec<AnyLinkableHash> = quote_links.into_iter().map(|link| link.target).collect();
 
     let feed_mew_and_context = FeedMew {
         mew,
@@ -246,7 +240,7 @@ pub fn mews_by(agent: AgentPubKey) -> ExternResult<Vec<FeedMew>> {
 
     let mut feed: Vec<FeedMew> = links
         .into_iter()
-        .map(|link| get_feed_mew_and_context(ActionHash::from(link.target).into()))
+        .map(|link| get_feed_mew_and_context(ActionHash::from(link.target)))
         .filter_map(Result::ok)
         .collect();
     feed.sort_by(|a, b| b.action.timestamp().cmp(&a.action.timestamp()));
@@ -278,8 +272,8 @@ pub fn lick_mew(action_hash: ActionHash) -> ExternResult<()> {
     let base = get_my_mews_base(LICK_PATH_SEGMENT, true)?;
     let _my_lick_ah = create_link(base, action_hash.clone(), LinkTypes::Lick, ())?;
     let _mew_lick_ah = create_link(
-        action_hash.clone(),
-        me.clone(),
+        action_hash,
+        me,
         LinkTypes::Lick,
         LinkTag::new(LICK_PATH_SEGMENT),
     )?;
@@ -316,7 +310,7 @@ pub fn unlick_mew(action_hash: ActionHash) -> ExternResult<()> {
     }
 
     let my_licks = get_my_mews_base(LICK_PATH_SEGMENT, true)?;
-    let links = get_links(my_licks.clone(), LinkTypes::Lick, None)?;
+    let links = get_links(my_licks, LinkTypes::Lick, None)?;
     for link in links {
         if link.target == action_hash.clone().into() {
             let _deleted_link_ah = delete_link(link.create_link_hash)?;
@@ -331,7 +325,7 @@ pub fn unlick_mew(action_hash: ActionHash) -> ExternResult<()> {
 #[hdk_extern]
 pub fn follow(agent: AgentPubKey) -> ExternResult<()> {
     let me_target: EntryHash = agent_info()?.agent_latest_pubkey.into();
-    let them_target: EntryHash = AgentPubKey::from(agent.clone()).into();
+    let them_target: EntryHash = agent.clone().into();
 
     if me_target == them_target {
         return Err(wasm_error!(WasmErrorInner::Guest(String::from(
@@ -349,9 +343,9 @@ pub fn follow(agent: AgentPubKey) -> ExternResult<()> {
 
 #[hdk_extern]
 pub fn unfollow(agent: AgentPubKey) -> ExternResult<()> {
-    let them_target: EntryHash = AgentPubKey::from(agent.clone()).into();
+    let them_target: EntryHash = agent.clone().into();
     let me = get_my_mews_base(FOLLOWING_PATH_SEGMENT, true)?;
-    let links = get_links(me.clone(), LinkTypes::Follow, None)?;
+    let links = get_links(me, LinkTypes::Follow, None)?;
     for link in links {
         if link.target == them_target.clone().into() {
             let _deleted_link_ah = delete_link(link.create_link_hash)?;
@@ -361,7 +355,7 @@ pub fn unfollow(agent: AgentPubKey) -> ExternResult<()> {
 
     let me_target: EntryHash = agent_info()?.agent_latest_pubkey.into();
     let them = get_mews_base(agent, FOLLOWER_PATH_SEGMENT, true)?;
-    let links = get_links(them.clone(), LinkTypes::Follow, None)?;
+    let links = get_links(them, LinkTypes::Follow, None)?;
     for link in links {
         if link.target == me_target.clone().into() {
             let _deleted_link_ah = delete_link(link.create_link_hash)?;
@@ -401,7 +395,7 @@ fn follow_inner(agent: AgentPubKey, base_type: &str) -> ExternResult<Vec<AgentPu
     let links = get_links(base, LinkTypes::Follow, None)?;
     Ok(links
         .into_iter()
-        .map(|link| AgentPubKey::from(EntryHash::from(link.target)).into())
+        .map(|link| AgentPubKey::from(EntryHash::from(link.target)))
         .collect())
 }
 
@@ -410,19 +404,19 @@ fn follow_inner(agent: AgentPubKey, base_type: &str) -> ExternResult<Vec<AgentPu
 #[hdk_extern]
 pub fn get_mews_with_hashtag(hashtag: String) -> ExternResult<Vec<FeedMew>> {
     let path = Path::from(format!("hashtags.{}", hashtag));
-    Ok(get_mews_from_path(path)?)
+    get_mews_from_path(path)
 }
 
 #[hdk_extern]
 pub fn get_mews_with_cashtag(cashtag: String) -> ExternResult<Vec<FeedMew>> {
     let path = Path::from(format!("cashtags.{}", cashtag));
-    Ok(get_mews_from_path(path)?)
+    get_mews_from_path(path)
 }
 
 #[hdk_extern]
 pub fn get_mews_with_mention(agent_pub_key: AgentPubKey) -> ExternResult<Vec<FeedMew>> {
     let path = Path::from(format!("mentions.{}", agent_pub_key));
-    Ok(get_mews_from_path(path)?)
+    get_mews_from_path(path)
 }
 
 pub fn get_mews_from_path(path: Path) -> ExternResult<Vec<FeedMew>> {
@@ -449,21 +443,18 @@ pub fn get_mews_from_path(path: Path) -> ExternResult<Vec<FeedMew>> {
 pub fn parse_mew_text(mew_content: MewContent, mew_hash: ActionHash) -> ExternResult<()> {
     let hashtag_regex = Regex::new(r"#\w+").unwrap();
     let cashtag_regex = Regex::new(r"\$\w+").unwrap();
-    for mat in hashtag_regex.find_iter(&mew_content.text.clone()) {
+    for mat in hashtag_regex.find_iter(&mew_content.text) {
         create_mew_tag_links("hashtags", mat.as_str(), mew_hash.clone())?;
     }
-    for mat in cashtag_regex.find_iter(&mew_content.text.clone()) {
-       create_mew_tag_links("cashtags", mat.as_str(), mew_hash.clone())?;
+    for mat in cashtag_regex.find_iter(&mew_content.text) {
+        create_mew_tag_links("cashtags", mat.as_str(), mew_hash.clone())?;
     }
     if let Some(links) = mew_content.links {
         for link in links {
-            match link {
-                LinkTarget::Mention(mention) => {
-                    let path = Path::from(format!("mentions.{}", mention));
-                    let path_hash = path.path_entry_hash()?;
-                    let _link_ah = create_link(path_hash, mew_hash.clone(), LinkTypes::Tag, ())?;
-                }
-                _ => ()
+            if let LinkTarget::Mention(mention) = link {
+                let path = Path::from(format!("mentions.{}", mention));
+                let path_hash = path.path_entry_hash()?;
+                let _link_ah = create_link(path_hash, mew_hash.clone(), LinkTypes::Tag, ())?;
             }
         }
     }
@@ -488,10 +479,13 @@ fn search_tags(path_stem: String, content: String) -> ExternResult<Vec<String>> 
 
     let tags: Vec<String> = links
         .into_iter()
-        .map(|link| 
-            String::from_utf8(link.tag.into_inner()).map_err(|_| wasm_error!(WasmErrorInner::Guest("Failed to convert link tag to string".into())))
-
-        )
+        .map(|link| {
+            String::from_utf8(link.tag.into_inner()).map_err(|_| {
+                wasm_error!(WasmErrorInner::Guest(
+                    "Failed to convert link tag to string".into()
+                ))
+            })
+        })
         .filter_map(Result::ok)
         .collect();
 
@@ -504,17 +498,22 @@ fn create_mew_tag_links(path_stem: &str, content: &str, mew_hash: ActionHash) ->
     let path_hash = path.path_entry_hash()?;
     path.typed(LinkTypes::Tag)?.ensure()?;
     let _link_ah = create_link(path_hash.clone(), mew_hash, LinkTypes::Tag, ())?;
- 
+
     // Create Path for sliced hashtag (first 3 characters) under hashtags_search.myt
-    // Link from Path hashtags.myt -> hashtags.mytag Path 
-    let word: String =  content.chars().skip(1).collect();
+    // Link from Path hashtags.myt -> hashtags.mytag Path
+    let word: String = content.chars().skip(1).collect();
     let word_lowercase = word.to_lowercase();
     let prefix: String = word_lowercase.chars().take(3).collect();
- 
+
     let search_path = Path::from(format!("search_{}.{}", path_stem, prefix));
     let search_path_hash = search_path.path_entry_hash()?;
     search_path.typed(LinkTypes::TagPrefix)?.ensure()?;
-    let _link_search_tag = create_link(search_path_hash, path_hash.clone(), LinkTypes::TagPrefix, word.as_bytes().to_vec())?;
+    let _link_search_tag = create_link(
+        search_path_hash,
+        path_hash,
+        LinkTypes::TagPrefix,
+        word.as_bytes().to_vec(),
+    )?;
 
     Ok(())
 }
