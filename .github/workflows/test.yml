@@ -17,13 +17,14 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
+      fail-fast: false
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Install nix
-        uses: cachix/install-nix-action@v19
+        uses: cachix/install-nix-action@v20
 
       - name: Set up cachix
         uses: cachix/cachix-action@v12
@@ -32,14 +33,29 @@ jobs:
 
       - name: Cache Cargo and Rust Build
         uses: actions/cache@v2
+        if: always()  # build artifacts are correct even if job fails
         with:
           path: |
             .cargo
             target
           key: ${{ runner.os }}-build-${{ hashFiles('Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-
+
+      - name: Install nix packages
+        run: nix develop -c $SHELL -c "echo Nix packages installed"
+
+      - name: Install JS packages
+        run: nix develop -c $SHELL -c "npm ci"
 
       - name: Build Happ
-        run: nix develop -c $SHELL -c "npm ci && npm run build:happ"
+        run: nix develop -c $SHELL -c "npm run build:happ"
 
       - name: Test with tryorama
         run: nix develop -c $SHELL -c "npm test"
+
+      - name: Clippy
+        run: nix develop -c $SHELL -c "npm run cargo:clippy"
+
+      - name: Check rust formatting
+        run: nix develop -c $SHELL -c "npm run cargo:fmt:check"

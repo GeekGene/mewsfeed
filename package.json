@@ -15,14 +15,19 @@
     "start:agents:browser": "concurrently-repeat \"npm run start:agent:browser\" $AGENTS",
     "start:agent:browser": "cross-env HC_PORT=$(port) HC_ADMIN_PORT=$(port) concurrently \"npm run start:happ:browser\" \"sleep 5 && npm run start:browser -w ui\"",
     "test": "npm run build:happ && npm t -w tests",
+    "test:watch": "cargo watch --clear -- npm test",
     "start:happ:browser": "hc s clean && echo pass | RUST_LOG=warn hc s --piped -f=$HC_ADMIN_PORT generate ./workdir/clutter.happ --run=$HC_PORT -a clutter network mdns",
     "package": "npm run build:happ && npm run package:ui && hc web-app pack workdir",
     "package:ui": "npm run build -w ui && cd ui/dist && bestzip ../dist.zip *",
-    "build:happ": "npm run build:dnas && hc app pack ./workdir",
+    "build:happ": "rm -f dnas/**/workdir/*.dna && npm run build:dnas && hc app pack ./workdir",
     "build:dnas": "npm run build:zomes && hc dna pack ./dnas/clutter/workdir",
     "build:zomes": "CARGO_TARGET_DIR=target cargo build --release --target wasm32-unknown-unknown",
     "playground": "run-singleton \"holochain-playground\"",
-    "lint": "eslint --fix --ext .ts tests --ext .ts ui/src --ext .vue ui/src"
+    "lint": "eslint --fix --ext .ts tests --ext .ts ui/src --ext .vue ui/src",
+    "cargo:clippy": "cargo clippy --all-targets --all-features -- -D warnings",
+    "cargo:clippy:watch": "cargo watch --clear -- npm run cargo:clippy",
+    "cargo:fmt": "cargo fmt",
+    "cargo:fmt:check": "cargo fmt --check"
   },
   "devDependencies": {
     "@holochain-playground/cli": "^0.1.0",
