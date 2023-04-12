@@ -16,13 +16,13 @@
     {{ contentPart.text }}
     <q-tooltip :delay="TOOLTIP_DELAY">{{ contentPart.route }}</q-tooltip>
   </a>
-
-  <ProfileNameWithPopup
+  <LinkProfilePopup
     v-else-if="contentPart.route && contentPart.tagType === MewTagType.Mention"
-    :to="contentPart.route"
-    :nickname="contentPart.text"
     :agentPubKey="decodeHashFromBase64((contentPart.route as RouteLocationNamedRaw).params?.agentPubKey as LocationQueryValueRaw as string)"
-  />
+    :to="contentPart.route"
+  >
+    {{ contentPart.text }}
+  </LinkProfilePopup>
   <RouterLink
     v-else-if="
       contentPart.route &&
@@ -41,7 +41,7 @@ import { TOOLTIP_DELAY, MewContentPart, MewTagType } from "@/types/types";
 import { decodeHashFromBase64 } from "@holochain/client";
 import { PropType } from "vue";
 import { LocationQueryValueRaw, RouteLocationNamedRaw } from "vue-router";
-import ProfileNameWithPopup from "./ProfileNameWithPopup.vue";
+import LinkProfilePopup from "./LinkProfilePopup.vue";
 
 defineProps({
   contentPart: { type: Object as PropType<MewContentPart>, required: true },
