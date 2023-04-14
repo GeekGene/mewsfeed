@@ -1,10 +1,12 @@
 ---
 manifest_version: "1"
-name: clutter
+name: mewsfeed
 integrity:
   uuid: 00000000-0000-0000-0000-000000000000
   origin_time: 2022-10-05T00:00:00.000000Z
-  properties: ~
+  properties:
+    mew_characters_min: 1
+    mew_characters_max: ~
   zomes:
     - name: profiles_integrity
       bundled: ../../../target/wasm32-unknown-unknown/release/profiles_integrity.wasm

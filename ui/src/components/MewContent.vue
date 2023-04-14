@@ -4,88 +4,90 @@
       class="text-body1"
       style="overflow-wrap: anywhere; white-space: pre-line"
     >
-      <span v-for="(contentPart, index) of contentParts" :key="index">
-        <MewContentPart
-          v-if="Array.isArray(contentPart)"
+      <template v-for="(contentPart, index) of partsDisplayed" :key="index">
+        <MewContentTag
+          v-if="contentPart.tagType !== undefined"
           :content-part="contentPart"
         />
-        <template v-else>{{ contentPart }}</template>
+        <template v-else>{{ contentPart.text }}</template>
+      </template>
+
+      <span v-if="contentRequiresTruncation">
+        <span v-if="truncate">...</span>
+        <a @click.stop="truncate = !truncate">
+          Show {{ truncate ? "More" : "Less" }}
+        </a>
       </span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { PATH, ROUTES } from "@/router";
-import { FeedMew, LinkTargetName, MentionLinkTarget } from "@/types/types";
-import {
-  isRawUrl,
-  isTag,
-  splitMewTextIntoParts,
-  TAG_SYMBOLS,
-} from "@/utils/tags";
-import { AgentPubKey, encodeHashToBase64 } from "@holochain/client";
-import { computed, PropType } from "vue";
-import { RouteLocationRaw } from "vue-router";
-import MewContentPart from "./MewContentPart.vue";
-
-type ContentPart = string | [string, RouteLocationRaw] | [string, string];
+import { FeedMew, MewContentPart } from "@/types/types";
+import { splitMewTextIntoContentParts } from "@/utils/tags";
+import { computed, PropType, ref } from "vue";
+import MewContentTag from "./MewContentTag.vue";
 
 const props = defineProps({
   feedMew: { type: Object as PropType<FeedMew>, required: true },
 });
 
-const links = computed(() =>
-  props.feedMew.mew.content?.links?.slice().reverse()
+const TRUNCATED_MEW_LENGTH = 300;
+
+const truncate = ref(true);
+
+const links = computed(
+  () => props.feedMew.mew.content?.links?.slice().reverse() || []
 );
 const content = computed(() => props.feedMew.mew.content?.text || "");
-const parts = computed(() => splitMewTextIntoParts(content.value));
+const contentRequiresTruncation = computed(
+  () => content.value.length > TRUNCATED_MEW_LENGTH || false
+);
+const parts = computed(() =>
+  splitMewTextIntoContentParts(content.value, links.value)
+);
 
-const contentParts = computed<ContentPart[]>(() =>
-  parts.value.map((part) => {
-    const partIsTag = isTag(part);
+const partsTruncated = computed(() => {
+  const partsSlice: MewContentPart[] = [];
+  let totalTextLength = 0;
 
-    if (partIsTag && part[0] === TAG_SYMBOLS.MENTION) {
-      const link = links.value?.pop();
-      if (!link) return part;
-
-      const agentPubKey = (link as MentionLinkTarget)[
-        LinkTargetName.Mention
-      ] as AgentPubKey;
-      const agentPubKeyB64 = encodeHashToBase64(agentPubKey);
-      const to: RouteLocationRaw = {
-        name: ROUTES[PATH[part[0]]],
-        params: { tag: part.substring(1), agentPubKey: agentPubKeyB64 },
-      };
-
-      return [part, to];
-    } else if (partIsTag && part[0] === TAG_SYMBOLS.LINK) {
-      const link = links.value?.pop();
-      if (!link) return part;
-
-      const to: RouteLocationRaw = {
-        name: ROUTES[PATH[part[0]]],
-        params: { tag: part.substring(1) },
-      };
-
-      return [part, to];
-    } else if (
-      partIsTag &&
-      (part[0] === TAG_SYMBOLS.CASHTAG || part[0] === TAG_SYMBOLS.HASHTAG)
+  parts.value.forEach((part) => {
+    // Append full plain text unless limit reached
+    if (
+      part.tagType === undefined &&
+      totalTextLength + part.text.length <= TRUNCATED_MEW_LENGTH
     ) {
-      const to: RouteLocationRaw = {
-        name: ROUTES[PATH[part[0]]],
-        params: { tag: part.substring(1) },
-      };
-
-      return [part, to];
-    } else if (isRawUrl(part)) {
-      return [part, part];
+      partsSlice.push(part);
+      totalTextLength += part.text.length;
     }
 
-    return part;
-  })
-);
+    // Split plain text into words, append words unless limit reached
+    else if (part.tagType === undefined) {
+      const words = part.text.split(" ");
+      words.forEach((word) => {
+        if (totalTextLength + word.length + 1 <= TRUNCATED_MEW_LENGTH) {
+          partsSlice.push({
+            ...part,
+            text: word + " ",
+          });
+          totalTextLength += word.length + 1;
+        }
+      });
+    }
+
+    // Append full tag unless limit reached
+    else if (totalTextLength + part.text.length <= TRUNCATED_MEW_LENGTH) {
+      partsSlice.push(part);
+      totalTextLength += part.text.length;
+    }
+  });
+
+  return partsSlice;
+});
+
+const partsDisplayed = computed(() => {
+  return truncate.value ? partsTruncated.value : parts.value;
+});
 </script>
 
 <style lang="sass">

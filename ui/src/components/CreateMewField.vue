@@ -14,14 +14,27 @@
         @input="onInput"
       />
       <div class="flex justify-between q-pa-sm">
-        <div
-          :class="{
-            'text-red text-bold': isMewFull || isMewOverfull,
-            'text-caption text-grey': !isMewFull && !isMewOverfull,
-          }"
-        >
-          {{ mewContentLength }} / {{ MAX_MEW_LENGTH }} Characters
+        <div>
+          <div
+            :class="{
+              'text-red text-bold':
+                isMewFull || isMewRequireTruncation || isMewOverfull,
+              'text-caption text-grey': !isMewFull && !isMewOverfull,
+            }"
+          >
+            {{ mewContentLength }} /
+            {{ min([TRUNCATED_MEW_LENGTH, mewLengthMax]) }} Characters
+          </div>
+          <div style="height: 20px">
+            <div v-if="isMewUnderfull" class="text-caption text-grey">
+              {{ mewLengthMin }} Minimum
+            </div>
+            <div v-if="isMewRequireTruncation" class="text-caption text-grey">
+              Overflow will be hidden
+            </div>
+          </div>
         </div>
+
         <div class="q-mb-xs text-right text-caption text-grey">
           Ctrl/Cmd + Enter to publish
         </div>
@@ -109,7 +122,7 @@
     </div>
 
     <q-btn
-      :disable="isMewEmpty || isMewOverfull"
+      :disable="isMewEmpty || isMewOverfull || isMewUnderfull"
       :loading="saving"
       :tabindex="agentAutocompletions.length && 0"
       color="accent"
@@ -121,7 +134,7 @@
 </template>
 
 <script setup lang="ts">
-import { useClutterStore } from "@/stores";
+import { useClientStore, useMewsfeedStore } from "@/stores";
 import { showError } from "@/utils/notification";
 import { useSearchProfiles, useMyProfile } from "@/utils/profile";
 import { Profile } from "@holochain-open-dev/profiles";
@@ -132,16 +145,19 @@ import {
   ElementWithInnerText,
   LinkTarget,
   LinkTargetName,
+  MewsfeedDnaProperties,
   MewType,
   PROFILE_FIELDS,
   TOOLTIP_DELAY,
 } from "../types/types";
 import { AgentPubKey } from "@holochain/client";
+import min from "lodash.min";
+import { decode } from "@msgpack/msgpack";
+import { union, flatten } from "lodash";
 
 const ANCHOR_DATA_ID_AGENT_PUB_KEY = "agentPubKey";
 const ANCHOR_DATA_ID_URL = "url";
 const POPUP_MARGIN_TOP = 20;
-const MAX_MEW_LENGTH = 200;
 let currentAnchorOffset: number;
 let currentFocusOffset: number;
 let currentNode: Node;
@@ -152,9 +168,13 @@ const props = defineProps({
   mewType: { type: Object as PropType<MewType>, required: true },
 });
 
-const store = useClutterStore();
+const store = useMewsfeedStore();
+const clientStore = useClientStore();
+
 const { searchProfiles } = useSearchProfiles();
 const { runWhenMyProfileExists } = useMyProfile();
+
+const TRUNCATED_MEW_LENGTH = 300;
 
 const mewContainer = ref<HTMLDivElement | null>(null);
 const mewContentLength = ref(0);
@@ -164,44 +184,97 @@ const linkTargetInput = ref();
 const currentAgentSearch = ref("");
 const agentAutocompletions = ref<Array<[AgentPubKey, Profile]>>([]);
 const autocompleterLoading = ref(false);
+const mewLengthMin = ref();
+const mewLengthMax = ref();
 
 const isMewEmpty = computed(() => mewContentLength.value === 0);
-const isMewFull = computed(() => mewContentLength.value === MAX_MEW_LENGTH);
-const isMewOverfull = computed(() => mewContentLength.value > MAX_MEW_LENGTH);
+const isMewFull = computed(
+  () => mewLengthMin.value && mewContentLength.value === mewLengthMax.value
+);
+const isMewRequireTruncation = computed(
+  () => mewContentLength.value > TRUNCATED_MEW_LENGTH
+);
+const isMewOverfull = computed(
+  () => mewLengthMax.value && mewContentLength.value > mewLengthMax.value
+);
+const isMewUnderfull = computed(
+  () => mewLengthMin.value && mewContentLength.value < mewLengthMin.value
+);
 
-onMounted(() => setTimeout(focusInputField, 0));
+onMounted(async () => {
+  setTimeout(focusInputField, 0);
+
+  const appInfo = await clientStore.appInfo();
+  const dnaProperties = decode(
+    appInfo.cell_info.mewsfeed[0].provisioned.dna_modifiers.properties
+  ) as MewsfeedDnaProperties;
+
+  mewLengthMin.value = dnaProperties.mew_characters_min;
+  mewLengthMax.value = dnaProperties.mew_characters_max;
+});
+
+const collectLinksWithinElement = (element: Element): LinkTarget[] => {
+  if (element.children.length > 0) {
+    console.log("element has children", element.children);
+    const childrenLinks: LinkTarget[] = Array.from(element.children)
+      .map((child) => {
+        console.log(
+          "child info",
+          child,
+          child.tagName,
+          child instanceof HTMLAnchorElement
+        );
+
+        if (
+          child &&
+          child.tagName === "A" &&
+          child instanceof HTMLAnchorElement
+        ) {
+          console.log("child is link");
+          if (child.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY]) {
+            const agentPubKeyString =
+              child.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY];
+            const agentPubKey = Uint8Array.from(
+              agentPubKeyString.split(",") as Iterable<number>
+            );
+
+            return { [LinkTargetName.Mention]: agentPubKey } as LinkTarget;
+          } else if (
+            (element as HTMLAnchorElement).dataset[ANCHOR_DATA_ID_URL]
+          ) {
+            const url = (element as HTMLAnchorElement).dataset[
+              ANCHOR_DATA_ID_URL
+            ];
+
+            return { [LinkTargetName.URL]: url } as LinkTarget;
+          }
+        }
+      })
+      .filter((l) => l !== undefined)
+      .map((l) => l as LinkTarget);
+
+    return union(
+      childrenLinks,
+      flatten(
+        Array.from(element.children).map((child) =>
+          collectLinksWithinElement(child)
+        )
+      )
+    );
+  } else {
+    return [];
+  }
+};
 
 const publishMew = () => {
   runWhenMyProfileExists(async () => {
     const mewInput = mewContainer.value?.querySelector(
       ".mew-content"
     ) as ElementWithInnerText;
-    if (!mewInput) {
-      return;
-    }
+    if (!mewInput) return;
 
     // build link array
-    const links: LinkTarget[] = [];
-    for (let i = 0; i < mewInput.children.length; i++) {
-      const element = mewInput.children.item(i);
-      if (
-        element &&
-        element.tagName === "A" &&
-        element instanceof HTMLAnchorElement
-      ) {
-        if (element.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY]) {
-          const agentPubKeyString =
-            element.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY];
-          const agentPubKey = Uint8Array.from(
-            agentPubKeyString.split(",") as Iterable<number>
-          );
-          links.push({ [LinkTargetName.Mention]: agentPubKey });
-        } else if (element.dataset[ANCHOR_DATA_ID_URL]) {
-          const url = element.dataset[ANCHOR_DATA_ID_URL];
-          links.push({ [LinkTargetName.URL]: url });
-        }
-      }
-    }
+    const links = collectLinksWithinElement(mewInput);
 
     const createMewInput: CreateMewInput = {
       mewType: props.mewType,
@@ -415,9 +488,7 @@ const onPaste = (event: ClipboardEvent) => {
   event.preventDefault();
   const data = event.clipboardData?.getData("text/plain");
 
-  if (data && data.length + mewContentLength.value > MAX_MEW_LENGTH) {
-    return;
-  } else if (data) {
+  if (data) {
     const pastedNode = document.createTextNode(data);
     document.getSelection()?.getRangeAt(0).insertNode(pastedNode);
     document.getSelection()?.setPosition(pastedNode, pastedNode.length);

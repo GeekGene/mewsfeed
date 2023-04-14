@@ -87,7 +87,7 @@ import {
   getFeedMewAndContext,
   mewsBy,
   myFollowing,
-} from "@/services/clutter-dna";
+} from "@/services/mewsfeed-dna";
 import { useProfilesStore } from "@/services/profiles-store";
 import { FeedMew, MewType, MewTypeName, PROFILE_FIELDS } from "@/types/types";
 import { isSameHash } from "@/utils/hash";

@@ -5,6 +5,7 @@ import {
   HoloHash,
   SigningCredentials,
 } from "@holochain/client";
+import { RouteLocationNamedRaw } from "vue-router";
 
 export const PROFILE_FIELDS = {
   DISPLAY_NAME: "Display name",
@@ -38,6 +39,21 @@ export type CreateMewInput = {
 export interface MewContent {
   text: string;
   links?: LinkTarget[];
+}
+
+export enum MewTagType {
+  Mention,
+  Link,
+  RawUrl,
+  Cashtag,
+  Hashtag,
+}
+
+export interface MewContentPart {
+  text: string;
+  route?: RouteLocationNamedRaw;
+  href?: string;
+  tagType?: MewTagType;
 }
 
 export enum MewTypeName {
@@ -119,4 +135,9 @@ export interface SigningCredentialsJson
     secretKey: number[];
   };
   signingKey: number[];
+}
+
+export interface MewsfeedDnaProperties {
+  mew_characters_min?: number;
+  mew_characters_max?: number;
 }

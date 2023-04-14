@@ -14,3 +14,4 @@ serde = "1"
 
 mews_integrity = {path = "../../integrity_zomes/mews"}
 hdk = {version = "0.1", features = ["encoding"]}
+itertools = "0.10"

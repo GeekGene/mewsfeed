@@ -125,7 +125,7 @@ import {
   getFeedMewAndContext,
   lickMew,
   unlickMew,
-} from "@/services/clutter-dna";
+} from "@/services/mewsfeed-dna";
 import { useProfilesStore } from "@/services/profiles-store";
 import {
   CreateMewInput,

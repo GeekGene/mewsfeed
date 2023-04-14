@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { followers } from "@/services/clutter-dna";
+import { followers } from "@/services/mewsfeed-dna";
 import { useProfilesStore } from "@/services/profiles-store";
 import { PROFILE_FIELDS } from "@/types/types";
 import { showError } from "@/utils/notification";

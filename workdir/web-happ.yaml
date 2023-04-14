@@ -1,7 +1,7 @@
 ---
 manifest_version: "1"
-name: clutter
+name: mewsfeed
 ui:
   bundled: "../ui/dist.zip"
 happ_manifest:
-  bundled: "./clutter.happ"
+  bundled: "./mewsfeed.happ"

@@ -1,9 +1,5 @@
 import { ActionHash, AgentPubKey } from "@holochain/client";
-import {
-  getZomeCaller,
-  pause,
-  runScenario,
-} from "@holochain/tryorama";
+import { getZomeCaller, pause, runScenario } from "@holochain/tryorama";
 import test from "tape";
 import {
   CreateMewInput,
@@ -11,12 +7,12 @@ import {
   LinkTargetName,
   MewTypeName,
 } from "../../../ui/src/types/types.js";
-import { clutterHapp } from "../utils.js";
+import { mewsfeedHapp, mewsfeedHappNoLengthLimits } from "../utils.js";
 
-test("Mew must not be longer than 200 chars", async (t) => {
+test("Mew must not be longer than DNA property mew_characters_max chars", async (t) => {
   await runScenario(
     async (scenario) => {
-      const alice = await scenario.addPlayerWithApp(clutterHapp);
+      const alice = await scenario.addPlayerWithApp(mewsfeedHapp);
       const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
 
       const createMewInput: CreateMewInput = {
@@ -39,10 +35,93 @@ test("Mew must not be longer than 200 chars", async (t) => {
       createMewInput.text = new Array(201).fill("a").join("");
       try {
         await aliceCallMewsZome("create_mew", createMewInput, 60000);
-        t.fail("mew content longer than 200 chars is valid");
+        t.fail("mew content longer than mew_characters_max is valid");
       } catch (error) {
-        t.ok("mew content longer than 200 chars is invalid");
+        t.pass("mew content longer than mew_characters_max is invalid");
       }
+    },
+    true,
+    { timeout: 60000 }
+  );
+});
+
+test("Mew must not be shorter than DNA property mew_characters_min chars", async (t) => {
+  await runScenario(
+    async (scenario) => {
+      const alice = await scenario.addPlayerWithApp(mewsfeedHapp);
+      const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
+
+      const createMewInput: CreateMewInput = {
+        mewType: {
+          original: null,
+        },
+        text: new Array(10).fill("a").join(""),
+      };
+      const mewHash: ActionHash = await aliceCallMewsZome(
+        "create_mew",
+        createMewInput,
+        60000
+      );
+      t.deepEqual(
+        mewHash.slice(0, 3),
+        Buffer.from([132, 41, 36]),
+        "alice created a mew of valid length"
+      );
+
+      createMewInput.text = new Array(2).fill("a").join("");
+      try {
+        await aliceCallMewsZome("create_mew", createMewInput, 60000);
+        t.fail("mew content shorter than mew_characters_min is valid");
+      } catch (error) {
+        t.pass("mew content shorter than mew_characters_min is invalid");
+      }
+    },
+    true,
+    { timeout: 60000 }
+  );
+});
+
+test("Mew can be any length if DNA property mew_charactres_min and mew_characters_max not set", async (t) => {
+  await runScenario(
+    async (scenario) => {
+      const alice = await scenario.addPlayerWithApp(mewsfeedHappNoLengthLimits);
+      const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
+
+      // 0 charactres
+      const createMewInput2: CreateMewInput = {
+        mewType: {
+          original: null,
+        },
+        text: "",
+      };
+      const mewHash2: ActionHash = await aliceCallMewsZome(
+        "create_mew",
+        createMewInput2,
+        60000
+      );
+      t.deepEqual(
+        mewHash2.slice(0, 3),
+        Buffer.from([132, 41, 36]),
+        "alice created a mew of valid length 0"
+      );
+
+      // 1000 charactres
+      const createMewInput3: CreateMewInput = {
+        mewType: {
+          original: null,
+        },
+        text: new Array(1000).fill("a").join(""),
+      };
+      const mewHash3: ActionHash = await aliceCallMewsZome(
+        "create_mew",
+        createMewInput3,
+        60000
+      );
+      t.deepEqual(
+        mewHash3.slice(0, 3),
+        Buffer.from([132, 41, 36]),
+        "alice created a mew of valid length 1000"
+      );
     },
     true,
     { timeout: 60000 }
@@ -52,7 +131,7 @@ test("Mew must not be longer than 200 chars", async (t) => {
 test("Following oneself should fail", async (t) => {
   await runScenario(
     async (scenario) => {
-      const alice = await scenario.addPlayerWithApp(clutterHapp);
+      const alice = await scenario.addPlayerWithApp(mewsfeedHapp);
 
       try {
         await alice.cells[0].callZome(
@@ -82,8 +161,8 @@ test("Following", async (t) => {
   await runScenario(
     async (scenario) => {
       const [alice, bob] = await scenario.addPlayersWithApps([
-        { appBundleSource: clutterHapp },
-        { appBundleSource: clutterHapp },
+        { appBundleSource: mewsfeedHapp },
+        { appBundleSource: mewsfeedHapp },
       ]);
 
       const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
@@ -162,8 +241,8 @@ test("Mews by", async (t) => {
   await runScenario(
     async (scenario) => {
       const [alice, bob] = await scenario.addPlayersWithApps([
-        { appBundleSource: clutterHapp },
-        { appBundleSource: clutterHapp },
+        { appBundleSource: mewsfeedHapp },
+        { appBundleSource: mewsfeedHapp },
       ]);
       const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
       const bobCallMewsZome = getZomeCaller(bob.cells[0], "mews");
@@ -227,7 +306,7 @@ test("Mews by", async (t) => {
 test("Hashtag, cashtag and mention", async (t) => {
   await runScenario(
     async (scenario) => {
-      const alice = await scenario.addPlayerWithApp(clutterHapp);
+      const alice = await scenario.addPlayerWithApp(mewsfeedHapp);
       const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
 
       const mewContent =
@@ -307,7 +386,7 @@ test("Hashtag, cashtag and mention", async (t) => {
 test("Search - should return hashtags and cashtags", async (t) => {
   await runScenario(
     async (scenario) => {
-      const alice = await scenario.addPlayerWithApp(clutterHapp);
+      const alice = await scenario.addPlayerWithApp(mewsfeedHapp);
       const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
 
       const mewContent =
@@ -373,7 +452,7 @@ test("Search - should return hashtags and cashtags", async (t) => {
 test("Mews Feed - should include own mews", async (t) => {
   await runScenario(
     async (scenario) => {
-      const alice = await scenario.addPlayerWithApp(clutterHapp);
+      const alice = await scenario.addPlayerWithApp(mewsfeedHapp);
       const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
 
       const aliceMewsFeedInitial: FeedMew[] = await aliceCallMewsZome(
@@ -418,8 +497,8 @@ test("Mews Feed - should include mews of followed agent", async (t) => {
   await runScenario(
     async (scenario) => {
       const [alice, bob] = await scenario.addPlayersWithApps([
-        { appBundleSource: clutterHapp },
-        { appBundleSource: clutterHapp },
+        { appBundleSource: mewsfeedHapp },
+        { appBundleSource: mewsfeedHapp },
       ]);
       await scenario.shareAllAgents();
       const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
@@ -469,9 +548,9 @@ test("Mews Feed - should not include mews of non-followed agent", async (t) => {
   await runScenario(
     async (scenario) => {
       const [alice, bob, carol] = await scenario.addPlayersWithApps([
-        { appBundleSource: clutterHapp },
-        { appBundleSource: clutterHapp },
-        { appBundleSource: clutterHapp },
+        { appBundleSource: mewsfeedHapp },
+        { appBundleSource: mewsfeedHapp },
+        { appBundleSource: mewsfeedHapp },
       ]);
       await scenario.shareAllAgents();
       const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
@@ -518,8 +597,8 @@ test("Mews Feed - un-following should exclude agent's mews from feed", async (t)
   await runScenario(
     async (scenario) => {
       const [alice, bob] = await scenario.addPlayersWithApps([
-        { appBundleSource: clutterHapp },
-        { appBundleSource: clutterHapp },
+        { appBundleSource: mewsfeedHapp },
+        { appBundleSource: mewsfeedHapp },
       ]);
       await scenario.shareAllAgents();
       const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
@@ -570,9 +649,9 @@ test("Mews Feed - should be ordered by timestamp in descending order", async (t)
   await runScenario(
     async (scenario) => {
       const [alice, bob, carol] = await scenario.addPlayersWithApps([
-        { appBundleSource: clutterHapp },
-        { appBundleSource: clutterHapp },
-        { appBundleSource: clutterHapp },
+        { appBundleSource: mewsfeedHapp },
+        { appBundleSource: mewsfeedHapp },
+        { appBundleSource: mewsfeedHapp },
       ]);
       await scenario.shareAllAgents();
       const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
@@ -650,7 +729,7 @@ test("Mews Feed - should be ordered by timestamp in descending order", async (t)
 test("Mew Interaction - liked mew should be included in my likes", async (t) => {
   await runScenario(
     async (scenario) => {
-      const alice = await scenario.addPlayerWithApp(clutterHapp);
+      const alice = await scenario.addPlayerWithApp(mewsfeedHapp);
       const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
 
       const aliceMewContent = "alice-test-mew";
@@ -686,7 +765,7 @@ test("Mew Interaction - liked mew should be included in my likes", async (t) => 
 test("Mew Interaction - unliked mew should be excluded from my likes", async (t) => {
   await runScenario(
     async (scenario) => {
-      const alice = await scenario.addPlayerWithApp(clutterHapp);
+      const alice = await scenario.addPlayerWithApp(mewsfeedHapp);
       const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
 
       const aliceMewContent = "alice-test-mew";
@@ -718,7 +797,7 @@ test("Mew Interaction - unliked mew should be excluded from my likes", async (t)
 test("Mew Interaction - replying to a mew should be linked correctly", async (t) => {
   await runScenario(
     async (scenario) => {
-      const alice = await scenario.addPlayerWithApp(clutterHapp);
+      const alice = await scenario.addPlayerWithApp(mewsfeedHapp);
       const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
 
       const aliceMewContent = "alice-test-mew";
@@ -784,7 +863,7 @@ test("Mew Interaction - replying to a mew should be linked correctly", async (t)
 test("Mew Interaction - mewmewing a mew should be linked correctly", async (t) => {
   await runScenario(
     async (scenario) => {
-      const alice = await scenario.addPlayerWithApp(clutterHapp);
+      const alice = await scenario.addPlayerWithApp(mewsfeedHapp);
       const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
 
       const aliceMewContent = "alice-test-mew";
@@ -845,7 +924,7 @@ test("Mew Interaction - mewmewing a mew should be linked correctly", async (t) =
 test("Mew Interaction - quoting a mew should be linked correctly", async (t) => {
   await runScenario(
     async (scenario) => {
-      const alice = await scenario.addPlayerWithApp(clutterHapp);
+      const alice = await scenario.addPlayerWithApp(mewsfeedHapp);
       const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
 
       const aliceMewContent = "alice-test-mew";

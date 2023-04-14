@@ -1,4 +1,5 @@
-# Clutter is now MewsFeed
+
+# MewsFeed
 
 We are currently working towards the first major release of MewsFeed.
 
@@ -70,9 +71,9 @@ To package the web happ:
 npm run package
 ```
 
-You'll have the `clutter.webhapp` in `workdir`. This is what you should distribute so that the Holochain Launcher can install it.
+You'll have the `mewsfeed.webhapp` in `workdir`. This is what you should distribute so that the Holochain Launcher can install it.
 
-You will also have its subcomponent `clutter.happ` in the same folder`.
+You will also have its subcomponent `mewsfeed.happ` in the same folder`.
 
 ## Documentation
 

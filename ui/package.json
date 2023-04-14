@@ -1,6 +1,6 @@
 {
-  "name": "clutter-ui-vue",
-  "description": "A UI for Clutter based on Vue",
+  "name": "mewsfeed-ui-vue",
+  "description": "A UI for MewsFeed based on Vue",
   "author": "Jost Schulte",
   "version": "0.9.0-alpha",
   "type": "module",
@@ -17,6 +17,7 @@
     "@quasar/extras": "^1.15.4",
     "@shoelace-style/shoelace": "^2.3.0",
     "dayjs": "^1.11.7",
+    "lodash.min": "^4.0.1",
     "pinia": "^2.0.23",
     "quasar": "^2.9.2",
     "vue": "^3.2.40",
@@ -24,6 +25,7 @@
   },
   "devDependencies": {
     "@quasar/vite-plugin": "^1.2.3",
+    "@types/lodash.min": "^4.0.7",
     "@vitejs/plugin-vue": "^3.1.2",
     "sass": "^1.55.0",
     "vite": "^3.1.6",

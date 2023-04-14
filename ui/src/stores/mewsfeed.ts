@@ -3,18 +3,18 @@ import {
   getFeedMewAndContext,
   mewsFeed,
   MewsFn,
-} from "@/services/clutter-dna";
+} from "@/services/mewsfeed-dna";
 import { CreateMewInput, FeedMew } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
 import { showError } from "@/utils/notification";
 import { ActionHash } from "@holochain/client";
 import { defineStore } from "pinia";
 
-export const CLUTTER_ROLE_NAME = "clutter";
+export const MEWSFEED_ROLE_NAME = "mewsfeed";
 export const MEWS_ZOME_NAME = "mews";
 
-export const makeUseClutterStore = () => {
-  return defineStore("clutter", {
+export const makeUseMewsfeedStore = () => {
+  return defineStore("mewsfeed", {
     state: () => ({
       mewsFeed: [] as FeedMew[],
       isLoadingMewsFeed: false,

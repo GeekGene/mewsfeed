@@ -1,4 +1,4 @@
-# A UI for Clutter based on Vue
+# A UI for MewsFeed based on Vue
 
 ## Run dev server
 ```sh
