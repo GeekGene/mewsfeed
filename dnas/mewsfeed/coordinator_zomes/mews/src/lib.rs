@@ -424,11 +424,10 @@ pub fn get_mews_from_path(path: Path) -> ExternResult<Vec<FeedMew>> {
 
     let links = get_links(path_hash, LinkTypes::Tag, None)?;
     
-    // Deduplicate links to the same mew
-    let links_unique: Vec<Link> = links.into_iter().unique_by(|l| l.target.clone()).collect();
-    
-    let mut mews: Vec<FeedMew> = links_unique
+    // Deduplicate links to the same mew    
+    let mut mews: Vec<FeedMew> = links
         .into_iter()
+        .unique_by(|l| l.target.clone())
         .map(|link| {
             get(ActionHash::from(link.target), GetOptions::default())
                 .unwrap()
