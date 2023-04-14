@@ -153,6 +153,7 @@ import {
 import { AgentPubKey } from "@holochain/client";
 import min from "lodash.min";
 import { decode } from "@msgpack/msgpack";
+import { union, flatten } from "lodash";
 
 const ANCHOR_DATA_ID_AGENT_PUB_KEY = "agentPubKey";
 const ANCHOR_DATA_ID_URL = "url";
@@ -212,37 +213,68 @@ onMounted(async () => {
   mewLengthMax.value = dnaProperties.mew_characters_max;
 });
 
+const collectLinksWithinElement = (element: Element): LinkTarget[] => {
+  if (element.children.length > 0) {
+    console.log("element has children", element.children);
+    const childrenLinks: LinkTarget[] = Array.from(element.children)
+      .map((child) => {
+        console.log(
+          "child info",
+          child,
+          child.tagName,
+          child instanceof HTMLAnchorElement
+        );
+
+        if (
+          child &&
+          child.tagName === "A" &&
+          child instanceof HTMLAnchorElement
+        ) {
+          console.log("child is link");
+          if (child.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY]) {
+            const agentPubKeyString =
+              child.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY];
+            const agentPubKey = Uint8Array.from(
+              agentPubKeyString.split(",") as Iterable<number>
+            );
+
+            return { [LinkTargetName.Mention]: agentPubKey } as LinkTarget;
+          } else if (
+            (element as HTMLAnchorElement).dataset[ANCHOR_DATA_ID_URL]
+          ) {
+            const url = (element as HTMLAnchorElement).dataset[
+              ANCHOR_DATA_ID_URL
+            ];
+
+            return { [LinkTargetName.URL]: url } as LinkTarget;
+          }
+        }
+      })
+      .filter((l) => l !== undefined)
+      .map((l) => l as LinkTarget);
+
+    return union(
+      childrenLinks,
+      flatten(
+        Array.from(element.children).map((child) =>
+          collectLinksWithinElement(child)
+        )
+      )
+    );
+  } else {
+    return [];
+  }
+};
+
 const publishMew = () => {
   runWhenMyProfileExists(async () => {
     const mewInput = mewContainer.value?.querySelector(
       ".mew-content"
     ) as ElementWithInnerText;
-    if (!mewInput) {
-      return;
-    }
+    if (!mewInput) return;
 
     // build link array
-    const links: LinkTarget[] = [];
-    for (let i = 0; i < mewInput.children.length; i++) {
-      const element = mewInput.children.item(i);
-      if (
-        element &&
-        element.tagName === "A" &&
-        element instanceof HTMLAnchorElement
-      ) {
-        if (element.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY]) {
-          const agentPubKeyString =
-            element.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY];
-          const agentPubKey = Uint8Array.from(
-            agentPubKeyString.split(",") as Iterable<number>
-          );
-          links.push({ [LinkTargetName.Mention]: agentPubKey });
-        } else if (element.dataset[ANCHOR_DATA_ID_URL]) {
-          const url = element.dataset[ANCHOR_DATA_ID_URL];
-          links.push({ [LinkTargetName.URL]: url });
-        }
-      }
-    }
+    const links = collectLinksWithinElement(mewInput);
 
     const createMewInput: CreateMewInput = {
       mewType: props.mewType,
