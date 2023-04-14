@@ -1,7 +1,7 @@
 use hdk::prelude::*;
+use itertools::Itertools;
 use mews_integrity::*;
 use regex::Regex;
-use itertools::Itertools;
 
 fn get_my_mews_base(base_type: &str, ensure: bool) -> ExternResult<EntryHash> {
     let me: AgentPubKey = agent_info()?.agent_latest_pubkey;
@@ -423,8 +423,8 @@ pub fn get_mews_from_path(path: Path) -> ExternResult<Vec<FeedMew>> {
     let path_hash = path.path_entry_hash()?;
 
     let links = get_links(path_hash, LinkTypes::Tag, None)?;
-    
-    // Deduplicate links to the same mew    
+
+    // Deduplicate links to the same mew
     let mut mews: Vec<FeedMew> = links
         .into_iter()
         .unique_by(|l| l.target.clone())
