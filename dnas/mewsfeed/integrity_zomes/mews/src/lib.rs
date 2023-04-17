@@ -99,8 +99,8 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
     let properties = DnaProperties::try_from(dna_info()?.properties)
         .map_err(|e| wasm_error!(WasmErrorInner::Guest(e.into())))?;
 
-    match op.to_type::<EntryTypes, LinkTypes>().unwrap() {
-        OpType::StoreEntry(entry) => match entry {
+    match op.flattened::<EntryTypes, LinkTypes>().unwrap() {
+        FlatOp::StoreEntry(entry) => match entry {
             OpEntry::CreateEntry { app_entry, .. } => match app_entry {
                 EntryTypes::Mew(mew) => match mew.content {
                     None => Ok(ValidateCallbackResult::Valid),
