@@ -13,5 +13,5 @@ regex = "1"
 serde = "1"
 
 mews_integrity = {path = "../../integrity_zomes/mews"}
-hdk = {version = "0.1", features = ["encoding"]}
+hdk = {version = "=0.1.2", features = ["encoding"]}
 itertools = "0.10"
