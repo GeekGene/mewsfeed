@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { follow, myFollowing, unfollow } from "@/services/mewsfeed-dna";
+import { follow, following, unfollow } from "@/services/mewsfeed-dna";
 import { useProfilesStore } from "@/services/profiles-store";
 import { PROFILE_FIELDS } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
@@ -35,14 +35,15 @@ const props = defineProps({
 const profilesStore = useProfilesStore();
 const { runWhenMyProfileExists } = useMyProfile();
 
-const loading = ref(false);
-const following = ref(false);
+const loading = ref(true);
+const isFollowing = ref(false);
 
 onMounted(async () => {
   try {
-    loading.value = true;
-    const currentMyFollowing = await myFollowing();
-    following.value = currentMyFollowing.some((agent) =>
+    const currentMyFollowing = await following(
+      profilesStore.value.client.client.myPubKey
+    );
+    isFollowing.value = currentMyFollowing.some((agent) =>
       isSameHash(agent, props.agentPubKey)
     );
   } catch (error) {

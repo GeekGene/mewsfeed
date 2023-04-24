@@ -141,7 +141,7 @@ import { Profile } from "@holochain-open-dev/profiles";
 import { isMentionTag, isRawUrl, isLinkTag, TAG_SYMBOLS } from "@/utils/tags";
 import { onMounted, PropType, ref, computed } from "vue";
 import {
-  CreateMewInput,
+  Mew,
   ElementWithInnerText,
   LinkTarget,
   LinkTargetName,
@@ -149,11 +149,18 @@ import {
   MewType,
   PROFILE_FIELDS,
   TOOLTIP_DELAY,
+  UrlLinkTarget,
+  MentionLinkTarget,
 } from "../types/types";
-import { AgentPubKey } from "@holochain/client";
+import {
+  AgentPubKey,
+  decodeHashFromBase64,
+  encodeHashToBase64,
+} from "@holochain/client";
 import min from "lodash.min";
+import union from "lodash.union";
+import flatten from "lodash.flatten";
 import { decode } from "@msgpack/msgpack";
-import { union, flatten } from "lodash";
 
 const ANCHOR_DATA_ID_AGENT_PUB_KEY = "agentPubKey";
 const ANCHOR_DATA_ID_URL = "url";
@@ -215,38 +222,23 @@ onMounted(async () => {
 
 const collectLinksWithinElement = (element: Element): LinkTarget[] => {
   if (element.children.length > 0) {
-    console.log("element has children", element.children);
     const childrenLinks: LinkTarget[] = Array.from(element.children)
       .map((child) => {
-        console.log(
-          "child info",
-          child,
-          child.tagName,
-          child instanceof HTMLAnchorElement
-        );
-
         if (
           child &&
           child.tagName === "A" &&
           child instanceof HTMLAnchorElement
         ) {
-          console.log("child is link");
           if (child.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY]) {
-            const agentPubKeyString =
-              child.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY];
-            const agentPubKey = Uint8Array.from(
-              agentPubKeyString.split(",") as Iterable<number>
-            );
-
-            return { [LinkTargetName.Mention]: agentPubKey } as LinkTarget;
-          } else if (
-            (element as HTMLAnchorElement).dataset[ANCHOR_DATA_ID_URL]
-          ) {
-            const url = (element as HTMLAnchorElement).dataset[
-              ANCHOR_DATA_ID_URL
-            ];
-
-            return { [LinkTargetName.URL]: url } as LinkTarget;
+            return {
+              [LinkTargetName.Mention]: decodeHashFromBase64(
+                child.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY]
+              ),
+            } as MentionLinkTarget;
+          } else if (child.dataset[ANCHOR_DATA_ID_URL]) {
+            return {
+              [LinkTargetName.Url]: child.dataset[ANCHOR_DATA_ID_URL],
+            } as UrlLinkTarget;
           }
         }
       })
@@ -276,14 +268,16 @@ const publishMew = () => {
     // build link array
     const links = collectLinksWithinElement(mewInput);
 
-    const createMewInput: CreateMewInput = {
-      mewType: props.mewType,
+    const mew: Mew = {
       text: getTrimmedText(),
-      links: links.length ? links : undefined,
+      links,
+      mew_type: props.mewType,
     };
+    console.log("mew is ", mew);
     try {
       saving.value = true;
-      await store.createMew(createMewInput);
+      const res = await store.createMew(mew);
+      console.log(res);
     } catch (error) {
       showError(error);
     } finally {
@@ -377,7 +371,7 @@ const onAutocompleteAgentSelect = (agent: AgentPubKey, profile: Profile) => {
   const anchor = document.createElement("a");
   anchor.href = "#";
   anchor.textContent = TAG_SYMBOLS.MENTION + profile.nickname;
-  anchor.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY] = agent.toString();
+  anchor.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY] = encodeHashToBase64(agent);
   range.deleteContents();
   range.insertNode(anchor);
 

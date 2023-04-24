@@ -14,7 +14,7 @@
     @click.stop
   >
     {{ contentPart.text }}
-    <q-tooltip :delay="TOOLTIP_DELAY">{{ contentPart.route }}</q-tooltip>
+    <q-tooltip :delay="TOOLTIP_DELAY">{{ contentPart.href }}</q-tooltip>
   </a>
   <LinkProfilePopup
     v-else-if="contentPart.route && contentPart.tagType === MewTagType.Mention"

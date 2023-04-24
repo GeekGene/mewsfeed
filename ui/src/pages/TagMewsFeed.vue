@@ -62,7 +62,7 @@ watch(route, () => {
 const onToggleLickMew = async (hash: ActionHash) => {
   try {
     const index = mews.value.findIndex((mew) =>
-      isSameHash(hash, mew.actionHash)
+      isSameHash(hash, mew.action_hash)
     );
     if (index !== -1) {
       mews.value[index] = await getFeedMewAndContext(hash);
@@ -77,7 +77,7 @@ const onPublishmew = async (mewType: MewType) => {
   showMessage(
     MewTypeName.Reply in mewType
       ? "Replied to mew"
-      : MewTypeName.MewMew in mewType
+      : MewTypeName.Mewmew in mewType
       ? "Mew mewmewed"
       : "Quoted mew"
   );

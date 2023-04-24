@@ -36,10 +36,8 @@ const TRUNCATED_MEW_LENGTH = 300;
 
 const truncate = ref(true);
 
-const links = computed(
-  () => props.feedMew.mew.content?.links?.slice().reverse() || []
-);
-const content = computed(() => props.feedMew.mew.content?.text || "");
+const links = computed(() => props.feedMew.mew.links?.slice().reverse() || []);
+const content = computed(() => props.feedMew.mew.text || "");
 const contentRequiresTruncation = computed(
   () => content.value.length > TRUNCATED_MEW_LENGTH || false
 );

@@ -4,7 +4,7 @@ import {
   mewsFeed,
   MewsFn,
 } from "@/services/mewsfeed-dna";
-import { CreateMewInput, FeedMew } from "@/types/types";
+import { Mew, FeedMew } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
 import { showError } from "@/utils/notification";
 import { ActionHash } from "@holochain/client";
@@ -23,7 +23,7 @@ export const makeUseMewsfeedStore = () => {
       async fetchMewsFeed() {
         try {
           this.isLoadingMewsFeed = true;
-          this.mewsFeed = await mewsFeed({ option: "" });
+          this.mewsFeed = await mewsFeed();
         } catch (error) {
           showError(error);
         } finally {
@@ -33,7 +33,7 @@ export const makeUseMewsfeedStore = () => {
       async reloadMew(actionHash: ActionHash) {
         try {
           const index = this.mewsFeed.findIndex((mew) =>
-            isSameHash(actionHash, mew.actionHash)
+            isSameHash(actionHash, mew.action_hash)
           );
           if (index !== -1) {
             this.mewsFeed[index] = await getFeedMewAndContext(actionHash);
@@ -42,7 +42,7 @@ export const makeUseMewsfeedStore = () => {
           showError(error);
         }
       },
-      async createMew(mew: CreateMewInput) {
+      async createMew(mew: Mew) {
         return callZome(MewsFn.CreateMew, mew);
       },
     },

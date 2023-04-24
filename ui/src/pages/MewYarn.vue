@@ -30,7 +30,7 @@
 
                 <profiles-context :store="profilesStore">
                   <CreateMewField
-                    :mew-type="{ [MewTypeName.Reply]: mew.actionHash }"
+                    :mew-type="{ [MewTypeName.Reply]: mew.action_hash }"
                     class="full-width"
                     @publish-mew="onPublishMew"
                   />
@@ -84,7 +84,7 @@ const isLoadingReplies = ref(false);
 const onToggleLickMew = async (mewHash: ActionHash) => {
   const feedMew = await getFeedMewAndContext(mewHash);
   const replyIndex = replies.value.findIndex((r) =>
-    isSameHash(r.actionHash, mewHash)
+    isSameHash(r.action_hash, mewHash)
   );
   if (replyIndex === -1) {
     mew.value = feedMew;

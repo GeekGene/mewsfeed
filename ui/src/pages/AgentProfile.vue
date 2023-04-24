@@ -84,9 +84,10 @@ import EmptyMewsFeed from "@/components/EmptyMewsFeed.vue";
 import FolloweesList from "@/components/FolloweesList.vue";
 import FollowersList from "@/components/FollowersList.vue";
 import {
+  followers,
+  following,
   getFeedMewAndContext,
   mewsBy,
-  myFollowing,
 } from "@/services/mewsfeed-dna";
 import { useProfilesStore } from "@/services/profiles-store";
 import { FeedMew, MewType, MewTypeName, PROFILE_FIELDS } from "@/types/types";
@@ -134,14 +135,16 @@ const loadMews = async () => {
 const loadProfile = async () => {
   try {
     loadingProfile.value = true;
-    const [profileData, currentMyFollowing] = await Promise.all([
+    const [profileData, myFollowing, myFollowers] = await Promise.all([
       profilesStore.value.client.getAgentProfile(agentPubKey.value),
-      myFollowing(),
+      following(agentPubKey.value),
+      followers(agentPubKey.value),
     ]);
+
     if (profileData) {
       profile.value = profileData;
     }
-    isFollowing.value = currentMyFollowing.includes(agentPubKey.value);
+    isFollowing.value = myFollowing.includes(agentPubKey.value);
   } catch (error) {
     showError(error);
   } finally {
@@ -168,7 +171,7 @@ watch(
 const onToggleLickMew = async (hash: ActionHash) => {
   try {
     const index = mews.value.findIndex((mew) =>
-      isSameHash(hash, mew.actionHash)
+      isSameHash(hash, mew.action_hash)
     );
     if (index !== -1) {
       mews.value[index] = await getFeedMewAndContext(hash);
@@ -183,7 +186,7 @@ const onPublishMew = async (mewType: MewType) => {
   showMessage(
     MewTypeName.Reply in mewType
       ? "Replied to mew"
-      : MewTypeName.MewMew in mewType
+      : MewTypeName.Mewmew in mewType
       ? "Mew mewmewed"
       : "Quoted mew"
   );

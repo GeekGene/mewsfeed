@@ -17,7 +17,8 @@ export const TOOLTIP_DELAY = 400;
 
 export enum LinkTargetName {
   Mention = "Mention",
-  URL = "URL",
+  Url = "Url",
+  Record = "Record",
 }
 
 export interface MentionLinkTarget {
@@ -25,21 +26,20 @@ export interface MentionLinkTarget {
 }
 
 export interface UrlLinkTarget {
-  [LinkTargetName.URL]: string;
+  [LinkTargetName.Url]: string;
 }
 
-export type LinkTarget = MentionLinkTarget | UrlLinkTarget;
+export interface RecordLinkTarget {
+  [LinkTargetName.Record]: ActionHash;
+}
 
-export type CreateMewInput = {
-  mewType: MewType;
+export type LinkTarget = MentionLinkTarget | UrlLinkTarget | RecordLinkTarget;
+
+export type Mew = {
   text: string | null;
-  links?: LinkTarget[];
+  links: LinkTarget[];
+  mew_type: MewType;
 };
-
-export interface MewContent {
-  text: string;
-  links?: LinkTarget[];
-}
 
 export enum MewTagType {
   Mention,
@@ -57,10 +57,10 @@ export interface MewContentPart {
 }
 
 export enum MewTypeName {
-  Original = "original",
-  Reply = "reply",
-  MewMew = "mewMew",
-  Quote = "quote",
+  Original = "Original",
+  Reply = "Reply",
+  Mewmew = "Mewmew",
+  Quote = "Quote",
 }
 
 export type MewType =
@@ -71,29 +71,20 @@ export type MewType =
       [MewTypeName.Reply]: ActionHash;
     }
   | {
-      [MewTypeName.MewMew]: ActionHash;
+      [MewTypeName.Mewmew]: ActionHash;
     }
   | {
       [MewTypeName.Quote]: ActionHash;
     };
 
-export interface Mew {
-  mewType: MewType;
-  content: MewContent | null;
-}
-
 export interface FeedMew {
   mew: Mew;
   action: Create;
-  actionHash: ActionHash;
+  action_hash: ActionHash;
   replies: HoloHash[];
   quotes: HoloHash[];
   licks: AgentPubKey[];
   mewmews: HoloHash[];
-}
-
-export interface FeedOptions {
-  option: string;
 }
 
 export interface NotificationOptions {

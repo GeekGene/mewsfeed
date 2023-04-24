@@ -604,6 +604,23 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
 
 [[package]]
+name = "follows"
+version = "0.0.1"
+dependencies = [
+ "follows_integrity",
+ "hdk",
+ "serde",
+]
+
+[[package]]
+name = "follows_integrity"
+version = "0.0.1"
+dependencies = [
+ "hdi",
+ "serde",
+]
+
+[[package]]
 name = "gcollections"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -946,15 +963,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "itertools"
-version = "0.10.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b0fd2260e829bddf4cb6ea802289de2f86d6a7a690192fbe91b3f46e0f2c8473"
-dependencies = [
- "either",
-]
-
-[[package]]
 name = "itoa"
 version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1107,9 +1115,7 @@ dependencies = [
 name = "mews"
 version = "0.0.1"
 dependencies = [
- "derive_more",
  "hdk",
- "itertools",
  "mews_integrity",
  "regex",
  "serde",
@@ -1120,6 +1126,7 @@ name = "mews_integrity"
 version = "0.0.1"
 dependencies = [
  "hdi",
+ "hdk",
  "serde",
 ]
 
@@ -1274,16 +1281,21 @@ dependencies = [
 
 [[package]]
 name = "profiles"
-version = "0.1.2"
+version = "0.0.1"
 dependencies = [
  "hc_zome_profiles_coordinator",
+ "hdk",
+ "profiles_integrity",
+ "serde",
 ]
 
 [[package]]
 name = "profiles_integrity"
-version = "0.1.0"
+version = "0.0.1"
 dependencies = [
  "hc_zome_profiles_integrity",
+ "hdi",
+ "serde",
 ]
 
 [[package]]

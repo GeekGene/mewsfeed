@@ -60,7 +60,7 @@ export const splitMewTextIntoContentParts = (
   const contentParts = parts.map((part) => {
     const partIsTag = isTag(part);
 
-    if (links.length > 0 && isRawUrl(part)) {
+    if (isRawUrl(part)) {
       return {
         text: part,
         href: part,
@@ -95,7 +95,7 @@ export const splitMewTextIntoContentParts = (
 
       return {
         text: part,
-        href: (link as UrlLinkTarget).URL,
+        href: (link as UrlLinkTarget).Url,
         tagType: MewTagType.Link,
       };
     } else if (partIsTag && part[0] === TAG_SYMBOLS.HASHTAG) {
