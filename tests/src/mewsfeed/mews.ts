@@ -454,7 +454,7 @@ test("Mews Feed - should include own mews", async (t) => {
       const aliceCallMewsZome = getZomeCaller(alice.cells[0], "mews");
 
       const aliceMewsFeedInitial: FeedMew[] = await aliceCallMewsZome(
-        "get_all_mews_with_context",
+        "get_my_followees_mews_with_context",
         null,
         60000
       );
@@ -472,7 +472,7 @@ test("Mews Feed - should include own mews", async (t) => {
       await aliceCallMewsZome("create_mew", mewInput, 60000);
 
       const aliceMewsFeed: FeedMew[] = await aliceCallMewsZome(
-        "get_all_mews_with_context",
+        "get_my_followees_mews_with_context",
         null,
         60000
       );
@@ -504,7 +504,7 @@ test("Mews Feed - should include mews of followed agent", async (t) => {
       await aliceCallMewsZome("create_mew", mewInput, 60000);
 
       const bobMewsFeedInitial: FeedMew[] = await bobCallMewsZome(
-        "get_all_mews_with_context",
+        "get_my_followees_mews_with_context",
         null,
         60000
       );
@@ -520,18 +520,16 @@ test("Mews Feed - should include mews of followed agent", async (t) => {
       });
 
       const bobMewsFeed: FeedMew[] = await bobCallMewsZome(
-        "get_all_mews_with_context",
+        "get_my_followees_mews_with_context",
         null,
         60000
       );
-      console.warn("bobs mews feed", bobMewsFeed);
       t.ok(bobMewsFeed.length === 1, "bob's mews feed includes 1 mew");
       t.equal(
         bobMewsFeed[0].mew.text,
         mewContent,
         "mew content in bob's mews feed matches alice's mew content"
       );
-      console.warn("bobs mews feed macth alice", bobMewsFeed[0], mewContent);
     },
     true,
     { timeout: 60000 }
@@ -575,11 +573,10 @@ test("Mews Feed - should not include mews of non-followed agent", async (t) => {
       await pause(1000);
 
       const bobMewsFeed: FeedMew[] = await bobCallMewsZome(
-        "get_followees_mews_with_context",
-        bob.agentPubKey,
+        "get_my_followees_mews_with_context",
+        null,
         60000
       );
-      console.warn("bobs mews feed", bobMewsFeed);
       t.ok(bobMewsFeed.length === 1, "bob's mews feed includes 1 mew");
       t.equal(
         bobMewsFeed[0].mew.text,
@@ -619,7 +616,7 @@ test("Mews Feed - un-following should exclude agent's mews from feed", async (t)
       await pause(1000);
 
       const bobMewsFeedWhenFollowing: FeedMew[] = await bobCallMewsZome(
-        "get_all_mews_with_context",
+        "get_my_followees_mews_with_context",
         null,
         60000
       );
@@ -640,7 +637,7 @@ test("Mews Feed - un-following should exclude agent's mews from feed", async (t)
       });
 
       const bobMewsFeed: FeedMew[] = await bobCallMewsZome(
-        "get_all_mews_with_context",
+        "get_my_followees_mews_with_context",
         null,
         60000
       );
@@ -711,7 +708,7 @@ test("Mews Feed - should be ordered by timestamp in descending order", async (t)
       await pause(1000);
 
       const aliceMewsFeed: FeedMew[] = await aliceCallMewsZome(
-        "get_all_mews_with_context",
+        "get_my_followees_mews_with_context",
         null,
         60000
       );
@@ -855,7 +852,7 @@ test("Mew Interaction - replying to a mew should be linked correctly", async (t)
       );
 
       const replyMew: FeedMew = await aliceCallMewsZome(
-        "get_feed_mew_and_context",
+        "get_mew_with_context",
         replyRecord.signed_action.hashed.hash,
         60000
       );
@@ -863,7 +860,7 @@ test("Mew Interaction - replying to a mew should be linked correctly", async (t)
       t.equal(replyMew.mew.text, aliceReplyContent, "reply is alice's reply");
 
       const originalMew: FeedMew = await aliceCallMewsZome(
-        "get_feed_mew_and_context",
+        "get_mew_with_context",
         mewRecord.signed_action.hashed.hash,
         60000
       );
@@ -903,7 +900,7 @@ test("Mew Interaction - mewmewing a mew should be linked correctly", async (t) =
       );
 
       const aliceMewmewInput: Mew = {
-        text: null,
+        text: "",
         links: [],
         mew_type: { [MewTypeName.Mewmew]: mewRecord.signed_action.hashed.hash },
       };
@@ -914,7 +911,7 @@ test("Mew Interaction - mewmewing a mew should be linked correctly", async (t) =
       );
 
       const mewmew: FeedMew = await aliceCallMewsZome(
-        "get_feed_mew_and_context",
+        "get_mew_with_context",
         mewmewRecord.signed_action.hashed.hash,
         60000
       );
@@ -922,7 +919,7 @@ test("Mew Interaction - mewmewing a mew should be linked correctly", async (t) =
       t.equal(mewmew.mew, null, "mewmew is alice's mewmew");
 
       const originalMew: FeedMew = await aliceCallMewsZome(
-        "get_feed_mew_and_context",
+        "get_mew_with_context",
         mewRecord.signed_action.hashed.hash,
         60000
       );
@@ -965,7 +962,9 @@ test("Mew Interaction - quoting a mew should be linked correctly", async (t) => 
       const aliceQuoteInput: Mew = {
         text: aliceQuoteText,
         links: [],
-        mew_type: { [MewTypeName.Quote]: mewRecord.signed_action.hashed.hash },
+        mew_type: {
+          [MewTypeName.Quote]: mewRecord.signed_action.hashed.hash,
+        },
       };
       const quoteRecord: Record = await aliceCallMewsZome(
         "create_mew",
@@ -974,7 +973,7 @@ test("Mew Interaction - quoting a mew should be linked correctly", async (t) => 
       );
 
       const quote: FeedMew = await aliceCallMewsZome(
-        "get_feed_mew_and_context",
+        "get_mew_with_context",
         quoteRecord.signed_action.hashed.hash,
         60000
       );
@@ -982,7 +981,7 @@ test("Mew Interaction - quoting a mew should be linked correctly", async (t) => 
       t.equal(quote.mew.text, aliceQuoteText, "quote is alice's quote");
 
       const originalMew: FeedMew = await aliceCallMewsZome(
-        "get_feed_mew_and_context",
+        "get_mew_with_context",
         mewRecord.signed_action.hashed.hash,
         60000
       );
