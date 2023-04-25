@@ -1,19 +1,16 @@
+use crate::mew::get_mew_with_context;
 use hdk::prelude::*;
 use mews_integrity::*;
-use crate::mew::get_mew_with_context;
 
 #[hdk_extern]
 pub fn get_agent_mews(author: AgentPubKey) -> ExternResult<Vec<Record>> {
     let hashes = get_agent_mew_hashes(author)?;
     let get_input: Vec<GetInput> = hashes
         .into_iter()
-        .map(|hash| GetInput::new(
-            hash.into(),
-            GetOptions::default(),
-        ))
+        .map(|hash| GetInput::new(hash.into(), GetOptions::default()))
         .collect();
     let records = HDK.with(|hdk| hdk.borrow().get(get_input))?;
-    let records: Vec<Record> = records.into_iter().filter_map(|r| r).collect();
+    let records: Vec<Record> = records.into_iter().flatten().collect();
     Ok(records)
 }
 
@@ -36,6 +33,6 @@ fn get_agent_mew_hashes(author: AgentPubKey) -> ExternResult<Vec<ActionHash>> {
         .into_iter()
         .map(|link| ActionHash::from(link.target))
         .collect();
-    
+
     Ok(hashes)
 }

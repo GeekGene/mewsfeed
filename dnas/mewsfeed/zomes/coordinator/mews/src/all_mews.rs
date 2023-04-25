@@ -1,19 +1,16 @@
+use crate::mew::get_mew_with_context;
 use hdk::prelude::*;
 use mews_integrity::*;
-use crate::mew::get_mew_with_context;
 
 #[hdk_extern]
 pub fn get_all_mews(_: ()) -> ExternResult<Vec<Record>> {
     let hashes = get_all_mew_hashes()?;
     let get_input: Vec<GetInput> = hashes
         .into_iter()
-        .map(|hash| GetInput::new(
-            ActionHash::from(hash).into(),
-            GetOptions::default(),
-        ))
+        .map(|hash| GetInput::new(hash.into(), GetOptions::default()))
         .collect();
     let records = HDK.with(|hdk| hdk.borrow().get(get_input))?;
-    let records: Vec<Record> = records.into_iter().filter_map(|r| r).collect();
+    let records: Vec<Record> = records.into_iter().flatten().collect();
 
     Ok(records)
 }
@@ -36,8 +33,8 @@ fn get_all_mew_hashes() -> ExternResult<Vec<ActionHash>> {
     links.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
     let hashes: Vec<ActionHash> = links
         .into_iter()
-        .map(|link|ActionHash::from(link.target).into())
+        .map(|link| ActionHash::from(link.target))
         .collect();
-    
+
     Ok(hashes)
 }

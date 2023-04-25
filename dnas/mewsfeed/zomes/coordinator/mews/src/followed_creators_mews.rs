@@ -1,19 +1,16 @@
+use crate::mew::get_mew_with_context;
 use hdk::prelude::*;
 use mews_integrity::*;
-use crate::mew::get_mew_with_context;
 
 #[hdk_extern]
 pub fn get_followed_creators_mews(agent: AgentPubKey) -> ExternResult<Vec<Record>> {
     let hashes = get_followed_creators_mew_hashes(agent)?;
     let get_input: Vec<GetInput> = hashes
         .into_iter()
-        .map(|hash| GetInput::new(
-            ActionHash::from(hash).into(),
-            GetOptions::default(),
-        ))
+        .map(|hash| GetInput::new(hash.into(), GetOptions::default()))
         .collect();
     let records = HDK.with(|hdk| hdk.borrow().get(get_input))?;
-    let records: Vec<Record> = records.into_iter().filter_map(|r| r).collect();
+    let records: Vec<Record> = records.into_iter().flatten().collect();
 
     Ok(records)
 }
@@ -40,25 +37,31 @@ fn get_followed_creators_mew_hashes(agent: AgentPubKey) -> ExternResult<Vec<Acti
     )?;
 
     match zome_call_response {
-        ZomeCallResponse::Ok(response) =>  {
-            let mut creators: Vec<AgentPubKey> = response.decode().map_err(|_| wasm_error!(WasmErrorInner::Guest("Failed to deserialize zome call response".into())))?;
+        ZomeCallResponse::Ok(response) => {
+            let mut creators: Vec<AgentPubKey> = response.decode().map_err(|_| {
+                wasm_error!(WasmErrorInner::Guest(
+                    "Failed to deserialize zome call response".into()
+                ))
+            })?;
             creators.push(agent);
-            let mut links: Vec<Link> =  creators
+            let mut links: Vec<Link> = creators
                 .into_iter()
-                .filter_map(|agent| get_links(AnyLinkableHash::from(agent), LinkTypes::AgentMews, None).ok())
+                .filter_map(|agent| {
+                    get_links(AnyLinkableHash::from(agent), LinkTypes::AgentMews, None).ok()
+                })
                 .flatten()
                 .collect();
             links.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
             let hashes: Vec<ActionHash> = links
                 .into_iter()
-                .map(|link|ActionHash::from(link.target).into())
+                .map(|link| ActionHash::from(link.target))
                 .collect();
-        
+
             Ok(hashes)
         }
-        _ => {
-            Err(wasm_error!(WasmErrorInner::Guest("Failed to call 'get_creators_for_follower' in zome 'follows'".into())))
-        }
+        _ => Err(wasm_error!(WasmErrorInner::Guest(
+            "Failed to call 'get_creators_for_follower' in zome 'follows'".into()
+        ))),
     }
 }
 #[hdk_extern]

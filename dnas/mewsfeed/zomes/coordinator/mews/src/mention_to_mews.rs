@@ -1,6 +1,6 @@
+use crate::mew::get_mew_with_context;
 use hdk::prelude::*;
 use mews_integrity::*;
-use crate::mew::get_mew_with_context;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AddMentionForMewInput {
@@ -9,9 +9,14 @@ pub struct AddMentionForMewInput {
 }
 #[hdk_extern]
 pub fn add_mention_for_mew(input: AddMentionForMewInput) -> ExternResult<()> {
-    create_link(input.base_mention, input.target_mew_hash, LinkTypes::MentionToMews, ())?;
+    create_link(
+        input.base_mention,
+        input.target_mew_hash,
+        LinkTypes::MentionToMews,
+        (),
+    )?;
 
-    Ok(())    
+    Ok(())
 }
 
 #[hdk_extern]
@@ -19,13 +24,14 @@ pub fn get_mews_for_mention(mention: AgentPubKey) -> ExternResult<Vec<Record>> {
     let hashes = get_mew_hashes_for_mention(mention)?;
     let get_input: Vec<GetInput> = hashes
         .into_iter()
-        .map(|hash| GetInput::new(ActionHash::from(hash).into(), GetOptions::default()))
+        .map(|hash| GetInput::new(hash.into(), GetOptions::default()))
         .collect();
 
     // Get the records to filter out the deleted ones
-    let records: Vec<Record> = HDK.with(|hdk| hdk.borrow().get(get_input))?
+    let records: Vec<Record> = HDK
+        .with(|hdk| hdk.borrow().get(get_input))?
         .into_iter()
-        .filter_map(|r| r)
+        .flatten()
         .collect();
 
     Ok(records)
@@ -48,20 +54,19 @@ fn get_mew_hashes_for_mention(mention: AgentPubKey) -> ExternResult<Vec<ActionHa
 
     let hashes: Vec<ActionHash> = links
         .into_iter()
-        .map(|link|ActionHash::from(link.target).into())
+        .map(|link| ActionHash::from(link.target))
         .collect();
-    
+
     Ok(hashes)
 }
 
-        
 #[derive(Serialize, Deserialize, Debug)]
 pub struct RemoveMentionForMewInput {
     pub base_mention: AgentPubKey,
     pub target_mew_hash: ActionHash,
 }
 #[hdk_extern]
-pub fn remove_mention_for_mew(input: RemoveMentionForMewInput ) -> ExternResult<()> {    
+pub fn remove_mention_for_mew(input: RemoveMentionForMewInput) -> ExternResult<()> {
     let links = get_links(input.base_mention.clone(), LinkTypes::MentionToMews, None)?;
 
     for link in links {
@@ -70,5 +75,5 @@ pub fn remove_mention_for_mew(input: RemoveMentionForMewInput ) -> ExternResult<
         }
     }
 
-    Ok(())        
+    Ok(())
 }

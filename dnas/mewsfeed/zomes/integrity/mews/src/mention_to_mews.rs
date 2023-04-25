@@ -12,14 +12,12 @@ pub fn validate_create_link_mention_to_mews(
         .entry()
         .to_app_option()
         .map_err(|e| wasm_error!(e))?
-        .ok_or(
-            wasm_error!(
-                WasmErrorInner::Guest(String::from("Linked action must reference an entry"))
-            ),
-        )?;
+        .ok_or(wasm_error!(WasmErrorInner::Guest(String::from(
+            "Linked action must reference an entry"
+        ))))?;
 
     // @todo validate base_address is an AgentPubKey
-    
+
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_delete_link_mention_to_mews(
@@ -30,8 +28,10 @@ pub fn validate_delete_link_mention_to_mews(
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
     if action.author != original_action.author {
-        return Ok(ValidateCallbackResult::Invalid("Only the original author can delete the link".into()));
+        return Ok(ValidateCallbackResult::Invalid(
+            "Only the original author can delete the link".into(),
+        ));
     }
-    
+
     Ok(ValidateCallbackResult::Valid)
 }

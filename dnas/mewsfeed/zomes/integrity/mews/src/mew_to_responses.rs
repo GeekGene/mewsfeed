@@ -11,22 +11,18 @@ pub fn validate_create_link_mew_to_responses(
         .entry()
         .to_app_option()
         .map_err(|e| wasm_error!(e))?
-        .ok_or(
-            wasm_error!(
-                WasmErrorInner::Guest(String::from("Linked action must reference an entry"))
-            ),
-        )?;
+        .ok_or(wasm_error!(WasmErrorInner::Guest(String::from(
+            "Linked action must reference an entry"
+        ))))?;
     let action_hash = ActionHash::from(target_address);
     let record = must_get_valid_record(action_hash)?;
     let _mew: crate::Mew = record
         .entry()
         .to_app_option()
         .map_err(|e| wasm_error!(e))?
-        .ok_or(
-            wasm_error!(
-                WasmErrorInner::Guest(String::from("Linked action must reference an entry"))
-            ),
-        )?;
+        .ok_or(wasm_error!(WasmErrorInner::Guest(String::from(
+            "Linked action must reference an entry"
+        ))))?;
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_delete_link_mew_to_responses(
@@ -51,22 +47,18 @@ pub fn validate_create_link_response_to_mews(
         .entry()
         .to_app_option()
         .map_err(|e| wasm_error!(e))?
-        .ok_or(
-            wasm_error!(
-                WasmErrorInner::Guest(String::from("Linked action must reference an entry"))
-            ),
-        )?;
+        .ok_or(wasm_error!(WasmErrorInner::Guest(String::from(
+            "Linked action must reference an entry"
+        ))))?;
     let action_hash = ActionHash::from(target_address);
     let record = must_get_valid_record(action_hash)?;
     let _mew: crate::Mew = record
         .entry()
         .to_app_option()
         .map_err(|e| wasm_error!(e))?
-        .ok_or(
-            wasm_error!(
-                WasmErrorInner::Guest(String::from("Linked action must reference an entry"))
-            ),
-        )?;
+        .ok_or(wasm_error!(WasmErrorInner::Guest(String::from(
+            "Linked action must reference an entry"
+        ))))?;
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_delete_link_response_to_mews(
@@ -77,7 +69,9 @@ pub fn validate_delete_link_response_to_mews(
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
     if action.author != original_action.author {
-        return Ok(ValidateCallbackResult::Invalid("Only the original action author can delete their link".into()));
+        return Ok(ValidateCallbackResult::Invalid(
+            "Only the original action author can delete their link".into(),
+        ));
     }
 
     Ok(ValidateCallbackResult::Valid)

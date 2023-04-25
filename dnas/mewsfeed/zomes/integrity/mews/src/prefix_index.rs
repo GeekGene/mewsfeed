@@ -1,10 +1,14 @@
 use hdi::prelude::*;
-use hdk::hash_path::path::{Component, Path, root_hash};
+use hdk::hash_path::path::{root_hash, Component, Path};
 
 pub const PREFIX_INDEX_LENGTH: usize = 3;
 
 pub fn make_prefix_path(text: String) -> ExternResult<Path> {
-    let prefix: String = text.to_lowercase().chars().take(PREFIX_INDEX_LENGTH).collect();
+    let prefix: String = text
+        .to_lowercase()
+        .chars()
+        .take(PREFIX_INDEX_LENGTH)
+        .collect();
     let path = Path::from(format!("prefix_index.{}", prefix));
 
     Ok(path)
@@ -16,19 +20,25 @@ pub fn validate_create_link_prefix_index(
     _target_address: AnyLinkableHash,
     tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    let tag_bytes = SerializedBytes::try_from(UnsafeBytes::from(tag.into_inner())).map_err(|_| wasm_error!("Failed to convert link tag to SerializedBytes"))?;
+    let tag_bytes = SerializedBytes::try_from(UnsafeBytes::from(tag.into_inner()))
+        .map_err(|_| wasm_error!("Failed to convert link tag to SerializedBytes"))?;
     let tag_component = Component::try_from(tag_bytes).map_err(|e| wasm_error!(e))?;
     let tag_string = String::try_from(&tag_component).map_err(|e| wasm_error!(e))?;
 
     if base_address == root_hash()? {
         // First component
         if tag_string != "prefix_index" {
-            return Ok(ValidateCallbackResult::Invalid("PrefixIndex first component must be 'prefix_index'".into()));
+            return Ok(ValidateCallbackResult::Invalid(
+                "PrefixIndex first component must be 'prefix_index'".into(),
+            ));
         }
-    } else if EntryHash::from(base_address.clone()) == Path::from("prefix_index").path_entry_hash()? {
+    } else if EntryHash::from(base_address) == Path::from("prefix_index").path_entry_hash()? {
         // Second component
         if tag_string.chars().count() != PREFIX_INDEX_LENGTH {
-            return Ok(ValidateCallbackResult::Invalid(format!("PrefixIndex second component must be length {}", PREFIX_INDEX_LENGTH).into()))
+            return Ok(ValidateCallbackResult::Invalid(format!(
+                "PrefixIndex second component must be length {}",
+                PREFIX_INDEX_LENGTH
+            )));
         }
     } else {
         // Third or later component
@@ -58,5 +68,7 @@ pub fn validate_delete_link_prefix_index(
     _target: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    Ok(ValidateCallbackResult::Invalid(String::from("PrefixIndex links cannot be deleted")))
+    Ok(ValidateCallbackResult::Invalid(String::from(
+        "PrefixIndex links cannot be deleted",
+    )))
 }

@@ -1,5 +1,5 @@
-use hdi::prelude::*;
 use crate::dna_properties::*;
+use hdi::prelude::*;
 
 #[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone, PartialEq)]
 pub enum LinkTarget {
@@ -72,12 +72,13 @@ pub fn validate_create_mew(
             }
         }
         MewType::Mewmew(_) => {
-            if mew.text.len() != 0 {
-                return Ok(ValidateCallbackResult::Invalid("Mewmew cannot contain text".into()));
+            if !mew.text.is_empty() {
+                return Ok(ValidateCallbackResult::Invalid(
+                    "Mewmew cannot contain text".into(),
+                ));
             }
         }
     }
-   
 
     Ok(ValidateCallbackResult::Valid)
 }
@@ -87,7 +88,9 @@ pub fn validate_update_mew(
     _original_action: EntryCreationAction,
     _original_mew: Mew,
 ) -> ExternResult<ValidateCallbackResult> {
-    Ok(ValidateCallbackResult::Invalid("Mews cannot be updated".into()))
+    Ok(ValidateCallbackResult::Invalid(
+        "Mews cannot be updated".into(),
+    ))
 }
 pub fn validate_delete_mew(
     _action: Delete,
