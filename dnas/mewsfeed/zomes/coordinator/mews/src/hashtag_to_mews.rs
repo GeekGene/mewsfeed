@@ -5,32 +5,32 @@ use crate::mew::get_mew_with_context;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AddHashtagForMewInput {
-    pub mew_hash: ActionHash,
-    pub hashtag: String,
+    pub base_hashtag: String,
+    pub target_mew_hash: ActionHash,
 }
 
 #[hdk_extern]
 pub fn add_hashtag_for_mew(input: AddHashtagForMewInput) -> ExternResult<()> {
     // Link from hashtag to mew
-    create_link(Path::from(input.hashtag.clone()).path_entry_hash()?, input.mew_hash.clone(), LinkTypes::HashtagToMews, input.hashtag.as_bytes().to_vec())?;
+    create_link(Path::from(input.base_hashtag.clone()).path_entry_hash()?, input.target_mew_hash.clone(), LinkTypes::HashtagToMews, input.base_hashtag.as_bytes().to_vec())?;
 
     // Add hashtag to prefix index, link to mew_hash
-    let tag: &str = input.hashtag.split('#').nth(1).unwrap();
-    add_to_prefix_index(tag.into(), input.mew_hash, LinkTypes::PrefixIndexToHashtags)?;
+    let tag: &str = input.base_hashtag.split('#').nth(1).unwrap();
+    add_to_prefix_index(tag.into(), input.target_mew_hash, LinkTypes::PrefixIndexToHashtags)?;
 
     Ok(())    
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct RemoveHashtagForMewInput {
-    pub mew_hash: ActionHash,
-    pub hashtag: String,
+    pub base_hashtag: String,
+    pub target_mew_hash: ActionHash,
 }
 #[hdk_extern]
 pub fn remove_hashtag_for_mew(input: RemoveHashtagForMewInput) -> ExternResult<()> {
-    let links = get_links(Path::from(input.hashtag.clone()).path_entry_hash()?, LinkTypes::HashtagToMews, Some(LinkTag(input.hashtag.as_bytes().to_vec())))?;
+    let links = get_links(Path::from(input.base_hashtag.clone()).path_entry_hash()?, LinkTypes::HashtagToMews, Some(LinkTag(input.base_hashtag.as_bytes().to_vec())))?;
     for link in links {
-        if ActionHash::from(link.target.clone()).eq(&input.mew_hash) {
+        if ActionHash::from(link.target.clone()).eq(&input.target_mew_hash) {
             delete_link(link.create_link_hash)?;
         }
     }

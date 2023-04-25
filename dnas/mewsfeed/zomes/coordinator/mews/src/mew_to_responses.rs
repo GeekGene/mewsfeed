@@ -2,8 +2,8 @@ use hdk::prelude::*;
 use mews_integrity::*;
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AddResponseForMewInput {
-    pub original_mew_hash: ActionHash,
-    pub response_mew_hash: ActionHash,
+    pub base_original_mew_hash: ActionHash,
+    pub target_response_mew_hash: ActionHash,
     pub response_type: ResponseType,
 }
 #[hdk_extern]
@@ -12,8 +12,8 @@ pub fn add_response_for_mew(input: AddResponseForMewInput) -> ExternResult<()> {
         .map_err(|_| wasm_error!(WasmErrorInner::Guest("Failed to seriailize response_type".into())))?;
 
     create_link(
-        input.original_mew_hash.clone(),
-        input.response_mew_hash.clone(),
+        input.base_original_mew_hash.clone(),
+        input.target_response_mew_hash.clone(),
         LinkTypes::MewToResponses,
         tag.bytes().clone()
     )?;
@@ -64,14 +64,14 @@ pub fn get_responses_for_mew(input: GetResponsesForMewInput) -> ExternResult<Vec
 }
 #[derive(Serialize, Deserialize, Debug)]
 pub struct RemoveResponseForMewInput {
-    pub base_mew_hash: ActionHash,
-    pub target_mew_hash: ActionHash,
+    pub base_original_mew_hash: ActionHash,
+    pub target_response_mew_hash: ActionHash,
 }
 #[hdk_extern]
 pub fn remove_response_for_mew(input: RemoveResponseForMewInput) -> ExternResult<()> {
-    let links = get_links(input.base_mew_hash.clone(), LinkTypes::MewToResponses, None)?;
+    let links = get_links(input.base_original_mew_hash.clone(), LinkTypes::MewToResponses, None)?;
     for link in links {
-        if ActionHash::from(link.target.clone()).eq(&input.target_mew_hash) {
+        if ActionHash::from(link.target.clone()).eq(&input.target_response_mew_hash) {
             delete_link(link.create_link_hash)?;
         }
     }

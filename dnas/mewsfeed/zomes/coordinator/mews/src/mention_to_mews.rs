@@ -4,12 +4,12 @@ use crate::mew::get_mew_with_context;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AddMentionForMewInput {
-    pub mew_hash: ActionHash,
-    pub mention: AgentPubKey,
+    pub base_mention: AgentPubKey,
+    pub target_mew_hash: ActionHash,
 }
 #[hdk_extern]
 pub fn add_mention_for_mew(input: AddMentionForMewInput) -> ExternResult<()> {
-    create_link(input.mention, input.mew_hash, LinkTypes::MentionToMews, ())?;
+    create_link(input.base_mention, input.target_mew_hash, LinkTypes::MentionToMews, ())?;
 
     Ok(())    
 }
@@ -57,15 +57,15 @@ fn get_mew_hashes_for_mention(mention: AgentPubKey) -> ExternResult<Vec<ActionHa
         
 #[derive(Serialize, Deserialize, Debug)]
 pub struct RemoveMentionForMewInput {
-    pub mew_hash: ActionHash,
-    pub mention: AgentPubKey,
+    pub base_mention: AgentPubKey,
+    pub target_mew_hash: ActionHash,
 }
 #[hdk_extern]
 pub fn remove_mention_for_mew(input: RemoveMentionForMewInput ) -> ExternResult<()> {    
-    let links = get_links(input.mention.clone(), LinkTypes::MentionToMews, None)?;
+    let links = get_links(input.base_mention.clone(), LinkTypes::MentionToMews, None)?;
 
     for link in links {
-        if ActionHash::from(link.target.clone()).eq(&input.mew_hash) {
+        if ActionHash::from(link.target.clone()).eq(&input.target_mew_hash) {
             delete_link(link.create_link_hash)?;
         }
     }

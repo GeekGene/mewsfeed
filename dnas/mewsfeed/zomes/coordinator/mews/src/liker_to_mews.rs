@@ -3,18 +3,18 @@ use mews_integrity::*;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AddMewForLikerInput {
-    pub liker: AgentPubKey,
-    pub mew_hash: ActionHash,
+    pub base_liker: AgentPubKey,
+    pub target_mew_hash: ActionHash,
 }
 #[hdk_extern]
 pub fn add_mew_for_liker(input: AddMewForLikerInput) -> ExternResult<()> {
     create_link(
-        input.liker.clone(),
-        input.mew_hash.clone(),
+        input.base_liker.clone(),
+        input.target_mew_hash.clone(),
         LinkTypes::LikerToMews,
         (),
     )?;
-    create_link(input.mew_hash, input.liker, LinkTypes::MewToLikers, ())?;
+    create_link(input.target_mew_hash, input.base_liker, LinkTypes::MewToLikers, ())?;
     Ok(())
 }
 #[hdk_extern]
@@ -55,20 +55,20 @@ pub fn get_likers_for_mew(mew_hash: ActionHash) -> ExternResult<Vec<AgentPubKey>
 }
 #[derive(Serialize, Deserialize, Debug)]
 pub struct RemoveMewForLikerInput {
-    pub liker: AgentPubKey,
-    pub mew_hash: ActionHash,
+    pub base_liker: AgentPubKey,
+    pub target_mew_hash: ActionHash,
 }
 #[hdk_extern]
 pub fn remove_mew_for_liker(input: RemoveMewForLikerInput) -> ExternResult<()> {
-    let links = get_links(input.liker.clone(), LinkTypes::LikerToMews, None)?;
+    let links = get_links(input.base_liker.clone(), LinkTypes::LikerToMews, None)?;
     for link in links {
-        if ActionHash::from(link.target.clone()).eq(&input.mew_hash) {
+        if ActionHash::from(link.target.clone()).eq(&input.target_mew_hash) {
             delete_link(link.create_link_hash)?;
         }
     }
-    let links = get_links(input.mew_hash.clone(), LinkTypes::MewToLikers, None)?;
+    let links = get_links(input.target_mew_hash.clone(), LinkTypes::MewToLikers, None)?;
     for link in links {
-        if AgentPubKey::from(EntryHash::from(link.target.clone())).eq(&input.liker)
+        if AgentPubKey::from(EntryHash::from(link.target.clone())).eq(&input.base_liker)
         {
             delete_link(link.create_link_hash)?;
         }
@@ -77,9 +77,9 @@ pub fn remove_mew_for_liker(input: RemoveMewForLikerInput) -> ExternResult<()> {
 }
 #[hdk_extern]
 pub fn like_mew(mew_hash: ActionHash) -> ExternResult<()> {
-    add_mew_for_liker(AddMewForLikerInput { liker: agent_info()?.agent_initial_pubkey, mew_hash})
+    add_mew_for_liker(AddMewForLikerInput { base_liker: agent_info()?.agent_initial_pubkey, target_mew_hash: mew_hash})
 }
 #[hdk_extern]
 pub fn unlike_mew(mew_hash: ActionHash) -> ExternResult<()> {
-    remove_mew_for_liker(RemoveMewForLikerInput { liker: agent_info()?.agent_initial_pubkey, mew_hash})
+    remove_mew_for_liker(RemoveMewForLikerInput { base_liker: agent_info()?.agent_initial_pubkey, target_mew_hash: mew_hash})
 }

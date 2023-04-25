@@ -23,14 +23,14 @@ pub fn create_mew(mew: Mew) -> ExternResult<Record> {
     add_tags_for_mew(mew.clone(), mew_hash.clone())?;
     
     match mew.mew_type {
-        MewType::Quote(original_mew_hash) => {
-            add_response_for_mew(AddResponseForMewInput { original_mew_hash, response_mew_hash: mew_hash, response_type: ResponseType::Quote })?;
+        MewType::Quote(base_original_mew_hash) => {
+            add_response_for_mew(AddResponseForMewInput { base_original_mew_hash, target_response_mew_hash: mew_hash, response_type: ResponseType::Quote })?;
         }
-        MewType::Reply(original_mew_hash) => {
-            add_response_for_mew(AddResponseForMewInput { original_mew_hash, response_mew_hash: mew_hash, response_type: ResponseType::Reply })?;
+        MewType::Reply(base_original_mew_hash) => {
+            add_response_for_mew(AddResponseForMewInput { base_original_mew_hash, target_response_mew_hash: mew_hash, response_type: ResponseType::Reply })?;
         }
-        MewType::Mewmew(original_mew_hash) => {
-            add_response_for_mew(AddResponseForMewInput { original_mew_hash, response_mew_hash: mew_hash, response_type: ResponseType::Mewmew })?;
+        MewType::Mewmew(base_original_mew_hash) => {
+            add_response_for_mew(AddResponseForMewInput { base_original_mew_hash, target_response_mew_hash: mew_hash, response_type: ResponseType::Mewmew })?;
         }
         _ => { }
     }
@@ -110,14 +110,14 @@ fn add_tags_for_mew(mew: Mew, mew_hash: ActionHash) -> ExternResult<()> {
     let hashtag_regex = Regex::new(r"#\w+").unwrap();
     let cashtag_regex = Regex::new(r"\$\w+").unwrap();
     for regex_match in hashtag_regex.find_iter(&mew.text) {
-        add_hashtag_for_mew(AddHashtagForMewInput { mew_hash: mew_hash.clone(), hashtag: regex_match.as_str().into() })?;
+        add_hashtag_for_mew(AddHashtagForMewInput { base_hashtag: regex_match.as_str().into(), target_mew_hash: mew_hash.clone() })?;
     }
     for regex_match in cashtag_regex.find_iter(&mew.text) {
-        add_cashtag_for_mew(AddCashtagForMewInput { mew_hash: mew_hash.clone(), cashtag: regex_match.as_str().into() })?;
+        add_cashtag_for_mew(AddCashtagForMewInput { base_cashtag: regex_match.as_str().into(), target_mew_hash: mew_hash.clone() })?;
     }
     for link in mew.links {
         if let LinkTarget::Mention(mention) = link {
-            add_mention_for_mew(AddMentionForMewInput { mew_hash: mew_hash.clone(), mention })?;
+            add_mention_for_mew(AddMentionForMewInput { base_mention: mention, target_mew_hash: mew_hash.clone() })?;
         }
     }
     
@@ -128,14 +128,14 @@ fn remove_tags_for_mew(mew: Mew, mew_hash: ActionHash) -> ExternResult<()> {
     let hashtag_regex = Regex::new(r"#\w+").unwrap();
     let cashtag_regex = Regex::new(r"\$\w+").unwrap();
     for regex_match in hashtag_regex.find_iter(&mew.text) {
-        remove_hashtag_for_mew(RemoveHashtagForMewInput { mew_hash: mew_hash.clone(), hashtag: regex_match.as_str().into() })?;
+        remove_hashtag_for_mew(RemoveHashtagForMewInput { base_hashtag: regex_match.as_str().into(),  target_mew_hash: mew_hash.clone() })?;
     }
     for regex_match in cashtag_regex.find_iter(&mew.text) {
-        remove_cashtag_for_mew(RemoveCashtagForMewInput { mew_hash: mew_hash.clone(), cashtag: regex_match.as_str().into() })?;
+        remove_cashtag_for_mew(RemoveCashtagForMewInput { base_cashtag: regex_match.as_str().into(), target_mew_hash: mew_hash.clone() })?;
     }
     for link in mew.links {
-        if let LinkTarget::Mention(mention) = link {
-            remove_mention_for_mew(RemoveMentionForMewInput { mew_hash: mew_hash.clone(), mention })?;
+        if let LinkTarget::Mention(base_mention) = link {
+            remove_mention_for_mew(RemoveMentionForMewInput { base_mention, target_mew_hash: mew_hash.clone() })?;
         }
     }
     
