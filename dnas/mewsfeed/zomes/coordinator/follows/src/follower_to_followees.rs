@@ -64,3 +64,11 @@ pub fn remove_followee_for_follower(input: RemoveFolloweeForFollowerInput ) -> E
 
     Ok(())        
 }
+#[hdk_extern]
+pub fn follow(agent: AgentPubKey) -> ExternResult<()> {
+    add_followee_for_follower(AddFolloweeForFollowerInput {base_follower: agent_info()?.agent_initial_pubkey, target_followee: agent})
+}
+#[hdk_extern]
+pub fn unfollow(agent: AgentPubKey) -> ExternResult<()> {
+    remove_followee_for_follower(RemoveFolloweeForFollowerInput {base_follower: agent_info()?.agent_initial_pubkey, target_followee: agent})
+}
