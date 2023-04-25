@@ -5,10 +5,10 @@ pub mod cashtag_to_mews;
 pub mod mention_to_mews;
 pub mod agent_mews;
 pub mod all_mews;
+pub mod followees_mews;
 pub mod mew;
 pub mod prefix_index;
 use hdk::prelude::*;
-use mews_integrity::*;
 #[hdk_extern]
 pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
     Ok(InitCallbackResult::Pass)

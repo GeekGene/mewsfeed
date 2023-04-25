@@ -6,7 +6,7 @@ import { Mew, FeedMew } from "../types/types";
 export enum MewsFn {
   CreateMew = "create_mew",
   GetMew = "get_mew",
-  MewsFeed = "get_all_mews_with_context",
+  MewsFeed = "get_my_followees_mews_with_context",
   MewsBy = "get_agent_mews_with_context",
   LickMew = "like_mew",
   UnlickMew = "unlike_mew",
