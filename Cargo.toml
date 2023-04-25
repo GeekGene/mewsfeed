@@ -1,10 +1,11 @@
 [workspace]
-resolver = "2"
 members = ["dnas/*/zomes/coordinator/*", "dnas/*/zomes/integrity/*"]
+resolver = "2"
 
 [workspace.dependencies]
 hdi = "=0.2.2"
 hdk = "=0.1.2"
+holochain_integrity_types = "=0.1.2"
 serde = "1"
 
 [workspace.dependencies.follows]

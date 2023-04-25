@@ -6,7 +6,7 @@ import { Mew, FeedMew } from "../types/types";
 export enum MewsFn {
   CreateMew = "create_mew",
   GetMew = "get_mew",
-  MewsFeed = "get_my_followees_mews_with_context",
+  MewsFeed = "get_my_followed_creators_mews_with_context",
   MewsBy = "get_agent_mews_with_context",
   LickMew = "like_mew",
   UnlickMew = "unlike_mew",
@@ -20,10 +20,10 @@ export enum MewsFn {
 }
 
 export enum FollowsFn {
-  Follow = "add_followee_for_follower",
-  Followers = "get_followers_for_followee",
-  Following = "get_followees_for_follower",
-  Unfollow = "remove_followee_for_follower",
+  Follow = "follow",
+  Followers = "get_followers_for_creator",
+  Following = "get_creators_for_follower",
+  Unfollow = "unfollow",
 }
 
 export const callZome = async <T>(

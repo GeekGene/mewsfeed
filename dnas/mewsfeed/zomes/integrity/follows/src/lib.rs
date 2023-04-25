@@ -1,11 +1,11 @@
-pub mod follower_to_followees;
-pub use follower_to_followees::*;
+pub mod follower_to_creators;
+pub use follower_to_creators::*;
 use hdi::prelude::*;
 #[derive(Serialize, Deserialize)]
 #[hdk_link_types]
 pub enum LinkTypes {
-    FollowerToFollowees,
-    FolloweeToFollowers,
+    FollowerToCreators,
+    CreatorToFollowers,
 }
 #[hdk_extern]
 pub fn genesis_self_check(
@@ -25,14 +25,14 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
     match op.flattened::<(), LinkTypes>()? {
         FlatOp::StoreEntry(store_entry) => {
             match store_entry {
-                OpEntry::CreateEntry { app_entry: _, action: _ } => {
+                OpEntry::CreateEntry { app_entry, action } => {
                     Ok(
                         ValidateCallbackResult::Invalid(
                             "There are no entry types in this integrity zome".to_string(),
                         ),
                     )
                 }
-                OpEntry::UpdateEntry { app_entry: _, action: _, .. } => {
+                OpEntry::UpdateEntry { app_entry, action, .. } => {
                     Ok(
                         ValidateCallbackResult::Invalid(
                             "There are no entry types in this integrity zome".to_string(),
@@ -79,16 +79,16 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             action,
         } => {
             match link_type {
-                LinkTypes::FollowerToFollowees => {
-                    validate_create_link_follower_to_followees(
+                LinkTypes::FollowerToCreators => {
+                    validate_create_link_follower_to_creators(
                         action,
                         base_address,
                         target_address,
                         tag,
                     )
                 }
-                LinkTypes::FolloweeToFollowers => {
-                    validate_create_link_followee_to_followers(
+                LinkTypes::CreatorToFollowers => {
+                    validate_create_link_creator_to_followers(
                         action,
                         base_address,
                         target_address,
@@ -106,8 +106,8 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             action,
         } => {
             match link_type {
-                LinkTypes::FollowerToFollowees => {
-                    validate_delete_link_follower_to_followees(
+                LinkTypes::FollowerToCreators => {
+                    validate_delete_link_follower_to_creators(
                         action,
                         original_action,
                         base_address,
@@ -115,8 +115,8 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         tag,
                     )
                 }
-                LinkTypes::FolloweeToFollowers => {
-                    validate_delete_link_followee_to_followers(
+                LinkTypes::CreatorToFollowers => {
+                    validate_delete_link_creator_to_followers(
                         action,
                         original_action,
                         base_address,
@@ -157,16 +157,16 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                     action,
                 } => {
                     match link_type {
-                        LinkTypes::FollowerToFollowees => {
-                            validate_create_link_follower_to_followees(
+                        LinkTypes::FollowerToCreators => {
+                            validate_create_link_follower_to_creators(
                                 action,
                                 base_address,
                                 target_address,
                                 tag,
                             )
                         }
-                        LinkTypes::FolloweeToFollowers => {
-                            validate_create_link_followee_to_followers(
+                        LinkTypes::CreatorToFollowers => {
+                            validate_create_link_creator_to_followers(
                                 action,
                                 base_address,
                                 target_address,
@@ -198,8 +198,8 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         }
                     };
                     match link_type {
-                        LinkTypes::FollowerToFollowees => {
-                            validate_delete_link_follower_to_followees(
+                        LinkTypes::FollowerToCreators => {
+                            validate_delete_link_follower_to_creators(
                                 action,
                                 create_link.clone(),
                                 base_address,
@@ -207,8 +207,8 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 create_link.tag,
                             )
                         }
-                        LinkTypes::FolloweeToFollowers => {
-                            validate_delete_link_followee_to_followers(
+                        LinkTypes::CreatorToFollowers => {
+                            validate_delete_link_creator_to_followers(
                                 action,
                                 create_link.clone(),
                                 base_address,

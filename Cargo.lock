@@ -609,6 +609,7 @@ version = "0.0.1"
 dependencies = [
  "follows_integrity",
  "hdk",
+ "holochain_integrity_types",
  "serde",
 ]
 
@@ -617,6 +618,7 @@ name = "follows_integrity"
 version = "0.0.1"
 dependencies = [
  "hdi",
+ "holochain_integrity_types",
  "serde",
 ]
 
