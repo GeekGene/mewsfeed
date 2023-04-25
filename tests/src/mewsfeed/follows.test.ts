@@ -1,10 +1,10 @@
 import { AgentPubKey } from "@holochain/client";
 import { pause, runScenario } from "@holochain/tryorama";
-import test from "tape";
+import { assert, test } from "vitest";
 
 import { mewsfeedHapp } from "../utils.js";
 
-test("Following oneself should fail", async (t) => {
+test("Following oneself should fail", async () => {
   await runScenario(
     async (scenario) => {
       const alice = await scenario.addPlayerWithApp(mewsfeedHapp);
@@ -14,7 +14,7 @@ test("Following oneself should fail", async (t) => {
           { zome_name: "follows", fn_name: "follow" },
           60000
         );
-        t.fail();
+        assert.fail();
       } catch (e) {
         const myFollowers: AgentPubKey[] = await alice.cells[0].callZome(
           {
@@ -24,8 +24,8 @@ test("Following oneself should fail", async (t) => {
           },
           60000
         );
-        t.equal(myFollowers.length, 0, "no followers");
-        t.ok(true, "following self failed");
+        assert.equal(myFollowers.length, 0, "no followers");
+        assert.ok(true, "following self failed");
       }
     },
     true,
@@ -33,7 +33,7 @@ test("Following oneself should fail", async (t) => {
   );
 });
 
-test("Following", async (t) => {
+test("Following", async () => {
   await runScenario(
     async (scenario) => {
       const [alice, bob] = await scenario.addPlayersWithApps([
@@ -49,7 +49,7 @@ test("Following", async (t) => {
           fn_name: "get_followers_for_followee",
           payload: alice.agentPubKey,
         });
-      t.ok(aliceFollowersInitial.length === 0, "alice has no followers");
+      assert.ok(aliceFollowersInitial.length === 0, "alice has no followers");
 
       const aliceMyFollowingInitial: AgentPubKey[] =
         await alice.cells[0].callZome({
@@ -57,7 +57,7 @@ test("Following", async (t) => {
           fn_name: "get_followees_for_follower",
           payload: alice.agentPubKey,
         });
-      t.ok(
+      assert.ok(
         aliceMyFollowingInitial.length === 0,
         "alice is not following anyone"
       );
@@ -75,14 +75,14 @@ test("Following", async (t) => {
         fn_name: "get_followers_for_followee",
         payload: alice.agentPubKey,
       });
-      t.deepEqual(aliceFollowers, [bob.agentPubKey], "bob follows alice");
+      assert.deepEqual(aliceFollowers, [bob.agentPubKey], "bob follows alice");
 
       const followersOfAlice: AgentPubKey[] = await alice.cells[0].callZome({
         zome_name: "follows",
         fn_name: "get_followers_for_followee",
         payload: alice.agentPubKey,
       });
-      t.deepEqual(
+      assert.deepEqual(
         followersOfAlice,
         [bob.agentPubKey],
         "bob is a follower of alice"
@@ -93,7 +93,7 @@ test("Following", async (t) => {
         fn_name: "get_followees_for_follower",
         payload: bob.agentPubKey,
       });
-      t.deepEqual(
+      assert.deepEqual(
         bobMyFollowing,
         [alice.agentPubKey],
         "bob is following alice"
@@ -104,14 +104,14 @@ test("Following", async (t) => {
         fn_name: "get_followers_for_followee",
         payload: bob.agentPubKey,
       });
-      t.ok(bobMyFollowers.length === 0, "bob has no followers");
+      assert.ok(bobMyFollowers.length === 0, "bob has no followers");
 
       const agentsFollowingAlice: AgentPubKey[] = await bob.cells[0].callZome({
         zome_name: "follows",
         fn_name: "get_followees_for_follower",
         payload: bob.agentPubKey,
       });
-      t.deepEqual(
+      assert.deepEqual(
         agentsFollowingAlice,
         [alice.agentPubKey],
         "bob is a follower of alice"

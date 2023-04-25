@@ -1,6 +1,6 @@
-import { ActionHash, AgentPubKey, Record } from "@holochain/client";
+import { ActionHash, Record } from "@holochain/client";
 import { getZomeCaller, pause, runScenario } from "@holochain/tryorama";
-import test from "tape";
+import { assert, test } from "vitest";
 import {
   FeedMew,
   LinkTargetName,
@@ -9,7 +9,7 @@ import {
 } from "../../../ui/src/types/types.js";
 import { mewsfeedHapp, mewsfeedHappNoLengthLimits } from "../utils.js";
 
-test("Mew must not be longer than DNA property mew_characters_max chars", async (t) => {
+test("Mew must not be longer than DNA property mew_characters_max chars", async () => {
   await runScenario(
     async (scenario) => {
       const alice = await scenario.addPlayerWithApp(mewsfeedHapp);
@@ -25,7 +25,7 @@ test("Mew must not be longer than DNA property mew_characters_max chars", async 
         createMewInput,
         60000
       );
-      t.deepEqual(
+      assert.deepEqual(
         mewRecord.signed_action.hashed.hash.slice(0, 3),
         Buffer.from([132, 41, 36]),
         "alice created a mew of valid length"
@@ -34,9 +34,12 @@ test("Mew must not be longer than DNA property mew_characters_max chars", async 
       createMewInput.text = new Array(201).fill("a").join("");
       try {
         await aliceCallMewsZome("create_mew", createMewInput, 60000);
-        t.fail("mew content longer than mew_characters_max is valid");
+        assert.fail("mew content longer than mew_characters_max is valid");
       } catch (error) {
-        t.pass("mew content longer than mew_characters_max is invalid");
+        assert.ok(
+          true,
+          "mew content longer than mew_characters_max is invalid"
+        );
       }
     },
     true,
@@ -44,7 +47,7 @@ test("Mew must not be longer than DNA property mew_characters_max chars", async 
   );
 });
 
-test("Mew must not be shorter than DNA property mew_characters_min chars", async (t) => {
+test("Mew must not be shorter than DNA property mew_characters_min chars", async () => {
   await runScenario(
     async (scenario) => {
       const alice = await scenario.addPlayerWithApp(mewsfeedHapp);
@@ -60,7 +63,7 @@ test("Mew must not be shorter than DNA property mew_characters_min chars", async
         createMewInput,
         60000
       );
-      t.deepEqual(
+      assert.deepEqual(
         mewRecord.signed_action.hashed.hash.slice(0, 3),
         Buffer.from([132, 41, 36]),
         "alice created a mew of valid length"
@@ -69,9 +72,12 @@ test("Mew must not be shorter than DNA property mew_characters_min chars", async
       createMewInput.text = new Array(2).fill("a").join("");
       try {
         await aliceCallMewsZome("create_mew", createMewInput, 60000);
-        t.fail("mew content shorter than mew_characters_min is valid");
+        assert.fail("mew content shorter than mew_characters_min is valid");
       } catch (error) {
-        t.pass("mew content shorter than mew_characters_min is invalid");
+        assert.ok(
+          true,
+          "mew content shorter than mew_characters_min is invalid"
+        );
       }
     },
     true,
@@ -79,7 +85,7 @@ test("Mew must not be shorter than DNA property mew_characters_min chars", async
   );
 });
 
-test("Mew can be any length if DNA property mew_charactres_min and mew_characters_max not set", async (t) => {
+test("Mew can be any length if DNA property mew_characters_min and mew_characters_max not set", async () => {
   await runScenario(
     async (scenario) => {
       const alice = await scenario.addPlayerWithApp(mewsfeedHappNoLengthLimits);
@@ -96,7 +102,7 @@ test("Mew can be any length if DNA property mew_charactres_min and mew_character
         createMewInput2,
         60000
       );
-      t.deepEqual(
+      assert.deepEqual(
         mewRecord2.signed_action.hashed.hash.slice(0, 3),
         Buffer.from([132, 41, 36]),
         "alice created a mew of valid length 0"
@@ -113,7 +119,7 @@ test("Mew can be any length if DNA property mew_charactres_min and mew_character
         createMewInput3,
         60000
       );
-      t.deepEqual(
+      assert.deepEqual(
         mewRecord3.signed_action.hashed.hash.slice(0, 3),
         Buffer.from([132, 41, 36]),
         "alice created a mew of valid length 1000"
@@ -124,7 +130,7 @@ test("Mew can be any length if DNA property mew_charactres_min and mew_character
   );
 });
 
-test("Mews by", async (t) => {
+test("Mews by", async () => {
   await runScenario(
     async (scenario) => {
       const [alice, bob] = await scenario.addPlayersWithApps([
@@ -147,7 +153,7 @@ test("Mews by", async (t) => {
         originalMewInput,
         60000
       );
-      t.deepEqual(
+      assert.deepEqual(
         mewRecord.signed_action.hashed.hash.slice(0, 3),
         Buffer.from([132, 41, 36]),
         "alice created a valid mew"
@@ -158,8 +164,8 @@ test("Mews by", async (t) => {
         alice.agentPubKey,
         60000
       );
-      t.ok(mewsByAlice.length === 1, "mews by alice contains 1 mew");
-      t.equal(
+      assert.ok(mewsByAlice.length === 1, "mews by alice contains 1 mew");
+      assert.equal(
         mewsByAlice[0].mew.text,
         originalMewContent,
         "mews by alice includes her mew"
@@ -170,7 +176,7 @@ test("Mews by", async (t) => {
         bob.agentPubKey,
         60000
       );
-      t.ok(mewsByBob.length === 0, "mews by bob is empty");
+      assert.ok(mewsByBob.length === 0, "mews by bob is empty");
 
       await pause(1000);
 
@@ -179,8 +185,11 @@ test("Mews by", async (t) => {
         alice.agentPubKey,
         60000
       );
-      t.ok(mewsByAliceInBobsCell.length === 1, "1 mew by alice in bob's cell");
-      t.equal(
+      assert.ok(
+        mewsByAliceInBobsCell.length === 1,
+        "1 mew by alice in bob's cell"
+      );
+      assert.equal(
         mewsByAliceInBobsCell[0].mew.text,
         originalMewContent,
         "mews by alice in bob's cell includes her mew"
@@ -191,7 +200,7 @@ test("Mews by", async (t) => {
   );
 });
 
-test("Hashtag, cashtag and mention", async (t) => {
+test("Hashtag, cashtag and mention", async () => {
   await runScenario(
     async (scenario) => {
       const alice = await scenario.addPlayerWithApp(mewsfeedHapp);
@@ -210,7 +219,7 @@ test("Hashtag, cashtag and mention", async (t) => {
         createMewInput,
         60000
       );
-      t.deepEqual(
+      assert.deepEqual(
         mewRecord.signed_action.hashed.hash.slice(0, 3),
         Buffer.from([132, 41, 36]),
         "alice created a valid mew"
@@ -223,16 +232,23 @@ test("Hashtag, cashtag and mention", async (t) => {
         "#hashtag",
         60000
       );
-      t.ok(hashtaggedMews.length === 1, "one mew with hashtag");
-      t.equal(hashtaggedMews[0].mew.text, mewContent, "mew content matches");
+      assert.ok(hashtaggedMews.length === 1, "one mew with hashtag");
+      assert.equal(
+        hashtaggedMews[0].mew.text,
+        mewContent,
+        "mew content matches"
+      );
 
       const arabicHashtaggedMews: FeedMew[] = await aliceCallMewsZome(
         "get_mews_for_hashtag_with_context",
         "#سعيدة",
         60000
       );
-      t.ok(arabicHashtaggedMews.length === 1, "one mew with arabic hashtag");
-      t.equal(
+      assert.ok(
+        arabicHashtaggedMews.length === 1,
+        "one mew with arabic hashtag"
+      );
+      assert.equal(
         arabicHashtaggedMews[0].mew.text,
         mewContent,
         "mew content matches"
@@ -244,28 +260,28 @@ test("Hashtag, cashtag and mention", async (t) => {
         "#😃😃😃",
         60000
       );
-      t.ok(emojiHashtaggedMews.length === 0, "no mew with emoji hashtag");
+      assert.ok(emojiHashtaggedMews.length === 0, "no mew with emoji hashtag");
 
       const cashtaggedMews: FeedMew[] = await aliceCallMewsZome(
         "get_mews_for_cashtag_with_context",
         "$cashtag",
         60000
       );
-      t.ok(cashtaggedMews.length === 1, "one mew with cashtag");
+      assert.ok(cashtaggedMews.length === 1, "one mew with cashtag");
 
       const mentionedMews: FeedMew[] = await aliceCallMewsZome(
         "get_mews_for_mention_with_context",
         alice.agentPubKey,
         60000
       );
-      t.ok(mentionedMews.length === 1, "one mew with mention");
+      assert.ok(mentionedMews.length === 1, "one mew with mention");
     },
     true,
     { timeout: 60000 }
   );
 });
 
-test("Search - should return hashtags and cashtags", async (t) => {
+test("Search - should return hashtags and cashtags", async () => {
   await runScenario(
     async (scenario) => {
       const alice = await scenario.addPlayerWithApp(mewsfeedHapp);
@@ -284,7 +300,7 @@ test("Search - should return hashtags and cashtags", async (t) => {
         createMewInput,
         60000
       );
-      t.deepEqual(
+      assert.deepEqual(
         mewRecord.signed_action.hashed.hash.slice(0, 3),
         Buffer.from([132, 41, 36]),
         "alice created a valid mew"
@@ -297,16 +313,16 @@ test("Search - should return hashtags and cashtags", async (t) => {
         "has",
         60000
       );
-      t.ok(hashtags.length === 1, "one hashtag");
-      t.equal(hashtags[0], "hashtag", "hashtag search result matches");
+      assert.ok(hashtags.length === 1, "one hashtag");
+      assert.equal(hashtags[0], "hashtag", "hashtag search result matches");
 
       const arabicHashtags: string[] = await aliceCallMewsZome(
         "search_hashtags",
         "سعيدة",
         60000
       );
-      t.ok(arabicHashtags.length === 1, "one arabic hashtag");
-      t.equal(arabicHashtags[0], "سعيدة", "hashtag search result matches");
+      assert.ok(arabicHashtags.length === 1, "one arabic hashtag");
+      assert.equal(arabicHashtags[0], "سعيدة", "hashtag search result matches");
 
       // get hashtag containing emojis -- invalid hashtag!
       const emojiHashtags: string[] = await aliceCallMewsZome(
@@ -314,22 +330,22 @@ test("Search - should return hashtags and cashtags", async (t) => {
         "😃😃😃",
         60000
       );
-      t.ok(emojiHashtags.length === 0, "no emoji hashtags");
+      assert.ok(emojiHashtags.length === 0, "no emoji hashtags");
 
       const cashtags: string[] = await aliceCallMewsZome(
         "search_cashtags",
         "cas",
         60000
       );
-      t.ok(cashtags.length === 1, "one cashtag");
-      t.equal(cashtags[0], "cashtag", "hashtag search result matches");
+      assert.ok(cashtags.length === 1, "one cashtag");
+      assert.equal(cashtags[0], "cashtag", "hashtag search result matches");
     },
     true,
     { timeout: 60000 }
   );
 });
 
-test("Mews Feed - should include own mews", async (t) => {
+test("Mews Feed - should include own mews", async () => {
   await runScenario(
     async (scenario) => {
       const alice = await scenario.addPlayerWithApp(mewsfeedHapp);
@@ -340,7 +356,7 @@ test("Mews Feed - should include own mews", async (t) => {
         null,
         60000
       );
-      t.ok(
+      assert.ok(
         aliceMewsFeedInitial.length === 0,
         "alice's mews feed is initially empty"
       );
@@ -358,15 +374,22 @@ test("Mews Feed - should include own mews", async (t) => {
         null,
         60000
       );
-      t.ok(aliceMewsFeed.length === 1, "alice's mews feed includes her mew");
-      t.equal(aliceMewsFeed[0].mew.text, mewContent, "mew content matches");
+      assert.ok(
+        aliceMewsFeed.length === 1,
+        "alice's mews feed includes her mew"
+      );
+      assert.equal(
+        aliceMewsFeed[0].mew.text,
+        mewContent,
+        "mew content matches"
+      );
     },
     true,
     { timeout: 60000 }
   );
 });
 
-test("Mews Feed - should include mews of followed agent", async (t) => {
+test("Mews Feed - should include mews of followed agent", async () => {
   await runScenario(
     async (scenario) => {
       const [alice, bob] = await scenario.addPlayersWithApps([
@@ -390,7 +413,7 @@ test("Mews Feed - should include mews of followed agent", async (t) => {
         null,
         60000
       );
-      t.ok(
+      assert.ok(
         bobMewsFeedInitial.length === 0,
         "bob's mews feed is initially empty"
       );
@@ -406,8 +429,8 @@ test("Mews Feed - should include mews of followed agent", async (t) => {
         null,
         60000
       );
-      t.ok(bobMewsFeed.length === 1, "bob's mews feed includes 1 mew");
-      t.equal(
+      assert.ok(bobMewsFeed.length === 1, "bob's mews feed includes 1 mew");
+      assert.equal(
         bobMewsFeed[0].mew.text,
         mewContent,
         "mew content in bob's mews feed matches alice's mew content"
@@ -418,7 +441,7 @@ test("Mews Feed - should include mews of followed agent", async (t) => {
   );
 });
 
-test("Mews Feed - should not include mews of non-followed agent", async (t) => {
+test("Mews Feed - should not include mews of non-followed agent", async () => {
   await runScenario(
     async (scenario) => {
       const [alice, bob, carol] = await scenario.addPlayersWithApps([
@@ -459,8 +482,8 @@ test("Mews Feed - should not include mews of non-followed agent", async (t) => {
         null,
         60000
       );
-      t.ok(bobMewsFeed.length === 1, "bob's mews feed includes 1 mew");
-      t.equal(
+      assert.ok(bobMewsFeed.length === 1, "bob's mews feed includes 1 mew");
+      assert.equal(
         bobMewsFeed[0].mew.text,
         aliceMewContent,
         "mew content in bob's mews feed matches alice's mew content"
@@ -471,7 +494,7 @@ test("Mews Feed - should not include mews of non-followed agent", async (t) => {
   );
 });
 
-test("Mews Feed - un-following should exclude agent's mews from feed", async (t) => {
+test("Mews Feed - un-following should exclude agent's mews from feed", async () => {
   await runScenario(
     async (scenario) => {
       const [alice, bob] = await scenario.addPlayersWithApps([
@@ -502,11 +525,11 @@ test("Mews Feed - un-following should exclude agent's mews from feed", async (t)
         null,
         60000
       );
-      t.ok(
+      assert.ok(
         bobMewsFeedWhenFollowing.length === 1,
         "bob's mews feed includes 1 mew"
       );
-      t.equal(
+      assert.equal(
         bobMewsFeedWhenFollowing[0].mew.text,
         aliceMewContent,
         "mew content in bob's mews feed matches alice's mew content"
@@ -523,14 +546,14 @@ test("Mews Feed - un-following should exclude agent's mews from feed", async (t)
         null,
         60000
       );
-      t.ok(bobMewsFeed.length === 0, "bob's mews feed is empty");
+      assert.ok(bobMewsFeed.length === 0, "bob's mews feed is empty");
     },
     true,
     { timeout: 60000 }
   );
 });
 
-test("Mews Feed - should be ordered by timestamp in descending order", async (t) => {
+test("Mews Feed - should be ordered by timestamp in descending order", async () => {
   await runScenario(
     async (scenario) => {
       const [alice, bob, carol] = await scenario.addPlayersWithApps([
@@ -594,23 +617,26 @@ test("Mews Feed - should be ordered by timestamp in descending order", async (t)
         null,
         60000
       );
-      t.ok(aliceMewsFeed.length === 4, "alice's mews feed includes all 4 mews");
-      t.equal(
+      assert.ok(
+        aliceMewsFeed.length === 4,
+        "alice's mews feed includes all 4 mews"
+      );
+      assert.equal(
         aliceMewsFeed[0].mew.text,
         fourthMewContent,
         "mew 1 in feed is fourth mew"
       );
-      t.equal(
+      assert.equal(
         aliceMewsFeed[1].mew.text,
         thirdMewContent,
         "mew 2 in feed is third mew"
       );
-      t.equal(
+      assert.equal(
         aliceMewsFeed[2].mew.text,
         secondMewContent,
         "mew 3 in feed is second mew"
       );
-      t.equal(
+      assert.equal(
         aliceMewsFeed[3].mew.text,
         firstMewContent,
         "mew 4 in feed is first mew"
@@ -621,7 +647,7 @@ test("Mews Feed - should be ordered by timestamp in descending order", async (t)
   );
 });
 
-test("Mew Interaction - liked mew should be included in my likes", async (t) => {
+test("Mew Interaction - liked mew should be included in my likes", async () => {
   await runScenario(
     async (scenario) => {
       const alice = await scenario.addPlayerWithApp(mewsfeedHapp);
@@ -650,8 +676,8 @@ test("Mew Interaction - liked mew should be included in my likes", async (t) => 
         alice.agentPubKey,
         60000
       );
-      t.equal(myLikes.length, 1, "alice has 1 like");
-      t.deepEqual(
+      assert.equal(myLikes.length, 1, "alice has 1 like");
+      assert.deepEqual(
         myLikes[0],
         mewRecord.signed_action.hashed.hash,
         "alice's like is the mew she created"
@@ -662,7 +688,7 @@ test("Mew Interaction - liked mew should be included in my likes", async (t) => 
   );
 });
 
-test("Mew Interaction - unliked mew should be excluded from my likes", async (t) => {
+test("Mew Interaction - unliked mew should be excluded from my likes", async () => {
   await runScenario(
     async (scenario) => {
       const alice = await scenario.addPlayerWithApp(mewsfeedHapp);
@@ -696,14 +722,14 @@ test("Mew Interaction - unliked mew should be excluded from my likes", async (t)
         alice.agentPubKey,
         60000
       );
-      t.equal(myLikes.length, 0, "alice has no likes");
+      assert.equal(myLikes.length, 0, "alice has no likes");
     },
     true,
     { timeout: 60000 }
   );
 });
 
-test("Mew Interaction - replying to a mew should be linked correctly", async (t) => {
+test("Mew Interaction - replying to a mew should be linked correctly", async () => {
   await runScenario(
     async (scenario) => {
       const alice = await scenario.addPlayerWithApp(mewsfeedHapp);
@@ -738,21 +764,25 @@ test("Mew Interaction - replying to a mew should be linked correctly", async (t)
         replyRecord.signed_action.hashed.hash,
         60000
       );
-      t.ok(MewTypeName.Reply in replyMew.mew.mew_type, "mew is a reply");
-      t.equal(replyMew.mew.text, aliceReplyContent, "reply is alice's reply");
+      assert.ok(MewTypeName.Reply in replyMew.mew.mew_type, "mew is a reply");
+      assert.equal(
+        replyMew.mew.text,
+        aliceReplyContent,
+        "reply is alice's reply"
+      );
 
       const originalMew: FeedMew = await aliceCallMewsZome(
         "get_mew_with_context",
         mewRecord.signed_action.hashed.hash,
         60000
       );
-      t.ok(
+      assert.ok(
         MewTypeName.Original in originalMew.mew.mew_type,
         "mew is an original mew"
       );
-      t.equal(originalMew.mew.text, aliceMewContent, "mew is alice's mew");
-      t.ok(originalMew.replies.length === 1, "original mew has 1 reply");
-      t.deepEqual(
+      assert.equal(originalMew.mew.text, aliceMewContent, "mew is alice's mew");
+      assert.ok(originalMew.replies.length === 1, "original mew has 1 reply");
+      assert.deepEqual(
         originalMew.replies[0],
         replyRecord.signed_action.hashed.hash,
         "original mew's reply is alice's reply"
@@ -763,7 +793,7 @@ test("Mew Interaction - replying to a mew should be linked correctly", async (t)
   );
 });
 
-test("Mew Interaction - mewmewing a mew should be linked correctly", async (t) => {
+test("Mew Interaction - mewmewing a mew should be linked correctly", async () => {
   await runScenario(
     async (scenario) => {
       const alice = await scenario.addPlayerWithApp(mewsfeedHapp);
@@ -797,21 +827,21 @@ test("Mew Interaction - mewmewing a mew should be linked correctly", async (t) =
         mewmewRecord.signed_action.hashed.hash,
         60000
       );
-      t.ok(MewTypeName.Mewmew in mewmew.mew.mew_type, "mew is a mewmew");
-      t.equal(mewmew.mew, null, "mewmew is alice's mewmew");
+      assert.ok(MewTypeName.Mewmew in mewmew.mew.mew_type, "mew is a mewmew");
+      assert.equal(mewmew.mew, null, "mewmew is alice's mewmew");
 
       const originalMew: FeedMew = await aliceCallMewsZome(
         "get_mew_with_context",
         mewRecord.signed_action.hashed.hash,
         60000
       );
-      t.ok(
+      assert.ok(
         MewTypeName.Original in originalMew.mew.mew_type,
         "mew is an original mew"
       );
-      t.equal(originalMew.mew.text, aliceMewContent, "mew is alice's mew");
-      t.ok(originalMew.mewmews.length === 1, "original mew has 1 mewmew");
-      t.deepEqual(
+      assert.equal(originalMew.mew.text, aliceMewContent, "mew is alice's mew");
+      assert.ok(originalMew.mewmews.length === 1, "original mew has 1 mewmew");
+      assert.deepEqual(
         originalMew.mewmews[0],
         mewmewRecord.signed_action.hashed.hash,
         "original mew's mewmew is alice's mewmew"
@@ -822,7 +852,7 @@ test("Mew Interaction - mewmewing a mew should be linked correctly", async (t) =
   );
 });
 
-test("Mew Interaction - quoting a mew should be linked correctly", async (t) => {
+test("Mew Interaction - quoting a mew should be linked correctly", async () => {
   await runScenario(
     async (scenario) => {
       const alice = await scenario.addPlayerWithApp(mewsfeedHapp);
@@ -859,21 +889,21 @@ test("Mew Interaction - quoting a mew should be linked correctly", async (t) => 
         quoteRecord.signed_action.hashed.hash,
         60000
       );
-      t.ok(MewTypeName.Quote in quote.mew.mew_type, "mew is a quote");
-      t.equal(quote.mew.text, aliceQuoteText, "quote is alice's quote");
+      assert.ok(MewTypeName.Quote in quote.mew.mew_type, "mew is a quote");
+      assert.equal(quote.mew.text, aliceQuoteText, "quote is alice's quote");
 
       const originalMew: FeedMew = await aliceCallMewsZome(
         "get_mew_with_context",
         mewRecord.signed_action.hashed.hash,
         60000
       );
-      t.ok(
+      assert.ok(
         MewTypeName.Original in originalMew.mew.mew_type,
         "mew is an original mew"
       );
-      t.equal(originalMew.mew.text, aliceMewContent, "mew is alice's mew");
-      t.ok(originalMew.quotes.length === 1, "original mew has 1 quote");
-      t.deepEqual(
+      assert.equal(originalMew.mew.text, aliceMewContent, "mew is alice's mew");
+      assert.ok(originalMew.quotes.length === 1, "original mew has 1 quote");
+      assert.deepEqual(
         originalMew.quotes[0],
         quoteRecord.signed_action.hashed.hash,
         "original mew's quote is alice's quote"
