@@ -4,7 +4,7 @@ export default defineConfig({
   test: {
     threads: false,
     testTimeout: 60 * 1000 * 3, // 3  mins
-    outputDiffLines: 30,
-    outputDiffMaxSize: 30000,
+    outputDiffLines: 100,
+    outputDiffMaxSize: 100000,
   },
 });

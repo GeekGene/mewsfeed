@@ -2,8 +2,6 @@ pub mod mention_to_mews;
 pub use mention_to_mews::*;
 pub mod mew_to_responses;
 pub use mew_to_responses::*;
-pub mod liker_to_mews;
-pub use liker_to_mews::*;
 pub mod hashtag_to_mews;
 pub use hashtag_to_mews::*;
 pub mod cashtag_to_mews;
@@ -38,8 +36,6 @@ pub enum LinkTypes {
     PrefixIndex,
     PrefixIndexToHashtags,
     PrefixIndexToCashtags,
-    LikerToMews,
-    MewToLikers,
     MewToResponses,
     MentionToMews,
     HashtagToMews,
@@ -161,22 +157,6 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         tag,
                     )
                 }
-                LinkTypes::LikerToMews => {
-                    validate_create_link_liker_to_mews(
-                        action,
-                        base_address,
-                        target_address,
-                        tag,
-                    )
-                }
-                LinkTypes::MewToLikers => {
-                    validate_create_link_mew_to_likers(
-                        action,
-                        base_address,
-                        target_address,
-                        tag,
-                    )
-                }
                 LinkTypes::MewToResponses => {
                     validate_create_link_mew_to_responses(
                         action,
@@ -258,24 +238,6 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 }
                 LinkTypes::PrefixIndexToCashtags => {
                     validate_delete_link_prefix_index_to_cashtags(
-                        action,
-                        original_action,
-                        base_address,
-                        target_address,
-                        tag,
-                    )
-                }
-                LinkTypes::LikerToMews => {
-                    validate_delete_link_liker_to_mews(
-                        action,
-                        original_action,
-                        base_address,
-                        target_address,
-                        tag,
-                    )
-                }
-                LinkTypes::MewToLikers => {
-                    validate_delete_link_mew_to_likers(
                         action,
                         original_action,
                         base_address,
@@ -489,22 +451,6 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 tag,
                             )
                         }
-                        LinkTypes::LikerToMews => {
-                            validate_create_link_liker_to_mews(
-                                action,
-                                base_address,
-                                target_address,
-                                tag,
-                            )
-                        }
-                        LinkTypes::MewToLikers => {
-                            validate_create_link_mew_to_likers(
-                                action,
-                                base_address,
-                                target_address,
-                                tag,
-                            )
-                        }
                         LinkTypes::MewToResponses => {
                             validate_create_link_mew_to_responses(
                                 action,
@@ -600,24 +546,6 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         }
                         LinkTypes::PrefixIndexToCashtags => {
                             validate_delete_link_prefix_index_to_cashtags(
-                                action,
-                                create_link.clone(),
-                                base_address,
-                                create_link.target_address,
-                                create_link.tag,
-                            )
-                        }
-                        LinkTypes::LikerToMews => {
-                            validate_delete_link_liker_to_mews(
-                                action,
-                                create_link.clone(),
-                                base_address,
-                                create_link.target_address,
-                                create_link.tag,
-                            )
-                        }
-                        LinkTypes::MewToLikers => {
-                            validate_delete_link_mew_to_likers(
                                 action,
                                 create_link.clone(),
                                 base_address,

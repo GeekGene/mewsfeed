@@ -1032,6 +1032,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "likes"
+version = "0.0.1"
+dependencies = [
+ "hdk",
+ "holochain_integrity_types",
+ "likes_integrity",
+ "serde",
+]
+
+[[package]]
+name = "likes_integrity"
+version = "0.0.1"
+dependencies = [
+ "hdi",
+ "holochain_integrity_types",
+ "serde",
+]
+
+[[package]]
 name = "link-cplusplus"
 version = "1.0.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"

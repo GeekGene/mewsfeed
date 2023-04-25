@@ -5,7 +5,7 @@ use crate::mew_to_responses::*;
 use crate::mention_to_mews::*;
 use crate::cashtag_to_mews::*;
 use crate::hashtag_to_mews::*;
-use crate::liker_to_mews::*;
+use crate::licker_to_mews::*;
 
 #[hdk_extern]
 pub fn create_mew(mew: Mew) -> ExternResult<Record> {
@@ -55,11 +55,11 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                 "Malformed mew"
             ))))?;
 
-    let licks: Vec<HoloHash<holo_hash::hash_type::Agent>> = get_likers_for_mew(original_mew_hash.clone())?;
-    let replies: Vec<HoloHash<holo_hash::hash_type::Action>> = get_response_hashes_for_mew(GetResponsesForMewInput { original_mew_hash: original_mew_hash.clone(), response_type: Some(ResponseType::Reply)})?;
+    let replies = get_response_hashes_for_mew(GetResponsesForMewInput { original_mew_hash: original_mew_hash.clone(), response_type: Some(ResponseType::Reply)})?;
     let quotes = get_response_hashes_for_mew(GetResponsesForMewInput { original_mew_hash: original_mew_hash.clone(), response_type: Some(ResponseType::Quote)})?;
     let mewmews = get_response_hashes_for_mew(GetResponsesForMewInput { original_mew_hash: original_mew_hash.clone(), response_type: Some(ResponseType::Mewmew)})?;
-
+    let licks = get_lickers_for_mew(original_mew_hash.clone())?;
+    
     let feed_mew_and_context = FeedMew {
         mew,
         action: element.action().clone(),

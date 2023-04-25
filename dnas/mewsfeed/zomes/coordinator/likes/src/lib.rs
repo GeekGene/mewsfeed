@@ -1,15 +1,7 @@
+pub mod liker_to_hashes;
+
 use hdk::prelude::*;
-pub mod mew_to_responses;
-pub mod hashtag_to_mews;
-pub mod cashtag_to_mews;
-pub mod mention_to_mews;
-pub mod licker_to_mews;
-pub mod agent_mews;
-pub mod all_mews;
-pub mod followed_creators_mews;
-pub mod mew;
-pub mod prefix_index;
-use mews_integrity::LinkTypes;
+use likes_integrity::*;
 #[hdk_extern]
 pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
     Ok(InitCallbackResult::Pass)

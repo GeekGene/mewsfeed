@@ -20,6 +20,10 @@ integrity:
       hash: ~
       bundled: "../../../target/wasm32-unknown-unknown/release/profiles_integrity.wasm"
       dependencies: ~
+    - name: likes_integrity
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/likes_integrity.wasm"
+      dependencies: ~
 coordinator:
   zomes:
     - name: mews
@@ -37,3 +41,8 @@ coordinator:
       bundled: "../../../target/wasm32-unknown-unknown/release/profiles.wasm"
       dependencies:
         - name: profiles_integrity
+    - name: likes
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/likes.wasm"
+      dependencies:
+        - name: likes_integrity

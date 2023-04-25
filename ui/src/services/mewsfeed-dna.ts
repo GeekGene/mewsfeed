@@ -10,7 +10,6 @@ export enum MewsFn {
   MewsBy = "get_agent_mews_with_context",
   LickMew = "like_mew",
   UnlickMew = "unlike_mew",
-  MyLicks = "get_mews_for_liker",
   GetFeedMewAndContext = "get_mew_with_context",
   GetMewsWithCashtag = "get_mews_for_cashtag_with_context",
   GetMewsWithHashtag = "get_mews_for_hashtag_with_context",
