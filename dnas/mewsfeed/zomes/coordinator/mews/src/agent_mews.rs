@@ -30,7 +30,8 @@ pub fn get_agent_mews_with_context(author: AgentPubKey) -> ExternResult<Vec<Feed
 }
 
 fn get_agent_mew_hashes(author: AgentPubKey) -> ExternResult<Vec<ActionHash>> {
-    let links = get_links(author, LinkTypes::AgentMews, None)?;
+    let mut links = get_links(author, LinkTypes::AgentMews, None)?;
+    links.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
     let hashes: Vec<ActionHash> = links
         .into_iter()
         .map(|link| ActionHash::from(link.target))
