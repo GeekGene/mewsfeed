@@ -18,12 +18,22 @@ pub fn add_mew_for_liker(input: AddMewForLikerInput) -> ExternResult<()> {
     Ok(())
 }
 #[hdk_extern]
-pub fn get_mews_for_liker(liker: AgentPubKey) -> ExternResult<Vec<Record>> {
+pub fn get_hashes_for_liker(liker: AgentPubKey) -> ExternResult<Vec<ActionHash>> {
     let links = get_links(liker, LinkTypes::LikerToMews, None)?;
-    let get_input: Vec<GetInput> = links
+    let hashes: Vec<ActionHash> = links
         .into_iter()
-        .map(|link| GetInput::new(
-            ActionHash::from(link.target).into(),
+        .map(|link| ActionHash::from(link.target))
+        .collect();
+
+    Ok(hashes)
+}
+#[hdk_extern]
+pub fn get_mews_for_liker(liker: AgentPubKey) -> ExternResult<Vec<Record>> {
+    let hashes = get_hashes_for_liker(liker)?;
+    let get_input: Vec<GetInput> = hashes
+        .into_iter()
+        .map(|hash| GetInput::new(
+            hash.into(),
             GetOptions::default(),
         ))
         .collect();
@@ -66,10 +76,10 @@ pub fn remove_mew_for_liker(input: RemoveMewForLikerInput) -> ExternResult<()> {
     Ok(())
 }
 #[hdk_extern]
-pub fn lick_mew(mew_hash: ActionHash) -> ExternResult<()> {
+pub fn like_mew(mew_hash: ActionHash) -> ExternResult<()> {
     add_mew_for_liker(AddMewForLikerInput { liker: agent_info()?.agent_initial_pubkey, mew_hash})
 }
 #[hdk_extern]
-pub fn unlick_mew(mew_hash: ActionHash) -> ExternResult<()> {
+pub fn unlike_mew(mew_hash: ActionHash) -> ExternResult<()> {
     remove_mew_for_liker(RemoveMewForLikerInput { liker: agent_info()?.agent_initial_pubkey, mew_hash})
 }
