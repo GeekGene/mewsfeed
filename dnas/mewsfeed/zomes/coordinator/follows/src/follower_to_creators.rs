@@ -26,7 +26,6 @@ pub fn get_creators_for_follower(follower: AgentPubKey) -> ExternResult<Vec<Agen
     Ok(agents)
 }
 
-
 #[hdk_extern]
 pub fn get_followers_for_creator(creator: AgentPubKey) -> ExternResult<Vec<AgentPubKey>> {
     let links = get_links(creator, LinkTypes::CreatorToFollowers, None)?;
@@ -44,6 +43,7 @@ pub struct RemoveCreatorForFollowerInput {
     pub base_follower: AgentPubKey,
     pub target_creator: AgentPubKey,
 }
+
 #[hdk_extern]
 pub fn remove_creator_for_follower(input: RemoveCreatorForFollowerInput ) -> ExternResult<()> {
     let links = get_links(input.base_follower.clone(), LinkTypes::FollowerToCreators, None)?;
@@ -64,18 +64,22 @@ pub fn remove_creator_for_follower(input: RemoveCreatorForFollowerInput ) -> Ext
 
     Ok(())        
 }
+
 #[hdk_extern]
 pub fn follow(agent: AgentPubKey) -> ExternResult<()> {
     add_creator_for_follower(AddCreatorForFollowerInput { base_follower: agent_info()?.agent_initial_pubkey, target_creator: agent })
 }
+
 #[hdk_extern]
 pub fn unfollow(agent: AgentPubKey) -> ExternResult<()> {
     remove_creator_for_follower(RemoveCreatorForFollowerInput { base_follower: agent_info()?.agent_initial_pubkey, target_creator: agent })
 }
+
 #[hdk_extern]
 pub fn get_my_followers(_: ()) -> ExternResult<Vec<AgentPubKey>> {
     get_followers_for_creator(agent_info()?.agent_initial_pubkey)
 }
+
 #[hdk_extern]
 pub fn get_my_creators(_: ()) -> ExternResult<Vec<AgentPubKey>> {
     get_creators_for_follower(agent_info()?.agent_initial_pubkey)

@@ -7,12 +7,8 @@ import { mewsfeedAppBundleSource } from "../../utils.js";
 test("Agent can reply to a mew", async () => {
   await runScenario(
     async (scenario) => {
-      // Construct proper paths for your app.
-      // This assumes app bundle created by the `hc app pack` command.
-      const testAppPath = process.cwd() + "/../workdir/mewsfeed.happ";
-
       // Set up the app to be installed
-      const appSource = { appBundleSource: { path: testAppPath } };
+      const appSource = { appBundleSource: mewsfeedAppBundleSource };
 
       // Add 2 players with the test app to the Scenario. The returned players
       // can be destructured.
@@ -83,12 +79,8 @@ test("Agent can reply to a mew", async () => {
 test("Agent can mewmew a mew", async () => {
   await runScenario(
     async (scenario) => {
-      // Construct proper paths for your app.
-      // This assumes app bundle created by the `hc app pack` command.
-      const testAppPath = process.cwd() + "/../workdir/mewsfeed.happ";
-
       // Set up the app to be installed
-      const appSource = { appBundleSource: { path: testAppPath } };
+      const appSource = { appBundleSource: mewsfeedAppBundleSource };
 
       // Add 2 players with the test app to the Scenario. The returned players
       // can be destructured.

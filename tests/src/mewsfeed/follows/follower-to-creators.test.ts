@@ -1,16 +1,13 @@
 import { assert, test, expect } from "vitest";
 import { runScenario, pause } from "@holochain/tryorama";
 import { Record } from "@holochain/client";
+import { mewsfeedAppBundleSource } from "../../utils";
 
 test("link a Follower to a Creator", async () => {
   await runScenario(
     async (scenario) => {
-      // Construct proper paths for your app.
-      // This assumes app bundle created by the `hc app pack` command.
-      const testAppPath = process.cwd() + "/../workdir/mewsfeed.happ";
-
       // Set up the app to be installed
-      const appSource = { appBundleSource: { path: testAppPath } };
+      const appSource = { appBundleSource: mewsfeedAppBundleSource };
 
       // Add 2 players with the test app to the Scenario. The returned players
       // can be destructured.
@@ -97,12 +94,8 @@ test("link a Follower to a Creator", async () => {
 test("Agent cannot follow themselves", async () => {
   await runScenario(
     async (scenario) => {
-      // Construct proper paths for your app.
-      // This assumes app bundle created by the `hc app pack` command.
-      const testAppPath = process.cwd() + "/../workdir/mewsfeed.happ";
-
       // Set up the app to be installed
-      const appSource = { appBundleSource: { path: testAppPath } };
+      const appSource = { appBundleSource: mewsfeedAppBundleSource };
 
       // Add 2 players with the test app to the Scenario. The returned players
       // can be destructured.
@@ -131,12 +124,8 @@ test("Agent cannot follow themselves", async () => {
 test("Agent can only change their own follows", async () => {
   await runScenario(
     async (scenario) => {
-      // Construct proper paths for your app.
-      // This assumes app bundle created by the `hc app pack` command.
-      const testAppPath = process.cwd() + "/../workdir/mewsfeed.happ";
-
       // Set up the app to be installed
-      const appSource = { appBundleSource: { path: testAppPath } };
+      const appSource = { appBundleSource: mewsfeedAppBundleSource };
 
       // Add 2 players with the test app to the Scenario. The returned players
       // can be destructured.
