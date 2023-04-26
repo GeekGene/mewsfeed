@@ -1,5 +1,5 @@
-use prefix_index_integrity::make_prefix_path;
 use hdi::prelude::*;
+use prefix_index_integrity::make_prefix_path;
 
 pub fn validate_create_link_prefix_index_to_cashtags(
     _action: CreateLink,

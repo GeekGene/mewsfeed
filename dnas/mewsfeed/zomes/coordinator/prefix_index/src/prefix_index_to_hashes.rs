@@ -1,5 +1,5 @@
 use hdk::prelude::*;
-use prefix_index_integrity::{LinkTypes, make_prefix_path};
+use prefix_index_integrity::{make_prefix_path, LinkTypes};
 
 pub fn add_hash_for_prefix_index<T, E, H>(text: String, hash: H, link_type: T) -> ExternResult<()>
 where
@@ -22,7 +22,7 @@ where
 }
 
 pub fn remove_hash_for_prefix_index(text: String, hash: AnyLinkableHash) -> ExternResult<()> {
-    let index_path: Path = make_prefix_path(text.clone())?;
+    let index_path: Path = make_prefix_path(text)?;
 
     let links = get_links(index_path.path_entry_hash()?, .., None)?;
 
@@ -37,7 +37,7 @@ pub fn remove_hash_for_prefix_index(text: String, hash: AnyLinkableHash) -> Exte
 
 fn enusre_prefix_index_path(index_path: Path) -> ExternResult<()> {
     // Ensure prefix path exists
-    let typed_path = index_path.clone().typed(LinkTypes::PrefixIndex)?;
+    let typed_path = index_path.typed(LinkTypes::PrefixIndex)?;
     typed_path.ensure()?;
 
     Ok(())

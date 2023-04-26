@@ -1,7 +1,7 @@
 use crate::mew::get_mew_with_context;
-use prefix_index::*;
 use hdk::prelude::*;
 use mews_integrity::*;
+use prefix_index::*;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AddHashtagForMewInput {
@@ -48,7 +48,10 @@ pub fn remove_hashtag_for_mew(input: RemoveHashtagForMewInput) -> ExternResult<(
         }
     }
 
-    remove_hash_for_prefix_index(input.base_hashtag, AnyLinkableHash::from(input.target_mew_hash))?;
+    remove_hash_for_prefix_index(
+        input.base_hashtag,
+        AnyLinkableHash::from(input.target_mew_hash),
+    )?;
 
     Ok(())
 }
