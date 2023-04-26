@@ -25,7 +25,7 @@ pub fn validate_create_link_prefix_index(
       // Second component
       if tag_string.chars().count() != *PREFIX_INDEX_WIDTH {
           return Ok(ValidateCallbackResult::Invalid(format!(
-              "PrefixIndex second component must be length {}",
+              "PrefixIndex second component must be length {:?}",
               *PREFIX_INDEX_WIDTH
           )));
       }

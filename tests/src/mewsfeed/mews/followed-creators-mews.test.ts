@@ -50,7 +50,7 @@ test("create a Mew and get followed creators mews", async () => {
   );
 });
 
-test("Followed creators mews should include mews of followed agent", async () => {
+test("Followed creators mews should include mews of followed creator", async () => {
   await runScenario(
     async (scenario) => {
       // Set up the app to be installed
