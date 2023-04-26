@@ -37,18 +37,6 @@ pub fn validate_create_link_prefix_index(
         // @todo validate there are no additional components
     }
 
-    /*
-    // Component 3 should be a superstring of component 2
-    if base_path_components.len() > 2 && !base_path_components.iter().nth(3).unwrap().contains(base_path_components.iter().nth(2).unwrap()) {
-        return Ok(ValidateCallbackResult::Invalid(format!("PrefixIndex base's third component must include the prefix").into()))
-    }
-
-    // Should not have any more components
-    if base_path_components.len() > 3 {
-        return Ok(ValidateCallbackResult::Invalid("PrefixIndex base cannot have more than 2 components".into()))
-    }
-    */
-
     Ok(ValidateCallbackResult::Valid)
 }
 
