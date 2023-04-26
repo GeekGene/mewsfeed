@@ -8,7 +8,7 @@ crate-type = ["cdylib", "rlib"]
 name = "prefix_index"
 
 [dependencies]
-hdk = "=0.1.2"
-holochain_integrity_types = "=0.1.2"
-serde = "=1.0.160"
+hdk = { workspace = true }
+holochain_integrity_types = { workspace = true }
+serde = { workspace = true }
 lazy_static = "=1.4.0"
