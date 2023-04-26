@@ -8,8 +8,6 @@ export enum MewsFn {
   GetMew = "get_mew",
   MewsFeed = "get_my_followed_creators_mews_with_context",
   MewsBy = "get_agent_mews_with_context",
-  LickMew = "like_mew",
-  UnlickMew = "unlike_mew",
   GetFeedMewAndContext = "get_mew_with_context",
   GetMewsWithCashtag = "get_mews_for_cashtag_with_context",
   GetMewsWithHashtag = "get_mews_for_hashtag_with_context",
@@ -23,6 +21,11 @@ export enum FollowsFn {
   Followers = "get_followers_for_creator",
   Following = "get_creators_for_follower",
   Unfollow = "unfollow",
+}
+
+export enum LikesFn {
+  Like = "like",
+  Unlike = "unlike",
 }
 
 export const callZome = async <T>(
@@ -67,10 +70,10 @@ export const following = async (
   callZome(FollowsFn.Following, agent, "follows");
 
 export const lickMew = async (mew: ActionHash): Promise<null> =>
-  callZome(MewsFn.LickMew, mew);
+  callZome(LikesFn.Like, mew, "likes");
 
 export const unlickMew = async (mew: ActionHash): Promise<null> =>
-  callZome(MewsFn.UnlickMew, mew);
+  callZome(LikesFn.Unlike, mew, "likes");
 
 export const getFeedMewAndContext = async (
   mew_action_hash: ActionHash

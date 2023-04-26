@@ -1,6 +1,6 @@
 <template>
   <q-btn size="md" color="secondary" @click="toggleFollow">
-    <template v-if="following">
+    <template v-if="isFollowing">
       <div class="q-mr-sm">Unfollow</div>
       <q-icon name="svguse:/icons.svg#cat" />
     </template>
@@ -58,15 +58,15 @@ const toggleFollow = () => {
     try {
       const [profile] = await Promise.all([
         profilesStore.value.client.getAgentProfile(props.agentPubKey),
-        following.value
+        isFollowing.value
           ? await unfollow(props.agentPubKey)
           : await follow(props.agentPubKey),
       ]);
-      following.value = !following.value;
+      isFollowing.value = !isFollowing.value;
       const name = `${profile?.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
         profile?.nickname
       })`;
-      const message = following.value
+      const message = isFollowing.value
         ? `You're following ${name} now`
         : `You're not following ${name} anymore`;
       showMessage(message);

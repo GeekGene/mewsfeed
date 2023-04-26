@@ -39,9 +39,9 @@ const loadMewsFeed = async () => {
   try {
     isLoading.value = true;
     if (route.meta.tag === TAG_SYMBOLS.CASHTAG) {
-      mews.value = await getMewsWithCashtag(route.meta.tag + route.params.tag);
+      mews.value = await getMewsWithCashtag(route.params.tag as string);
     } else if (route.meta.tag === TAG_SYMBOLS.HASHTAG) {
-      mews.value = await getMewsWithHashtag(route.meta.tag + route.params.tag);
+      mews.value = await getMewsWithHashtag(route.params.tag as string);
     } else if (route.meta.tag === TAG_SYMBOLS.MENTION) {
       mews.value = await getMewsWithMention(
         decodeHashFromBase64(route.params.agentPubKey as string)
