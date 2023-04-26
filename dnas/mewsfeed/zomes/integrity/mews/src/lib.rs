@@ -12,8 +12,6 @@ pub mod agent_mews;
 pub use agent_mews::*;
 pub mod all_mews;
 pub use all_mews::*;
-pub mod prefix_index;
-pub use prefix_index::*;
 pub mod prefix_index_to_cashtags;
 pub use prefix_index_to_cashtags::*;
 pub mod prefix_index_to_hashtags;
@@ -21,6 +19,7 @@ pub use prefix_index_to_hashtags::*;
 pub mod mew;
 use hdi::prelude::*;
 pub use mew::*;
+
 #[derive(Serialize, Deserialize)]
 #[serde(tag = "type")]
 #[hdk_entry_defs]
@@ -28,12 +27,12 @@ pub use mew::*;
 pub enum EntryTypes {
     Mew(Mew),
 }
+
 #[derive(Serialize, Deserialize)]
 #[hdk_link_types]
 pub enum LinkTypes {
     AllMews,
     AgentMews,
-    PrefixIndex,
     PrefixIndexToHashtags,
     PrefixIndexToCashtags,
     MewToResponses,
@@ -41,16 +40,19 @@ pub enum LinkTypes {
     HashtagToMews,
     CashtagToMews,
 }
+
 #[hdk_extern]
 pub fn genesis_self_check(_data: GenesisSelfCheckData) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Valid)
 }
+
 pub fn validate_agent_joining(
     _agent_pub_key: AgentPubKey,
     _membrane_proof: &Option<MembraneProof>,
 ) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Valid)
 }
+
 #[hdk_extern]
 pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
     match op.flattened::<EntryTypes, LinkTypes>()? {
@@ -105,9 +107,6 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             LinkTypes::AgentMews => {
                 validate_create_link_agent_mews(action, base_address, target_address, tag)
             }
-            LinkTypes::PrefixIndex => {
-                validate_create_link_prefix_index(action, base_address, target_address, tag)
-            }
             LinkTypes::PrefixIndexToHashtags => validate_create_link_prefix_index_to_hashtags(
                 action,
                 base_address,
@@ -149,13 +148,6 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 tag,
             ),
             LinkTypes::AgentMews => validate_delete_link_agent_mews(
-                action,
-                original_action,
-                base_address,
-                target_address,
-                tag,
-            ),
-            LinkTypes::PrefixIndex => validate_delete_link_prefix_index(
                 action,
                 original_action,
                 base_address,
@@ -330,9 +322,6 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 LinkTypes::AgentMews => {
                     validate_create_link_agent_mews(action, base_address, target_address, tag)
                 }
-                LinkTypes::PrefixIndex => {
-                    validate_create_link_prefix_index(action, base_address, target_address, tag)
-                }
                 LinkTypes::PrefixIndexToHashtags => validate_create_link_prefix_index_to_hashtags(
                     action,
                     base_address,
@@ -388,13 +377,6 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         create_link.tag,
                     ),
                     LinkTypes::AgentMews => validate_delete_link_agent_mews(
-                        action,
-                        create_link.clone(),
-                        base_address,
-                        create_link.target_address,
-                        create_link.tag,
-                    ),
-                    LinkTypes::PrefixIndex => validate_delete_link_prefix_index(
                         action,
                         create_link.clone(),
                         base_address,

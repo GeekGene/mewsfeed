@@ -1,4 +1,5 @@
 use hdi::prelude::*;
+
 pub fn validate_create_link_mew_to_responses(
     _action: CreateLink,
     base_address: AnyLinkableHash,
@@ -25,6 +26,7 @@ pub fn validate_create_link_mew_to_responses(
         ))))?;
     Ok(ValidateCallbackResult::Valid)
 }
+
 pub fn validate_delete_link_mew_to_responses(
     _action: DeleteLink,
     _original_action: CreateLink,
@@ -61,6 +63,7 @@ pub fn validate_create_link_response_to_mews(
         ))))?;
     Ok(ValidateCallbackResult::Valid)
 }
+
 pub fn validate_delete_link_response_to_mews(
     action: DeleteLink,
     original_action: CreateLink,

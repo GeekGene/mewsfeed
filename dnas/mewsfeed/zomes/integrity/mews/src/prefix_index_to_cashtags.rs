@@ -1,4 +1,4 @@
-use crate::make_prefix_path;
+use prefix_index_integrity::make_prefix_path;
 use hdi::prelude::*;
 
 pub fn validate_create_link_prefix_index_to_cashtags(
@@ -37,6 +37,7 @@ pub fn validate_create_link_prefix_index_to_cashtags(
 
     Ok(ValidateCallbackResult::Valid)
 }
+
 pub fn validate_delete_link_prefix_index_to_cashtags(
     _action: DeleteLink,
     _original_action: CreateLink,

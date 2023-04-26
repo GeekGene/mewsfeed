@@ -1,6 +1,6 @@
-use crate::mew::get_mew_with_context;
-use crate::prefix_index::*;
 use hdk::prelude::*;
+use crate::mew::get_mew_with_context;
+use prefix_index::*;
 use mews_integrity::*;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -21,7 +21,7 @@ pub fn add_cashtag_for_mew(input: AddCashtagForMewInput) -> ExternResult<()> {
 
     // Add cashtag to prefix index, link to mew_hash
     let tag: &str = input.base_cashtag.split('$').nth(1).unwrap();
-    add_to_prefix_index(
+    add_hash_for_prefix_index(
         tag.into(),
         input.target_mew_hash,
         LinkTypes::PrefixIndexToCashtags,
@@ -47,6 +47,8 @@ pub fn remove_cashtag_for_mew(input: RemoveCashtagForMewInput) -> ExternResult<(
             delete_link(link.create_link_hash)?;
         }
     }
+
+    remove_hash_for_prefix_index(input.base_cashtag, AnyLinkableHash::from(input.target_mew_hash))?;
 
     Ok(())
 }

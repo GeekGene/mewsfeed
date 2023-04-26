@@ -1,4 +1,5 @@
 use hdi::prelude::*;
+
 pub fn validate_create_link_mention_to_mews(
     _action: CreateLink,
     _base_address: AnyLinkableHash,
@@ -20,6 +21,7 @@ pub fn validate_create_link_mention_to_mews(
 
     Ok(ValidateCallbackResult::Valid)
 }
+
 pub fn validate_delete_link_mention_to_mews(
     action: DeleteLink,
     original_action: CreateLink,

@@ -82,6 +82,7 @@ pub fn validate_create_mew(
 
     Ok(ValidateCallbackResult::Valid)
 }
+
 pub fn validate_update_mew(
     _action: Update,
     _mew: Mew,
@@ -92,6 +93,7 @@ pub fn validate_update_mew(
         "Mews cannot be updated".into(),
     ))
 }
+
 pub fn validate_delete_mew(
     _action: Delete,
     _original_action: EntryCreationAction,

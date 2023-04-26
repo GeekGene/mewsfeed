@@ -1138,6 +1138,7 @@ version = "0.0.1"
 dependencies = [
  "hdk",
  "mews_integrity",
+ "prefix_index",
  "regex",
  "serde",
 ]
@@ -1148,6 +1149,8 @@ version = "0.0.1"
 dependencies = [
  "hdi",
  "hdk",
+ "prefix_index",
+ "prefix_index_integrity",
  "serde",
 ]
 
@@ -1266,6 +1269,26 @@ name = "pin-project-lite"
 version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e0a7ae3ac2f1173085d398531c705756c94a4c56843785df85a60c1a0afac116"
+
+[[package]]
+name = "prefix_index"
+version = "0.0.1"
+dependencies = [
+ "hdk",
+ "holochain_integrity_types",
+ "prefix_index_integrity",
+ "serde",
+]
+
+[[package]]
+name = "prefix_index_integrity"
+version = "0.0.1"
+dependencies = [
+ "hdi",
+ "hdk",
+ "holochain_integrity_types",
+ "serde",
+]
 
 [[package]]
 name = "proc-macro-error"

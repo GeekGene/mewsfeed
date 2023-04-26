@@ -1,5 +1,5 @@
 use crate::mew::get_mew_with_context;
-use crate::prefix_index::*;
+use prefix_index::*;
 use hdk::prelude::*;
 use mews_integrity::*;
 
@@ -21,7 +21,7 @@ pub fn add_hashtag_for_mew(input: AddHashtagForMewInput) -> ExternResult<()> {
 
     // Add hashtag to prefix index, link to mew_hash
     let tag: &str = input.base_hashtag.split('#').nth(1).unwrap();
-    add_to_prefix_index(
+    add_hash_for_prefix_index(
         tag.into(),
         input.target_mew_hash,
         LinkTypes::PrefixIndexToHashtags,
@@ -47,6 +47,8 @@ pub fn remove_hashtag_for_mew(input: RemoveHashtagForMewInput) -> ExternResult<(
             delete_link(link.create_link_hash)?;
         }
     }
+
+    remove_hash_for_prefix_index(input.base_hashtag, AnyLinkableHash::from(input.target_mew_hash))?;
 
     Ok(())
 }

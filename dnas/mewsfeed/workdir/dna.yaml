@@ -24,6 +24,10 @@ integrity:
       hash: ~
       bundled: "../../../target/wasm32-unknown-unknown/release/likes_integrity.wasm"
       dependencies: ~
+    - name: prefix_index_integrity
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/prefix_index_integrity.wasm"
+      dependencies: ~
 coordinator:
   zomes:
     - name: mews
@@ -46,3 +50,8 @@ coordinator:
       bundled: "../../../target/wasm32-unknown-unknown/release/likes.wasm"
       dependencies:
         - name: likes_integrity
+    - name: prefix_index
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/prefix_index.wasm"
+      dependencies:
+        - name: prefix_index_integrity

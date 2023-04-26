@@ -24,6 +24,7 @@ pub fn validate_create_link_agent_mews(
 
     Ok(ValidateCallbackResult::Valid)
 }
+
 pub fn validate_delete_link_agent_mews(
     action: DeleteLink,
     original_action: CreateLink,

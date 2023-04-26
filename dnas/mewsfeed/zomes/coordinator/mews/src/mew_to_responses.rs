@@ -1,5 +1,6 @@
 use hdk::prelude::*;
 use mews_integrity::*;
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AddResponseForMewInput {
     pub base_original_mew_hash: ActionHash,
@@ -53,6 +54,7 @@ pub fn get_response_hashes_for_mew(
 
     Ok(hashes)
 }
+
 #[hdk_extern]
 pub fn get_responses_for_mew(input: GetResponsesForMewInput) -> ExternResult<Vec<Record>> {
     let response_hashes = get_response_hashes_for_mew(input)?;
@@ -67,6 +69,7 @@ pub fn get_responses_for_mew(input: GetResponsesForMewInput) -> ExternResult<Vec
         .collect();
     Ok(records)
 }
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct RemoveResponseForMewInput {
     pub base_original_mew_hash: ActionHash,

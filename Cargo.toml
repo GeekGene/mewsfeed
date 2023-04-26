@@ -26,6 +26,12 @@ path = "dnas/mewsfeed/zomes/coordinator/mews"
 [workspace.dependencies.mews_integrity]
 path = "dnas/mewsfeed/zomes/integrity/mews"
 
+[workspace.dependencies.prefix_index]
+path = "dnas/mewsfeed/zomes/coordinator/prefix_index"
+
+[workspace.dependencies.prefix_index_integrity]
+path = "dnas/mewsfeed/zomes/integrity/prefix_index"
+
 [workspace.dependencies.profiles]
 path = "dnas/mewsfeed/zomes/coordinator/profiles"
 

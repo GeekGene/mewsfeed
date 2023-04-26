@@ -3,12 +3,14 @@ use hdk::hash_path::path::{root_hash, Component, Path};
 
 pub const PREFIX_INDEX_LENGTH: usize = 3;
 
+#[hdk_extern]
 pub fn make_prefix_path(text: String) -> ExternResult<Path> {
     let prefix: String = text
         .to_lowercase()
         .chars()
         .take(PREFIX_INDEX_LENGTH)
         .collect();
+
     let path = Path::from(format!("prefix_index.{}", prefix));
 
     Ok(path)
@@ -61,6 +63,7 @@ pub fn validate_create_link_prefix_index(
 
     Ok(ValidateCallbackResult::Valid)
 }
+
 pub fn validate_delete_link_prefix_index(
     _action: DeleteLink,
     _original_action: CreateLink,
