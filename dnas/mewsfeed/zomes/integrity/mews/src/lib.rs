@@ -19,6 +19,9 @@ pub use prefix_index_to_hashtags::*;
 pub mod mew;
 use hdi::prelude::*;
 pub use mew::*;
+use prefix_index::{validate_delete_link_prefix_index, validate_create_link_prefix_index};
+
+pub const TAG_PREFIX_INDEX_NAME: &str = "prefix_index";
 
 #[derive(Serialize, Deserialize)]
 #[serde(tag = "type")]
@@ -33,6 +36,7 @@ pub enum EntryTypes {
 pub enum LinkTypes {
     AllMews,
     AgentMews,
+    PrefixIndex,
     PrefixIndexToHashtags,
     PrefixIndexToCashtags,
     MewToResponses,
@@ -107,6 +111,9 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             LinkTypes::AgentMews => {
                 validate_create_link_agent_mews(action, base_address, target_address, tag)
             }
+            LinkTypes::PrefixIndex => {
+                validate_create_link_prefix_index(action, base_address, target_address, tag, TAG_PREFIX_INDEX_NAME)
+            }
             LinkTypes::PrefixIndexToHashtags => validate_create_link_prefix_index_to_hashtags(
                 action,
                 base_address,
@@ -148,6 +155,13 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 tag,
             ),
             LinkTypes::AgentMews => validate_delete_link_agent_mews(
+                action,
+                original_action,
+                base_address,
+                target_address,
+                tag,
+            ),
+            LinkTypes::PrefixIndex => validate_delete_link_prefix_index(
                 action,
                 original_action,
                 base_address,
@@ -322,6 +336,9 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 LinkTypes::AgentMews => {
                     validate_create_link_agent_mews(action, base_address, target_address, tag)
                 }
+                LinkTypes::PrefixIndex => {
+                    validate_create_link_prefix_index(action, base_address, target_address, tag, TAG_PREFIX_INDEX_NAME)
+                }
                 LinkTypes::PrefixIndexToHashtags => validate_create_link_prefix_index_to_hashtags(
                     action,
                     base_address,
@@ -377,6 +394,13 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         create_link.tag,
                     ),
                     LinkTypes::AgentMews => validate_delete_link_agent_mews(
+                        action,
+                        create_link.clone(),
+                        base_address,
+                        create_link.target_address,
+                        create_link.tag,
+                    ),
+                    LinkTypes::PrefixIndex => validate_delete_link_prefix_index(
                         action,
                         create_link.clone(),
                         base_address,

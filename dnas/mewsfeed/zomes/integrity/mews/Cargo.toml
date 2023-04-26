@@ -12,4 +12,3 @@ hdi = { workspace = true }
 hdk = { workspace = true }
 serde = { workspace = true }
 prefix_index = { workspace = true }
-prefix_index_integrity = { workspace = true }

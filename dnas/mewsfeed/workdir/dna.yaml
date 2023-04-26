@@ -6,6 +6,7 @@ integrity:
   properties:
     mew_characters_min: 10
     mew_characters_max: ~
+    prefix_index_width: 3
   origin_time: 1681948586688419
   zomes:
     - name: mews_integrity
@@ -50,8 +51,3 @@ coordinator:
       bundled: "../../../target/wasm32-unknown-unknown/release/likes.wasm"
       dependencies:
         - name: likes_integrity
-    - name: prefix_index
-      hash: ~
-      bundled: "../../../target/wasm32-unknown-unknown/release/prefix_index.wasm"
-      dependencies:
-        - name: prefix_index_integrity

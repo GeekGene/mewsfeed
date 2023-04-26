@@ -1,0 +1,14 @@
+[package]
+name = "prefix_index"
+version = "0.0.1"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+name = "prefix_index"
+
+[dependencies]
+hdk = "=0.1.2"
+holochain_integrity_types = "=0.1.2"
+serde = "=1.0.160"
+lazy_static = "=1.4.0"

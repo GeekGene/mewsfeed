@@ -22,7 +22,9 @@ pub fn add_hashtag_for_mew(input: AddHashtagForMewInput) -> ExternResult<()> {
     // Add hashtag to prefix index, link to mew_hash
     let tag: &str = input.base_hashtag.split('#').nth(1).unwrap();
     add_hash_for_prefix_index(
-        tag.into(),
+        TAG_PREFIX_INDEX_NAME,
+        LinkTypes::PrefixIndex,
+        tag,
         input.target_mew_hash,
         LinkTypes::PrefixIndexToHashtags,
     )?;
@@ -49,6 +51,7 @@ pub fn remove_hashtag_for_mew(input: RemoveHashtagForMewInput) -> ExternResult<(
     }
 
     remove_hash_for_prefix_index(
+        TAG_PREFIX_INDEX_NAME,
         input.base_hashtag,
         AnyLinkableHash::from(input.target_mew_hash),
     )?;
@@ -58,10 +61,14 @@ pub fn remove_hashtag_for_mew(input: RemoveHashtagForMewInput) -> ExternResult<(
 
 #[hdk_extern]
 pub fn get_mews_for_hashtag(hashtag: String) -> ExternResult<Vec<Record>> {
-    let hashes = get_mew_hashes_for_hashtag(hashtag)?;
+    let hashes = get_hashes_for_prefix(
+        TAG_PREFIX_INDEX_NAME,
+        hashtag,
+        LinkTypes::PrefixIndexToHashtags,
+    )?;
     let get_input: Vec<GetInput> = hashes
         .into_iter()
-        .map(|hash| GetInput::new(hash.into(), GetOptions::default()))
+        .map(|hash| GetInput::new(ActionHash::from(hash).into(), GetOptions::default()))
         .collect();
 
     // Get the records to filter out the deleted ones
@@ -76,53 +83,27 @@ pub fn get_mews_for_hashtag(hashtag: String) -> ExternResult<Vec<Record>> {
 
 #[hdk_extern]
 pub fn get_mews_for_hashtag_with_context(hashtag: String) -> ExternResult<Vec<FeedMew>> {
-    let hashes = get_mew_hashes_for_hashtag(hashtag)?;
+    let hashes = get_hashes_for_prefix(
+        TAG_PREFIX_INDEX_NAME,
+        hashtag,
+        LinkTypes::PrefixIndexToHashtags,
+    )?;
 
     let feedmews: Vec<FeedMew> = hashes
         .into_iter()
-        .filter_map(|hash| get_mew_with_context(hash).ok())
+        .filter_map(|hash| get_mew_with_context(ActionHash::from(hash)).ok())
         .collect();
 
     Ok(feedmews)
 }
 
-fn get_mew_hashes_for_hashtag(hashtag: String) -> ExternResult<Vec<ActionHash>> {
-    let links: Vec<Link> = get_links(
-        Path::from(hashtag).path_entry_hash()?,
-        LinkTypes::HashtagToMews,
-        None,
-    )?;
-
-    let hashes: Vec<ActionHash> = links
-        .into_iter()
-        .map(|link| ActionHash::from(link.target))
-        .collect();
-
-    Ok(hashes)
-}
-
 #[hdk_extern]
 fn search_hashtags(query: String) -> ExternResult<Vec<String>> {
-    let prefix: String = query.chars().take(3).collect();
-    let path = Path::from(format!("prefix_index.{}", prefix));
-
-    let links = get_links(
-        path.path_entry_hash()?,
+    let tags = get_tags_for_prefix(
+        TAG_PREFIX_INDEX_NAME,
+        query,
         LinkTypes::PrefixIndexToHashtags,
-        None,
     )?;
-
-    let tags: Vec<String> = links
-        .into_iter()
-        .map(|link| {
-            String::from_utf8(link.tag.into_inner()).map_err(|_| {
-                wasm_error!(WasmErrorInner::Guest(
-                    "Failed to convert link tag to string".into()
-                ))
-            })
-        })
-        .filter_map(Result::ok)
-        .collect();
 
     Ok(tags)
 }
