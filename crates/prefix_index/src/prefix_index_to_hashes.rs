@@ -1,12 +1,11 @@
-use hdk::prelude::*;
 use crate::PREFIX_INDEX_WIDTH;
-
+use hdk::prelude::*;
 
 pub fn add_hash_for_prefix_index<T, IT, E, H>(
     index_name: impl Into<String>,
     index_link_type: IT,
-    text: impl Into<String> + Clone, 
-    hash: H, 
+    text: impl Into<String> + Clone,
+    hash: H,
     link_type: T,
 ) -> ExternResult<()>
 where
@@ -29,10 +28,10 @@ where
 }
 
 pub fn remove_hash_for_prefix_index(
-    index_name: impl Into<String>, 
-    text: impl Into<String>, 
-    hash: AnyLinkableHash
-) -> ExternResult<()> {    
+    index_name: impl Into<String>,
+    text: impl Into<String>,
+    hash: AnyLinkableHash,
+) -> ExternResult<()> {
     let links = get_links_for_prefix(index_name, text, ..)?;
     for link in links {
         if link.target.clone().eq(&hash) {
@@ -46,7 +45,7 @@ pub fn remove_hash_for_prefix_index(
 pub fn get_tags_for_prefix(
     index_name: impl Into<String>,
     text: impl Into<String>,
-    link_type: impl LinkTypeFilterExt
+    link_type: impl LinkTypeFilterExt,
 ) -> ExternResult<Vec<String>> {
     let links = get_links_for_prefix(index_name, text, link_type)?;
     let tags: Vec<String> = links
@@ -60,33 +59,31 @@ pub fn get_tags_for_prefix(
 pub fn get_hashes_for_prefix(
     index_name: impl Into<String>,
     text: impl Into<String>,
-    link_type: impl LinkTypeFilterExt
+    link_type: impl LinkTypeFilterExt,
 ) -> ExternResult<Vec<AnyLinkableHash>> {
     let links = get_links_for_prefix(index_name, text, link_type)?;
-    let hashes: Vec<AnyLinkableHash> = links
-        .into_iter()
-        .map(|l| l.target)
-        .collect();
+    let hashes: Vec<AnyLinkableHash> = links.into_iter().map(|l| l.target).collect();
 
     Ok(hashes)
 }
 
 pub fn get_links_for_prefix(
-    index_name: impl Into<String>, 
+    index_name: impl Into<String>,
     text: impl Into<String>,
-    link_type: impl LinkTypeFilterExt
+    link_type: impl LinkTypeFilterExt,
 ) -> ExternResult<Vec<Link>> {
     let index_path: Path = make_prefix_path(index_name, text)?;
     let links = get_links(index_path.path_entry_hash()?, link_type, None)?;
-    
+
     Ok(links)
 }
 
 pub fn make_prefix_path(
-    index_name: impl Into<String>, 
-    text: impl Into<String>
+    index_name: impl Into<String>,
+    text: impl Into<String>,
 ) -> ExternResult<Path> {
-    let prefix: String = text.into()
+    let prefix: String = text
+        .into()
         .to_lowercase()
         .chars()
         .take(*PREFIX_INDEX_WIDTH)
@@ -96,10 +93,7 @@ pub fn make_prefix_path(
     Ok(path)
 }
 
-fn ensure_prefix_path<IT, E>(
-    path: Path, 
-    index_link_type: IT,
-) -> ExternResult<()> 
+fn ensure_prefix_path<IT, E>(path: Path, index_link_type: IT) -> ExternResult<()>
 where
     ScopedLinkType: TryFrom<IT, Error = E>,
     WasmError: From<E>,

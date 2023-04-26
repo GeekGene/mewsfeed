@@ -1,6 +1,6 @@
+use crate::TAG_PREFIX_INDEX_NAME;
 use hdi::prelude::*;
 use prefix_index::make_prefix_path;
-use crate::TAG_PREFIX_INDEX_NAME;
 
 pub fn validate_create_link_prefix_index_to_hashtags(
     _action: CreateLink,
@@ -27,7 +27,8 @@ pub fn validate_create_link_prefix_index_to_hashtags(
     })?;
 
     // Base address should be prefix index path matching tag prefix
-    let prefix_path_hash = make_prefix_path(TAG_PREFIX_INDEX_NAME, tag_string)?.path_entry_hash()?;
+    let prefix_path_hash =
+        make_prefix_path(TAG_PREFIX_INDEX_NAME, tag_string)?.path_entry_hash()?;
 
     if EntryHash::from(base_address) != prefix_path_hash {
         return Ok(ValidateCallbackResult::Invalid(format!(

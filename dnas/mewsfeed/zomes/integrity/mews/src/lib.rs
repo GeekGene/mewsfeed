@@ -19,7 +19,7 @@ pub use prefix_index_to_hashtags::*;
 pub mod mew;
 use hdi::prelude::*;
 pub use mew::*;
-use prefix_index::{validate_delete_link_prefix_index, validate_create_link_prefix_index};
+use prefix_index::{validate_create_link_prefix_index, validate_delete_link_prefix_index};
 
 pub const TAG_PREFIX_INDEX_NAME: &str = "prefix_index";
 
@@ -111,9 +111,13 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             LinkTypes::AgentMews => {
                 validate_create_link_agent_mews(action, base_address, target_address, tag)
             }
-            LinkTypes::PrefixIndex => {
-                validate_create_link_prefix_index(action, base_address, target_address, tag, TAG_PREFIX_INDEX_NAME)
-            }
+            LinkTypes::PrefixIndex => validate_create_link_prefix_index(
+                action,
+                base_address,
+                target_address,
+                tag,
+                TAG_PREFIX_INDEX_NAME,
+            ),
             LinkTypes::PrefixIndexToHashtags => validate_create_link_prefix_index_to_hashtags(
                 action,
                 base_address,
@@ -336,9 +340,13 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 LinkTypes::AgentMews => {
                     validate_create_link_agent_mews(action, base_address, target_address, tag)
                 }
-                LinkTypes::PrefixIndex => {
-                    validate_create_link_prefix_index(action, base_address, target_address, tag, TAG_PREFIX_INDEX_NAME)
-                }
+                LinkTypes::PrefixIndex => validate_create_link_prefix_index(
+                    action,
+                    base_address,
+                    target_address,
+                    tag,
+                    TAG_PREFIX_INDEX_NAME,
+                ),
                 LinkTypes::PrefixIndexToHashtags => validate_create_link_prefix_index_to_hashtags(
                     action,
                     base_address,
