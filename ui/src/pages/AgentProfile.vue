@@ -61,18 +61,22 @@
       <h6 class="q-mb-md">Followed by</h6>
       <FollowersList :agentPubKey="agentPubKey" />
       <h6 class="q-mb-md">
-        <RouterLink
+        <q-btn
           v-if="profile?.nickname"
-          :to="{
-            name: ROUTES[PATH[TAG_SYMBOLS.MENTION]],
-            params: {
-              tag: profile.nickname,
-              agentPubKey: encodeHashToBase64(agentPubKey),
-            },
-          }"
+          size="lg"
+          color="secondary"
+          @click="
+            router.push({
+              name: ROUTES[PATH[TAG_SYMBOLS.MENTION]],
+              params: {
+                tag: profile.nickname,
+                agentPubKey: encodeHashToBase64(agentPubKey),
+              },
+            })
+          "
         >
           Mew Mentions
-        </RouterLink>
+        </q-btn>
       </h6>
     </div>
   </q-page>
@@ -103,11 +107,12 @@ import {
 } from "@holochain/client";
 import { Profile } from "@holochain-open-dev/profiles";
 import { computed, onMounted, ref, watch } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import MewList from "../components/MewList.vue";
 
 const profilesStore = useProfilesStore();
 const route = useRoute();
+const router = useRouter();
 const agentPubKey = computed(() =>
   decodeHashFromBase64(route.params.agent as string)
 );
