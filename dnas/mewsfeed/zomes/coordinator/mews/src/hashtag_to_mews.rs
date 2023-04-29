@@ -20,7 +20,7 @@ pub fn add_hashtag_for_mew(input: AddHashtagForMewInput) -> ExternResult<()> {
     )?;
 
     // Add hashtag to prefix index, link to mew_hash
-    let tag: &str = input.base_hashtag.split('#').nth(1).unwrap();
+    let tag: &str = input.base_hashtag.split('#').nth(1).unwrap_or_else(|| &input.base_hashtag);
     add_hash_for_prefix_index(
         TAG_PREFIX_INDEX_NAME,
         LinkTypes::PrefixIndex,

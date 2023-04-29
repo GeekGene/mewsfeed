@@ -20,7 +20,7 @@ pub fn add_cashtag_for_mew(input: AddCashtagForMewInput) -> ExternResult<()> {
     )?;
 
     // Add cashtag to prefix index, link to mew_hash
-    let tag: &str = input.base_cashtag.split('$').nth(1).unwrap();
+    let tag: &str = input.base_cashtag.split('$').nth(1).unwrap_or_else(|| &input.base_cashtag);
     add_hash_for_prefix_index(
         TAG_PREFIX_INDEX_NAME,
         LinkTypes::PrefixIndex,
