@@ -31,14 +31,7 @@ pub fn validate_create_link_prefix_index(
             )));
         }
     } else {
-        // Third component
-        // @todo validate that base_address corresponds to prior component
-        //   (i.e. the prior component's link tag is the first 3 characters of the current components link tag)
-        //   Is this possible? do we need to use must_get_agent_activity?
-
-        // Later components
-        // @todo validate there are no additional components
-        //   Is this possible?
+        return Ok(ValidateCallbackResult::Invalid("A prefix path can only have two components".into()));
     }
 
     Ok(ValidateCallbackResult::Valid)
