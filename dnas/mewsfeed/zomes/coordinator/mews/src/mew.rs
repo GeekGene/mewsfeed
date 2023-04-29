@@ -61,14 +61,13 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
     let element = get(original_mew_hash.clone(), GetOptions::default())?.ok_or(wasm_error!(
         WasmErrorInner::Guest(String::from("Mew not found"))
     ))?;
-    let mew: Mew =
-        element
-            .entry()
-            .to_app_option()
-            .map_err(|e| wasm_error!(WasmErrorInner::Guest(e.into())))?
-            .ok_or(wasm_error!(WasmErrorInner::Guest(String::from(
-                "Malformed mew"
-            ))))?;
+    let mew: Mew = element
+        .entry()
+        .to_app_option()
+        .map_err(|e| wasm_error!(WasmErrorInner::Guest(e.into())))?
+        .ok_or(wasm_error!(WasmErrorInner::Guest(String::from(
+            "Malformed mew"
+        ))))?;
 
     let replies = get_response_hashes_for_mew(GetResponsesForMewInput {
         original_mew_hash: original_mew_hash.clone(),
@@ -182,10 +181,16 @@ fn remove_tags_for_mew(mew: Mew, mew_hash: ActionHash) -> ExternResult<()> {
 }
 
 fn setup_tag_regexes() -> ExternResult<(Regex, Regex)> {
-    let hashtag_regex = Regex::new(r"#\w+")
-        .map_err(|_| wasm_error!(WasmErrorInner::Guest("Failed to create hashtag regex".into())))?;
-    let cashtag_regex = Regex::new(r"\$\w+")
-        .map_err(|_| wasm_error!(WasmErrorInner::Guest("Failed to create cashtag regex".into())))?;
+    let hashtag_regex = Regex::new(r"#\w+").map_err(|_| {
+        wasm_error!(WasmErrorInner::Guest(
+            "Failed to create hashtag regex".into()
+        ))
+    })?;
+    let cashtag_regex = Regex::new(r"\$\w+").map_err(|_| {
+        wasm_error!(WasmErrorInner::Guest(
+            "Failed to create cashtag regex".into()
+        ))
+    })?;
 
     Ok((hashtag_regex, cashtag_regex))
 }
