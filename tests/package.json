@@ -2,7 +2,7 @@
   "name": "tests",
   "private": true,
   "scripts": {
-    "test": "TRYORAMA_LOG_LEVEL=warn vitest run"
+    "test": "vitest run"
   },
   "dependencies": {
     "@msgpack/msgpack": "^2.7.0",
