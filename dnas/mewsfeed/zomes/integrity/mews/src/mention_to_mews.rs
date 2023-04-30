@@ -18,7 +18,9 @@ pub fn validate_create_link_mention_to_mews(
         ))))?;
 
     if AgentPubKey::try_from(EntryHash::from(base_address)).is_err() {
-       return Ok(ValidateCallbackResult::Invalid("Base addesss of MentionToMew link must be an AgentPubKey".into()));
+        return Ok(ValidateCallbackResult::Invalid(
+            "Base addesss of MentionToMew link must be an AgentPubKey".into(),
+        ));
     }
 
     Ok(ValidateCallbackResult::Valid)

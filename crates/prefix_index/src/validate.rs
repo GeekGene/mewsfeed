@@ -31,7 +31,9 @@ pub fn validate_create_link_prefix_index(
             )));
         }
     } else {
-        return Ok(ValidateCallbackResult::Invalid("A prefix path can only have two components".into()));
+        return Ok(ValidateCallbackResult::Invalid(
+            "A prefix path can only have two components".into(),
+        ));
     }
 
     Ok(ValidateCallbackResult::Valid)
