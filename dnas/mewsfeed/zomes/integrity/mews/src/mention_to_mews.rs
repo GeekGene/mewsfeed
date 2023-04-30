@@ -2,7 +2,7 @@ use hdi::prelude::*;
 
 pub fn validate_create_link_mention_to_mews(
     _action: CreateLink,
-    _base_address: AnyLinkableHash,
+    base_address: AnyLinkableHash,
     target_address: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
@@ -17,7 +17,9 @@ pub fn validate_create_link_mention_to_mews(
             "Linked action must reference an entry"
         ))))?;
 
-    // @todo validate base_address is an AgentPubKey
+    if AgentPubKey::try_from(EntryHash::from(base_address)).is_err() {
+       return Ok(ValidateCallbackResult::Invalid("Base addesss of MentionToMew link must be an AgentPubKey".into()));
+    }
 
     Ok(ValidateCallbackResult::Valid)
 }
