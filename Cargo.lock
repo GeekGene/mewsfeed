@@ -1272,10 +1272,10 @@ checksum = "e0a7ae3ac2f1173085d398531c705756c94a4c56843785df85a60c1a0afac116"
 [[package]]
 name = "prefix_index"
 version = "0.0.1"
+source = "git+https://github.com/mattyg/holochain-prefix-index.git?tag=0.1.0#31666864c8cdede17d3f1110a8a085cba46ace39"
 dependencies = [
  "hdk",
  "holochain_integrity_types",
- "lazy_static",
  "serde",
 ]
 
