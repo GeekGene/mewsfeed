@@ -2,7 +2,7 @@ import { Record } from "@holochain/client";
 import { runScenario } from "@holochain/tryorama";
 import { assert, test } from "vitest";
 import { FeedMew, Mew, MewTypeName } from "../../../../ui/src/types/types.js";
-import { mewsfeedAppBundleSource } from "../../utils.js";
+import { mewsfeedAppBundleSource } from "../../common.js";
 
 test("Agent can reply to a mew", async () => {
   await runScenario(

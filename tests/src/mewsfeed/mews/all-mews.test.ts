@@ -2,7 +2,7 @@ import { assert, test } from "vitest";
 import { runScenario, pause } from "@holochain/tryorama";
 import { Record } from "@holochain/client";
 import { createMew } from "./common";
-import { mewsfeedAppBundleSource } from "../../utils";
+import { mewsfeedAppBundleSource } from "../../common";
 
 test("create a Mew and get all mews", async () => {
   await runScenario(

@@ -4,7 +4,7 @@ import { Record } from "@holochain/client";
 import { decode } from "@msgpack/msgpack";
 import { createMew } from "./common";
 import { FeedMew, Mew } from "../../../../ui/src/types/types";
-import { mewsfeedAppBundleSource } from "../../utils";
+import { mewsfeedAppBundleSource } from "../../common";
 
 test("create a Mew and get agent mews", async () => {
   await runScenario(

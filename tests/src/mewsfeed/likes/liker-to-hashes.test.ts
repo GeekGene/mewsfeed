@@ -1,7 +1,7 @@
 import { assert, expect, test } from "vitest";
 import { runScenario, pause } from "@holochain/tryorama";
 import { Record, fakeActionHash } from "@holochain/client";
-import { mewsfeedAppBundleSource } from "../../utils";
+import { mewsfeedAppBundleSource } from "../../common";
 
 test("link a Liker to a Hash", async () => {
   await runScenario(

@@ -1,7 +1,7 @@
 import { assert, test, expect } from "vitest";
 import { runScenario, pause } from "@holochain/tryorama";
 import { Record } from "@holochain/client";
-import { mewsfeedAppBundleSource } from "../../utils";
+import { mewsfeedAppBundleSource } from "../../common";
 
 test("link a Follower to a Creator", async () => {
   await runScenario(

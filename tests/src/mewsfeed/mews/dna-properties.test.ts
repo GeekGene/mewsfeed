@@ -5,7 +5,7 @@ import { Mew, MewTypeName } from "../../../../ui/src/types/types.js";
 import {
   mewsfeedAppBundleSource,
   mewsfeedAppBundleSourceNoLengthLimits,
-} from "../../utils.js";
+} from "../../common.js";
 
 test("Mew must not be longer than DNA property mew_characters_max chars", async () => {
   await runScenario(

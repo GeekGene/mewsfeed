@@ -1,7 +1,7 @@
 import { pause, runScenario } from "@holochain/tryorama";
 import { assert, test } from "vitest";
 import { FeedMew, LinkTargetName } from "../../../../ui/src/types/types.js";
-import { mewsfeedAppBundleSource } from "../../utils.js";
+import { mewsfeedAppBundleSource } from "../../common.js";
 import { createMew } from "./common.js";
 
 test("mention in mews", async () => {

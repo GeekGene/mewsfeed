@@ -7,7 +7,7 @@ import {
   Mew,
   MewTypeName,
 } from "../../../../ui/src/types/types.js";
-import { mewsfeedAppBundleSource } from "../../utils.js";
+import { mewsfeedAppBundleSource } from "../../common.js";
 
 test("Hashtag, cashtag and mention", async () => {
   await runScenario(

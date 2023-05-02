@@ -3,7 +3,7 @@ import { runScenario, pause } from "@holochain/tryorama";
 import { Record } from "@holochain/client";
 import { createMew } from "./common";
 import { FeedMew, Mew, MewTypeName } from "../../../../ui/src/types/types";
-import { mewsfeedAppBundleSource } from "../../utils";
+import { mewsfeedAppBundleSource } from "../../common";
 
 test("create a Mew and get followed creators mews", async () => {
   await runScenario(
