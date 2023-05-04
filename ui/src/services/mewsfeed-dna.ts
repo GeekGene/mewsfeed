@@ -12,8 +12,7 @@ export enum MewsFn {
   GetMewsWithCashtag = "get_mews_for_cashtag_with_context",
   GetMewsWithHashtag = "get_mews_for_hashtag_with_context",
   GetMewsWithMention = "get_mews_for_mention_with_context",
-  SearchCashtags = "search_cashtags",
-  SearchHashtags = "search_hashtags",
+  SearchTags = "search_tags",
 }
 
 export enum FollowsFn {
@@ -89,8 +88,5 @@ export const getMewsWithMention = async (
   agentPubKey: AgentPubKey
 ): Promise<FeedMew[]> => callZome(MewsFn.GetMewsWithMention, agentPubKey);
 
-export const searchCashtags = async (query: string): Promise<string[]> =>
-  callZome(MewsFn.SearchCashtags, query);
-
-export const searchHashtags = async (query: string): Promise<string[]> =>
-  callZome(MewsFn.SearchHashtags, query);
+export const searchTags = async (query: string): Promise<string[]> =>
+  callZome(MewsFn.SearchTags, { query, limit: 5 });

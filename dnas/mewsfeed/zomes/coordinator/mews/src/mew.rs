@@ -129,7 +129,7 @@ pub fn delete_mew(original_mew_hash: ActionHash) -> ExternResult<ActionHash> {
 }
 
 fn add_tags_for_mew(mew: Mew, mew_hash: ActionHash) -> ExternResult<()> {
-    let (hashtag_regex, cashtag_regex) = setup_tag_regexes()?;
+    let (hashtag_regex, cashtag_regex) = tag_regexes()?;
     for regex_match in hashtag_regex.find_iter(&mew.text) {
         add_hashtag_for_mew(AddHashtagForMewInput {
             base_hashtag: regex_match.as_str().into(),
@@ -155,7 +155,7 @@ fn add_tags_for_mew(mew: Mew, mew_hash: ActionHash) -> ExternResult<()> {
 }
 
 fn remove_tags_for_mew(mew: Mew, mew_hash: ActionHash) -> ExternResult<()> {
-    let (hashtag_regex, cashtag_regex) = setup_tag_regexes()?;
+    let (hashtag_regex, cashtag_regex) = tag_regexes()?;
     for regex_match in hashtag_regex.find_iter(&mew.text) {
         remove_hashtag_for_mew(RemoveHashtagForMewInput {
             base_hashtag: regex_match.as_str().into(),
@@ -180,7 +180,7 @@ fn remove_tags_for_mew(mew: Mew, mew_hash: ActionHash) -> ExternResult<()> {
     Ok(())
 }
 
-fn setup_tag_regexes() -> ExternResult<(Regex, Regex)> {
+fn tag_regexes() -> ExternResult<(Regex, Regex)> {
     let hashtag_regex = Regex::new(r"#\w+").map_err(|_| {
         wasm_error!(WasmErrorInner::Guest(
             "Failed to create hashtag regex".into()

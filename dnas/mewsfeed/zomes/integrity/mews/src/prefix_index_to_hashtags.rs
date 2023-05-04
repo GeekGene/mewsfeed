@@ -1,12 +1,12 @@
-use crate::TAG_PREFIX_INDEX_NAME;
 use hdi::prelude::*;
-use prefix_index::make_prefix_path;
+use prefix_index::PrefixIndex;
 
 pub fn validate_create_link_prefix_index_to_hashtags(
     _action: CreateLink,
     base_address: AnyLinkableHash,
     target_address: AnyLinkableHash,
     tag: LinkTag,
+    tag_prefix_index: PrefixIndex,
 ) -> ExternResult<ValidateCallbackResult> {
     // Target should be a Mew
     let action_hash = ActionHash::from(target_address);
@@ -27,8 +27,7 @@ pub fn validate_create_link_prefix_index_to_hashtags(
     })?;
 
     // Base address should be prefix index path matching tag prefix
-    let prefix_path_hash =
-        make_prefix_path(TAG_PREFIX_INDEX_NAME, tag_string)?.path_entry_hash()?;
+    let prefix_path_hash = tag_prefix_index.make_result_path(tag_string, None)?.path_entry_hash()?;
 
     if EntryHash::from(base_address) != prefix_path_hash {
         return Ok(ValidateCallbackResult::Invalid(format!(

@@ -1,36 +1,25 @@
 use crate::mew::get_mew_with_context;
 use hdk::prelude::*;
 use mews_integrity::*;
-use prefix_index::*;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AddCashtagForMewInput {
     pub base_cashtag: String,
     pub target_mew_hash: ActionHash,
 }
-
 #[hdk_extern]
 pub fn add_cashtag_for_mew(input: AddCashtagForMewInput) -> ExternResult<()> {
-    // Link from cashtag to mew
-    create_link(
-        Path::from(input.base_cashtag.clone()).path_entry_hash()?,
-        input.target_mew_hash.clone(),
-        LinkTypes::CashtagToMews,
-        input.base_cashtag.as_bytes().to_vec(),
-    )?;
+    // Add cashtag to prefix index
+    let tag_text = make_cashtag_text(input.base_cashtag.clone());
+    let prefix_index = make_tag_prefix_index()?;
+    let path = prefix_index.add_result_with_label(tag_text, input.base_cashtag.clone())?;
 
-    // Add cashtag to prefix index, link to mew_hash
-    let tag: &str = input
-        .base_cashtag
-        .split('$')
-        .nth(1)
-        .unwrap_or(&input.base_cashtag);
-    add_hash_for_prefix_index(
-        TAG_PREFIX_INDEX_NAME,
-        LinkTypes::PrefixIndex,
-        tag,
+    // Link from cashtag to mew_hash
+    create_link(
+        path.path_entry_hash()?,
         input.target_mew_hash,
-        LinkTypes::PrefixIndexToCashtags,
+        LinkTypes::CashtagToMews,
+        LinkTag(input.base_cashtag.as_bytes().to_vec()),
     )?;
 
     Ok(())
@@ -43,8 +32,12 @@ pub struct RemoveCashtagForMewInput {
 }
 #[hdk_extern]
 pub fn remove_cashtag_for_mew(input: RemoveCashtagForMewInput) -> ExternResult<()> {
+    let tag = make_cashtag_text(input.base_cashtag.clone());
+    let prefix_index = make_tag_prefix_index()?;
+    let result_path = prefix_index.make_result_path(tag, Some(input.base_cashtag.clone()))?;
+
     let links = get_links(
-        Path::from(input.base_cashtag.clone()).path_entry_hash()?,
+        result_path.path_entry_hash()?,
         LinkTypes::CashtagToMews,
         Some(LinkTag(input.base_cashtag.as_bytes().to_vec())),
     )?;
@@ -54,25 +47,24 @@ pub fn remove_cashtag_for_mew(input: RemoveCashtagForMewInput) -> ExternResult<(
         }
     }
 
-    remove_hash_for_prefix_index(
-        TAG_PREFIX_INDEX_NAME,
-        input.base_cashtag,
-        AnyLinkableHash::from(input.target_mew_hash),
-    )?;
-
     Ok(())
 }
 
 #[hdk_extern]
 pub fn get_mews_for_cashtag(cashtag: String) -> ExternResult<Vec<Record>> {
-    let hashes = get_hashes_for_prefix(
-        TAG_PREFIX_INDEX_NAME,
-        cashtag,
-        LinkTypes::PrefixIndexToCashtags,
+    // Get links from cashtag to mew
+    let tag = make_cashtag_text(cashtag.clone());
+    let prefix_index = make_tag_prefix_index()?;
+    let result_path = prefix_index.make_result_path(tag, Some(cashtag))?;
+
+    let links = get_links(
+        result_path.path_entry_hash()?,
+        LinkTypes::CashtagToMews,
+        None
     )?;
-    let get_input: Vec<GetInput> = hashes
+    let get_input: Vec<GetInput> = links
         .into_iter()
-        .map(|hash| GetInput::new(ActionHash::from(hash).into(), GetOptions::default()))
+        .map(|l| GetInput::new(ActionHash::from(l.target).into(), GetOptions::default()))
         .collect();
 
     // Get the records to filter out the deleted ones
@@ -87,27 +79,30 @@ pub fn get_mews_for_cashtag(cashtag: String) -> ExternResult<Vec<Record>> {
 
 #[hdk_extern]
 pub fn get_mews_for_cashtag_with_context(cashtag: String) -> ExternResult<Vec<FeedMew>> {
-    let hashes = get_hashes_for_prefix(
-        TAG_PREFIX_INDEX_NAME,
-        cashtag,
-        LinkTypes::PrefixIndexToCashtags,
+    // Get links from cashtag to mew
+    let tag = make_cashtag_text(cashtag.clone());
+    let prefix_index = make_tag_prefix_index()?;
+    let result_path = prefix_index.make_result_path(tag, Some(cashtag))?;
+
+    let links = get_links(
+        result_path.path_entry_hash()?,
+        LinkTypes::CashtagToMews,
+        None
     )?;
 
-    let feedmews: Vec<FeedMew> = hashes
+    // Get mews with context
+    let feedmews: Vec<FeedMew> = links
         .into_iter()
-        .filter_map(|hash| get_mew_with_context(ActionHash::from(hash)).ok())
+        .filter_map(|l| get_mew_with_context(ActionHash::from(l.target)).ok())
         .collect();
 
     Ok(feedmews)
 }
 
-#[hdk_extern]
-fn search_cashtags(query: String) -> ExternResult<Vec<String>> {
-    let tags = get_tags_for_prefix(
-        TAG_PREFIX_INDEX_NAME,
-        query,
-        LinkTypes::PrefixIndexToCashtags,
-    )?;
-
-    Ok(tags)
+fn make_cashtag_text(text: String) -> String {
+    text
+        .split('$')
+        .nth(1)
+        .unwrap_or(&text)
+        .to_string()
 }

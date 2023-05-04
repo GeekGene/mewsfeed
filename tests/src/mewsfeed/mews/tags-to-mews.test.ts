@@ -47,7 +47,7 @@ test("Hashtag, cashtag and mention", async () => {
       const hashtaggedMews: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mews_for_hashtag_with_context",
-        payload: "hashtag",
+        payload: "#hashtag",
       });
       assert.ok(hashtaggedMews.length === 1, "one mew with hashtag");
       assert.equal(
@@ -59,7 +59,7 @@ test("Hashtag, cashtag and mention", async () => {
       const arabicHashtaggedMews: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mews_for_hashtag_with_context",
-        payload: "سعيدة",
+        payload: "#سعيدة",
       });
       assert.ok(
         arabicHashtaggedMews.length === 1,
@@ -75,14 +75,14 @@ test("Hashtag, cashtag and mention", async () => {
       const emojiHashtaggedMews: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mews_for_hashtag_with_context",
-        payload: "😃😃😃",
+        payload: "#😃😃😃",
       });
       assert.ok(emojiHashtaggedMews.length === 0, "no mew with emoji hashtag");
 
       const cashtaggedMews: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mews_for_cashtag_with_context",
-        payload: "cashtag",
+        payload: "$cashtag",
       });
       assert.ok(cashtaggedMews.length === 1, "one mew with cashtag");
 
@@ -136,34 +136,50 @@ test("Prefix index should return hashtags and cashtags", async () => {
       const hashtags: string[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "search_hashtags",
-        payload: "has",
+        payload: {
+          query: "has",
+          limit: 10,
+        },
       });
       assert.ok(hashtags.length === 1, "one hashtag");
-      assert.equal(hashtags[0], "hashtag", "hashtag search result matches");
+      assert.equal(hashtags[0], "#hashtag", "hashtag search result matches");
 
       const arabicHashtags: string[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "search_hashtags",
-        payload: "سعيدة",
+        payload: {
+          query: "سعيدة",
+          limit: 10,
+        },
       });
       assert.ok(arabicHashtags.length === 1, "one arabic hashtag");
-      assert.equal(arabicHashtags[0], "سعيدة", "hashtag search result matches");
+      assert.equal(
+        arabicHashtags[0],
+        "#سعيدة",
+        "hashtag search result matches"
+      );
 
       // get hashtag containing emojis -- invalid hashtag!
       const emojiHashtags: string[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "search_hashtags",
-        payload: "😃😃😃",
+        payload: {
+          query: "😃😃😃",
+          limit: 10,
+        },
       });
       assert.ok(emojiHashtags.length === 0, "no emoji hashtags");
 
       const cashtags: string[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "search_cashtags",
-        payload: "cas",
+        payload: {
+          query: "cas",
+          limit: 10,
+        },
       });
       assert.ok(cashtags.length === 1, "one cashtag");
-      assert.equal(cashtags[0], "cashtag", "hashtag search result matches");
+      assert.equal(cashtags[0], "$cashtag", "hashtag search result matches");
     },
     true,
     { timeout: 100000 }

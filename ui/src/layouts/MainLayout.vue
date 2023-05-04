@@ -125,7 +125,7 @@
 import CreateMewDialog from "@/components/CreateMewDialog.vue";
 import { PATH, ROUTES } from "@/router";
 import { useProfilesStore } from "@/services/profiles-store";
-import { searchCashtags, searchHashtags } from "@/services/mewsfeed-dna";
+import { searchTags } from "@/services/mewsfeed-dna";
 import { useMewsfeedStore } from "@/stores";
 import {
   MewTypeName,
@@ -138,7 +138,7 @@ import { AgentPubKey, encodeHashToBase64 } from "@holochain/client";
 import { QSelectOption, useQuasar } from "quasar";
 import { ref, toRaw } from "vue";
 import { RouteLocationRaw, useRouter } from "vue-router";
-import { TAG_SYMBOLS } from "@/utils/tags";
+import { isCashtag, isHashtag, TAG_SYMBOLS } from "@/utils/tags";
 import { computed } from "vue";
 import { useMyProfile, useSearchProfiles } from "@/utils/profile";
 
@@ -199,10 +199,9 @@ const search = (
       try {
         searching.value = true;
 
-        const [profiles, hashtags, cashtags] = await Promise.all([
+        const [profiles, tags] = await Promise.all([
           searchProfiles(inputValue),
-          searchHashtags(inputValue),
-          searchCashtags(inputValue),
+          searchTags(inputValue),
         ]);
 
         const profileOptions: SearchResultOption[] = profiles.map(
@@ -221,22 +220,27 @@ const search = (
 
         options.value = [
           ...profileOptions,
-          ...hashtags.map((hashtag) => ({
-            resultType: SearchResult.Hashtag,
-            value: {
-              name: ROUTES[PATH[TAG_SYMBOLS.HASHTAG]],
-              params: { tag: hashtag },
-            },
-            label: `#${hashtag}`,
-          })),
-          ...cashtags.map((cashtag) => ({
-            resultType: SearchResult.Cashtag,
-            value: {
-              name: ROUTES[PATH[TAG_SYMBOLS.CASHTAG]],
-              params: { tag: cashtag },
-            },
-            label: `$${cashtag}`,
-          })),
+          ...tags.map((tag) => {
+            if (isHashtag(tag)) {
+              return {
+                resultType: SearchResult.Hashtag,
+                value: {
+                  name: ROUTES[PATH[TAG_SYMBOLS.HASHTAG]],
+                  params: { tag: tag.replace("#", "") },
+                },
+                label: tag,
+              };
+            } else {
+              return {
+                resultType: SearchResult.Cashtag,
+                value: {
+                  name: ROUTES[PATH[TAG_SYMBOLS.CASHTAG]],
+                  params: { tag: tag.replace("$", "") },
+                },
+                label: tag,
+              };
+            }
+          }),
         ];
       } catch (error) {
         showError(error);
