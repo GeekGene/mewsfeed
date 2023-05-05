@@ -7,5 +7,6 @@
 </template>
 
 <script setup lang="ts">
+import { QPage, QImg } from "quasar";
 import { pageHeightCorrection } from "@/utils/page-layout";
 </script>

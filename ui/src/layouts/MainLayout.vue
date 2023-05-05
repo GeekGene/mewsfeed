@@ -135,12 +135,28 @@ import {
 } from "@/types/types";
 import { showError } from "@/utils/notification";
 import { AgentPubKey, encodeHashToBase64 } from "@holochain/client";
-import { QSelectOption, useQuasar } from "quasar";
+import {
+  QSelectOption,
+  QPageContainer,
+  QSpace,
+  QRouteTab,
+  QTabs,
+  QItem,
+  QItemSection,
+  QBtn,
+  QLayout,
+  QHeader,
+  QToolbar,
+  QTooltip,
+  QSelect,
+  useQuasar,
+  QIcon,
+} from "quasar";
 import { ref, toRaw } from "vue";
 import { RouteLocationRaw, useRouter } from "vue-router";
 import { isHashtag, TAG_SYMBOLS } from "@/utils/tags";
-import { computed } from "vue";
 import { useMyProfile, useSearchProfiles } from "@/utils/profile";
+import { useClientStore } from "@/stores/client";
 
 type SearchResultOption = QSelectOption<RouteLocationRaw> & {
   agentPubKey?: AgentPubKey;
@@ -148,16 +164,13 @@ type SearchResultOption = QSelectOption<RouteLocationRaw> & {
 };
 
 const $q = useQuasar();
+const clientStore = useClientStore();
 const mewsfeedStore = useMewsfeedStore();
 const profilesStore = useProfilesStore();
 const router = useRouter();
 const { myProfile, runWhenMyProfileExists } = useMyProfile();
 const { searchProfiles } = useSearchProfiles();
 const tab = ref("");
-
-const myAgentPubKey = computed(
-  () => profilesStore.value.client.client.myPubKey
-);
 
 const searching = ref(false);
 const options = ref<SearchResultOption[]>([]);

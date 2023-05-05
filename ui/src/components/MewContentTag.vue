@@ -37,6 +37,7 @@
   </RouterLink>
 </template>
 <script setup lang="ts">
+import { QTooltip } from "quasar";
 import { TOOLTIP_DELAY, MewContentPart, MewTagType } from "@/types/types";
 import { decodeHashFromBase64 } from "@holochain/client";
 import { PropType } from "vue";

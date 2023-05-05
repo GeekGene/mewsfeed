@@ -24,6 +24,7 @@ import { showError, showMessage } from "@/utils/notification";
 import { useMyProfile } from "@/utils/profile";
 import { AgentPubKey } from "@holochain/client";
 import { onMounted, PropType, ref } from "vue";
+import { QBtn } from "quasar";
 
 const props = defineProps({
   agentPubKey: {

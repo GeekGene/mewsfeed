@@ -38,6 +38,7 @@
 </template>
 
 <script setup lang="ts">
+import { QPage, QCard, QSpace, QBtn } from "quasar";
 import FolloweesList from "@/components/FolloweesList.vue";
 import FollowersList from "@/components/FollowersList.vue";
 import { useProfilesStore } from "@/stores/profiles";

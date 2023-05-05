@@ -2,14 +2,14 @@
   <QPage class="q-pb-lg" :style-fn="pageHeightCorrection">
     <CreateMewField
       :mew-type="{ [MewTypeName.Original]: null }"
-      @publish-mew="store.fetchMewsFeed"
+      @publish-mew="mewsfeedStore.fetchMewsFeed"
     />
 
     <h6 class="q-mb-md">Your Mews Feed</h6>
 
     <MewList
-      :mews="store.mewsFeed"
-      :is-loading="store.isLoadingMewsFeed"
+      :mews="mewsfeedStore.mewsFeed"
+      :is-loading="mewsfeedStore.isLoadingMewsFeed"
       :on-toggle-lick-mew="onToggleLickMew"
       :on-publish-mew="onPublishMew"
     />
@@ -17,6 +17,7 @@
 </template>
 
 <script setup lang="ts">
+import { QPage } from "quasar"
 import CreateMewField from "@/components/CreateMewField.vue";
 import MewList from "@/components/MewList.vue";
 import { useMewsfeedStore } from "@/stores/mewsfeed";

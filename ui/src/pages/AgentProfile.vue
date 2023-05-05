@@ -83,6 +83,7 @@
 </template>
 
 <script setup lang="ts">
+import { QPage, QSpinnerPie, QCard, QCardSection, QBtn } from "quasar";
 import ButtonFollow from "@/components/ButtonFollow.vue";
 import EmptyMewsFeed from "@/components/EmptyMewsFeed.vue";
 import FolloweesList from "@/components/FolloweesList.vue";

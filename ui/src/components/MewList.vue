@@ -15,6 +15,7 @@
 </template>
 
 <script setup lang="ts">
+import { QList } from "quasar";
 import MewListItem from "@/components/MewListItem.vue";
 import MewListSkeleton from "@/components/MewListSkeleton.vue";
 import { FeedMew, MewType } from "@/types/types";

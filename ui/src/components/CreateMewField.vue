@@ -134,6 +134,18 @@
 </template>
 
 <script setup lang="ts">
+import {
+  QCard,
+  QInput,
+  QCardSection,
+  QSpinnerPie,
+  QList,
+  QItem,
+  QItemSection,
+  QIcon,
+  QTooltip,
+  QBtn,
+} from "quasar";
 import { useClientStore } from "@/stores/client";
 import { showError } from "@/utils/notification";
 import { useSearchProfiles, useMyProfile } from "@/utils/profile";

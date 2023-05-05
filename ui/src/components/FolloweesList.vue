@@ -33,6 +33,7 @@
 </template>
 
 <script setup lang="ts">
+import { QList, QItem, QItemSection, QItemLabel } from "quasar";
 import { following } from "@/services/mewsfeed-dna";
 import { useProfilesStore } from "@/stores/profiles";
 import { PROFILE_FIELDS } from "@/types/types";

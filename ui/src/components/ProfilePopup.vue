@@ -59,6 +59,7 @@
 </template>
 
 <script setup lang="ts">
+import { QCard, QCardSection } from "quasar";
 import { useProfilesStore } from "@/stores/profiles";
 import { PROFILE_FIELDS } from "@/types/types";
 import { isSameHash } from "@/utils/hash";

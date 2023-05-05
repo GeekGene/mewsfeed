@@ -14,3 +14,6 @@
     </QItemSection>
   </QItem>
 </template>
+<script setup lang="ts">
+import { QItem, QItemSection, QSkeleton, QItemLabel } from "quasar";
+</script>

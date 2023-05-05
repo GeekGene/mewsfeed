@@ -12,6 +12,7 @@
 </template>
 
 <script setup lang="ts">
+import { QPage } from "quasar";
 import { ROUTES } from "@/router";
 import { pageHeightCorrection } from "@/utils/page-layout";
 </script>

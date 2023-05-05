@@ -14,6 +14,7 @@
 </template>
 
 <script setup lang="ts">
+import { QPage } from "quasar";
 import {
   getFeedMewAndContext,
   getMewsWithCashtag,

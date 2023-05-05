@@ -40,5 +40,6 @@
 </template>
 
 <script setup lang="ts">
+import { QList, QItem, QItemSection, QSkeleton, QIcon } from "quasar";
 import ProfileSkeleton from "./ProfileSkeleton.vue";
 </script>

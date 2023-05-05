@@ -43,6 +43,7 @@
 </template>
 
 <script setup lang="ts">
+import { QDialog, QCard, QCardSection, QBtn } from "quasar";
 import CreateMewField from "@/components/CreateMewField.vue";
 import { useProfilesStore } from "@/stores/profiles";
 import { FeedMew, MewType, MewTypeName, PROFILE_FIELDS } from "@/types/types";

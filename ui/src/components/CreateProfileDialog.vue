@@ -11,6 +11,7 @@
 </template>
 
 <script setup lang="ts">
+import { QDialog, QCard } from "quasar";
 import { useProfilesStore } from "@/stores/profiles";
 import { useDialogPluginComponent } from "quasar";
 const profilesStore = useProfilesStore();
