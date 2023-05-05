@@ -44,7 +44,7 @@
 
 <script setup lang="ts">
 import CreateMewField from "@/components/CreateMewField.vue";
-import { useProfilesStore } from "@/services/profiles-store";
+import { useProfilesStore } from "@/stores/profiles";
 import { FeedMew, MewType, MewTypeName, PROFILE_FIELDS } from "@/types/types";
 import { Profile } from "@holochain-open-dev/profiles";
 import { useDialogPluginComponent } from "quasar";

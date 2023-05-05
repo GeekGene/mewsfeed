@@ -134,7 +134,7 @@
 </template>
 
 <script setup lang="ts">
-import { useClientStore } from "@/stores";
+import { useClientStore } from "@/stores/client";
 import { showError } from "@/utils/notification";
 import { useSearchProfiles, useMyProfile } from "@/utils/profile";
 import { Profile } from "@holochain-open-dev/profiles";

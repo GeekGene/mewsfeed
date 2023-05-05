@@ -40,7 +40,7 @@
 <script setup lang="ts">
 import FolloweesList from "@/components/FolloweesList.vue";
 import FollowersList from "@/components/FollowersList.vue";
-import { useProfilesStore } from "@/services/profiles-store";
+import { useProfilesStore } from "@/stores/profiles";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { useMyProfile } from "@/utils/profile";
 import { encodeHashToBase64 } from "@holochain/client";

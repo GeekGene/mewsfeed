@@ -124,9 +124,9 @@
 <script setup lang="ts">
 import CreateMewDialog from "@/components/CreateMewDialog.vue";
 import { PATH, ROUTES } from "@/router";
-import { useProfilesStore } from "@/services/profiles-store";
+import { useProfilesStore } from "@/stores/profiles";
 import { searchTags } from "@/services/mewsfeed-dna";
-import { useMewsfeedStore } from "@/stores";
+import { useMewsfeedStore } from "@/stores/mewsfeed";
 import {
   MewTypeName,
   PROFILE_FIELDS,
@@ -138,7 +138,7 @@ import { AgentPubKey, encodeHashToBase64 } from "@holochain/client";
 import { QSelectOption, useQuasar } from "quasar";
 import { ref, toRaw } from "vue";
 import { RouteLocationRaw, useRouter } from "vue-router";
-import { isCashtag, isHashtag, TAG_SYMBOLS } from "@/utils/tags";
+import { isHashtag, TAG_SYMBOLS } from "@/utils/tags";
 import { computed } from "vue";
 import { useMyProfile, useSearchProfiles } from "@/utils/profile";
 
@@ -148,7 +148,7 @@ type SearchResultOption = QSelectOption<RouteLocationRaw> & {
 };
 
 const $q = useQuasar();
-const store = useMewsfeedStore();
+const mewsfeedStore = useMewsfeedStore();
 const profilesStore = useProfilesStore();
 const router = useRouter();
 const { myProfile, runWhenMyProfileExists } = useMyProfile();
@@ -166,7 +166,7 @@ const searchTerm = ref("");
 
 const onPublishMew = () => {
   if (router.currentRoute.value.name === ROUTES.feed) {
-    store.fetchMewsFeed();
+    mewsfeedStore.fetchMewsFeed();
   } else {
     router.push({ name: ROUTES.feed });
   }

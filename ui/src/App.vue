@@ -13,8 +13,8 @@
 <script setup lang="ts">
 import HoloLogin from "@/components/HoloLogin.vue";
 import MainLayout from "@/layouts/MainLayout.vue";
-import { useProfilesStore } from "./services/profiles-store";
-import { IS_HOLO_HOSTED } from "./stores";
+import { useProfilesStore } from "./stores/profiles";
+import { IS_HOLO_HOSTED } from "./stores/client";
 
 const profilesStore = useProfilesStore();
 </script>

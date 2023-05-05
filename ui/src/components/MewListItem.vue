@@ -122,7 +122,7 @@ import {
   lickMew,
   unlickMew,
 } from "@/services/mewsfeed-dna";
-import { useProfilesStore } from "@/services/profiles-store";
+import { useProfilesStore } from "@/stores/profiles";
 import {
   Mew,
   FeedMew,

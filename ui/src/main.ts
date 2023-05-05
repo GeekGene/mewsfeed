@@ -24,14 +24,13 @@ import "quasar/src/css/index.sass";
 import { createApp, ref, watch } from "vue";
 import App from "./App.vue";
 import router from "./router";
-import { PROFILES_STORE } from "./services/profiles-store";
+import { PROFILES_STORE } from "./stores/profiles";
 import {
   IS_HOLO_HOSTED,
   NATIVE_HC_URI,
   NATIVE_INSTALLED_APP_ID,
   useClientStore,
-} from "./stores";
-import { MEWSFEED_ROLE_NAME } from "./stores/mewsfeed";
+} from "./stores/client";
 import { SigningCredentialsJson, PROFILE_FIELDS } from "./types/types";
 
 // Shoelace
@@ -85,15 +84,14 @@ const initProfileStore = async (client: any) => {
     NATIVE_HC_URI,
     NATIVE_INSTALLED_APP_ID
   );
-  if (!(CellType.Provisioned in appInfo.cell_info[MEWSFEED_ROLE_NAME][0])) {
+  if (!(CellType.Provisioned in appInfo.cell_info.mewsfeed[0])) {
     throw new Error('Could not find cell "mewsfeed"');
   }
 
   // set up zome call signing when run outside of launcher
   const __HC_LAUNCHER_ENV__ = "__HC_LAUNCHER_ENV__";
   if (typeof window === "object" && !(__HC_LAUNCHER_ENV__ in window)) {
-    const { cell_id } =
-      appInfo.cell_info[MEWSFEED_ROLE_NAME][0][CellType.Provisioned];
+    const { cell_id } = appInfo.cell_info.mewsfeed[0][CellType.Provisioned];
 
     const cellIdB64 =
       encodeHashToBase64(cell_id[0]) + encodeHashToBase64(cell_id[1]);
@@ -140,7 +138,7 @@ const initProfileStore = async (client: any) => {
   }
 
   profilesStore.value = new ProfilesStore(
-    new ProfilesClient(holochainClient, MEWSFEED_ROLE_NAME),
+    new ProfilesClient(holochainClient, "mewsfeed"),
     {
       avatarMode: "avatar-optional",
       additionalFields: [

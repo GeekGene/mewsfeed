@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { useProfilesStore } from "@/services/profiles-store";
+import { useProfilesStore } from "@/stores/profiles";
 import { useDialogPluginComponent } from "quasar";
 const profilesStore = useProfilesStore();
 const { dialogRef, onDialogOK, onDialogHide } = useDialogPluginComponent();

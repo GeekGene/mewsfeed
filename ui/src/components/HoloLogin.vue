@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import { ROUTES } from "@/router";
-import { useHoloStore } from "@/stores";
+import { useHoloStore } from "@/stores/client";
 import { onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 

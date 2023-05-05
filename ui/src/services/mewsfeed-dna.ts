@@ -1,6 +1,5 @@
-import { useClientStore } from "@/stores";
-import { MEWSFEED_ROLE_NAME, MEWS_ZOME_NAME } from "@/stores/mewsfeed";
-import { ActionHash, AgentPubKey, CallZomeRequest } from "@holochain/client";
+import { useClientStore } from "@/stores/client";
+import { ActionHash, AgentPubKey } from "@holochain/client";
 import { Mew, FeedMew } from "../types/types";
 
 export enum MewsFn {
@@ -27,19 +26,16 @@ export enum LikesFn {
   Unlike = "unlike",
 }
 
-export const callZome = async <T>(
-  fnName: CallZomeRequest["fn_name"],
-  payload: CallZomeRequest["payload"],
-  zomeName: string = MEWS_ZOME_NAME
-) => {
-  const result: { type: "ok"; data: T } = await useClientStore().callZome({
-    roleName: MEWSFEED_ROLE_NAME,
-    zomeName,
-    fnName,
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const callZome = (fn_name: string, payload: any, zome_name = "mews") =>
+  useClientStore().callZome({
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-ignore
+    role_name: "mewsfeed",
+    zome_name,
+    fn_name,
     payload,
   });
-  return result.data;
-};
 
 export const createMew = async (mew: Mew) => callZome(MewsFn.CreateMew, mew);
 

@@ -1,4 +1,9 @@
-import { makeUseMewsfeedStore } from "@/stores/mewsfeed";
+import {
+  AppInfo,
+  AppAgentClient,
+  CallZomeRequest,
+  CallZomeResponse,
+} from "@holochain/client";
 import { StoreDefinition } from "pinia";
 import makeUseClientStore from "uicommon/stores/useClientStore";
 import makeUseHolochainStore from "uicommon/stores/useHolochainStore";
@@ -44,26 +49,12 @@ export type ClientStore = StoreDefinition<
   "client",
   {
     isReady: boolean;
-    callZome: (params: {
-      roleName: string;
-      zomeName: string;
-      fnName: string;
-      payload: any;
-    }) => any;
+    initialize(): Promise<AppAgentClient>;
+    appInfo(): Promise<AppInfo>;
+    callZome(request: CallZomeRequest): Promise<CallZomeResponse>;
   }
 >;
 
-// On init is a hacky workaround. The proper place for that code is in the setup function of holofuelStore
-// but to do that requires refactoring holofuelStore as a functional (aka setup store), as opposed to the object (aka option store)
-// its currently in. We should do that soon, but for now we have an onInit callback for the clientStore factory
-
 export const useClientStore: ClientStore = makeUseClientStore({
   useInterfaceStore: IS_HOLO_HOSTED ? useHoloStore : useHolochainStore,
-  // onInit: () => {
-  //   useSignalStore().addCallback((signal: AppSignal) =>
-  //     useMewsfeedStore().handleSignal(signal)
-  //   );
-  // },
 });
-
-export const useMewsfeedStore = makeUseMewsfeedStore();

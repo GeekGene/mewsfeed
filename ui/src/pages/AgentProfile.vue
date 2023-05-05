@@ -93,7 +93,7 @@ import {
   getFeedMewAndContext,
   mewsBy,
 } from "@/services/mewsfeed-dna";
-import { useProfilesStore } from "@/services/profiles-store";
+import { useProfilesStore } from "@/stores/profiles";
 import { FeedMew, MewType, MewTypeName, PROFILE_FIELDS } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
 import { showError, showMessage } from "@/utils/notification";

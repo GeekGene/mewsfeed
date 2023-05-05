@@ -17,7 +17,7 @@
 
 <script setup lang="ts">
 import { follow, following, unfollow } from "@/services/mewsfeed-dna";
-import { useProfilesStore } from "@/services/profiles-store";
+import { useProfilesStore } from "@/stores/profiles";
 import { PROFILE_FIELDS } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
 import { showError, showMessage } from "@/utils/notification";

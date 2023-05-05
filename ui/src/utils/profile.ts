@@ -1,5 +1,5 @@
 import { onUnmounted, ref } from "vue";
-import { useProfilesStore } from "@/services/profiles-store";
+import { useProfilesStore } from "@/stores/profiles";
 import { Profile } from "@holochain-open-dev/profiles";
 import { useQuasar } from "quasar";
 import CreateProfileDialog from "@/components/CreateProfileDialog.vue";
