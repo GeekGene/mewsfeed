@@ -18,20 +18,13 @@
 import MewListItem from "@/components/MewListItem.vue";
 import MewListSkeleton from "@/components/MewListSkeleton.vue";
 import { FeedMew, MewType } from "@/types/types";
-import { ActionHash } from "@holochain/client";
-import { PropType } from "vue";
 import EmptyMewsFeed from "./EmptyMewsFeed.vue";
+import { ActionHash } from "@holochain/client";
 
-defineProps({
-  mews: { type: Array as PropType<FeedMew[]>, required: true },
-  isLoading: { type: Boolean, required: true },
-  onToggleLickMew: {
-    type: Function as PropType<(hash: ActionHash) => Promise<void>>,
-    required: true,
-  },
-  onPublishMew: {
-    type: Function as PropType<(mewType: MewType) => Promise<void>>,
-    required: true,
-  },
-});
+defineProps<{
+  mews: FeedMew[];
+  isLoading: boolean;
+  onToggleLickMew: (a: ActionHash) => Promise<void>;
+  onPublishMew: (m: MewType) => Promise<void>;
+}>();
 </script>

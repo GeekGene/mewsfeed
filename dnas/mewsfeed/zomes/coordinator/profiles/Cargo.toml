@@ -1,0 +1,16 @@
+[package]
+name = "profiles"
+version = "0.0.1"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+name = "profiles"
+
+[dependencies]
+hdk = { workspace = true }
+
+serde = { workspace = true }
+
+profiles_integrity = { workspace = true } 
+hc_zome_profiles_coordinator = "0.1.2"

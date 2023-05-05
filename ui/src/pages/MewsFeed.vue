@@ -1,7 +1,7 @@
 <template>
   <q-page class="q-pb-lg" :style-fn="pageHeightCorrection">
     <CreateMewField
-      :mew-type="{ original: null }"
+      :mew-type="{ [MewTypeName.Original]: null }"
       @publish-mew="store.fetchMewsFeed"
     />
 
@@ -23,6 +23,7 @@ import { useMewsfeedStore } from "@/stores";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { ActionHash } from "@holochain/client";
 import { onMounted } from "vue";
+import { MewTypeName } from "@/types/types";
 
 const store = useMewsfeedStore();
 onMounted(store.fetchMewsFeed);

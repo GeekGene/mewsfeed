@@ -15,18 +15,22 @@
         <h6 class="q-mb-md">Followed by</h6>
         <FollowersList :agentPubKey="myAgentPubKey" />
         <h6 class="q-mb-md">
-          <RouterLink
+          <q-btn
             v-if="myProfile"
-            :to="{
-              name: ROUTES[PATH[TAG_SYMBOLS.MENTION]],
-              params: {
-                tag: myProfile.nickname,
-                agentPubKey: encodeHashToBase64(myAgentPubKey),
-              },
-            }"
+            size="lg"
+            color="secondary"
+            @click="
+              router.push({
+                name: ROUTES[PATH[TAG_SYMBOLS.MENTION]],
+                params: {
+                  tag: myProfile.nickname,
+                  agentPubKey: encodeHashToBase64(myAgentPubKey),
+                },
+              })
+            "
           >
             Mew Mentions
-          </RouterLink>
+          </q-btn>
         </h6>
       </div>
     </div>
@@ -42,7 +46,9 @@ import { useMyProfile } from "@/utils/profile";
 import { encodeHashToBase64 } from "@holochain/client";
 import { PATH, ROUTES } from "@/router";
 import { TAG_SYMBOLS } from "@/utils/tags";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const profilesStore = useProfilesStore();
 const { myProfile } = useMyProfile();
 const myAgentPubKey = profilesStore.value.client.client.myPubKey;

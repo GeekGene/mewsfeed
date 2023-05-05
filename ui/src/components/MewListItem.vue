@@ -1,7 +1,7 @@
 <template>
   <q-item
     class="items-start cursor-pointer"
-    @click.passive="navigateToYarn(feedMew.actionHash)"
+    @click.passive="navigateToYarn(feedMew.action_hash)"
   >
     <q-item-section avatar>
       <ProfileAvatarWithPopup :agentPubKey="feedMew.action.author" />
@@ -58,7 +58,7 @@
               color="dark"
               size="xs"
               @click.stop="
-                originalMew && navigateToYarn(originalMew.actionHash)
+                originalMew && navigateToYarn(originalMew.action_hash)
               "
             >
               <q-icon
@@ -80,7 +80,7 @@
       </div>
 
       <mew-content
-        :feed-mew="originalMew && isMewMew ? originalMew : feedMew"
+        :feed-mew="originalMew && isMewmew ? originalMew : feedMew"
         class="q-my-sm cursor-pointer"
       />
 
@@ -128,14 +128,13 @@ import {
 } from "@/services/mewsfeed-dna";
 import { useProfilesStore } from "@/services/profiles-store";
 import {
-  CreateMewInput,
+  Mew,
   FeedMew,
   MewType,
   MewTypeName,
   PROFILE_FIELDS,
   TOOLTIP_DELAY,
 } from "@/types/types";
-import { isSameHash } from "@/utils/hash";
 import { Profile } from "@holochain-open-dev/profiles";
 import { ActionHash, encodeHashToBase64 } from "@holochain/client";
 import { QItem, useQuasar } from "quasar";
@@ -145,6 +144,7 @@ import CreateMewDialog from "./CreateMewDialog.vue";
 import MewContent from "./MewContent.vue";
 import Timestamp from "./MewTimestamp.vue";
 import { useMyProfile } from "@/utils/profile";
+import { isSameHash } from "@/utils/hash";
 
 const props = defineProps({
   feedMew: { type: Object as PropType<FeedMew>, required: true },
@@ -153,7 +153,7 @@ const props = defineProps({
     required: true,
   },
   onPublishMew: {
-    type: Function as PropType<(mewType: MewType) => Promise<void>>,
+    type: Function as PropType<(mew_type: MewType) => Promise<void>>,
     required: true,
   },
   showYarnLink: {
@@ -166,35 +166,36 @@ const $q = useQuasar();
 
 const profilesStore = useProfilesStore();
 const agentProfile = ref<Profile>();
-const myAgentPubKey = profilesStore.value.client.client.myPubKey;
 const { runWhenMyProfileExists } = useMyProfile();
 
 const originalMewHash =
-  MewTypeName.MewMew in props.feedMew.mew.mewType
-    ? props.feedMew.mew.mewType.mewMew
-    : MewTypeName.Reply in props.feedMew.mew.mewType
-    ? props.feedMew.mew.mewType.reply
-    : MewTypeName.Quote in props.feedMew.mew.mewType
-    ? props.feedMew.mew.mewType.quote
-    : props.feedMew.mew.mewType.original;
+  MewTypeName.Mewmew in props.feedMew.mew.mew_type
+    ? props.feedMew.mew.mew_type.Mewmew
+    : MewTypeName.Reply in props.feedMew.mew.mew_type
+    ? props.feedMew.mew.mew_type.Reply
+    : MewTypeName.Quote in props.feedMew.mew.mew_type
+    ? props.feedMew.mew.mew_type.Quote
+    : props.feedMew.mew.mew_type.Original;
 
 const originalMew = ref<FeedMew>();
 const originalMewAuthor = ref<Profile>();
 const loadingOriginalMewAuthor = ref<boolean>();
 const isUpdatingLick = ref(false);
 
-const isMewMew = computed(
-  () => MewTypeName.MewMew in props.feedMew.mew.mewType
+const isMewmew = computed(
+  () => MewTypeName.Mewmew in props.feedMew.mew.mew_type
 );
 const isOriginal = computed(
-  () => MewTypeName.Original in props.feedMew.mew.mewType
+  () => MewTypeName.Original in props.feedMew.mew.mew_type
 );
-const isReply = computed(() => MewTypeName.Reply in props.feedMew.mew.mewType);
+const isReply = computed(() => MewTypeName.Reply in props.feedMew.mew.mew_type);
 const reactionLabel = computed(() =>
-  isMewMew.value ? "mewmewed from" : isReply.value ? "replied to" : "quoted"
+  isMewmew.value ? "mewmewed from" : isReply.value ? "replied to" : "quoted"
 );
 const isLickedByMe = computed(() =>
-  props.feedMew.licks.some((lick) => isSameHash(lick, myAgentPubKey))
+  props.feedMew.licks.some((lick) =>
+    isSameHash(lick, profilesStore.value.client.client.myPubKey)
+  )
 );
 
 onMounted(async () => {
@@ -227,11 +228,11 @@ const toggleLickMew = async () => {
   runWhenMyProfileExists(async () => {
     isUpdatingLick.value = true;
     if (isLickedByMe.value) {
-      await unlickMew(props.feedMew.actionHash);
+      await unlickMew(props.feedMew.action_hash);
     } else {
-      await lickMew(props.feedMew.actionHash);
+      await lickMew(props.feedMew.action_hash);
     }
-    await props.onToggleLickMew(props.feedMew.actionHash);
+    await props.onToggleLickMew(props.feedMew.action_hash);
     isUpdatingLick.value = false;
   });
 };
@@ -241,7 +242,7 @@ const replyToMew = () => {
     $q.dialog({
       component: CreateMewDialog,
       componentProps: {
-        mewType: { [MewTypeName.Reply]: props.feedMew.actionHash },
+        mewType: { [MewTypeName.Reply]: props.feedMew.action_hash },
         onPublishMew: props.onPublishMew,
         originalMew: props.feedMew,
         originalAuthor: agentProfile.value,
@@ -252,13 +253,14 @@ const replyToMew = () => {
 
 const mewMew = async () => {
   runWhenMyProfileExists(async () => {
-    const mewType = { mewMew: props.feedMew.actionHash };
-    const mew: CreateMewInput = {
-      mewType,
-      text: null,
+    const mew_type = { [MewTypeName.Mewmew]: props.feedMew.action_hash };
+    const mew: Mew = {
+      mew_type,
+      text: "",
+      links: [],
     };
     await createMew(mew);
-    props.onPublishMew(mewType);
+    props.onPublishMew(mew_type);
   });
 };
 
@@ -267,7 +269,7 @@ const quote = () => {
     $q.dialog({
       component: CreateMewDialog,
       componentProps: {
-        mewType: { [MewTypeName.Quote]: props.feedMew.actionHash },
+        mewType: { [MewTypeName.Quote]: props.feedMew.action_hash },
         onPublishMew: props.onPublishMew,
         originalMew: props.feedMew,
         originalAuthor: agentProfile.value,

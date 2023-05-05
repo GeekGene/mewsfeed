@@ -2,23 +2,48 @@
 manifest_version: "1"
 name: mewsfeed
 integrity:
-  uuid: 00000000-0000-0000-0000-000000000000
-  origin_time: 2022-10-05T00:00:00.000000Z
+  network_seed: ~
   properties:
-    mew_characters_min: 1
+    mew_characters_min: 10
     mew_characters_max: ~
+    prefix_index_width: 3
+  origin_time: 1681948586688419
   zomes:
-    - name: profiles_integrity
-      bundled: ../../../target/wasm32-unknown-unknown/release/profiles_integrity.wasm
     - name: mews_integrity
-      bundled: ../../../target/wasm32-unknown-unknown/release/mews_integrity.wasm
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/mews_integrity.wasm"
+      dependencies: ~
+    - name: follows_integrity
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/follows_integrity.wasm"
+      dependencies: ~
+    - name: profiles_integrity
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/profiles_integrity.wasm"
+      dependencies: ~
+    - name: likes_integrity
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/likes_integrity.wasm"
+      dependencies: ~
 coordinator:
   zomes:
-    - name: profiles
-      bundled: ../../../target/wasm32-unknown-unknown/release/profiles.wasm
-      dependencies:
-        - name: profiles_integrity
     - name: mews
-      bundled: ../../../target/wasm32-unknown-unknown/release/mews.wasm
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/mews.wasm"
       dependencies:
         - name: mews_integrity
+    - name: follows
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/follows.wasm"
+      dependencies:
+        - name: follows_integrity
+    - name: profiles
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/profiles.wasm"
+      dependencies:
+        - name: profiles_integrity
+    - name: likes
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/likes.wasm"
+      dependencies:
+        - name: likes_integrity

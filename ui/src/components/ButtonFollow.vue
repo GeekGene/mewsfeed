@@ -1,6 +1,6 @@
 <template>
   <q-btn size="md" color="secondary" @click="toggleFollow">
-    <template v-if="following">
+    <template v-if="isFollowing">
       <div class="q-mr-sm">Unfollow</div>
       <q-icon name="svguse:/icons.svg#cat" />
     </template>
@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { follow, myFollowing, unfollow } from "@/services/mewsfeed-dna";
+import { follow, following, unfollow } from "@/services/mewsfeed-dna";
 import { useProfilesStore } from "@/services/profiles-store";
 import { PROFILE_FIELDS } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
@@ -35,14 +35,15 @@ const props = defineProps({
 const profilesStore = useProfilesStore();
 const { runWhenMyProfileExists } = useMyProfile();
 
-const loading = ref(false);
-const following = ref(false);
+const loading = ref(true);
+const isFollowing = ref(false);
 
 onMounted(async () => {
   try {
-    loading.value = true;
-    const currentMyFollowing = await myFollowing();
-    following.value = currentMyFollowing.some((agent) =>
+    const currentMyFollowing = await following(
+      profilesStore.value.client.client.myPubKey
+    );
+    isFollowing.value = currentMyFollowing.some((agent) =>
       isSameHash(agent, props.agentPubKey)
     );
   } catch (error) {
@@ -57,15 +58,15 @@ const toggleFollow = () => {
     try {
       const [profile] = await Promise.all([
         profilesStore.value.client.getAgentProfile(props.agentPubKey),
-        following.value
+        isFollowing.value
           ? await unfollow(props.agentPubKey)
           : await follow(props.agentPubKey),
       ]);
-      following.value = !following.value;
+      isFollowing.value = !isFollowing.value;
       const name = `${profile?.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
         profile?.nickname
       })`;
-      const message = following.value
+      const message = isFollowing.value
         ? `You're following ${name} now`
         : `You're not following ${name} anymore`;
       showMessage(message);

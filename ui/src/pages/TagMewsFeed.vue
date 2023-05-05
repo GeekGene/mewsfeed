@@ -39,9 +39,13 @@ const loadMewsFeed = async () => {
   try {
     isLoading.value = true;
     if (route.meta.tag === TAG_SYMBOLS.CASHTAG) {
-      mews.value = await getMewsWithCashtag(route.meta.tag + route.params.tag);
+      mews.value = await getMewsWithCashtag(
+        `${route.meta.tag}${route.params.tag}`
+      );
     } else if (route.meta.tag === TAG_SYMBOLS.HASHTAG) {
-      mews.value = await getMewsWithHashtag(route.meta.tag + route.params.tag);
+      mews.value = await getMewsWithHashtag(
+        `${route.meta.tag}${route.params.tag}`
+      );
     } else if (route.meta.tag === TAG_SYMBOLS.MENTION) {
       mews.value = await getMewsWithMention(
         decodeHashFromBase64(route.params.agentPubKey as string)
@@ -62,7 +66,7 @@ watch(route, () => {
 const onToggleLickMew = async (hash: ActionHash) => {
   try {
     const index = mews.value.findIndex((mew) =>
-      isSameHash(hash, mew.actionHash)
+      isSameHash(hash, mew.action_hash)
     );
     if (index !== -1) {
       mews.value[index] = await getFeedMewAndContext(hash);
@@ -77,7 +81,7 @@ const onPublishmew = async (mewType: MewType) => {
   showMessage(
     MewTypeName.Reply in mewType
       ? "Replied to mew"
-      : MewTypeName.MewMew in mewType
+      : MewTypeName.Mewmew in mewType
       ? "Mew mewmewed"
       : "Quoted mew"
   );

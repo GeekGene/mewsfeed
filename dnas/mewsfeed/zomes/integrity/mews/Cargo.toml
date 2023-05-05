@@ -1,0 +1,14 @@
+[package]
+name = "mews_integrity"
+version = "0.0.1"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+name = "mews_integrity"
+
+[dependencies]
+hdi = { workspace = true }
+hdk = { workspace = true }
+serde = { workspace = true }
+prefix_index = { git = "https://github.com/mattyg/holochain-prefix-index.git", tag = "0.3.0", module = "prefix_index"}

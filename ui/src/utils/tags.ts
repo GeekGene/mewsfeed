@@ -23,9 +23,15 @@ const MENTION_TAG_REGEX = new RegExp(MENTION_TAG_REGEX_STRING, "mi");
 const LINK_TAG_REGEX_STRING = `\\B\\${TAG_SYMBOLS.LINK}\\S+`;
 const LINK_TAG_REGEX = new RegExp(LINK_TAG_REGEX_STRING, "mi");
 
+const CASH_TAG_REGEX_STRING = `\\B\\${TAG_SYMBOLS.CASHTAG}\\w+`;
+const CASH_TAG_REGEX = new RegExp(CASH_TAG_REGEX_STRING, "mi");
+
+const HASH_TAG_REGEX_STRING = `\\B\\${TAG_SYMBOLS.HASHTAG}\\w+`;
+const HASH_TAG_REGEX = new RegExp(HASH_TAG_REGEX_STRING, "mi");
+
 const regexpString = [
-  `\\B\\${TAG_SYMBOLS.CASHTAG}\\w+`,
-  `\\B\\${TAG_SYMBOLS.HASHTAG}\\w+`,
+  CASH_TAG_REGEX.source,
+  HASH_TAG_REGEX.source,
   MENTION_TAG_REGEX.source,
   LINK_TAG_REGEX.source, // single-word labeled url
 ];
@@ -41,6 +47,8 @@ const TAG_OR_RAW_URL_REGEX = new RegExp(
 );
 
 export const isTag = (text: string): boolean => TAG_REGEX.test(text);
+export const isHashtag = (text: string): boolean => HASH_TAG_REGEX.test(text);
+export const isCashtag = (text: string): boolean => CASH_TAG_REGEX.test(text);
 
 export const isMentionTag = (text: string): boolean =>
   MENTION_TAG_REGEX.test(text);
@@ -60,7 +68,7 @@ export const splitMewTextIntoContentParts = (
   const contentParts = parts.map((part) => {
     const partIsTag = isTag(part);
 
-    if (links.length > 0 && isRawUrl(part)) {
+    if (isRawUrl(part)) {
       return {
         text: part,
         href: part,
@@ -95,7 +103,7 @@ export const splitMewTextIntoContentParts = (
 
       return {
         text: part,
-        href: (link as UrlLinkTarget).URL,
+        href: (link as UrlLinkTarget).Url,
         tagType: MewTagType.Link,
       };
     } else if (partIsTag && part[0] === TAG_SYMBOLS.HASHTAG) {

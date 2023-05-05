@@ -1,91 +1,78 @@
 import { useClientStore } from "@/stores";
 import { MEWSFEED_ROLE_NAME, MEWS_ZOME_NAME } from "@/stores/mewsfeed";
-import {
-  ActionHash,
-  AgentPubKey,
-  AgentPubKeyB64,
-  CallZomeRequest,
-  decodeHashFromBase64,
-} from "@holochain/client";
-import { CreateMewInput, FeedMew, FeedOptions, Mew } from "../types/types";
+import { ActionHash, AgentPubKey, CallZomeRequest } from "@holochain/client";
+import { Mew, FeedMew } from "../types/types";
 
 export enum MewsFn {
   CreateMew = "create_mew",
   GetMew = "get_mew",
-  MewsFeed = "mews_feed",
-  MewsBy = "mews_by",
+  MewsFeed = "get_my_followed_creators_mews_with_context",
+  MewsBy = "get_agent_mews_with_context",
+  GetFeedMewAndContext = "get_mew_with_context",
+  GetMewsWithCashtag = "get_mews_for_cashtag_with_context",
+  GetMewsWithHashtag = "get_mews_for_hashtag_with_context",
+  GetMewsWithMention = "get_mews_for_mention_with_context",
+  SearchTags = "search_tags",
+}
+
+export enum FollowsFn {
   Follow = "follow",
-  Followers = "followers",
-  Following = "following",
-  MyFollowers = "my_followers",
-  MyFollowing = "my_following",
+  Followers = "get_followers_for_creator",
+  Following = "get_creators_for_follower",
   Unfollow = "unfollow",
-  LickMew = "lick_mew",
-  UnlickMew = "unlick_mew",
-  MyLicks = "my_licks",
-  GetFeedMewAndContext = "get_feed_mew_and_context",
-  GetMewsWithCashtag = "get_mews_with_cashtag",
-  GetMewsWithHashtag = "get_mews_with_hashtag",
-  GetMewsWithMention = "get_mews_with_mention",
-  SearchCashtags = "search_cashtags",
-  SearchHashtags = "search_hashtags",
+}
+
+export enum LikesFn {
+  Like = "like",
+  Unlike = "unlike",
 }
 
 export const callZome = async <T>(
   fnName: CallZomeRequest["fn_name"],
-  payload: CallZomeRequest["payload"]
+  payload: CallZomeRequest["payload"],
+  zomeName: string = MEWS_ZOME_NAME
 ) => {
   const result: { type: "ok"; data: T } = await useClientStore().callZome({
     roleName: MEWSFEED_ROLE_NAME,
-    zomeName: MEWS_ZOME_NAME,
+    zomeName,
     fnName,
     payload,
   });
   return result.data;
 };
 
-export const createMew = async (mew: CreateMewInput) =>
-  callZome(MewsFn.CreateMew, mew);
+export const createMew = async (mew: Mew) => callZome(MewsFn.CreateMew, mew);
 
 export const getMew = async (mew: ActionHash): Promise<Mew> =>
   callZome(MewsFn.GetMew, mew);
 
-export const mewsFeed = async (options: FeedOptions): Promise<Array<FeedMew>> =>
-  callZome(MewsFn.MewsFeed, options);
+export const mewsFeed = async (): Promise<Array<FeedMew>> =>
+  callZome(MewsFn.MewsFeed, null);
 
-export const mewsBy = async (
-  agent: AgentPubKey | AgentPubKeyB64
-): Promise<Array<FeedMew>> =>
-  callZome(
-    MewsFn.MewsBy,
-    typeof agent === "string" ? decodeHashFromBase64(agent) : agent
-  );
+export const mewsBy = async (agent: AgentPubKey): Promise<Array<FeedMew>> =>
+  callZome(MewsFn.MewsBy, agent);
 
 export const follow = async (agent: AgentPubKey): Promise<null> =>
-  callZome(MewsFn.Follow, agent);
+  callZome(FollowsFn.Follow, agent, "follows");
 
 export const unfollow = async (agent: AgentPubKey): Promise<null> =>
-  callZome(MewsFn.Unfollow, agent);
+  callZome(FollowsFn.Unfollow, agent, "follows");
 
 export const followers = async (
   agent: AgentPubKey
-): Promise<Array<AgentPubKey>> => callZome(MewsFn.Followers, agent);
+): Promise<Array<AgentPubKey>> =>
+  callZome(FollowsFn.Followers, agent, "follows");
 
 export const following = async (
   agent: AgentPubKey
-): Promise<Array<AgentPubKey>> => callZome(MewsFn.Following, agent);
-
-export const myFollowers = async (): Promise<Array<AgentPubKey>> =>
-  callZome(MewsFn.MyFollowers, null);
-
-export const myFollowing = async (): Promise<Array<AgentPubKey>> =>
-  callZome(MewsFn.MyFollowing, null);
+): Promise<Array<AgentPubKey>> =>
+  callZome(FollowsFn.Following, agent, "follows");
 
 export const lickMew = async (mew: ActionHash): Promise<null> =>
-  callZome(MewsFn.LickMew, mew);
+  callZome(LikesFn.Like, mew, "likes");
 
 export const unlickMew = async (mew: ActionHash): Promise<null> =>
-  callZome(MewsFn.UnlickMew, mew);
+  callZome(LikesFn.Unlike, mew, "likes");
 
 export const getFeedMewAndContext = async (
   mew_action_hash: ActionHash
@@ -101,8 +88,5 @@ export const getMewsWithMention = async (
   agentPubKey: AgentPubKey
 ): Promise<FeedMew[]> => callZome(MewsFn.GetMewsWithMention, agentPubKey);
 
-export const searchCashtags = async (query: string): Promise<string[]> =>
-  callZome(MewsFn.SearchCashtags, query);
-
-export const searchHashtags = async (query: string): Promise<string[]> =>
-  callZome(MewsFn.SearchHashtags, query);
+export const searchTags = async (query: string): Promise<string[]> =>
+  callZome(MewsFn.SearchTags, { query, limit: 5 });

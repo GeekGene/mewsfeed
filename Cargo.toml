@@ -1,12 +1,33 @@
 [workspace]
+members = ["dnas/*/zomes/coordinator/*", "dnas/*/zomes/integrity/*"]
 resolver = "2"
-members = [
-    "dnas/*/integrity_zomes/*",
-    "dnas/*/coordinator_zomes/*",
-]
 
-[profile.dev]
-opt-level = "z"
+[workspace.dependencies]
+hdi = "=0.2.2"
+hdk = "=0.1.2"
+holochain_integrity_types = "=0.1.2"
+serde = "1"
 
-[profile.release]
-opt-level = "z"
+[workspace.dependencies.follows]
+path = "dnas/mewsfeed/zomes/coordinator/follows"
+
+[workspace.dependencies.follows_integrity]
+path = "dnas/mewsfeed/zomes/integrity/follows"
+
+[workspace.dependencies.likes]
+path = "dnas/mewsfeed/zomes/coordinator/likes"
+
+[workspace.dependencies.likes_integrity]
+path = "dnas/mewsfeed/zomes/integrity/likes"
+
+[workspace.dependencies.mews]
+path = "dnas/mewsfeed/zomes/coordinator/mews"
+
+[workspace.dependencies.mews_integrity]
+path = "dnas/mewsfeed/zomes/integrity/mews"
+
+[workspace.dependencies.profiles]
+path = "dnas/mewsfeed/zomes/coordinator/profiles"
+
+[workspace.dependencies.profiles_integrity]
+path = "dnas/mewsfeed/zomes/integrity/profiles"
