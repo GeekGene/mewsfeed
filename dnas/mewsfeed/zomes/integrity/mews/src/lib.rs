@@ -22,12 +22,7 @@ pub use mew::*;
 use prefix_index::PrefixIndex;
 
 pub fn make_tag_prefix_index() -> ExternResult<PrefixIndex> {
-    PrefixIndex::new(
-        "prefix_index".into(),
-        LinkTypes::PrefixIndex,
-        3,
-        3
-    )
+    PrefixIndex::new("prefix_index".into(), LinkTypes::PrefixIndex, 3, 3)
 }
 
 #[derive(Serialize, Deserialize)]
@@ -170,7 +165,9 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 target_address,
                 tag,
             ),
-            LinkTypes::PrefixIndex => tag_prefix_index.validate_delete_link(action, original_action),
+            LinkTypes::PrefixIndex => {
+                tag_prefix_index.validate_delete_link(action, original_action)
+            }
             LinkTypes::PrefixIndexToHashtags => validate_delete_link_prefix_index_to_hashtags(
                 action,
                 original_action,
@@ -403,7 +400,9 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         create_link.target_address,
                         create_link.tag,
                     ),
-                    LinkTypes::PrefixIndex =>  tag_prefix_index.validate_delete_link(action, create_link.clone()),
+                    LinkTypes::PrefixIndex => {
+                        tag_prefix_index.validate_delete_link(action, create_link.clone())
+                    }
                     LinkTypes::PrefixIndexToHashtags => {
                         validate_delete_link_prefix_index_to_hashtags(
                             action,

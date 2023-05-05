@@ -21,7 +21,7 @@ pub fn add_hashtag_for_mew(input: AddHashtagForMewInput) -> ExternResult<()> {
         LinkTypes::HashtagToMews,
         LinkTag(input.base_hashtag.as_bytes().to_vec()),
     )?;
-    
+
     Ok(())
 }
 
@@ -60,7 +60,7 @@ pub fn get_mews_for_hashtag(hashtag: String) -> ExternResult<Vec<Record>> {
     let links = get_links(
         result_path.path_entry_hash()?,
         LinkTypes::HashtagToMews,
-        None
+        None,
     )?;
     let get_input: Vec<GetInput> = links
         .into_iter()
@@ -87,7 +87,7 @@ pub fn get_mews_for_hashtag_with_context(hashtag: String) -> ExternResult<Vec<Fe
     let links = get_links(
         result_path.path_entry_hash()?,
         LinkTypes::HashtagToMews,
-        None
+        None,
     )?;
 
     // Get mews with context
@@ -100,9 +100,5 @@ pub fn get_mews_for_hashtag_with_context(hashtag: String) -> ExternResult<Vec<Fe
 }
 
 fn make_hashtag_text(text: String) -> String {
-    text
-        .split('#')
-        .nth(1)
-        .unwrap_or(&text)
-        .to_string()
+    text.split('#').nth(1).unwrap_or(&text).to_string()
 }

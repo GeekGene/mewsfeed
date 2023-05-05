@@ -27,7 +27,9 @@ pub fn validate_create_link_prefix_index_to_hashtags(
     })?;
 
     // Base address should be prefix index path matching tag prefix
-    let prefix_path_hash = tag_prefix_index.make_result_path(tag_string, None)?.path_entry_hash()?;
+    let prefix_path_hash = tag_prefix_index
+        .make_result_path(tag_string, None)?
+        .path_entry_hash()?;
 
     if EntryHash::from(base_address) != prefix_path_hash {
         return Ok(ValidateCallbackResult::Invalid(format!(

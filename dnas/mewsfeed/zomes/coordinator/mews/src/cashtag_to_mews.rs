@@ -60,7 +60,7 @@ pub fn get_mews_for_cashtag(cashtag: String) -> ExternResult<Vec<Record>> {
     let links = get_links(
         result_path.path_entry_hash()?,
         LinkTypes::CashtagToMews,
-        None
+        None,
     )?;
     let get_input: Vec<GetInput> = links
         .into_iter()
@@ -87,7 +87,7 @@ pub fn get_mews_for_cashtag_with_context(cashtag: String) -> ExternResult<Vec<Fe
     let links = get_links(
         result_path.path_entry_hash()?,
         LinkTypes::CashtagToMews,
-        None
+        None,
     )?;
 
     // Get mews with context
@@ -100,9 +100,5 @@ pub fn get_mews_for_cashtag_with_context(cashtag: String) -> ExternResult<Vec<Fe
 }
 
 fn make_cashtag_text(text: String) -> String {
-    text
-        .split('$')
-        .nth(1)
-        .unwrap_or(&text)
-        .to_string()
+    text.split('$').nth(1).unwrap_or(&text).to_string()
 }
