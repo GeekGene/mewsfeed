@@ -135,7 +135,7 @@ test("Prefix index should return hashtags and cashtags", async () => {
 
       const hashtags: string[] = await alice.cells[0].callZome({
         zome_name: "mews",
-        fn_name: "search_hashtags",
+        fn_name: "search_tags",
         payload: {
           query: "has",
           limit: 10,
@@ -146,7 +146,7 @@ test("Prefix index should return hashtags and cashtags", async () => {
 
       const arabicHashtags: string[] = await alice.cells[0].callZome({
         zome_name: "mews",
-        fn_name: "search_hashtags",
+        fn_name: "search_tags",
         payload: {
           query: "سعيدة",
           limit: 10,
@@ -162,7 +162,7 @@ test("Prefix index should return hashtags and cashtags", async () => {
       // get hashtag containing emojis -- invalid hashtag!
       const emojiHashtags: string[] = await alice.cells[0].callZome({
         zome_name: "mews",
-        fn_name: "search_hashtags",
+        fn_name: "search_tags",
         payload: {
           query: "😃😃😃",
           limit: 10,
@@ -172,7 +172,7 @@ test("Prefix index should return hashtags and cashtags", async () => {
 
       const cashtags: string[] = await alice.cells[0].callZome({
         zome_name: "mews",
-        fn_name: "search_cashtags",
+        fn_name: "search_tags",
         payload: {
           query: "cas",
           limit: 10,
