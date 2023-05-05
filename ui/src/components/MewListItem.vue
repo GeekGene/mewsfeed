@@ -1,13 +1,13 @@
 <template>
-  <q-item
+  <QItem
     class="items-start cursor-pointer"
     @click.passive="navigateToYarn(feedMew.action_hash)"
   >
-    <q-item-section avatar>
+    <QItemSection avatar>
       <ProfileAvatarWithPopup :agentPubKey="feedMew.action.author" />
-    </q-item-section>
+    </QItemSection>
 
-    <q-item-section>
+    <QItemSection>
       <div class="row items-start justify-start q-mb-sm">
         <RouterLink
           :to="{
@@ -23,11 +23,7 @@
         </RouterLink>
 
         <span v-if="!isOriginal" class="q-ml-md">
-          <q-skeleton
-            v-if="loadingOriginalMewAuthor"
-            type="text"
-            width="4rem"
-          />
+          <QSkeleton v-if="loadingOriginalMewAuthor" type="text" width="4rem" />
           <div
             v-else-if="originalMew && originalMewAuthor"
             class="row justify-start items-start"
@@ -35,7 +31,7 @@
             <span class="q-mr-xs text-secondary">
               {{ reactionLabel }}
             </span>
-            <router-link
+            <RouterLink
               :to="{
                 name: ROUTES.profiles,
                 params: {
@@ -48,8 +44,8 @@
                 {{ originalMewAuthor.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
               </span>
               @{{ originalMewAuthor.nickname }}
-            </router-link>
-            <q-btn
+            </RouterLink>
+            <QBtn
               v-if="showYarnLink"
               class="q-mx-sm q-px-sm"
               padding="none"
@@ -61,18 +57,18 @@
                 originalMew && navigateToYarn(originalMew.action_hash)
               "
             >
-              <q-icon
+              <QIcon
                 name="svguse:/icons.svg#yarn"
                 size="xs"
                 color="secondary"
                 flat
               />
-              <q-tooltip :delay="TOOLTIP_DELAY">Original Yarn</q-tooltip>
-            </q-btn>
+              <QTooltip :delay="TOOLTIP_DELAY">Original Yarn</QTooltip>
+            </QBtn>
           </div>
         </span>
 
-        <q-space />
+        <QSpace />
 
         <span class="q-ml-md text-caption">
           <timestamp :timestamp="feedMew.action.timestamp" />
@@ -86,36 +82,36 @@
 
       <div class="row justify-between">
         <div>
-          <q-btn
+          <QBtn
             :disable="isUpdatingLick"
             size="sm"
             flat
             @click.stop.prevent="toggleLickMew"
           >
-            <q-icon
+            <QIcon
               name="svguse:/icons.svg#lick"
               :color="isLickedByMe ? 'pink-4' : 'transparent'"
               class="q-mr-xs"
             />
             {{ feedMew.licks.length }}
-            <q-tooltip :delay="TOOLTIP_DELAY">Lick mew</q-tooltip>
-          </q-btn>
-          <q-btn size="sm" icon="reply" flat @click.stop.prevent="replyToMew">
+            <QTooltip :delay="TOOLTIP_DELAY">Lick mew</QTooltip>
+          </QBtn>
+          <QBtn size="sm" icon="reply" flat @click.stop.prevent="replyToMew">
             {{ feedMew.replies.length }}
-            <q-tooltip :delay="TOOLTIP_DELAY">Reply to mew</q-tooltip>
-          </q-btn>
-          <q-btn size="sm" icon="forward" flat @click.stop.prevent="mewMew">
+            <QTooltip :delay="TOOLTIP_DELAY">Reply to mew</QTooltip>
+          </QBtn>
+          <QBtn size="sm" icon="forward" flat @click.stop.prevent="mewMew">
             {{ feedMew.mewmews.length }}
-            <q-tooltip :delay="TOOLTIP_DELAY">Mewmew mew</q-tooltip>
-          </q-btn>
-          <q-btn size="sm" icon="format_quote" flat @click.stop.prevent="quote">
+            <QTooltip :delay="TOOLTIP_DELAY">Mewmew mew</QTooltip>
+          </QBtn>
+          <QBtn size="sm" icon="format_quote" flat @click.stop.prevent="quote">
             {{ feedMew.quotes.length }}
-            <q-tooltip :delay="TOOLTIP_DELAY">Quote mew</q-tooltip>
-          </q-btn>
+            <QTooltip :delay="TOOLTIP_DELAY">Quote mew</QTooltip>
+          </QBtn>
         </div>
       </div>
-    </q-item-section>
-  </q-item>
+    </QItemSection>
+  </QItem>
 </template>
 
 <script setup lang="ts">

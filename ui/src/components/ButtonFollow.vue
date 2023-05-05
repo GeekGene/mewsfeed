@@ -1,18 +1,18 @@
 <template>
-  <q-btn size="md" color="secondary" @click="toggleFollow">
+  <QBtn size="md" color="secondary" @click="toggleFollow">
     <template v-if="isFollowing">
       <div class="q-mr-sm">Unfollow</div>
-      <q-icon name="svguse:/icons.svg#cat" />
+      <QIcon name="svguse:/icons.svg#cat" />
     </template>
     <template v-else>
       <div class="q-mr-sm">Follow</div>
-      <q-icon
+      <QIcon
         name="svguse:/icons.svg#cat"
         color="secondary"
         style="stroke: white"
       />
     </template>
-  </q-btn>
+  </QBtn>
 </template>
 
 <script setup lang="ts">

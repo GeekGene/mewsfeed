@@ -1,13 +1,13 @@
 <template>
-  <q-page :style-fn="pageHeightCorrection">
+  <QPage :style-fn="pageHeightCorrection">
     <div class="row">
       <div>
-        <q-card class="self-start q-mb-xl q-px-xl q-py-lg text-body1">
+        <QCard class="self-start q-mb-xl q-px-xl q-py-lg text-body1">
           <my-profile />
-        </q-card>
+        </QCard>
       </div>
 
-      <q-space class="col-1" />
+      <QSpace class="col-1" />
 
       <div class="follow-col col self-start">
         <h6 class="q-mt-none q-mb-md">Following</h6>
@@ -15,7 +15,7 @@
         <h6 class="q-mb-md">Followed by</h6>
         <FollowersList :agentPubKey="myAgentPubKey" />
         <h6 class="q-mb-md">
-          <q-btn
+          <QBtn
             v-if="myProfile"
             size="lg"
             color="secondary"
@@ -30,11 +30,11 @@
             "
           >
             Mew Mentions
-          </q-btn>
+          </QBtn>
         </h6>
       </div>
     </div>
-  </q-page>
+  </QPage>
 </template>
 
 <script setup lang="ts">

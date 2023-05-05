@@ -1,8 +1,8 @@
 <template>
   <template v-if="loadingFollowers">
-    <q-list v-for="i of [0, 1, 2]" :key="i">
+    <QList v-for="i of [0, 1, 2]" :key="i">
       <ProfileSkeleton />
-    </q-list>
+    </QList>
   </template>
 
   <EmptyMewsFeed
@@ -11,8 +11,8 @@
   />
 
   <template v-else>
-    <q-list>
-      <q-item
+    <QList>
+      <QItem
         v-for="(followee, index) of followersOfAgent"
         :key="index"
         class="q-px-none"
@@ -21,14 +21,14 @@
           :agentPubKey="followee.agentPubKey"
           class="q-mr-md"
         />
-        <q-item-section>
-          <q-item-label>
+        <QItemSection>
+          <QItemLabel>
             {{ followee.displayName }}
-          </q-item-label>
-          <q-item-label caption> @{{ followee.nickname }}</q-item-label>
-        </q-item-section>
-      </q-item>
-    </q-list>
+          </QItemLabel>
+          <QItemLabel caption> @{{ followee.nickname }}</QItemLabel>
+        </QItemSection>
+      </QItem>
+    </QList>
   </template>
 </template>
 

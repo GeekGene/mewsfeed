@@ -1,15 +1,15 @@
 <template>
-  <q-page class="row" :style-fn="pageHeightCorrection">
+  <QPage class="row" :style-fn="pageHeightCorrection">
     <div class="col-8">
       <h6 class="q-mt-none q-mb-md">Profile</h6>
-      <q-spinner-pie
+      <QSpinnerPie
         v-if="loadingProfile || !agentPubKey"
         size="10%"
         color="primary"
       />
 
-      <q-card v-else v-bind="$attrs" square class="q-mb-md text-body1">
-        <q-card-section class="flex justify-between">
+      <QCard v-else v-bind="$attrs" square class="q-mb-md text-body1">
+        <QCardSection class="flex justify-between">
           <div class="flex items-center">
             <agent-avatar
               :agentPubKey="agentPubKey"
@@ -22,9 +22,9 @@
             <div class="text-primary">@{{ profile?.nickname }}</div>
           </div>
           <ButtonFollow v-if="!isMyProfile" :agentPubKey="agentPubKey" />
-        </q-card-section>
+        </QCardSection>
 
-        <q-card-section class="flex">
+        <QCardSection class="flex">
           <div class="q-mr-md">
             <div>
               <label class="text-weight-medium">Bio:</label>
@@ -37,12 +37,12 @@
             <div>{{ profile?.fields[PROFILE_FIELDS.BIO] }}</div>
             <div>{{ profile?.fields[PROFILE_FIELDS.LOCATION] }}</div>
           </div>
-        </q-card-section>
+        </QCardSection>
 
         <div class="flex justify-end q-mx-sm">
           <holo-identicon :hash="agentPubKey" size="30"></holo-identicon>
         </div>
-      </q-card>
+      </QCard>
 
       <h6 class="q-mb-md">Mews</h6>
       <EmptyMewsFeed v-if="!loadingMews && mews.length === 0" />
@@ -61,7 +61,7 @@
       <h6 class="q-mb-md">Followed by</h6>
       <FollowersList :agentPubKey="agentPubKey" />
       <h6 class="q-mb-md">
-        <q-btn
+        <QBtn
           v-if="profile?.nickname"
           size="lg"
           color="secondary"
@@ -76,10 +76,10 @@
           "
         >
           Mew Mentions
-        </q-btn>
+        </QBtn>
       </h6>
     </div>
-  </q-page>
+  </QPage>
 </template>
 
 <script setup lang="ts">

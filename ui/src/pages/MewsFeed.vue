@@ -1,5 +1,5 @@
 <template>
-  <q-page class="q-pb-lg" :style-fn="pageHeightCorrection">
+  <QPage class="q-pb-lg" :style-fn="pageHeightCorrection">
     <CreateMewField
       :mew-type="{ [MewTypeName.Original]: null }"
       @publish-mew="store.fetchMewsFeed"
@@ -13,7 +13,7 @@
       :on-toggle-lick-mew="onToggleLickMew"
       :on-publish-mew="onPublishMew"
     />
-  </q-page>
+  </QPage>
 </template>
 
 <script setup lang="ts">

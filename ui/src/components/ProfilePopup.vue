@@ -7,8 +7,8 @@
     style="z-index: 200; width: 350px; position: absolute"
     @click.stop
   >
-    <q-card v-bind="$attrs" class="text-body1 bg-white">
-      <q-card-section
+    <QCard v-bind="$attrs" class="text-body1 bg-white">
+      <QCardSection
         class="row justify-between items-center"
         style="white-space: nowrap"
       >
@@ -33,8 +33,8 @@
           </div>
         </div>
         <ButtonFollow v-if="!isMyProfile" :agentPubKey="agentPubKey" />
-      </q-card-section>
-      <q-card-section v-if="bio || location" class="text-black">
+      </QCardSection>
+      <QCardSection v-if="bio || location" class="text-black">
         <div v-if="bio" class="row justify-start">
           <div>
             <label class="text-weight-bold q-mr-sm">Bio:</label>
@@ -47,14 +47,14 @@
           </div>
           <div>{{ location }}</div>
         </div>
-      </q-card-section>
+      </QCardSection>
       <div
         class="row justify-end items-start q-mx-sm"
         style="white-space: nowrap"
       >
         <holo-identicon :hash="agentPubKey" size="30"></holo-identicon>
       </div>
-    </q-card>
+    </QCard>
   </RouterLink>
 </template>
 

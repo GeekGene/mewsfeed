@@ -32,13 +32,7 @@ export default defineConfig({
       template: {
         transformAssetUrls,
         compilerOptions: {
-          isCustomElement: (tag) =>
-            tag.includes("profiles-context") ||
-            tag.includes("agent-avatar") ||
-            tag.includes("edit-profile") ||
-            tag.includes("create-profile") ||
-            tag.includes("my-profile") ||
-            tag.includes("holo-identicon"),
+          isCustomElement: (tag) => tag.includes("-"),
         },
       },
     }),

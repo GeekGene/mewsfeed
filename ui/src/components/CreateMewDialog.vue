@@ -1,7 +1,7 @@
 <template>
-  <q-dialog ref="dialogRef" @hide="onDialogHide">
-    <q-card class="q-dialog-plugin dialog">
-      <q-card-section class="q-pb-sm">
+  <QDialog ref="dialogRef" @hide="onDialogHide">
+    <QCard class="QDialog-plugin dialog">
+      <QCardSection class="q-pb-sm">
         <div class="row justify-between items-center">
           <div class="text-subtitle1 text-medium">
             <template v-if="MewTypeName.Original in mewType">
@@ -21,25 +21,25 @@
               <span>@{{ originalAuthor.nickname }}</span>
             </template>
           </div>
-          <q-btn icon="close" flat round dense @click="onDialogCancel" />
+          <QBtn icon="close" flat round dense @click="onDialogCancel" />
         </div>
-      </q-card-section>
+      </QCardSection>
 
-      <q-card-section
+      <QCardSection
         v-if="MewTypeName.Reply in mewType || MewTypeName.Quote in mewType"
       >
         <div class="q-mb-md text-subtitle1 text-grey-7">
-          <mew-content :feed-mew="originalMew" />
+          <MewContent :feed-mew="originalMew" />
         </div>
-      </q-card-section>
+      </QCardSection>
 
-      <q-card-section>
+      <QCardSection>
         <profiles-context :store="profilesStore">
           <CreateMewField :mew-type="mewType" @publish-mew="_onMewPublish" />
         </profiles-context>
-      </q-card-section>
-    </q-card>
-  </q-dialog>
+      </QCardSection>
+    </QCard>
+  </QDialog>
 </template>
 
 <script setup lang="ts">

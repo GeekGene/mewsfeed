@@ -1,23 +1,23 @@
 <template>
-  <q-layout view="hHh lpr fFf">
-    <q-header elevated class="row justify-center">
-      <q-toolbar class="col-12 col-md-6 col-xl-5">
-        <q-tabs v-model="tab" dense inline-label class="col-grow">
-          <q-route-tab :to="{ name: ROUTES.home }">
-            <q-icon name="svguse:/icons.svg#cat" size="lg" />
-            <q-tooltip :delay="TOOLTIP_DELAY">Den</q-tooltip>
-          </q-route-tab>
+  <QLayout view="hHh lpr fFf">
+    <QHeader elevated class="row justify-center">
+      <QToolbar class="col-12 col-md-6 col-xl-5">
+        <QTabs v-model="tab" dense inline-label class="col-grow">
+          <QRouteTab :to="{ name: ROUTES.home }">
+            <QIcon name="svguse:/icons.svg#cat" size="lg" />
+            <QTooltip :delay="TOOLTIP_DELAY">Den</QTooltip>
+          </QRouteTab>
 
-          <q-btn
+          <QBtn
             icon="add"
             color="secondary"
             class="q-mx-md"
             @click="onAddMewClick"
           >
             Mew
-            <q-tooltip :delay="TOOLTIP_DELAY">Create a mew</q-tooltip>
-          </q-btn>
-          <q-select
+            <QTooltip :delay="TOOLTIP_DELAY">Create a mew</QTooltip>
+          </QBtn>
+          <QSelect
             v-model="selection"
             :options="options"
             :loading="searching"
@@ -37,88 +37,88 @@
             @update:model-value="onSearchResultSelect"
           >
             <template #prepend>
-              <q-icon name="search" color="white" />
+              <QIcon name="search" color="white" />
             </template>
             <template #option="item">
               <profiles-context
                 v-if="item.opt.resultType === SearchResult.Agent"
                 :store="profilesStore"
               >
-                <q-item clickable v-bind="item.itemProps" dense class="q-py-sm">
-                  <q-item-section avatar>
+                <QItem clickable v-bind="item.itemProps" dense class="q-py-sm">
+                  <QItemSection avatar>
                     <agent-avatar
                       :agentPubKey="item.opt.agentPubKey"
                       disable-tooltip
                       disable-copy
                       size="40"
                     ></agent-avatar>
-                  </q-item-section>
-                  <q-item-section class="text-body2">
+                  </QItemSection>
+                  <QItemSection class="text-body2">
                     {{ item.opt.label }}
-                  </q-item-section>
-                </q-item>
+                  </QItemSection>
+                </QItem>
               </profiles-context>
-              <q-item
+              <QItem
                 v-else-if="item.opt.resultType === SearchResult.Hashtag"
                 clickable
                 v-bind="item.itemProps"
                 dense
                 class="q-py-sm"
               >
-                <q-item-section class="text-body2">
+                <QItemSection class="text-body2">
                   {{ item.opt.label }}
-                </q-item-section>
-              </q-item>
-              <q-item
+                </QItemSection>
+              </QItem>
+              <QItem
                 v-else-if="item.opt.resultType === SearchResult.Cashtag"
                 clickable
                 v-bind="item.itemProps"
                 dense
                 class="q-py-sm"
               >
-                <q-item-section class="text-body2">
+                <QItemSection class="text-body2">
                   {{ item.opt.label }}
-                </q-item-section>
-              </q-item>
+                </QItemSection>
+              </QItem>
             </template>
             <template #no-option>
-              <q-item>
-                <q-item-section>
+              <QItem>
+                <QItemSection>
                   {{
                     searchTerm.length < 3
                       ? "Minimum 3 characters required"
                       : "Nothing found, Kitty"
                   }}
-                </q-item-section>
-              </q-item>
+                </QItemSection>
+              </QItem>
             </template>
-          </q-select>
+          </QSelect>
 
-          <q-route-tab
+          <QRouteTab
             :to="{ name: ROUTES.feed }"
             icon="feed"
             label="Mews Feed"
           />
 
-          <q-route-tab v-if="myProfile" :to="{ name: ROUTES.myProfile }">
+          <QRouteTab v-if="myProfile" :to="{ name: ROUTES.myProfile }">
             <agent-avatar
-              :agentPubKey="myAgentPubKey"
+              :agentPubKey="clientStore.agentKey"
               size="40"
               disable-tooltip
               disable-copy
             />
-            <q-tooltip :delay="TOOLTIP_DELAY">Your profile</q-tooltip>
-          </q-route-tab>
-        </q-tabs>
-      </q-toolbar>
-    </q-header>
+            <QTooltip :delay="TOOLTIP_DELAY">Your profile</QTooltip>
+          </QRouteTab>
+        </QTabs>
+      </QToolbar>
+    </QHeader>
 
-    <q-page-container class="row q-mt-xl bg-white">
-      <q-space />
-      <router-view class="col-12 col-md-6 col-xl-5" />
-      <q-space />
-    </q-page-container>
-  </q-layout>
+    <QPageContainer class="row q-mt-xl bg-white">
+      <QSpace />
+      <RouterView class="col-12 col-md-6 col-xl-5" />
+      <QSpace />
+    </QPageContainer>
+  </QLayout>
 </template>
 
 <script setup lang="ts">

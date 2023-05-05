@@ -1,20 +1,20 @@
 <template>
-  <q-page :style-fn="pageHeightCorrection">
-    <q-card flat>
-      <q-card-section class="q-pb-none">
-        <q-btn flat @click="$router.back()">
-          <q-icon
+  <QPage :style-fn="pageHeightCorrection">
+    <QCard flat>
+      <QCardSection class="q-pb-none">
+        <QBtn flat @click="$router.back()">
+          <QIcon
             name="arrow_right_alt"
             size="lg"
             style="transform: rotate(180deg); font-weight: 100"
           />
           Back
-        </q-btn>
-      </q-card-section>
+        </QBtn>
+      </QCardSection>
 
-      <q-card-section v-if="mew" class="yarn-container">
+      <QCardSection v-if="mew" class="yarn-container">
         <profiles-context :store="profilesStore">
-          <q-list>
+          <QList>
             <MewListItemSkeleton v-if="isLoadingMew" />
             <MewListItem
               v-else
@@ -24,7 +24,7 @@
               class="q-mb-md bg-orange-1"
             />
 
-            <q-item class="q-mb-md q-px-none">
+            <QItem class="q-mb-md q-px-none">
               <div class="col-grow">
                 <div class="q-mb-md text-h6 text-medium">Reply</div>
 
@@ -36,11 +36,11 @@
                   />
                 </profiles-context>
               </div>
-            </q-item>
-          </q-list>
+            </QItem>
+          </QList>
 
           <MewListSkeleton v-if="isLoadingReplies" />
-          <q-list v-else-if="replies.length" bordered separator>
+          <QList v-else-if="replies.length" bordered separator>
             <MewListItem
               v-for="(reply, i) of replies"
               :key="i"
@@ -49,11 +49,11 @@
               :on-toggle-lick-mew="onToggleLickMew"
               :show-yarn-link="false"
             />
-          </q-list>
+          </QList>
         </profiles-context>
-      </q-card-section>
-    </q-card>
-  </q-page>
+      </QCardSection>
+    </QCard>
+  </QPage>
 </template>
 
 <script setup lang="ts">

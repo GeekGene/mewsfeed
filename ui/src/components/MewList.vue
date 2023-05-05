@@ -1,9 +1,9 @@
 <template>
-  <mew-list-skeleton v-if="isLoading" />
+  <MewListSkeleton v-if="isLoading" />
 
   <EmptyMewsFeed v-else-if="mews.length === 0" />
 
-  <q-list v-else bordered separator>
+  <QList v-else bordered separator>
     <mew-list-item
       v-for="(mew, index) of mews"
       :key="index"
@@ -11,7 +11,7 @@
       :on-toggle-lick-mew="onToggleLickMew"
       :on-publish-mew="onPublishMew"
     />
-  </q-list>
+  </QList>
 </template>
 
 <script setup lang="ts">

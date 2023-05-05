@@ -1,9 +1,9 @@
 <template>
-  <q-page class="text-center" :style-fn="pageHeightCorrection">
+  <QPage class="text-center" :style-fn="pageHeightCorrection">
     <h6>Meeow, you're in!</h6>
     <h2>Welcome to MewsFeed</h2>
-    <q-img width="40%" src="@/assets/img/cat-eating-bird-circle.png" />
-  </q-page>
+    <QImg width="40%" src="@/assets/img/cat-eating-bird-circle.png" />
+  </QPage>
 </template>
 
 <script setup lang="ts">

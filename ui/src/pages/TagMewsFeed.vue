@@ -1,5 +1,5 @@
 <template>
-  <q-page :style-fn="pageHeightCorrection">
+  <QPage :style-fn="pageHeightCorrection">
     <h6 class="q-mt-none q-mb-md">
       Mews with {{ route.meta.tag }}{{ route.params.tag }}
     </h6>
@@ -10,7 +10,7 @@
       :on-toggle-lick-mew="onToggleLickMew"
       :on-publish-mew="onPublishmew"
     />
-  </q-page>
+  </QPage>
 </template>
 
 <script setup lang="ts">

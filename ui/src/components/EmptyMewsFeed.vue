@@ -1,10 +1,10 @@
 <template>
-  <q-banner class="bg-grey-3" dense rounded>
+  <QBanner class="bg-grey-3" dense rounded>
     <template #avatar>
-      <q-icon name="pets" color="accent" />
+      <QIcon name="pets" color="accent" />
     </template>
     <div class="text-subtitle1">{{ text }}</div>
-  </q-banner>
+  </QBanner>
 </template>
 
 <script setup lang="ts">

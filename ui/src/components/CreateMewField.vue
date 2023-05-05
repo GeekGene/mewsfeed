@@ -1,7 +1,7 @@
 <template>
   <div class="text-center">
     <div ref="mewContainer" class="text-left" style="position: relative">
-      <q-card
+      <QCard
         contenteditable="true"
         class="mew-content text-body1 q-pa-md overflow-auto"
         style="word-break: break-all"
@@ -40,11 +40,11 @@
         </div>
       </div>
 
-      <q-card
+      <QCard
         class="link-target-input-container q-px-md q-py-sm"
         style="min-width: 13rem"
       >
-        <q-input
+        <QInput
           ref="linkTargetInput"
           v-model="linkTarget"
           type="text"
@@ -57,22 +57,22 @@
           @keydown.tab="createLinkTag"
           @blur="resetLinkTargetInput"
         />
-      </q-card>
+      </QCard>
 
-      <q-card class="autocompleter">
+      <QCard class="autocompleter">
         <template v-if="currentAgentSearch.length < 3">
-          <q-card-section>Min. 3 letters</q-card-section>
+          <QCardSection>Min. 3 letters</QCardSection>
         </template>
 
         <template v-else>
-          <q-spinner-pie
+          <QSpinnerPie
             v-if="autocompleterLoading"
             color="secondary"
             size="md"
             class="q-mx-lg q-my-xs"
           />
 
-          <q-list
+          <QList
             v-else
             class="autocompleter-list bg-white rounded-borders"
             bordered
@@ -80,36 +80,36 @@
             separator
             tabindex="-1"
           >
-            <q-item
+            <QItem
               v-for="([agentPubKey, profile], i) in agentAutocompletions"
               :key="i"
               clickable
               @keydown="onAutocompleteKeyDown"
               @click="onAutocompleteAgentSelect(agentPubKey, profile)"
             >
-              <q-item-section avatar class="q-pr-sm col-shrink">
+              <QItemSection avatar class="q-pr-sm col-shrink">
                 <agent-avatar
                   :agentPubKey="agentPubKey"
                   disable-tooltip
                   disable-copy
                   size="30"
                 ></agent-avatar>
-              </q-item-section>
-              <q-item-section>
+              </QItemSection>
+              <QItemSection>
                 {{ profile.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
                 {{ TAG_SYMBOLS.MENTION }}{{ profile.nickname }}
-              </q-item-section>
-            </q-item>
+              </QItemSection>
+            </QItem>
 
-            <q-item v-if="agentAutocompletions.length === 0">
-              <q-item-section>Nothing found, Kitty</q-item-section>
-            </q-item>
-          </q-list>
+            <QItem v-if="agentAutocompletions.length === 0">
+              <QItemSection>Nothing found, Kitty</QItemSection>
+            </QItem>
+          </QList>
         </template>
-      </q-card>
+      </QCard>
 
-      <q-icon name="help" color="grey" size="xs" class="help-text">
-        <q-tooltip
+      <QIcon name="help" color="grey" size="xs" class="help-text">
+        <QTooltip
           class="text-body2"
           anchor="top middle"
           self="bottom middle"
@@ -117,11 +117,11 @@
         >
           You can mention people with @ and use #hashtags and $cashtags as well
           as ^links in a mew.
-        </q-tooltip>
-      </q-icon>
+        </QTooltip>
+      </QIcon>
     </div>
 
-    <q-btn
+    <QBtn
       :disable="isMewEmpty || isMewOverfull || isMewUnderfull"
       :loading="saving"
       :tabindex="agentAutocompletions.length && 0"
@@ -129,12 +129,12 @@
       @click="publishMew"
     >
       Publish Mew
-    </q-btn>
+    </QBtn>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useClientStore, useMewsfeedStore } from "@/stores";
+import { useClientStore } from "@/stores";
 import { showError } from "@/utils/notification";
 import { useSearchProfiles, useMyProfile } from "@/utils/profile";
 import { Profile } from "@holochain-open-dev/profiles";
@@ -161,6 +161,7 @@ import min from "lodash.min";
 import union from "lodash.union";
 import flatten from "lodash.flatten";
 import { decode } from "@msgpack/msgpack";
+import { createMew } from "@/services/mewsfeed-dna";
 
 const ANCHOR_DATA_ID_AGENT_PUB_KEY = "agentPubKey";
 const ANCHOR_DATA_ID_URL = "url";
@@ -175,7 +176,6 @@ const props = defineProps({
   mewType: { type: Object as PropType<MewType>, required: true },
 });
 
-const store = useMewsfeedStore();
 const clientStore = useClientStore();
 
 const { searchProfiles } = useSearchProfiles();
@@ -276,7 +276,7 @@ const publishMew = () => {
     console.log("mew is ", mew);
     try {
       saving.value = true;
-      const res = await store.createMew(mew);
+      const res = await createMew(mew);
       console.log(res);
     } catch (error) {
       showError(error);
@@ -422,7 +422,7 @@ const onKeyDown = (event: KeyboardEvent) => {
 
   // Support KeyDown or Tab keys to focus on first item displayed in agents list (after typing an agent tag)
   else if (event.key === "ArrowDown" || event.key === "Tab") {
-    const firstListItem = mewContainer.value?.querySelector(".q-item");
+    const firstListItem = mewContainer.value?.querySelector(".QItem");
     if (firstListItem instanceof HTMLElement) {
       event.preventDefault();
       firstListItem.focus();
