@@ -401,7 +401,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         create_link.tag,
                     ),
                     LinkTypes::PrefixIndex => {
-                        tag_prefix_index.validate_delete_link(action, create_link.clone())
+                        tag_prefix_index.validate_delete_link(action, create_link)
                     }
                     LinkTypes::PrefixIndexToHashtags => {
                         validate_delete_link_prefix_index_to_hashtags(
