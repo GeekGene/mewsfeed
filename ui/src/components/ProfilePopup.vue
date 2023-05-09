@@ -66,9 +66,10 @@ import { isSameHash } from "@/utils/hash";
 import { showError } from "@/utils/notification";
 import { ROUTES } from "@/router";
 import { AgentPubKey, encodeHashToBase64 } from "@holochain/client";
-import { computed, onMounted, PropType, ref } from "vue";
+import { computed, inject, onMounted, PropType, ref } from "vue";
 import { useRouter } from "vue-router";
 import ButtonFollow from "./ButtonFollow.vue";
+import { ClientStore } from "@/stores/client";
 
 const props = defineProps({
   agentPubKey: {
@@ -78,10 +79,11 @@ const props = defineProps({
 });
 
 const router = useRouter();
-const profilesStore = useProfilesStore();
+const { profilesStore } = useProfilesStore();
+const clientStore = inject<ClientStore>("clientStore");
 
-const isMyProfile = computed(() =>
-  isSameHash(props.agentPubKey, profilesStore.value.client.client.myPubKey)
+const isMyProfile = computed(
+  () => clientStore && isSameHash(props.agentPubKey, clientStore.agentKey)
 );
 const isCurrentProfile = computed(
   () =>
@@ -98,7 +100,7 @@ const loading = ref(false);
 onMounted(async () => {
   try {
     loading.value = true;
-    const profile = await profilesStore.value.client.getAgentProfile(
+    const profile = await profilesStore.value?.client.getAgentProfile(
       props.agentPubKey
     );
     if (profile) {

@@ -66,7 +66,7 @@ const props = defineProps({
 });
 defineEmits([...useDialogPluginComponent.emits]);
 
-const profilesStore = useProfilesStore();
+const { profilesStore } = useProfilesStore();
 
 const _onMewPublish = () => {
   props.onPublishMew(props.mewType);

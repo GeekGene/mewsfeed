@@ -1,6 +1,7 @@
-import { useClientStore } from "@/stores/client";
+import { ClientStore } from "@/stores/client";
 import { ActionHash, AgentPubKey } from "@holochain/client";
 import { Mew, FeedMew } from "../types/types";
+import { inject } from "vue";
 
 export enum MewsFn {
   CreateMew = "create_mew",
@@ -27,8 +28,10 @@ export enum LikesFn {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const callZome = (fn_name: string, payload: any, zome_name = "mews") =>
-  useClientStore().callZome({
+export const callZome = (fn_name: string, payload: any, zome_name = "mews") => {
+  const clientStore = inject<ClientStore>("clientStore");
+
+  return clientStore?.callZome({
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
     role_name: "mewsfeed",
@@ -36,6 +39,7 @@ export const callZome = (fn_name: string, payload: any, zome_name = "mews") =>
     fn_name,
     payload,
   });
+};
 
 export const createMew = async (mew: Mew) => callZome(MewsFn.CreateMew, mew);
 

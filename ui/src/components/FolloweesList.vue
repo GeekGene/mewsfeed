@@ -52,7 +52,7 @@ interface Followee {
 
 const props = defineProps<{ agentPubKey: AgentPubKey }>();
 
-const profilesStore = useProfilesStore();
+const { profilesStore } = useProfilesStore();
 
 const loadingFollowees = ref(false);
 const agentFollowees = ref<Followee[]>([]);

@@ -17,11 +17,10 @@
 
 <script setup lang="ts">
 import { follow, following, unfollow } from "@/services/mewsfeed-dna";
-import { useProfilesStore } from "@/stores/profiles";
 import { PROFILE_FIELDS } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
 import { showError, showMessage } from "@/utils/notification";
-import { useMyProfile } from "@/utils/profile";
+import { useProfilesStore } from "@/stores/profiles";
 import { AgentPubKey } from "@holochain/client";
 import { onMounted, PropType, ref } from "vue";
 import { QBtn } from "quasar";
@@ -33,8 +32,7 @@ const props = defineProps({
   },
 });
 
-const profilesStore = useProfilesStore();
-const { runWhenMyProfileExists } = useMyProfile();
+const { profilesStore, runWhenMyProfileExists } = useProfilesStore();
 
 const loading = ref(true);
 const isFollowing = ref(false);
@@ -42,7 +40,7 @@ const isFollowing = ref(false);
 onMounted(async () => {
   try {
     const currentMyFollowing = await following(
-      profilesStore.value.client.client.myPubKey
+      profilesStore.value?.client.client.myPubKey
     );
     isFollowing.value = currentMyFollowing.some((agent) =>
       isSameHash(agent, props.agentPubKey)
@@ -58,7 +56,7 @@ const toggleFollow = () => {
   runWhenMyProfileExists(async () => {
     try {
       const [profile] = await Promise.all([
-        profilesStore.value.client.getAgentProfile(props.agentPubKey),
+        profilesStore.value?.client.getAgentProfile(props.agentPubKey),
         isFollowing.value
           ? await unfollow(props.agentPubKey)
           : await follow(props.agentPubKey),

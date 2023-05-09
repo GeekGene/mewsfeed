@@ -116,14 +116,13 @@
 
 <script setup lang="ts">
 import { QItemSection, QSkeleton, QBtn, QIcon, QTooltip } from "quasar";
-import router, { ROUTES } from "@/router";
+import { ROUTES } from "@/router";
 import {
   createMew,
   getFeedMewAndContext,
   lickMew,
   unlickMew,
 } from "@/services/mewsfeed-dna";
-import { useProfilesStore } from "@/stores/profiles";
 import {
   Mew,
   FeedMew,
@@ -140,8 +139,10 @@ import ProfileAvatarWithPopup from "./ProfileAvatarWithPopup.vue";
 import CreateMewDialog from "./CreateMewDialog.vue";
 import MewContent from "./MewContent.vue";
 import Timestamp from "./MewTimestamp.vue";
-import { useMyProfile } from "@/utils/profile";
+import { useProfilesStore } from "@/stores/profiles";
 import { isSameHash } from "@/utils/hash";
+import { AgentPubKey } from "@holochain/client";
+import { useRouter } from "vue-router";
 
 const props = defineProps({
   feedMew: { type: Object as PropType<FeedMew>, required: true },
@@ -158,12 +159,10 @@ const props = defineProps({
     default: true,
   },
 });
-
+const router = useRouter();
 const $q = useQuasar();
-
-const profilesStore = useProfilesStore();
+const { profilesStore, runWhenMyProfileExists } = useProfilesStore();
 const agentProfile = ref<Profile>();
-const { runWhenMyProfileExists } = useMyProfile();
 
 const originalMewHash =
   MewTypeName.Mewmew in props.feedMew.mew.mew_type
@@ -191,12 +190,12 @@ const reactionLabel = computed(() =>
 );
 const isLickedByMe = computed(() =>
   props.feedMew.licks.some((lick) =>
-    isSameHash(lick, profilesStore.value.client.client.myPubKey)
+    isSameHash(lick, profilesStore.value?.client.client.myPubKey as AgentPubKey)
   )
 );
 
 onMounted(async () => {
-  agentProfile.value = await profilesStore.value.client.getAgentProfile(
+  agentProfile.value = await profilesStore.value?.client.getAgentProfile(
     props.feedMew.action.author
   );
 
@@ -208,7 +207,7 @@ const loadOriginalMew = async (actionHash: ActionHash) => {
 
   // load original mew author
   loadingOriginalMewAuthor.value = true;
-  originalMewAuthor.value = await profilesStore.value.client.getAgentProfile(
+  originalMewAuthor.value = await profilesStore.value?.client.getAgentProfile(
     originalMew.value.action.author
   );
   loadingOriginalMewAuthor.value = false;

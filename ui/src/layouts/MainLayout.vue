@@ -124,17 +124,11 @@
 <script setup lang="ts">
 import CreateMewDialog from "@/components/CreateMewDialog.vue";
 import { PATH, ROUTES } from "@/router";
-import { useProfilesStore } from "@/stores/profiles";
 import { searchTags } from "@/services/mewsfeed-dna";
 import { useMewsfeedStore } from "@/stores/mewsfeed";
-import {
-  MewTypeName,
-  PROFILE_FIELDS,
-  TOOLTIP_DELAY,
-  SearchResult,
-} from "@/types/types";
+import { MewTypeName, TOOLTIP_DELAY, SearchResult } from "@/types/types";
 import { showError } from "@/utils/notification";
-import { AgentPubKey, encodeHashToBase64 } from "@holochain/client";
+import { encodeHashToBase64 } from "@holochain/client";
 import {
   QSelectOption,
   QPageContainer,
@@ -152,24 +146,20 @@ import {
   useQuasar,
   QIcon,
 } from "quasar";
-import { ref, toRaw } from "vue";
-import { RouteLocationRaw, useRouter } from "vue-router";
+import { inject, ref, toRaw } from "vue";
+import { useRouter } from "vue-router";
 import { isHashtag, TAG_SYMBOLS } from "@/utils/tags";
-import { useMyProfile, useSearchProfiles } from "@/utils/profile";
-import { useClientStore } from "@/stores/client";
+import { SearchResultOption } from "@/types/types";
+import { ClientStore } from "@/stores/client";
+import { useProfilesStore } from "@/stores/profiles";
 
-type SearchResultOption = QSelectOption<RouteLocationRaw> & {
-  agentPubKey?: AgentPubKey;
-  resultType: SearchResult;
-};
+const clientStore = inject("clientStore") as ClientStore;
+const { myProfile, runWhenMyProfileExists, profilesStore, searchProfiles } =
+  useProfilesStore();
+const mewsfeedStore = useMewsfeedStore();
 
 const $q = useQuasar();
-const clientStore = useClientStore();
-const mewsfeedStore = useMewsfeedStore();
-const profilesStore = useProfilesStore();
 const router = useRouter();
-const { myProfile, runWhenMyProfileExists } = useMyProfile();
-const { searchProfiles } = useSearchProfiles();
 const tab = ref("");
 
 const searching = ref(false);
@@ -225,9 +215,7 @@ const search = (
               name: ROUTES.profiles,
               params: { agent: encodeHashToBase64(agentPubKey) },
             },
-            label: `${profile.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
-              profile.nickname
-            })`,
+            label: `${profile.fields["Display Name"]} (@${profile.nickname})`,
           })
         );
 

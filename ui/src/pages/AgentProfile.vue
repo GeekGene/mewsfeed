@@ -111,7 +111,7 @@ import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import MewList from "../components/MewList.vue";
 
-const profilesStore = useProfilesStore();
+const { profilesStore } = useProfilesStore();
 const route = useRoute();
 const router = useRouter();
 const agentPubKey = computed(() =>
@@ -124,7 +124,10 @@ const isFollowing = ref(false);
 const mews = ref<FeedMew[]>([]);
 
 const isMyProfile = computed(() =>
-  isSameHash(agentPubKey.value, profilesStore.value.client.client.myPubKey)
+  isSameHash(
+    agentPubKey.value,
+    profilesStore.value?.client.client.myPubKey as AgentPubKey
+  )
 );
 
 const loadMews = async () => {
@@ -142,7 +145,7 @@ const loadProfile = async () => {
   try {
     loadingProfile.value = true;
     const [profileData, myFollowing, myFollowers] = await Promise.all([
-      profilesStore.value.client.getAgentProfile(agentPubKey.value),
+      profilesStore.value?.client.getAgentProfile(agentPubKey.value),
       following(agentPubKey.value),
       followers(agentPubKey.value),
     ]);

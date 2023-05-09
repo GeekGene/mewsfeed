@@ -3,6 +3,7 @@ import { quasar, transformAssetUrls } from "@quasar/vite-plugin";
 import path from "node:path";
 import vue from "@vitejs/plugin-vue";
 import { viteStaticCopy } from "vite-plugin-static-copy";
+import rollupNodePolyFill from "rollup-plugin-node-polyfills";
 
 export default defineConfig({
   server: {
@@ -11,7 +12,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve("src"),
-      uicommon: path.resolve(__dirname, "ui-common-library/src"),
+      util: "rollup-plugin-node-polyfills/polyfills/util",
     },
   },
   plugins: [
@@ -41,4 +42,13 @@ export default defineConfig({
       sassVariables: "src/css/quasar.variables.sass",
     }) as PluginOption,
   ],
+  build: {
+    rollupOptions: {
+      plugins: [
+        // Enable rollup polyfills plugin
+        // used during production bundling
+        rollupNodePolyFill(),
+      ],
+    },
+  },
 });

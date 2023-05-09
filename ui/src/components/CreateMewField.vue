@@ -146,12 +146,12 @@ import {
   QTooltip,
   QBtn,
 } from "quasar";
-import { useClientStore } from "@/stores/client";
+import { ClientStore } from "@/stores/client";
 import { showError } from "@/utils/notification";
-import { useSearchProfiles, useMyProfile } from "@/utils/profile";
+import { useProfilesStore } from "@/stores/profiles";
 import { Profile } from "@holochain-open-dev/profiles";
 import { isMentionTag, isRawUrl, isLinkTag, TAG_SYMBOLS } from "@/utils/tags";
-import { onMounted, PropType, ref, computed } from "vue";
+import { onMounted, PropType, ref, computed, inject } from "vue";
 import {
   Mew,
   ElementWithInnerText,
@@ -183,15 +183,12 @@ let currentFocusOffset: number;
 let currentNode: Node;
 
 const emit = defineEmits<{ (e: "publish-mew"): void }>();
-
 const props = defineProps({
   mewType: { type: Object as PropType<MewType>, required: true },
 });
 
-const clientStore = useClientStore();
-
-const { searchProfiles } = useSearchProfiles();
-const { runWhenMyProfileExists } = useMyProfile();
+const clientStore = inject<ClientStore>("clientStore");
+const { searchProfiles, runWhenMyProfileExists } = useProfilesStore();
 
 const TRUNCATED_MEW_LENGTH = 300;
 
@@ -223,13 +220,15 @@ const isMewUnderfull = computed(
 onMounted(async () => {
   setTimeout(focusInputField, 0);
 
-  const appInfo = await clientStore.appInfo();
-  const dnaProperties = decode(
-    appInfo.cell_info.mewsfeed[0].provisioned.dna_modifiers.properties
-  ) as MewsfeedDnaProperties;
+  if (clientStore) {
+    const appInfo = await clientStore.appInfo();
+    const dnaProperties = decode(
+      appInfo.cell_info.mewsfeed[0].provisioned.dna_modifiers.properties
+    ) as MewsfeedDnaProperties;
 
-  mewLengthMin.value = dnaProperties.mew_characters_min;
-  mewLengthMax.value = dnaProperties.mew_characters_max;
+    mewLengthMin.value = dnaProperties.mew_characters_min;
+    mewLengthMax.value = dnaProperties.mew_characters_max;
+  }
 });
 
 const collectLinksWithinElement = (element: Element): LinkTarget[] => {
@@ -285,11 +284,10 @@ const publishMew = () => {
       links,
       mew_type: props.mewType,
     };
-    console.log("mew is ", mew);
+
     try {
       saving.value = true;
-      const res = await createMew(mew);
-      console.log(res);
+      await createMew(mew);
     } catch (error) {
       showError(error);
     } finally {

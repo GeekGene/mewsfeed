@@ -1,14 +1,9 @@
-import {
-  callZome,
-  getFeedMewAndContext,
-  mewsFeed,
-  MewsFn,
-} from "@/services/mewsfeed-dna";
-import { Mew, FeedMew } from "@/types/types";
+import { getFeedMewAndContext, mewsFeed } from "@/services/mewsfeed-dna";
+import { FeedMew } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
 import { showError } from "@/utils/notification";
 import { ActionHash } from "@holochain/client";
-import { defineStore } from "pinia";
+import { defineStore, Store } from "pinia";
 
 export const useMewsfeedStore = defineStore("mewsfeed", {
   state: () => ({
@@ -38,8 +33,15 @@ export const useMewsfeedStore = defineStore("mewsfeed", {
         showError(error);
       }
     },
-    async createMew(mew: Mew) {
-      return callZome(MewsFn.CreateMew, mew);
-    },
   },
 });
+
+export type MewsfeedStore = Store<
+  "mewsfeed",
+  {
+    mewsFeed: FeedMew[];
+    isLoadingMewsFeed: boolean;
+    fetchMewsFeed(): Promise<void>;
+    reloadMew(actionHash: ActionHash): Promise<void>;
+  }
+>;

@@ -73,7 +73,7 @@ import { ActionHash, decodeHashFromBase64 } from "@holochain/client";
 import { onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 
-const profilesStore = useProfilesStore();
+const { profilesStore } = useProfilesStore();
 
 const route = useRoute();
 

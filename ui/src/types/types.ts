@@ -5,7 +5,8 @@ import {
   HoloHash,
   SigningCredentials,
 } from "@holochain/client";
-import { RouteLocationNamedRaw } from "vue-router";
+import { QSelectOption } from "quasar";
+import { RouteLocationNamedRaw, RouteLocationRaw } from "vue-router";
 
 export const PROFILE_FIELDS = {
   DISPLAY_NAME: "Display name",
@@ -132,3 +133,8 @@ export interface MewsfeedDnaProperties {
   mew_characters_min?: number;
   mew_characters_max?: number;
 }
+
+export type SearchResultOption = QSelectOption<RouteLocationRaw> & {
+  agentPubKey?: AgentPubKey;
+  resultType: SearchResult;
+};

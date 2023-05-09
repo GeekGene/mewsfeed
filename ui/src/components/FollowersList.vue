@@ -51,7 +51,7 @@ interface Follower {
 
 const props = defineProps<{ agentPubKey: AgentPubKey }>();
 
-const profilesStore = useProfilesStore();
+const { profilesStore } = useProfilesStore();
 
 const loadingFollowers = ref(false);
 const followersOfAgent = ref<Follower[]>([]);
@@ -62,7 +62,7 @@ const loadFollowers = async () => {
     const followerAgentPubKeys = await followers(props.agentPubKey);
     const _followers = await Promise.all(
       followerAgentPubKeys.map((agentPubKey) => {
-        return profilesStore.value.client
+        return profilesStore.value?.client
           .getAgentProfile(agentPubKey)
           .then((profile) => {
             if (!profile) {
