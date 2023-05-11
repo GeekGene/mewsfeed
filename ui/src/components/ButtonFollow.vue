@@ -1,5 +1,5 @@
 <template>
-  <QBtn size="md" color="secondary" @click="toggleFollow">
+  <QBtn size="md" color="secondary" @click="tryToggleFollow">
     <template v-if="isFollowing">
       <div class="q-mr-sm">Unfollow</div>
       <QIcon name="svguse:/icons.svg#cat" />
@@ -13,17 +13,23 @@
       />
     </template>
   </QBtn>
+  <CreateProfileIfNotFoundDialog
+    v-model="showCreateProfileDialog"
+    @profile-created="toggleFollow"
+  />
 </template>
 
 <script setup lang="ts">
-import { follow, following, unfollow } from "@/services/mewsfeed-dna";
 import { PROFILE_FIELDS } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
 import { showError, showMessage } from "@/utils/notification";
-import { useProfilesStore } from "@/stores/profiles";
+import { useMyProfile } from "@/stores/profiles";
 import { AgentPubKey } from "@holochain/client";
-import { onMounted, PropType, ref } from "vue";
-import { QBtn } from "quasar";
+import { ComputedRef, inject, onMounted, PropType, ref } from "vue";
+import { QBtn, QIcon } from "quasar";
+import { ProfilesStore } from "@holochain-open-dev/profiles";
+import { AppAgentClient } from "@holochain/client";
+import CreateProfileIfNotFoundDialog from "./CreateProfileIfNotFoundDialog.vue";
 
 const props = defineProps({
   agentPubKey: {
@@ -31,17 +37,23 @@ const props = defineProps({
     required: true,
   },
 });
-
-const { profilesStore, runWhenMyProfileExists } = useProfilesStore();
+const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
+  .value;
+const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+const { myProfile } = useMyProfile();
 
 const loading = ref(true);
 const isFollowing = ref(false);
+const showCreateProfileDialog = ref(false);
 
 onMounted(async () => {
   try {
-    const currentMyFollowing = await following(
-      profilesStore.value?.client.client.myPubKey
-    );
+    const currentMyFollowing: AgentPubKey[] = await client.callZome({
+      role_name: "mewsfeed",
+      zome_name: "follows",
+      fn_name: "get_creators_for_follower",
+      payload: client.myPubKey,
+    });
     isFollowing.value = currentMyFollowing.some((agent) =>
       isSameHash(agent, props.agentPubKey)
     );
@@ -52,26 +64,45 @@ onMounted(async () => {
   }
 });
 
-const toggleFollow = () => {
-  runWhenMyProfileExists(async () => {
-    try {
-      const [profile] = await Promise.all([
-        profilesStore.value?.client.getAgentProfile(props.agentPubKey),
-        isFollowing.value
-          ? await unfollow(props.agentPubKey)
-          : await follow(props.agentPubKey),
-      ]);
-      isFollowing.value = !isFollowing.value;
-      const name = `${profile?.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
-        profile?.nickname
-      })`;
-      const message = isFollowing.value
-        ? `You're following ${name} now`
-        : `You're not following ${name} anymore`;
-      showMessage(message);
-    } catch (error) {
-      showError(error);
-    }
-  });
+const tryToggleFollow = () => {
+  if (!myProfile.value) {
+    showCreateProfileDialog.value = true;
+    return;
+  }
+
+  toggleFollow();
+};
+
+const toggleFollow = async () => {
+  showCreateProfileDialog.value = false;
+
+  try {
+    const [profile] = await Promise.all([
+      profilesStore.client.getAgentProfile(props.agentPubKey),
+      isFollowing.value
+        ? await client.callZome({
+            role_name: "mewsfeed",
+            zome_name: "follows",
+            fn_name: "unfollow",
+            payload: props.agentPubKey,
+          })
+        : await client.callZome({
+            role_name: "mewsfeed",
+            zome_name: "follows",
+            fn_name: "follow",
+            payload: props.agentPubKey,
+          }),
+    ]);
+    isFollowing.value = !isFollowing.value;
+    const name = `${profile?.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
+      profile?.nickname
+    })`;
+    const message = isFollowing.value
+      ? `You're following ${name} now`
+      : `You're not following ${name} anymore`;
+    showMessage(message);
+  } catch (error) {
+    showError(error);
+  }
 };
 </script>

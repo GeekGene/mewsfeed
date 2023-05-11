@@ -63,7 +63,7 @@
                 color="secondary"
                 flat
               />
-              <QTooltip :delay="TOOLTIP_DELAY">Original Yarn</QTooltip>
+              <QTooltip>Original Yarn</QTooltip>
             </QBtn>
           </div>
         </span>
@@ -71,11 +71,11 @@
         <QSpace />
 
         <span class="q-ml-md text-caption">
-          <timestamp :timestamp="feedMew.action.timestamp" />
+          <MewTimestamp :timestamp="feedMew.action.timestamp" />
         </span>
       </div>
 
-      <mew-content
+      <MewContent
         :feed-mew="originalMew && isMewmew ? originalMew : feedMew"
         class="q-my-sm cursor-pointer"
       />
@@ -86,7 +86,7 @@
             :disable="isUpdatingLick"
             size="sm"
             flat
-            @click.stop.prevent="toggleLickMew"
+            @click.stop.prevent="toggleLickMewIfProfileExists"
           >
             <QIcon
               name="svguse:/icons.svg#lick"
@@ -94,75 +94,108 @@
               class="q-mr-xs"
             />
             {{ feedMew.licks.length }}
-            <QTooltip :delay="TOOLTIP_DELAY">Lick mew</QTooltip>
+            <QTooltip>Lick mew</QTooltip>
           </QBtn>
-          <QBtn size="sm" icon="reply" flat @click.stop.prevent="replyToMew">
+          <QBtn
+            size="sm"
+            icon="reply"
+            flat
+            @click.stop.prevent="showReplyToMewDialog = true"
+          >
             {{ feedMew.replies.length }}
-            <QTooltip :delay="TOOLTIP_DELAY">Reply to mew</QTooltip>
+            <QTooltip>Reply to mew</QTooltip>
           </QBtn>
-          <QBtn size="sm" icon="forward" flat @click.stop.prevent="mewMew">
+          <QBtn
+            size="sm"
+            icon="forward"
+            flat
+            @click.stop.prevent="toggleCreateMewmewIfProfileExists"
+          >
             {{ feedMew.mewmews.length }}
-            <QTooltip :delay="TOOLTIP_DELAY">Mewmew mew</QTooltip>
+            <QTooltip>Mewmew mew</QTooltip>
           </QBtn>
-          <QBtn size="sm" icon="format_quote" flat @click.stop.prevent="quote">
+          <QBtn
+            size="sm"
+            icon="format_quote"
+            flat
+            @click.stop.prevent="showQuoteMewDialog = true"
+          >
             {{ feedMew.quotes.length }}
-            <QTooltip :delay="TOOLTIP_DELAY">Quote mew</QTooltip>
+            <QTooltip>Quote mew</QTooltip>
           </QBtn>
         </div>
       </div>
     </QItemSection>
+    <CreateProfileIfNotFoundDialog v-model="showReplyToMewDialog">
+      <CreateMewForm
+        :mew-type="{ [MewTypeName.Reply]: feedMew.action_hash }"
+        :original-mew="feedMew"
+        :original-author="originalMewAuthor"
+        @publish-mew="
+          emit('publish-mew', { [MewTypeName.Reply]: feedMew.action_hash })
+        "
+      />
+    </CreateProfileIfNotFoundDialog>
+    <CreateProfileIfNotFoundDialog v-model="showQuoteMewDialog">
+      <CreateMewForm
+        :mew-type="{ [MewTypeName.Quote]: feedMew.action_hash }"
+        :original-mew="feedMew"
+        :original-author="originalMewAuthor"
+        @publish-mew="
+          emit('publish-mew', { [MewTypeName.Quote]: feedMew.action_hash })
+        "
+      />
+    </CreateProfileIfNotFoundDialog>
+    <CreateProfileIfNotFoundDialog
+      v-model="showToggleLickMewDialog"
+      @profile-created="toggleLickMew"
+    />
+    <CreateProfileIfNotFoundDialog
+      v-model="showCreateMewmewDialog"
+      @profile-created="createMewmew"
+    />
   </QItem>
 </template>
 
 <script setup lang="ts">
-import { QItemSection, QSkeleton, QBtn, QIcon, QTooltip } from "quasar";
+import { QItemSection, QSkeleton, QBtn, QIcon, QTooltip, QSpace } from "quasar";
 import { ROUTES } from "@/router";
-import {
-  createMew,
-  getFeedMewAndContext,
-  lickMew,
-  unlickMew,
-} from "@/services/mewsfeed-dna";
-import {
-  Mew,
-  FeedMew,
-  MewType,
-  MewTypeName,
-  PROFILE_FIELDS,
-  TOOLTIP_DELAY,
-} from "@/types/types";
-import { Profile } from "@holochain-open-dev/profiles";
+import { Mew, FeedMew, MewTypeName, PROFILE_FIELDS } from "@/types/types";
+import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
 import { ActionHash, encodeHashToBase64 } from "@holochain/client";
-import { QItem, useQuasar } from "quasar";
-import { computed, onMounted, PropType, ref } from "vue";
+import { QItem } from "quasar";
+import { computed, ComputedRef, inject, onMounted, ref } from "vue";
 import ProfileAvatarWithPopup from "./ProfileAvatarWithPopup.vue";
-import CreateMewDialog from "./CreateMewDialog.vue";
+import CreateMewForm from "./CreateMewForm.vue";
 import MewContent from "./MewContent.vue";
-import Timestamp from "./MewTimestamp.vue";
-import { useProfilesStore } from "@/stores/profiles";
 import { isSameHash } from "@/utils/hash";
 import { AgentPubKey } from "@holochain/client";
 import { useRouter } from "vue-router";
+import { useMyProfile } from "@/stores/profiles";
+import { AppAgentClient } from "@holochain/client";
+import MewTimestamp from "./MewTimestamp.vue";
+import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
 
-const props = defineProps({
-  feedMew: { type: Object as PropType<FeedMew>, required: true },
-  onToggleLickMew: {
-    type: Function as PropType<(hash: ActionHash) => Promise<void>>,
-    required: true,
-  },
-  onPublishMew: {
-    type: Function as PropType<(mew_type: MewType) => Promise<void>>,
-    required: true,
-  },
-  showYarnLink: {
-    type: Boolean,
-    default: true,
-  },
-});
+const props = withDefaults(
+  defineProps<{
+    feedMew: FeedMew;
+    showYarnLink?: boolean;
+  }>(),
+  {
+    showYarnLink: true,
+  }
+);
+const emit = defineEmits(["publish-mew", "toggle-lick-mew"]);
 const router = useRouter();
-const $q = useQuasar();
-const { profilesStore, runWhenMyProfileExists } = useProfilesStore();
+const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
+  .value;
+const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+const { myProfile } = useMyProfile();
 const agentProfile = ref<Profile>();
+const showReplyToMewDialog = ref(false);
+const showQuoteMewDialog = ref(false);
+const showToggleLickMewDialog = ref(false);
+const showCreateMewmewDialog = ref(false);
 
 const originalMewHash =
   MewTypeName.Mewmew in props.feedMew.mew.mew_type
@@ -190,12 +223,12 @@ const reactionLabel = computed(() =>
 );
 const isLickedByMe = computed(() =>
   props.feedMew.licks.some((lick) =>
-    isSameHash(lick, profilesStore.value?.client.client.myPubKey as AgentPubKey)
+    isSameHash(lick, client.myPubKey as AgentPubKey)
   )
 );
 
 onMounted(async () => {
-  agentProfile.value = await profilesStore.value?.client.getAgentProfile(
+  agentProfile.value = await profilesStore.client.getAgentProfile(
     props.feedMew.action.author
   );
 
@@ -203,11 +236,18 @@ onMounted(async () => {
 });
 
 const loadOriginalMew = async (actionHash: ActionHash) => {
-  originalMew.value = await getFeedMewAndContext(actionHash);
+  originalMew.value = await client.callZome({
+    role_name: "mewsfeed",
+    zome_name: "mews",
+    fn_name: "get_mew_with_context",
+    payload: actionHash,
+  });
+
+  if (!originalMew.value) return;
 
   // load original mew author
   loadingOriginalMewAuthor.value = true;
-  originalMewAuthor.value = await profilesStore.value?.client.getAgentProfile(
+  originalMewAuthor.value = await profilesStore.client.getAgentProfile(
     originalMew.value.action.author
   );
   loadingOriginalMewAuthor.value = false;
@@ -220,57 +260,62 @@ const navigateToYarn = (actionHash: ActionHash) => {
   });
 };
 
+const toggleLickMewIfProfileExists = () => {
+  if (!myProfile.value) {
+    showToggleLickMewDialog.value = true;
+    return;
+  }
+
+  toggleLickMew();
+};
+
 const toggleLickMew = async () => {
-  runWhenMyProfileExists(async () => {
-    isUpdatingLick.value = true;
-    if (isLickedByMe.value) {
-      await unlickMew(props.feedMew.action_hash);
-    } else {
-      await lickMew(props.feedMew.action_hash);
-    }
-    await props.onToggleLickMew(props.feedMew.action_hash);
-    isUpdatingLick.value = false;
-  });
-};
+  showToggleLickMewDialog.value = false;
 
-const replyToMew = () => {
-  runWhenMyProfileExists(() => {
-    $q.dialog({
-      component: CreateMewDialog,
-      componentProps: {
-        mewType: { [MewTypeName.Reply]: props.feedMew.action_hash },
-        onPublishMew: props.onPublishMew,
-        originalMew: props.feedMew,
-        originalAuthor: agentProfile.value,
-      },
+  isUpdatingLick.value = true;
+  if (isLickedByMe.value) {
+    await client.callZome({
+      role_name: "mewsfeed",
+      zome_name: "likes",
+      fn_name: "unlike",
+      payload: props.feedMew.action_hash,
     });
-  });
-};
-
-const mewMew = async () => {
-  runWhenMyProfileExists(async () => {
-    const mew_type = { [MewTypeName.Mewmew]: props.feedMew.action_hash };
-    const mew: Mew = {
-      mew_type,
-      text: "",
-      links: [],
-    };
-    await createMew(mew);
-    props.onPublishMew(mew_type);
-  });
-};
-
-const quote = () => {
-  runWhenMyProfileExists(() => {
-    $q.dialog({
-      component: CreateMewDialog,
-      componentProps: {
-        mewType: { [MewTypeName.Quote]: props.feedMew.action_hash },
-        onPublishMew: props.onPublishMew,
-        originalMew: props.feedMew,
-        originalAuthor: agentProfile.value,
-      },
+  } else {
+    await client.callZome({
+      role_name: "mewsfeed",
+      zome_name: "likes",
+      fn_name: "like",
+      payload: props.feedMew.action_hash,
     });
+  }
+  emit("toggle-lick-mew", props.feedMew.action_hash);
+  isUpdatingLick.value = false;
+};
+
+const toggleCreateMewmewIfProfileExists = () => {
+  if (!myProfile.value) {
+    showCreateMewmewDialog.value = true;
+    return;
+  }
+
+  createMewmew();
+};
+
+const createMewmew = async () => {
+  showCreateMewmewDialog.value = false;
+
+  const mew_type = { [MewTypeName.Mewmew]: props.feedMew.action_hash };
+  const mew: Mew = {
+    mew_type,
+    text: "",
+    links: [],
+  };
+  await client.callZome({
+    role_name: "mewsfeed",
+    zome_name: "mews",
+    fn_name: "create_mew",
+    payload: mew,
   });
+  emit("publish-mew", mew_type);
 };
 </script>

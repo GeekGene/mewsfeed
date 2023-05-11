@@ -50,8 +50,8 @@
         v-else
         :is-loading="loadingMews"
         :mews="mews"
-        :on-toggle-lick-mew="onToggleLickMew"
-        :on-publish-mew="onPublishMew"
+        @toggle-lick-mew="onToggleLickMew"
+        @publish-mew="onPublishMew"
       />
     </div>
 
@@ -88,13 +88,6 @@ import ButtonFollow from "@/components/ButtonFollow.vue";
 import EmptyMewsFeed from "@/components/EmptyMewsFeed.vue";
 import FolloweesList from "@/components/FolloweesList.vue";
 import FollowersList from "@/components/FollowersList.vue";
-import {
-  followers,
-  following,
-  getFeedMewAndContext,
-  mewsBy,
-} from "@/services/mewsfeed-dna";
-import { useProfilesStore } from "@/stores/profiles";
 import { FeedMew, MewType, MewTypeName, PROFILE_FIELDS } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
 import { showError, showMessage } from "@/utils/notification";
@@ -103,15 +96,19 @@ import { PATH, ROUTES } from "@/router";
 import { TAG_SYMBOLS } from "@/utils/tags";
 import {
   ActionHash,
+  AgentPubKey,
   decodeHashFromBase64,
   encodeHashToBase64,
 } from "@holochain/client";
-import { Profile } from "@holochain-open-dev/profiles";
-import { computed, onMounted, ref, watch } from "vue";
+import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
+import { ComputedRef, computed, inject, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import MewList from "../components/MewList.vue";
+import { AppAgentClient } from "@holochain/client";
 
-const { profilesStore } = useProfilesStore();
+const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
+  .value;
+const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const route = useRoute();
 const router = useRouter();
 const agentPubKey = computed(() =>
@@ -120,20 +117,22 @@ const agentPubKey = computed(() =>
 const loadingMews = ref(false);
 const loadingProfile = ref(false);
 const profile = ref<Profile>();
-const isFollowing = ref(false);
+const isFollowingMe = ref(false);
 const mews = ref<FeedMew[]>([]);
 
 const isMyProfile = computed(() =>
-  isSameHash(
-    agentPubKey.value,
-    profilesStore.value?.client.client.myPubKey as AgentPubKey
-  )
+  isSameHash(agentPubKey.value, client.myPubKey as AgentPubKey)
 );
 
 const loadMews = async () => {
   try {
     loadingMews.value = true;
-    mews.value = await mewsBy(agentPubKey.value);
+    mews.value = await client.callZome({
+      role_name: "mewsfeed",
+      zome_name: "mews",
+      fn_name: "get_agent_mews_with_context",
+      payload: agentPubKey.value,
+    });
   } catch (error) {
     showError(error);
   } finally {
@@ -144,16 +143,20 @@ const loadMews = async () => {
 const loadProfile = async () => {
   try {
     loadingProfile.value = true;
-    const [profileData, myFollowing, myFollowers] = await Promise.all([
-      profilesStore.value?.client.getAgentProfile(agentPubKey.value),
-      following(agentPubKey.value),
-      followers(agentPubKey.value),
+    const [profileData, agentFollowing] = await Promise.all([
+      profilesStore.client.getAgentProfile(agentPubKey.value),
+      client.callZome({
+        role_name: "mewsfeed",
+        zome_name: "follows",
+        fn_name: "get_creators_for_follower",
+        payload: agentPubKey.value,
+      }),
     ]);
 
     if (profileData) {
       profile.value = profileData;
     }
-    isFollowing.value = myFollowing.includes(agentPubKey.value);
+    isFollowingMe.value = agentFollowing.includes(client.myPubKey);
   } catch (error) {
     showError(error);
   } finally {
@@ -183,7 +186,12 @@ const onToggleLickMew = async (hash: ActionHash) => {
       isSameHash(hash, mew.action_hash)
     );
     if (index !== -1) {
-      mews.value[index] = await getFeedMewAndContext(hash);
+      mews.value[index] = await client.callZome({
+        role_name: "mewsfeed",
+        zome_name: "mews",
+        fn_name: "get_mew_with_context",
+        payload: hash,
+      });
     }
   } catch (error) {
     showError(error);

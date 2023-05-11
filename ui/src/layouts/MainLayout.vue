@@ -5,94 +5,20 @@
         <QTabs v-model="tab" dense inline-label class="col-grow">
           <QRouteTab :to="{ name: ROUTES.home }">
             <QIcon name="svguse:/icons.svg#cat" size="lg" />
-            <QTooltip :delay="TOOLTIP_DELAY">Den</QTooltip>
+            <QTooltip>Den</QTooltip>
           </QRouteTab>
 
           <QBtn
             icon="add"
             color="secondary"
             class="q-mx-md"
-            @click="onAddMewClick"
+            @click="showCreateMewDialog = true"
           >
             Mew
-            <QTooltip :delay="TOOLTIP_DELAY">Create a mew</QTooltip>
+            <QTooltip>Create a mew</QTooltip>
           </QBtn>
-          <QSelect
-            v-model="selection"
-            :options="options"
-            :loading="searching"
-            input-debounce="0"
-            label="Sniff around"
-            label-color="white"
-            filled
-            behavior="menu"
-            standout
-            use-input
-            hide-dropdown-icon
-            hide-selected
-            dark
-            class="col q-mx-md"
-            :options-dark="false"
-            @filter="search"
-            @update:model-value="onSearchResultSelect"
-          >
-            <template #prepend>
-              <QIcon name="search" color="white" />
-            </template>
-            <template #option="item">
-              <profiles-context
-                v-if="item.opt.resultType === SearchResult.Agent"
-                :store="profilesStore"
-              >
-                <QItem clickable v-bind="item.itemProps" dense class="q-py-sm">
-                  <QItemSection avatar>
-                    <agent-avatar
-                      :agentPubKey="item.opt.agentPubKey"
-                      disable-tooltip
-                      disable-copy
-                      size="40"
-                    ></agent-avatar>
-                  </QItemSection>
-                  <QItemSection class="text-body2">
-                    {{ item.opt.label }}
-                  </QItemSection>
-                </QItem>
-              </profiles-context>
-              <QItem
-                v-else-if="item.opt.resultType === SearchResult.Hashtag"
-                clickable
-                v-bind="item.itemProps"
-                dense
-                class="q-py-sm"
-              >
-                <QItemSection class="text-body2">
-                  {{ item.opt.label }}
-                </QItemSection>
-              </QItem>
-              <QItem
-                v-else-if="item.opt.resultType === SearchResult.Cashtag"
-                clickable
-                v-bind="item.itemProps"
-                dense
-                class="q-py-sm"
-              >
-                <QItemSection class="text-body2">
-                  {{ item.opt.label }}
-                </QItemSection>
-              </QItem>
-            </template>
-            <template #no-option>
-              <QItem>
-                <QItemSection>
-                  {{
-                    searchTerm.length < 3
-                      ? "Minimum 3 characters required"
-                      : "Nothing found, Kitty"
-                  }}
-                </QItemSection>
-              </QItem>
-            </template>
-          </QSelect>
+
+          <SearchEverythingInput />
 
           <QRouteTab
             :to="{ name: ROUTES.feed }"
@@ -100,14 +26,17 @@
             label="Mews Feed"
           />
 
-          <QRouteTab v-if="myProfile" :to="{ name: ROUTES.myProfile }">
+          <QRouteTab
+            v-if="myProfile && client"
+            :to="{ name: ROUTES.myProfile }"
+          >
             <agent-avatar
-              :agentPubKey="clientStore.agentKey"
+              :agentPubKey="client.myPubKey"
               size="40"
               disable-tooltip
               disable-copy
             />
-            <QTooltip :delay="TOOLTIP_DELAY">Your profile</QTooltip>
+            <QTooltip>Your profile</QTooltip>
           </QRouteTab>
         </QTabs>
       </QToolbar>
@@ -118,142 +47,63 @@
       <RouterView class="col-12 col-md-6 col-xl-5" />
       <QSpace />
     </QPageContainer>
+
+    <CreateProfileIfNotFoundDialog v-model="showCreateMewDialog">
+      <CreateMewForm
+        :mew-type="{ [MewTypeName.Original]: null }"
+        :profiles-store="profilesStore"
+        :mew-length-min="dnaProperties.mew_characters_min"
+        :mew-length-max="dnaProperties.mew_characters_max"
+        @publish-mew="onPublishMew"
+      />
+    </CreateProfileIfNotFoundDialog>
   </QLayout>
 </template>
 
 <script setup lang="ts">
-import CreateMewDialog from "@/components/CreateMewDialog.vue";
-import { PATH, ROUTES } from "@/router";
-import { searchTags } from "@/services/mewsfeed-dna";
+import CreateMewForm from "@/components/CreateMewForm.vue";
+import { ROUTES } from "@/router";
 import { useMewsfeedStore } from "@/stores/mewsfeed";
-import { MewTypeName, TOOLTIP_DELAY, SearchResult } from "@/types/types";
-import { showError } from "@/utils/notification";
-import { encodeHashToBase64 } from "@holochain/client";
+import { MewTypeName, MewsfeedDnaProperties } from "@/types/types";
+import { AppAgentClient } from "@holochain/client";
 import {
-  QSelectOption,
   QPageContainer,
   QSpace,
   QRouteTab,
   QTabs,
-  QItem,
-  QItemSection,
   QBtn,
   QLayout,
   QHeader,
   QToolbar,
   QTooltip,
-  QSelect,
-  useQuasar,
   QIcon,
 } from "quasar";
-import { inject, ref, toRaw } from "vue";
+import { ComputedRef, inject, ref } from "vue";
 import { useRouter } from "vue-router";
-import { isHashtag, TAG_SYMBOLS } from "@/utils/tags";
-import { SearchResultOption } from "@/types/types";
-import { ClientStore } from "@/stores/client";
-import { useProfilesStore } from "@/stores/profiles";
+import { useMyProfile } from "../stores/profiles";
+import { ProfilesStore } from "@holochain-open-dev/profiles";
+import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
+import SearchEverythingInput from "@/components/SearchEverythingInput.vue";
 
-const clientStore = inject("clientStore") as ClientStore;
-const { myProfile, runWhenMyProfileExists, profilesStore, searchProfiles } =
-  useProfilesStore();
+const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+const dnaProperties = (
+  inject("dnaProperties") as ComputedRef<MewsfeedDnaProperties>
+).value;
+const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
+  .value;
+const { myProfile } = useMyProfile();
 const mewsfeedStore = useMewsfeedStore();
 
-const $q = useQuasar();
 const router = useRouter();
 const tab = ref("");
-
-const searching = ref(false);
-const options = ref<SearchResultOption[]>([]);
-const selection = ref<QSelectOption | null>(null);
-const searchTerm = ref("");
+const showCreateMewDialog = ref(false);
 
 const onPublishMew = () => {
+  showCreateMewDialog.value = false;
   if (router.currentRoute.value.name === ROUTES.feed) {
-    mewsfeedStore.fetchMewsFeed();
+    mewsfeedStore.fetchMewsFeed(client);
   } else {
     router.push({ name: ROUTES.feed });
   }
-};
-
-const onAddMewClick = () => {
-  runWhenMyProfileExists(() =>
-    $q.dialog({
-      component: CreateMewDialog,
-      componentProps: {
-        mewType: { [MewTypeName.Original]: null },
-        onPublishMew,
-      },
-    })
-  );
-};
-
-const search = (
-  inputValue: string,
-  updateFn: (callbackFn: () => void, afterFn?: () => void) => void
-) => {
-  searchTerm.value = inputValue;
-  updateFn(async () => {
-    // Remove leading '@', '#', or '$' character from search query
-    inputValue = inputValue.replace(/^[@#$]/, "");
-
-    if (inputValue === "" || inputValue.length < 3) {
-      options.value = [];
-    } else {
-      try {
-        searching.value = true;
-
-        const [profiles, tags] = await Promise.all([
-          searchProfiles(inputValue),
-          searchTags(inputValue),
-        ]);
-
-        const profileOptions: SearchResultOption[] = profiles.map(
-          ([agentPubKey, profile]) => ({
-            resultType: SearchResult.Agent,
-            agentPubKey,
-            value: {
-              name: ROUTES.profiles,
-              params: { agent: encodeHashToBase64(agentPubKey) },
-            },
-            label: `${profile.fields["Display Name"]} (@${profile.nickname})`,
-          })
-        );
-
-        options.value = [
-          ...profileOptions,
-          ...tags.map((tag) => {
-            if (isHashtag(tag)) {
-              return {
-                resultType: SearchResult.Hashtag,
-                value: {
-                  name: ROUTES[PATH[TAG_SYMBOLS.HASHTAG]],
-                  params: { tag: tag.replace("#", "") },
-                },
-                label: tag,
-              };
-            } else {
-              return {
-                resultType: SearchResult.Cashtag,
-                value: {
-                  name: ROUTES[PATH[TAG_SYMBOLS.CASHTAG]],
-                  params: { tag: tag.replace("$", "") },
-                },
-                label: tag,
-              };
-            }
-          }),
-        ];
-      } catch (error) {
-        showError(error);
-      } finally {
-        searching.value = false;
-      }
-    }
-  });
-};
-
-const onSearchResultSelect = (option: QSelectOption) => {
-  router.push(toRaw(option.value));
-  selection.value = null;
 };
 </script>

@@ -19,9 +19,9 @@
             <MewListItem
               v-else
               :feed-mew="mew"
-              :on-publish-mew="onPublishMew"
-              :on-toggle-lick-mew="onToggleLickMew"
               class="q-mb-md bg-orange-1"
+              @publish-mew="onPublishMew"
+              @toggle-lick-mew="onToggleLickMew"
             />
 
             <QItem class="q-mb-md q-px-none">
@@ -45,9 +45,9 @@
               v-for="(reply, i) of replies"
               :key="i"
               :feed-mew="reply"
-              :on-publish-mew="onPublishMew"
-              :on-toggle-lick-mew="onToggleLickMew"
               :show-yarn-link="false"
+              @publish-mew="onPublishMew"
+              @toggle-lick-mew="onToggleLickMew"
             />
           </QList>
         </profiles-context>
@@ -63,18 +63,19 @@ import MewListItemSkeleton from "@/components/MewListItemSkeleton.vue";
 import MewListSkeleton from "@/components/MewListSkeleton.vue";
 import MewListItem from "@/components/MewListItem.vue";
 import { ROUTES } from "@/router";
-import { getFeedMewAndContext } from "@/services/mewsfeed-dna";
-import { useProfilesStore } from "@/stores/profiles";
 import { FeedMew, MewTypeName } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
 import { showError } from "@/utils/notification";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { ActionHash, decodeHashFromBase64 } from "@holochain/client";
-import { onMounted, ref, watch } from "vue";
+import { ComputedRef, inject, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
+import { ProfilesStore } from "@holochain-open-dev/profiles";
+import { AppAgentClient } from "@holochain/client/lib/api/app-agent/types";
 
-const { profilesStore } = useProfilesStore();
-
+const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
+  .value;
+const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const route = useRoute();
 
 const mew = ref<FeedMew>();
@@ -83,7 +84,12 @@ const replies = ref<FeedMew[]>([]);
 const isLoadingReplies = ref(false);
 
 const onToggleLickMew = async (mewHash: ActionHash) => {
-  const feedMew = await getFeedMewAndContext(mewHash);
+  const feedMew = await client.callZome({
+    role_name: "mewsfeed",
+    zome_name: "mews",
+    fn_name: "get_mew_with_context",
+    payload: mewHash,
+  });
   const replyIndex = replies.value.findIndex((r) =>
     isSameHash(r.action_hash, mewHash)
   );
@@ -98,7 +104,12 @@ const loadMew = async () => {
   const mewHash = decodeHashFromBase64(route.params.hash as string);
   try {
     isLoadingMew.value = true;
-    mew.value = await getFeedMewAndContext(mewHash);
+    mew.value = await client.callZome({
+      role_name: "mewsfeed",
+      zome_name: "mews",
+      fn_name: "get_mew_with_context",
+      payload: mewHash,
+    });
   } catch (error) {
     showError(error);
   } finally {
@@ -114,7 +125,14 @@ const loadReplies = async () => {
       return;
     }
     replies.value = await Promise.all(
-      replyHashes.map((replyHash) => getFeedMewAndContext(replyHash))
+      replyHashes.map((replyHash) =>
+        client.callZome({
+          role_name: "mewsfeed",
+          zome_name: "mews",
+          fn_name: "get_mew_with_context",
+          payload: replyHash,
+        })
+      )
     );
   } catch (error) {
     showError(error);

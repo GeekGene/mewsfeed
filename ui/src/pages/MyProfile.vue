@@ -11,9 +11,9 @@
 
       <div class="follow-col col self-start">
         <h6 class="q-mt-none q-mb-md">Following</h6>
-        <FolloweesList :agentPubKey="clientStore.agentKey" />
+        <FolloweesList :agentPubKey="client.myPubKey" />
         <h6 class="q-mb-md">Followed by</h6>
-        <FollowersList :agentPubKey="clientStore.agentKey" />
+        <FollowersList :agentPubKey="client.myPubKey" />
         <h6 class="q-mb-md">
           <QBtn
             v-if="myProfile"
@@ -24,7 +24,7 @@
                 name: ROUTES[PATH[TAG_SYMBOLS.MENTION]],
                 params: {
                   tag: myProfile.nickname,
-                  agentPubKey: encodeHashToBase64(clientStore.agentKey),
+                  agentPubKey: encodeHashToBase64(client.myPubKey),
                 },
               })
             "
@@ -42,17 +42,17 @@ import { QPage, QCard, QSpace, QBtn } from "quasar";
 import FolloweesList from "@/components/FolloweesList.vue";
 import FollowersList from "@/components/FollowersList.vue";
 import { pageHeightCorrection } from "@/utils/page-layout";
-import { useProfilesStore } from "@/stores/profiles";
 import { encodeHashToBase64 } from "@holochain/client";
 import { PATH, ROUTES } from "@/router";
 import { TAG_SYMBOLS } from "@/utils/tags";
 import { useRouter } from "vue-router";
-import { ClientStore } from "@/stores/client";
-import { inject } from "vue";
+import { ComputedRef, inject } from "vue";
+import { AppAgentClient } from "@holochain/client";
+import { useMyProfile } from "@/stores/profiles";
 
 const router = useRouter();
-const { myProfile } = useProfilesStore();
-const clientStore = inject<ClientStore>("clientStore");
+const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+const { myProfile } = useMyProfile();
 </script>
 
 <style lang="sass">

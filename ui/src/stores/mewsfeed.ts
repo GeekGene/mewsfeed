@@ -1,8 +1,7 @@
-import { getFeedMewAndContext, mewsFeed } from "@/services/mewsfeed-dna";
 import { FeedMew } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
 import { showError } from "@/utils/notification";
-import { ActionHash } from "@holochain/client";
+import { ActionHash, AppAgentClient } from "@holochain/client";
 import { defineStore, Store } from "pinia";
 
 export const useMewsfeedStore = defineStore("mewsfeed", {
@@ -11,23 +10,33 @@ export const useMewsfeedStore = defineStore("mewsfeed", {
     isLoadingMewsFeed: false,
   }),
   actions: {
-    async fetchMewsFeed() {
+    async fetchMewsFeed(client: AppAgentClient) {
       try {
         this.isLoadingMewsFeed = true;
-        this.mewsFeed = await mewsFeed();
+        this.mewsFeed = await client.callZome({
+          role_name: "mewsfeed",
+          zome_name: "mews",
+          fn_name: "get_my_followed_creators_mews_with_context",
+          payload: null,
+        });
       } catch (error) {
         showError(error);
       } finally {
         this.isLoadingMewsFeed = false;
       }
     },
-    async reloadMew(actionHash: ActionHash) {
+    async reloadMew(client: AppAgentClient, actionHash: ActionHash) {
       try {
         const index = this.mewsFeed.findIndex((mew) =>
           isSameHash(actionHash, mew.action_hash)
         );
         if (index !== -1) {
-          this.mewsFeed[index] = await getFeedMewAndContext(actionHash);
+          this.mewsFeed[index] = await client.callZome({
+            role_name: "mewsfeed",
+            zome_name: "mews",
+            fn_name: "get_mew_with_context",
+            payload: actionHash,
+          });
         }
       } catch (error) {
         showError(error);
@@ -41,7 +50,7 @@ export type MewsfeedStore = Store<
   {
     mewsFeed: FeedMew[];
     isLoadingMewsFeed: boolean;
-    fetchMewsFeed(): Promise<void>;
-    reloadMew(actionHash: ActionHash): Promise<void>;
+    fetchMewsFeed(client: AppAgentClient): Promise<void>;
+    reloadMew(client: AppAgentClient, actionHash: ActionHash): Promise<void>;
   }
 >;

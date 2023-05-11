@@ -1,11 +1,10 @@
 <template>
-  <QDialog ref="dialogRef" @hide="onDialogHide">
+  <QDialog>
     <QCard>
       <create-profile
         v-if="profilesStore"
         :store="profilesStore"
-        class="q-pa-sm"
-        @profile-created="(data: any) => onDialogOK(data.detail.profile)"
+        @profile-created="$emit('profile-created')"
       ></create-profile>
     </QCard>
   </QDialog>
@@ -13,10 +12,9 @@
 
 <script setup lang="ts">
 import { QDialog, QCard } from "quasar";
-import { useProfilesStore } from "@/stores/profiles";
-import { useDialogPluginComponent } from "quasar";
-const { profilesStore } = useProfilesStore();
-const { dialogRef, onDialogOK, onDialogHide } = useDialogPluginComponent();
-
-defineEmits([...useDialogPluginComponent.emits]);
+import { ProfilesStore } from "@holochain-open-dev/profiles";
+defineEmits(["profile-created"]);
+defineProps<{
+  profilesStore: ProfilesStore;
+}>();
 </script>

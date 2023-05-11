@@ -7,32 +7,30 @@
     <MewList
       :mews="mews"
       :is-loading="isLoading"
-      :on-toggle-lick-mew="onToggleLickMew"
-      :on-publish-mew="onPublishmew"
+      @toggle-lick-mew="onToggleLickMew"
+      @publish-mew="onPublishmew"
     />
   </QPage>
 </template>
 
 <script setup lang="ts">
 import { QPage } from "quasar";
-import {
-  getFeedMewAndContext,
-  getMewsWithCashtag,
-  getMewsWithHashtag,
-  getMewsWithMention,
-} from "@/services/mewsfeed-dna";
 import { FeedMew, MewType, MewTypeName } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
 import { showError, showMessage } from "@/utils/notification";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { TAG_SYMBOLS } from "@/utils/tags";
-import { ActionHash, decodeHashFromBase64 } from "@holochain/client";
-import { onMounted, ref, watch } from "vue";
+import {
+  ActionHash,
+  AppAgentClient,
+  decodeHashFromBase64,
+} from "@holochain/client";
+import { ComputedRef, inject, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import MewList from "../components/MewList.vue";
 
 const route = useRoute();
-
+const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const mews = ref<FeedMew[]>([]);
 const isLoading = ref(false);
 
@@ -40,17 +38,26 @@ const loadMewsFeed = async () => {
   try {
     isLoading.value = true;
     if (route.meta.tag === TAG_SYMBOLS.CASHTAG) {
-      mews.value = await getMewsWithCashtag(
-        `${route.meta.tag}${route.params.tag}`
-      );
+      mews.value = await client.callZome({
+        role_name: "mewsfeed",
+        zome_name: "mews",
+        fn_name: "get_mews_for_cashtag_with_context",
+        payload: `${route.meta.tag}${route.params.tag}`,
+      });
     } else if (route.meta.tag === TAG_SYMBOLS.HASHTAG) {
-      mews.value = await getMewsWithHashtag(
-        `${route.meta.tag}${route.params.tag}`
-      );
+      mews.value = await client.callZome({
+        role_name: "mewsfeed",
+        zome_name: "mews",
+        fn_name: "get_mews_for_ashtag_with_context",
+        payload: `${route.meta.tag}${route.params.tag}`,
+      });
     } else if (route.meta.tag === TAG_SYMBOLS.MENTION) {
-      mews.value = await getMewsWithMention(
-        decodeHashFromBase64(route.params.agentPubKey as string)
-      );
+      mews.value = await client.callZome({
+        role_name: "mewsfeed",
+        zome_name: "mews",
+        fn_name: "get_mews_for_mention_with_context",
+        payload: decodeHashFromBase64(route.params.agentPubKey as string),
+      });
     }
   } catch (error) {
     showError(error);
@@ -70,7 +77,12 @@ const onToggleLickMew = async (hash: ActionHash) => {
       isSameHash(hash, mew.action_hash)
     );
     if (index !== -1) {
-      mews.value[index] = await getFeedMewAndContext(hash);
+      mews.value[index] = await client.callZome({
+        role_name: "mewsfeed",
+        zome_name: "mews",
+        fn_name: "get_mew_with_context",
+        payload: hash,
+      });
     }
   } catch (error) {
     showError(error);
