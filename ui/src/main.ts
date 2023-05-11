@@ -3,13 +3,11 @@ import "@holochain-open-dev/profiles/dist/elements/my-profile.js";
 import "@holochain-open-dev/profiles/dist/elements/profiles-context.js";
 import "@holochain-open-dev/profiles/dist/elements/create-profile.js";
 import "@holochain-open-dev/elements/dist/elements/holo-identicon.js";
-
 import "@/css/main.sass";
-
-import "@quasar/extras/material-icons/material-icons.css";
+import "material-icons/iconfont/material-icons.css";
+import "quasar/src/css/index.sass";
 import { createPinia } from "pinia";
 import { Dialog, Notify, Quasar } from "quasar";
-import "quasar/src/css/index.sass";
 import { createApp } from "vue";
 import App from "./App.vue";
 import { router } from "./router";
