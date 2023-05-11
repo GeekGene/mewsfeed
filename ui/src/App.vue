@@ -32,6 +32,7 @@ import WebSdkApi from "@holo-host/web-sdk";
 import { decode } from "@msgpack/msgpack";
 import { MewsfeedDnaProperties } from "./types/types";
 import asyncRetry from "async-retry";
+import { CellType } from "@holochain/client";
 
 const client = ref<AppAgentClient | WebSdkApi>();
 const appInfo = ref<AppInfo>();
@@ -41,7 +42,8 @@ const loading = ref<boolean>(true);
 const dnaProperties = computed(() =>
   appInfo.value
     ? (decode(
-        appInfo.value.cell_info.mewsfeed[0].provisioned.dna_modifiers.properties
+        appInfo.value.cell_info.mewsfeed[0][CellType.Provisioned].dna_modifiers
+          .properties
       ) as MewsfeedDnaProperties)
     : {}
 );
