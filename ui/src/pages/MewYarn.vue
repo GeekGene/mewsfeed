@@ -71,7 +71,7 @@ import { ActionHash, decodeHashFromBase64 } from "@holochain/client";
 import { ComputedRef, inject, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
-import { AppAgentClient } from "@holochain/client/lib/api/app-agent/types";
+import { AppAgentClient } from "@holochain/client";
 
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;

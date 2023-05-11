@@ -207,7 +207,7 @@ const showCreateProfileDialog = ref(false);
 const isMewEmpty = computed(() => mewContentLength.value === 0);
 const isMewFull = computed(
   () =>
-    dnaProperties.mew_characters_min &&
+    dnaProperties.mew_characters_min !== undefined &&
     mewContentLength.value === dnaProperties.mew_characters_max
 );
 const isMewRequireTruncation = computed(
@@ -215,12 +215,12 @@ const isMewRequireTruncation = computed(
 );
 const isMewOverfull = computed(
   () =>
-    dnaProperties.mew_characters_max &&
+    dnaProperties.mew_characters_max !== undefined &&
     mewContentLength.value > dnaProperties.mew_characters_max
 );
 const isMewUnderfull = computed(
   () =>
-    dnaProperties.mew_characters_min &&
+    dnaProperties.mew_characters_min !== undefined &&
     mewContentLength.value < dnaProperties.mew_characters_min
 );
 

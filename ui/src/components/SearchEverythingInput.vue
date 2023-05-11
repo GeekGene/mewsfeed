@@ -143,7 +143,7 @@ const search = (
 
         options.value = [
           ...profileOptions,
-          ...tags.map((tag) => {
+          ...tags.map((tag: string) => {
             if (isHashtag(tag)) {
               return {
                 resultType: SearchResult.Hashtag,

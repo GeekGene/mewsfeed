@@ -25,7 +25,10 @@
     </QCardSection>
 
     <QCardSection
-      v-if="MewTypeName.Reply in mewType || MewTypeName.Quote in mewType"
+      v-if="
+        (MewTypeName.Reply in mewType || MewTypeName.Quote in mewType) &&
+        originalMew
+      "
     >
       <div class="q-mb-md text-subtitle1 text-grey-7">
         <MewContent :feed-mew="originalMew" />

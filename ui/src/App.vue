@@ -42,6 +42,8 @@ const loading = ref<boolean>(true);
 const dnaProperties = computed(() =>
   appInfo.value
     ? (decode(
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         appInfo.value.cell_info.mewsfeed[0][CellType.Provisioned].dna_modifiers
           .properties
       ) as MewsfeedDnaProperties)
