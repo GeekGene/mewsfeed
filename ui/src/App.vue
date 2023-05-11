@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="!clientStore.isReady || !profilesStore || !isReady"
+    v-if="loading"
     class="row justify-center items-center"
     style="height: 100%"
   >
@@ -8,7 +8,7 @@
   </div>
   <template v-else>
     <HoloLogin v-if="IS_HOLO_HOSTED">
-      <profiles-context v-if="profilesStore" :store="profilesStore">
+      <profiles-context :store="profilesStore">
         <MainLayout />
       </profiles-context>
     </HoloLogin>
@@ -20,19 +20,58 @@
 </template>
 
 <script setup lang="ts">
-import { provide } from "vue";
-import { useClientStore, ClientStore, IS_HOLO_HOSTED } from "./stores/client";
+import { computed, onMounted, provide, ref, toRaw } from "vue";
+import { IS_HOLO_HOSTED, setupHolo, setupHolochain } from "./stores/client";
 import HoloLogin from "@/components/HoloLogin.vue";
 import MainLayout from "@/layouts/MainLayout.vue";
-import { ProfilesStore } from "@holochain-open-dev/profiles";
-import { useProfilesStore } from "./stores/profiles";
+import { PROFILES_CONFIG } from "./stores/profiles";
 import "@shoelace-style/shoelace/dist/components/spinner/spinner";
+import { ProfilesClient, ProfilesStore } from "@holochain-open-dev/profiles";
+import { AppAgentClient, AppInfo } from "@holochain/client";
+import WebSdkApi from "@holo-host/web-sdk";
+import { decode } from "@msgpack/msgpack";
+import { MewsfeedDnaProperties } from "./types/types";
+import asyncRetry from "async-retry";
 
-const { clientStore, isReady } = useClientStore();
-const { profilesStore } = useProfilesStore();
+const client = ref<AppAgentClient | WebSdkApi>();
+const appInfo = ref<AppInfo>();
+const profilesStore = ref<ProfilesStore>();
+const loading = ref<boolean>(true);
 
-provide<ClientStore>("clientStore", clientStore);
-provide<ProfilesStore | undefined>("profilesStore", profilesStore.value);
+const dnaProperties = computed(() =>
+  appInfo.value
+    ? (decode(
+        appInfo.value.cell_info.mewsfeed[0].provisioned.dna_modifiers.properties
+      ) as MewsfeedDnaProperties)
+    : {}
+);
+
+onMounted(() => {
+  asyncRetry(setup);
+});
+
+const setup = async () => {
+  if (IS_HOLO_HOSTED) {
+    client.value = await setupHolo();
+  } else {
+    client.value = await setupHolochain();
+  }
+  appInfo.value = await client.value.appInfo();
+
+  const profilesClient = new ProfilesClient(
+    toRaw(client.value),
+    "mewsfeed",
+    "profiles"
+  );
+  profilesStore.value = new ProfilesStore(profilesClient, PROFILES_CONFIG);
+
+  loading.value = false;
+};
+
+provide("client", client);
+provide("appInfo", appInfo);
+provide("profilesStore", profilesStore);
+provide("dnaProperties", dnaProperties);
 </script>
 
 <style lang="sass">
