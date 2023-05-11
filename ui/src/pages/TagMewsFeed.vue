@@ -48,7 +48,7 @@ const loadMewsFeed = async () => {
       mews.value = await client.callZome({
         role_name: "mewsfeed",
         zome_name: "mews",
-        fn_name: "get_mews_for_ashtag_with_context",
+        fn_name: "get_mews_for_hashtag_with_context",
         payload: `${route.meta.tag}${route.params.tag}`,
       });
     } else if (route.meta.tag === TAG_SYMBOLS.MENTION) {
