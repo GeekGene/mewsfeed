@@ -2,7 +2,7 @@
   <QPage :style-fn="pageHeightCorrection">
     <QCard flat>
       <QCardSection class="q-pb-none">
-        <QBtn flat @click="$router.back()">
+        <QBtn flat @click="router.back()">
           <QIcon
             name="arrow_right_alt"
             size="lg"
@@ -69,7 +69,7 @@ import { showError } from "@/utils/notification";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { ActionHash, decodeHashFromBase64 } from "@holochain/client";
 import { ComputedRef, inject, onMounted, ref, watch } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { AppAgentClient } from "@holochain/client";
 
@@ -77,6 +77,7 @@ const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const route = useRoute();
+const router = useRouter();
 
 const mew = ref<FeedMew>();
 const isLoadingMew = ref(false);
