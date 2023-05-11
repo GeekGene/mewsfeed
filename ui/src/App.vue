@@ -16,6 +16,14 @@
     <profiles-context v-else :store="profilesStore">
       <MainLayout />
     </profiles-context>
+    <div
+      v-if="cellsLoading"
+      class="row justify-between"
+      style="position: fixed; right: 25px; bottom: 25px"
+    >
+      <sl-spinner style="font-size: 1rem" class="q-mr-sm"></sl-spinner>
+      <div>Cells loading...</div>
+    </div>
   </template>
 </template>
 
@@ -38,6 +46,7 @@ const client = ref<AppAgentClient | WebSdkApi>();
 const appInfo = ref<AppInfo>();
 const profilesStore = ref<ProfilesStore>();
 const loading = ref<boolean>(true);
+const cellsLoading = ref<boolean>(true);
 
 const dnaProperties = computed(() =>
   appInfo.value
@@ -55,6 +64,7 @@ onMounted(() => {
 });
 
 const setup = async () => {
+  // Setup client
   if (IS_HOLO_HOSTED) {
     client.value = await setupHolo();
   } else {
@@ -62,14 +72,25 @@ const setup = async () => {
   }
   appInfo.value = await client.value.appInfo();
 
+  // Setup profiles
   const profilesClient = new ProfilesClient(
     toRaw(client.value),
     "mewsfeed",
     "profiles"
   );
   profilesStore.value = new ProfilesStore(profilesClient, PROFILES_CONFIG);
-
+  console.log("Profiles Store initialized", profilesStore.value);
   loading.value = false;
+
+  // Wait for cells to become responsive
+  await client.value.callZome({
+    role_name: "mewsfeed",
+    zome_name: "ping",
+    fn_name: "ping",
+    payload: null,
+  });
+  console.log("Cells responding to zome calls");
+  cellsLoading.value = false;
 };
 
 provide("client", client);
