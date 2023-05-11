@@ -4,6 +4,7 @@ import path from "node:path";
 import vue from "@vitejs/plugin-vue";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 import rollupNodePolyFill from "rollup-plugin-node-polyfills";
+import checker from "vite-plugin-checker";
 
 export default defineConfig({
   server: {
@@ -41,6 +42,10 @@ export default defineConfig({
     quasar({
       sassVariables: "src/css/quasar.variables.sass",
     }) as PluginOption,
+
+    checker({
+      vueTsc: true,
+    }),
   ],
   build: {
     rollupOptions: {
