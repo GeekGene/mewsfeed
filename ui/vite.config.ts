@@ -48,12 +48,11 @@ export default defineConfig({
     }),
   ],
   build: {
-    rollupOptions: {
-      plugins: [
-        // Enable rollup polyfills plugin
-        // used during production bundling
-        rollupNodePolyFill(),
-      ],
+    target: "es2020",
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      target: ["es2020"],
     },
   },
 });
