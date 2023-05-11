@@ -13,8 +13,6 @@ import "quasar/src/css/index.sass";
 import { createApp } from "vue";
 import App from "./App.vue";
 import { router } from "./router";
-import { Buffer } from "buffer";
-window.Buffer = Buffer;
 
 // Shoelace
 import "@shoelace-style/shoelace/dist/themes/light.css";
