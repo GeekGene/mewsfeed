@@ -128,8 +128,8 @@ export interface SigningCredentialsJson
 }
 
 export interface MewsfeedDnaProperties {
-  mew_characters_min?: number;
-  mew_characters_max?: number;
+  mew_characters_min: number | null;
+  mew_characters_max: number | null;
 }
 
 export type SearchResultOption = QSelectOption<RouteLocationRaw> & {

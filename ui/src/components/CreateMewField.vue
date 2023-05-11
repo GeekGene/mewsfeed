@@ -207,7 +207,7 @@ const showCreateProfileDialog = ref(false);
 const isMewEmpty = computed(() => mewContentLength.value === 0);
 const isMewFull = computed(
   () =>
-    dnaProperties.mew_characters_min !== undefined &&
+    dnaProperties.mew_characters_max !== null &&
     mewContentLength.value === dnaProperties.mew_characters_max
 );
 const isMewRequireTruncation = computed(
@@ -215,17 +215,18 @@ const isMewRequireTruncation = computed(
 );
 const isMewOverfull = computed(
   () =>
-    dnaProperties.mew_characters_max !== undefined &&
+    dnaProperties.mew_characters_max !== null &&
     mewContentLength.value > dnaProperties.mew_characters_max
 );
 const isMewUnderfull = computed(
   () =>
-    dnaProperties.mew_characters_min !== undefined &&
+    dnaProperties.mew_characters_min !== null &&
     mewContentLength.value < dnaProperties.mew_characters_min
 );
 
 onMounted(async () => {
-  setTimeout(focusInputField, 0);
+  focusInputField();
+  console.log("dnaProperties", dnaProperties);
 });
 
 const collectLinksWithinElement = (element: Element): LinkTarget[] => {
