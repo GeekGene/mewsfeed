@@ -12,4 +12,4 @@ hdk = { workspace = true }
 serde = { workspace = true }
 regex = "1"
 mews_integrity = { workspace = true } 
-prefix_index = { git = "https://github.com/mattyg/holochain-prefix-index.git", tag = "0.3.0", module = "prefix_index"}
+prefix_index = { git = "https://github.com/mattyg/holochain-prefix-index.git", tag = "0.4.0", module = "prefix_index"}
