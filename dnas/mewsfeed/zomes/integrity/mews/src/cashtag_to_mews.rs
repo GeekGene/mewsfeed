@@ -27,7 +27,7 @@ pub fn validate_delete_link_cashtag_to_mews(
 ) -> ExternResult<ValidateCallbackResult> {
     if action.author != original_action.author {
         return Ok(ValidateCallbackResult::Invalid(
-            "Only the original author can delete the link".into(),
+            "Only the author can create their CashtagToMews links".into(),
         ));
     }
 
