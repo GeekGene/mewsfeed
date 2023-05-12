@@ -45,12 +45,12 @@
       </QCard>
 
       <h6 class="q-mb-md">Mews</h6>
-      <EmptyMewsFeed v-if="!loadingMews && mews.length === 0" />
+      <EmptyMewsFeed v-if="!loading && data.length === 0" />
       <MewList
         v-else
-        :is-loading="loadingMews"
-        :mews="mews"
-        @toggle-lick-mew="onToggleLickMew"
+        :is-loading="loading"
+        :mews="data"
+        @toggle-lick-mew="fetchMew"
         @publish-mew="onPublishMew"
       />
     </div>
@@ -105,6 +105,8 @@ import { ComputedRef, computed, inject, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import MewList from "../components/MewList.vue";
 import { AppAgentClient } from "@holochain/client";
+import { useRequest } from "vue-request";
+import isEqual from "lodash.isequal";
 
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
@@ -114,31 +116,21 @@ const router = useRouter();
 const agentPubKey = computed(() =>
   decodeHashFromBase64(route.params.agent as string)
 );
-const loadingMews = ref(false);
 const loadingProfile = ref(false);
 const profile = ref<Profile>();
 const isFollowingMe = ref(false);
-const mews = ref<FeedMew[]>([]);
 
 const isMyProfile = computed(() =>
   isSameHash(agentPubKey.value, client.myPubKey as AgentPubKey)
 );
 
-const loadMews = async () => {
-  try {
-    loadingMews.value = true;
-    mews.value = await client.callZome({
-      role_name: "mewsfeed",
-      zome_name: "mews",
-      fn_name: "get_agent_mews_with_context",
-      payload: agentPubKey.value,
-    });
-  } catch (error) {
-    showError(error);
-  } finally {
-    loadingMews.value = false;
-  }
-};
+const fetchAgentMews = () =>
+  client.callZome({
+    role_name: "mewsfeed",
+    zome_name: "mews",
+    fn_name: "get_agent_mews_with_context",
+    payload: agentPubKey.value,
+  });
 
 const loadProfile = async () => {
   try {
@@ -164,42 +156,50 @@ const loadProfile = async () => {
   }
 };
 
-const load = () => {
-  loadProfile();
-  loadMews();
-};
-
-onMounted(load);
+onMounted(loadProfile);
 
 watch(
   () => route.params.agent,
   (value) => {
     if (value) {
-      load();
+      loadProfile();
     }
   }
 );
 
-const onToggleLickMew = async (hash: ActionHash) => {
-  try {
-    const index = mews.value.findIndex((mew) =>
-      isSameHash(hash, mew.action_hash)
-    );
-    if (index !== -1) {
-      mews.value[index] = await client.callZome({
-        role_name: "mewsfeed",
-        zome_name: "mews",
-        fn_name: "get_mew_with_context",
-        payload: hash,
-      });
-    }
-  } catch (error) {
-    showError(error);
+const { data, loading, error, run } = useRequest(fetchAgentMews, {
+  initialData: [],
+  pollingInterval: 120000, // 120 seconds polling
+  refreshOnWindowFocus: true,
+  refocusTimespan: 10000, // 10 seconds between window focus to trigger refresh
+});
+watch(error, showError);
+
+const fetchMew = async (actionHash: ActionHash) => {
+  if (data.value === undefined) return;
+
+  const mew: FeedMew = await client.callZome({
+    role_name: "mewsfeed",
+    zome_name: "mews",
+    fn_name: "get_mew_with_context",
+    payload: actionHash,
+  });
+
+  const index = data.value.findIndex((mew: FeedMew) =>
+    isEqual(actionHash, mew.action_hash)
+  );
+
+  if (index !== -1) {
+    // Replace mew if already exists in data
+    data.value[index] = mew;
+  } else {
+    // Insert mew at beginning of list if not
+    data.value.unshift(mew);
   }
 };
 
 const onPublishMew = async (mewType: MewType) => {
-  loadMews();
+  run();
   showMessage(
     MewTypeName.Reply in mewType
       ? "Replied to mew"

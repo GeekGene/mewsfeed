@@ -15,6 +15,8 @@ export const showMessage = (
 };
 
 export const showError = (error: unknown) => {
+  if (!error) return;
+
   console.error(error);
   const message =
     error instanceof Error ? error.message : JSON.stringify(error, null, 4);

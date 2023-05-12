@@ -26,7 +26,9 @@ import { ActionHash, AppAgentClient } from "@holochain/client";
 import { ComputedRef, inject } from "vue";
 import { FeedMew, MewTypeName } from "@/types/types";
 import { useRequest } from "vue-request";
+import { showError } from "@/utils/notification";
 import isEqual from "lodash.isequal";
+import { watch } from "vue";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 
@@ -38,12 +40,13 @@ const fetchMewsFeed = (): Promise<FeedMew[]> =>
     payload: null,
   });
 
-const { data, loading, run } = useRequest(fetchMewsFeed, {
+const { data, loading, error, run } = useRequest(fetchMewsFeed, {
   initialData: [],
   pollingInterval: 120000, // 120 seconds polling
   refreshOnWindowFocus: true,
   refocusTimespan: 10000, // 10 seconds between window focus to trigger refresh
 });
+watch(error, showError);
 
 const fetchMew = async (actionHash: ActionHash) => {
   if (data.value === undefined) return;
