@@ -6,7 +6,6 @@ import "@holochain-open-dev/elements/dist/elements/holo-identicon.js";
 import "@/css/main.sass";
 import "material-icons/iconfont/material-icons.css";
 import "quasar/src/css/index.sass";
-import { createPinia } from "pinia";
 import { Dialog, Notify, Quasar } from "quasar";
 import { createApp } from "vue";
 import App from "./App.vue";
@@ -19,7 +18,6 @@ import { setBasePath } from "@shoelace-style/shoelace/dist/utilities/base-path";
 setBasePath("shoelace");
 
 const app = createApp(App);
-app.use(createPinia());
 app.use(router);
 app.use(Quasar, {
   plugins: { Dialog, Notify },

@@ -22,7 +22,6 @@
     "lodash.min": "^4.0.1",
     "lodash.union": "^4.6.0",
     "material-icons": "^1.13.6",
-    "pinia": "^2.0.36",
     "quasar": "^2.12.0",
     "rollup-plugin-node-polyfills": "^0.2.1",
     "vue": "^3.2.40",
