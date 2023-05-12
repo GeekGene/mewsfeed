@@ -38,14 +38,6 @@ const fetchMewsFeed = (): Promise<FeedMew[]> =>
     payload: null,
   });
 
-const { data, loading, run } = useRequest(fetchMewsFeed, {
-  pollingInterval: 120000, // 120 seconds polling
-  refreshOnWindowFocus: true,
-
-  // 5 seconds between window focus to trigger refresh
-  refocusTimespan: 5000,
-});
-
 const reloadMew = async (actionHash: ActionHash) => {
   if (!data.value || data.value.length === 0) return;
 
@@ -61,4 +53,12 @@ const reloadMew = async (actionHash: ActionHash) => {
     });
   }
 };
+
+const { data, loading, run } = useRequest(fetchMewsFeed, {
+  pollingInterval: 120000, // 120 seconds polling
+  refreshOnWindowFocus: true,
+
+  // 10 seconds between window focus to trigger refresh
+  refocusTimespan: 10000,
+});
 </script>
