@@ -20,8 +20,9 @@
               v-else
               :feed-mew="mew"
               class="q-mb-md bg-orange-1"
-              @publish-mew="onPublishMew"
+              @publish-mew="loadYarn"
               @toggle-lick-mew="onToggleLickMew"
+              @delete-mew="router.push({ name: ROUTES.feed })"
             />
 
             <QItem class="q-mb-md q-px-none">
@@ -32,7 +33,7 @@
                   <CreateMewField
                     :mew-type="{ [MewTypeName.Reply]: mew.action_hash }"
                     class="full-width"
-                    @publish-mew="onPublishMew"
+                    @publish-mew="loadYarn"
                   />
                 </profiles-context>
               </div>
@@ -46,8 +47,9 @@
               :key="i"
               :feed-mew="reply"
               :show-yarn-link="false"
-              @publish-mew="onPublishMew"
+              @publish-mew="loadYarn"
               @toggle-lick-mew="onToggleLickMew"
+              @delete-mew="loadYarn"
             />
           </QList>
         </profiles-context>
@@ -154,6 +156,4 @@ watch(route, (value) => {
     loadYarn();
   }
 });
-
-const onPublishMew = async () => loadYarn();
 </script>

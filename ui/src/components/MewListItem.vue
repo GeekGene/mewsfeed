@@ -185,7 +185,7 @@ const props = withDefaults(
     showYarnLink: true,
   }
 );
-const emit = defineEmits(["publish-mew", "toggle-lick-mew"]);
+const emit = defineEmits(["publish-mew", "toggle-lick-mew", "delete-mew"]);
 const router = useRouter();
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
@@ -197,6 +197,7 @@ const showReplyToMewDialog = ref(false);
 const showQuoteMewDialog = ref(false);
 const showToggleLickMewDialog = ref(false);
 const showCreateMewmewDialog = ref(false);
+const showConfirmDeleteDialog = ref(false);
 
 const originalMewHash =
   MewTypeName.Mewmew in props.feedMew.mew.mew_type
@@ -226,6 +227,9 @@ const isLickedByMe = computed(() =>
   props.feedMew.licks.some((lick) =>
     isSameHash(lick, client.myPubKey as AgentPubKey)
   )
+);
+const isAuthoredByMe = computed(() =>
+  isEqual(client.myPubKey, props.feedMew.action.author)
 );
 
 onMounted(async () => {
@@ -308,5 +312,15 @@ const createMewmew = async () => {
     payload: mew,
   });
   emit("publish-mew", mew_type);
+};
+
+const deleteMew = async () => {
+  await client.callZome({
+    role_name: "mewsfeed",
+    zome_name: "mews",
+    fn_name: "delete_mew",
+    payload: props.feedMew.action_hash,
+  });
+  emit("delete-mew", props.feedMew.action_hash);
 };
 </script>

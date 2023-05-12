@@ -10,8 +10,9 @@
     <MewList
       :mews="mewsfeedStore.mewsFeed"
       :is-loading="mewsfeedStore.isLoadingMewsFeed"
-      @toggle-lick-mew="onToggleLickMew"
-      @publish-mew="onPublishMew"
+      @toggle-lick-mew="reloadMew"
+      @publish-mew="reloadMewsFeed"
+      @delete-mew="reloadMewsFeed"
     />
   </QPage>
 </template>
@@ -32,7 +33,6 @@ onMounted(() => {
   mewsfeedStore.fetchMewsFeed(client);
 });
 
-const onToggleLickMew = (hash: ActionHash) =>
-  mewsfeedStore.reloadMew(client, hash);
-const onPublishMew = async () => mewsfeedStore.fetchMewsFeed(client);
+const reloadMew = (hash: ActionHash) => mewsfeedStore.reloadMew(client, hash);
+const reloadMewsFeed = async () => mewsfeedStore.fetchMewsFeed(client);
 </script>
