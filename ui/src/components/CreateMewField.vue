@@ -226,7 +226,6 @@ const isMewUnderfull = computed(
 
 onMounted(async () => {
   focusInputField();
-  console.log("dnaProperties", dnaProperties);
 });
 
 const collectLinksWithinElement = (element: Element): LinkTarget[] => {
