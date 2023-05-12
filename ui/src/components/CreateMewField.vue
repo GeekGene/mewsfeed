@@ -171,7 +171,7 @@ import {
 import min from "lodash.min";
 import union from "lodash.union";
 import flatten from "lodash.flatten";
-import { AppAgentClient } from "@holochain/client";
+import { AppAgentClient, Record } from "@holochain/client";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
 
 const ANCHOR_DATA_ID_AGENT_PUB_KEY = "agentPubKey";
@@ -181,7 +181,7 @@ let currentAnchorOffset: number;
 let currentFocusOffset: number;
 let currentNode: Node;
 
-const emit = defineEmits<{ (e: "publish-mew"): void }>();
+const emit = defineEmits(["publish-mew"]);
 const props = defineProps<{
   mewType: MewType;
 }>();
@@ -289,18 +289,18 @@ const publishMew = async () => {
 
   try {
     saving.value = true;
-    await client.callZome({
+    const record: Record = await client.callZome({
       role_name: "mewsfeed",
       zome_name: "mews",
       fn_name: "create_mew",
       payload: mew,
     });
+    emit("publish-mew", record.signed_action.hashed.hash);
   } catch (error) {
     showError(error);
   } finally {
     saving.value = false;
   }
-  emit("publish-mew");
   mewInput.textContent = "";
   mewContentLength.value = 0;
   hideAutocompleter();

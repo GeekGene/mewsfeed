@@ -2,7 +2,7 @@
   <QPage class="q-pb-lg" :style-fn="pageHeightCorrection">
     <CreateMewField
       :mew-type="{ [MewTypeName.Original]: null }"
-      @publish-mew="run"
+      @publish-mew="fetchMew"
     />
 
     <h6 class="q-mb-md">Your Mews Feed</h6>
@@ -10,8 +10,8 @@
     <MewList
       :mews="data || []"
       :is-loading="loading"
-      @toggle-lick-mew="reloadMew"
-      @publish-mew="run"
+      @toggle-lick-mew="fetchMew"
+      @publish-mew="fetchMew"
       @delete-mew="run"
     />
   </QPage>
@@ -38,27 +38,33 @@ const fetchMewsFeed = (): Promise<FeedMew[]> =>
     payload: null,
   });
 
-const reloadMew = async (actionHash: ActionHash) => {
-  if (!data.value || data.value.length === 0) return;
+const { data, loading, run } = useRequest(fetchMewsFeed, {
+  initialData: [],
+  pollingInterval: 120000, // 120 seconds polling
+  refreshOnWindowFocus: true,
+  refocusTimespan: 10000, // 10 seconds between window focus to trigger refresh
+});
+
+const fetchMew = async (actionHash: ActionHash) => {
+  if (data.value === undefined) return;
+
+  const mew: FeedMew = await client.callZome({
+    role_name: "mewsfeed",
+    zome_name: "mews",
+    fn_name: "get_mew_with_context",
+    payload: actionHash,
+  });
 
   const index = data.value.findIndex((mew: FeedMew) =>
     isEqual(actionHash, mew.action_hash)
   );
+
   if (index !== -1) {
-    data.value[index] = await client.callZome({
-      role_name: "mewsfeed",
-      zome_name: "mews",
-      fn_name: "get_mew_with_context",
-      payload: actionHash,
-    });
+    // Replace mew if already exists in data
+    data.value[index] = mew;
+  } else {
+    // Insert mew at beginning of list if not
+    data.value.unshift(mew);
   }
 };
-
-const { data, loading, run } = useRequest(fetchMewsFeed, {
-  pollingInterval: 120000, // 120 seconds polling
-  refreshOnWindowFocus: true,
-
-  // 10 seconds between window focus to trigger refresh
-  refocusTimespan: 10000,
-});
 </script>
