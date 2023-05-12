@@ -37,8 +37,8 @@ pub fn validate_delete_link_all_mews(
     if action.author != original_action.author {
         return Ok(ValidateCallbackResult::Invalid(
             "Only the original action author can delete their AllMews link".into(),
-        ))
+        ));
     }
-    
+
     Ok(ValidateCallbackResult::Valid)
 }

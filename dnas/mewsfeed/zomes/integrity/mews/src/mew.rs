@@ -41,6 +41,7 @@ pub struct FeedMew {
     pub quotes: Vec<ActionHash>,
     pub licks: Vec<AgentPubKey>,
     pub mewmews: Vec<ActionHash>,
+    pub deleted_timestamp: Option<Timestamp>,
 }
 
 pub fn validate_create_mew(
@@ -102,7 +103,7 @@ pub fn validate_delete_mew(
     if action.author != *original_action.author() {
         return Ok(ValidateCallbackResult::Invalid(
             "Only the original action author can delete their mew".into(),
-        ))
+        ));
     }
 
     Ok(ValidateCallbackResult::Valid)

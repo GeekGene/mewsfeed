@@ -22,7 +22,7 @@
               class="q-mb-md bg-orange-1"
               @publish-mew="loadYarn"
               @toggle-lick-mew="onToggleLickMew"
-              @delete-mew="router.push({ name: ROUTES.feed })"
+              @delete-mew="loadYarn"
             />
 
             <QItem class="q-mb-md q-px-none">
@@ -64,6 +64,7 @@ import CreateMewField from "@/components/CreateMewField.vue";
 import MewListItemSkeleton from "@/components/MewListItemSkeleton.vue";
 import MewListSkeleton from "@/components/MewListSkeleton.vue";
 import MewListItem from "@/components/MewListItem.vue";
+import MewTimestamp from "@/components/MewTimestamp.vue";
 import { ROUTES } from "@/router";
 import { FeedMew, MewTypeName } from "@/types/types";
 import { isSameHash } from "@/utils/hash";

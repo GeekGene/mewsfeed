@@ -84,6 +84,7 @@ export interface FeedMew {
   quotes: HoloHash[];
   licks: AgentPubKey[];
   mewmews: HoloHash[];
+  deleted_timestamp: number | null
 }
 
 export interface NotificationOptions {
