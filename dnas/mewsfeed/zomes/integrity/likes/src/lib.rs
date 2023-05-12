@@ -1,6 +1,7 @@
 pub mod liker_to_hashes;
 use hdi::prelude::*;
 pub use liker_to_hashes::*;
+
 #[derive(Serialize, Deserialize)]
 #[hdk_link_types]
 pub enum LinkTypes {
@@ -21,38 +22,9 @@ pub fn validate_agent_joining(
 #[hdk_extern]
 pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
     match op.flattened::<(), LinkTypes>()? {
-        FlatOp::StoreEntry(store_entry) => match store_entry {
-            OpEntry::CreateEntry { app_entry, action } => Ok(ValidateCallbackResult::Invalid(
-                "There are no entry types in this integrity zome".to_string(),
-            )),
-            OpEntry::UpdateEntry {
-                app_entry, action, ..
-            } => Ok(ValidateCallbackResult::Invalid(
-                "There are no entry types in this integrity zome".to_string(),
-            )),
-            _ => Ok(ValidateCallbackResult::Valid),
-        },
-        FlatOp::RegisterUpdate(update_entry) => match update_entry {
-            OpUpdate::Entry {
-                original_action,
-                original_app_entry,
-                app_entry,
-                action,
-            } => Ok(ValidateCallbackResult::Invalid(
-                "There are no entry types in this integrity zome".to_string(),
-            )),
-            _ => Ok(ValidateCallbackResult::Valid),
-        },
-        FlatOp::RegisterDelete(delete_entry) => match delete_entry {
-            OpDelete::Entry {
-                original_action,
-                original_app_entry,
-                action,
-            } => Ok(ValidateCallbackResult::Invalid(
-                "There are no entry types in this integrity zome".to_string(),
-            )),
-            _ => Ok(ValidateCallbackResult::Valid),
-        },
+        FlatOp::StoreEntry(store_entry) => Ok(ValidateCallbackResult::Valid),
+        FlatOp::RegisterUpdate(update_entry) => Ok(ValidateCallbackResult::Valid),
+        FlatOp::RegisterDelete(delete_entry) => Ok(ValidateCallbackResult::Valid),
         FlatOp::RegisterCreateLink {
             link_type,
             base_address,
@@ -91,24 +63,18 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             ),
         },
         FlatOp::StoreRecord(store_record) => match store_record {
-            OpRecord::CreateEntry { app_entry, action } => Ok(ValidateCallbackResult::Invalid(
-                "There are no entry types in this integrity zome".to_string(),
-            )),
+            OpRecord::CreateEntry { app_entry, action } => Ok(ValidateCallbackResult::Valid),
             OpRecord::UpdateEntry {
                 original_action_hash,
                 app_entry,
                 action,
                 ..
-            } => Ok(ValidateCallbackResult::Invalid(
-                "There are no entry types in this integrity zome".to_string(),
-            )),
+            } => Ok(ValidateCallbackResult::Valid),
             OpRecord::DeleteEntry {
                 original_action_hash,
                 action,
                 ..
-            } => Ok(ValidateCallbackResult::Invalid(
-                "There are no entry types in this integrity zome".to_string(),
-            )),
+            } => Ok(ValidateCallbackResult::Valid),
             OpRecord::CreateLink {
                 base_address,
                 target_address,

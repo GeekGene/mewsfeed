@@ -1,6 +1,7 @@
 pub mod follower_to_creators;
 pub use follower_to_creators::*;
 use hdi::prelude::*;
+
 #[derive(Serialize, Deserialize)]
 #[hdk_link_types]
 pub enum LinkTypes {
@@ -22,14 +23,10 @@ pub fn validate_agent_joining(
 pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
     match op.flattened::<(), LinkTypes>()? {
         FlatOp::StoreEntry(store_entry) => match store_entry {
-            OpEntry::CreateEntry { app_entry, action } => Ok(ValidateCallbackResult::Invalid(
-                "There are no entry types in this integrity zome".to_string(),
-            )),
+            OpEntry::CreateEntry { app_entry, action } => Ok(ValidateCallbackResult::Valid),
             OpEntry::UpdateEntry {
                 app_entry, action, ..
-            } => Ok(ValidateCallbackResult::Invalid(
-                "There are no entry types in this integrity zome".to_string(),
-            )),
+            } => Ok(ValidateCallbackResult::Valid),
             _ => Ok(ValidateCallbackResult::Valid),
         },
         FlatOp::RegisterUpdate(update_entry) => match update_entry {
@@ -48,9 +45,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 original_action,
                 original_app_entry,
                 action,
-            } => Ok(ValidateCallbackResult::Invalid(
-                "There are no entry types in this integrity zome".to_string(),
-            )),
+            } => Ok(ValidateCallbackResult::Valid),
             _ => Ok(ValidateCallbackResult::Valid),
         },
         FlatOp::RegisterCreateLink {
@@ -91,24 +86,18 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             ),
         },
         FlatOp::StoreRecord(store_record) => match store_record {
-            OpRecord::CreateEntry { app_entry, action } => Ok(ValidateCallbackResult::Invalid(
-                "There are no entry types in this integrity zome".to_string(),
-            )),
+            OpRecord::CreateEntry { app_entry, action } => Ok(ValidateCallbackResult::Valid),
             OpRecord::UpdateEntry {
                 original_action_hash,
                 app_entry,
                 action,
                 ..
-            } => Ok(ValidateCallbackResult::Invalid(
-                "There are no entry types in this integrity zome".to_string(),
-            )),
+            } => Ok(ValidateCallbackResult::Valid),
             OpRecord::DeleteEntry {
                 original_action_hash,
                 action,
                 ..
-            } => Ok(ValidateCallbackResult::Invalid(
-                "There are no entry types in this integrity zome".to_string(),
-            )),
+            } => Ok(ValidateCallbackResult::Valid),
             OpRecord::CreateLink {
                 base_address,
                 target_address,
