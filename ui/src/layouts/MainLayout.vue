@@ -44,7 +44,7 @@
 
     <QPageContainer class="row q-mt-xl bg-white">
       <QSpace />
-      <RouterView class="col-12 col-md-6 col-xl-5" />
+      <RouterView :key="routerViewKey" class="col-12 col-md-6 col-xl-5" />
       <QSpace />
     </QPageContainer>
 
@@ -63,7 +63,6 @@
 <script setup lang="ts">
 import CreateMewForm from "@/components/CreateMewForm.vue";
 import { ROUTES } from "@/router";
-import { useMewsfeedStore } from "@/stores/mewsfeed";
 import { MewTypeName, MewsfeedDnaProperties } from "@/types/types";
 import { AppAgentClient } from "@holochain/client";
 import {
@@ -91,16 +90,20 @@ const dnaProperties = (
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const myProfile = inject("myProfile") as ComputedRef<Profile>;
-const mewsfeedStore = useMewsfeedStore();
 
 const router = useRouter();
 const tab = ref("");
 const showCreateMewDialog = ref(false);
+const routerViewKey = ref(0);
+
+const forceRerenderRouterView = () => {
+  routerViewKey.value += 1;
+};
 
 const onPublishMew = () => {
   showCreateMewDialog.value = false;
   if (router.currentRoute.value.name === ROUTES.feed) {
-    mewsfeedStore.fetchMewsFeed(client);
+    forceRerenderRouterView();
   } else {
     router.push({ name: ROUTES.feed });
   }
