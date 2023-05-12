@@ -34,7 +34,11 @@ import HoloLogin from "@/components/HoloLogin.vue";
 import MainLayout from "@/layouts/MainLayout.vue";
 import { PROFILES_CONFIG } from "./stores/profiles";
 import "@shoelace-style/shoelace/dist/components/spinner/spinner";
-import { ProfilesClient, ProfilesStore } from "@holochain-open-dev/profiles";
+import {
+  Profile,
+  ProfilesClient,
+  ProfilesStore,
+} from "@holochain-open-dev/profiles";
 import { AppAgentClient, AppInfo } from "@holochain/client";
 import WebSdkApi from "@holo-host/web-sdk";
 import { decode } from "@msgpack/msgpack";
@@ -45,6 +49,7 @@ import { CellType } from "@holochain/client";
 const client = ref<AppAgentClient | WebSdkApi>();
 const appInfo = ref<AppInfo>();
 const profilesStore = ref<ProfilesStore>();
+const myProfile = ref<Profile>();
 const loadingClient = ref<boolean>(true);
 const loadingCells = ref<boolean>(true);
 
@@ -79,6 +84,11 @@ const setup = async () => {
     "profiles"
   );
   profilesStore.value = new ProfilesStore(profilesClient, PROFILES_CONFIG);
+  profilesStore.value.myProfile.subscribe((res) => {
+    if (res.status === "complete" && res.value !== undefined) {
+      myProfile.value = res.value;
+    }
+  });
   console.log("Profiles Store initialized");
   loadingClient.value = false;
 
@@ -95,8 +105,9 @@ const setup = async () => {
 
 provide("client", client);
 provide("appInfo", appInfo);
-provide("profilesStore", profilesStore);
 provide("dnaProperties", dnaProperties);
+provide("profilesStore", profilesStore);
+provide("myProfile", myProfile);
 </script>
 
 <style lang="sass">

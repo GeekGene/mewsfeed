@@ -86,7 +86,7 @@
             :disable="isUpdatingLick"
             size="sm"
             flat
-            @click.stop.prevent="toggleLickMewIfProfileExists"
+            @click.stop.prevent="toggleLickMew"
           >
             <QIcon
               name="svguse:/icons.svg#lick"
@@ -109,7 +109,7 @@
             size="sm"
             icon="forward"
             flat
-            @click.stop.prevent="toggleCreateMewmewIfProfileExists"
+            @click.stop.prevent="createMewmew"
           >
             {{ feedMew.mewmews.length }}
             <QTooltip>Mewmew mew</QTooltip>
@@ -171,7 +171,6 @@ import MewContent from "./MewContent.vue";
 import { isSameHash } from "@/utils/hash";
 import { AgentPubKey } from "@holochain/client";
 import { useRouter } from "vue-router";
-import { useMyProfile } from "@/stores/profiles";
 import { AppAgentClient } from "@holochain/client";
 import MewTimestamp from "./MewTimestamp.vue";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
@@ -187,10 +186,11 @@ const props = withDefaults(
 );
 const emit = defineEmits(["publish-mew", "toggle-lick-mew"]);
 const router = useRouter();
+const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
-const client = (inject("client") as ComputedRef<AppAgentClient>).value;
-const { myProfile } = useMyProfile();
+const myProfile = inject("myProfile") as ComputedRef<Profile>;
+
 const agentProfile = ref<Profile>();
 const showReplyToMewDialog = ref(false);
 const showQuoteMewDialog = ref(false);
@@ -260,16 +260,11 @@ const navigateToYarn = (actionHash: ActionHash) => {
   });
 };
 
-const toggleLickMewIfProfileExists = () => {
+const toggleLickMew = async () => {
   if (!myProfile.value) {
     showToggleLickMewDialog.value = true;
     return;
   }
-
-  toggleLickMew();
-};
-
-const toggleLickMew = async () => {
   showToggleLickMewDialog.value = false;
 
   isUpdatingLick.value = true;
@@ -292,16 +287,11 @@ const toggleLickMew = async () => {
   isUpdatingLick.value = false;
 };
 
-const toggleCreateMewmewIfProfileExists = () => {
+const createMewmew = async () => {
   if (!myProfile.value) {
     showCreateMewmewDialog.value = true;
     return;
   }
-
-  createMewmew();
-};
-
-const createMewmew = async () => {
   showCreateMewmewDialog.value = false;
 
   const mew_type = { [MewTypeName.Mewmew]: props.feedMew.action_hash };

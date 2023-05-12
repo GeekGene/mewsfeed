@@ -1,5 +1,5 @@
 <template>
-  <QBtn size="md" color="secondary" @click="tryToggleFollow">
+  <QBtn size="md" color="secondary" @click="toggleFollow">
     <template v-if="isFollowing">
       <div class="q-mr-sm">Unfollow</div>
       <QIcon name="svguse:/icons.svg#cat" />
@@ -23,11 +23,10 @@
 import { PROFILE_FIELDS } from "@/types/types";
 import { isSameHash } from "@/utils/hash";
 import { showError, showMessage } from "@/utils/notification";
-import { useMyProfile } from "@/stores/profiles";
 import { AgentPubKey } from "@holochain/client";
 import { ComputedRef, inject, onMounted, PropType, ref } from "vue";
 import { QBtn, QIcon } from "quasar";
-import { ProfilesStore } from "@holochain-open-dev/profiles";
+import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
 import { AppAgentClient } from "@holochain/client";
 import CreateProfileIfNotFoundDialog from "./CreateProfileIfNotFoundDialog.vue";
 
@@ -40,7 +39,7 @@ const props = defineProps({
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
-const { myProfile } = useMyProfile();
+const myProfile = inject("myProfile") as ComputedRef<Profile>;
 
 const loading = ref(true);
 const isFollowing = ref(false);
@@ -64,16 +63,11 @@ onMounted(async () => {
   }
 });
 
-const tryToggleFollow = () => {
+const toggleFollow = async () => {
   if (!myProfile.value) {
     showCreateProfileDialog.value = true;
     return;
   }
-
-  toggleFollow();
-};
-
-const toggleFollow = async () => {
   showCreateProfileDialog.value = false;
 
   try {

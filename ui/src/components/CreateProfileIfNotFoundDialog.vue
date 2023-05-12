@@ -23,12 +23,12 @@
 
 <script setup lang="ts">
 import { QDialog, QCard, QToolbar, QBtn, QSpace } from "quasar";
-import { useMyProfile } from "@/stores/profiles";
 import { ComputedRef, inject } from "vue";
-import { ProfilesStore } from "@holochain-open-dev/profiles";
+import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
 
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
+const myProfile = inject("myProfile") as ComputedRef<Profile>;
 const emit = defineEmits(["profile-created", "update:model-value"]);
 withDefaults(
   defineProps<{
@@ -39,6 +39,4 @@ withDefaults(
     showCloseButton: false,
   }
 );
-
-const { myProfile } = useMyProfile();
 </script>

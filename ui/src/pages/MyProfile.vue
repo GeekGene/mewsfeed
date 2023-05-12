@@ -48,11 +48,11 @@ import { TAG_SYMBOLS } from "@/utils/tags";
 import { useRouter } from "vue-router";
 import { ComputedRef, inject } from "vue";
 import { AppAgentClient } from "@holochain/client";
-import { useMyProfile } from "@/stores/profiles";
+import { Profile } from "@holochain-open-dev/profiles";
 
 const router = useRouter();
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
-const { myProfile } = useMyProfile();
+const myProfile = inject("myProfile") as ComputedRef<Profile>;
 </script>
 
 <style lang="sass">

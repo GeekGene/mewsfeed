@@ -122,7 +122,7 @@
       :loading="saving"
       :tabindex="agentAutocompletions.length && 0"
       color="accent"
-      @click="publishMewIfProfileExists"
+      @click="publishMew"
     >
       Publish Mew
     </QBtn>
@@ -148,7 +148,7 @@ import {
   QBtn,
 } from "quasar";
 import { showError } from "@/utils/notification";
-import { useMyProfile, useSearchProfiles } from "@/stores/profiles";
+import { useSearchProfiles } from "@/stores/profiles";
 import { Profile } from "@holochain-open-dev/profiles";
 import { isMentionTag, isRawUrl, isLinkTag, TAG_SYMBOLS } from "@/utils/tags";
 import { onMounted, ref, computed, ComputedRef, inject } from "vue";
@@ -186,11 +186,11 @@ const props = defineProps<{
   mewType: MewType;
 }>();
 const searchProfiles = useSearchProfiles();
-const { myProfile } = useMyProfile();
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const dnaProperties = (
   inject("dnaProperties") as ComputedRef<MewsfeedDnaProperties>
 ).value;
+const myProfile = inject("myProfile") as ComputedRef<Profile>;
 
 const TRUNCATED_MEW_LENGTH = 300;
 
@@ -267,16 +267,11 @@ const collectLinksWithinElement = (element: Element): LinkTarget[] => {
   }
 };
 
-const publishMewIfProfileExists = () => {
+const publishMew = async () => {
   if (!myProfile.value) {
     showCreateProfileDialog.value = true;
     return;
   }
-
-  publishMew();
-};
-
-const publishMew = async () => {
   showCreateProfileDialog.value = false;
 
   const mewInput = mewContainer.value?.querySelector(
@@ -439,7 +434,7 @@ const onKeyDown = (event: KeyboardEvent) => {
     event.metaKey &&
     !(isMewEmpty.value || isMewOverfull.value)
   ) {
-    publishMewIfProfileExists();
+    publishMew();
   }
 
   // Support KeyDown or Tab keys to focus on first item displayed in agents list (after typing an agent tag)

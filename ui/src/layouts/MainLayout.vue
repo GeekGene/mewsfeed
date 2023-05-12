@@ -80,8 +80,7 @@ import {
 } from "quasar";
 import { ComputedRef, inject, ref } from "vue";
 import { useRouter } from "vue-router";
-import { useMyProfile } from "../stores/profiles";
-import { ProfilesStore } from "@holochain-open-dev/profiles";
+import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
 import SearchEverythingInput from "@/components/SearchEverythingInput.vue";
 
@@ -91,7 +90,7 @@ const dnaProperties = (
 ).value;
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
-const { myProfile } = useMyProfile();
+const myProfile = inject("myProfile") as ComputedRef<Profile>;
 const mewsfeedStore = useMewsfeedStore();
 
 const router = useRouter();
