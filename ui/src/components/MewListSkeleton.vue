@@ -11,22 +11,23 @@
         <div class="row items-center">
           <div class="row items-center">
             <QIcon
-              name="chat_bubble_outline"
+              name="svguse:/icons.svg#lick"
               color="grey-4"
-              class="q-mr-sm"
-              size="18px"
+              class="q-mr-xs"
             />
             <QSkeleton type="text" width="30px" />
           </div>
-
           <div class="row items-center">
-            <QIcon name="repeat" color="grey-4" class="q-mr-sm" size="18px" />
+            <QIcon name="reply" color="grey-4" class="q-mr-sm" size="18px" />
             <QSkeleton type="text" width="30px" />
           </div>
-
+          <div class="row items-center">
+            <QIcon name="forward" color="grey-4" class="q-mr-sm" size="18px" />
+            <QSkeleton type="text" width="30px" />
+          </div>
           <div class="row items-center">
             <QIcon
-              name="favorite_border"
+              name="format_quote"
               color="grey-4"
               class="q-mr-sm"
               size="18px"

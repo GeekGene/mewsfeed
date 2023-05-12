@@ -91,6 +91,7 @@
             <QIcon
               name="svguse:/icons.svg#lick"
               :color="isLickedByMe ? 'pink-4' : 'transparent'"
+              style="stroke: black"
               class="q-mr-xs"
             />
             {{ feedMew.licks.length }}
