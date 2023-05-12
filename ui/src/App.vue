@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="loading"
+    v-if="loadingClient"
     class="row justify-center items-center"
     style="height: 100%"
   >
@@ -17,7 +17,7 @@
       <MainLayout />
     </profiles-context>
     <div
-      v-if="cellsLoading"
+      v-if="loadingCells"
       class="row justify-between"
       style="position: fixed; right: 25px; bottom: 25px"
     >
@@ -45,8 +45,8 @@ import { CellType } from "@holochain/client";
 const client = ref<AppAgentClient | WebSdkApi>();
 const appInfo = ref<AppInfo>();
 const profilesStore = ref<ProfilesStore>();
-const loading = ref<boolean>(true);
-const cellsLoading = ref<boolean>(true);
+const loadingClient = ref<boolean>(true);
+const loadingCells = ref<boolean>(true);
 
 const dnaProperties = computed(() =>
   appInfo.value
@@ -79,8 +79,8 @@ const setup = async () => {
     "profiles"
   );
   profilesStore.value = new ProfilesStore(profilesClient, PROFILES_CONFIG);
-  console.log("Profiles Store initialized", profilesStore.value);
-  loading.value = false;
+  console.log("Profiles Store initialized");
+  loadingClient.value = false;
 
   // Wait for cells to become responsive
   await client.value.callZome({
@@ -90,7 +90,7 @@ const setup = async () => {
     payload: null,
   });
   console.log("Cells responding to zome calls");
-  cellsLoading.value = false;
+  loadingCells.value = false;
 };
 
 provide("client", client);
