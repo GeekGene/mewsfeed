@@ -44,7 +44,10 @@
 
     <QPageContainer class="row q-mt-xl bg-white">
       <QSpace />
-      <RouterView :key="routerViewKey" class="col-12 col-md-6 col-xl-5" />
+      <RouterView
+        :key="`${route.fullPath}-${forceReloadRouterViewKey}`"
+        class="col-12 col-md-6 col-xl-5"
+      />
       <QSpace />
     </QPageContainer>
 
@@ -78,7 +81,7 @@ import {
   QIcon,
 } from "quasar";
 import { ComputedRef, inject, ref } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
 import SearchEverythingInput from "@/components/SearchEverythingInput.vue";
@@ -90,20 +93,17 @@ const dnaProperties = (
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const myProfile = inject("myProfile") as ComputedRef<Profile>;
-
 const router = useRouter();
+const route = useRoute();
+
 const tab = ref("");
 const showCreateMewDialog = ref(false);
-const routerViewKey = ref(0);
-
-const forceRerenderRouterView = () => {
-  routerViewKey.value += 1;
-};
+const forceReloadRouterViewKey = ref(0);
 
 const onPublishMew = () => {
   showCreateMewDialog.value = false;
   if (router.currentRoute.value.name === ROUTES.feed) {
-    forceRerenderRouterView();
+    forceReloadRouterViewKey.value += 1;
   } else {
     router.push({ name: ROUTES.feed });
   }

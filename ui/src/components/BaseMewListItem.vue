@@ -41,6 +41,7 @@
               <span class="text-bold"> Deleted Mew </span>
             </span>
             <QBtn
+              v-if="showYarnLink"
               class="q-mx-sm q-px-sm"
               padding="none"
               margin="none"
