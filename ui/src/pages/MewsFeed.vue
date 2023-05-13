@@ -5,10 +5,9 @@
       @publish-mew="fetchMew"
     />
 
-    <h6 class="q-mb-md">Your Mews Feed</h6>
-
-    <MewList
-      :mews="data || []"
+    <BaseMewList
+      title="Your Mews Feed"
+      :feed-mews="data || []"
       :is-loading="loading"
       @toggle-lick-mew="fetchMew"
       @publish-mew="fetchMew"
@@ -20,7 +19,7 @@
 <script setup lang="ts">
 import { QPage } from "quasar";
 import CreateMewField from "@/components/CreateMewField.vue";
-import MewList from "@/components/MewList.vue";
+import BaseMewList from "@/components/BaseMewList.vue";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { ActionHash, AppAgentClient } from "@holochain/client";
 import { ComputedRef, inject } from "vue";

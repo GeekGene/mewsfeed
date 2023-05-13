@@ -1,11 +1,8 @@
 <template>
   <QPage :style-fn="pageHeightCorrection">
-    <h6 class="q-mt-none q-mb-md">
-      Mews with {{ route.meta.tag }}{{ route.params.tag }}
-    </h6>
-
-    <MewList
-      :mews="data"
+    <BaseMewList
+      :title="`Mews with ${route.meta.tag}${route.params.tag}`"
+      :feed-mews="data"
       :is-loading="loading"
       @toggle-lick-mew="fetchMew"
       @publish-mew="onPublishmew"
@@ -27,7 +24,7 @@ import {
 } from "@holochain/client";
 import { ComputedRef, inject, watch } from "vue";
 import { useRoute } from "vue-router";
-import MewList from "@/components/MewList.vue";
+import BaseMewList from "@/components/BaseMewList.vue";
 import { useRequest } from "vue-request";
 
 const route = useRoute();

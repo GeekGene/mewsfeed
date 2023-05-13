@@ -44,12 +44,10 @@
         </div>
       </QCard>
 
-      <h6 class="q-mb-md">Mews</h6>
-      <EmptyMewsFeed v-if="!loading && data.length === 0" />
-      <MewList
-        v-else
+      <BaseMewList
+        title="Mews"
         :is-loading="loading"
-        :mews="data"
+        :feed-mews="data"
         @toggle-lick-mew="fetchMew"
         @publish-mew="onPublishMew"
       />
@@ -103,7 +101,7 @@ import {
 import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
 import { ComputedRef, computed, inject, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import MewList from "../components/MewList.vue";
+import BaseMewList from "../components/BaseMewList.vue";
 import { AppAgentClient } from "@holochain/client";
 import { useRequest } from "vue-request";
 

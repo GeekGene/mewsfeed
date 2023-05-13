@@ -1,11 +1,11 @@
 <template>
+  <h6 v-if="title" class="q-mb-md">{{ title }}</h6>
+
   <MewListSkeleton v-if="isLoading" />
-
-  <EmptyMewsFeed v-else-if="mews.length === 0" />
-
+  <EmptyMewsFeed v-else-if="!isLoading && feedMews.length === 0" />
   <QList v-else bordered separator>
     <MewListItem
-      v-for="(mew, index) of mews"
+      v-for="(mew, index) of feedMews"
       :key="index"
       :feed-mew="mew"
       v-bind="$attrs"
@@ -20,8 +20,14 @@ import MewListSkeleton from "@/components/MewListSkeleton.vue";
 import { FeedMew } from "@/types/types";
 import EmptyMewsFeed from "./EmptyMewsFeed.vue";
 
-defineProps<{
-  mews: FeedMew[];
-  isLoading: boolean;
-}>();
+withDefaults(
+  defineProps<{
+    feedMews: FeedMew[];
+    isLoading: boolean;
+    title?: string;
+  }>(),
+  {
+    title: undefined,
+  }
+);
 </script>

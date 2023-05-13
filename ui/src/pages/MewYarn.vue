@@ -40,18 +40,15 @@
             </QItem>
           </QList>
 
-          <MewListSkeleton v-if="isLoadingReplies" />
-          <QList v-else-if="replies.length" bordered separator>
-            <MewListItem
-              v-for="(reply, i) of replies"
-              :key="i"
-              :feed-mew="reply"
-              :show-yarn-link="false"
-              @publish-mew="loadYarn"
-              @toggle-lick-mew="onToggleLickMew"
-              @delete-mew="loadYarn"
-            />
-          </QList>
+          <BaseMewList
+            v-if="mew.replies.length > 0"
+            :feed-mews="replies"
+            :show-yarn-link="false"
+            :is-loading="isLoadingReplies"
+            @publish-mew="loadYarn"
+            @toggle-lick-mew="onToggleLickMew"
+            @delete-mew="loadYarn"
+          />
         </profiles-context>
       </QCardSection>
     </QCard>
@@ -62,7 +59,6 @@
 import { QPage, QCard, QCardSection, QBtn, QIcon, QItem, QList } from "quasar";
 import CreateMewField from "@/components/CreateMewField.vue";
 import MewListItemSkeleton from "@/components/MewListItemSkeleton.vue";
-import MewListSkeleton from "@/components/MewListSkeleton.vue";
 import MewListItem from "@/components/MewListItem.vue";
 import { ROUTES } from "@/router";
 import { FeedMew, MewTypeName } from "@/types/types";
@@ -74,6 +70,7 @@ import { ComputedRef, inject, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { AppAgentClient } from "@holochain/client";
+import BaseMewList from "@/components/BaseMewList.vue";
 
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
