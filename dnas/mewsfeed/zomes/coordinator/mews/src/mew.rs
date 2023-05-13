@@ -111,6 +111,14 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
 }
 
 #[hdk_extern]
+pub fn get_batch_mews_with_context(hashes: Vec<ActionHash>) -> ExternResult<Vec<FeedMew>> {
+    hashes
+        .into_iter()
+        .map(|h| get_mew_with_context(h))
+        .collect::<ExternResult<Vec<FeedMew>>>()
+}
+
+#[hdk_extern]
 pub fn delete_mew(original_mew_hash: ActionHash) -> ExternResult<ActionHash> {
     let maybe_record = get(original_mew_hash.clone(), GetOptions::default())?;
     if let Some(record) = maybe_record {
