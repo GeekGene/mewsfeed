@@ -1,16 +1,19 @@
 <template>
-  <q-item>
-    <q-item-section avatar>
-      <q-skeleton type="QAvatar" />
-    </q-item-section>
+  <QItem>
+    <QItemSection avatar>
+      <QSkeleton type="QAvatar" />
+    </QItemSection>
 
-    <q-item-section>
-      <q-item-label>
-        <q-skeleton type="text" />
-      </q-item-label>
-      <q-item-label caption>
-        <q-skeleton type="text" width="80%" />
-      </q-item-label>
-    </q-item-section>
-  </q-item>
+    <QItemSection>
+      <QItemLabel>
+        <QSkeleton type="text" />
+      </QItemLabel>
+      <QItemLabel caption>
+        <QSkeleton type="text" width="80%" />
+      </QItemLabel>
+    </QItemSection>
+  </QItem>
 </template>
+<script setup lang="ts">
+import { QItem, QItemSection, QSkeleton, QItemLabel } from "quasar";
+</script>

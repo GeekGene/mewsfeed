@@ -1,44 +1,46 @@
 <template>
-  <q-list v-for="i of [0, 1, 2]" :key="i">
+  <QList v-for="i of [0, 1, 2]" :key="i">
     <ProfileSkeleton />
 
-    <q-item>
-      <q-item-section avatar />
+    <QItem>
+      <QItemSection avatar />
 
-      <q-item-section>
-        <q-skeleton height="50px" class="q-mb-sm" />
+      <QItemSection>
+        <QSkeleton height="50px" class="q-mb-sm" />
 
         <div class="row items-center">
           <div class="row items-center">
-            <q-icon
-              name="chat_bubble_outline"
+            <QIcon
+              name="svguse:/icons.svg#lick"
+              color="grey-4"
+              class="q-mr-xs"
+            />
+            <QSkeleton type="text" width="30px" />
+          </div>
+          <div class="row items-center">
+            <QIcon name="reply" color="grey-4" class="q-mr-sm" size="18px" />
+            <QSkeleton type="text" width="30px" />
+          </div>
+          <div class="row items-center">
+            <QIcon name="forward" color="grey-4" class="q-mr-sm" size="18px" />
+            <QSkeleton type="text" width="30px" />
+          </div>
+          <div class="row items-center">
+            <QIcon
+              name="format_quote"
               color="grey-4"
               class="q-mr-sm"
               size="18px"
             />
-            <q-skeleton type="text" width="30px" />
-          </div>
-
-          <div class="row items-center">
-            <q-icon name="repeat" color="grey-4" class="q-mr-sm" size="18px" />
-            <q-skeleton type="text" width="30px" />
-          </div>
-
-          <div class="row items-center">
-            <q-icon
-              name="favorite_border"
-              color="grey-4"
-              class="q-mr-sm"
-              size="18px"
-            />
-            <q-skeleton type="text" width="30px" />
+            <QSkeleton type="text" width="30px" />
           </div>
         </div>
-      </q-item-section>
-    </q-item>
-  </q-list>
+      </QItemSection>
+    </QItem>
+  </QList>
 </template>
 
 <script setup lang="ts">
+import { QList, QItem, QItemSection, QSkeleton, QIcon } from "quasar";
 import ProfileSkeleton from "./ProfileSkeleton.vue";
 </script>

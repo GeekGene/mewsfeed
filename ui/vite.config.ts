@@ -3,6 +3,8 @@ import { quasar, transformAssetUrls } from "@quasar/vite-plugin";
 import path from "node:path";
 import vue from "@vitejs/plugin-vue";
 import { viteStaticCopy } from "vite-plugin-static-copy";
+import rollupNodePolyFill from "rollup-plugin-node-polyfills";
+import checker from "vite-plugin-checker";
 
 export default defineConfig({
   server: {
@@ -11,7 +13,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve("src"),
-      uicommon: path.resolve(__dirname, "ui-common-library/src"),
+      util: "rollup-plugin-node-polyfills/polyfills/util",
     },
   },
   plugins: [
@@ -32,13 +34,7 @@ export default defineConfig({
       template: {
         transformAssetUrls,
         compilerOptions: {
-          isCustomElement: (tag) =>
-            tag.includes("profiles-context") ||
-            tag.includes("agent-avatar") ||
-            tag.includes("edit-profile") ||
-            tag.includes("create-profile") ||
-            tag.includes("my-profile") ||
-            tag.includes("holo-identicon"),
+          isCustomElement: (tag) => tag.includes("-"),
         },
       },
     }),
@@ -46,5 +42,17 @@ export default defineConfig({
     quasar({
       sassVariables: "src/css/quasar.variables.sass",
     }) as PluginOption,
+
+    checker({
+      vueTsc: true,
+    }),
   ],
+  build: {
+    target: "es2020",
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      target: ["es2020"],
+    },
+  },
 });

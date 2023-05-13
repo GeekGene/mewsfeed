@@ -1,30 +1,30 @@
 <template>
-  <mew-list-skeleton v-if="isLoading" />
+  <MewListSkeleton v-if="isLoading" />
 
   <EmptyMewsFeed v-else-if="mews.length === 0" />
 
-  <q-list v-else bordered separator>
-    <mew-list-item
+  <QList v-else bordered separator>
+    <MewListItem
       v-for="(mew, index) of mews"
       :key="index"
       :feed-mew="mew"
-      :on-toggle-lick-mew="onToggleLickMew"
-      :on-publish-mew="onPublishMew"
+      @toggle-lick-mew="(val: any) => emit('toggle-lick-mew', val)"
+      @publish-mew="(val: any) => emit('publish-mew', val)"
     />
-  </q-list>
+  </QList>
 </template>
 
 <script setup lang="ts">
+import { QList } from "quasar";
 import MewListItem from "@/components/MewListItem.vue";
 import MewListSkeleton from "@/components/MewListSkeleton.vue";
-import { FeedMew, MewType } from "@/types/types";
+import { FeedMew } from "@/types/types";
 import EmptyMewsFeed from "./EmptyMewsFeed.vue";
-import { ActionHash } from "@holochain/client";
 
 defineProps<{
   mews: FeedMew[];
   isLoading: boolean;
-  onToggleLickMew: (a: ActionHash) => Promise<void>;
-  onPublishMew: (m: MewType) => Promise<void>;
 }>();
+
+const emit = defineEmits(["publish-mew", "toggle-lick-mew"]);
 </script>

@@ -5,15 +5,14 @@ import {
   HoloHash,
   SigningCredentials,
 } from "@holochain/client";
-import { RouteLocationNamedRaw } from "vue-router";
+import { QSelectOption } from "quasar";
+import { RouteLocationNamedRaw, RouteLocationRaw } from "vue-router";
 
 export const PROFILE_FIELDS = {
   DISPLAY_NAME: "Display name",
   BIO: "Bio",
   LOCATION: "Location",
 };
-
-export const TOOLTIP_DELAY = 400;
 
 export enum LinkTargetName {
   Mention = "Mention",
@@ -129,6 +128,11 @@ export interface SigningCredentialsJson
 }
 
 export interface MewsfeedDnaProperties {
-  mew_characters_min?: number;
-  mew_characters_max?: number;
+  mew_characters_min: number | null;
+  mew_characters_max: number | null;
 }
+
+export type SearchResultOption = QSelectOption<RouteLocationRaw> & {
+  agentPubKey?: AgentPubKey;
+  resultType: SearchResult;
+};

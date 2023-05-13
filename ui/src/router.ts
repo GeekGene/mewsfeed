@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
+import { RouteRecordRaw, createRouter, createWebHistory } from "vue-router";
 import { TAG_SYMBOLS } from "./utils/tags";
 import HomePage from "./pages/HomePage.vue";
 import MewsFeed from "./pages/MewsFeed.vue";
@@ -25,7 +25,7 @@ export const ROUTES = {
   [PATH[TAG_SYMBOLS.MENTION]]: PATH[TAG_SYMBOLS.MENTION],
 };
 
-const routes: RouteRecordRaw[] = [
+export const routes: RouteRecordRaw[] = [
   {
     path: "/",
     name: ROUTES.home,
@@ -72,9 +72,7 @@ const routes: RouteRecordRaw[] = [
   { path: "/:pathMatch(.*)", component: NotFound },
 ];
 
-const router = createRouter({
+export const router = createRouter({
   history: createWebHistory(),
   routes,
 });
-
-export default router;

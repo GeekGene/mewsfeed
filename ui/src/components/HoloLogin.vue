@@ -1,39 +1,38 @@
 <template>
-  <template v-if="!holoStore.isAnonymous && holoStore.isAvailable">
+  <template v-if="!client.agent.isAnonymous && client.agent.isAvailable">
     <slot />
   </template>
 </template>
 
 <script setup lang="ts">
 import { ROUTES } from "@/router";
-import { useHoloStore } from "@/stores";
-import { onMounted, watch } from "vue";
+import WebSdkApi from "@holo-host/web-sdk";
+import { ComputedRef, inject, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 
-const holoStore = useHoloStore();
+const client = (inject("client") as ComputedRef<WebSdkApi>).value;
 const router = useRouter();
 
 onMounted(() => {
-  if (holoStore.isAnonymous) {
-    holoStore.signUp();
+  if (client.agent.isAnonymous) {
+    client.signUp({});
   }
 });
 
 watch(
-  () => holoStore.isLoggedIn,
+  () => client.agent.isAvailable,
   (isLoggedIn) => {
     if (isLoggedIn) {
-      holoStore.isAuthFormOpen = false;
-      setTimeout(() => router.replace({ name: ROUTES.home, force: true }), 10);
+      router.replace({ name: ROUTES.home, force: true });
     }
   }
 );
 
 watch(
-  () => holoStore.isAnonymous,
-  (isAnonymous) => {
-    if (isAnonymous && !holoStore.isAuthFormOpen) {
-      holoStore.signUp();
+  () => client.agent.isAnonymous,
+  () => {
+    if (client?.agent.isAnonymous) {
+      client.signUp({});
     }
   }
 );

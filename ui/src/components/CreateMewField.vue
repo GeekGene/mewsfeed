@@ -1,7 +1,7 @@
 <template>
   <div class="text-center">
     <div ref="mewContainer" class="text-left" style="position: relative">
-      <q-card
+      <QCard
         contenteditable="true"
         class="mew-content text-body1 q-pa-md overflow-auto"
         style="word-break: break-all"
@@ -14,7 +14,7 @@
         @input="onInput"
       />
       <div class="flex justify-between q-pa-sm">
-        <div>
+        <div class="q-mr-xl">
           <div
             :class="{
               'text-red text-bold':
@@ -23,11 +23,12 @@
             }"
           >
             {{ mewContentLength }} /
-            {{ min([TRUNCATED_MEW_LENGTH, mewLengthMax]) }} Characters
+            {{ min([TRUNCATED_MEW_LENGTH, dnaProperties.mew_characters_max]) }}
+            Characters
           </div>
           <div style="height: 20px">
             <div v-if="isMewUnderfull" class="text-caption text-grey">
-              {{ mewLengthMin }} Minimum
+              {{ dnaProperties.mew_characters_min }} Minimum
             </div>
             <div v-if="isMewRequireTruncation" class="text-caption text-grey">
               Overflow will be hidden
@@ -40,11 +41,11 @@
         </div>
       </div>
 
-      <q-card
+      <QCard
         class="link-target-input-container q-px-md q-py-sm"
         style="min-width: 13rem"
       >
-        <q-input
+        <QInput
           ref="linkTargetInput"
           v-model="linkTarget"
           type="text"
@@ -57,22 +58,22 @@
           @keydown.tab="createLinkTag"
           @blur="resetLinkTargetInput"
         />
-      </q-card>
+      </QCard>
 
-      <q-card class="autocompleter">
+      <QCard class="autocompleter">
         <template v-if="currentAgentSearch.length < 3">
-          <q-card-section>Min. 3 letters</q-card-section>
+          <QCardSection>Min. 3 letters</QCardSection>
         </template>
 
         <template v-else>
-          <q-spinner-pie
+          <QSpinnerPie
             v-if="autocompleterLoading"
             color="secondary"
             size="md"
             class="q-mx-lg q-my-xs"
           />
 
-          <q-list
+          <QList
             v-else
             class="autocompleter-list bg-white rounded-borders"
             bordered
@@ -80,48 +81,43 @@
             separator
             tabindex="-1"
           >
-            <q-item
+            <QItem
               v-for="([agentPubKey, profile], i) in agentAutocompletions"
               :key="i"
               clickable
               @keydown="onAutocompleteKeyDown"
               @click="onAutocompleteAgentSelect(agentPubKey, profile)"
             >
-              <q-item-section avatar class="q-pr-sm col-shrink">
+              <QItemSection avatar class="q-pr-sm col-shrink">
                 <agent-avatar
                   :agentPubKey="agentPubKey"
                   disable-tooltip
                   disable-copy
                   size="30"
                 ></agent-avatar>
-              </q-item-section>
-              <q-item-section>
+              </QItemSection>
+              <QItemSection>
                 {{ profile.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
                 {{ TAG_SYMBOLS.MENTION }}{{ profile.nickname }}
-              </q-item-section>
-            </q-item>
+              </QItemSection>
+            </QItem>
 
-            <q-item v-if="agentAutocompletions.length === 0">
-              <q-item-section>Nothing found, Kitty</q-item-section>
-            </q-item>
-          </q-list>
+            <QItem v-if="agentAutocompletions.length === 0">
+              <QItemSection>Nothing found, Kitty</QItemSection>
+            </QItem>
+          </QList>
         </template>
-      </q-card>
+      </QCard>
 
-      <q-icon name="help" color="grey" size="xs" class="help-text">
-        <q-tooltip
-          class="text-body2"
-          anchor="top middle"
-          self="bottom middle"
-          :delay="TOOLTIP_DELAY"
-        >
+      <QIcon name="help" color="grey" size="xs" class="help-text">
+        <QTooltip class="text-body2" anchor="top middle" self="bottom middle">
           You can mention people with @ and use #hashtags and $cashtags as well
           as ^links in a mew.
-        </q-tooltip>
-      </q-icon>
+        </QTooltip>
+      </QIcon>
     </div>
 
-    <q-btn
+    <QBtn
       :disable="isMewEmpty || isMewOverfull || isMewUnderfull"
       :loading="saving"
       :tabindex="agentAutocompletions.length && 0"
@@ -129,17 +125,33 @@
       @click="publishMew"
     >
       Publish Mew
-    </q-btn>
+    </QBtn>
+
+    <CreateProfileIfNotFoundDialog
+      v-model="showCreateProfileDialog"
+      @profile-created="publishMew"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { useClientStore, useMewsfeedStore } from "@/stores";
+import {
+  QCard,
+  QInput,
+  QCardSection,
+  QSpinnerPie,
+  QList,
+  QItem,
+  QItemSection,
+  QIcon,
+  QTooltip,
+  QBtn,
+} from "quasar";
 import { showError } from "@/utils/notification";
-import { useSearchProfiles, useMyProfile } from "@/utils/profile";
+import { useSearchProfiles } from "@/stores/profiles";
 import { Profile } from "@holochain-open-dev/profiles";
 import { isMentionTag, isRawUrl, isLinkTag, TAG_SYMBOLS } from "@/utils/tags";
-import { onMounted, PropType, ref, computed } from "vue";
+import { onMounted, ref, computed, ComputedRef, inject } from "vue";
 import {
   Mew,
   ElementWithInnerText,
@@ -148,7 +160,6 @@ import {
   MewsfeedDnaProperties,
   MewType,
   PROFILE_FIELDS,
-  TOOLTIP_DELAY,
   UrlLinkTarget,
   MentionLinkTarget,
 } from "../types/types";
@@ -157,10 +168,11 @@ import {
   decodeHashFromBase64,
   encodeHashToBase64,
 } from "@holochain/client";
-import min from "lodash.min";
-import union from "lodash.union";
-import flatten from "lodash.flatten";
-import { decode } from "@msgpack/msgpack";
+import min from "lodash/min";
+import union from "lodash/union";
+import flatten from "lodash/flatten";
+import { AppAgentClient } from "@holochain/client";
+import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
 
 const ANCHOR_DATA_ID_AGENT_PUB_KEY = "agentPubKey";
 const ANCHOR_DATA_ID_URL = "url";
@@ -170,16 +182,15 @@ let currentFocusOffset: number;
 let currentNode: Node;
 
 const emit = defineEmits<{ (e: "publish-mew"): void }>();
-
-const props = defineProps({
-  mewType: { type: Object as PropType<MewType>, required: true },
-});
-
-const store = useMewsfeedStore();
-const clientStore = useClientStore();
-
-const { searchProfiles } = useSearchProfiles();
-const { runWhenMyProfileExists } = useMyProfile();
+const props = defineProps<{
+  mewType: MewType;
+}>();
+const searchProfiles = useSearchProfiles();
+const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+const dnaProperties = (
+  inject("dnaProperties") as ComputedRef<MewsfeedDnaProperties>
+).value;
+const myProfile = inject("myProfile") as ComputedRef<Profile>;
 
 const TRUNCATED_MEW_LENGTH = 300;
 
@@ -191,33 +202,30 @@ const linkTargetInput = ref();
 const currentAgentSearch = ref("");
 const agentAutocompletions = ref<Array<[AgentPubKey, Profile]>>([]);
 const autocompleterLoading = ref(false);
-const mewLengthMin = ref();
-const mewLengthMax = ref();
+const showCreateProfileDialog = ref(false);
 
 const isMewEmpty = computed(() => mewContentLength.value === 0);
 const isMewFull = computed(
-  () => mewLengthMin.value && mewContentLength.value === mewLengthMax.value
+  () =>
+    dnaProperties.mew_characters_max !== null &&
+    mewContentLength.value === dnaProperties.mew_characters_max
 );
 const isMewRequireTruncation = computed(
   () => mewContentLength.value > TRUNCATED_MEW_LENGTH
 );
 const isMewOverfull = computed(
-  () => mewLengthMax.value && mewContentLength.value > mewLengthMax.value
+  () =>
+    dnaProperties.mew_characters_max !== null &&
+    mewContentLength.value > dnaProperties.mew_characters_max
 );
 const isMewUnderfull = computed(
-  () => mewLengthMin.value && mewContentLength.value < mewLengthMin.value
+  () =>
+    dnaProperties.mew_characters_min !== null &&
+    mewContentLength.value < dnaProperties.mew_characters_min
 );
 
 onMounted(async () => {
-  setTimeout(focusInputField, 0);
-
-  const appInfo = await clientStore.appInfo();
-  const dnaProperties = decode(
-    appInfo.cell_info.mewsfeed[0].provisioned.dna_modifiers.properties
-  ) as MewsfeedDnaProperties;
-
-  mewLengthMin.value = dnaProperties.mew_characters_min;
-  mewLengthMax.value = dnaProperties.mew_characters_max;
+  focusInputField();
 });
 
 const collectLinksWithinElement = (element: Element): LinkTarget[] => {
@@ -258,38 +266,46 @@ const collectLinksWithinElement = (element: Element): LinkTarget[] => {
   }
 };
 
-const publishMew = () => {
-  runWhenMyProfileExists(async () => {
-    const mewInput = mewContainer.value?.querySelector(
-      ".mew-content"
-    ) as ElementWithInnerText;
-    if (!mewInput) return;
+const publishMew = async () => {
+  if (!myProfile.value) {
+    showCreateProfileDialog.value = true;
+    return;
+  }
+  showCreateProfileDialog.value = false;
 
-    // build link array
-    const links = collectLinksWithinElement(mewInput);
+  const mewInput = mewContainer.value?.querySelector(
+    ".mew-content"
+  ) as ElementWithInnerText;
+  if (!mewInput) return;
 
-    const mew: Mew = {
-      text: getTrimmedText(),
-      links,
-      mew_type: props.mewType,
-    };
-    console.log("mew is ", mew);
-    try {
-      saving.value = true;
-      const res = await store.createMew(mew);
-      console.log(res);
-    } catch (error) {
-      showError(error);
-    } finally {
-      saving.value = false;
-    }
-    emit("publish-mew");
-    mewInput.textContent = "";
-    mewContentLength.value = 0;
-    hideAutocompleter();
-    resetLinkTargetInput();
-    focusInputField();
-  });
+  // build link array
+  const links = collectLinksWithinElement(mewInput);
+
+  const mew: Mew = {
+    text: getTrimmedText(),
+    links,
+    mew_type: props.mewType,
+  };
+
+  try {
+    saving.value = true;
+    await client.callZome({
+      role_name: "mewsfeed",
+      zome_name: "mews",
+      fn_name: "create_mew",
+      payload: mew,
+    });
+  } catch (error) {
+    showError(error);
+  } finally {
+    saving.value = false;
+  }
+  emit("publish-mew");
+  mewInput.textContent = "";
+  mewContentLength.value = 0;
+  hideAutocompleter();
+  resetLinkTargetInput();
+  focusInputField();
 };
 
 /**
@@ -422,7 +438,7 @@ const onKeyDown = (event: KeyboardEvent) => {
 
   // Support KeyDown or Tab keys to focus on first item displayed in agents list (after typing an agent tag)
   else if (event.key === "ArrowDown" || event.key === "Tab") {
-    const firstListItem = mewContainer.value?.querySelector(".q-item");
+    const firstListItem = mewContainer.value?.querySelector(".QItem");
     if (firstListItem instanceof HTMLElement) {
       event.preventDefault();
       firstListItem.focus();

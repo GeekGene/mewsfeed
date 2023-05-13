@@ -1,51 +1,55 @@
 <template>
-  <q-item>
-    <q-item-section avatar>
-      <q-skeleton type="QAvatar" />
-    </q-item-section>
+  <QItem>
+    <QItemSection avatar>
+      <QSkeleton type="QAvatar" />
+    </QItemSection>
 
-    <q-item-section>
-      <q-item-label>
-        <q-skeleton type="text" />
-      </q-item-label>
-      <q-item-label caption>
-        <q-skeleton type="text" width="80%" />
-      </q-item-label>
-    </q-item-section>
-  </q-item>
+    <QItemSection>
+      <QItemLabel>
+        <QSkeleton type="text" />
+      </QItemLabel>
+      <QItemLabel caption>
+        <QSkeleton type="text" width="80%" />
+      </QItemLabel>
+    </QItemSection>
+  </QItem>
 
-  <q-item>
-    <q-item-section avatar />
+  <QItem>
+    <QItemSection avatar />
 
-    <q-item-section>
-      <q-skeleton height="50px" class="q-mb-sm" />
+    <QItemSection>
+      <QSkeleton height="50px" class="q-mb-sm" />
 
       <div class="row items-center">
         <div class="row items-center">
-          <q-icon
+          <QIcon
             name="chat_bubble_outline"
             color="grey-4"
             class="q-mr-sm"
             size="18px"
           />
-          <q-skeleton type="text" width="30px" />
+          <QSkeleton type="text" width="30px" />
         </div>
 
         <div class="row items-center">
-          <q-icon name="repeat" color="grey-4" class="q-mr-sm" size="18px" />
-          <q-skeleton type="text" width="30px" />
+          <QIcon name="repeat" color="grey-4" class="q-mr-sm" size="18px" />
+          <QSkeleton type="text" width="30px" />
         </div>
 
         <div class="row items-center">
-          <q-icon
+          <QIcon
             name="favorite_border"
             color="grey-4"
             class="q-mr-sm"
             size="18px"
           />
-          <q-skeleton type="text" width="30px" />
+          <QSkeleton type="text" width="30px" />
         </div>
       </div>
-    </q-item-section>
-  </q-item>
+    </QItemSection>
+  </QItem>
 </template>
+
+<script setup lang="ts">
+import { QItem, QItemSection, QSkeleton, QIcon } from "quasar";
+</script>

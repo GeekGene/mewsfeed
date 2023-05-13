@@ -1,33 +1,38 @@
 <template>
-  <q-page class="q-pb-lg" :style-fn="pageHeightCorrection">
+  <QPage class="q-pb-lg" :style-fn="pageHeightCorrection">
     <CreateMewField
       :mew-type="{ [MewTypeName.Original]: null }"
-      @publish-mew="store.fetchMewsFeed"
+      @publish-mew="() => mewsfeedStore.fetchMewsFeed(client)"
     />
 
     <h6 class="q-mb-md">Your Mews Feed</h6>
 
     <MewList
-      :mews="store.mewsFeed"
-      :is-loading="store.isLoadingMewsFeed"
-      :on-toggle-lick-mew="onToggleLickMew"
-      :on-publish-mew="onPublishMew"
+      :mews="mewsfeedStore.mewsFeed"
+      :is-loading="mewsfeedStore.isLoadingMewsFeed"
+      @toggle-lick-mew="onToggleLickMew"
+      @publish-mew="onPublishMew"
     />
-  </q-page>
+  </QPage>
 </template>
 
 <script setup lang="ts">
+import { QPage } from "quasar";
 import CreateMewField from "@/components/CreateMewField.vue";
 import MewList from "@/components/MewList.vue";
-import { useMewsfeedStore } from "@/stores";
+import { useMewsfeedStore } from "@/stores/mewsfeed";
 import { pageHeightCorrection } from "@/utils/page-layout";
-import { ActionHash } from "@holochain/client";
-import { onMounted } from "vue";
+import { ActionHash, AppAgentClient } from "@holochain/client";
+import { ComputedRef, inject, onMounted } from "vue";
 import { MewTypeName } from "@/types/types";
 
-const store = useMewsfeedStore();
-onMounted(store.fetchMewsFeed);
+const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+const mewsfeedStore = useMewsfeedStore();
+onMounted(() => {
+  mewsfeedStore.fetchMewsFeed(client);
+});
 
-const onToggleLickMew = (hash: ActionHash) => store.reloadMew(hash);
-const onPublishMew = async () => store.fetchMewsFeed();
+const onToggleLickMew = (hash: ActionHash) =>
+  mewsfeedStore.reloadMew(client, hash);
+const onPublishMew = async () => mewsfeedStore.fetchMewsFeed(client);
 </script>

@@ -7,16 +7,15 @@
     "tests"
   ],
   "scripts": {
+    "start": "npm run network",
+    "network": "npm run build:happ && UI_PORT=8888 concurrently \"npm run playground\" \"npm run start:agent\" \"npm run start:agent\"",
+    "start:agent": "HC_PORT=$(port) HC_ADMIN_PORT=$(port) concurrently \"npm run launch:happ\" \"npm run start:browser -w ui\"",
+    "launch:happ": "hc s clean && echo pass | RUST_LOG=warn hc s --piped -f=$HC_ADMIN_PORT generate ./workdir/mewsfeed.happ --run=$HC_PORT -a mewsfeed network mdns",    
     "start:launcher": "AGENTS=2 npm run network:launcher",
-    "network:launcher": "hc s clean && npm run build:happ && UI_PORT=8888 concurrently \"npm start -w ui\" \"npm run launch:happ\" \"holochain-playground\"",
-    "launch:happ": "echo \"pass\" | RUST_LOG=warn hc launch --piped -n $AGENTS workdir/mewsfeed.happ --ui-port $UI_PORT network mdns",
-    "start": "AGENTS=2 npm run network:browser",
-    "network:browser": "npm run build:happ && concurrently \"npm run playground\" \"npm run start:agents:browser\"",
-    "start:agents:browser": "concurrently-repeat \"npm run start:agent:browser\" $AGENTS",
-    "start:agent:browser": "cross-env HC_PORT=$(port) HC_ADMIN_PORT=$(port) concurrently \"npm run start:happ:browser\" \"sleep 5 && npm run start:browser -w ui\"",
+    "network:launcher": "hc s clean && npm run build:happ && UI_PORT=8888 concurrently \"npm start -w ui\" \"npm run launch:happ:launcher\" \"holochain-playground\"",
+    "launch:happ:launcher": "echo \"pass\" | RUST_LOG=warn hc launch --piped -n $AGENTS workdir/mewsfeed.happ --ui-port $UI_PORT network mdns",
     "test": "npm run build:happ && npm t -w tests",
     "test:watch": "cargo watch --clear -- npm test",
-    "start:happ:browser": "hc s clean && echo pass | RUST_LOG=warn hc s --piped -f=$HC_ADMIN_PORT generate ./workdir/mewsfeed.happ --run=$HC_PORT -a mewsfeed network mdns",
     "package": "npm run build:happ && npm run package:ui && hc web-app pack workdir",
     "package:ui": "npm run build -w ui && cd ui/dist && bestzip ../dist.zip *",
     "build:happ": "rm -f dnas/**/workdir/*.dna && npm run build:dnas && hc app pack ./workdir",
@@ -30,23 +29,26 @@
     "cargo:fmt:check": "cargo fmt --check"
   },
   "devDependencies": {
-    "@holochain-playground/cli": "^0.1.0",
-    "@typescript-eslint/eslint-plugin": "^5.28.0",
-    "@typescript-eslint/parser": "^5.17.0",
-    "bestzip": "^2.2.0",
-    "concurrently": "^6.2.1",
+    "@holochain-playground/cli": "^0.1.1",
+    "@typescript-eslint/eslint-plugin": "^5.59.5",
+    "@typescript-eslint/parser": "^5.59.5",
+    "bestzip": "^2.2.1",
+    "concurrently": "^6.5.1",
     "concurrently-repeat": "^0.0.1",
     "cross-env": "^7.0.3",
-    "eslint": "^8.7.0",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-prettier": "^4.0.0",
-    "eslint-plugin-vue": "^8.4.0",
+    "eslint": "^8.40.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-vue": "^8.7.1",
     "new-port-cli": "^1.0.0",
-    "prettier": "^2.6.2",
+    "prettier": "^2.8.8",
     "rimraf": "^3.0.2",
     "run-singleton-cli": "^0.0.7"
   },
   "engines": {
     "npm": ">=7.0.0"
+  },
+  "dependencies": {
+    "@holo-host/web-sdk": "github:mattyg/web-sdk#fix/update-hc-client"
   }
 }

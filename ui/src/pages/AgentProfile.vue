@@ -1,15 +1,15 @@
 <template>
-  <q-page class="row" :style-fn="pageHeightCorrection">
+  <QPage class="row" :style-fn="pageHeightCorrection">
     <div class="col-8">
       <h6 class="q-mt-none q-mb-md">Profile</h6>
-      <q-spinner-pie
+      <QSpinnerPie
         v-if="loadingProfile || !agentPubKey"
         size="10%"
         color="primary"
       />
 
-      <q-card v-else v-bind="$attrs" square class="q-mb-md text-body1">
-        <q-card-section class="flex justify-between">
+      <QCard v-else v-bind="$attrs" square class="q-mb-md text-body1">
+        <QCardSection class="flex justify-between">
           <div class="flex items-center">
             <agent-avatar
               :agentPubKey="agentPubKey"
@@ -22,9 +22,9 @@
             <div class="text-primary">@{{ profile?.nickname }}</div>
           </div>
           <ButtonFollow v-if="!isMyProfile" :agentPubKey="agentPubKey" />
-        </q-card-section>
+        </QCardSection>
 
-        <q-card-section class="flex">
+        <QCardSection class="flex">
           <div class="q-mr-md">
             <div>
               <label class="text-weight-medium">Bio:</label>
@@ -37,12 +37,12 @@
             <div>{{ profile?.fields[PROFILE_FIELDS.BIO] }}</div>
             <div>{{ profile?.fields[PROFILE_FIELDS.LOCATION] }}</div>
           </div>
-        </q-card-section>
+        </QCardSection>
 
         <div class="flex justify-end q-mx-sm">
           <holo-identicon :hash="agentPubKey" size="30"></holo-identicon>
         </div>
-      </q-card>
+      </QCard>
 
       <h6 class="q-mb-md">Mews</h6>
       <EmptyMewsFeed v-if="!loadingMews && mews.length === 0" />
@@ -50,8 +50,8 @@
         v-else
         :is-loading="loadingMews"
         :mews="mews"
-        :on-toggle-lick-mew="onToggleLickMew"
-        :on-publish-mew="onPublishMew"
+        @toggle-lick-mew="onToggleLickMew"
+        @publish-mew="onPublishMew"
       />
     </div>
 
@@ -61,7 +61,7 @@
       <h6 class="q-mb-md">Followed by</h6>
       <FollowersList :agentPubKey="agentPubKey" />
       <h6 class="q-mb-md">
-        <q-btn
+        <QBtn
           v-if="profile?.nickname"
           size="lg"
           color="secondary"
@@ -76,41 +76,39 @@
           "
         >
           Mew Mentions
-        </q-btn>
+        </QBtn>
       </h6>
     </div>
-  </q-page>
+  </QPage>
 </template>
 
 <script setup lang="ts">
+import { QPage, QSpinnerPie, QCard, QCardSection, QBtn } from "quasar";
 import ButtonFollow from "@/components/ButtonFollow.vue";
 import EmptyMewsFeed from "@/components/EmptyMewsFeed.vue";
 import FolloweesList from "@/components/FolloweesList.vue";
 import FollowersList from "@/components/FollowersList.vue";
-import {
-  followers,
-  following,
-  getFeedMewAndContext,
-  mewsBy,
-} from "@/services/mewsfeed-dna";
-import { useProfilesStore } from "@/services/profiles-store";
 import { FeedMew, MewType, MewTypeName, PROFILE_FIELDS } from "@/types/types";
-import { isSameHash } from "@/utils/hash";
+import isEqual from "lodash/isEqual";
 import { showError, showMessage } from "@/utils/notification";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { PATH, ROUTES } from "@/router";
 import { TAG_SYMBOLS } from "@/utils/tags";
 import {
   ActionHash,
+  AgentPubKey,
   decodeHashFromBase64,
   encodeHashToBase64,
 } from "@holochain/client";
-import { Profile } from "@holochain-open-dev/profiles";
-import { computed, onMounted, ref, watch } from "vue";
+import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
+import { ComputedRef, computed, inject, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import MewList from "../components/MewList.vue";
+import { AppAgentClient } from "@holochain/client";
 
-const profilesStore = useProfilesStore();
+const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
+  .value;
+const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const route = useRoute();
 const router = useRouter();
 const agentPubKey = computed(() =>
@@ -119,17 +117,22 @@ const agentPubKey = computed(() =>
 const loadingMews = ref(false);
 const loadingProfile = ref(false);
 const profile = ref<Profile>();
-const isFollowing = ref(false);
+const isFollowingMe = ref(false);
 const mews = ref<FeedMew[]>([]);
 
 const isMyProfile = computed(() =>
-  isSameHash(agentPubKey.value, profilesStore.value.client.client.myPubKey)
+  isEqual(agentPubKey.value, client.myPubKey as AgentPubKey)
 );
 
 const loadMews = async () => {
   try {
     loadingMews.value = true;
-    mews.value = await mewsBy(agentPubKey.value);
+    mews.value = await client.callZome({
+      role_name: "mewsfeed",
+      zome_name: "mews",
+      fn_name: "get_agent_mews_with_context",
+      payload: agentPubKey.value,
+    });
   } catch (error) {
     showError(error);
   } finally {
@@ -140,16 +143,20 @@ const loadMews = async () => {
 const loadProfile = async () => {
   try {
     loadingProfile.value = true;
-    const [profileData, myFollowing, myFollowers] = await Promise.all([
-      profilesStore.value.client.getAgentProfile(agentPubKey.value),
-      following(agentPubKey.value),
-      followers(agentPubKey.value),
+    const [profileData, agentFollowing] = await Promise.all([
+      profilesStore.client.getAgentProfile(agentPubKey.value),
+      client.callZome({
+        role_name: "mewsfeed",
+        zome_name: "follows",
+        fn_name: "get_creators_for_follower",
+        payload: agentPubKey.value,
+      }),
     ]);
 
     if (profileData) {
       profile.value = profileData;
     }
-    isFollowing.value = myFollowing.includes(agentPubKey.value);
+    isFollowingMe.value = agentFollowing.includes(client.myPubKey);
   } catch (error) {
     showError(error);
   } finally {
@@ -175,11 +182,14 @@ watch(
 
 const onToggleLickMew = async (hash: ActionHash) => {
   try {
-    const index = mews.value.findIndex((mew) =>
-      isSameHash(hash, mew.action_hash)
-    );
+    const index = mews.value.findIndex((mew) => isEqual(hash, mew.action_hash));
     if (index !== -1) {
-      mews.value[index] = await getFeedMewAndContext(hash);
+      mews.value[index] = await client.callZome({
+        role_name: "mewsfeed",
+        zome_name: "mews",
+        fn_name: "get_mew_with_context",
+        payload: hash,
+      });
     }
   } catch (error) {
     showError(error);

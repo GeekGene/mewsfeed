@@ -9,16 +9,18 @@
     class="text-secondary text-bold"
     style="position: relative; display: inline-block; overflow: visible"
     @click.stop
-    @mouseenter="showProfile"
-    @mouseleave="hideProfile"
+    @mouseenter="isPopupVisible = true"
+    @mouseleave="isPopupVisible = false"
   >
     <div>
       <div><slot></slot></div>
-      <ProfilePopup
-        v-show="isPopupVisible"
-        :agentPubKey="agentPubKey"
-        style="left: -15px"
-      />
+      <Transition name="slide-fade">
+        <ProfilePopup
+          v-show="isPopupVisible"
+          :agentPubKey="agentPubKey"
+          style="left: -15px; margin-top: 5px"
+        />
+      </Transition>
     </div>
   </RouterLink>
 </template>
@@ -35,27 +37,20 @@ defineProps<{
   agentPubKey: Uint8Array;
 }>();
 
-const PROFILE_SHOW_HIDE_DELAY = 400; // in ms
-
 const isPopupVisible = ref<boolean>(false);
-const popupHideTimeout = ref<number>(0);
-const popupShowTimeout = ref<number>(0);
-
-const showProfile = () => {
-  window.clearTimeout(popupHideTimeout.value);
-
-  popupShowTimeout.value = window.setTimeout(
-    () => (isPopupVisible.value = true),
-    PROFILE_SHOW_HIDE_DELAY
-  );
-};
-
-const hideProfile = () => {
-  window.clearTimeout(popupShowTimeout.value);
-
-  popupHideTimeout.value = window.setTimeout(
-    () => (isPopupVisible.value = false),
-    PROFILE_SHOW_HIDE_DELAY
-  );
-};
 </script>
+<style scoped>
+.slide-fade-enter-active {
+  transition: all 0.2s linear;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.2s cubic-bezier(1, 0.5, 0.8, 1);
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateY(-20px);
+  opacity: 0;
+}
+</style>

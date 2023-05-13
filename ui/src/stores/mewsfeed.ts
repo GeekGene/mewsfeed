@@ -1,50 +1,56 @@
-import {
-  callZome,
-  getFeedMewAndContext,
-  mewsFeed,
-  MewsFn,
-} from "@/services/mewsfeed-dna";
-import { Mew, FeedMew } from "@/types/types";
-import { isSameHash } from "@/utils/hash";
+import { FeedMew } from "@/types/types";
+import isEqual from "lodash/isEqual";
 import { showError } from "@/utils/notification";
-import { ActionHash } from "@holochain/client";
-import { defineStore } from "pinia";
+import { ActionHash, AppAgentClient } from "@holochain/client";
+import { defineStore, Store } from "pinia";
 
-export const MEWSFEED_ROLE_NAME = "mewsfeed";
-export const MEWS_ZOME_NAME = "mews";
-
-export const makeUseMewsfeedStore = () => {
-  return defineStore("mewsfeed", {
-    state: () => ({
-      mewsFeed: [] as FeedMew[],
-      isLoadingMewsFeed: false,
-    }),
-    actions: {
-      async fetchMewsFeed() {
-        try {
-          this.isLoadingMewsFeed = true;
-          this.mewsFeed = await mewsFeed();
-        } catch (error) {
-          showError(error);
-        } finally {
-          this.isLoadingMewsFeed = false;
-        }
-      },
-      async reloadMew(actionHash: ActionHash) {
-        try {
-          const index = this.mewsFeed.findIndex((mew) =>
-            isSameHash(actionHash, mew.action_hash)
-          );
-          if (index !== -1) {
-            this.mewsFeed[index] = await getFeedMewAndContext(actionHash);
-          }
-        } catch (error) {
-          showError(error);
-        }
-      },
-      async createMew(mew: Mew) {
-        return callZome(MewsFn.CreateMew, mew);
-      },
+export const useMewsfeedStore = defineStore("mewsfeed", {
+  state: () => ({
+    mewsFeed: [] as FeedMew[],
+    isLoadingMewsFeed: false,
+  }),
+  actions: {
+    async fetchMewsFeed(client: AppAgentClient) {
+      try {
+        this.isLoadingMewsFeed = true;
+        this.mewsFeed = await client.callZome({
+          role_name: "mewsfeed",
+          zome_name: "mews",
+          fn_name: "get_my_followed_creators_mews_with_context",
+          payload: null,
+        });
+      } catch (error) {
+        showError(error);
+      } finally {
+        this.isLoadingMewsFeed = false;
+      }
     },
-  });
-};
+    async reloadMew(client: AppAgentClient, actionHash: ActionHash) {
+      try {
+        const index = this.mewsFeed.findIndex((mew) =>
+          isEqual(actionHash, mew.action_hash)
+        );
+        if (index !== -1) {
+          this.mewsFeed[index] = await client.callZome({
+            role_name: "mewsfeed",
+            zome_name: "mews",
+            fn_name: "get_mew_with_context",
+            payload: actionHash,
+          });
+        }
+      } catch (error) {
+        showError(error);
+      }
+    },
+  },
+});
+
+export type MewsfeedStore = Store<
+  "mewsfeed",
+  {
+    mewsFeed: FeedMew[];
+    isLoadingMewsFeed: boolean;
+    fetchMewsFeed(client: AppAgentClient): Promise<void>;
+    reloadMew(client: AppAgentClient, actionHash: ActionHash): Promise<void>;
+  }
+>;

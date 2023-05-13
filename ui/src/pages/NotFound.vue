@@ -1,17 +1,18 @@
 <template>
-  <q-page class="text-center" :style-fn="pageHeightCorrection">
+  <QPage class="text-center" :style-fn="pageHeightCorrection">
     <h4>You've lost the thread</h4>
-    <q-btn
+    <QBtn
       icon="explore"
       color="accent"
       label="Come back home, Kitty"
       size="md"
       :to="{ name: ROUTES.home }"
     />
-  </q-page>
+  </QPage>
 </template>
 
 <script setup lang="ts">
+import { QPage } from "quasar";
 import { ROUTES } from "@/router";
 import { pageHeightCorrection } from "@/utils/page-layout";
 </script>

@@ -7,8 +7,8 @@
     style="z-index: 200; width: 350px; position: absolute"
     @click.stop
   >
-    <q-card v-bind="$attrs" class="text-body1 bg-white">
-      <q-card-section
+    <QCard v-bind="$attrs" class="text-body1 bg-white">
+      <QCardSection
         class="row justify-between items-center"
         style="white-space: nowrap"
       >
@@ -33,8 +33,8 @@
           </div>
         </div>
         <ButtonFollow v-if="!isMyProfile" :agentPubKey="agentPubKey" />
-      </q-card-section>
-      <q-card-section v-if="bio || location" class="text-black">
+      </QCardSection>
+      <QCardSection v-if="bio || location" class="text-black">
         <div v-if="bio" class="row justify-start">
           <div>
             <label class="text-weight-bold q-mr-sm">Bio:</label>
@@ -47,27 +47,32 @@
           </div>
           <div>{{ location }}</div>
         </div>
-      </q-card-section>
+      </QCardSection>
       <div
         class="row justify-end items-start q-mx-sm"
         style="white-space: nowrap"
       >
         <holo-identicon :hash="agentPubKey" size="30"></holo-identicon>
       </div>
-    </q-card>
+    </QCard>
   </RouterLink>
 </template>
 
 <script setup lang="ts">
-import { useProfilesStore } from "@/services/profiles-store";
+import { QCard, QCardSection } from "quasar";
 import { PROFILE_FIELDS } from "@/types/types";
-import { isSameHash } from "@/utils/hash";
+import isEqual from "lodash/isEqual";
 import { showError } from "@/utils/notification";
 import { ROUTES } from "@/router";
-import { AgentPubKey, encodeHashToBase64 } from "@holochain/client";
-import { computed, onMounted, PropType, ref } from "vue";
+import {
+  AgentPubKey,
+  AppAgentClient,
+  encodeHashToBase64,
+} from "@holochain/client";
+import { computed, ComputedRef, inject, onMounted, PropType, ref } from "vue";
 import { useRouter } from "vue-router";
 import ButtonFollow from "./ButtonFollow.vue";
+import { ProfilesStore } from "@holochain-open-dev/profiles";
 
 const props = defineProps({
   agentPubKey: {
@@ -77,10 +82,12 @@ const props = defineProps({
 });
 
 const router = useRouter();
-const profilesStore = useProfilesStore();
+const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
+  .value;
+const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 
 const isMyProfile = computed(() =>
-  isSameHash(props.agentPubKey, profilesStore.value.client.client.myPubKey)
+  isEqual(props.agentPubKey, client.myPubKey)
 );
 const isCurrentProfile = computed(
   () =>
@@ -97,7 +104,7 @@ const loading = ref(false);
 onMounted(async () => {
   try {
     loading.value = true;
-    const profile = await profilesStore.value.client.getAgentProfile(
+    const profile = await profilesStore.client.getAgentProfile(
       props.agentPubKey
     );
     if (profile) {

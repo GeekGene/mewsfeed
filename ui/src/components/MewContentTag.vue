@@ -14,7 +14,7 @@
     @click.stop
   >
     {{ contentPart.text }}
-    <q-tooltip :delay="TOOLTIP_DELAY">{{ contentPart.href }}</q-tooltip>
+    <QTooltip>{{ contentPart.href }}</QTooltip>
   </a>
   <LinkProfilePopup
     v-else-if="contentPart.route && contentPart.tagType === MewTagType.Mention"
@@ -37,7 +37,8 @@
   </RouterLink>
 </template>
 <script setup lang="ts">
-import { TOOLTIP_DELAY, MewContentPart, MewTagType } from "@/types/types";
+import { QTooltip } from "quasar";
+import { MewContentPart, MewTagType } from "@/types/types";
 import { decodeHashFromBase64 } from "@holochain/client";
 import { PropType } from "vue";
 import { LocationQueryValueRaw, RouteLocationNamedRaw } from "vue-router";

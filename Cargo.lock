@@ -1270,9 +1270,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e0a7ae3ac2f1173085d398531c705756c94a4c56843785df85a60c1a0afac116"
 
 [[package]]
-name = "prefix_index"
+name = "ping"
 version = "0.0.1"
-source = "git+https://github.com/mattyg/holochain-prefix-index.git?tag=0.3.0#dd1656e1e9735b92baeb07db1a8977cb7db4ccae"
+dependencies = [
+ "hdk",
+ "serde",
+]
+
+[[package]]
+name = "prefix_index"
+version = "0.4.0"
+source = "git+https://github.com/mattyg/holochain-prefix-index.git?tag=0.4.0#c75e6ee25e064486c91f5c1ea74146665de57910"
 dependencies = [
  "hdk",
  "holochain_integrity_types",
@@ -1314,7 +1322,7 @@ dependencies = [
 
 [[package]]
 name = "profiles"
-version = "0.0.1"
+version = "0.1.2"
 dependencies = [
  "hc_zome_profiles_coordinator",
  "hdk",
@@ -1324,7 +1332,7 @@ dependencies = [
 
 [[package]]
 name = "profiles_integrity"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "hc_zome_profiles_integrity",
  "hdi",
