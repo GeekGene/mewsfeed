@@ -58,41 +58,56 @@ pub fn get_mew(original_mew_hash: ActionHash) -> ExternResult<Option<Record>> {
 
 #[hdk_extern]
 pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedMew> {
-    let element = get(original_mew_hash.clone(), GetOptions::default())?.ok_or(wasm_error!(
-        WasmErrorInner::Guest(String::from("Mew not found"))
-    ))?;
-    let mew: Mew = element
-        .entry()
-        .to_app_option()
-        .map_err(|e| wasm_error!(WasmErrorInner::Guest(e.into())))?
-        .ok_or(wasm_error!(WasmErrorInner::Guest(String::from(
-            "Malformed mew"
-        ))))?;
+    let response = get_details(original_mew_hash.clone(), GetOptions::default())?.ok_or(
+        wasm_error!(WasmErrorInner::Guest(String::from("Mew not found"))),
+    )?;
 
-    let replies = get_response_hashes_for_mew(GetResponsesForMewInput {
-        original_mew_hash: original_mew_hash.clone(),
-        response_type: Some(ResponseType::Reply),
-    })?;
-    let quotes = get_response_hashes_for_mew(GetResponsesForMewInput {
-        original_mew_hash: original_mew_hash.clone(),
-        response_type: Some(ResponseType::Quote),
-    })?;
-    let mewmews = get_response_hashes_for_mew(GetResponsesForMewInput {
-        original_mew_hash: original_mew_hash.clone(),
-        response_type: Some(ResponseType::Mewmew),
-    })?;
-    let licks = get_lickers_for_mew(original_mew_hash)?;
+    match response {
+        Details::Record(RecordDetails {
+            record, deletes, ..
+        }) => {
+            let mew: Mew = record
+                .entry()
+                .to_app_option()
+                .map_err(|e| wasm_error!(WasmErrorInner::Guest(e.into())))?
+                .ok_or(wasm_error!(WasmErrorInner::Guest(String::from(
+                    "Malformed mew"
+                ))))?;
 
-    let feed_mew_and_context = FeedMew {
-        mew,
-        action: element.action().clone(),
-        action_hash: element.signed_action().as_hash().clone(),
-        replies,
-        quotes,
-        licks,
-        mewmews,
-    };
-    Ok(feed_mew_and_context)
+            let replies = get_response_hashes_for_mew(GetResponsesForMewInput {
+                original_mew_hash: original_mew_hash.clone(),
+                response_type: Some(ResponseType::Reply),
+            })?;
+            let quotes = get_response_hashes_for_mew(GetResponsesForMewInput {
+                original_mew_hash: original_mew_hash.clone(),
+                response_type: Some(ResponseType::Quote),
+            })?;
+            let mewmews = get_response_hashes_for_mew(GetResponsesForMewInput {
+                original_mew_hash: original_mew_hash.clone(),
+                response_type: Some(ResponseType::Mewmew),
+            })?;
+            let licks = get_lickers_for_mew(original_mew_hash)?;
+
+            let deleted_timestamp = deletes
+                .first()
+                .map(|first_delete| first_delete.action().timestamp());
+
+            let feed_mew_and_context = FeedMew {
+                mew,
+                action: record.action().clone(),
+                action_hash: record.signed_action().as_hash().clone(),
+                replies,
+                quotes,
+                licks,
+                mewmews,
+                deleted_timestamp,
+            };
+            Ok(feed_mew_and_context)
+        }
+        _ => Err(wasm_error!(WasmErrorInner::Guest(
+            "Expecting get_details to return record, got entry".into()
+        ))),
+    }
 }
 
 #[hdk_extern]
@@ -119,6 +134,13 @@ pub fn delete_mew(original_mew_hash: ActionHash) -> ExternResult<ActionHash> {
 
     let my_agent_pub_key = agent_info()?.agent_latest_pubkey;
     let links = get_links(my_agent_pub_key, LinkTypes::AgentMews, None)?;
+    for link in links {
+        if ActionHash::from(link.target.clone()).eq(&original_mew_hash) {
+            delete_link(link.create_link_hash)?;
+        }
+    }
+
+    let links = get_links(original_mew_hash.clone(), LinkTypes::MewToResponses, None)?;
     for link in links {
         if ActionHash::from(link.target.clone()).eq(&original_mew_hash) {
             delete_link(link.create_link_hash)?;

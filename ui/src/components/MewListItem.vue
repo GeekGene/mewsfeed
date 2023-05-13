@@ -66,6 +66,31 @@
               <QTooltip>Original Yarn</QTooltip>
             </QBtn>
           </div>
+          <div v-else class="row justify-start items-start">
+            <span class="q-mr-xs text-secondary">
+              {{ reactionLabel }}
+            </span>
+            <span class="text-secondary">
+              <span class="text-bold"> Deleted Mew </span>
+            </span>
+            <QBtn
+              class="q-mx-sm q-px-sm"
+              padding="none"
+              margin="none"
+              flat
+              color="dark"
+              size="xs"
+              @click.stop="navigateToYarn(originalMewHash as Uint8Array)"
+            >
+              <QIcon
+                name="svguse:/icons.svg#yarn"
+                size="xs"
+                color="secondary"
+                flat
+              />
+              <QTooltip>Original Yarn</QTooltip>
+            </QBtn>
+          </div>
         </span>
 
         <QSpace />
@@ -76,54 +101,85 @@
       </div>
 
       <MewContent
+        v-if="!isDeleted || showIfDeleted"
         :feed-mew="originalMew && isMewmew ? originalMew : feedMew"
         class="q-my-sm cursor-pointer"
       />
+      <QBtn
+        v-else
+        size="sm"
+        dense
+        flat
+        @click.stop.prevent="showIfDeleted = true"
+      >
+        Show Deleted Mew Content
+      </QBtn>
 
       <div class="row justify-between">
         <div>
-          <QBtn
-            :disable="isUpdatingLick"
-            size="sm"
-            flat
-            @click.stop.prevent="toggleLickMew"
-          >
-            <QIcon
-              name="svguse:/icons.svg#lick"
-              :color="isLickedByMe ? 'pink-4' : 'transparent'"
-              style="stroke: black"
-              class="q-mr-xs"
-            />
-            {{ feedMew.licks.length }}
-            <QTooltip>Lick mew</QTooltip>
-          </QBtn>
-          <QBtn
-            size="sm"
-            icon="reply"
-            flat
-            @click.stop.prevent="showReplyToMewDialog = true"
-          >
-            {{ feedMew.replies.length }}
-            <QTooltip>Reply to mew</QTooltip>
-          </QBtn>
-          <QBtn
-            size="sm"
-            icon="forward"
-            flat
-            @click.stop.prevent="createMewmew"
-          >
-            {{ feedMew.mewmews.length }}
-            <QTooltip>Mewmew mew</QTooltip>
-          </QBtn>
-          <QBtn
-            size="sm"
-            icon="format_quote"
-            flat
-            @click.stop.prevent="showQuoteMewDialog = true"
-          >
-            {{ feedMew.quotes.length }}
-            <QTooltip>Quote mew</QTooltip>
-          </QBtn>
+          <template v-if="!isDeleted || showIfDeleted">
+            <QBtn
+              :disable="isUpdatingLick || isDeleted"
+              size="sm"
+              flat
+              @click.stop.prevent="toggleLickMew"
+            >
+              <QIcon
+                name="svguse:/icons.svg#lick"
+                :color="isLickedByMe ? 'pink-4' : 'transparent'"
+                style="stroke: black"
+                class="q-mr-xs"
+              />
+              {{ feedMew.licks.length }}
+              <QTooltip v-if="!isDeleted">Lick mew</QTooltip>
+            </QBtn>
+            <QBtn
+              :disable="isDeleted"
+              size="sm"
+              icon="reply"
+              flat
+              @click.stop.prevent="showReplyToMewDialog = true"
+            >
+              {{ feedMew.replies.length }}
+              <QTooltip v-if="!isDeleted">Reply to mew</QTooltip>
+            </QBtn>
+            <QBtn
+              :disable="isDeleted"
+              size="sm"
+              icon="forward"
+              flat
+              @click.stop.prevent="createMewmew"
+            >
+              {{ feedMew.mewmews.length }}
+              <QTooltip v-if="!isDeleted">Mewmew mew</QTooltip>
+            </QBtn>
+            <QBtn
+              :disable="isDeleted"
+              size="sm"
+              icon="format_quote"
+              flat
+              @click.stop.prevent="showQuoteMewDialog = true"
+            >
+              {{ feedMew.quotes.length }}
+              <QTooltip v-if="!isDeleted">Quote mew</QTooltip>
+            </QBtn>
+            <QBtn
+              v-if="isAuthoredByMe"
+              :disable="isDeleted"
+              size="sm"
+              icon="delete"
+              flat
+              @click.stop.prevent="showConfirmDeleteDialog = true"
+            >
+              <QTooltip v-if="!isDeleted">Delete mew</QTooltip>
+            </QBtn>
+          </template>
+        </div>
+        <div
+          v-if="feedMew.deleted_timestamp !== null"
+          class="text-red text-bold"
+        >
+          Deleted <MewTimestamp :timestamp="feedMew.deleted_timestamp" />
         </div>
       </div>
     </QItemSection>
@@ -155,6 +211,18 @@
       v-model="showCreateMewmewDialog"
       @profile-created="createMewmew"
     />
+    <ConfirmDialog
+      v-model="showConfirmDeleteDialog"
+      title="Delete Mew"
+      confirm-text="Delete"
+      @confirm="deleteMew"
+    >
+      <p>Are you sure you want to delete this mew?</p>
+      <p>
+        Note that other peers may still have copies of the data, and you can't
+        force them to delete it.
+      </p>
+    </ConfirmDialog>
   </QItem>
 </template>
 
@@ -175,17 +243,20 @@ import { useRouter } from "vue-router";
 import { AppAgentClient } from "@holochain/client";
 import MewTimestamp from "./MewTimestamp.vue";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
+import ConfirmDialog from "@/components/ConfirmDialog.vue";
 
 const props = withDefaults(
   defineProps<{
     feedMew: FeedMew;
     showYarnLink?: boolean;
+    showIfDeletedDefault?: boolean;
   }>(),
   {
     showYarnLink: true,
+    showIfDeletedDefault: false,
   }
 );
-const emit = defineEmits(["publish-mew", "toggle-lick-mew"]);
+const emit = defineEmits(["publish-mew", "toggle-lick-mew", "delete-mew"]);
 const router = useRouter();
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
@@ -197,6 +268,8 @@ const showReplyToMewDialog = ref(false);
 const showQuoteMewDialog = ref(false);
 const showToggleLickMewDialog = ref(false);
 const showCreateMewmewDialog = ref(false);
+const showConfirmDeleteDialog = ref(false);
+const showIfDeleted = ref(props.showIfDeletedDefault);
 
 const originalMewHash =
   MewTypeName.Mewmew in props.feedMew.mew.mew_type
@@ -227,6 +300,10 @@ const isLickedByMe = computed(() =>
     isEqual(lick, client.myPubKey as AgentPubKey)
   )
 );
+const isAuthoredByMe = computed(() =>
+  isEqual(client.myPubKey, props.feedMew.action.author)
+);
+const isDeleted = computed(() => props.feedMew.deleted_timestamp !== null);
 
 onMounted(async () => {
   agentProfile.value = await profilesStore.client.getAgentProfile(
@@ -308,5 +385,15 @@ const createMewmew = async () => {
     payload: mew,
   });
   emit("publish-mew", mew_type);
+};
+
+const deleteMew = async () => {
+  await client.callZome({
+    role_name: "mewsfeed",
+    zome_name: "mews",
+    fn_name: "delete_mew",
+    payload: props.feedMew.action_hash,
+  });
+  emit("delete-mew", props.feedMew.action_hash);
 };
 </script>

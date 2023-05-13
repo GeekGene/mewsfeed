@@ -28,13 +28,17 @@ pub fn validate_create_link_all_mews(
 }
 
 pub fn validate_delete_link_all_mews(
-    _action: DeleteLink,
-    _original_action: CreateLink,
+    action: DeleteLink,
+    original_action: CreateLink,
     _base: AnyLinkableHash,
     _target: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    Ok(ValidateCallbackResult::Invalid(String::from(
-        "AllMews links cannot be deleted",
-    )))
+    if action.author != original_action.author {
+        return Ok(ValidateCallbackResult::Invalid(
+            "Only the original action author can delete their AllMews link".into(),
+        ));
+    }
+
+    Ok(ValidateCallbackResult::Valid)
 }

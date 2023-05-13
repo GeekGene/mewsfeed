@@ -8,8 +8,7 @@
       v-for="(mew, index) of mews"
       :key="index"
       :feed-mew="mew"
-      @toggle-lick-mew="(val: any) => emit('toggle-lick-mew', val)"
-      @publish-mew="(val: any) => emit('publish-mew', val)"
+      v-bind="$attrs"
     />
   </QList>
 </template>
@@ -25,6 +24,4 @@ defineProps<{
   mews: FeedMew[];
   isLoading: boolean;
 }>();
-
-const emit = defineEmits(["publish-mew", "toggle-lick-mew"]);
 </script>

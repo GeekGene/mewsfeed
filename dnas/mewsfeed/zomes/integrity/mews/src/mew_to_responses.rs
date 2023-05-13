@@ -28,12 +28,18 @@ pub fn validate_create_link_mew_to_responses(
 }
 
 pub fn validate_delete_link_mew_to_responses(
-    _action: DeleteLink,
-    _original_action: CreateLink,
+    action: DeleteLink,
+    original_action: CreateLink,
     _base: AnyLinkableHash,
     _target: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
+    if action.author != original_action.author {
+        return Ok(ValidateCallbackResult::Invalid(
+            "Only the author can create their MewToResponses links".into(),
+        ));
+    }
+
     Ok(ValidateCallbackResult::Valid)
 }
 
@@ -73,7 +79,7 @@ pub fn validate_delete_link_response_to_mews(
 ) -> ExternResult<ValidateCallbackResult> {
     if action.author != original_action.author {
         return Ok(ValidateCallbackResult::Invalid(
-            "Only the original action author can delete their link".into(),
+            "Only the author can create their ResponseToMews links".into(),
         ));
     }
 
