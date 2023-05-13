@@ -23,7 +23,41 @@
         </RouterLink>
 
         <span v-if="!isOriginal" class="q-ml-md">
-          <QSkeleton v-if="loadingOriginalMewAuthor" type="text" width="4rem" />
+          <QSkeleton
+            v-if="
+              loadingOriginalMewAuthor || !originalMew || !originalMewAuthor
+            "
+            type="text"
+            width="4rem"
+          />
+          <div
+            v-else-if="originalMew && originalMew.deleted_timestamp !== null"
+            class="row justify-start items-start"
+          >
+            <span class="q-mr-xs text-secondary">
+              {{ reactionLabel }}
+            </span>
+            <span class="text-secondary">
+              <span class="text-bold"> Deleted Mew </span>
+            </span>
+            <QBtn
+              class="q-mx-sm q-px-sm"
+              padding="none"
+              margin="none"
+              flat
+              color="dark"
+              size="xs"
+              @click.stop="navigateToYarn(originalMewHash as Uint8Array)"
+            >
+              <QIcon
+                name="svguse:/icons.svg#yarn"
+                size="xs"
+                color="secondary"
+                flat
+              />
+              <QTooltip>Original Yarn</QTooltip>
+            </QBtn>
+          </div>
           <div
             v-else-if="originalMew && originalMewAuthor"
             class="row justify-start items-start"
@@ -56,31 +90,6 @@
               @click.stop="
                 originalMew && navigateToYarn(originalMew.action_hash)
               "
-            >
-              <QIcon
-                name="svguse:/icons.svg#yarn"
-                size="xs"
-                color="secondary"
-                flat
-              />
-              <QTooltip>Original Yarn</QTooltip>
-            </QBtn>
-          </div>
-          <div v-else class="row justify-start items-start">
-            <span class="q-mr-xs text-secondary">
-              {{ reactionLabel }}
-            </span>
-            <span class="text-secondary">
-              <span class="text-bold"> Deleted Mew </span>
-            </span>
-            <QBtn
-              class="q-mx-sm q-px-sm"
-              padding="none"
-              margin="none"
-              flat
-              color="dark"
-              size="xs"
-              @click.stop="navigateToYarn(originalMewHash as Uint8Array)"
             >
               <QIcon
                 name="svguse:/icons.svg#yarn"
