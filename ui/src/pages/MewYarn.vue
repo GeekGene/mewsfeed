@@ -39,6 +39,7 @@
           :key="forceReloadRepliesKey"
           :fetch-fn="fetchReplies"
           :cache-key="`mews/get_batch_mews_with_context/${mew.replies}`"
+          :show-yarn-link="false"
         />
       </QCardSection>
     </QCard>
@@ -82,7 +83,7 @@ const fetchReplies = () => {
   });
 };
 
-const loadYarn = async () => {
+const loadYarn = () => {
   forceReloadRepliesKey.value += 1;
   forceReloadMewKey.value += 1;
 };
