@@ -235,7 +235,7 @@ import { computed, ComputedRef, inject, onMounted, ref } from "vue";
 import ProfileAvatarWithPopup from "./ProfileAvatarWithPopup.vue";
 import CreateMewForm from "./CreateMewForm.vue";
 import MewContent from "./MewContent.vue";
-import { isSameHash } from "@/utils/hash";
+import isEqual from "lodash/isEqual";
 import { AgentPubKey } from "@holochain/client";
 import { useRouter } from "vue-router";
 import { AppAgentClient } from "@holochain/client";
@@ -296,7 +296,7 @@ const reactionLabel = computed(() =>
 );
 const isLickedByMe = computed(() =>
   props.feedMew.licks.some((lick) =>
-    isSameHash(lick, client.myPubKey as AgentPubKey)
+    isEqual(lick, client.myPubKey as AgentPubKey)
   )
 );
 const isAuthoredByMe = computed(() =>

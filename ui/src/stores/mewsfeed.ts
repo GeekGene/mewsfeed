@@ -1,5 +1,5 @@
 import { FeedMew } from "@/types/types";
-import { isSameHash } from "@/utils/hash";
+import isEqual from "lodash/isEqual";
 import { showError } from "@/utils/notification";
 import { ActionHash, AppAgentClient } from "@holochain/client";
 import { defineStore, Store } from "pinia";
@@ -28,7 +28,7 @@ export const useMewsfeedStore = defineStore("mewsfeed", {
     async reloadMew(client: AppAgentClient, actionHash: ActionHash) {
       try {
         const index = this.mewsFeed.findIndex((mew) =>
-          isSameHash(actionHash, mew.action_hash)
+          isEqual(actionHash, mew.action_hash)
         );
         if (index !== -1) {
           this.mewsFeed[index] = await client.callZome({

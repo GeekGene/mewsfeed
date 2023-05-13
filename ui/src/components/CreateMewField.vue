@@ -14,7 +14,7 @@
         @input="onInput"
       />
       <div class="flex justify-between q-pa-sm">
-        <div>
+        <div class="q-mr-xl">
           <div
             :class="{
               'text-red text-bold':
@@ -168,9 +168,9 @@ import {
   decodeHashFromBase64,
   encodeHashToBase64,
 } from "@holochain/client";
-import min from "lodash.min";
-import union from "lodash.union";
-import flatten from "lodash.flatten";
+import min from "lodash/min";
+import union from "lodash/union";
+import flatten from "lodash/flatten";
 import { AppAgentClient } from "@holochain/client";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
 
