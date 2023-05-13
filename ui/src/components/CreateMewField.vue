@@ -168,9 +168,9 @@ import {
   decodeHashFromBase64,
   encodeHashToBase64,
 } from "@holochain/client";
-import min from "lodash.min";
-import union from "lodash.union";
-import flatten from "lodash.flatten";
+import min from "lodash/min";
+import union from "lodash/union";
+import flatten from "lodash/flatten";
 import { AppAgentClient, Record } from "@holochain/client";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
 

@@ -21,7 +21,6 @@
 
 <script setup lang="ts">
 import { PROFILE_FIELDS } from "@/types/types";
-import { isSameHash } from "@/utils/hash";
 import { showError, showMessage } from "@/utils/notification";
 import { AgentPubKey } from "@holochain/client";
 import { ComputedRef, inject, onMounted, PropType, ref } from "vue";
@@ -29,6 +28,7 @@ import { QBtn, QIcon } from "quasar";
 import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
 import { AppAgentClient } from "@holochain/client";
 import CreateProfileIfNotFoundDialog from "./CreateProfileIfNotFoundDialog.vue";
+import isEqual from "lodash/isEqual";
 
 const props = defineProps({
   agentPubKey: {
@@ -54,7 +54,7 @@ onMounted(async () => {
       payload: client.myPubKey,
     });
     isFollowing.value = currentMyFollowing.some((agent) =>
-      isSameHash(agent, props.agentPubKey)
+      isEqual(agent, props.agentPubKey)
     );
   } catch (error) {
     showError(error);

@@ -16,6 +16,7 @@
 <script setup lang="ts">
 import { QPage } from "quasar";
 import { FeedMew, MewType, MewTypeName } from "@/types/types";
+import isEqual from "lodash/isEqual";
 import { showError, showMessage } from "@/utils/notification";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { TAG_SYMBOLS } from "@/utils/tags";
@@ -28,7 +29,6 @@ import { ComputedRef, inject, watch } from "vue";
 import { useRoute } from "vue-router";
 import MewList from "@/components/MewList.vue";
 import { useRequest } from "vue-request";
-import isEqual from "lodash.isequal";
 
 const route = useRoute();
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;

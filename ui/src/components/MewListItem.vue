@@ -213,12 +213,14 @@
     />
     <ConfirmDialog
       v-model="showConfirmDeleteDialog"
+      title="Delete Mew"
       confirm-text="Delete"
       @confirm="deleteMew"
     >
+      <p>Are you sure you want to delete this mew?</p>
       <p>
-        Are you sure you want to delete this mew? Note that other peers may
-        still have copies of the data -- you can't force them to delete it.
+        Note that other peers may still have copies of the data, and you can't
+        force them to delete it.
       </p>
     </ConfirmDialog>
   </QItem>
@@ -235,13 +237,12 @@ import { computed, ComputedRef, inject, onMounted, ref } from "vue";
 import ProfileAvatarWithPopup from "./ProfileAvatarWithPopup.vue";
 import CreateMewForm from "./CreateMewForm.vue";
 import MewContent from "./MewContent.vue";
-import { isSameHash } from "@/utils/hash";
+import isEqual from "lodash/isEqual";
 import { AgentPubKey } from "@holochain/client";
 import { useRouter } from "vue-router";
 import { AppAgentClient } from "@holochain/client";
 import MewTimestamp from "./MewTimestamp.vue";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
-import isEqual from "lodash.isequal";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
 
 const props = withDefaults(
@@ -296,7 +297,7 @@ const reactionLabel = computed(() =>
 );
 const isLickedByMe = computed(() =>
   props.feedMew.licks.some((lick) =>
-    isSameHash(lick, client.myPubKey as AgentPubKey)
+    isEqual(lick, client.myPubKey as AgentPubKey)
   )
 );
 const isAuthoredByMe = computed(() =>

@@ -89,7 +89,7 @@ import EmptyMewsFeed from "@/components/EmptyMewsFeed.vue";
 import FolloweesList from "@/components/FolloweesList.vue";
 import FollowersList from "@/components/FollowersList.vue";
 import { FeedMew, MewType, MewTypeName, PROFILE_FIELDS } from "@/types/types";
-import { isSameHash } from "@/utils/hash";
+import isEqual from "lodash/isEqual";
 import { showError, showMessage } from "@/utils/notification";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { PATH, ROUTES } from "@/router";
@@ -106,7 +106,6 @@ import { useRoute, useRouter } from "vue-router";
 import MewList from "../components/MewList.vue";
 import { AppAgentClient } from "@holochain/client";
 import { useRequest } from "vue-request";
-import isEqual from "lodash.isequal";
 
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
@@ -121,7 +120,7 @@ const profile = ref<Profile>();
 const isFollowingMe = ref(false);
 
 const isMyProfile = computed(() =>
-  isSameHash(agentPubKey.value, client.myPubKey as AgentPubKey)
+  isEqual(agentPubKey.value, client.myPubKey as AgentPubKey)
 );
 
 const fetchAgentMews = () =>

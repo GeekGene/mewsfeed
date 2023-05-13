@@ -61,7 +61,7 @@
 <script setup lang="ts">
 import { QCard, QCardSection } from "quasar";
 import { PROFILE_FIELDS } from "@/types/types";
-import { isSameHash } from "@/utils/hash";
+import isEqual from "lodash/isEqual";
 import { showError } from "@/utils/notification";
 import { ROUTES } from "@/router";
 import {
@@ -87,7 +87,7 @@ const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 
 const isMyProfile = computed(() =>
-  isSameHash(props.agentPubKey, client.myPubKey)
+  isEqual(props.agentPubKey, client.myPubKey)
 );
 const isCurrentProfile = computed(
   () =>

@@ -7,6 +7,7 @@
   >
     <QCard>
       <QToolbar v-if="showCloseButton">
+        <QToolbarTitle v-if="title">{{ title }}</QToolbarTitle>
         <QSpace />
         <QBtn v-close-popup dense flat round icon="close" />
       </QToolbar>
@@ -35,7 +36,15 @@
 </template>
 
 <script setup lang="ts">
-import { QDialog, QCard, QCardSection, QToolbar, QBtn, QSpace } from "quasar";
+import {
+  QDialog,
+  QCard,
+  QCardSection,
+  QToolbar,
+  QToolbarTitle,
+  QBtn,
+  QSpace,
+} from "quasar";
 
 const emit = defineEmits(["confirm", "update:model-value"]);
 withDefaults(
@@ -43,10 +52,12 @@ withDefaults(
     modelValue: boolean;
     showCloseButton?: boolean;
     confirmText?: string;
+    title?: string;
   }>(),
   {
     showCloseButton: true,
     confirmText: "Confirm",
+    title: undefined,
   }
 );
 </script>
