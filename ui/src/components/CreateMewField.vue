@@ -14,7 +14,7 @@
         @input="onInput"
       />
       <div class="flex justify-between q-pa-sm">
-        <div>
+        <div class="q-mr-xl">
           <div
             :class="{
               'text-red text-bold':
