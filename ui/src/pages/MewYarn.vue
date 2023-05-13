@@ -64,7 +64,7 @@ import MewListSkeleton from "@/components/MewListSkeleton.vue";
 import MewListItem from "@/components/MewListItem.vue";
 import { ROUTES } from "@/router";
 import { FeedMew, MewTypeName } from "@/types/types";
-import { isSameHash } from "@/utils/hash";
+import isEqual from "lodash/isEqual";
 import { showError } from "@/utils/notification";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { ActionHash, decodeHashFromBase64 } from "@holochain/client";
@@ -92,7 +92,7 @@ const onToggleLickMew = async (mewHash: ActionHash) => {
     payload: mewHash,
   });
   const replyIndex = replies.value.findIndex((r) =>
-    isSameHash(r.action_hash, mewHash)
+    isEqual(r.action_hash, mewHash)
   );
   if (replyIndex === -1) {
     mew.value = feedMew;

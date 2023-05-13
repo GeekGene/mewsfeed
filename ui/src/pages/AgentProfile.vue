@@ -89,7 +89,7 @@ import EmptyMewsFeed from "@/components/EmptyMewsFeed.vue";
 import FolloweesList from "@/components/FolloweesList.vue";
 import FollowersList from "@/components/FollowersList.vue";
 import { FeedMew, MewType, MewTypeName, PROFILE_FIELDS } from "@/types/types";
-import { isSameHash } from "@/utils/hash";
+import isEqual from "lodash/isEqual";
 import { showError, showMessage } from "@/utils/notification";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { PATH, ROUTES } from "@/router";
@@ -121,7 +121,7 @@ const isFollowingMe = ref(false);
 const mews = ref<FeedMew[]>([]);
 
 const isMyProfile = computed(() =>
-  isSameHash(agentPubKey.value, client.myPubKey as AgentPubKey)
+  isEqual(agentPubKey.value, client.myPubKey as AgentPubKey)
 );
 
 const loadMews = async () => {
@@ -182,9 +182,7 @@ watch(
 
 const onToggleLickMew = async (hash: ActionHash) => {
   try {
-    const index = mews.value.findIndex((mew) =>
-      isSameHash(hash, mew.action_hash)
-    );
+    const index = mews.value.findIndex((mew) => isEqual(hash, mew.action_hash));
     if (index !== -1) {
       mews.value[index] = await client.callZome({
         role_name: "mewsfeed",

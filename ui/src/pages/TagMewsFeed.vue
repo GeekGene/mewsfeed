@@ -16,7 +16,7 @@
 <script setup lang="ts">
 import { QPage } from "quasar";
 import { FeedMew, MewType, MewTypeName } from "@/types/types";
-import { isSameHash } from "@/utils/hash";
+import isEqual from "lodash/isEqual";
 import { showError, showMessage } from "@/utils/notification";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { TAG_SYMBOLS } from "@/utils/tags";
@@ -73,9 +73,7 @@ watch(route, () => {
 
 const onToggleLickMew = async (hash: ActionHash) => {
   try {
-    const index = mews.value.findIndex((mew) =>
-      isSameHash(hash, mew.action_hash)
-    );
+    const index = mews.value.findIndex((mew) => isEqual(hash, mew.action_hash));
     if (index !== -1) {
       mews.value[index] = await client.callZome({
         role_name: "mewsfeed",
