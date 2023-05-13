@@ -44,12 +44,10 @@
         </div>
       </QCard>
 
-      <BaseMewList
+      <MewList
+        :fetch-fn="fetchAgentMews"
         title="Mews"
-        :is-loading="loading"
-        :feed-mews="data"
-        @toggle-lick-mew="fetchMew"
-        @publish-mew="onPublishMew"
+        :cache-key="`mews/get_agent_mews_with_context/${agentPubKey}`"
       />
     </div>
 
@@ -83,17 +81,15 @@
 <script setup lang="ts">
 import { QPage, QSpinnerPie, QCard, QCardSection, QBtn } from "quasar";
 import ButtonFollow from "@/components/ButtonFollow.vue";
-import EmptyMewsFeed from "@/components/EmptyMewsFeed.vue";
 import FolloweesList from "@/components/FolloweesList.vue";
 import FollowersList from "@/components/FollowersList.vue";
-import { FeedMew, MewType, MewTypeName, PROFILE_FIELDS } from "@/types/types";
+import { PROFILE_FIELDS } from "@/types/types";
 import isEqual from "lodash/isEqual";
-import { showError, showMessage } from "@/utils/notification";
+import { showError } from "@/utils/notification";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { PATH, ROUTES } from "@/router";
 import { TAG_SYMBOLS } from "@/utils/tags";
 import {
-  ActionHash,
   AgentPubKey,
   decodeHashFromBase64,
   encodeHashToBase64,
@@ -101,9 +97,8 @@ import {
 import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
 import { ComputedRef, computed, inject, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import BaseMewList from "../components/BaseMewList.vue";
+import MewList from "@/components/MewList.vue";
 import { AppAgentClient } from "@holochain/client";
-import { useRequest } from "vue-request";
 
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
@@ -163,48 +158,6 @@ watch(
     }
   }
 );
-
-const { data, loading, error, run } = useRequest(fetchAgentMews, {
-  initialData: [],
-  pollingInterval: 120000, // 120 seconds polling
-  refreshOnWindowFocus: true,
-  refocusTimespan: 10000, // 10 seconds between window focus to trigger refresh
-});
-watch(error, showError);
-
-const fetchMew = async (actionHash: ActionHash) => {
-  if (data.value === undefined) return;
-
-  const mew: FeedMew = await client.callZome({
-    role_name: "mewsfeed",
-    zome_name: "mews",
-    fn_name: "get_mew_with_context",
-    payload: actionHash,
-  });
-
-  const index = data.value.findIndex((mew: FeedMew) =>
-    isEqual(actionHash, mew.action_hash)
-  );
-
-  if (index !== -1) {
-    // Replace mew if already exists in data
-    data.value[index] = mew;
-  } else {
-    // Insert mew at beginning of list if not
-    data.value.unshift(mew);
-  }
-};
-
-const onPublishMew = async (mewType: MewType) => {
-  run();
-  showMessage(
-    MewTypeName.Reply in mewType
-      ? "Replied to mew"
-      : MewTypeName.Mewmew in mewType
-      ? "Mew mewmewed"
-      : "Quoted mew"
-  );
-};
 </script>
 
 <style lang="sass">

@@ -5,7 +5,9 @@ import MewsFeed from "./pages/MewsFeed.vue";
 import MyProfile from "./pages/MyProfile.vue";
 import AgentProfile from "./pages/AgentProfile.vue";
 import MewYarn from "./pages/MewYarn.vue";
-import TagMewsFeed from "./pages/TagMewsFeed.vue";
+import CashtagMewsFeed from "./pages/CashtagMewsFeed.vue";
+import HashtagMewsFeed from "./pages/CashtagMewsFeed.vue";
+import MentionMewsFeed from "./pages/MentionMewsFeed.vue";
 import NotFound from "./pages/NotFound.vue";
 
 export const PATH = {
@@ -54,19 +56,19 @@ export const routes: RouteRecordRaw[] = [
   {
     path: `/${PATH[TAG_SYMBOLS.CASHTAG]}/:tag`,
     name: ROUTES[PATH[TAG_SYMBOLS.CASHTAG]],
-    component: TagMewsFeed,
+    component: CashtagMewsFeed,
     meta: { tag: TAG_SYMBOLS.CASHTAG },
   },
   {
     path: `/${PATH[TAG_SYMBOLS.HASHTAG]}/:tag`,
     name: ROUTES[PATH[TAG_SYMBOLS.HASHTAG]],
-    component: TagMewsFeed,
+    component: HashtagMewsFeed,
     meta: { tag: TAG_SYMBOLS.HASHTAG },
   },
   {
     path: `/${PATH[TAG_SYMBOLS.MENTION]}/:tag/:agentPubKey`,
     name: ROUTES[PATH[TAG_SYMBOLS.MENTION]],
-    component: TagMewsFeed,
+    component: MentionMewsFeed,
     meta: { tag: TAG_SYMBOLS.MENTION },
   },
   { path: "/:pathMatch(.*)", component: NotFound },
