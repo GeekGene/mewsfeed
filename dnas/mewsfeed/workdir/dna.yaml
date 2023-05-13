@@ -25,10 +25,6 @@ integrity:
       hash: ~
       bundled: "../../../target/wasm32-unknown-unknown/release/likes_integrity.wasm"
       dependencies: ~
-    - name: trust_atom_integrity
-      bundled: ../../../target/wasm32-unknown-unknown/release/trust_atom_integrity_zome.wasm
-      hash: ~
-      dependencies: ~
 coordinator:
   zomes:
     - name: mews
@@ -51,8 +47,3 @@ coordinator:
       bundled: "../../../target/wasm32-unknown-unknown/release/likes.wasm"
       dependencies:
         - name: likes_integrity
-    - name: trust_atom
-      hash: ~
-      bundled: ../../../target/wasm32-unknown-unknown/release/trust_atom_zome.wasm
-      dependencies:
-        - name: trust_atom_integrity

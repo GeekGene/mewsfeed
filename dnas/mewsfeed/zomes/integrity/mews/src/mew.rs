@@ -41,8 +41,6 @@ pub struct FeedMew {
     pub quotes: Vec<ActionHash>,
     pub licks: Vec<AgentPubKey>,
     pub mewmews: Vec<ActionHash>,
-    pub weight: Option<f32>,   // introduced with TrustAtoms
-    pub topic: Option<String>, // introduced with TrustAtoms
 }
 
 pub fn validate_create_mew(
