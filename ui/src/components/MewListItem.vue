@@ -213,12 +213,14 @@
     />
     <ConfirmDialog
       v-model="showConfirmDeleteDialog"
+      title="Delete Mew"
       confirm-text="Delete"
       @confirm="deleteMew"
     >
+      <p>Are you sure you want to delete this mew?</p>
       <p>
-        Are you sure you want to delete this mew? Note that other peers may
-        still have copies of the data -- you can't force them to delete it.
+        Note that other peers may still have copies of the data, and you can't
+        force them to delete it.
       </p>
     </ConfirmDialog>
   </QItem>
