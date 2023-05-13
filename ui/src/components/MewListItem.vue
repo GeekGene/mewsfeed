@@ -241,7 +241,6 @@ import { useRouter } from "vue-router";
 import { AppAgentClient } from "@holochain/client";
 import MewTimestamp from "./MewTimestamp.vue";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
-import isEqual from "lodash.isequal";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
 
 const props = withDefaults(
