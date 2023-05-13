@@ -27,7 +27,7 @@ import { ComputedRef, inject } from "vue";
 import { FeedMew, MewTypeName } from "@/types/types";
 import { useRequest } from "vue-request";
 import { showError } from "@/utils/notification";
-import isEqual from "lodash/isequal";
+import isEqual from "lodash/isEqual";
 import { watch } from "vue";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
