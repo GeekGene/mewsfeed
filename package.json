@@ -7,7 +7,7 @@
     "tests"
   ],
   "scripts": {
-    "start": "AGENTS=2 npm run network",
+    "start": "npm run network",
     "network": "npm run build:happ && UI_PORT=8888 concurrently \"npm run playground\" \"npm run start:agent\" \"npm run start:agent\"",
     "start:agent": "HC_PORT=$(port) HC_ADMIN_PORT=$(port) concurrently \"npm run launch:happ\" \"npm run start:browser -w ui\"",
     "launch:happ": "hc s clean && echo pass | RUST_LOG=warn hc s --piped -f=$HC_ADMIN_PORT generate ./workdir/mewsfeed.happ --run=$HC_PORT -a mewsfeed network mdns",    
