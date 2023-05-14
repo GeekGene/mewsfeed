@@ -15,18 +15,17 @@
       <QItem
         v-for="(agentProfile, index) of agentProfiles"
         :key="index"
-        class="q-px-none"
+        class="row justify-start items-center q-px-none"
       >
         <ProfileAvatarWithPopup
           :agentPubKey="agentProfile.agentPubKey"
           class="q-mr-md"
+          :size="30"
         />
-        <QItemSection>
-          <QItemLabel>
-            {{ agentProfile.profile.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
-          </QItemLabel>
-          <QItemLabel caption> @{{ agentProfile.profile.nickname }}</QItemLabel>
-        </QItemSection>
+        <QItemLabel>
+          {{ agentProfile.profile.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
+        </QItemLabel>
+        <QItemLabel caption> @{{ agentProfile.profile.nickname }}</QItemLabel>
       </QItem>
     </QList>
   </template>
