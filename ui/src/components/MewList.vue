@@ -44,6 +44,7 @@ const { data, loading, error, run, mutate } = useRequest(props.fetchFn, {
   pollingInterval: 120000, // 120 seconds polling
   refreshOnWindowFocus: true,
   refocusTimespan: 10000, // 10 seconds between window focus to trigger refresh
+  loadingDelay: 1000,
 });
 watch(error, showError);
 

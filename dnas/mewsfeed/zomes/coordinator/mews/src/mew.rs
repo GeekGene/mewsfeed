@@ -87,22 +87,62 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                 response_type: Some(ResponseType::Mewmew),
             })?;
             let licks = get_lickers_for_mew(original_mew_hash)?;
-
             let deleted_timestamp = deletes
                 .first()
                 .map(|first_delete| first_delete.action().timestamp());
+            let author_profile = get_agent_profile(record.action().author().clone())?;
 
-            let feed_mew_and_context = FeedMew {
-                mew,
-                action: record.action().clone(),
-                action_hash: record.signed_action().as_hash().clone(),
-                replies,
-                quotes,
-                licks,
-                mewmews,
-                deleted_timestamp,
-            };
-            Ok(feed_mew_and_context)
+            match mew.clone().mew_type {
+                MewType::Original => Ok(FeedMew {
+                    mew,
+                    action: record.action().clone(),
+                    action_hash: record.signed_action().as_hash().clone(),
+                    replies,
+                    quotes,
+                    licks,
+                    mewmews,
+                    deleted_timestamp,
+                    author_profile,
+                    original_mew_author: None,
+                    original_mew_author_profile: None,
+                    original_mew_deleted_timestamp: None,
+                }),
+                MewType::Reply(response_to_hash)
+                | MewType::Quote(response_to_hash)
+                | MewType::Mewmew(response_to_hash) => {
+                    let details = get_details(response_to_hash, GetOptions::default())?.ok_or(
+                        wasm_error!(WasmErrorInner::Guest(String::from("Mew not found"))),
+                    )?;
+
+                    match details {
+                        Details::Record(record_details) => {
+                            let author_pubkey = record_details.record.action().author().clone();
+                            let profile = get_agent_profile(author_pubkey.clone())?;
+                            let original_mew_deleted_timestamp = deletes
+                                .first()
+                                .map(|first_delete| first_delete.action().timestamp());
+
+                            Ok(FeedMew {
+                                mew,
+                                action: record.action().clone(),
+                                action_hash: record.signed_action().as_hash().clone(),
+                                replies,
+                                quotes,
+                                licks,
+                                mewmews,
+                                author_profile,
+                                deleted_timestamp,
+                                original_mew_author: Some(author_pubkey),
+                                original_mew_author_profile: Some(profile),
+                                original_mew_deleted_timestamp,
+                            })
+                        }
+                        _ => Err(wasm_error!(WasmErrorInner::Guest(String::from(
+                            "Expected Details::Record, got something else"
+                        )))),
+                    }
+                }
+            }
         }
         _ => Err(wasm_error!(WasmErrorInner::Guest(
             "Expecting get_details to return record, got entry".into()
@@ -114,7 +154,7 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
 pub fn get_batch_mews_with_context(hashes: Vec<ActionHash>) -> ExternResult<Vec<FeedMew>> {
     hashes
         .into_iter()
-        .map(|h| get_mew_with_context(h))
+        .map(get_mew_with_context)
         .collect::<ExternResult<Vec<FeedMew>>>()
 }
 
@@ -223,4 +263,44 @@ fn tag_regexes() -> ExternResult<(Regex, Regex)> {
     })?;
 
     Ok((hashtag_regex, cashtag_regex))
+}
+
+fn get_agent_profile(agentpubkey: AgentPubKey) -> ExternResult<Profile> {
+    let zome_call_response = call(
+        CallTargetCell::Local,
+        "profiles",
+        FunctionName::from("get_agent_profile"),
+        None,
+        agentpubkey,
+    )?;
+
+    match zome_call_response {
+        ZomeCallResponse::Ok(response) => {
+            let maybe_record: Option<Record> = response.decode().map_err(|_| {
+                wasm_error!(WasmErrorInner::Guest(
+                    "Failed to deserialize zome call response".into()
+                ))
+            })?;
+
+            match maybe_record {
+                Some(record) => {
+                    let profile: Profile = record
+                        .entry()
+                        .to_app_option()
+                        .map_err(|e| wasm_error!(WasmErrorInner::Guest(e.into())))?
+                        .ok_or(wasm_error!(WasmErrorInner::Guest(String::from(
+                            "Malformed Profile"
+                        ))))?;
+
+                    Ok(profile)
+                }
+                None => Err(wasm_error!(WasmErrorInner::Guest(
+                    "No profile found for original mew author".into()
+                ))),
+            }
+        }
+        _ => Err(wasm_error!(WasmErrorInner::Guest(
+            "Failed to call 'get_agent_profile' in zome 'profiles'".into()
+        ))),
+    }
 }

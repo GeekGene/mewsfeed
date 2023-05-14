@@ -1,0 +1,12 @@
+[package]
+name = "mews_types"
+version = "0.0.1"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+name = "mews_types"
+
+[dependencies]
+hdk = { workspace = true }
+serde = { workspace = true }

@@ -1,48 +1,6 @@
 use crate::dna_properties::*;
 use hdi::prelude::*;
-
-#[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone, PartialEq)]
-pub enum LinkTarget {
-    Mention(AgentPubKey),
-    Url(String),
-    Record(ActionHash),
-}
-
-#[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone, PartialEq)]
-pub enum MewType {
-    Original,
-    Reply(ActionHash),
-    Quote(ActionHash),
-    Mewmew(ActionHash),
-}
-
-#[hdk_entry_helper]
-#[derive(Clone, PartialEq)]
-pub enum ResponseType {
-    Reply,
-    Quote,
-    Mewmew,
-}
-
-#[hdk_entry_helper]
-#[derive(Clone, PartialEq)]
-pub struct Mew {
-    pub text: String,
-    pub links: Vec<LinkTarget>,
-    pub mew_type: MewType,
-}
-
-#[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
-pub struct FeedMew {
-    pub mew: Mew,
-    pub action: Action,
-    pub action_hash: ActionHash,
-    pub replies: Vec<ActionHash>,
-    pub quotes: Vec<ActionHash>,
-    pub licks: Vec<AgentPubKey>,
-    pub mewmews: Vec<ActionHash>,
-    pub deleted_timestamp: Option<Timestamp>,
-}
+use mews_types::*;
 
 pub fn validate_create_mew(
     _action: EntryCreationAction,

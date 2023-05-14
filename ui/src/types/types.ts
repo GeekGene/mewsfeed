@@ -7,6 +7,7 @@ import {
 } from "@holochain/client";
 import { QSelectOption } from "quasar";
 import { RouteLocationNamedRaw, RouteLocationRaw } from "vue-router";
+import { Profile } from "@holochain-open-dev/profiles";
 
 export const PROFILE_FIELDS = {
   DISPLAY_NAME: "Display name",
@@ -84,7 +85,11 @@ export interface FeedMew {
   quotes: HoloHash[];
   licks: AgentPubKey[];
   mewmews: HoloHash[];
-  deleted_timestamp: number | null
+  author_profile: Profile;
+  deleted_timestamp: number | null;
+  original_mew_author: AgentPubKey | null;
+  original_mew_author_profile: Profile | null;
+  original_mew_deleted_timestamp: number | null;
 }
 
 export interface NotificationOptions {

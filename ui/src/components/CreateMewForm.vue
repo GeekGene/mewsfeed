@@ -54,7 +54,7 @@ import MewContent from "./MewContent.vue";
 defineProps<{
   mewType: MewType;
   originalMew?: FeedMew;
-  originalAuthor?: Profile;
+  originalAuthor?: Profile | null;
 }>();
 const emit = defineEmits(["publish-mew"]);
 </script>
