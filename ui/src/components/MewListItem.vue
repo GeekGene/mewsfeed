@@ -39,20 +39,15 @@ const {
   data: mew,
   loading,
   error,
-  run: runFetchMew,
   mutate,
 } = useRequest(fetchMew, {
   cacheKey: `mews/get_mew_with_context/${props.actionHash}`,
-  pollingInterval: 120000, // 120 seconds polling
-  refreshOnWindowFocus: true,
-  refocusTimespan: 10000, // 10 seconds between window focus to trigger refresh
-  loadingDelay: 400,
+  loadingDelay: 1000,
 });
 watch(error, showError);
 watch(mew, (newMew) => {
   emit("update:modelValue", newMew);
 });
-
 
 const updateFeedMew = async (feedMew: FeedMew) => {
   mutate(feedMew);

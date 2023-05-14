@@ -21,9 +21,8 @@ const props = defineProps<{
 const { data, loading, error } = useRequest(props.fetchFn, {
   cacheKey: props.cacheKey,
   initialData: [],
-  pollingInterval: 120000, // 120 seconds polling
   refreshOnWindowFocus: true,
-  refocusTimespan: 10000, // 10 seconds between window focus to trigger refresh
+  refocusTimespan: 25000, // 25 seconds between window focus to trigger refresh
   loadingDelay: 1000,
 });
 watch(error, showError);
