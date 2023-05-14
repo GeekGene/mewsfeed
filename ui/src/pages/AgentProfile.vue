@@ -2,12 +2,8 @@
   <QPage class="row" :style-fn="pageHeightCorrection">
     <div class="col-8">
       <h6 class="q-mt-none q-mb-md">Profile</h6>
-      <QSpinnerPie
-        v-if="loadingProfile || !agentPubKey"
-        size="10%"
-        color="primary"
-      />
 
+      <QSpinnerPie v-if="loading || !agentPubKey" size="10%" color="primary" />
       <QCard v-else v-bind="$attrs" square class="q-mb-md text-body1">
         <QCardSection class="flex justify-between">
           <div class="flex items-center">
@@ -101,11 +97,12 @@ import {
   decodeHashFromBase64,
   encodeHashToBase64,
 } from "@holochain/client";
-import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
-import { ComputedRef, computed, inject, onMounted, ref, watch } from "vue";
+import { ProfilesStore } from "@holochain-open-dev/profiles";
+import { ComputedRef, computed, inject, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import MewList from "@/components/MewList.vue";
 import { AppAgentClient } from "@holochain/client";
+import { useRequest } from "vue-request";
 
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
@@ -115,9 +112,6 @@ const router = useRouter();
 const agentPubKey = computed(() =>
   decodeHashFromBase64(route.params.agent as string)
 );
-const loadingProfile = ref(false);
-const profile = ref<Profile>();
-const isFollowingMe = ref(false);
 const forceReloadFollowersListKey = ref(0);
 
 const isMyProfile = computed(() =>
@@ -132,40 +126,20 @@ const fetchAgentMews = () =>
     payload: agentPubKey.value,
   });
 
-const loadProfile = async () => {
-  try {
-    loadingProfile.value = true;
-    const [profileData, agentFollowing] = await Promise.all([
-      profilesStore.client.getAgentProfile(agentPubKey.value),
-      client.callZome({
-        role_name: "mewsfeed",
-        zome_name: "follows",
-        fn_name: "get_creators_for_follower",
-        payload: agentPubKey.value,
-      }),
-    ]);
+const fetchProfile = profilesStore.client.getAgentProfile(agentPubKey.value);
 
-    if (profileData) {
-      profile.value = profileData;
-    }
-    isFollowingMe.value = agentFollowing.includes(client.myPubKey);
-  } catch (error) {
-    showError(error);
-  } finally {
-    loadingProfile.value = false;
-  }
-};
-
-onMounted(loadProfile);
-
-watch(
-  () => route.params.agent,
-  (value) => {
-    if (value) {
-      loadProfile();
-    }
-  }
-);
+const {
+  data: profile,
+  loading,
+  error,
+} = useRequest(fetchProfile, {
+  cacheKey: `profiles/getAgentProfile/${agentPubKey.value}`,
+  pollingInterval: 120000, // 120 seconds polling
+  refreshOnWindowFocus: true,
+  refocusTimespan: 10000, // 10 seconds between window focus to trigger refresh
+  loadingDelay: 1000,
+});
+watch(error, showError);
 </script>
 
 <style lang="sass">
