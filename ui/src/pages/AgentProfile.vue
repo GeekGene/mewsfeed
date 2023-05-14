@@ -45,15 +45,20 @@
       </QCard>
 
       <MewList
+        :key="forceReloadPinnedMewsKey"
         :fetch-fn="fetchPinnedMews"
         title="Pinned Mews"
         :cache-key="`mews/get_mews_for_pinner_with_context/${agentPubKey}`"
+        @mew-pinned="forceReloadPinnedMewsKey += 1"
+        @mew-unpinned="forceReloadPinnedMewsKey += 1"
       />
 
       <MewList
         :fetch-fn="fetchAgentMews"
         title="Authored Mews"
         :cache-key="`mews/get_agent_mews_with_context/${agentPubKey}`"
+        @mew-pinned="forceReloadPinnedMewsKey += 1"
+        @mew-unpinned="forceReloadPinnedMewsKey += 1"
       />
     </div>
 
@@ -119,6 +124,7 @@ const agentPubKey = computed(() =>
   decodeHashFromBase64(route.params.agent as string)
 );
 const forceReloadFollowersListKey = ref(0);
+const forceReloadPinnedMewsKey = ref(0);
 
 const isMyProfile = computed(() =>
   isEqual(agentPubKey.value, client.myPubKey as AgentPubKey)
