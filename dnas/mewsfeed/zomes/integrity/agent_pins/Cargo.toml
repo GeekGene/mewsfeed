@@ -1,0 +1,14 @@
+[package]
+name = "agent_pins_integrity"
+version = "0.0.1"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+name = "agent_pins_integrity"
+
+[dependencies]
+hdi = { workspace = true }
+holochain_integrity_types = { workspace = true }
+
+serde = { workspace = true }

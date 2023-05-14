@@ -1,5 +1,3 @@
-pub mod pinner_to_mews;
-pub use pinner_to_mews::*;
 pub mod mention_to_mews;
 pub use mention_to_mews::*;
 pub mod mew_to_responses;
@@ -48,7 +46,6 @@ pub enum LinkTypes {
     MentionToMews,
     HashtagToMews,
     CashtagToMews,
-    PinnerToMews,
 }
 
 #[hdk_extern]
@@ -146,9 +143,6 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             LinkTypes::CashtagToMews => {
                 validate_create_link_cashtag_to_mews(action, base_address, target_address, tag)
             }
-            LinkTypes::PinnerToMews => {
-                validate_create_link_pinner_to_mews(action, base_address, target_address, tag)
-            }
         },
         FlatOp::RegisterDeleteLink {
             link_type,
@@ -211,13 +205,6 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 tag,
             ),
             LinkTypes::HashtagToMews => validate_delete_link_hashtag_to_mews(
-                action,
-                original_action,
-                base_address,
-                target_address,
-                tag,
-            ),
-            LinkTypes::PinnerToMews => validate_delete_link_pinner_to_mews(
                 action,
                 original_action,
                 base_address,
@@ -377,9 +364,6 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 LinkTypes::CashtagToMews => {
                     validate_create_link_cashtag_to_mews(action, base_address, target_address, tag)
                 }
-                LinkTypes::PinnerToMews => {
-                    validate_create_link_pinner_to_mews(action, base_address, target_address, tag)
-                }
             },
             OpRecord::DeleteLink {
                 original_action_hash,
@@ -460,13 +444,6 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         create_link.tag,
                     ),
                     LinkTypes::HashtagToMews => validate_delete_link_hashtag_to_mews(
-                        action,
-                        create_link.clone(),
-                        base_address,
-                        create_link.target_address,
-                        create_link.tag,
-                    ),
-                    LinkTypes::PinnerToMews => validate_delete_link_pinner_to_mews(
                         action,
                         create_link.clone(),
                         base_address,

@@ -2,6 +2,7 @@ import { assert, test } from "vitest";
 import { runScenario, pause } from "@holochain/tryorama";
 import { ActionHash, Record } from "@holochain/client";
 import { createMew } from "./common.js";
+import { FeedMew } from "../../../../ui/src/types/types.js";
 
 test("link a Pinner to a Mew", async () => {
   await runScenario(
@@ -28,17 +29,17 @@ test("link a Pinner to a Mew", async () => {
       const targetActionHash: ActionHash = await createMew(alice.cells[0]);
 
       // Bob gets the links, should be empty
-      let linksOutput: Record[] = await bob.cells[0].callZome({
+      let linksOutput: FeedMew[] = await bob.cells[0].callZome({
         zome_name: "mews",
-        fn_name: "get_mews_for_pinner",
+        fn_name: "get_mews_for_pinner_with_context",
         payload: baseAddress,
       });
       assert.equal(linksOutput.length, 0);
 
       // Alice creates a link from Pinner to Mew
       await alice.cells[0].callZome({
-        zome_name: "mews",
-        fn_name: "add_mew_for_pinner",
+        zome_name: "agent_pins",
+        fn_name: "pin_hash",
         payload: {
           base_pinner: baseAddress,
           target_mew_hash: targetActionHash,
@@ -50,18 +51,15 @@ test("link a Pinner to a Mew", async () => {
       // Bob gets the links again
       linksOutput = await bob.cells[0].callZome({
         zome_name: "mews",
-        fn_name: "get_mews_for_pinner",
+        fn_name: "get_mews_for_pinner_with_context",
         payload: baseAddress,
       });
       assert.equal(linksOutput.length, 1);
-      assert.deepEqual(
-        targetActionHash,
-        linksOutput[0].signed_action.hashed.hash
-      );
+      assert.deepEqual(targetActionHash, linksOutput[0].action_hash);
 
       await alice.cells[0].callZome({
-        zome_name: "mews",
-        fn_name: "remove_mew_for_pinner",
+        zome_name: "agent_pins",
+        fn_name: "unpin_hash",
         payload: {
           base_pinner: baseAddress,
           target_mew_hash: targetActionHash,
@@ -73,7 +71,7 @@ test("link a Pinner to a Mew", async () => {
       // Bob gets the links again
       linksOutput = await bob.cells[0].callZome({
         zome_name: "mews",
-        fn_name: "get_mews_for_pinner",
+        fn_name: "get_mews_for_pinner_with_context",
         payload: baseAddress,
       });
       assert.equal(linksOutput.length, 0);

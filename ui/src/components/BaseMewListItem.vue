@@ -391,8 +391,8 @@ const togglePinMew = async () => {
   if (props.feedMew.is_pinned) {
     await client.callZome({
       role_name: "mewsfeed",
-      zome_name: "mews",
-      fn_name: "unpin_mew",
+      zome_name: "agent_pins",
+      fn_name: "unpin_hash",
       payload: props.feedMew.action_hash,
     });
     showMessage("Unpinned Mew");
@@ -403,8 +403,8 @@ const togglePinMew = async () => {
   } else {
     await client.callZome({
       role_name: "mewsfeed",
-      zome_name: "mews",
-      fn_name: "pin_mew",
+      zome_name: "agent_pins",
+      fn_name: "pin_hash",
       payload: props.feedMew.action_hash,
     });
     showMessage("Pinned Mew");
