@@ -32,6 +32,7 @@ coordinator:
       bundled: "../../../target/wasm32-unknown-unknown/release/mews.wasm"
       dependencies:
         - name: mews_integrity
+        - name: profiles_integrity
     - name: follows
       hash: ~
       bundled: "../../../target/wasm32-unknown-unknown/release/follows.wasm"

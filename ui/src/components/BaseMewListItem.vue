@@ -16,10 +16,15 @@
           }"
           @click.stop.prevent
         >
-          <span class="q-mr-xs text-primary text-weight-bold">
-            {{ feedMew.author_profile.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
+          <template v-if="feedMew.author_profile">
+            <span class="q-mr-xs text-primary text-weight-bold">
+              {{ feedMew.author_profile.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
+            </span>
+            <span>@{{ feedMew.author_profile.nickname }}</span>
+          </template>
+          <span v-else>
+            {{ encodeHashToBase64(feedMew.action.author).slice(0, 8) }}
           </span>
-          <span>@{{ feedMew.author_profile.nickname }}</span>
         </RouterLink>
 
         <span v-if="!isOriginal" class="q-ml-md">
@@ -34,7 +39,7 @@
               <span class="text-bold"> Deleted Mew </span>
             </span>
             <QBtn
-              v-if="showYarnLink"
+              v-if="showYarnLink && originalMewHash"
               class="q-mx-sm q-px-sm"
               padding="none"
               margin="none"
@@ -75,16 +80,14 @@
               @{{ feedMew.original_mew_author_profile?.nickname }}
             </RouterLink>
             <QBtn
-              v-if="showYarnLink"
+              v-if="showYarnLink && originalMewHash"
               class="q-mx-sm q-px-sm"
               padding="none"
               margin="none"
               flat
               color="dark"
               size="xs"
-              @click.stop="
-                originalMew && navigateToYarn(originalMew.action_hash)
-              "
+              @click.stop="navigateToYarn(originalMewHash)"
             >
               <QIcon
                 name="svguse:/icons.svg#yarn"
@@ -106,7 +109,7 @@
 
       <MewContent
         v-if="!isDeleted || showIfDeleted"
-        :feed-mew="originalMew && isMewmew ? originalMew : feedMew"
+        :mew="isMewmew ? feedMew.original_mew as Mew : feedMew.mew"
         class="q-my-sm cursor-pointer"
       />
       <QBtn
@@ -278,7 +281,6 @@ const originalMewHash =
     ? props.feedMew.mew.mew_type.Quote
     : props.feedMew.mew.mew_type.Original;
 
-const originalMew = ref<FeedMew>();
 const isUpdatingLick = ref(false);
 
 const isMewmew = computed(

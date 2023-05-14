@@ -85,8 +85,9 @@ export interface FeedMew {
   quotes: HoloHash[];
   licks: AgentPubKey[];
   mewmews: HoloHash[];
-  author_profile: Profile;
+  author_profile: Profile | null;
   deleted_timestamp: number | null;
+  original_mew: Mew | null;
   original_mew_author: AgentPubKey | null;
   original_mew_author_profile: Profile | null;
   original_mew_deleted_timestamp: number | null;

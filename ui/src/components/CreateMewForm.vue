@@ -31,7 +31,7 @@
       "
     >
       <div class="q-mb-md text-subtitle1 text-grey-7">
-        <MewContent :feed-mew="originalMew" />
+        <MewContent :mew="originalMew.mew" />
       </div>
     </QCardSection>
 
