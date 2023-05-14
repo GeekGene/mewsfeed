@@ -8,6 +8,6 @@
 </template>
 
 <script setup lang="ts">
-import { QBanner, QIcon} from "quasar";
+import { QBanner, QIcon } from "quasar";
 defineProps({ text: { type: String, default: "Meeow, nothing here yet" } });
 </script>

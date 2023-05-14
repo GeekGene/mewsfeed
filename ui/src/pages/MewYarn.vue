@@ -41,6 +41,7 @@
           :fetch-fn="fetchReplies"
           :cache-key="`mews/get_batch_mews_with_context/${mew.replies}`"
           :show-yarn-link="false"
+          :enable-upsert-on-response="false"
         />
       </QCardSection>
     </QCard>

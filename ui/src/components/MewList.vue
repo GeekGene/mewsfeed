@@ -11,7 +11,7 @@
     :is-loading="loading"
     @delete-mew="upsertFeedMew"
     @toggle-lick-mew="upsertFeedMew"
-    @publish-mew="upsertFeedMewAndOriginal"
+    @publish-mew="upsertFeedMewAndUpdateOriginal"
   />
 </template>
 
@@ -20,20 +20,24 @@ import { FeedMew, MewTypeName } from "@/types/types";
 import { showError, showMessage } from "@/utils/notification";
 import { watch } from "vue";
 import isEqual from "lodash/isEqual";
-import merge from "lodash/merge";
+import mergeWith from "lodash/mergeWith";
+import isArray from "lodash/isArray";
 import { useRequest } from "vue-request";
 import BaseMewList from "@/components/BaseMewList.vue";
 import CreateMewField from "@/components/CreateMewField.vue";
 import { ActionHash } from "@holochain/client";
+import { localStorageCacheConfig } from "@/utils/request";
 
 const props = withDefaults(
   defineProps<{
     fetchFn: () => Promise<FeedMew[]>;
     cacheKey: string;
     showCreateMewField?: boolean;
+    enableUpsertOnResponse?: boolean;
   }>(),
   {
     showCreateMewField: false,
+    enableUpsertOnResponse: true,
   }
 );
 
@@ -43,6 +47,7 @@ const { data, loading, error, mutate } = useRequest(props.fetchFn, {
   refreshOnWindowFocus: true,
   refocusTimespan: 10000, // 10 seconds between window focus to trigger refresh
   loadingDelay: 1000,
+  ...localStorageCacheConfig,
 });
 watch(error, showError);
 
@@ -69,11 +74,8 @@ const upsertFeedMew = async (feedMew: FeedMew) => {
   mutate(newData);
 };
 
-const upsertFeedMewAndOriginal = async (feedMew: FeedMew) => {
+const updateOriginal = async (feedMew: FeedMew) => {
   if (data.value === undefined) return;
-
-  upsertFeedMew(feedMew);
-
   if (MewTypeName.Original in feedMew.mew.mew_type) return;
 
   let originalActionHash: ActionHash | undefined;
@@ -95,8 +97,21 @@ const upsertFeedMewAndOriginal = async (feedMew: FeedMew) => {
 
   const newData = data.value;
   if (index !== -1) {
-    merge(newData[index], mergeNewData);
+    mergeWith(newData[index], mergeNewData, (obj, src) => {
+      if (isArray(obj)) {
+        return obj.concat(src);
+      }
+    });
+
     mutate(newData);
+  }
+};
+
+const upsertFeedMewAndUpdateOriginal = async (feedMew: FeedMew) => {
+  updateOriginal(feedMew);
+
+  if (props.enableUpsertOnResponse) {
+    upsertFeedMew(feedMew);
   }
 };
 </script>
