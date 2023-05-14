@@ -40,10 +40,7 @@ test("link a Pinner to a Mew", async () => {
       await alice.cells[0].callZome({
         zome_name: "agent_pins",
         fn_name: "pin_hash",
-        payload: {
-          base_pinner: baseAddress,
-          target_mew_hash: targetActionHash,
-        },
+        payload: targetActionHash,
       });
 
       await pause(1200);
@@ -60,10 +57,7 @@ test("link a Pinner to a Mew", async () => {
       await alice.cells[0].callZome({
         zome_name: "agent_pins",
         fn_name: "unpin_hash",
-        payload: {
-          base_pinner: baseAddress,
-          target_mew_hash: targetActionHash,
-        },
+        payload: targetActionHash,
       });
 
       await pause(1200);
