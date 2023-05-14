@@ -328,7 +328,8 @@ const toggleLickMew = async () => {
       fn_name: "unlike",
       payload: props.feedMew.action_hash,
     });
-    remove(newLicks, (l) => l === client.myPubKey);
+    remove(newLicks, (l) => isEqual(l, client.myPubKey));
+    showMessage("Unlicked Mew");
   } else {
     await client.callZome({
       role_name: "mewsfeed",
@@ -337,13 +338,13 @@ const toggleLickMew = async () => {
       payload: props.feedMew.action_hash,
     });
     newLicks.push(client.myPubKey);
+    showMessage("Licked Mew");
   }
   emit("toggle-lick-mew", {
     ...props.feedMew,
     licks: newLicks,
   });
   isUpdatingLick.value = false;
-  showMessage("Licked Mew");
 };
 
 const createMewmew = async () => {

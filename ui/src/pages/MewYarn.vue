@@ -19,6 +19,7 @@
             v-model="mew"
             class="q-mb-md bg-orange-1"
             :action-hash="actionHash"
+            @publish-mew="forceReloadAll"
           />
 
           <QItem class="q-mb-md q-px-none">
@@ -84,9 +85,13 @@ const fetchReplies = () => {
   });
 };
 
-const onCreateReply = () => {
+const forceReloadAll = () => {
   forceReloadRepliesKey.value += 1;
   forceReloadMewKey.value += 1;
+};
+
+const onCreateReply = () => {
+  forceReloadAll();
   showMessage("Replied to Mew");
 };
 

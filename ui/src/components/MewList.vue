@@ -39,7 +39,6 @@ const props = withDefaults(
 
 const { data, loading, error, mutate } = useRequest(props.fetchFn, {
   cacheKey: props.cacheKey,
-  initialData: [],
   pollingInterval: 120000, // 120 seconds polling
   refreshOnWindowFocus: true,
   refocusTimespan: 10000, // 10 seconds between window focus to trigger refresh

@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { QList, QItem, QItemSection, QItemLabel } from "quasar";
+import { QList, QItem, QItemLabel } from "quasar";
 import { PROFILE_FIELDS, AgentProfile } from "@/types/types";
 import ProfileAvatarWithPopup from "./ProfileAvatarWithPopup.vue";
 import EmptyMewsFeed from "./EmptyMewsFeed.vue";
