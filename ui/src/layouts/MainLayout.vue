@@ -57,7 +57,7 @@
         :profiles-store="profilesStore"
         :mew-length-min="dnaProperties.mew_characters_min"
         :mew-length-max="dnaProperties.mew_characters_max"
-        @publish-mew="onCreateMew"
+        @mew-created="onCreateMew"
       />
     </CreateProfileIfNotFoundDialog>
   </QLayout>

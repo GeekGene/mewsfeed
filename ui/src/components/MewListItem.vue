@@ -3,10 +3,14 @@
   <BaseMewListItem
     v-else
     :feed-mew="mew"
-    @publish-mew="updateFeedMew"
-    @toggle-lick-mew="updateFeedMew"
-    @toggle-pin-mew="updateFeedMew"
-    @delete-mew="updateFeedMew"
+    @reply-created="updateFeedMew"
+    @mewmew-created="updateFeedMew"
+    @quote-created="updateFeedMew"
+    @mew-licked="updateFeedMew"
+    @mew-unlicked="updateFeedMew"
+    @mew-pinned="updateFeedMew"
+    @mew-unpinned="updateFeedMew"
+    @mew-deleted="updateFeedMew"
   ></BaseMewListItem>
 </template>
 

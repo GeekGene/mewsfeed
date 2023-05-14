@@ -2,17 +2,21 @@
   <CreateMewField
     v-if="showCreateMewField"
     :mew-type="{ [MewTypeName.Original]: null }"
-    @publish-mew="onCreateMew"
+    @mew-created="onCreateMew"
   />
 
   <BaseMewList
     v-bind="$attrs"
     :feed-mews="data"
     :is-loading="loading"
-    @delete-mew="upsertFeedMew"
-    @toggle-lick-mew="upsertFeedMew"
-    @toggle-pin-mew="upsertFeedMew"
-    @publish-mew="upsertFeedMewAndUpdateOriginal"
+    @mew-deleted="upsertFeedMew"
+    @mew-licked="upsertFeedMew"
+    @mew-unlicked="upsertFeedMew"
+    @mew-pinned="upsertFeedMew"
+    @mew-unpinned="upsertFeedMew"
+    @reply-created="upsertFeedMewAndUpdateOriginal"
+    @mewmew-created="upsertFeedMewAndUpdateOriginal"
+    @quote-created="upsertFeedMewAndUpdateOriginal"
   />
 </template>
 

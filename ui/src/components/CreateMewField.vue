@@ -182,7 +182,7 @@ let currentAnchorOffset: number;
 let currentFocusOffset: number;
 let currentNode: Node;
 
-const emit = defineEmits(["publish-mew"]);
+const emit = defineEmits(["mew-created"]);
 const props = defineProps<{
   mewType: MewType;
 }>();
@@ -296,7 +296,7 @@ const publishMew = async () => {
       fn_name: "create_mew_with_context",
       payload: mew,
     });
-    emit("publish-mew", feedMew);
+    emit("mew-created", feedMew);
   } catch (error) {
     showError(error);
   } finally {

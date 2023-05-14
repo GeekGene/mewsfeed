@@ -213,7 +213,7 @@
         :mew-type="{ [MewTypeName.Reply]: feedMew.action_hash }"
         :original-mew="feedMew"
         :original-author="feedMew.original_mew_author_profile"
-        @publish-mew="onCreateReply"
+        @mew-created="onCreateReply"
       />
     </CreateProfileIfNotFoundDialog>
     <CreateProfileIfNotFoundDialog v-model="showQuoteMewDialog">
@@ -221,7 +221,7 @@
         :mew-type="{ [MewTypeName.Quote]: feedMew.action_hash }"
         :original-mew="feedMew"
         :original-author="feedMew.original_mew_author_profile"
-        @publish-mew="onCreateQuote"
+        @mew-created="onCreateQuote"
       />
     </CreateProfileIfNotFoundDialog>
     <CreateProfileIfNotFoundDialog
@@ -281,10 +281,14 @@ const props = withDefaults(
   }
 );
 const emit = defineEmits([
-  "publish-mew",
-  "toggle-lick-mew",
-  "toggle-pin-mew",
-  "delete-mew",
+  "mewmew-created",
+  "quote-created",
+  "reply-created",
+  "mew-licked",
+  "mew-unlicked",
+  "mew-deleted",
+  "mew-pinned",
+  "mew-unpinned",
 ]);
 const router = useRouter();
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
@@ -354,6 +358,10 @@ const toggleLickMew = async () => {
     });
     remove(newLicks, (l) => isEqual(l, client.myPubKey));
     showMessage("Unlicked Mew");
+    emit("mew-unlicked", {
+      ...props.feedMew,
+      licks: newLicks,
+    });
   } else {
     await client.callZome({
       role_name: "mewsfeed",
@@ -363,11 +371,12 @@ const toggleLickMew = async () => {
     });
     newLicks.push(client.myPubKey);
     showMessage("Licked Mew");
+    emit("mew-licked", {
+      ...props.feedMew,
+      licks: newLicks,
+    });
   }
-  emit("toggle-lick-mew", {
-    ...props.feedMew,
-    licks: newLicks,
-  });
+
   isUpdatingLick.value = false;
 };
 
@@ -387,7 +396,7 @@ const togglePinMew = async () => {
       payload: props.feedMew.action_hash,
     });
     showMessage("Unpinned Mew");
-    emit("toggle-pin-mew", {
+    emit("mew-unpinned", {
       ...props.feedMew,
       is_pinned: false,
     });
@@ -399,7 +408,7 @@ const togglePinMew = async () => {
       payload: props.feedMew.action_hash,
     });
     showMessage("Pinned Mew");
-    emit("toggle-pin-mew", {
+    emit("mew-pinned", {
       ...props.feedMew,
       is_pinned: true,
     });
@@ -431,19 +440,19 @@ const createMewmew = async () => {
     fn_name: "create_mew_with_context",
     payload: mew,
   });
-  emit("publish-mew", feedMew);
+  emit("mewmew-created", feedMew);
   showMessage("Mewmewed");
 };
 
 const onCreateQuote = async (feedMew: FeedMew) => {
   showQuoteMewDialog.value = false;
-  emit("publish-mew", feedMew);
+  emit("quote-created", feedMew);
   showMessage("Quoted mew");
 };
 
 const onCreateReply = async (feedMew: FeedMew) => {
   showReplyToMewDialog.value = false;
-  emit("publish-mew", feedMew);
+  emit("reply-created", feedMew);
   showMessage("Replied to mew");
 };
 
@@ -454,7 +463,7 @@ const deleteMew = async () => {
     fn_name: "delete_mew",
     payload: props.feedMew.action_hash,
   });
-  emit("delete-mew", {
+  emit("mew-deleted", {
     ...props.feedMew,
     deleted_timestamp: dayjs().valueOf() * 1000,
   });
