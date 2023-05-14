@@ -2,7 +2,6 @@ import {
   ActionHash,
   AgentPubKey,
   Create,
-  HoloHash,
   SigningCredentials,
 } from "@holochain/client";
 import { QSelectOption } from "quasar";
@@ -81,10 +80,10 @@ export interface FeedMew {
   mew: Mew;
   action: Create;
   action_hash: ActionHash;
-  replies: HoloHash[];
-  quotes: HoloHash[];
+  replies: ActionHash[];
+  quotes: ActionHash[];
   licks: AgentPubKey[];
-  mewmews: HoloHash[];
+  mewmews: ActionHash[];
   author_profile: Profile | null;
   deleted_timestamp: number | null;
   original_mew: Mew | null;
