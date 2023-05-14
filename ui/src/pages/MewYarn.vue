@@ -19,7 +19,9 @@
             v-model="mew"
             class="q-mb-md bg-orange-1"
             :action-hash="actionHash"
-            @publish-mew="forceReloadAll"
+            @reply-created="forceReloadAll"
+            @mewmew-created="forceReloadAll"
+            @quote-created="forceReloadAll"
           />
 
           <QItem class="q-mb-md q-px-none">
@@ -29,7 +31,7 @@
               <CreateMewField
                 :mew-type="{ [MewTypeName.Reply]: actionHash }"
                 class="full-width"
-                @publish-mew="onCreateReply"
+                @mew-created="onCreateReply"
               />
             </div>
           </QItem>

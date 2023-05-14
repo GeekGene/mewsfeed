@@ -38,7 +38,7 @@
     <QCardSection>
       <CreateMewField
         :mew-type="mewType"
-        @publish-mew="(val) => emit('publish-mew', val)"
+        @mew-created="(val) => emit('mew-created', val)"
       />
     </QCardSection>
   </QCard>
@@ -56,7 +56,7 @@ defineProps<{
   originalMew?: FeedMew;
   originalAuthor?: Profile | null;
 }>();
-const emit = defineEmits(["publish-mew"]);
+const emit = defineEmits(["mew-created"]);
 </script>
 
 <style lang="sass" scoped>
