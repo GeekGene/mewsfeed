@@ -241,13 +241,15 @@ import ProfileAvatarWithPopup from "./ProfileAvatarWithPopup.vue";
 import CreateMewForm from "./CreateMewForm.vue";
 import MewContent from "./MewContent.vue";
 import isEqual from "lodash/isEqual";
-import { AgentPubKey, Record } from "@holochain/client";
+import remove from "lodash/remove";
+import { AgentPubKey } from "@holochain/client";
 import { useRouter } from "vue-router";
 import { AppAgentClient } from "@holochain/client";
 import MewTimestamp from "./MewTimestamp.vue";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
 import { showMessage } from "@/utils/notification";
+import dayjs from "dayjs";
 
 const props = withDefaults(
   defineProps<{
@@ -318,6 +320,7 @@ const toggleLickMew = async () => {
   showToggleLickMewDialog.value = false;
 
   isUpdatingLick.value = true;
+  const newLicks = props.feedMew.licks;
   if (isLickedByMe.value) {
     await client.callZome({
       role_name: "mewsfeed",
@@ -325,6 +328,7 @@ const toggleLickMew = async () => {
       fn_name: "unlike",
       payload: props.feedMew.action_hash,
     });
+    remove(newLicks, (l) => l === client.myPubKey);
   } else {
     await client.callZome({
       role_name: "mewsfeed",
@@ -332,8 +336,12 @@ const toggleLickMew = async () => {
       fn_name: "like",
       payload: props.feedMew.action_hash,
     });
+    newLicks.push(client.myPubKey);
   }
-  emit("toggle-lick-mew", props.feedMew.action_hash);
+  emit("toggle-lick-mew", {
+    ...props.feedMew,
+    licks: newLicks,
+  });
   isUpdatingLick.value = false;
   showMessage("Licked Mew");
 };
@@ -355,25 +363,25 @@ const createMewmew = async () => {
     text: "",
     links: [],
   };
-  const record: Record = await client.callZome({
+  const feedMew: FeedMew = await client.callZome({
     role_name: "mewsfeed",
     zome_name: "mews",
-    fn_name: "create_mew",
+    fn_name: "create_mew_with_context",
     payload: mew,
   });
-  emit("publish-mew", record.signed_action.hashed.hash);
-  showMessage("Mew Mewmewed");
+  emit("publish-mew", feedMew);
+  showMessage("Mewmewed");
 };
 
-const onCreateQuote = async (hash: ActionHash) => {
+const onCreateQuote = async (feedMew: FeedMew) => {
   showQuoteMewDialog.value = false;
-  emit("publish-mew", hash);
+  emit("publish-mew", feedMew);
   showMessage("Quoted mew");
 };
 
-const onCreateReply = async (hash: ActionHash) => {
+const onCreateReply = async (feedMew: FeedMew) => {
   showReplyToMewDialog.value = false;
-  emit("publish-mew", hash);
+  emit("publish-mew", feedMew);
   showMessage("Replied to mew");
 };
 
@@ -384,7 +392,10 @@ const deleteMew = async () => {
     fn_name: "delete_mew",
     payload: props.feedMew.action_hash,
   });
-  emit("delete-mew", props.feedMew.action_hash);
+  emit("delete-mew", {
+    ...props.feedMew,
+    deleted_timestamp: dayjs().valueOf() * 1000,
+  });
   showMessage("Deleted mew");
 };
 </script>

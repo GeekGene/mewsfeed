@@ -5,7 +5,11 @@ const DEFAULT_MESSAGE = "Done!";
 export const showMessage = (
   messageOrOptions?: string | QNotifyCreateOptions
 ) => {
-  const options: QNotifyCreateOptions = { color: "green", position: "bottom" };
+  const options: QNotifyCreateOptions = {
+    color: "green",
+    position: "bottom",
+    timeout: 250,
+  };
   options.message =
     typeof messageOrOptions === "string" ? messageOrOptions : DEFAULT_MESSAGE;
   if (typeof messageOrOptions === "object") {

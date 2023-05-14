@@ -28,7 +28,7 @@
               <CreateMewField
                 :mew-type="{ [MewTypeName.Reply]: actionHash }"
                 class="full-width"
-                @publish-mew="loadYarn"
+                @publish-mew="onCreateReply"
               />
             </div>
           </QItem>
@@ -58,6 +58,7 @@ import { ComputedRef, computed, inject, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { AppAgentClient } from "@holochain/client";
 import isEqual from "lodash/isEqual";
+import { showMessage } from "@/utils/notification";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const route = useRoute();
@@ -83,9 +84,10 @@ const fetchReplies = () => {
   });
 };
 
-const loadYarn = () => {
+const onCreateReply = () => {
   forceReloadRepliesKey.value += 1;
   forceReloadMewKey.value += 1;
+  showMessage("Replied to Mew");
 };
 
 watch(mew, (newMew, oldMew) => {

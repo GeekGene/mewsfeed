@@ -162,6 +162,7 @@ import {
   PROFILE_FIELDS,
   UrlLinkTarget,
   MentionLinkTarget,
+  FeedMew,
 } from "../types/types";
 import {
   AgentPubKey,
@@ -171,7 +172,7 @@ import {
 import min from "lodash/min";
 import union from "lodash/union";
 import flatten from "lodash/flatten";
-import { AppAgentClient, Record } from "@holochain/client";
+import { AppAgentClient } from "@holochain/client";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
 
 const ANCHOR_DATA_ID_AGENT_PUB_KEY = "agentPubKey";
@@ -289,13 +290,13 @@ const publishMew = async () => {
 
   try {
     saving.value = true;
-    const record: Record = await client.callZome({
+    const feedMew: FeedMew = await client.callZome({
       role_name: "mewsfeed",
       zome_name: "mews",
-      fn_name: "create_mew",
+      fn_name: "create_mew_with_context",
       payload: mew,
     });
-    emit("publish-mew", record.signed_action.hashed.hash);
+    emit("publish-mew", feedMew);
   } catch (error) {
     showError(error);
   } finally {

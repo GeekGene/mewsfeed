@@ -64,13 +64,16 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
 
                     match details {
                         Details::Record(record_details) => {
-                            let original_mew_author = record_details.record.action().author().clone();
-                            let original_mew_author_profile = get_agent_profile(original_mew_author.clone())?;
+                            let original_mew_author =
+                                record_details.record.action().author().clone();
+                            let original_mew_author_profile =
+                                get_agent_profile(original_mew_author.clone())?;
                             let original_mew_deleted_timestamp = deletes
                                 .first()
                                 .map(|first_delete| first_delete.action().timestamp());
 
-                            let original_mew: Mew = record_details.record
+                            let original_mew: Mew = record_details
+                                .record
                                 .entry()
                                 .to_app_option()
                                 .map_err(|e| wasm_error!(WasmErrorInner::Guest(e.into())))?
@@ -90,7 +93,7 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                                 deleted_timestamp,
                                 original_mew: Some(original_mew),
                                 original_mew_author: Some(original_mew_author),
-                                original_mew_author_profile: original_mew_author_profile,
+                                original_mew_author_profile,
                                 original_mew_deleted_timestamp,
                             })
                         }
@@ -144,7 +147,7 @@ fn get_agent_profile(agentpubkey: AgentPubKey) -> ExternResult<Option<Profile>> 
 
                     Ok(Some(profile))
                 }
-                None => Ok(None)
+                None => Ok(None),
             }
         }
         _ => Err(wasm_error!(WasmErrorInner::Guest(

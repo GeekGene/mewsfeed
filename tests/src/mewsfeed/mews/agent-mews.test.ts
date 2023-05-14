@@ -1,6 +1,6 @@
 import { assert, test } from "vitest";
 import { runScenario, pause } from "@holochain/tryorama";
-import { Record } from "@holochain/client";
+import { ActionHash, Record } from "@holochain/client";
 import { decode } from "@msgpack/msgpack";
 import { createMew } from "./common";
 import { FeedMew, Mew } from "../../../../ui/src/types/types";
@@ -32,8 +32,8 @@ test("create a Mew and get agent mews", async () => {
       assert.equal(collectionOutput.length, 0);
 
       // Alice creates a Mew
-      const createdRecord: Record = await createMew(alice.cells[0]);
-      assert.ok(createdRecord);
+      const actionHash: ActionHash = await createMew(alice.cells[0]);
+      assert.ok(actionHash);
 
       await pause(1200);
 
@@ -44,10 +44,7 @@ test("create a Mew and get agent mews", async () => {
         payload: alice.agentPubKey,
       });
       assert.equal(collectionOutput.length, 1);
-      assert.deepEqual(
-        decode((createdRecord.entry as any).Present.entry) as Mew,
-        collectionOutput[0].mew
-      );
+      assert.deepEqual(actionHash, collectionOutput[0].action_hash);
     },
     true,
     { timeout: 100000 }

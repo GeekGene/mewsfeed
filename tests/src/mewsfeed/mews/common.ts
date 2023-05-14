@@ -1,5 +1,5 @@
 import { CallableCell } from "@holochain/tryorama";
-import { Record } from "@holochain/client";
+import { ActionHash } from "@holochain/client";
 
 export async function sampleMew(cell: CallableCell, partialMew = {}) {
   return {
@@ -15,7 +15,7 @@ export async function sampleMew(cell: CallableCell, partialMew = {}) {
 export async function createMew(
   cell: CallableCell,
   mew = undefined
-): Promise<Record> {
+): Promise<ActionHash> {
   return cell.callZome({
     zome_name: "mews",
     fn_name: "create_mew",

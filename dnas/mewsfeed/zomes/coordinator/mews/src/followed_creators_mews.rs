@@ -18,7 +18,7 @@ pub fn get_followed_creators_mews(agent: AgentPubKey) -> ExternResult<Vec<Record
 #[hdk_extern]
 pub fn get_followed_creators_mews_with_context(agent: AgentPubKey) -> ExternResult<Vec<FeedMew>> {
     let hashes = get_followed_creators_mew_hashes(agent)?;
-    
+
     get_batch_mews_with_context(hashes)
 }
 

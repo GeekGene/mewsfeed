@@ -2,30 +2,29 @@
   <CreateMewField
     v-if="showCreateMewField"
     :mew-type="{ [MewTypeName.Original]: null }"
-    @publish-mew="fetchMew"
+    @publish-mew="onCreateMew"
   />
 
   <BaseMewList
     v-bind="$attrs"
     :feed-mews="data"
     :is-loading="loading"
-    @delete-mew="run"
-    @publish-mew="run"
-    @toggle-lick-mew="fetchMew"
+    @delete-mew="upsertFeedMew"
+    @toggle-lick-mew="upsertFeedMew"
+    @publish-mew="upsertFeedMewAndOriginal"
   />
 </template>
 
 <script setup lang="ts">
 import { FeedMew, MewTypeName } from "@/types/types";
-import { showError } from "@/utils/notification";
-import { ComputedRef, inject, watch, onMounted } from "vue";
-import { ActionHash, AppAgentClient } from "@holochain/client";
-import { isEqual } from "lodash";
+import { showError, showMessage } from "@/utils/notification";
+import { watch } from "vue";
+import isEqual from "lodash/isEqual";
+import merge from "lodash/merge";
 import { useRequest } from "vue-request";
 import BaseMewList from "@/components/BaseMewList.vue";
 import CreateMewField from "@/components/CreateMewField.vue";
-
-const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+import { ActionHash } from "@holochain/client";
 
 const props = withDefaults(
   defineProps<{
@@ -38,7 +37,7 @@ const props = withDefaults(
   }
 );
 
-const { data, loading, error, run, mutate } = useRequest(props.fetchFn, {
+const { data, loading, error, mutate } = useRequest(props.fetchFn, {
   cacheKey: props.cacheKey,
   initialData: [],
   pollingInterval: 120000, // 120 seconds polling
@@ -48,35 +47,57 @@ const { data, loading, error, run, mutate } = useRequest(props.fetchFn, {
 });
 watch(error, showError);
 
-const fetchMew = async (actionHash: ActionHash) => {
-  console.log("fetchMew");
+const onCreateMew = async (feedMew: FeedMew) => {
+  upsertFeedMew(feedMew);
+  showMessage("Published Mew");
+};
 
+const upsertFeedMew = async (feedMew: FeedMew) => {
   if (data.value === undefined) return;
 
-  const mew: FeedMew = await client.callZome({
-    role_name: "mewsfeed",
-    zome_name: "mews",
-    fn_name: "get_mew_with_context",
-    payload: actionHash,
-  });
-
-  const index = data.value.findIndex((mew: FeedMew) =>
-    isEqual(actionHash, mew.action_hash)
+  const index = data.value.findIndex((f: FeedMew) =>
+    isEqual(f.action_hash, feedMew.action_hash)
   );
 
   const newData = data.value;
   if (index !== -1) {
     // Replace mew if already exists in data
-    newData[index] = mew;
+    newData[index] = feedMew;
   } else {
     // Insert mew at beginning of list if not
-    newData.unshift(mew);
+    newData.unshift(feedMew);
   }
   mutate(newData);
 };
 
+const upsertFeedMewAndOriginal = async (feedMew: FeedMew) => {
+  if (data.value === undefined) return;
 
-onMounted(() => {
-  console.log("mounted mewList", props.cacheKey);
-});
+  upsertFeedMew(feedMew);
+
+  if (MewTypeName.Original in feedMew.mew.mew_type) return;
+
+  let originalActionHash: ActionHash | undefined;
+  let mergeNewData = {};
+  if (MewTypeName.Reply in feedMew.mew.mew_type) {
+    originalActionHash = feedMew.mew.mew_type[MewTypeName.Reply];
+    mergeNewData = { replies: [feedMew.action_hash] };
+  } else if (MewTypeName.Mewmew in feedMew.mew.mew_type) {
+    originalActionHash = feedMew.mew.mew_type[MewTypeName.Mewmew];
+    mergeNewData = { mewmews: [feedMew.action_hash] };
+  } else if (MewTypeName.Quote in feedMew.mew.mew_type) {
+    originalActionHash = feedMew.mew.mew_type[MewTypeName.Quote];
+    mergeNewData = { quotes: [feedMew.action_hash] };
+  }
+
+  const index = data.value.findIndex((f: FeedMew) =>
+    isEqual(f.action_hash, originalActionHash)
+  );
+
+  const newData = data.value;
+  if (index !== -1) {
+    merge(newData[index], mergeNewData);
+    mutate(newData);
+  }
+};
 </script>

@@ -57,7 +57,7 @@
         :profiles-store="profilesStore"
         :mew-length-min="dnaProperties.mew_characters_min"
         :mew-length-max="dnaProperties.mew_characters_max"
-        @publish-mew="onPublishMew"
+        @publish-mew="onCreateMew"
       />
     </CreateProfileIfNotFoundDialog>
   </QLayout>
@@ -85,6 +85,7 @@ import { useRouter, useRoute } from "vue-router";
 import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
 import SearchEverythingInput from "@/components/SearchEverythingInput.vue";
+import { showMessage } from "@/utils/notification";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const dnaProperties = (
@@ -100,8 +101,9 @@ const tab = ref("");
 const showCreateMewDialog = ref(false);
 const forceReloadRouterViewKey = ref(0);
 
-const onPublishMew = () => {
+const onCreateMew = () => {
   showCreateMewDialog.value = false;
+  showMessage("Published Mew");
   if (router.currentRoute.value.name === ROUTES.feed) {
     forceReloadRouterViewKey.value += 1;
   } else {

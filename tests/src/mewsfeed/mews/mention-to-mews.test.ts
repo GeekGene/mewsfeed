@@ -3,6 +3,7 @@ import { assert, test } from "vitest";
 import { FeedMew, LinkTargetName } from "../../../../ui/src/types/types.js";
 import { mewsfeedAppBundleSource } from "../../common.js";
 import { createMew } from "./common.js";
+import { ActionHash } from "@holochain/client";
 
 test("mention in mews", async () => {
   await runScenario(
@@ -21,7 +22,7 @@ test("mention in mews", async () => {
       // conductor of the scenario.
       await scenario.shareAllAgents();
 
-      const mewRecord = await createMew(alice.cells[0], {
+      const actionHash: ActionHash = await createMew(alice.cells[0], {
         text: "this is for @bob",
         links: [{ [LinkTargetName.Mention]: bob.agentPubKey }],
         mew_type: { Original: null },
@@ -33,14 +34,14 @@ test("mention in mews", async () => {
         mew_type: { Original: null },
       });
 
-      const mewRecord3 = await createMew(alice.cells[0], {
+      const actionHash3 = await createMew(alice.cells[0], {
         text: "this is for @alice",
         links: [{ [LinkTargetName.Mention]: alice.agentPubKey }],
         mew_type: { Original: null },
       });
 
       assert.deepEqual(
-        mewRecord.signed_action.hashed.hash.slice(0, 3),
+        actionHash.slice(0, 3),
         Buffer.from([132, 41, 36]),
         "alice created a valid mew"
       );
@@ -53,10 +54,7 @@ test("mention in mews", async () => {
         payload: bob.agentPubKey,
       });
       assert.ok(mentionedMews.length === 2, "one mew with mention");
-      assert.deepEqual(
-        mentionedMews[0].action_hash,
-        mewRecord.signed_action.hashed.hash
-      );
+      assert.deepEqual(mentionedMews[0].action_hash, actionHash);
 
       const mentionedMews3: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -64,10 +62,7 @@ test("mention in mews", async () => {
         payload: alice.agentPubKey,
       });
       assert.ok(mentionedMews3.length === 1, "one mew with mention");
-      assert.deepEqual(
-        mentionedMews3[0].action_hash,
-        mewRecord3.signed_action.hashed.hash
-      );
+      assert.deepEqual(mentionedMews3[0].action_hash, actionHash3);
     },
     true,
     { timeout: 100000 }

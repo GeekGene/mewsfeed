@@ -3,16 +3,16 @@
   <BaseMewListItem
     v-else
     :feed-mew="mew"
-    @publish-mew="runFetchMew"
-    @toggle-lick-mew="runFetchMew"
-    @delete-mew="runFetchMew"
+    @publish-mew="updateFeedMew"
+    @toggle-lick-mew="updateFeedMew"
+    @delete-mew="updateFeedMew"
   ></BaseMewListItem>
 </template>
 
 <script setup lang="ts">
 import { showError } from "@/utils/notification";
 import { ActionHash, AppAgentClient } from "@holochain/client";
-import { inject, ComputedRef, watch, onMounted } from "vue";
+import { inject, ComputedRef, watch } from "vue";
 import BaseMewListItem from "@/components/BaseMewListItem.vue";
 import MewListItemSkeleton from "@/components/MewListItemSkeleton.vue";
 import { useRequest } from "vue-request";
@@ -40,6 +40,7 @@ const {
   loading,
   error,
   run: runFetchMew,
+  mutate,
 } = useRequest(fetchMew, {
   cacheKey: `mews/get_mew_with_context/${props.actionHash}`,
   pollingInterval: 120000, // 120 seconds polling
@@ -52,7 +53,8 @@ watch(mew, (newMew) => {
   emit("update:modelValue", newMew);
 });
 
-onMounted(() => {
-  console.log("mounted mewlistitem", props.actionHash);
-});
+
+const updateFeedMew = async (feedMew: FeedMew) => {
+  mutate(feedMew);
+};
 </script>
