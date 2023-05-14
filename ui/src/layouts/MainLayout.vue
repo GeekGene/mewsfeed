@@ -29,6 +29,15 @@
           <QRouteTab
             v-if="myProfile && client"
             :to="{
+              name: ROUTES.notifications,
+            }"
+            icon="bell"
+          >
+            <QTooltip>Notifications</QTooltip>
+          </QRouteTab>
+          <QRouteTab
+            v-if="myProfile && client"
+            :to="{
               name: ROUTES.profile,
               params: { agent: encodeHashToBase64(client.myPubKey) },
             }"

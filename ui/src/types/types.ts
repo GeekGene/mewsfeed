@@ -148,3 +148,16 @@ export type AgentProfile = {
   agentPubKey: AgentPubKey;
   profile: Profile;
 };
+
+export type Notification = {
+  type:
+    | "mew-licked"
+    | "mew-unlicked"
+    | "mew-pinned"
+    | "mew-unpinned"
+    | "mew-replied"
+    | "mew-mewmewed"
+    | "mew-quoted"
+    | "agent-tagged";
+  feedMew: FeedMew;
+};

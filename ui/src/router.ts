@@ -17,8 +17,8 @@ export const PATH = {
 
 export const ROUTES = {
   home: "home",
-  myProfile: "myProfile",
   profile: "profile",
+  notifications: "notifications",
   feed: "feed",
   yarn: "yarn",
   [PATH[TAG_SYMBOLS.CASHTAG]]: PATH[TAG_SYMBOLS.CASHTAG],
@@ -36,6 +36,11 @@ export const routes: RouteRecordRaw[] = [
     path: "/profiles/:agent",
     name: ROUTES.profile,
     component: AgentProfile,
+  },
+  {
+    path: "/notifications",
+    name: ROUTES.notifications,
+    component: MyNotifications,
   },
   {
     path: "/feed",
