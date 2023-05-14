@@ -21,7 +21,11 @@
             </div>
             <div class="text-primary">@{{ profile?.nickname }}</div>
           </div>
-          <ButtonFollow v-if="!isMyProfile" :agentPubKey="agentPubKey" />
+          <ButtonFollow
+            v-if="!isMyProfile"
+            :agentPubKey="agentPubKey"
+            @toggle-follow="forceReloadFollowersListKey += 1"
+          />
         </QCardSection>
 
         <QCardSection class="flex">
@@ -55,7 +59,10 @@
       <h6 class="q-mt-none q-mb-md">Following</h6>
       <FolloweesList :agentPubKey="agentPubKey" />
       <h6 class="q-mb-md">Followed by</h6>
-      <FollowersList :agentPubKey="agentPubKey" />
+      <FollowersList
+        :key="forceReloadFollowersListKey"
+        :agentPubKey="agentPubKey"
+      />
       <h6 class="q-mb-md">
         <QBtn
           v-if="profile?.nickname"
@@ -111,6 +118,7 @@ const agentPubKey = computed(() =>
 const loadingProfile = ref(false);
 const profile = ref<Profile>();
 const isFollowingMe = ref(false);
+const forceReloadFollowersListKey = ref(0);
 
 const isMyProfile = computed(() =>
   isEqual(agentPubKey.value, client.myPubKey as AgentPubKey)

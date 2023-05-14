@@ -36,6 +36,7 @@ const props = defineProps({
     required: true,
   },
 });
+const emit = defineEmits(["toggle-follow"]);
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
@@ -95,6 +96,7 @@ const toggleFollow = async () => {
       ? `You're following ${name} now`
       : `You're not following ${name} anymore`;
     showMessage(message);
+    emit("toggle-follow", isFollowing.value);
   } catch (error) {
     showError(error);
   }

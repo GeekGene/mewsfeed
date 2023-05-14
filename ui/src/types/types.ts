@@ -143,3 +143,8 @@ export type SearchResultOption = QSelectOption<RouteLocationRaw> & {
   agentPubKey?: AgentPubKey;
   resultType: SearchResult;
 };
+
+export type AgentProfile = {
+  agentPubKey: AgentPubKey;
+  profile: Profile;
+};
