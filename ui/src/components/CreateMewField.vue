@@ -148,7 +148,7 @@ import {
   QBtn,
 } from "quasar";
 import { showError } from "@/utils/notification";
-import { useSearchProfiles } from "@/stores/profiles";
+import { useSearchProfiles } from "@/utils/profiles";
 import { Profile } from "@holochain-open-dev/profiles";
 import { isMentionTag, isRawUrl, isLinkTag, TAG_SYMBOLS } from "@/utils/tags";
 import { onMounted, ref, computed, ComputedRef, inject } from "vue";

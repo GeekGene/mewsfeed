@@ -3,7 +3,7 @@ import {
   ProfilesConfig,
   ProfilesStore,
 } from "@holochain-open-dev/profiles";
-import { ComputedRef, Ref, ref, inject } from "vue";
+import { ComputedRef, inject } from "vue";
 import { PROFILE_FIELDS } from "@/types/types";
 
 export const PROFILES_CONFIG: ProfilesConfig = {
