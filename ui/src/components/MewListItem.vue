@@ -5,6 +5,7 @@
     :feed-mew="mew"
     @publish-mew="updateFeedMew"
     @toggle-lick-mew="updateFeedMew"
+    @toggle-pin-mew="updateFeedMew"
     @delete-mew="updateFeedMew"
   ></BaseMewListItem>
 </template>

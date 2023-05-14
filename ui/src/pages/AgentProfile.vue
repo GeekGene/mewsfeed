@@ -45,8 +45,14 @@
       </QCard>
 
       <MewList
+        :fetch-fn="fetchPinnedMews"
+        title="Pinned Mews"
+        :cache-key="`mews/get_mews_for_pinner_with_context/${agentPubKey}`"
+      />
+
+      <MewList
         :fetch-fn="fetchAgentMews"
-        title="Mews"
+        title="Authored Mews"
         :cache-key="`mews/get_agent_mews_with_context/${agentPubKey}`"
       />
     </div>
@@ -123,6 +129,14 @@ const fetchAgentMews = () =>
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_agent_mews_with_context",
+    payload: agentPubKey.value,
+  });
+
+const fetchPinnedMews = () =>
+  client.callZome({
+    role_name: "mewsfeed",
+    zome_name: "mews",
+    fn_name: "get_mews_for_pinner_with_context",
     payload: agentPubKey.value,
   });
 

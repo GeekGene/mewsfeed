@@ -1,5 +1,6 @@
 use crate::licker_to_mews::*;
 use crate::mew_to_responses::*;
+use crate::pinner_to_mews::is_mew_pinned;
 use hdk::prelude::*;
 use mews_integrity::*;
 
@@ -38,6 +39,7 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                 .first()
                 .map(|first_delete| first_delete.action().timestamp());
             let author_profile = get_agent_profile(record.action().author().clone())?;
+            let is_pinned = is_mew_pinned(record.action_hashed().hash.clone())?;
 
             match mew.clone().mew_type {
                 MewType::Original => Ok(FeedMew {
@@ -50,6 +52,7 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                     mewmews,
                     deleted_timestamp,
                     author_profile,
+                    is_pinned,
                     original_mew: None,
                     original_mew_author: None,
                     original_mew_author_profile: None,
@@ -91,6 +94,7 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                                 mewmews,
                                 author_profile,
                                 deleted_timestamp,
+                                is_pinned,
                                 original_mew: Some(original_mew),
                                 original_mew_author: Some(original_mew_author),
                                 original_mew_author_profile,

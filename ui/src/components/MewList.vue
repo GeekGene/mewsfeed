@@ -11,6 +11,7 @@
     :is-loading="loading"
     @delete-mew="upsertFeedMew"
     @toggle-lick-mew="upsertFeedMew"
+    @toggle-pin-mew="upsertFeedMew"
     @publish-mew="upsertFeedMewAndUpdateOriginal"
   />
 </template>
@@ -26,7 +27,6 @@ import { useRequest } from "vue-request";
 import BaseMewList from "@/components/BaseMewList.vue";
 import CreateMewField from "@/components/CreateMewField.vue";
 import { ActionHash } from "@holochain/client";
-import { localStorageCacheConfig } from "@/utils/request";
 
 const props = withDefaults(
   defineProps<{
@@ -47,7 +47,6 @@ const { data, loading, error, mutate } = useRequest(props.fetchFn, {
   refreshOnWindowFocus: true,
   refocusTimespan: 10000, // 10 seconds between window focus to trigger refresh
   loadingDelay: 1000,
-  ...localStorageCacheConfig,
 });
 watch(error, showError);
 

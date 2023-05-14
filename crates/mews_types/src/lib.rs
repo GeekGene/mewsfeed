@@ -49,6 +49,7 @@ pub struct FeedMew {
     pub mewmews: Vec<ActionHash>,
     pub deleted_timestamp: Option<Timestamp>,
     pub author_profile: Option<Profile>,
+    pub is_pinned: bool,
     pub original_mew: Option<Mew>,
     pub original_mew_author: Option<AgentPubKey>,
     pub original_mew_author_profile: Option<Profile>,

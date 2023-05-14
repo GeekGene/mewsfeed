@@ -138,7 +138,9 @@
                 class="q-mr-xs"
               />
               {{ feedMew.licks.length }}
-              <QTooltip v-if="!isDeleted">Lick mew</QTooltip>
+              <QTooltip v-if="!isDeleted">
+                {{ isLickedByMe ? "Lick" : "Unlick" }} mew
+              </QTooltip>
             </QBtn>
             <QBtn
               :disable="isDeleted"
@@ -179,6 +181,22 @@
               @click.stop.prevent="showConfirmDeleteDialog = true"
             >
               <QTooltip v-if="!isDeleted">Delete mew</QTooltip>
+            </QBtn>
+            <QBtn
+              :disable="isDeleted"
+              size="sm"
+              flat
+              @click.stop.prevent="togglePinMew"
+            >
+              <QIcon
+                v-if="props.feedMew.is_pinned"
+                name="svguse:/icons.svg#push-pin-off"
+                class="q-mr-xs"
+              />
+              <QIcon v-else name="svguse:/icons.svg#push-pin" class="q-mr-xs" />
+              <QTooltip v-if="!isDeleted">
+                {{ props.feedMew.is_pinned ? "Unpin" : "Pin" }} mew
+              </QTooltip>
             </QBtn>
           </template>
         </div>
@@ -262,7 +280,12 @@ const props = withDefaults(
     showIfDeletedDefault: false,
   }
 );
-const emit = defineEmits(["publish-mew", "toggle-lick-mew", "delete-mew"]);
+const emit = defineEmits([
+  "publish-mew",
+  "toggle-lick-mew",
+  "toggle-pin-mew",
+  "delete-mew",
+]);
 const router = useRouter();
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const myProfile = inject("myProfile") as ComputedRef<Profile>;
@@ -273,6 +296,9 @@ const showToggleLickMewDialog = ref(false);
 const showCreateMewmewDialog = ref(false);
 const showConfirmDeleteDialog = ref(false);
 const showIfDeleted = ref(props.showIfDeletedDefault);
+const showTogglePinMewDialog = ref(false);
+const isUpdatingPin = ref(false);
+const isUpdatingLick = ref(false);
 
 const originalMewHash =
   MewTypeName.Mewmew in props.feedMew.mew.mew_type
@@ -282,8 +308,6 @@ const originalMewHash =
     : MewTypeName.Quote in props.feedMew.mew.mew_type
     ? props.feedMew.mew.mew_type.Quote
     : props.feedMew.mew.mew_type.Original;
-
-const isUpdatingLick = ref(false);
 
 const isMewmew = computed(
   () => MewTypeName.Mewmew in props.feedMew.mew.mew_type
@@ -345,6 +369,43 @@ const toggleLickMew = async () => {
     licks: newLicks,
   });
   isUpdatingLick.value = false;
+};
+
+const togglePinMew = async () => {
+  if (!myProfile.value) {
+    showTogglePinMewDialog.value = true;
+    return;
+  }
+  showTogglePinMewDialog.value = false;
+
+  isUpdatingPin.value = true;
+  if (props.feedMew.is_pinned) {
+    await client.callZome({
+      role_name: "mewsfeed",
+      zome_name: "mews",
+      fn_name: "unpin_mew",
+      payload: props.feedMew.action_hash,
+    });
+    showMessage("Unpinned Mew");
+    emit("toggle-pin-mew", {
+      ...props.feedMew,
+      is_pinned: false,
+    });
+  } else {
+    await client.callZome({
+      role_name: "mewsfeed",
+      zome_name: "mews",
+      fn_name: "pin_mew",
+      payload: props.feedMew.action_hash,
+    });
+    showMessage("Pinned Mew");
+    emit("toggle-pin-mew", {
+      ...props.feedMew,
+      is_pinned: true,
+    });
+  }
+
+  isUpdatingPin.value = false;
 };
 
 const createMewmew = async () => {
