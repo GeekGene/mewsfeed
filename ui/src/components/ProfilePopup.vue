@@ -1,7 +1,7 @@
 <template>
   <RouterLink
     :to="{
-      name: ROUTES.profiles,
+      name: ROUTES.profile,
       params: { agent: encodeHashToBase64(agentPubKey) },
     }"
     style="z-index: 200; width: 350px; position: absolute"

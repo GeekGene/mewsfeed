@@ -11,7 +11,7 @@
       <div class="row items-start justify-start q-mb-sm">
         <RouterLink
           :to="{
-            name: ROUTES.profiles,
+            name: ROUTES.profile,
             params: { agent: encodeHashToBase64(feedMew.action.author) },
           }"
           @click.stop.prevent
@@ -63,7 +63,7 @@
             </span>
             <RouterLink
               :to="{
-                name: ROUTES.profiles,
+                name: ROUTES.profile,
                 params: {
                   agent: encodeHashToBase64(feedMew.original_mew_author as AgentPubKey),
                 },

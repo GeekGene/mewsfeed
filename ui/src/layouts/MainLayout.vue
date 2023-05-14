@@ -28,7 +28,10 @@
 
           <QRouteTab
             v-if="myProfile && client"
-            :to="{ name: ROUTES.myProfile }"
+            :to="{
+              name: ROUTES.profile,
+              params: { agent: encodeHashToBase64(client.myPubKey) },
+            }"
           >
             <agent-avatar
               :agentPubKey="client.myPubKey"
@@ -67,7 +70,7 @@
 import CreateMewForm from "@/components/CreateMewForm.vue";
 import { ROUTES } from "@/router";
 import { MewTypeName, MewsfeedDnaProperties } from "@/types/types";
-import { AppAgentClient } from "@holochain/client";
+import { AppAgentClient, encodeHashToBase64 } from "@holochain/client";
 import {
   QPageContainer,
   QSpace,

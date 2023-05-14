@@ -2,7 +2,6 @@ import { RouteRecordRaw, createRouter, createWebHistory } from "vue-router";
 import { TAG_SYMBOLS } from "./utils/tags";
 import HomePage from "./pages/HomePage.vue";
 import MewsFeed from "./pages/MewsFeed.vue";
-import MyProfile from "./pages/MyProfile.vue";
 import AgentProfile from "./pages/AgentProfile.vue";
 import MewYarn from "./pages/MewYarn.vue";
 import CashtagMewsFeed from "./pages/CashtagMewsFeed.vue";
@@ -19,7 +18,7 @@ export const PATH = {
 export const ROUTES = {
   home: "home",
   myProfile: "myProfile",
-  profiles: "profiles",
+  profile: "profile",
   feed: "feed",
   yarn: "yarn",
   [PATH[TAG_SYMBOLS.CASHTAG]]: PATH[TAG_SYMBOLS.CASHTAG],
@@ -34,13 +33,8 @@ export const routes: RouteRecordRaw[] = [
     component: HomePage,
   },
   {
-    path: "/my-profile/",
-    name: ROUTES.myProfile,
-    component: MyProfile,
-  },
-  {
     path: "/profiles/:agent",
-    name: ROUTES.profiles,
+    name: ROUTES.profile,
     component: AgentProfile,
   },
   {
