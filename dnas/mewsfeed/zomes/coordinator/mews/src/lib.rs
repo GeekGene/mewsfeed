@@ -11,6 +11,8 @@ pub mod mew_to_responses;
 pub mod mew_with_context;
 pub mod pinner_to_mews;
 pub mod search_tags;
+pub mod random_mews;
+
 use mews_integrity::LinkTypes;
 #[hdk_extern]
 pub fn init(_: ()) -> ExternResult<InitCallbackResult> {

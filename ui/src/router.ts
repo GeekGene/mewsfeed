@@ -1,6 +1,6 @@
 import { RouteRecordRaw, createRouter, createWebHistory } from "vue-router";
 import { TAG_SYMBOLS } from "./utils/tags";
-import HomePage from "./pages/HomePage.vue";
+import DiscoverCreators from "./pages/DiscoverCreators.vue";
 import MewsFeed from "./pages/MewsFeed.vue";
 import AgentProfile from "./pages/AgentProfile.vue";
 import MewYarn from "./pages/MewYarn.vue";
@@ -16,8 +16,7 @@ export const PATH = {
 };
 
 export const ROUTES = {
-  home: "home",
-  myProfile: "myProfile",
+  discover: "discover",
   profile: "profile",
   feed: "feed",
   yarn: "yarn",
@@ -29,8 +28,8 @@ export const ROUTES = {
 export const routes: RouteRecordRaw[] = [
   {
     path: "/",
-    name: ROUTES.home,
-    component: HomePage,
+    name: ROUTES.feed,
+    component: MewsFeed,
   },
   {
     path: "/profiles/:agent",
@@ -38,9 +37,9 @@ export const routes: RouteRecordRaw[] = [
     component: AgentProfile,
   },
   {
-    path: "/feed",
-    name: ROUTES.feed,
-    component: MewsFeed,
+    path: "/discover",
+    name: ROUTES.discover,
+    component: DiscoverCreators,
   },
   {
     path: "/yarn/:hash",

@@ -3,10 +3,12 @@
     <QHeader elevated class="row justify-center">
       <QToolbar class="col-12 col-md-6 col-xl-5">
         <QTabs v-model="tab" dense inline-label class="col-grow">
-          <QRouteTab :to="{ name: ROUTES.home }">
+          <QRouteTab :to="{ name: ROUTES.feed }">
             <QIcon name="svguse:/icons.svg#cat" size="lg" />
-            <QTooltip>Den</QTooltip>
           </QRouteTab>
+          <QRouteTab :to="{ name: ROUTES.discover }" icon="explore" />
+
+          <SearchEverythingInput />
 
           <QBtn
             icon="add"
@@ -17,14 +19,6 @@
             Mew
             <QTooltip>Create a mew</QTooltip>
           </QBtn>
-
-          <SearchEverythingInput />
-
-          <QRouteTab
-            :to="{ name: ROUTES.feed }"
-            icon="feed"
-            label="Mews Feed"
-          />
 
           <QRouteTab
             v-if="myProfile && client"

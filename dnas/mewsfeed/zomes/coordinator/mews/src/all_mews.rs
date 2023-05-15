@@ -22,7 +22,7 @@ pub fn get_all_mews_with_context(_: ()) -> ExternResult<Vec<FeedMew>> {
     get_batch_mews_with_context(hashes)
 }
 
-fn get_all_mew_hashes() -> ExternResult<Vec<ActionHash>> {
+pub fn get_all_mew_hashes() -> ExternResult<Vec<ActionHash>> {
     let path = Path::from("all_mews");
     let mut links = get_links(path.path_entry_hash()?, LinkTypes::AllMews, None)?;
     links.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
