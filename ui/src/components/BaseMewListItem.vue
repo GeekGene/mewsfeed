@@ -8,7 +8,7 @@
     </QItemSection>
 
     <QItemSection>
-      <div class="row items-start justify-start q-mb-sm">
+      <div class="row justify-start items-center q-mb-sm">
         <RouterLink
           :to="{
             name: ROUTES.profile,
@@ -27,75 +27,42 @@
           </span>
         </RouterLink>
 
-        <span v-if="!isOriginal" class="q-ml-md">
-          <div
-            v-if="feedMew.original_mew_deleted_timestamp !== null"
-            class="row justify-start items-start"
-          >
-            <span class="q-mr-xs text-secondary">
-              {{ reactionLabel }}
-            </span>
-            <span class="text-secondary">
-              <span class="text-bold"> Deleted Mew </span>
-            </span>
+        <span v-if="isResponse && originalMewHash" class="q-ml-md">
+          <div class="row justify-start items-center">
             <QBtn
-              v-if="showYarnLink && originalMewHash"
-              class="q-mx-sm q-px-sm"
+              v-if="showYarnLink"
               padding="none"
               margin="none"
               flat
               color="dark"
-              size="xs"
-              @click.stop="navigateToYarn(originalMewHash as Uint8Array)"
+              size="md"
+              @click.stop.prevent="
+                navigateToYarn(originalMewHash as Uint8Array)
+              "
             >
-              <QIcon
-                name="svguse:/icons.svg#yarn"
-                size="xs"
-                color="secondary"
-                flat
-              />
-              <QTooltip>Original Yarn</QTooltip>
-            </QBtn>
-          </div>
-          <div v-else class="row justify-start items-start">
-            <span class="q-mr-xs text-secondary">
-              {{ reactionLabel }}
-            </span>
-            <RouterLink
-              :to="{
-                name: ROUTES.profile,
-                params: {
-                  agent: encodeHashToBase64(feedMew.original_mew_author as AgentPubKey),
-                },
-              }"
-              class="text-secondary"
-            >
-              <span class="text-bold">
-                {{
-                  feedMew.original_mew_author_profile?.fields[
-                    PROFILE_FIELDS.DISPLAY_NAME
-                  ]
-                }}
-              </span>
-              @{{ feedMew.original_mew_author_profile?.nickname }}
-            </RouterLink>
-            <QBtn
-              v-if="showYarnLink && originalMewHash"
-              class="q-mx-sm q-px-sm"
-              padding="none"
-              margin="none"
-              flat
-              color="dark"
-              size="xs"
-              @click.stop="navigateToYarn(originalMewHash)"
-            >
-              <QIcon
-                name="svguse:/icons.svg#yarn"
-                size="xs"
-                color="secondary"
-                flat
-              />
-              <QTooltip>Original Yarn</QTooltip>
+              <div v-if="feedMew.original_mew_deleted_timestamp !== null">
+                <span class="q-mr-xs text-secondary">
+                  {{ reactionLabel }}
+                </span>
+                <span class="text-secondary">
+                  <span class="text-bold"> Deleted Mew </span>
+                </span>
+              </div>
+              <div class="row justify-start items-center">
+                <div class="q-pr-xs text-secondary">
+                  {{ reactionLabel }}
+                </div>
+                <div class="q-pr-xs text-bold">
+                  {{
+                    feedMew.original_mew_author_profile?.fields[
+                      PROFILE_FIELDS.DISPLAY_NAME
+                    ]
+                  }}
+                </div>
+                <div class="q-pr-sm">
+                  @{{ feedMew.original_mew_author_profile?.nickname }}
+                </div>
+              </div>
             </QBtn>
           </div>
         </span>
@@ -108,8 +75,27 @@
       </div>
 
       <MewContent
-        v-if="!isDeleted || showIfDeleted"
-        :mew="isMewmew ? feedMew.original_mew as Mew : feedMew.mew"
+        v-if="(!isDeleted || showIfDeleted) && isMewmew"
+        :mew="feedMew.original_mew as Mew"
+        class="q-my-sm cursor-pointer text-left"
+      />
+      <div v-else-if="(!isDeleted || showIfDeleted) && isQuote">
+        <MewContent :mew="feedMew.mew as Mew" class="q-my-sm cursor-pointer" />
+
+        <div class="row justify-start q-my-md">
+          <QIcon name="format_quote" />
+          <div class="bg-grey-2 col col-grow">
+            <MewContent
+              :mew="feedMew.original_mew as Mew"
+              class="q-my-md q-mx-md cursor-pointer"
+            />
+          </div>
+          <QIcon name="format_quote" />
+        </div>
+      </div>
+      <MewContent
+        v-else-if="!isDeleted || showIfDeleted"
+        :mew="feedMew.mew as Mew"
         class="q-my-sm cursor-pointer"
       />
       <QBtn
@@ -316,8 +302,9 @@ const originalMewHash =
 const isMewmew = computed(
   () => MewTypeName.Mewmew in props.feedMew.mew.mew_type
 );
-const isOriginal = computed(
-  () => MewTypeName.Original in props.feedMew.mew.mew_type
+const isQuote = computed(() => MewTypeName.Quote in props.feedMew.mew.mew_type);
+const isResponse = computed(
+  () => MewTypeName.Original in props.feedMew.mew.mew_type === false
 );
 const isReply = computed(() => MewTypeName.Reply in props.feedMew.mew.mew_type);
 const reactionLabel = computed(() =>
