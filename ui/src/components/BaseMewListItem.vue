@@ -79,6 +79,7 @@
         :mew="feedMew.original_mew.mew as Mew"
         class="q-my-sm cursor-pointer text-left"
       />
+
       <div
         v-else-if="
           (!isDeleted || showIfDeleted) && isQuote && feedMew.original_mew
@@ -87,14 +88,23 @@
         <MewContent :mew="feedMew.mew as Mew" class="q-my-sm cursor-pointer" />
 
         <div class="row justify-start q-my-md">
-          <QIcon name="format_quote" />
-          <div class="bg-grey-2 col col-grow">
-            <MewContent
-              :mew="feedMew.original_mew.mew as Mew"
-              class="q-my-md q-mx-md cursor-pointer"
+          <div class="row items-start">
+            <QIcon
+              name="svguse:/icons.svg#format-quote-open"
+              color="grey-5"
+              size="lg"
             />
           </div>
-          <QIcon name="format_quote" />
+          <div class="bg-grey-2 col">
+            <BaseEmbedMew :embed-mew="feedMew.original_mew" />
+          </div>
+          <div class="row items-end">
+            <QIcon
+              name="svguse:/icons.svg#format-quote-close"
+              color="grey-5"
+              size="lg"
+            />
+          </div>
         </div>
       </div>
       <MewContent
@@ -258,6 +268,7 @@ import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundD
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
 import { showMessage } from "@/utils/notification";
 import dayjs from "dayjs";
+import BaseEmbedMew from "@/components/BaseEmbedMew.vue";
 
 const props = withDefaults(
   defineProps<{

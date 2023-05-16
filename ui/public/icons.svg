@@ -17,4 +17,10 @@
   <symbol id="push-pin" viewBox="0 0 24 24">
     <path fill="currentColor" fill-rule="evenodd" d="M16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1l1-1v-7H19v-2c-1.66 0-3-1.34-3-3z"/>
   </symbol>
+  <symbol id="format-quote-open" viewBox="0 0 24 24">
+    <path fill="currentColor" d="m10 7l-2 4h3v6H5v-6l2-4h3m8 0l-2 4h3v6h-6v-6l2-4h3Z"/>
+  </symbol>
+  <symbol id="format-quote-close" viewBox="0 0 24 24">
+    <path fill="currentColor" d="M14 17h3l2-4V7h-6v6h3M6 17h3l2-4V7H5v6h3l-2 4Z"/>
+  </symbol>
 </svg>
