@@ -7,23 +7,22 @@
     <sl-spinner style="font-size: 4rem"></sl-spinner>
   </div>
   <template v-else>
-    <HoloLogin v-if="IS_HOLO_HOSTED">
-      <profiles-context :store="profilesStore">
+    <profiles-context :store="profilesStore">
+      <HoloLogin v-if="IS_HOLO_HOSTED">
         <MainLayout />
-      </profiles-context>
-    </HoloLogin>
+      </HoloLogin>
 
-    <profiles-context v-else :store="profilesStore">
-      <MainLayout />
+      <MainLayout v-else />
+
+      <div
+        v-if="loadingCells"
+        class="row justify-between"
+        style="position: fixed; right: 25px; bottom: 25px"
+      >
+        <sl-spinner style="font-size: 1rem" class="q-mr-sm"></sl-spinner>
+        <div>Cells loading...</div>
+      </div>
     </profiles-context>
-    <div
-      v-if="loadingCells"
-      class="row justify-between"
-      style="position: fixed; right: 25px; bottom: 25px"
-    >
-      <sl-spinner style="font-size: 1rem" class="q-mr-sm"></sl-spinner>
-      <div>Cells loading...</div>
-    </div>
   </template>
 </template>
 
