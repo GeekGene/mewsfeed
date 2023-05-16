@@ -1,11 +1,16 @@
 <template>
-  <div
+  <QPage
     v-if="loadingClient"
     class="row justify-center items-center"
     style="height: 100%"
   >
-    <sl-spinner style="font-size: 4rem"></sl-spinner>
-  </div>
+    <div class="column justify-center items-center">
+      <div class="row justify-center items-center">
+        <sl-spinner style="font-size: 2rem" class="q-mr-lg"></sl-spinner>
+        <h6>Connecting...</h6>
+      </div>
+    </div>
+  </QPage>
   <template v-else>
     <profiles-context :store="profilesStore">
       <HoloLogin v-if="IS_HOLO_HOSTED">
