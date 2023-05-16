@@ -93,6 +93,7 @@ export interface FeedMew {
 export interface EmbedMew {
   mew: Mew;
   action: Create;
+  action_hash: ActionHash;
   author_profile: Profile | null;
   deleted_timestamp: number | null;
 }
