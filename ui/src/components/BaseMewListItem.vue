@@ -27,9 +27,9 @@
           </span>
         </RouterLink>
 
-        <span v-if="!isOriginal" class="q-ml-md">
+        <span v-if="feedMew.original_mew" class="q-ml-md">
           <div
-            v-if="feedMew.original_mew_deleted_timestamp !== null"
+            v-if="feedMew.original_mew.deleted_timestamp !== null"
             class="row justify-start items-start"
           >
             <span class="q-mr-xs text-secondary">
@@ -65,19 +65,19 @@
               :to="{
                 name: ROUTES.profiles,
                 params: {
-                  agent: encodeHashToBase64(feedMew.original_mew_author as AgentPubKey),
+                  agent: encodeHashToBase64(feedMew.original_mew.action.author),
                 },
               }"
               class="text-secondary"
             >
               <span class="text-bold">
                 {{
-                  feedMew.original_mew_author_profile?.fields[
+                  feedMew.original_mew.author_profile?.fields[
                     PROFILE_FIELDS.DISPLAY_NAME
                   ]
                 }}
               </span>
-              @{{ feedMew.original_mew_author_profile?.nickname }}
+              @{{ feedMew.original_mew.author_profile?.nickname }}
             </RouterLink>
             <QBtn
               v-if="showYarnLink && originalMewHash"
@@ -109,7 +109,7 @@
 
       <MewContent
         v-if="!isDeleted || showIfDeleted"
-        :mew="isMewmew ? feedMew.original_mew as Mew : feedMew.mew"
+        :mew="feedMew.mew"
         class="q-my-sm cursor-pointer"
       />
       <QBtn
@@ -194,7 +194,7 @@
       <CreateMewForm
         :mew-type="{ [MewTypeName.Reply]: feedMew.action_hash }"
         :original-mew="feedMew"
-        :original-author="feedMew.original_mew_author_profile"
+        :original-author="feedMew.original_mew?.author_profile"
         @mew-created="onCreateReply"
       />
     </CreateProfileIfNotFoundDialog>
@@ -202,7 +202,7 @@
       <CreateMewForm
         :mew-type="{ [MewTypeName.Quote]: feedMew.action_hash }"
         :original-mew="feedMew"
-        :original-author="feedMew.original_mew_author_profile"
+        :original-author="feedMew.original_mew?.author_profile"
         @mew-created="onCreateQuote"
       />
     </CreateProfileIfNotFoundDialog>
@@ -295,9 +295,6 @@ const isUpdatingLick = ref(false);
 const isMewmew = computed(
   () => MewTypeName.Mewmew in props.feedMew.mew.mew_type
 );
-const isOriginal = computed(
-  () => MewTypeName.Original in props.feedMew.mew.mew_type
-);
 const isReply = computed(() => MewTypeName.Reply in props.feedMew.mew.mew_type);
 const reactionLabel = computed(() =>
   isMewmew.value ? "mewmewed from" : isReply.value ? "replied to" : "quoted"
@@ -337,10 +334,10 @@ const toggleLickMew = async () => {
     });
     remove(newLicks, (l) => isEqual(l, client.myPubKey));
     showMessage("Unlicked Mew");
-      emit("mew-unlicked", {
-    ...props.feedMew,
-    licks: newLicks,
-  });
+    emit("mew-unlicked", {
+      ...props.feedMew,
+      licks: newLicks,
+    });
   } else {
     await client.callZome({
       role_name: "mewsfeed",
@@ -350,10 +347,10 @@ const toggleLickMew = async () => {
     });
     newLicks.push(client.myPubKey);
     showMessage("Licked Mew");
-      emit("mew-licked", {
-    ...props.feedMew,
-    licks: newLicks,
-  });
+    emit("mew-licked", {
+      ...props.feedMew,
+      licks: newLicks,
+    });
   }
 
   isUpdatingLick.value = false;

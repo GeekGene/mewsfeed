@@ -50,10 +50,7 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                     mewmews,
                     deleted_timestamp,
                     author_profile,
-                    original_mew: None,
-                    original_mew_author: None,
-                    original_mew_author_profile: None,
-                    original_mew_deleted_timestamp: None,
+                    original_mew: None
                 }),
                 MewType::Reply(response_to_hash)
                 | MewType::Quote(response_to_hash)
@@ -64,11 +61,9 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
 
                     match details {
                         Details::Record(record_details) => {
-                            let original_mew_author =
-                                record_details.record.action().author().clone();
                             let original_mew_author_profile =
-                                get_agent_profile(original_mew_author.clone())?;
-                            let original_mew_deleted_timestamp = deletes
+                                get_agent_profile(record_details.record.action().author().clone())?;
+                            let original_mew_deleted_timestamp = record_details.deletes
                                 .first()
                                 .map(|first_delete| first_delete.action().timestamp());
 
@@ -91,10 +86,14 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                                 mewmews,
                                 author_profile,
                                 deleted_timestamp,
-                                original_mew: Some(original_mew),
-                                original_mew_author: Some(original_mew_author),
-                                original_mew_author_profile,
-                                original_mew_deleted_timestamp,
+                                original_mew: Some(
+                                    EmbedMew {
+                                        mew: original_mew,
+                                        action: record_details.record.action().clone(),
+                                        author_profile: original_mew_author_profile,
+                                        deleted_timestamp: original_mew_deleted_timestamp,
+                                    }
+                                ),
                             })
                         }
                         _ => Err(wasm_error!(WasmErrorInner::Guest(String::from(

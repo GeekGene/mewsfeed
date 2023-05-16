@@ -49,8 +49,13 @@ pub struct FeedMew {
     pub mewmews: Vec<ActionHash>,
     pub deleted_timestamp: Option<Timestamp>,
     pub author_profile: Option<Profile>,
-    pub original_mew: Option<Mew>,
-    pub original_mew_author: Option<AgentPubKey>,
-    pub original_mew_author_profile: Option<Profile>,
-    pub original_mew_deleted_timestamp: Option<Timestamp>,
+    pub original_mew: Option<EmbedMew>
+}
+
+#[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
+pub struct EmbedMew {
+    pub mew: Mew,
+    pub action: Action,
+    pub author_profile: Option<Profile>,
+    pub deleted_timestamp: Option<Timestamp>,
 }
