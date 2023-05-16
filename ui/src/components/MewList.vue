@@ -48,17 +48,21 @@ const props = withDefaults(
     cacheKey: string;
     showCreateMewField?: boolean;
     enableUpsertOnResponse?: boolean;
+    pollingInterval?: number;
+    refreshOnWindowFocus?: boolean;
   }>(),
   {
     showCreateMewField: false,
     enableUpsertOnResponse: true,
+    pollingInterval: 120000,
+    refreshOnWindowFocus: true,
   }
 );
 const emit = defineEmits(["mew-pinned", "mew-unpinned"]);
 
 const { data, loading, error, mutate } = useRequest(props.fetchFn, {
   cacheKey: props.cacheKey,
-  pollingInterval: 120000, // 120 seconds polling
+  pollingInterval: props.pollingInterval, // 120 seconds polling
   refreshOnWindowFocus: true,
   refocusTimespan: 10000, // 10 seconds between window focus to trigger refresh
   loadingDelay: 1000,
