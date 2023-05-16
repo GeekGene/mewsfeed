@@ -3,6 +3,7 @@ pub mod agent_mews;
 pub mod all_mews;
 pub mod cashtag_to_mews;
 pub mod followed_creators_mews;
+pub mod tag_to_mews;
 pub mod hashtag_to_mews;
 pub mod licker_to_mews;
 pub mod mention_to_mews;
