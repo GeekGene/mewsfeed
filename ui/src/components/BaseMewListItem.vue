@@ -27,7 +27,7 @@
           </span>
         </RouterLink>
 
-        <span v-if="isResponse && originalMewHash" class="q-ml-md">
+        <span v-if="feedMew.original_mew" class="q-ml-md">
           <div class="row justify-start items-center">
             <QBtn
               v-if="showYarnLink"
@@ -37,10 +37,10 @@
               color="dark"
               size="md"
               @click.stop.prevent="
-                navigateToYarn(originalMewHash as Uint8Array)
+                navigateToYarn(feedMew.original_mew.action_hash as Uint8Array)
               "
             >
-              <div v-if="feedMew.original_mew_deleted_timestamp !== null">
+              <div v-if="feedMew.original_mew.deleted_timestamp !== null">
                 <span class="q-mr-xs text-secondary">
                   {{ reactionLabel }}
                 </span>
@@ -54,13 +54,13 @@
                 </div>
                 <div class="q-pr-xs text-bold">
                   {{
-                    feedMew.original_mew_author_profile?.fields[
+                    feedMew.original_mew.author_profile?.fields[
                       PROFILE_FIELDS.DISPLAY_NAME
                     ]
                   }}
                 </div>
                 <div class="q-pr-sm">
-                  @{{ feedMew.original_mew_author_profile?.nickname }}
+                  @{{ feedMew.original_mew.author_profile?.nickname }}
                 </div>
               </div>
             </QBtn>
@@ -75,18 +75,22 @@
       </div>
 
       <MewContent
-        v-if="(!isDeleted || showIfDeleted) && isMewmew"
-        :mew="feedMew.original_mew as Mew"
+        v-if="(!isDeleted || showIfDeleted) && isMewmew && feedMew.original_mew"
+        :mew="feedMew.original_mew.mew as Mew"
         class="q-my-sm cursor-pointer text-left"
       />
-      <div v-else-if="(!isDeleted || showIfDeleted) && isQuote">
+      <div
+        v-else-if="
+          (!isDeleted || showIfDeleted) && isQuote && feedMew.original_mew
+        "
+      >
         <MewContent :mew="feedMew.mew as Mew" class="q-my-sm cursor-pointer" />
 
         <div class="row justify-start q-my-md">
           <QIcon name="format_quote" />
           <div class="bg-grey-2 col col-grow">
             <MewContent
-              :mew="feedMew.original_mew as Mew"
+              :mew="feedMew.original_mew.mew as Mew"
               class="q-my-md q-mx-md cursor-pointer"
             />
           </div>
@@ -198,7 +202,7 @@
       <CreateMewForm
         :mew-type="{ [MewTypeName.Reply]: feedMew.action_hash }"
         :original-mew="feedMew"
-        :original-author="feedMew.original_mew_author_profile"
+        :original-author="feedMew.original_mew?.author_profile"
         @mew-created="onCreateReply"
       />
     </CreateProfileIfNotFoundDialog>
@@ -206,7 +210,7 @@
       <CreateMewForm
         :mew-type="{ [MewTypeName.Quote]: feedMew.action_hash }"
         :original-mew="feedMew"
-        :original-author="feedMew.original_mew_author_profile"
+        :original-author="feedMew.original_mew?.author_profile"
         @mew-created="onCreateQuote"
       />
     </CreateProfileIfNotFoundDialog>
@@ -290,22 +294,10 @@ const showTogglePinMewDialog = ref(false);
 const isUpdatingPin = ref(false);
 const isUpdatingLick = ref(false);
 
-const originalMewHash =
-  MewTypeName.Mewmew in props.feedMew.mew.mew_type
-    ? props.feedMew.mew.mew_type.Mewmew
-    : MewTypeName.Reply in props.feedMew.mew.mew_type
-    ? props.feedMew.mew.mew_type.Reply
-    : MewTypeName.Quote in props.feedMew.mew.mew_type
-    ? props.feedMew.mew.mew_type.Quote
-    : props.feedMew.mew.mew_type.Original;
-
 const isMewmew = computed(
   () => MewTypeName.Mewmew in props.feedMew.mew.mew_type
 );
 const isQuote = computed(() => MewTypeName.Quote in props.feedMew.mew.mew_type);
-const isResponse = computed(
-  () => MewTypeName.Original in props.feedMew.mew.mew_type === false
-);
 const isReply = computed(() => MewTypeName.Reply in props.feedMew.mew.mew_type);
 const reactionLabel = computed(() =>
   isMewmew.value ? "mewmewed from" : isReply.value ? "replied to" : "quoted"
