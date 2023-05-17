@@ -9,24 +9,24 @@
     v-bind="$attrs"
     :feed-mews="data"
     :is-loading="loading"
-    @mew-deleted="upsertFeedMew"
-    @mew-licked="upsertFeedMew"
-    @mew-unlicked="upsertFeedMew"
+    @mew-deleted="updateFeedMew"
+    @mew-licked="updateFeedMew"
+    @mew-unlicked="updateFeedMew"
     @mew-pinned="
       (val) => {
-        upsertFeedMew(val);
+        updateFeedMew(val);
         emit('mew-pinned', val);
       }
     "
     @mew-unpinned="
       (val) => {
-        upsertFeedMew(val);
+        updateFeedMew(val);
         emit('mew-unpinned', val);
       }
     "
-    @reply-created="upsertFeedMewAndUpdateOriginal"
-    @mewmew-created="upsertFeedMewAndUpdateOriginal"
-    @quote-created="upsertFeedMewAndUpdateOriginal"
+    @reply-created="insertResponseAndUpdateOriginal"
+    @mewmew-created="insertResponseAndUpdateOriginal"
+    @quote-created="insertResponseAndUpdateOriginal"
   />
 </template>
 
@@ -47,15 +47,15 @@ const props = withDefaults(
     fetchFn: () => Promise<FeedMew[]>;
     cacheKey: string;
     showCreateMewField?: boolean;
-    enableUpsertOnResponse?: boolean;
     pollingInterval?: number;
     refreshOnWindowFocus?: boolean;
+    insertResponses?: boolean;
   }>(),
   {
     showCreateMewField: false,
-    enableUpsertOnResponse: true,
     pollingInterval: 120000,
     refreshOnWindowFocus: true,
+    insertResponses: false,
   }
 );
 const emit = defineEmits(["mew-pinned", "mew-unpinned"]);
@@ -70,43 +70,55 @@ const { data, loading, error, mutate } = useRequest(props.fetchFn, {
 watch(error, showError);
 
 const onCreateMew = async (feedMew: FeedMew) => {
-  upsertFeedMew(feedMew);
+  insertFeedMew(feedMew);
   showMessage("Published Mew");
 };
 
-const upsertFeedMew = async (feedMew: FeedMew) => {
+const updateFeedMew = async (feedMew: FeedMew) => {
   if (data.value === undefined) return;
 
   const index = data.value.findIndex((f: FeedMew) =>
     isEqual(f.action_hash, feedMew.action_hash)
   );
 
-  const newData = data.value;
   if (index !== -1) {
     // Replace mew if already exists in data
+    const newData = data.value;
     newData[index] = feedMew;
-  } else {
-    // Insert mew at beginning of list if not
-    newData.unshift(feedMew);
+    mutate(newData);
   }
-  mutate(newData);
 };
 
-const updateOriginal = async (feedMew: FeedMew) => {
+const insertFeedMew = async (feedMew: FeedMew) => {
   if (data.value === undefined) return;
-  if (MewTypeName.Original in feedMew.mew.mew_type) return;
+
+  const index = data.value.findIndex((f: FeedMew) =>
+    isEqual(f.action_hash, feedMew.action_hash)
+  );
+
+  if (index === -1) {
+    // Insert mew at beginning of list if not
+    const newData = data.value;
+    newData.unshift(feedMew);
+    mutate(newData);
+  }
+};
+
+const updateOriginal = async (response: FeedMew) => {
+  if (data.value === undefined) return;
+  if (MewTypeName.Original in response.mew.mew_type) return;
 
   let originalActionHash: ActionHash | undefined;
   let mergeNewData = {};
-  if (MewTypeName.Reply in feedMew.mew.mew_type) {
-    originalActionHash = feedMew.mew.mew_type[MewTypeName.Reply];
-    mergeNewData = { replies: [feedMew.action_hash] };
-  } else if (MewTypeName.Mewmew in feedMew.mew.mew_type) {
-    originalActionHash = feedMew.mew.mew_type[MewTypeName.Mewmew];
-    mergeNewData = { mewmews: [feedMew.action_hash] };
-  } else if (MewTypeName.Quote in feedMew.mew.mew_type) {
-    originalActionHash = feedMew.mew.mew_type[MewTypeName.Quote];
-    mergeNewData = { quotes: [feedMew.action_hash] };
+  if (MewTypeName.Reply in response.mew.mew_type) {
+    originalActionHash = response.mew.mew_type[MewTypeName.Reply];
+    mergeNewData = { replies: [response.action_hash] };
+  } else if (MewTypeName.Mewmew in response.mew.mew_type) {
+    originalActionHash = response.mew.mew_type[MewTypeName.Mewmew];
+    mergeNewData = { mewmews: [response.action_hash] };
+  } else if (MewTypeName.Quote in response.mew.mew_type) {
+    originalActionHash = response.mew.mew_type[MewTypeName.Quote];
+    mergeNewData = { quotes: [response.action_hash] };
   }
 
   const index = data.value.findIndex((f: FeedMew) =>
@@ -125,11 +137,11 @@ const updateOriginal = async (feedMew: FeedMew) => {
   }
 };
 
-const upsertFeedMewAndUpdateOriginal = async (feedMew: FeedMew) => {
-  updateOriginal(feedMew);
+const insertResponseAndUpdateOriginal = async (response: FeedMew) => {
+  updateOriginal(response);
 
-  if (props.enableUpsertOnResponse) {
-    upsertFeedMew(feedMew);
+  if (props.insertResponses) {
+    insertFeedMew(response);
   }
 };
 </script>

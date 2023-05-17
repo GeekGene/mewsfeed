@@ -6,6 +6,7 @@
       :fetch-fn="fetchMewsFeed"
       title="Your Mews Feed"
       :cache-key="`mews/get_my_followed_creators_mews_with_context`"
+      :insert-responses="true"
     />
   </QPage>
 </template>
