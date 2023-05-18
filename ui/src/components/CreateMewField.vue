@@ -432,7 +432,7 @@ const onKeyDown = (event: KeyboardEvent) => {
   if (
     event.key === "Enter" &&
     event.metaKey &&
-    !(isMewEmpty.value || isMewOverfull.value)
+    !(isMewEmpty.value || isMewOverfull.value || isMewUnderfull.value)
   ) {
     publishMew();
   }
