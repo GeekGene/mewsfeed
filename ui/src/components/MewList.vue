@@ -76,7 +76,7 @@ const upsertFeedMew = async (feedMew: FeedMew) => {
     isEqual(f.action_hash, feedMew.action_hash)
   );
 
-  const newData = data.value;
+  const newData: FeedMew[] = [...data.value];
   if (index !== -1) {
     // Replace mew if already exists in data
     newData[index] = feedMew;
@@ -108,7 +108,7 @@ const updateOriginal = async (feedMew: FeedMew) => {
     isEqual(f.action_hash, originalActionHash)
   );
 
-  const newData = data.value;
+  const newData: FeedMew[] = [...data.value];
   if (index !== -1) {
     mergeWith(newData[index], mergeNewData, (obj, src) => {
       if (isArray(obj)) {
