@@ -91,6 +91,7 @@
         :fetch-fn="fetchAgentMews"
         title="Authored Mews"
         :cache-key="`mews/get_agent_mews_with_context/${agentPubKey}`"
+        :enable-upsert-on-response="false"
         @mew-pinned="forceReloadPinnedMewsKey += 1"
         @mew-unpinned="forceReloadPinnedMewsKey += 1"
       />
