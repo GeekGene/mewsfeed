@@ -69,9 +69,10 @@
 
       <MewList
         :key="forceReloadPinnedMewsKey"
-        :fetch-fn="fetchPinnedMews"
         title="Pinned Mews"
+        :fetch-fn="fetchPinnedMews"
         :cache-key="`mews/get_mews_for_pinner_with_context/${agentPubKey}`"
+        :enable-upsert-on-response="false"
         @mew-pinned="
           () => {
             forceReloadPinnedMewsKey += 1;
@@ -84,14 +85,17 @@
             forceReloadAgentMewsKey += 1;
           }
         "
+        @reply-created="forceReloadAgentMewsKey += 1"
+        @mewmew-created="forceReloadAgentMewsKey += 1"
+        @quote-created="forceReloadAgentMewsKey += 1"
       />
 
       <MewList
         :key="forceReloadAgentMewsKey"
-        :fetch-fn="fetchAgentMews"
         title="Authored Mews"
+        :fetch-fn="fetchAgentMews"
         :cache-key="`mews/get_agent_mews_with_context/${agentPubKey}`"
-        :enable-upsert-on-response="false"
+        :enable-upsert-on-response="isMyProfile"
         @mew-pinned="forceReloadPinnedMewsKey += 1"
         @mew-unpinned="forceReloadPinnedMewsKey += 1"
       />
