@@ -48,6 +48,7 @@
         :fetch-fn="fetchAgentMews"
         title="Mews"
         :cache-key="`mews/get_agent_mews_with_context/${agentPubKey}`"
+        :enable-upsert-on-response="false"
       />
     </div>
 
