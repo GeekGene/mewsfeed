@@ -65,7 +65,9 @@ const dnaProperties = computed(() =>
 );
 
 onMounted(() => {
-  asyncRetry(setup);
+  asyncRetry(setup, {
+    factor: 1.3,
+  });
 });
 
 const setup = async () => {

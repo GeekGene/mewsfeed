@@ -1,0 +1,16 @@
+[package]
+name = "agent_pins"
+version = "0.0.1"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+name = "agent_pins"
+
+[dependencies]
+hdk = { workspace = true }
+holochain_integrity_types = { workspace = true }
+
+serde = { workspace = true }
+
+agent_pins_integrity = { workspace = true } 

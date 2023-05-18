@@ -12,6 +12,18 @@
     @mew-deleted="upsertFeedMew"
     @mew-licked="upsertFeedMew"
     @mew-unlicked="upsertFeedMew"
+    @mew-pinned="
+      (val) => {
+        upsertFeedMew(val);
+        emit('mew-pinned', val);
+      }
+    "
+    @mew-unpinned="
+      (val) => {
+        upsertFeedMew(val);
+        emit('mew-unpinned', val);
+      }
+    "
     @reply-created="upsertFeedMewAndUpdateOriginal"
     @mewmew-created="upsertFeedMewAndUpdateOriginal"
     @quote-created="upsertFeedMewAndUpdateOriginal"
@@ -53,6 +65,7 @@ const props = withDefaults(
     },
   }
 );
+const emit = defineEmits(["mew-pinned", "mew-unpinned"]);
 
 const { data, loading, error, mutate } = useRequest<FeedMew[], [], FeedMew[]>(
   props.fetchFn,

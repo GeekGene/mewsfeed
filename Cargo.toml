@@ -8,6 +8,12 @@ hdk = "=0.1.2"
 holochain_integrity_types = "=0.1.2"
 serde = "1"
 
+[workspace.dependencies.agent_pins]
+path = "dnas/mewsfeed/zomes/coordinator/agent_pins"
+
+[workspace.dependencies.agent_pins_integrity]
+path = "dnas/mewsfeed/zomes/integrity/agent_pins"
+
 [workspace.dependencies.follows]
 path = "dnas/mewsfeed/zomes/coordinator/follows"
 
@@ -26,14 +32,14 @@ path = "dnas/mewsfeed/zomes/coordinator/mews"
 [workspace.dependencies.mews_integrity]
 path = "dnas/mewsfeed/zomes/integrity/mews"
 
+[workspace.dependencies.mews_types]
+path = "crates/mews_types"
+
+[workspace.dependencies.ping]
+path = "dnas/mewsfeed/zomes/coordinator/ping"
+
 [workspace.dependencies.profiles]
 path = "dnas/mewsfeed/zomes/coordinator/profiles"
 
 [workspace.dependencies.profiles_integrity]
 path = "dnas/mewsfeed/zomes/integrity/profiles"
-
-[workspace.dependencies.ping]
-path = "dnas/mewsfeed/zomes/coordinator/ping"
-
-[workspace.dependencies.mews_types]
-path = "crates/mews_types"

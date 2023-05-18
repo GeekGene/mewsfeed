@@ -132,7 +132,7 @@ const search = (
             resultType: SearchResult.Agent,
             agentPubKey,
             value: {
-              name: ROUTES.profiles,
+              name: ROUTES.profile,
               params: { agent: encodeHashToBase64(agentPubKey) },
             },
             label: profile.fields["Display Name"]

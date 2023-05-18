@@ -8,6 +8,8 @@
     @quote-created="updateFeedMew"
     @mew-licked="updateFeedMew"
     @mew-unlicked="updateFeedMew"
+    @mew-pinned="updateFeedMew"
+    @mew-unpinned="updateFeedMew"
     @mew-deleted="updateFeedMew"
   ></BaseMewListItem>
 </template>

@@ -25,6 +25,10 @@ integrity:
       hash: ~
       bundled: "../../../target/wasm32-unknown-unknown/release/likes_integrity.wasm"
       dependencies: ~
+    - name: agent_pins_integrity
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/agent_pins_integrity.wasm"
+      dependencies: ~
 coordinator:
   zomes:
     - name: mews
@@ -52,3 +56,8 @@ coordinator:
       hash: ~
       bundled: "../../../target/wasm32-unknown-unknown/release/ping.wasm"
       dependencies: ~
+    - name: agent_pins
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/agent_pins.wasm"
+      dependencies:
+        - name: agent_pins_integrity

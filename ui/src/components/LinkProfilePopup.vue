@@ -2,7 +2,7 @@
   <RouterLink
     :to="
       to || {
-        name: ROUTES.profiles,
+        name: ROUTES.profile,
         params: { agent: encodeHashToBase64(agentPubKey) },
       }
     "

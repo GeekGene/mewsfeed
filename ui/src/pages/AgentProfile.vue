@@ -1,11 +1,16 @@
 <template>
   <QPage class="row" :style-fn="pageHeightCorrection">
     <div class="col-8">
-      <h6 class="q-mt-none q-mb-md">Profile</h6>
+      <h6 class="q-mt-none q-mb-md">{{ isMyProfile && "Your" }} Profile</h6>
 
       <QSpinnerPie v-if="loading || !agentPubKey" size="10%" color="primary" />
-      <QCard v-else v-bind="$attrs" square class="q-mb-md text-body1">
-        <QCardSection class="flex justify-between">
+      <QCard
+        v-else-if="!showEditProfileForm"
+        v-bind="$attrs"
+        square
+        class="q-mb-md text-body1"
+      >
+        <QCardSection v-if="!showEditProfileForm" class="flex justify-between">
           <div class="flex items-center">
             <agent-avatar
               :agentPubKey="agentPubKey"
@@ -22,9 +27,16 @@
             :agentPubKey="agentPubKey"
             @toggle-follow="forceReloadFollowersListKey += 1"
           />
+          <QBtn
+            v-if="isMyProfile"
+            icon="edit"
+            @click="showEditProfileForm = true"
+          >
+            <span class="q-pl-sm">Edit Profile</span></QBtn
+          >
         </QCardSection>
 
-        <QCardSection class="flex">
+        <QCardSection v-if="!showEditProfileForm" class="flex">
           <div class="q-mr-md">
             <div>
               <label class="text-weight-medium">Bio:</label>
@@ -44,11 +56,48 @@
         </div>
       </QCard>
 
+      <QCard v-else square class="q-mb-md text-body1">
+        <QCardSection v-if="showEditProfileForm" class="flex justify-between">
+          <update-profile
+            style="width: 100%"
+            :profile="profile"
+            @profile-updated="onEditProfile"
+            @cancel-edit-profile="showEditProfileForm = false"
+          ></update-profile>
+        </QCardSection>
+      </QCard>
+
       <MewList
-        :fetch-fn="fetchAgentMews"
-        title="Mews"
-        :cache-key="`mews/get_agent_mews_with_context/${agentPubKey}`"
+        :key="forceReloadPinnedMewsKey"
+        title="Pinned Mews"
+        :fetch-fn="fetchPinnedMews"
+        :cache-key="`mews/get_mews_for_pinner_with_context/${agentPubKey}`"
         :enable-upsert-on-response="false"
+        @mew-pinned="
+          () => {
+            forceReloadPinnedMewsKey += 1;
+            forceReloadAgentMewsKey += 1;
+          }
+        "
+        @mew-unpinned="
+          () => {
+            forceReloadPinnedMewsKey += 1;
+            forceReloadAgentMewsKey += 1;
+          }
+        "
+        @reply-created="forceReloadAgentMewsKey += 1"
+        @mewmew-created="forceReloadAgentMewsKey += 1"
+        @quote-created="forceReloadAgentMewsKey += 1"
+      />
+
+      <MewList
+        :key="forceReloadAgentMewsKey"
+        title="Authored Mews"
+        :fetch-fn="fetchAgentMews"
+        :cache-key="`mews/get_agent_mews_with_context/${agentPubKey}`"
+        :enable-upsert-on-response="isMyProfile"
+        @mew-pinned="forceReloadPinnedMewsKey += 1"
+        @mew-unpinned="forceReloadPinnedMewsKey += 1"
       />
     </div>
 
@@ -98,7 +147,7 @@ import {
   decodeHashFromBase64,
   encodeHashToBase64,
 } from "@holochain/client";
-import { ProfilesStore } from "@holochain-open-dev/profiles";
+import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
 import { ComputedRef, computed, inject, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import MewList from "@/components/MewList.vue";
@@ -114,6 +163,9 @@ const agentPubKey = computed(() =>
   decodeHashFromBase64(route.params.agent as string)
 );
 const forceReloadFollowersListKey = ref(0);
+const forceReloadPinnedMewsKey = ref(0);
+const forceReloadAgentMewsKey = ref(0);
+const showEditProfileForm = ref(false);
 
 const isMyProfile = computed(() =>
   isEqual(agentPubKey.value, client.myPubKey as AgentPubKey)
@@ -127,12 +179,21 @@ const fetchAgentMews = () =>
     payload: agentPubKey.value,
   });
 
+const fetchPinnedMews = () =>
+  client.callZome({
+    role_name: "mewsfeed",
+    zome_name: "mews",
+    fn_name: "get_mews_for_pinner_with_context",
+    payload: agentPubKey.value,
+  });
+
 const fetchProfile = profilesStore.client.getAgentProfile(agentPubKey.value);
 
 const {
   data: profile,
   loading,
   error,
+  mutate: mutateProfile,
 } = useRequest(fetchProfile, {
   cacheKey: `profiles/getAgentProfile/${agentPubKey.value}`,
   refreshOnWindowFocus: true,
@@ -140,6 +201,12 @@ const {
   loadingDelay: 1000,
 });
 watch(error, showError);
+
+const onEditProfile = (event: CustomEvent<{ profile: Profile }>) => {
+  console.log("profile is", event.detail);
+  showEditProfileForm.value = false;
+  mutateProfile(event.detail.profile);
+};
 </script>
 
 <style lang="sass">
