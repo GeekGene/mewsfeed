@@ -94,6 +94,7 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                                     EmbedMew {
                                         mew: original_mew,
                                         action: record_details.record.action().clone(),
+                                        action_hash: record_details.record.action_hashed().clone().hash,
                                         author_profile: original_mew_author_profile,
                                         deleted_timestamp: original_mew_deleted_timestamp,
                                     }

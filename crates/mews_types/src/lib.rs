@@ -57,6 +57,7 @@ pub struct FeedMew {
 pub struct EmbedMew {
     pub mew: Mew,
     pub action: Action,
+    pub action_hash: ActionHash,
     pub author_profile: Option<Profile>,
     pub deleted_timestamp: Option<Timestamp>,
 }
