@@ -183,7 +183,7 @@
               <QTooltip v-if="!isDeleted">Delete mew</QTooltip>
             </QBtn>
             <QBtn
-              :disable="isDeleted"
+              :disable="isDeleted && !props.feedMew.is_pinned"
               size="sm"
               flat
               @click.stop.prevent="togglePinMew"
