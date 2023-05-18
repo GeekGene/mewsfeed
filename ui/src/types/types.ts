@@ -87,10 +87,15 @@ export interface FeedMew {
   is_pinned: boolean;
   author_profile: Profile | null;
   deleted_timestamp: number | null;
-  original_mew: Mew | null;
-  original_mew_author: AgentPubKey | null;
-  original_mew_author_profile: Profile | null;
-  original_mew_deleted_timestamp: number | null;
+  original_mew: EmbedMew | null;
+}
+
+export interface EmbedMew {
+  mew: Mew;
+  action: Create;
+  action_hash: ActionHash;
+  author_profile: Profile | null;
+  deleted_timestamp: number | null;
 }
 
 export interface NotificationOptions {

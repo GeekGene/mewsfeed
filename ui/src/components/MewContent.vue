@@ -1,7 +1,7 @@
 <template>
   <div class="column">
     <div
-      class="text-body1"
+      class="text-body1 text-left"
       style="overflow-wrap: anywhere; white-space: pre-line"
     >
       <template v-for="(contentPart, index) of partsDisplayed" :key="index">
