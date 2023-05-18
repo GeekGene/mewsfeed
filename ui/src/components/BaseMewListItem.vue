@@ -28,43 +28,39 @@
         </RouterLink>
 
         <span v-if="feedMew.original_mew" class="q-ml-md">
-          <div class="row justify-start items-center">
-            <QBtn
-              v-if="showYarnLink"
-              padding="none"
-              margin="none"
-              flat
-              color="dark"
-              size="md"
-              @click.stop.prevent="
-                navigateToYarn(feedMew.original_mew.action_hash as Uint8Array)
-              "
-            >
-              <div v-if="feedMew.original_mew.deleted_timestamp !== null">
-                <span class="q-mr-xs text-secondary">
-                  {{ reactionLabel }}
-                </span>
-                <span class="text-secondary">
-                  <span class="text-bold"> Deleted Mew </span>
-                </span>
+          <QBtn
+            v-if="showYarnLink"
+            flat
+            color="dark"
+            size="md"
+            padding="xs"
+            no-caps
+            @click.stop.prevent="
+              navigateToYarn(feedMew.original_mew.action_hash)
+            "
+          >
+            <div class="q-mr-xs text-secondary text-lowercase">
+              {{ reactionLabel }}
+            </div>
+            <div class="row justify-start items-center">
+              <div class="q-pr-xs text-bold">
+                {{
+                  feedMew.original_mew.author_profile?.fields[
+                    PROFILE_FIELDS.DISPLAY_NAME
+                  ]
+                }}
               </div>
-              <div class="row justify-start items-center">
-                <div class="q-pr-xs text-secondary">
-                  {{ reactionLabel }}
-                </div>
-                <div class="q-pr-xs text-bold">
-                  {{
-                    feedMew.original_mew.author_profile?.fields[
-                      PROFILE_FIELDS.DISPLAY_NAME
-                    ]
-                  }}
-                </div>
-                <div class="q-pr-sm">
-                  @{{ feedMew.original_mew.author_profile?.nickname }}
-                </div>
+              <div class="q-pr-sm">
+                @{{ feedMew.original_mew.author_profile?.nickname }}
               </div>
-            </QBtn>
-          </div>
+              <div
+                v-if="feedMew.original_mew.deleted_timestamp !== null"
+                class="text-bold text-secondary"
+              >
+                (Deleted Mew)
+              </div>
+            </div>
+          </QBtn>
         </span>
 
         <QSpace />
