@@ -53,16 +53,7 @@ const props = withDefaults(
   {
     showCreateMewField: false,
     insertResponses: true,
-    requestOptions: {
-      // run request again every 2m
-      pollingInterval: 2 * 60 * 1000,
-
-      // 10s between window focus to trigger refresh
-      refocusTimespan: 10 * 1000,
-
-      // wait for response for 10s before loading = true
-      loadingDelay: 1000,
-    },
+    requestOptions: {},
   }
 );
 const emit = defineEmits(["mew-pinned", "mew-unpinned"]);
@@ -71,7 +62,18 @@ const { data, loading, error, mutate } = useRequest<FeedMew[], [], FeedMew[]>(
   props.fetchFn,
   {
     cacheKey: props.cacheKey,
+
+    // run request again every 2m
+    pollingInterval: 2 * 60 * 1000,
+
+    // 10s between window focus to trigger refresh
+    refocusTimespan: 10 * 1000,
     refreshOnWindowFocus: true,
+
+    // wait for response for 10s before loading = true
+    loadingDelay: 1000,
+
+    // Overwrite options with provided prop requestOptions
     ...props.requestOptions,
   }
 );

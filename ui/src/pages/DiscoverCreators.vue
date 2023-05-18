@@ -20,9 +20,12 @@
         :fetch-fn="fetchMews"
         title="Discover Mews"
         cache-key="mews/get_random_mews_with_context"
-        :polling-interval="undefined"
-        :refocus-timespan="undefined"
-        :refresh-on-window-focus="false"
+        :request-options="{
+          pollingInterval: undefined,
+          refocusTimespan: undefined,
+          refreshOnWindowFocus: false,
+          loadingDelay: 1000,
+        }"
       />
     </div>
 
@@ -38,8 +41,12 @@
           tags && tags.length > 0 ? `Mews about ${tag}` : 'Discover Topics'
         "
         :cache-key="`mews/get_random_mews_for_tag_with_context/${tag}`"
-        :polling-interval="undefined"
-        :refresh-on-window-focus="false"
+        :request-options="{
+          pollingInterval: undefined,
+          refocusTimespan: undefined,
+          refreshOnWindowFocus: false,
+          loadingDelay: 1000,
+        }"
       />
     </div>
   </QPage>
