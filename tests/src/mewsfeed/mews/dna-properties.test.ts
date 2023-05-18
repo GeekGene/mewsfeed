@@ -26,13 +26,13 @@ test("Mew must not be longer than DNA property mew_characters_max chars", async 
         links: [],
         mew_type: { [MewTypeName.Original]: null },
       };
-      const mewRecord: Record = await alice.cells[0].callZome({
+      const action_hash: ActionHash = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "create_mew",
         payload: createMewInput,
       });
       assert.deepEqual(
-        mewRecord.signed_action.hashed.hash.slice(0, 3),
+        action_hash.slice(0, 3),
         Buffer.from([132, 41, 36]),
         "alice created a mew of valid length"
       );
@@ -76,13 +76,13 @@ test("Mew must not be shorter than DNA property mew_characters_min chars", async
         links: [],
         mew_type: { [MewTypeName.Original]: null },
       };
-      const mewRecord: Record = await alice.cells[0].callZome({
+      const action_hash: ActionHash = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "create_mew",
         payload: createMewInput,
       });
       assert.deepEqual(
-        mewRecord.signed_action.hashed.hash.slice(0, 3),
+        action_hash.slice(0, 3),
         Buffer.from([132, 41, 36]),
         "alice created a mew of valid length"
       );
@@ -129,13 +129,13 @@ test("Mew can be any length if DNA property mew_characters_min and mew_character
         links: [],
         mew_type: { [MewTypeName.Original]: null },
       };
-      const mewRecord2: Record = await alice.cells[0].callZome({
+      const action_hash2: ActionHash = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "create_mew",
         payload: createMewInput2,
       });
       assert.deepEqual(
-        mewRecord2.signed_action.hashed.hash.slice(0, 3),
+        action_hash2.slice(0, 3),
         Buffer.from([132, 41, 36]),
         "alice created a mew of valid length 0"
       );
@@ -146,13 +146,13 @@ test("Mew can be any length if DNA property mew_characters_min and mew_character
         links: [],
         mew_type: { [MewTypeName.Original]: null },
       };
-      const mewRecord3: Record = await alice.cells[0].callZome({
+      const action_hash3: ActionHash = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "create_mew",
         payload: createMewInput3,
       });
       assert.deepEqual(
-        mewRecord3.signed_action.hashed.hash.slice(0, 3),
+        action_hash3.slice(0, 3),
         Buffer.from([132, 41, 36]),
         "alice created a mew of valid length 1000"
       );

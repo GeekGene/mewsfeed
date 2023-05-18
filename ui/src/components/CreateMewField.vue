@@ -148,7 +148,7 @@ import {
   QBtn,
 } from "quasar";
 import { showError } from "@/utils/notification";
-import { useSearchProfiles } from "@/stores/profiles";
+import { useSearchProfiles } from "@/utils/profiles";
 import { Profile } from "@holochain-open-dev/profiles";
 import { isMentionTag, isRawUrl, isLinkTag, TAG_SYMBOLS } from "@/utils/tags";
 import { onMounted, ref, computed, ComputedRef, inject } from "vue";
@@ -162,6 +162,7 @@ import {
   PROFILE_FIELDS,
   UrlLinkTarget,
   MentionLinkTarget,
+  FeedMew,
 } from "../types/types";
 import {
   AgentPubKey,
@@ -181,7 +182,7 @@ let currentAnchorOffset: number;
 let currentFocusOffset: number;
 let currentNode: Node;
 
-const emit = defineEmits<{ (e: "publish-mew"): void }>();
+const emit = defineEmits(["mew-created"]);
 const props = defineProps<{
   mewType: MewType;
 }>();
@@ -289,18 +290,18 @@ const publishMew = async () => {
 
   try {
     saving.value = true;
-    await client.callZome({
+    const feedMew: FeedMew = await client.callZome({
       role_name: "mewsfeed",
       zome_name: "mews",
-      fn_name: "create_mew",
+      fn_name: "create_mew_with_context",
       payload: mew,
     });
+    emit("mew-created", feedMew);
   } catch (error) {
     showError(error);
   } finally {
     saving.value = false;
   }
-  emit("publish-mew");
   mewInput.textContent = "";
   mewContentLength.value = 0;
   hideAutocompleter();
@@ -431,7 +432,7 @@ const onKeyDown = (event: KeyboardEvent) => {
   if (
     event.key === "Enter" &&
     event.metaKey &&
-    !(isMewEmpty.value || isMewOverfull.value)
+    !(isMewEmpty.value || isMewOverfull.value || isMewUnderfull.value)
   ) {
     publishMew();
   }

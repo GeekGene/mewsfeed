@@ -12,47 +12,39 @@
         </QBtn>
       </QCardSection>
 
-      <QCardSection v-if="mew" class="yarn-container">
-        <profiles-context :store="profilesStore">
-          <QList>
-            <MewListItemSkeleton v-if="isLoadingMew" />
-            <MewListItem
-              v-else
-              :feed-mew="mew"
-              class="q-mb-md bg-orange-1"
-              @publish-mew="loadYarn"
-              @toggle-lick-mew="onToggleLickMew"
-              @delete-mew="loadYarn"
-            />
+      <QCardSection class="yarn-container">
+        <QList>
+          <MewListItem
+            :key="forceReloadMewKey"
+            v-model="mew"
+            class="q-mb-md bg-orange-1"
+            :action-hash="actionHash"
+            @reply-created="forceReloadAll"
+            @mewmew-created="forceReloadAll"
+            @quote-created="forceReloadAll"
+          />
 
-            <QItem class="q-mb-md q-px-none">
-              <div class="col-grow">
-                <div class="q-mb-md text-h6 text-medium">Reply</div>
+          <QItem class="q-mb-md q-px-none">
+            <div class="col-grow">
+              <div class="q-mb-md text-h6 text-medium">Reply</div>
 
-                <profiles-context :store="profilesStore">
-                  <CreateMewField
-                    :mew-type="{ [MewTypeName.Reply]: mew.action_hash }"
-                    class="full-width"
-                    @publish-mew="loadYarn"
-                  />
-                </profiles-context>
-              </div>
-            </QItem>
-          </QList>
+              <CreateMewField
+                :mew-type="{ [MewTypeName.Reply]: actionHash }"
+                class="full-width"
+                @mew-created="onCreateReply"
+              />
+            </div>
+          </QItem>
+        </QList>
 
-          <MewListSkeleton v-if="isLoadingReplies" />
-          <QList v-else-if="replies.length" bordered separator>
-            <MewListItem
-              v-for="(reply, i) of replies"
-              :key="i"
-              :feed-mew="reply"
-              :show-yarn-link="false"
-              @publish-mew="loadYarn"
-              @toggle-lick-mew="onToggleLickMew"
-              @delete-mew="loadYarn"
-            />
-          </QList>
-        </profiles-context>
+        <MewList
+          v-if="mew && mew.replies.length > 0"
+          :key="forceReloadRepliesKey"
+          :fetch-fn="fetchReplies"
+          :cache-key="`mews/get_batch_mews_with_context/${mew.replies}`"
+          :show-yarn-link="false"
+          :enable-upsert-on-response="false"
+        />
       </QCardSection>
     </QCard>
   </QPage>
@@ -61,100 +53,53 @@
 <script setup lang="ts">
 import { QPage, QCard, QCardSection, QBtn, QIcon, QItem, QList } from "quasar";
 import CreateMewField from "@/components/CreateMewField.vue";
-import MewListItemSkeleton from "@/components/MewListItemSkeleton.vue";
-import MewListSkeleton from "@/components/MewListSkeleton.vue";
 import MewListItem from "@/components/MewListItem.vue";
-import MewTimestamp from "@/components/MewTimestamp.vue";
-import { ROUTES } from "@/router";
+import MewList from "@/components/MewList.vue";
 import { FeedMew, MewTypeName } from "@/types/types";
-import isEqual from "lodash/isEqual";
-import { showError } from "@/utils/notification";
 import { pageHeightCorrection } from "@/utils/page-layout";
-import { ActionHash, decodeHashFromBase64 } from "@holochain/client";
-import { ComputedRef, inject, onMounted, ref, watch } from "vue";
+import { decodeHashFromBase64 } from "@holochain/client";
+import { ComputedRef, computed, inject, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { AppAgentClient } from "@holochain/client";
+import isEqual from "lodash/isEqual";
+import { showMessage } from "@/utils/notification";
 
-const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
-  .value;
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const route = useRoute();
 const router = useRouter();
 
+const forceReloadRepliesKey = ref(0);
+const forceReloadMewKey = ref(0);
 const mew = ref<FeedMew>();
-const isLoadingMew = ref(false);
-const replies = ref<FeedMew[]>([]);
-const isLoadingReplies = ref(false);
 
-const onToggleLickMew = async (mewHash: ActionHash) => {
-  const feedMew = await client.callZome({
+const actionHash = computed(() =>
+  decodeHashFromBase64(route.params.hash as string)
+);
+
+const fetchReplies = () => {
+  if (!mew.value?.replies || mew.value.replies.length === 0)
+    return Promise.resolve([]);
+
+  return client.callZome({
     role_name: "mewsfeed",
     zome_name: "mews",
-    fn_name: "get_mew_with_context",
-    payload: mewHash,
+    fn_name: "get_batch_mews_with_context",
+    payload: mew.value?.replies,
   });
-  const replyIndex = replies.value.findIndex((r) =>
-    isEqual(r.action_hash, mewHash)
-  );
-  if (replyIndex === -1) {
-    mew.value = feedMew;
-  } else {
-    replies.value[replyIndex] = feedMew;
-  }
 };
 
-const loadMew = async () => {
-  const mewHash = decodeHashFromBase64(route.params.hash as string);
-  try {
-    isLoadingMew.value = true;
-    mew.value = await client.callZome({
-      role_name: "mewsfeed",
-      zome_name: "mews",
-      fn_name: "get_mew_with_context",
-      payload: mewHash,
-    });
-  } catch (error) {
-    showError(error);
-  } finally {
-    isLoadingMew.value = false;
-  }
+const forceReloadAll = () => {
+  forceReloadRepliesKey.value += 1;
+  forceReloadMewKey.value += 1;
 };
 
-const loadReplies = async () => {
-  try {
-    isLoadingReplies.value = true;
-    const replyHashes = mew.value?.replies;
-    if (!replyHashes) {
-      return;
-    }
-    replies.value = await Promise.all(
-      replyHashes.map((replyHash) =>
-        client.callZome({
-          role_name: "mewsfeed",
-          zome_name: "mews",
-          fn_name: "get_mew_with_context",
-          payload: replyHash,
-        })
-      )
-    );
-  } catch (error) {
-    showError(error);
-  } finally {
-    isLoadingReplies.value = false;
-  }
+const onCreateReply = () => {
+  forceReloadAll();
+  showMessage("Replied to Mew");
 };
 
-const loadYarn = async () => {
-  await loadMew();
-  loadReplies();
-};
-
-onMounted(loadYarn);
-
-watch(route, (value) => {
-  if (value.name === ROUTES.yarn) {
-    loadYarn();
-  }
+watch(mew, (newMew, oldMew) => {
+  if (!oldMew || !isEqual(newMew?.replies, oldMew?.replies))
+    forceReloadRepliesKey.value += 1;
 });
 </script>

@@ -1,5 +1,5 @@
 [workspace]
-members = ["dnas/*/zomes/coordinator/*", "dnas/*/zomes/integrity/*"]
+members = ["dnas/*/zomes/coordinator/*", "dnas/*/zomes/integrity/*", "crates/*"]
 resolver = "2"
 
 [workspace.dependencies]
@@ -34,3 +34,6 @@ path = "dnas/mewsfeed/zomes/integrity/profiles"
 
 [workspace.dependencies.ping]
 path = "dnas/mewsfeed/zomes/coordinator/ping"
+
+[workspace.dependencies.mews_types]
+path = "crates/mews_types"

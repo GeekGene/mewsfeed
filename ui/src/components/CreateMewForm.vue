@@ -31,12 +31,15 @@
       "
     >
       <div class="q-mb-md text-subtitle1 text-grey-7">
-        <MewContent :feed-mew="originalMew" />
+        <MewContent :mew="originalMew.mew" />
       </div>
     </QCardSection>
 
     <QCardSection>
-      <CreateMewField :mew-type="mewType" @publish-mew="emit('publish-mew')" />
+      <CreateMewField
+        :mew-type="mewType"
+        @mew-created="(val) => emit('mew-created', val)"
+      />
     </QCardSection>
   </QCard>
 </template>
@@ -51,9 +54,9 @@ import MewContent from "./MewContent.vue";
 defineProps<{
   mewType: MewType;
   originalMew?: FeedMew;
-  originalAuthor?: Profile;
+  originalAuthor?: Profile | null;
 }>();
-const emit = defineEmits(["publish-mew"]);
+const emit = defineEmits(["mew-created"]);
 </script>
 
 <style lang="sass" scoped>

@@ -1,4 +1,4 @@
-import { Record } from "@holochain/client";
+import { ActionHash } from "@holochain/client";
 import { pause, runScenario } from "@holochain/tryorama";
 import { assert, test } from "vitest";
 import {
@@ -31,13 +31,13 @@ test("Hashtag, cashtag and mention", async () => {
         mew_type: { [MewTypeName.Original]: null },
       };
 
-      const mewRecord: Record = await alice.cells[0].callZome({
+      const action_hash: ActionHash = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "create_mew",
         payload: createMewInput,
       });
       assert.deepEqual(
-        mewRecord.signed_action.hashed.hash.slice(0, 3),
+        action_hash.slice(0, 3),
         Buffer.from([132, 41, 36]),
         "alice created a valid mew"
       );
@@ -120,13 +120,13 @@ test("Prefix index should return hashtags and cashtags", async () => {
         mew_type: { [MewTypeName.Original]: null },
       };
 
-      const mewRecord: Record = await alice.cells[0].callZome({
+      const action_hash: ActionHash = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "create_mew",
         payload: createMewInput,
       });
       assert.deepEqual(
-        mewRecord.signed_action.hashed.hash.slice(0, 3),
+        action_hash.slice(0, 3),
         Buffer.from([132, 41, 36]),
         "alice created a valid mew"
       );

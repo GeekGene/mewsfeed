@@ -2,11 +2,11 @@ import {
   ActionHash,
   AgentPubKey,
   Create,
-  HoloHash,
   SigningCredentials,
 } from "@holochain/client";
 import { QSelectOption } from "quasar";
 import { RouteLocationNamedRaw, RouteLocationRaw } from "vue-router";
+import { Profile } from "@holochain-open-dev/profiles";
 
 export const PROFILE_FIELDS = {
   DISPLAY_NAME: "Display name",
@@ -80,11 +80,20 @@ export interface FeedMew {
   mew: Mew;
   action: Create;
   action_hash: ActionHash;
-  replies: HoloHash[];
-  quotes: HoloHash[];
+  replies: ActionHash[];
+  quotes: ActionHash[];
   licks: AgentPubKey[];
-  mewmews: HoloHash[];
-  deleted_timestamp: number | null
+  mewmews: ActionHash[];
+  author_profile: Profile | null;
+  deleted_timestamp: number | null;
+  original_mew: EmbedMew | null;
+}
+
+export interface EmbedMew {
+  mew: Mew;
+  action: Create;
+  author_profile: Profile | null;
+  deleted_timestamp: number | null;
 }
 
 export interface NotificationOptions {
@@ -136,4 +145,9 @@ export interface MewsfeedDnaProperties {
 export type SearchResultOption = QSelectOption<RouteLocationRaw> & {
   agentPubKey?: AgentPubKey;
   resultType: SearchResult;
+};
+
+export type AgentProfile = {
+  agentPubKey: AgentPubKey;
+  profile: Profile;
 };

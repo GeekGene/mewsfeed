@@ -23,21 +23,21 @@
 </template>
 
 <script setup lang="ts">
-import { FeedMew, MewContentPart } from "@/types/types";
+import { Mew, MewContentPart } from "@/types/types";
 import { splitMewTextIntoContentParts } from "@/utils/tags";
-import { computed, PropType, ref } from "vue";
+import { computed, ref } from "vue";
 import MewContentTag from "./MewContentTag.vue";
 
-const props = defineProps({
-  feedMew: { type: Object as PropType<FeedMew>, required: true },
-});
+const props = defineProps<{
+  mew: Mew;
+}>();
 
 const TRUNCATED_MEW_LENGTH = 300;
 
 const truncate = ref(true);
 
-const links = computed(() => props.feedMew.mew.links?.slice().reverse() || []);
-const content = computed(() => props.feedMew.mew.text || "");
+const links = computed(() => props.mew.links?.slice().reverse() || []);
+const content = computed(() => props.mew.text || "");
 const contentRequiresTruncation = computed(
   () => content.value.length > TRUNCATED_MEW_LENGTH || false
 );

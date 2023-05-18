@@ -30,8 +30,8 @@ test("create a Mew and get all mews", async () => {
       assert.equal(collectionOutput.length, 0);
 
       // Alice creates a Mew
-      const createdRecord: Record = await createMew(alice.cells[0]);
-      assert.ok(createdRecord);
+      const actionHash: ActionHash = await createMew(alice.cells[0]);
+      assert.ok(actionHash);
 
       await pause(1200);
 
@@ -42,7 +42,10 @@ test("create a Mew and get all mews", async () => {
         payload: null,
       });
       assert.equal(collectionOutput.length, 1);
-      assert.deepEqual(createdRecord, collectionOutput[0]);
+      assert.deepEqual(
+        actionHash,
+        collectionOutput[0].signed_action.hashed.hash
+      );
     },
     true,
     { timeout: 100000 }

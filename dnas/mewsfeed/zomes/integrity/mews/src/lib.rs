@@ -19,6 +19,7 @@ pub use prefix_index_to_hashtags::*;
 pub mod mew;
 use hdi::prelude::*;
 pub use mew::*;
+pub use mews_types::*;
 use prefix_index::PrefixIndex;
 
 pub fn make_tag_prefix_index() -> ExternResult<PrefixIndex> {

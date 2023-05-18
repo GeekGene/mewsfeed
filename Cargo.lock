@@ -1138,7 +1138,9 @@ version = "0.0.1"
 dependencies = [
  "hdk",
  "mews_integrity",
+ "mews_types",
  "prefix_index",
+ "profiles_integrity",
  "regex",
  "serde",
 ]
@@ -1149,7 +1151,16 @@ version = "0.0.1"
 dependencies = [
  "hdi",
  "hdk",
+ "mews_types",
  "prefix_index",
+ "serde",
+]
+
+[[package]]
+name = "mews_types"
+version = "0.0.1"
+dependencies = [
+ "hdk",
  "serde",
 ]
 

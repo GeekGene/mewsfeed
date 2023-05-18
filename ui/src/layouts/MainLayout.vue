@@ -44,7 +44,10 @@
 
     <QPageContainer class="row q-mt-xl bg-white">
       <QSpace />
-      <RouterView class="col-12 col-md-6 col-xl-5" />
+      <RouterView
+        :key="`${route.fullPath}-${forceReloadRouterViewKey}`"
+        class="col-12 col-md-6 col-xl-5"
+      />
       <QSpace />
     </QPageContainer>
 
@@ -54,7 +57,7 @@
         :profiles-store="profilesStore"
         :mew-length-min="dnaProperties.mew_characters_min"
         :mew-length-max="dnaProperties.mew_characters_max"
-        @publish-mew="onPublishMew"
+        @mew-created="onCreateMew"
       />
     </CreateProfileIfNotFoundDialog>
   </QLayout>
@@ -63,7 +66,6 @@
 <script setup lang="ts">
 import CreateMewForm from "@/components/CreateMewForm.vue";
 import { ROUTES } from "@/router";
-import { useMewsfeedStore } from "@/stores/mewsfeed";
 import { MewTypeName, MewsfeedDnaProperties } from "@/types/types";
 import { AppAgentClient } from "@holochain/client";
 import {
@@ -79,10 +81,11 @@ import {
   QIcon,
 } from "quasar";
 import { ComputedRef, inject, ref } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
 import SearchEverythingInput from "@/components/SearchEverythingInput.vue";
+import { showMessage } from "@/utils/notification";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const dnaProperties = (
@@ -91,16 +94,18 @@ const dnaProperties = (
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const myProfile = inject("myProfile") as ComputedRef<Profile>;
-const mewsfeedStore = useMewsfeedStore();
-
 const router = useRouter();
+const route = useRoute();
+
 const tab = ref("");
 const showCreateMewDialog = ref(false);
+const forceReloadRouterViewKey = ref(0);
 
-const onPublishMew = () => {
+const onCreateMew = () => {
   showCreateMewDialog.value = false;
+  showMessage("Published Mew");
   if (router.currentRoute.value.name === ROUTES.feed) {
-    mewsfeedStore.fetchMewsFeed(client);
+    forceReloadRouterViewKey.value += 1;
   } else {
     router.push({ name: ROUTES.feed });
   }

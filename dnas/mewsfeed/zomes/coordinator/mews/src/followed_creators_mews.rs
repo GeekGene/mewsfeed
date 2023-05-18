@@ -1,4 +1,4 @@
-use crate::mew::get_mew_with_context;
+use crate::mew_with_context::get_batch_mews_with_context;
 use hdk::prelude::*;
 use mews_integrity::*;
 
@@ -19,12 +19,7 @@ pub fn get_followed_creators_mews(agent: AgentPubKey) -> ExternResult<Vec<Record
 pub fn get_followed_creators_mews_with_context(agent: AgentPubKey) -> ExternResult<Vec<FeedMew>> {
     let hashes = get_followed_creators_mew_hashes(agent)?;
 
-    let feedmews: Vec<FeedMew> = hashes
-        .into_iter()
-        .filter_map(|hash| get_mew_with_context(hash).ok())
-        .collect();
-
-    Ok(feedmews)
+    get_batch_mews_with_context(hashes)
 }
 
 fn get_followed_creators_mew_hashes(agent: AgentPubKey) -> ExternResult<Vec<ActionHash>> {

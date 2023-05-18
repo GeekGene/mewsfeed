@@ -29,10 +29,10 @@
 
 <script setup lang="ts">
 import { computed, onMounted, provide, ref, toRaw } from "vue";
-import { IS_HOLO_HOSTED, setupHolo, setupHolochain } from "./stores/client";
+import { IS_HOLO_HOSTED, setupHolo, setupHolochain } from "@/utils/client";
 import HoloLogin from "@/components/HoloLogin.vue";
 import MainLayout from "@/layouts/MainLayout.vue";
-import { PROFILES_CONFIG } from "./stores/profiles";
+import { PROFILES_CONFIG } from "@/utils/profiles";
 import "@shoelace-style/shoelace/dist/components/spinner/spinner";
 import {
   Profile,

@@ -24,7 +24,7 @@ test("Agent can reply to a mew", async () => {
         links: [],
         mew_type: { [MewTypeName.Original]: null },
       };
-      const mewRecord: Record = await alice.cells[0].callZome({
+      const action_hash: ActionHash = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "create_mew",
         payload: aliceMewInput,
@@ -34,9 +34,9 @@ test("Agent can reply to a mew", async () => {
       const aliceReplyInput: Mew = {
         text: aliceReplyContent,
         links: [],
-        mew_type: { [MewTypeName.Reply]: mewRecord.signed_action.hashed.hash },
+        mew_type: { [MewTypeName.Reply]: action_hash },
       };
-      const replyRecord: Record = await alice.cells[0].callZome({
+      const reply_action_hash: ActionHash = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "create_mew",
         payload: aliceReplyInput,
@@ -45,7 +45,7 @@ test("Agent can reply to a mew", async () => {
       const replyMew: FeedMew = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: replyRecord.signed_action.hashed.hash,
+        payload: reply_action_hash,
       });
       assert.ok(MewTypeName.Reply in replyMew.mew.mew_type, "mew is a reply");
       assert.equal(
@@ -57,7 +57,7 @@ test("Agent can reply to a mew", async () => {
       const originalMew: FeedMew = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: mewRecord.signed_action.hashed.hash,
+        payload: action_hash,
       });
       assert.ok(
         MewTypeName.Original in originalMew.mew.mew_type,
@@ -67,7 +67,7 @@ test("Agent can reply to a mew", async () => {
       assert.ok(originalMew.replies.length === 1, "original mew has 1 reply");
       assert.deepEqual(
         originalMew.replies[0],
-        replyRecord.signed_action.hashed.hash,
+        reply_action_hash,
         "original mew's reply is alice's reply"
       );
     },
@@ -96,7 +96,7 @@ test("Agent can mewmew a mew", async () => {
         links: [],
         mew_type: { [MewTypeName.Original]: null },
       };
-      const mewRecord: Record = await alice.cells[0].callZome({
+      const action_hash: ActionHash = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "create_mew",
         payload: aliceMewInput,
@@ -105,9 +105,9 @@ test("Agent can mewmew a mew", async () => {
       const aliceMewmewInput: Mew = {
         text: "",
         links: [],
-        mew_type: { [MewTypeName.Mewmew]: mewRecord.signed_action.hashed.hash },
+        mew_type: { [MewTypeName.Mewmew]: action_hash },
       };
-      const mewmewRecord: Record = await alice.cells[0].callZome({
+      const mewmew_action_hash: ActionHash = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "create_mew",
         payload: aliceMewmewInput,
@@ -116,7 +116,7 @@ test("Agent can mewmew a mew", async () => {
       const mewmew: FeedMew = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: mewmewRecord.signed_action.hashed.hash,
+        payload: mewmew_action_hash,
       });
       assert.ok(MewTypeName.Mewmew in mewmew.mew.mew_type, "mew is a mewmew");
       assert.deepEqual(
@@ -128,7 +128,7 @@ test("Agent can mewmew a mew", async () => {
       const originalMew: FeedMew = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: mewRecord.signed_action.hashed.hash,
+        payload: action_hash,
       });
       assert.ok(
         MewTypeName.Original in originalMew.mew.mew_type,
@@ -138,7 +138,7 @@ test("Agent can mewmew a mew", async () => {
       assert.ok(originalMew.mewmews.length === 1, "original mew has 1 mewmew");
       assert.deepEqual(
         originalMew.mewmews[0],
-        mewmewRecord.signed_action.hashed.hash,
+        mewmew_action_hash,
         "original mew's mewmew is alice's mewmew"
       );
     },
@@ -167,7 +167,7 @@ test("Agent can quote a mew", async () => {
         links: [],
         mew_type: { [MewTypeName.Original]: null },
       };
-      const mewRecord: Record = await alice.cells[0].callZome({
+      const action_hash: ActionHash = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "create_mew",
         payload: aliceMewInput,
@@ -178,10 +178,10 @@ test("Agent can quote a mew", async () => {
         text: aliceQuoteText,
         links: [],
         mew_type: {
-          [MewTypeName.Quote]: mewRecord.signed_action.hashed.hash,
+          [MewTypeName.Quote]: action_hash,
         },
       };
-      const quoteRecord: Record = await alice.cells[0].callZome({
+      const quote_action_hash: ActionHash = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "create_mew",
         payload: aliceQuoteInput,
@@ -190,7 +190,7 @@ test("Agent can quote a mew", async () => {
       const quote: FeedMew = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: quoteRecord.signed_action.hashed.hash,
+        payload: quote_action_hash,
       });
       assert.ok(MewTypeName.Quote in quote.mew.mew_type, "mew is a quote");
       assert.equal(quote.mew.text, aliceQuoteText, "quote is alice's quote");
@@ -198,7 +198,7 @@ test("Agent can quote a mew", async () => {
       const originalMew: FeedMew = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: mewRecord.signed_action.hashed.hash,
+        payload: action_hash,
       });
       assert.ok(
         MewTypeName.Original in originalMew.mew.mew_type,
@@ -208,7 +208,7 @@ test("Agent can quote a mew", async () => {
       assert.ok(originalMew.quotes.length === 1, "original mew has 1 quote");
       assert.deepEqual(
         originalMew.quotes[0],
-        quoteRecord.signed_action.hashed.hash,
+        quote_action_hash,
         "original mew's quote is alice's quote"
       );
     },

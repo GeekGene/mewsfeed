@@ -2,12 +2,8 @@
   <QPage class="row" :style-fn="pageHeightCorrection">
     <div class="col-8">
       <h6 class="q-mt-none q-mb-md">Profile</h6>
-      <QSpinnerPie
-        v-if="loadingProfile || !agentPubKey"
-        size="10%"
-        color="primary"
-      />
 
+      <QSpinnerPie v-if="loading || !agentPubKey" size="10%" color="primary" />
       <QCard v-else v-bind="$attrs" square class="q-mb-md text-body1">
         <QCardSection class="flex justify-between">
           <div class="flex items-center">
@@ -21,7 +17,11 @@
             </div>
             <div class="text-primary">@{{ profile?.nickname }}</div>
           </div>
-          <ButtonFollow v-if="!isMyProfile" :agentPubKey="agentPubKey" />
+          <ButtonFollow
+            v-if="!isMyProfile"
+            :agentPubKey="agentPubKey"
+            @toggle-follow="forceReloadFollowersListKey += 1"
+          />
         </QCardSection>
 
         <QCardSection class="flex">
@@ -44,14 +44,11 @@
         </div>
       </QCard>
 
-      <h6 class="q-mb-md">Mews</h6>
-      <EmptyMewsFeed v-if="!loadingMews && mews.length === 0" />
       <MewList
-        v-else
-        :is-loading="loadingMews"
-        :mews="mews"
-        @toggle-lick-mew="onToggleLickMew"
-        @publish-mew="onPublishMew"
+        :fetch-fn="fetchAgentMews"
+        title="Mews"
+        :cache-key="`mews/get_agent_mews_with_context/${agentPubKey}`"
+        :enable-upsert-on-response="false"
       />
     </div>
 
@@ -59,7 +56,10 @@
       <h6 class="q-mt-none q-mb-md">Following</h6>
       <FolloweesList :agentPubKey="agentPubKey" />
       <h6 class="q-mb-md">Followed by</h6>
-      <FollowersList :agentPubKey="agentPubKey" />
+      <FollowersList
+        :key="forceReloadFollowersListKey"
+        :agentPubKey="agentPubKey"
+      />
       <h6 class="q-mb-md">
         <QBtn
           v-if="profile?.nickname"
@@ -85,26 +85,25 @@
 <script setup lang="ts">
 import { QPage, QSpinnerPie, QCard, QCardSection, QBtn } from "quasar";
 import ButtonFollow from "@/components/ButtonFollow.vue";
-import EmptyMewsFeed from "@/components/EmptyMewsFeed.vue";
 import FolloweesList from "@/components/FolloweesList.vue";
 import FollowersList from "@/components/FollowersList.vue";
-import { FeedMew, MewType, MewTypeName, PROFILE_FIELDS } from "@/types/types";
+import { PROFILE_FIELDS } from "@/types/types";
 import isEqual from "lodash/isEqual";
-import { showError, showMessage } from "@/utils/notification";
+import { showError } from "@/utils/notification";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { PATH, ROUTES } from "@/router";
 import { TAG_SYMBOLS } from "@/utils/tags";
 import {
-  ActionHash,
   AgentPubKey,
   decodeHashFromBase64,
   encodeHashToBase64,
 } from "@holochain/client";
-import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
-import { ComputedRef, computed, inject, onMounted, ref, watch } from "vue";
+import { ProfilesStore } from "@holochain-open-dev/profiles";
+import { ComputedRef, computed, inject, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import MewList from "../components/MewList.vue";
+import MewList from "@/components/MewList.vue";
 import { AppAgentClient } from "@holochain/client";
+import { useRequest } from "vue-request";
 
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
@@ -114,98 +113,33 @@ const router = useRouter();
 const agentPubKey = computed(() =>
   decodeHashFromBase64(route.params.agent as string)
 );
-const loadingMews = ref(false);
-const loadingProfile = ref(false);
-const profile = ref<Profile>();
-const isFollowingMe = ref(false);
-const mews = ref<FeedMew[]>([]);
+const forceReloadFollowersListKey = ref(0);
 
 const isMyProfile = computed(() =>
   isEqual(agentPubKey.value, client.myPubKey as AgentPubKey)
 );
 
-const loadMews = async () => {
-  try {
-    loadingMews.value = true;
-    mews.value = await client.callZome({
-      role_name: "mewsfeed",
-      zome_name: "mews",
-      fn_name: "get_agent_mews_with_context",
-      payload: agentPubKey.value,
-    });
-  } catch (error) {
-    showError(error);
-  } finally {
-    loadingMews.value = false;
-  }
-};
+const fetchAgentMews = () =>
+  client.callZome({
+    role_name: "mewsfeed",
+    zome_name: "mews",
+    fn_name: "get_agent_mews_with_context",
+    payload: agentPubKey.value,
+  });
 
-const loadProfile = async () => {
-  try {
-    loadingProfile.value = true;
-    const [profileData, agentFollowing] = await Promise.all([
-      profilesStore.client.getAgentProfile(agentPubKey.value),
-      client.callZome({
-        role_name: "mewsfeed",
-        zome_name: "follows",
-        fn_name: "get_creators_for_follower",
-        payload: agentPubKey.value,
-      }),
-    ]);
+const fetchProfile = profilesStore.client.getAgentProfile(agentPubKey.value);
 
-    if (profileData) {
-      profile.value = profileData;
-    }
-    isFollowingMe.value = agentFollowing.includes(client.myPubKey);
-  } catch (error) {
-    showError(error);
-  } finally {
-    loadingProfile.value = false;
-  }
-};
-
-const load = () => {
-  loadProfile();
-  loadMews();
-};
-
-onMounted(load);
-
-watch(
-  () => route.params.agent,
-  (value) => {
-    if (value) {
-      load();
-    }
-  }
-);
-
-const onToggleLickMew = async (hash: ActionHash) => {
-  try {
-    const index = mews.value.findIndex((mew) => isEqual(hash, mew.action_hash));
-    if (index !== -1) {
-      mews.value[index] = await client.callZome({
-        role_name: "mewsfeed",
-        zome_name: "mews",
-        fn_name: "get_mew_with_context",
-        payload: hash,
-      });
-    }
-  } catch (error) {
-    showError(error);
-  }
-};
-
-const onPublishMew = async (mewType: MewType) => {
-  loadMews();
-  showMessage(
-    MewTypeName.Reply in mewType
-      ? "Replied to mew"
-      : MewTypeName.Mewmew in mewType
-      ? "Mew mewmewed"
-      : "Quoted mew"
-  );
-};
+const {
+  data: profile,
+  loading,
+  error,
+} = useRequest(fetchProfile, {
+  cacheKey: `profiles/getAgentProfile/${agentPubKey.value}`,
+  refreshOnWindowFocus: true,
+  refocusTimespan: 25000, // 25 seconds between window focus to trigger refresh
+  loadingDelay: 1000,
+});
+watch(error, showError);
 </script>
 
 <style lang="sass">

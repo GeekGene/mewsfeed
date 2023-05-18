@@ -1,4 +1,4 @@
-use crate::mew::get_mew_with_context;
+use crate::mew_with_context::get_batch_mews_with_context;
 use hdk::prelude::*;
 use mews_integrity::*;
 
@@ -19,12 +19,7 @@ pub fn get_all_mews(_: ()) -> ExternResult<Vec<Record>> {
 pub fn get_all_mews_with_context(_: ()) -> ExternResult<Vec<FeedMew>> {
     let hashes = get_all_mew_hashes()?;
 
-    let feedmews: Vec<FeedMew> = hashes
-        .into_iter()
-        .filter_map(|hash| get_mew_with_context(hash).ok())
-        .collect();
-
-    Ok(feedmews)
+    get_batch_mews_with_context(hashes)
 }
 
 fn get_all_mew_hashes() -> ExternResult<Vec<ActionHash>> {

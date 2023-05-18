@@ -1,101 +1,43 @@
 <template>
-  <template v-if="loadingFollowers">
-    <QList v-for="i of [0, 1, 2]" :key="i">
-      <ProfileSkeleton />
-    </QList>
-  </template>
-
-  <EmptyMewsFeed
-    v-else-if="followersOfAgent.length == 0"
-    text="No followers yet"
+  <AgentProfilesList
+    :fetch-fn="fetchAgentProfiles"
+    :cache-key="`follows/get_followers_for_creator/${props.agentPubKey}`"
+    empty-text="No followers yet"
   />
-
-  <template v-else>
-    <QList>
-      <QItem
-        v-for="(followee, index) of followersOfAgent"
-        :key="index"
-        class="q-px-none"
-      >
-        <ProfileAvatarWithPopup
-          :agentPubKey="followee.agentPubKey"
-          class="q-mr-md"
-        />
-        <QItemSection>
-          <QItemLabel>
-            {{ followee.displayName }}
-          </QItemLabel>
-          <QItemLabel caption> @{{ followee.nickname }}</QItemLabel>
-        </QItemSection>
-      </QItem>
-    </QList>
-  </template>
 </template>
 
 <script setup lang="ts">
-import { PROFILE_FIELDS } from "@/types/types";
-import { showError } from "@/utils/notification";
-import { AgentPubKey } from "@holochain/client";
-import { ComputedRef, inject, onMounted, ref, watch } from "vue";
-import ProfileAvatarWithPopup from "./ProfileAvatarWithPopup.vue";
-import EmptyMewsFeed from "./EmptyMewsFeed.vue";
-import ProfileSkeleton from "./ProfileSkeleton.vue";
+import { AgentProfile } from "@/types/types";
+import { AgentPubKey, AppAgentClient } from "@holochain/client";
+import { ComputedRef, inject } from "vue";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
-import { AppAgentClient } from "@holochain/client";
-import { QItem, QItemSection, QItemLabel, QList } from "quasar";
-
-interface Follower {
-  agentPubKey: AgentPubKey;
-  nickname: string;
-  displayName: string;
-}
+import AgentProfilesList from "./AgentProfilesList.vue";
 
 const props = defineProps<{ agentPubKey: AgentPubKey }>();
-
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
-const loadingFollowers = ref(false);
-const followersOfAgent = ref<Follower[]>([]);
 
-const loadFollowers = async () => {
-  try {
-    loadingFollowers.value = true;
-    const followerAgentPubKeys: AgentPubKey[] = await client.callZome({
-      role_name: "mewsfeed",
-      zome_name: "follows",
-      fn_name: "get_followers_for_creator",
-      payload: props.agentPubKey,
-    });
+const fetchAgentProfiles = async () => {
+  const agents: AgentPubKey[] = await await client.callZome({
+    role_name: "mewsfeed",
+    zome_name: "follows",
+    fn_name: "get_followers_for_creator",
+    payload: props.agentPubKey,
+  });
 
-    const _followers = await Promise.all(
-      followerAgentPubKeys.map((agentPubKey) => {
-        return profilesStore.client
-          .getAgentProfile(agentPubKey)
-          .then((profile) => {
-            if (!profile) {
-              return null;
-            }
-            const follower: Follower = {
-              agentPubKey,
-              nickname: profile.nickname,
-              displayName: profile.fields[PROFILE_FIELDS.DISPLAY_NAME],
-            };
-            return follower;
-          });
-      })
-    );
-    followersOfAgent.value = _followers.filter(Boolean) as Follower[];
-  } catch (error) {
-    showError(error);
-  } finally {
-    loadingFollowers.value = false;
-  }
+  const agentProfiles = await Promise.all(
+    agents.map(async (agentPubKey) => {
+      const profile = await profilesStore.client.getAgentProfile(agentPubKey);
+      if (!profile) return null;
+
+      return {
+        agentPubKey,
+        profile: profile,
+      };
+    })
+  );
+
+  return agentProfiles.filter(Boolean) as AgentProfile[];
 };
-
-onMounted(loadFollowers);
-watch(
-  () => props.agentPubKey,
-  () => loadFollowers()
-);
 </script>

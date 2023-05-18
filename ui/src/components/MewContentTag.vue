@@ -40,13 +40,12 @@
 import { QTooltip } from "quasar";
 import { MewContentPart, MewTagType } from "@/types/types";
 import { decodeHashFromBase64 } from "@holochain/client";
-import { PropType } from "vue";
 import { LocationQueryValueRaw, RouteLocationNamedRaw } from "vue-router";
 import LinkProfilePopup from "./LinkProfilePopup.vue";
 
-defineProps({
-  contentPart: { type: Object as PropType<MewContentPart>, required: true },
-});
+defineProps<{
+  contentPart: MewContentPart;
+}>();
 </script>
 
 <style lang="sass">

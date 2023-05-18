@@ -8,6 +8,7 @@ pub mod licker_to_mews;
 pub mod mention_to_mews;
 pub mod mew;
 pub mod mew_to_responses;
+pub mod mew_with_context;
 pub mod search_tags;
 use mews_integrity::LinkTypes;
 

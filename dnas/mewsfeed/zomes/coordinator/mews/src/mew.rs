@@ -1,18 +1,15 @@
 use crate::cashtag_to_mews::*;
 use crate::hashtag_to_mews::*;
-use crate::licker_to_mews::*;
 use crate::mention_to_mews::*;
 use crate::mew_to_responses::*;
+use crate::mew_with_context::get_mew_with_context;
 use hdk::prelude::*;
 use mews_integrity::*;
 use regex::Regex;
 
 #[hdk_extern]
-pub fn create_mew(mew: Mew) -> ExternResult<Record> {
+pub fn create_mew(mew: Mew) -> ExternResult<ActionHash> {
     let mew_hash = create_entry(EntryTypes::Mew(mew.clone()))?;
-    let record = get(mew_hash.clone(), GetOptions::default())?.ok_or(wasm_error!(
-        WasmErrorInner::Guest(String::from("Could not find the newly created Mew"))
-    ))?;
     let path = Path::from("all_mews");
     create_link(
         path.path_entry_hash()?,
@@ -28,86 +25,39 @@ pub fn create_mew(mew: Mew) -> ExternResult<Record> {
         MewType::Quote(base_original_mew_hash) => {
             add_response_for_mew(AddResponseForMewInput {
                 base_original_mew_hash,
-                target_response_mew_hash: mew_hash,
+                target_response_mew_hash: mew_hash.clone(),
                 response_type: ResponseType::Quote,
             })?;
         }
         MewType::Reply(base_original_mew_hash) => {
             add_response_for_mew(AddResponseForMewInput {
                 base_original_mew_hash,
-                target_response_mew_hash: mew_hash,
+                target_response_mew_hash: mew_hash.clone(),
                 response_type: ResponseType::Reply,
             })?;
         }
         MewType::Mewmew(base_original_mew_hash) => {
             add_response_for_mew(AddResponseForMewInput {
                 base_original_mew_hash,
-                target_response_mew_hash: mew_hash,
+                target_response_mew_hash: mew_hash.clone(),
                 response_type: ResponseType::Mewmew,
             })?;
         }
         _ => {}
     }
-    Ok(record)
+
+    Ok(mew_hash)
+}
+
+#[hdk_extern]
+pub fn create_mew_with_context(mew: Mew) -> ExternResult<FeedMew> {
+    let action_hash = create_mew(mew)?;
+    get_mew_with_context(action_hash)
 }
 
 #[hdk_extern]
 pub fn get_mew(original_mew_hash: ActionHash) -> ExternResult<Option<Record>> {
     get(original_mew_hash, GetOptions::default())
-}
-
-#[hdk_extern]
-pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedMew> {
-    let response = get_details(original_mew_hash.clone(), GetOptions::default())?.ok_or(
-        wasm_error!(WasmErrorInner::Guest(String::from("Mew not found"))),
-    )?;
-
-    match response {
-        Details::Record(RecordDetails {
-            record, deletes, ..
-        }) => {
-            let mew: Mew = record
-                .entry()
-                .to_app_option()
-                .map_err(|e| wasm_error!(WasmErrorInner::Guest(e.into())))?
-                .ok_or(wasm_error!(WasmErrorInner::Guest(String::from(
-                    "Malformed mew"
-                ))))?;
-
-            let replies = get_response_hashes_for_mew(GetResponsesForMewInput {
-                original_mew_hash: original_mew_hash.clone(),
-                response_type: Some(ResponseType::Reply),
-            })?;
-            let quotes = get_response_hashes_for_mew(GetResponsesForMewInput {
-                original_mew_hash: original_mew_hash.clone(),
-                response_type: Some(ResponseType::Quote),
-            })?;
-            let mewmews = get_response_hashes_for_mew(GetResponsesForMewInput {
-                original_mew_hash: original_mew_hash.clone(),
-                response_type: Some(ResponseType::Mewmew),
-            })?;
-            let licks = get_lickers_for_mew(original_mew_hash)?;
-
-            let deleted_timestamp = deletes
-                .first()
-                .map(|first_delete| first_delete.action().timestamp());
-
-            let feed_mew_and_context = FeedMew {
-                mew,
-                action: record.action().clone(),
-                action_hash: record.signed_action().as_hash().clone(),
-                replies,
-                quotes,
-                licks,
-                mewmews,
-                deleted_timestamp,
-            };
-            Ok(feed_mew_and_context)
-        }
-        _ => Err(wasm_error!(WasmErrorInner::Guest(
-            "Expecting get_details to return record, got entry".into()
-        ))),
-    }
 }
 
 #[hdk_extern]
