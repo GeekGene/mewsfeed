@@ -46,23 +46,35 @@ const props = withDefaults(
   defineProps<{
     fetchFn: () => Promise<FeedMew[]>;
     cacheKey: string;
+    requestOptions?: any;
     showCreateMewField?: boolean;
     enableUpsertOnResponse?: boolean;
   }>(),
   {
     showCreateMewField: false,
     enableUpsertOnResponse: true,
+    requestOptions: {
+      // run request again every 2m
+      pollingInterval: 2 * 60 * 1000,
+
+      // 10s between window focus to trigger refresh
+      refocusTimespan: 10 * 1000,
+
+      // wait for response for 10s before loading = true
+      loadingDelay: 1000,
+    },
   }
 );
 const emit = defineEmits(["mew-pinned", "mew-unpinned"]);
 
-const { data, loading, error, mutate } = useRequest(props.fetchFn, {
-  cacheKey: props.cacheKey,
-  pollingInterval: 120000, // 120 seconds polling
-  refreshOnWindowFocus: true,
-  refocusTimespan: 10000, // 10 seconds between window focus to trigger refresh
-  loadingDelay: 1000,
-});
+const { data, loading, error, mutate } = useRequest<FeedMew[], [], FeedMew[]>(
+  props.fetchFn,
+  {
+    cacheKey: props.cacheKey,
+    refreshOnWindowFocus: true,
+    ...props.requestOptions,
+  }
+);
 watch(error, showError);
 
 const onCreateMew = async (feedMew: FeedMew) => {
@@ -77,7 +89,7 @@ const upsertFeedMew = async (feedMew: FeedMew) => {
     isEqual(f.action_hash, feedMew.action_hash)
   );
 
-  const newData = data.value;
+  const newData: FeedMew[] = [...data.value];
   if (index !== -1) {
     // Replace mew if already exists in data
     newData[index] = feedMew;
@@ -109,7 +121,7 @@ const updateOriginal = async (feedMew: FeedMew) => {
     isEqual(f.action_hash, originalActionHash)
   );
 
-  const newData = data.value;
+  const newData: FeedMew[] = [...data.value];
   if (index !== -1) {
     mergeWith(newData[index], mergeNewData, (obj, src) => {
       if (isArray(obj)) {
