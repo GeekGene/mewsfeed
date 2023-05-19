@@ -25,7 +25,7 @@
             :to="{
               name: ROUTES.notifications,
             }"
-            icon="bell"
+            icon="notifications"
           >
             <QTooltip>Notifications</QTooltip>
           </QRouteTab>
