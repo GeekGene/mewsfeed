@@ -9,7 +9,7 @@ pub fn get_mew_hashes_for_tag(tag: String, link_type: impl LinkTypeFilterExt) ->
 
   let links = get_links(
       result_path.path_entry_hash()?,
-      ..,
+      link_type,
       None,
   )?;
 
