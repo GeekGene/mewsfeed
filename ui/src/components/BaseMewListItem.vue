@@ -66,7 +66,7 @@
         <QSpace />
 
         <span class="q-ml-md text-caption">
-          <MewTimestamp :timestamp="feedMew.action.timestamp" />
+          <BaseTimestamp :timestamp="feedMew.action.timestamp" />
         </span>
       </div>
 
@@ -200,7 +200,7 @@
           v-if="feedMew.deleted_timestamp !== null"
           class="text-red text-bold"
         >
-          Deleted <MewTimestamp :timestamp="feedMew.deleted_timestamp" />
+          Deleted <BaseTimestamp :timestamp="feedMew.deleted_timestamp" />
         </div>
       </div>
     </QItemSection>
@@ -259,7 +259,7 @@ import remove from "lodash/remove";
 import { AgentPubKey } from "@holochain/client";
 import { useRouter } from "vue-router";
 import { AppAgentClient } from "@holochain/client";
-import MewTimestamp from "./MewTimestamp.vue";
+import BaseTimestamp from "./BaseTimestamp.vue";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
 import { showMessage } from "@/utils/notification";
