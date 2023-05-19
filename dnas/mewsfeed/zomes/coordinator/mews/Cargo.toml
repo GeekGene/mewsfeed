@@ -16,3 +16,4 @@ prefix_index = { git = "https://github.com/mattyg/holochain-prefix-index.git", t
 profiles_integrity = { workspace = true }
 mews_types = { workspace = true }
 rand = "0.8.5"
+hc_call_utils = { workspace = true }
