@@ -13,6 +13,7 @@ pub mod mew_with_context;
 pub mod pinner_to_mews;
 pub mod random_mews;
 pub mod search_tags;
+pub mod notifications;
 
 use mews_integrity::LinkTypes;
 #[hdk_extern]

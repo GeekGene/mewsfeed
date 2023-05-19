@@ -1190,7 +1190,6 @@ name = "mews_types"
 version = "0.0.1"
 dependencies = [
  "hdk",
- "profiles_integrity",
  "serde",
 ]
 

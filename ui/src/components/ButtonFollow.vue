@@ -1,5 +1,5 @@
 <template>
-  <QBtn size="md" color="secondary" @click="toggleFollow">
+  <QBtn size="md" color="secondary" @click.stop.prevent="toggleFollow">
     <template v-if="isFollowing">
       <div class="q-mr-sm">Unfollow</div>
       <QIcon name="svguse:/icons.svg#cat" />

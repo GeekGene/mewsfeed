@@ -35,7 +35,7 @@ pub fn get_hashes_for_pinner(pinner: AgentPubKey) -> ExternResult<Vec<AnyLinkabl
 
 #[hdk_extern]
 pub fn get_pinners_for_hash(hash: AnyLinkableHash) -> ExternResult<Vec<AgentPubKey>> {
-    let links = get_links(hash, LinkTypes::HashToPinners, None)?;
+    let links = get_pinner_links_for_hash(hash)?;
 
     let agents: Vec<AgentPubKey> = links
         .into_iter()
@@ -43,6 +43,19 @@ pub fn get_pinners_for_hash(hash: AnyLinkableHash) -> ExternResult<Vec<AgentPubK
         .collect();
 
     Ok(agents)
+}
+
+#[hdk_extern]
+pub fn get_pinner_links_for_hash(hash: AnyLinkableHash) -> ExternResult<Vec<Link>> {
+    let mut links = get_links(hash, LinkTypes::HashToPinners, None)?;
+    links.dedup_by_key(|l| l.target.clone());
+
+    Ok(links)
+}
+
+#[hdk_extern]
+pub fn get_pinner_link_details_for_hash(hash: AnyLinkableHash) -> ExternResult<LinkDetails> {
+    get_link_details(hash, LinkTypes::HashToPinners, None)
 }
 
 #[derive(Serialize, Deserialize, Debug)]

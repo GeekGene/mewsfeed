@@ -155,14 +155,32 @@ export type AgentProfile = {
 };
 
 export type Notification = {
-  type:
-    | "mew-licked"
-    | "mew-unlicked"
-    | "mew-pinned"
-    | "mew-unpinned"
-    | "mew-replied"
-    | "mew-mewmewed"
-    | "mew-quoted"
-    | "agent-tagged";
-  feedMew: FeedMew;
+  notification_type: NotificationType;
+  timestamp: number;
+  agent: AgentPubKey;
+  agent_profile: Profile | null;
+  feed_mew: FeedMew | null;
 };
+
+export enum NotificationTypeName {
+  MyMewLicked = "MyMewLicked",
+  MyMewUnlicked = "MyMewUnlicked",
+  MyMewPinned = "MyMewPinned",
+  MyMewUnpinned = "MyMewUnpinned",
+  MyMewResponded = "MyMewResponded",
+  MyAgentMentioned = "MyAgentMentioned",
+  MyAgentFollowed = "MyAgentFollowed",
+  MyAgentUnfollowed = "MyAgentUnfollowed",
+  FollowedYarnResponded = "FollowedYarnResponded",
+}
+
+export type NotificationType =
+  | { [NotificationTypeName.MyMewLicked]: null }
+  | { [NotificationTypeName.MyMewUnlicked]: null }
+  | { [NotificationTypeName.MyMewPinned]: null }
+  | { [NotificationTypeName.MyMewUnpinned]: null }
+  | { [NotificationTypeName.MyMewResponded]: null }
+  | { [NotificationTypeName.MyAgentMentioned]: null }
+  | { [NotificationTypeName.MyAgentFollowed]: null }
+  | { [NotificationTypeName.MyAgentUnfollowed]: null }
+  | { [NotificationTypeName.FollowedYarnResponded]: null };
