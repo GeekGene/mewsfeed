@@ -3,17 +3,17 @@ pub mod agent_mews;
 pub mod all_mews;
 pub mod cashtag_to_mews;
 pub mod followed_creators_mews;
-pub mod tag_to_mews;
 pub mod hashtag_to_mews;
 pub mod licker_to_mews;
 pub mod mention_to_mews;
 pub mod mew;
 pub mod mew_to_responses;
 pub mod mew_with_context;
+pub mod notifications;
 pub mod pinner_to_mews;
 pub mod random_mews;
 pub mod search_tags;
-pub mod notifications;
+pub mod tag_to_mews;
 
 use mews_integrity::LinkTypes;
 #[hdk_extern]

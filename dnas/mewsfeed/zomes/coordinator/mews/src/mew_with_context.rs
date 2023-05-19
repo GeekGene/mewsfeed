@@ -1,10 +1,10 @@
 use crate::licker_to_mews::*;
 use crate::mew_to_responses::*;
 use crate::pinner_to_mews::get_is_hash_pinned;
+use hc_call_utils::call_local_zome;
 use hdk::prelude::*;
 use mews_integrity::*;
 use mews_types::Profile;
-use hc_call_utils::call_local_zome;
 
 #[hdk_extern]
 pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedMew> {
@@ -55,7 +55,7 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                     deleted_timestamp,
                     author_profile,
                     is_pinned,
-                    original_mew: None
+                    original_mew: None,
                 }),
                 MewType::Reply(response_to_hash)
                 | MewType::Quote(response_to_hash)
@@ -68,7 +68,8 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                         Details::Record(record_details) => {
                             let original_mew_author_profile =
                                 get_agent_profile(record_details.record.action().author().clone())?;
-                            let original_mew_deleted_timestamp = record_details.deletes
+                            let original_mew_deleted_timestamp = record_details
+                                .deletes
                                 .first()
                                 .map(|first_delete| first_delete.action().timestamp());
 
@@ -92,15 +93,13 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                                 author_profile,
                                 deleted_timestamp,
                                 is_pinned,
-                                original_mew: Some(
-                                    EmbedMew {
-                                        mew: original_mew,
-                                        action: record_details.record.action().clone(),
-                                        action_hash: record_details.record.action_hashed().clone().hash,
-                                        author_profile: original_mew_author_profile,
-                                        deleted_timestamp: original_mew_deleted_timestamp,
-                                    }
-                                ),
+                                original_mew: Some(EmbedMew {
+                                    mew: original_mew,
+                                    action: record_details.record.action().clone(),
+                                    action_hash: record_details.record.action_hashed().clone().hash,
+                                    author_profile: original_mew_author_profile,
+                                    deleted_timestamp: original_mew_deleted_timestamp,
+                                }),
                             })
                         }
                         _ => Err(wasm_error!(WasmErrorInner::Guest(String::from(
@@ -125,7 +124,11 @@ pub fn get_batch_mews_with_context(hashes: Vec<ActionHash>) -> ExternResult<Vec<
 }
 
 fn get_agent_profile(agent_pub_key: AgentPubKey) -> ExternResult<Option<Profile>> {
-    let maybe_record = call_local_zome::<Option<Record>, AgentPubKey>("profiles", "get_agent_profile", agent_pub_key)?;
+    let maybe_record = call_local_zome::<Option<Record>, AgentPubKey>(
+        "profiles",
+        "get_agent_profile",
+        agent_pub_key,
+    )?;
 
     match maybe_record {
         Some(record) => {

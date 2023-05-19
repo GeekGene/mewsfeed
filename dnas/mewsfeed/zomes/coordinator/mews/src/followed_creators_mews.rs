@@ -1,7 +1,7 @@
 use crate::mew_with_context::get_batch_mews_with_context;
+use hc_call_utils::call_local_zome;
 use hdk::prelude::*;
 use mews_integrity::*;
-use hc_call_utils::call_local_zome;
 
 #[hdk_extern]
 pub fn get_followed_creators_mews(agent: AgentPubKey) -> ExternResult<Vec<Record>> {
@@ -24,9 +24,13 @@ pub fn get_followed_creators_mews_with_context(agent: AgentPubKey) -> ExternResu
 }
 
 fn get_followed_creators_mew_hashes(agent: AgentPubKey) -> ExternResult<Vec<ActionHash>> {
-    let mut creators: Vec<AgentPubKey> = call_local_zome::<Vec<AgentPubKey>, AgentPubKey>("follows", "get_creators_for_follower", agent.clone())?;
+    let mut creators: Vec<AgentPubKey> = call_local_zome::<Vec<AgentPubKey>, AgentPubKey>(
+        "follows",
+        "get_creators_for_follower",
+        agent.clone(),
+    )?;
     creators.push(agent);
-    
+
     let mut links: Vec<Link> = creators
         .into_iter()
         .filter_map(|agent| {

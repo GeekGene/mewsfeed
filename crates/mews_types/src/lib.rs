@@ -50,7 +50,7 @@ pub struct FeedMew {
     pub deleted_timestamp: Option<Timestamp>,
     pub author_profile: Option<Profile>,
     pub is_pinned: bool,
-    pub original_mew: Option<EmbedMew>
+    pub original_mew: Option<EmbedMew>,
 }
 
 #[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
