@@ -1,8 +1,6 @@
 <template>
   <QPage class="row" :style-fn="pageHeightCorrection">
     <div class="col-8">
-      <h6 class="q-mt-none q-mb-md">{{ isMyProfile && "Your" }} Profile</h6>
-
       <QSpinnerPie v-if="loading || !agentPubKey" size="10%" color="primary" />
       <QCard
         v-else-if="!showEditProfileForm"
@@ -203,7 +201,6 @@ const {
 watch(error, showError);
 
 const onEditProfile = (event: CustomEvent<{ profile: Profile }>) => {
-  console.log("profile is", event.detail);
   showEditProfileForm.value = false;
   mutateProfile(event.detail.profile);
 };
