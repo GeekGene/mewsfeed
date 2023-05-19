@@ -1,6 +1,7 @@
 use crate::mew_with_context::get_batch_mews_with_context;
 use hdk::prelude::*;
 use mews_integrity::*;
+use hc_call_utils::call_local_zome;
 
 #[hdk_extern]
 pub fn get_followed_creators_mews(agent: AgentPubKey) -> ExternResult<Vec<Record>> {
@@ -23,41 +24,23 @@ pub fn get_followed_creators_mews_with_context(agent: AgentPubKey) -> ExternResu
 }
 
 fn get_followed_creators_mew_hashes(agent: AgentPubKey) -> ExternResult<Vec<ActionHash>> {
-    let zome_call_response = call(
-        CallTargetCell::Local,
-        "follows",
-        FunctionName::from("get_creators_for_follower"),
-        None,
-        agent.clone(),
-    )?;
+    let mut creators: Vec<AgentPubKey> = call_local_zome::<Vec<AgentPubKey>, AgentPubKey>("follows", "get_creators_for_follower", agent.clone())?;
+    creators.push(agent);
+    
+    let mut links: Vec<Link> = creators
+        .into_iter()
+        .filter_map(|agent| {
+            get_links(AnyLinkableHash::from(agent), LinkTypes::AgentMews, None).ok()
+        })
+        .flatten()
+        .collect();
+    links.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
+    let hashes: Vec<ActionHash> = links
+        .into_iter()
+        .map(|link| ActionHash::from(link.target))
+        .collect();
 
-    match zome_call_response {
-        ZomeCallResponse::Ok(response) => {
-            let mut creators: Vec<AgentPubKey> = response.decode().map_err(|_| {
-                wasm_error!(WasmErrorInner::Guest(
-                    "Failed to deserialize zome call response".into()
-                ))
-            })?;
-            creators.push(agent);
-            let mut links: Vec<Link> = creators
-                .into_iter()
-                .filter_map(|agent| {
-                    get_links(AnyLinkableHash::from(agent), LinkTypes::AgentMews, None).ok()
-                })
-                .flatten()
-                .collect();
-            links.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
-            let hashes: Vec<ActionHash> = links
-                .into_iter()
-                .map(|link| ActionHash::from(link.target))
-                .collect();
-
-            Ok(hashes)
-        }
-        _ => Err(wasm_error!(WasmErrorInner::Guest(
-            "Failed to call 'get_creators_for_follower' in zome 'follows'".into()
-        ))),
-    }
+    Ok(hashes)
 }
 #[hdk_extern]
 pub fn get_my_followed_creators_mews_with_context(_: ()) -> ExternResult<Vec<FeedMew>> {
