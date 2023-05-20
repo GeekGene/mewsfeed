@@ -3,7 +3,7 @@
     <h6 class="q-mt-none q-mb-md">Notifications</h6>
 
     <MewListSkeleton v-if="loading || !data" />
-    <EmptyMewsFeed v-else-if="data && !loading && data.length === 0" />
+    <BaseEmptyMewsFeed v-else-if="data && !loading && data.length === 0" />
     <QList bordered separator>
       <BaseNotification
         v-for="(notification, i) in data"
@@ -22,7 +22,7 @@ import { Notification } from "@/types/types";
 import { QPage, QList } from "quasar";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import BaseNotification from "@/components/BaseNotification.vue";
-import EmptyMewsFeed from "@/components/EmptyMewsFeed.vue";
+import BaseEmptyMewsFeed from "@/components/BaseEmptyMewsFeed.vue";
 import { showError } from "@/utils/notification";
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 

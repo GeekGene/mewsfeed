@@ -1,6 +1,6 @@
 <template>
   <QList v-for="i of [0, 1, 2]" :key="i">
-    <ProfileSkeleton />
+    <BaseProfileSkeleton />
 
     <QItem>
       <QItemSection avatar />
@@ -42,5 +42,5 @@
 
 <script setup lang="ts">
 import { QList, QItem, QItemSection, QSkeleton, QIcon } from "quasar";
-import ProfileSkeleton from "./ProfileSkeleton.vue";
+import BaseProfileSkeleton from "./BaseProfileSkeleton.vue";
 </script>

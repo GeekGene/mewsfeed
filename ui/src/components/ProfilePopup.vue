@@ -86,9 +86,7 @@ const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 
-const isMyProfile = computed(() =>
-  isEqual(props.agentPubKey, client.myPubKey)
-);
+const isMyProfile = computed(() => isEqual(props.agentPubKey, client.myPubKey));
 const isCurrentProfile = computed(
   () =>
     router.currentRoute.value.params.agent ===
