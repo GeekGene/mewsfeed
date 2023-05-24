@@ -135,7 +135,7 @@
               />
               {{ feedMew.licks.length }}
               <QTooltip v-if="!isDeleted">
-                {{ isLickedByMe ? "Lick" : "Unlick" }} mew
+                {{ isLickedByMe ? "Unlick" : "Lick" }} mew
               </QTooltip>
             </QBtn>
             <QBtn
