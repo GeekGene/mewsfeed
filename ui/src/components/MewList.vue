@@ -58,7 +58,7 @@ const props = withDefaults(
 );
 const emit = defineEmits(["mew-pinned", "mew-unpinned"]);
 
-const { data, loading, error, mutate } = useRequest<FeedMew[], [], FeedMew[]>(
+const { data, loading, error, mutate } = useRequest(
   props.fetchFn,
   {
     cacheKey: props.cacheKey,
