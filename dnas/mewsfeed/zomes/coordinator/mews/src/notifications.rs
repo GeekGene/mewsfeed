@@ -5,6 +5,7 @@ use crate::mew_with_context::get_mew_with_context;
 use hc_call_utils::call_local_zome;
 use hdk::prelude::*;
 use mews_types::{Mew, MewType, Notification, NotificationType, Profile};
+use std::cmp::Reverse;
 
 #[hdk_extern]
 pub fn get_notifications_for_agent(agent: AgentPubKey) -> ExternResult<Vec<Notification>> {
@@ -152,9 +153,12 @@ pub fn get_notifications_for_agent(agent: AgentPubKey) -> ExternResult<Vec<Notif
     )?;
     notifications.append(&mut n);
 
-    // All of this combined into one list sorted by timestamp descending
-    notifications.sort_by_key(|n| n.timestamp);
+    warn!("NOTIFICATIONS 1 {:?}", notifications);
 
+    // All of this combined into one list sorted by timestamp descending
+    notifications.sort_by_key(|n| Reverse(n.timestamp.clone()));
+
+    warn!("NOTIFICATIONS 2 {:?}", notifications);
     Ok(notifications)
 }
 
