@@ -156,7 +156,7 @@ pub fn get_notifications_for_agent(agent: AgentPubKey) -> ExternResult<Vec<Notif
     warn!("NOTIFICATIONS 1 {:?}", notifications);
 
     // All of this combined into one list sorted by timestamp descending
-    notifications.sort_by_key(|n| Reverse(n.timestamp.clone()));
+    notifications.sort_by_key(|n| Reverse(n.timestamp));
 
     warn!("NOTIFICATIONS 2 {:?}", notifications);
     Ok(notifications)
