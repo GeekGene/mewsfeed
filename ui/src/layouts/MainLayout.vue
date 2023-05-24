@@ -27,6 +27,9 @@
             }"
             icon="notifications"
           >
+            <QBadge v-if="unreadCount > 0" color="green" floating>
+              {{ unreadCount }}
+            </QBadge>
             <QTooltip>Notifications</QTooltip>
           </QRouteTab>
           <QRouteTab
@@ -80,6 +83,7 @@ import {
   QRouteTab,
   QTabs,
   QBtn,
+  QBadge,
   QLayout,
   QHeader,
   QToolbar,
@@ -92,6 +96,8 @@ import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
 import SearchEverythingInput from "@/components/SearchEverythingInput.vue";
 import { showMessage } from "@/utils/notification";
+import { makeUseNotificationsStore } from "@/stores/notifications";
+import { storeToRefs } from "pinia";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const dnaProperties = (
@@ -102,6 +108,8 @@ const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
 const myProfile = inject("myProfile") as ComputedRef<Profile>;
 const router = useRouter();
 const route = useRoute();
+const useNotificationsStore = makeUseNotificationsStore(client);
+const { unreadCount } = storeToRefs(useNotificationsStore());
 
 const tab = ref("");
 const showCreateMewDialog = ref(false);
