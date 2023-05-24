@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import { showError } from "@/utils/notification";
+import { showError } from "@/utils/toasts";
 import { ActionHash, AppAgentClient } from "@holochain/client";
 import { inject, ComputedRef, watch } from "vue";
 import BaseMewListItem from "@/components/BaseMewListItem.vue";

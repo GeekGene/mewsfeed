@@ -83,7 +83,7 @@ import { isHashtag, TAG_SYMBOLS } from "@/utils/tags";
 import { SearchResult, SearchResultOption } from "@/types/types";
 import { ROUTES, PATH, router } from "@/router";
 import { useSearchProfiles } from "@/utils/profiles";
-import { showError } from "@/utils/notification";
+import { showError } from "@/utils/toasts";
 import { AppAgentClient, encodeHashToBase64 } from "@holochain/client";
 import { QSelect, QSelectOption, QIcon, QItem, QItemSection } from "quasar";
 import { ComputedRef, ref, toRaw, inject } from "vue";

@@ -26,7 +26,7 @@ import { QPage, QList } from "quasar";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import BaseNotification from "@/components/BaseNotification.vue";
 import EmptyMewsFeed from "@/components/EmptyMewsFeed.vue";
-import { showError } from "@/utils/notification";
+import { showError } from "@/utils/toasts";
 import { makeUseNotificationsStore } from "@/stores/notifications";
 import { storeToRefs } from "pinia";
 import { onMounted } from "vue";

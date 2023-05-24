@@ -262,7 +262,7 @@ import { AppAgentClient } from "@holochain/client";
 import BaseTimestamp from "./BaseTimestamp.vue";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
-import { showMessage } from "@/utils/notification";
+import { showMessage } from "@/utils/toasts";
 import dayjs from "dayjs";
 import BaseEmbedMew from "@/components/BaseEmbedMew.vue";
 

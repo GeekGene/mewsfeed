@@ -8,7 +8,7 @@
 
 <script setup lang="ts">
 import { AgentProfile } from "@/types/types";
-import { showError } from "@/utils/notification";
+import { showError } from "@/utils/alerts";
 import { watch } from "vue";
 import BaseAgentProfilesList from "./BaseAgentProfilesList.vue";
 import { useRequest } from "vue-request";

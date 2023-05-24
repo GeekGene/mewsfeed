@@ -32,7 +32,7 @@
 
 <script setup lang="ts">
 import { FeedMew, MewTypeName } from "@/types/types";
-import { showError, showMessage } from "@/utils/notification";
+import { showError, showMessage } from "@/utils/toasts";
 import { watch } from "vue";
 import isEqual from "lodash/isEqual";
 import mergeWith from "lodash/mergeWith";

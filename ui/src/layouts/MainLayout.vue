@@ -95,7 +95,7 @@ import { useRouter, useRoute } from "vue-router";
 import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
 import SearchEverythingInput from "@/components/SearchEverythingInput.vue";
-import { showMessage } from "@/utils/notification";
+import { showMessage } from "@/utils/toasts";
 import { makeUseNotificationsStore } from "@/stores/notifications";
 import { storeToRefs } from "pinia";
 
