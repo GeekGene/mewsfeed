@@ -79,9 +79,9 @@
   </QSelect>
 </template>
 <script setup lang="ts">
-import { isHashtag, TAG_SYMBOLS } from "@/utils/tags";
+import { isHashtag } from "@/utils/tags";
 import { SearchResult, SearchResultOption } from "@/types/types";
-import { ROUTES, PATH, router } from "@/router";
+import { ROUTES, router } from "@/router";
 import { useSearchProfiles } from "@/utils/profiles";
 import { showError } from "@/utils/toasts";
 import { AppAgentClient, encodeHashToBase64 } from "@holochain/client";
@@ -148,7 +148,7 @@ const search = (
               return {
                 resultType: SearchResult.Hashtag,
                 value: {
-                  name: ROUTES[PATH[TAG_SYMBOLS.HASHTAG]],
+                  name: ROUTES.hashtag,
                   params: { tag: tag.replace("#", "") },
                 },
                 label: tag,
@@ -157,7 +157,7 @@ const search = (
               return {
                 resultType: SearchResult.Cashtag,
                 value: {
-                  name: ROUTES[PATH[TAG_SYMBOLS.CASHTAG]],
+                  name: ROUTES.cashtag,
                   params: { tag: tag.replace("$", "") },
                 },
                 label: tag,
