@@ -151,6 +151,7 @@ import { useRoute, useRouter } from "vue-router";
 import MewList from "@/components/MewList.vue";
 import { AppAgentClient } from "@holochain/client";
 import { useRequest } from "vue-request";
+import { localStorageCacheSettings } from "@/utils/requests";
 
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
@@ -205,6 +206,7 @@ const {
   refreshOnWindowFocus: true,
   refocusTimespan: 25000, // 25 seconds between window focus to trigger refresh
   loadingDelay: 1000,
+  ...localStorageCacheSettings,
 });
 watch(error, showError);
 

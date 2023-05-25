@@ -60,6 +60,7 @@ import { AppAgentClient } from "@holochain/client";
 import MewList from "@/components/MewList.vue";
 import { FeedMew } from "@/types/types";
 import { useRequest } from "vue-request";
+import { localStorageCacheSettings } from "@/utils/requests";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const forceReloadMewsListsKey = ref(0);
@@ -82,6 +83,7 @@ const fetchRandomTags = (): Promise<string[]> =>
 
 const { data: tags, run: runFetchRandomTags } = useRequest(fetchRandomTags, {
   cacheKey: `get_random_tags`,
+  ...localStorageCacheSettings,
 });
 
 const fetchMewsWithRandomTag = (tag: string) => {

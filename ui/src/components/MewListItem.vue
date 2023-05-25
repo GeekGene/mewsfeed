@@ -22,6 +22,7 @@ import BaseMewListItem from "@/components/BaseMewListItem.vue";
 import MewListItemSkeleton from "@/components/MewListItemSkeleton.vue";
 import { useRequest } from "vue-request";
 import { FeedMew } from "@/types/types";
+import { localStorageCacheSettings } from "@/utils/requests";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 
@@ -48,6 +49,7 @@ const {
 } = useRequest(fetchMew, {
   cacheKey: `mews/get_mew_with_context/${props.actionHash}`,
   loadingDelay: 1000,
+  ...localStorageCacheSettings,
 });
 watch(error, showError);
 watch(mew, (newMew) => {

@@ -41,6 +41,7 @@ import { useRequest } from "vue-request";
 import BaseMewList from "@/components/BaseMewList.vue";
 import CreateMewField from "@/components/CreateMewField.vue";
 import { ActionHash } from "@holochain/client";
+import { localStorageCacheSettings } from "@/utils/requests";
 
 const props = withDefaults(
   defineProps<{
@@ -58,25 +59,25 @@ const props = withDefaults(
 );
 const emit = defineEmits(["mew-pinned", "mew-unpinned"]);
 
-const { data, loading, error, mutate } = useRequest(
-  props.fetchFn,
-  {
-    cacheKey: props.cacheKey,
+const { data, loading, error, mutate } = useRequest(props.fetchFn, {
+  cacheKey: props.cacheKey,
 
-    // run request again every 2m
-    pollingInterval: 2 * 60 * 1000,
+  // run request again every 2m
+  pollingInterval: 2 * 60 * 1000,
 
-    // 10s between window focus to trigger refresh
-    refocusTimespan: 10 * 1000,
-    refreshOnWindowFocus: true,
+  // 10s between window focus to trigger refresh
+  refocusTimespan: 10 * 1000,
+  refreshOnWindowFocus: true,
 
-    // wait for response for 10s before loading = true
-    loadingDelay: 1000,
+  // wait for response for 10s before loading = true
+  loadingDelay: 1000,
 
-    // Overwrite options with provided prop requestOptions
-    ...props.requestOptions,
-  }
-);
+  // cache to local storage
+  ...localStorageCacheSettings,
+
+  // Overwrite options with provided prop requestOptions
+  ...props.requestOptions,
+});
 watch(error, showError);
 
 const onCreateMew = async (feedMew: FeedMew) => {

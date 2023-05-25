@@ -22,6 +22,7 @@ import { useRouter } from "vue-router";
 import { ROUTES } from "@/router";
 import { useRequest } from "vue-request";
 import { Profile } from "@holochain-open-dev/profiles";
+import { localStorageCacheSettings } from "@/utils/requests";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const myProfile = (inject("myProfile") as ComputedRef<Profile>).value;
@@ -48,6 +49,7 @@ const fetchFollowedCreators = (): Promise<FeedMew[]> =>
 const { data } = useRequest(fetchFollowedCreators, {
   cacheKey: `follows/get_creators_for_follower/${client.myPubKey}`,
   loadingDelay: 1000,
+  ...localStorageCacheSettings,
 });
 
 watch(data, (val) => {

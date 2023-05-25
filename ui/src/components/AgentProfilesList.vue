@@ -12,6 +12,7 @@ import { showError } from "@/utils/toasts";
 import { watch } from "vue";
 import BaseAgentProfilesList from "./BaseAgentProfilesList.vue";
 import { useRequest } from "vue-request";
+import { localStorageCacheSettings } from "@/utils/requests";
 
 const props = defineProps<{
   fetchFn: () => Promise<AgentProfile[]>;
@@ -23,6 +24,7 @@ const { data, loading, error } = useRequest(props.fetchFn, {
   refreshOnWindowFocus: true,
   refocusTimespan: 25000, // 25 seconds between window focus to trigger refresh
   loadingDelay: 1000,
+  ...localStorageCacheSettings,
 });
 watch(error, showError);
 </script>

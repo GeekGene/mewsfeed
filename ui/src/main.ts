@@ -12,6 +12,7 @@ import { createPinia } from "pinia";
 import VueObserveVisibility from "vue-observe-visibility";
 import App from "./App.vue";
 import { router } from "./router";
+import piniaPluginPersistedState from "pinia-plugin-persistedstate";
 
 // Shoelace
 import "@shoelace-style/shoelace/dist/themes/light.css";
@@ -21,6 +22,7 @@ setBasePath("shoelace");
 
 const app = createApp(App);
 const pinia = createPinia();
+pinia.use(piniaPluginPersistedState);
 app.use(pinia);
 app.use(router);
 app.use(Quasar, {
