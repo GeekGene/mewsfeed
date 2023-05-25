@@ -9,7 +9,6 @@ import "quasar/src/css/index.sass";
 import { Dialog, Notify, Quasar } from "quasar";
 import { createApp } from "vue";
 import { createPinia } from "pinia";
-import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
 import VueObserveVisibility from "vue-observe-visibility";
 import App from "./App.vue";
 import { router } from "./router";
@@ -22,7 +21,6 @@ setBasePath("shoelace");
 
 const app = createApp(App);
 const pinia = createPinia();
-pinia.use(piniaPluginPersistedstate);
 app.use(pinia);
 app.use(router);
 app.use(Quasar, {
