@@ -191,3 +191,9 @@ export type NotificationType =
   | { [NotificationTypeName.MyAgentFollowed]: null }
   | { [NotificationTypeName.MyAgentUnfollowed]: null }
   | { [NotificationTypeName.FollowedYarnResponded]: null };
+
+export declare type CacheData<R = any, P = any> = {
+  data: R;
+  params: P;
+  time: number;
+};

@@ -1,4 +1,5 @@
 import {
+  AgentPubKey,
   AppAgentClient,
   decodeHashFromBase64,
   encodeHashToBase64,
@@ -6,7 +7,7 @@ import {
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 import { useRequest } from "vue-request";
-import { Notification } from "@/types/types";
+import { CacheData, Notification } from "@/types/types";
 import { encode, decode } from "@msgpack/msgpack";
 import { PersistedStateOptions } from "pinia-plugin-persistedstate";
 
@@ -27,54 +28,72 @@ export const makeUseNotificationsStore = (client: AppAgentClient) =>
   defineStore(
     "notifications",
     () => {
-      const allNotifications = ref<{
-        [key: string]: { notification: Notification; read: boolean };
+      const myPubKey = ref<AgentPubKey>(client.myPubKey);
+      const notificationsCache = ref<CacheData<Notification[]>>({
+        data: [],
+        params: null,
+        time: -1,
+      });
+      const notificationsRead = ref<{
+        [key: string]: boolean;
       }>({});
-      const notificationKeys = ref<string[]>([]);
       const unreadCount = computed(
         () =>
-          Object.values(allNotifications.value).filter((n) => !n.read).length
+          notificationsCache.value.data
+            .map((n) => notificationsRead.value[notificationToKey(n)])
+            .filter((r) => !r).length
       );
-      const notifications = computed(() =>
-        notificationKeys.value.map(
-          (key) => allNotifications.value[key].notification
-        )
-      );
+      const notifications = computed(() => notificationsCache.value.data);
+      const myPubKeyB64 = computed(() => encodeHashToBase64(myPubKey.value));
+
+      // @todo not sure if this will actually work
+      if (client.myPubKey !== myPubKey.value) {
+        notificationsCache.value.data = [];
+        notificationsRead.value = {};
+        myPubKey.value = client.myPubKey;
+      }
 
       const fetchNotifications = (): Promise<Notification[]> =>
         client.callZome({
           role_name: "mewsfeed",
           zome_name: "mews",
-          fn_name: "get_my_notifications",
-          payload: null,
+          fn_name: "get_notifications_for_agent",
+          payload: client.myPubKey,
         });
 
       const { loading, error, runAsync } = useRequest(fetchNotifications, {
-        cacheKey: `mews/get_my_notifications`,
+        cacheKey: `mews/get_notifications_for_agent/${myPubKeyB64.value}`,
         pollingInterval: 30 * 1000, // 30 seconds polling
         refreshOnWindowFocus: true,
         refocusTimespan: 0, // 0 seconds between window focus to trigger refresh
         loadingDelay: 1000,
-        onSuccess: (data) => {
-          data.map((notification: Notification) => {
-            const key = notificationToKey(notification);
+        setCache: (
+          _cacheKey: string,
+          cacheData: CacheData<Notification[]>
+        ): void => {
+          notificationsCache.value = cacheData;
 
-            if (!notificationKeys.value.includes(key)) {
-              notificationKeys.value.push(key);
-              allNotifications.value[key] = { notification, read: false };
+          (cacheData.data as Notification[]).forEach(
+            (notification: Notification) => {
+              const key = notificationToKey(notification);
+              if (!Object.keys(notificationsRead.value).includes(key)) {
+                notificationsRead.value[key] = false;
+              }
             }
-          });
+          );
+        },
+        getCache: (): CacheData<Notification[]> => {
+          return notificationsCache.value;
         },
       });
 
       function markRead(notification: Notification) {
         const key = notificationToKey(notification);
-        allNotifications.value[key].read = true;
+        notificationsRead.value[key] = true;
       }
 
       return {
-        notificationKeys,
-        allNotifications,
+        notificationsCache,
         notifications,
         unreadCount,
         loading,
