@@ -58,7 +58,7 @@
       <QSpace />
       <RouterView
         :key="`${route.fullPath}-${forceReloadRouterViewKey}`"
-        class="col-12 col-md-6 col-xl-5"
+        class="col-12 col-md-6 col-xl-5 q-mb-xl"
       />
       <QSpace />
     </QPageContainer>
