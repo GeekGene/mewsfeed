@@ -3,7 +3,10 @@
     <QHeader elevated class="row justify-center">
       <QToolbar class="col-12 col-md-6 col-xl-5">
         <QTabs v-model="tab" dense inline-label class="col-grow">
-          <QRouteTab :to="{ name: ROUTES.feed }">
+          <QRouteTab
+            :to="{ name: ROUTES.feed }"
+            :disable="data && data.length === 0 && !myProfile"
+          >
             <QIcon name="svguse:/icons.svg#cat" size="lg" />
           </QRouteTab>
           <QRouteTab :to="{ name: ROUTES.discover }" icon="explore" />
@@ -55,7 +58,7 @@
       <QSpace />
       <RouterView
         :key="`${route.fullPath}-${forceReloadRouterViewKey}`"
-        class="col-12 col-md-6 col-xl-5"
+        class="col-12 col-md-6 col-xl-5 q-mb-xl"
       />
       <QSpace />
     </QPageContainer>
@@ -75,7 +78,7 @@
 <script setup lang="ts">
 import CreateMewForm from "@/components/CreateMewForm.vue";
 import { ROUTES } from "@/router";
-import { MewTypeName, MewsfeedDnaProperties } from "@/types/types";
+import { FeedMew, MewTypeName, MewsfeedDnaProperties } from "@/types/types";
 import { AppAgentClient, encodeHashToBase64 } from "@holochain/client";
 import {
   QPageContainer,
@@ -90,7 +93,7 @@ import {
   QTooltip,
   QIcon,
 } from "quasar";
-import { ComputedRef, inject, ref } from "vue";
+import { ComputedRef, inject, ref, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
@@ -98,6 +101,7 @@ import SearchEverythingInput from "@/components/SearchEverythingInput.vue";
 import { showMessage } from "@/utils/toasts";
 import { makeUseNotificationsStore } from "@/stores/notifications";
 import { storeToRefs } from "pinia";
+import { useRequest } from "vue-request";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const dnaProperties = (
@@ -124,4 +128,17 @@ const onCreateMew = () => {
     router.push({ name: ROUTES.feed });
   }
 };
+
+const fetchMewsFeed = (): Promise<FeedMew[]> =>
+  client.callZome({
+    role_name: "mewsfeed",
+    zome_name: "mews",
+    fn_name: "get_my_followed_creators_mews_with_context",
+    payload: null,
+  });
+
+const { data } = useRequest(fetchMewsFeed, {
+  cacheKey: `mews/get_my_followed_creators_mews_with_context`,
+  loadingDelay: 1000,
+});
 </script>
