@@ -136,7 +136,7 @@ import FolloweesList from "@/components/FolloweesList.vue";
 import FollowersList from "@/components/FollowersList.vue";
 import { PROFILE_FIELDS } from "@/types/types";
 import isEqual from "lodash/isEqual";
-import { showError } from "@/utils/notification";
+import { showError } from "@/utils/toasts";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { PATH, ROUTES } from "@/router";
 import { TAG_SYMBOLS } from "@/utils/tags";
@@ -185,7 +185,15 @@ const fetchPinnedMews = () =>
     payload: agentPubKey.value,
   });
 
-const fetchProfile = profilesStore.client.getAgentProfile(agentPubKey.value);
+const fetchProfile = async () => {
+  const profile = await profilesStore.client.getAgentProfile(agentPubKey.value);
+
+  if (profile) {
+    return profile;
+  } else {
+    throw new Error("No profile found");
+  }
+};
 
 const {
   data: profile,

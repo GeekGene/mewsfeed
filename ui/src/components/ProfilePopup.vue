@@ -62,7 +62,7 @@
 import { QCard, QCardSection } from "quasar";
 import { PROFILE_FIELDS } from "@/types/types";
 import isEqual from "lodash/isEqual";
-import { showError } from "@/utils/notification";
+import { showError } from "@/utils/toasts";
 import { ROUTES } from "@/router";
 import {
   AgentPubKey,

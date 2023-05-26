@@ -32,7 +32,7 @@
 
 <script setup lang="ts">
 import { FeedMew, MewTypeName } from "@/types/types";
-import { showError, showMessage } from "@/utils/notification";
+import { showError, showMessage } from "@/utils/toasts";
 import { watch } from "vue";
 import isEqual from "lodash/isEqual";
 import mergeWith from "lodash/mergeWith";
@@ -58,7 +58,7 @@ const props = withDefaults(
 );
 const emit = defineEmits(["mew-pinned", "mew-unpinned"]);
 
-const { data, loading, error, mutate } = useRequest<FeedMew[], [], FeedMew[]>(
+const { data, loading, error, mutate } = useRequest(
   props.fetchFn,
   {
     cacheKey: props.cacheKey,

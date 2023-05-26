@@ -135,7 +135,7 @@
               />
               {{ feedMew.licks.length }}
               <QTooltip v-if="!isDeleted">
-                {{ isLickedByMe ? "Lick" : "Unlick" }} mew
+                {{ isLickedByMe ? "Unlick" : "Lick" }} mew
               </QTooltip>
             </QBtn>
             <QBtn
@@ -262,7 +262,7 @@ import { AppAgentClient } from "@holochain/client";
 import BaseTimestamp from "./BaseTimestamp.vue";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
 import BaseConfirmDialog from "@/components/BaseConfirmDialog.vue";
-import { showMessage } from "@/utils/notification";
+import { showMessage } from "@/utils/toasts";
 import dayjs from "dayjs";
 import BaseEmbedMew from "@/components/BaseEmbedMew.vue";
 

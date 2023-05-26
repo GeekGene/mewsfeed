@@ -154,6 +154,13 @@ export type AgentProfile = {
   profile: Profile;
 };
 
+export type NotificationKey = {
+  notificationType: NotificationType;
+  timestamp: number;
+  agent: AgentPubKey;
+  mewActionHash: ActionHash | null;
+};
+
 export type Notification = {
   notification_type: NotificationType;
   timestamp: number;
