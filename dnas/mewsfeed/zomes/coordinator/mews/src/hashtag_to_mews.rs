@@ -1,4 +1,5 @@
 use crate::tag_to_mews::*;
+use hc_link_pagination::HashPagination;
 use hdk::prelude::*;
 use mews_integrity::*;
 
@@ -50,7 +51,14 @@ pub fn remove_hashtag_for_mew(input: RemoveHashtagForMewInput) -> ExternResult<(
     Ok(())
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GetMewsForHashtagWithContextInput {
+    hashtag: String,
+    page: Option<HashPagination>,
+}
 #[hdk_extern]
-pub fn get_mews_for_hashtag_with_context(hashtag: String) -> ExternResult<Vec<FeedMew>> {
-    get_mews_for_tag_with_context(hashtag, LinkTypes::HashtagToMews)
+pub fn get_mews_for_hashtag_with_context(
+    input: GetMewsForHashtagWithContextInput,
+) -> ExternResult<Vec<FeedMew>> {
+    get_mews_for_tag_with_context(input.hashtag, LinkTypes::HashtagToMews, input.page)
 }
