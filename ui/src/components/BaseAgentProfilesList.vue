@@ -1,11 +1,11 @@
 <template>
   <template v-if="!agentProfiles || loading">
     <QList v-for="i of [0, 1, 2]" :key="i">
-      <ProfileSkeleton />
+      <BaseProfileSkeleton />
     </QList>
   </template>
 
-  <EmptyMewsFeed
+  <BaseEmptyMewsFeed
     v-else-if="agentProfiles?.length === 0"
     :text="emptyText || 'No agents yet'"
   />
@@ -35,8 +35,8 @@
 import { QList, QItem, QItemLabel } from "quasar";
 import { PROFILE_FIELDS, AgentProfile } from "@/types/types";
 import ProfileAvatarWithPopup from "./ProfileAvatarWithPopup.vue";
-import EmptyMewsFeed from "./EmptyMewsFeed.vue";
-import ProfileSkeleton from "./ProfileSkeleton.vue";
+import BaseEmptyMewsFeed from "./BaseEmptyMewsFeed.vue";
+import BaseProfileSkeleton from "./BaseProfileSkeleton.vue";
 
 defineProps<{
   agentProfiles?: AgentProfile[];

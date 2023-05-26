@@ -2,7 +2,7 @@
   <QPage class="text-center" :style-fn="pageHeightCorrection">
     <h6 class="q-mt-none q-mb-md">Notifications</h6>
     <MewListSkeleton v-if="loading || !notifications" />
-    <EmptyMewsFeed
+    <BaseEmptyMewsFeed
       v-else-if="notifications && !loading && notifications.length === 0"
     />
     <QList bordered separator>
@@ -25,7 +25,7 @@ import { inject, ComputedRef, watch } from "vue";
 import { QPage, QList } from "quasar";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import BaseNotification from "@/components/BaseNotification.vue";
-import EmptyMewsFeed from "@/components/EmptyMewsFeed.vue";
+import BaseEmptyMewsFeed from "@/components/BaseEmptyMewsFeed.vue";
 import { showError } from "@/utils/toasts";
 import { makeUseNotificationsStore } from "@/stores/notifications";
 import { storeToRefs } from "pinia";
