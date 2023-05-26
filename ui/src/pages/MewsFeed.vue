@@ -49,7 +49,9 @@ const fetchFollowedCreators = (): Promise<FeedMew[]> =>
   });
 
 const { data } = useRequest(fetchFollowedCreators, {
-  cacheKey: `follows/get_creators_for_follower/${client.myPubKey}`,
+  cacheKey: `follows/get_creators_for_follower/${encodeHashToBase64(
+    client.myPubKey
+  )}`,
   loadingDelay: 1000,
   ...localStorageCacheSettings,
 });

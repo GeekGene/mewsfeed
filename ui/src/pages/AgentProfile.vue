@@ -69,7 +69,7 @@
         :key="forceReloadPinnedMewsKey"
         title="Pinned Mews"
         :fetch-fn="fetchPinnedMews"
-        :cache-key="`mews/get_mews_for_pinner_with_context/${agentPubKey}`"
+        :cache-key="`mews/get_mews_for_pinner_with_context/${encodeHashToBase64(agentPubKey)}`"
         :insert-responses="false"
         @mew-pinned="
           () => {
@@ -92,7 +92,7 @@
         :key="forceReloadAgentMewsKey"
         title="Authored Mews"
         :fetch-fn="fetchAgentMews"
-        :cache-key="`mews/get_agent_mews_with_context/${agentPubKey}`"
+        :cache-key="`mews/get_agent_mews_with_context/${encodeHashToBase64(agentPubKey)}`"
         :insert-responses="isMyProfile"
         @mew-pinned="forceReloadPinnedMewsKey += 1"
         @mew-unpinned="forceReloadPinnedMewsKey += 1"
@@ -201,7 +201,7 @@ const {
   error,
   mutate: mutateProfile,
 } = useRequest(fetchProfile, {
-  cacheKey: `profiles/getAgentProfile/${agentPubKey.value}`,
+  cacheKey: `profiles/getAgentProfile/${encodeHashToBase64(agentPubKey.value)}`,
   refreshOnWindowFocus: true,
   refocusTimespan: 25000, // 25 seconds between window focus to trigger refresh
   loadingDelay: 1000,

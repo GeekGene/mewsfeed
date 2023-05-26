@@ -1,13 +1,19 @@
 <template>
   <AgentProfilesList
     :fetch-fn="fetchAgentProfiles"
-    :cache-key="`follows/get_creators_for_follower/${props.agentPubKey}`"
+    :cache-key="`follows/get_creators_for_follower/${encodeHashToBase64(
+      props.agentPubKey
+    )}`"
   />
 </template>
 
 <script setup lang="ts">
 import { AgentProfile } from "@/types/types";
-import { AgentPubKey, AppAgentClient } from "@holochain/client";
+import {
+  AgentPubKey,
+  AppAgentClient,
+  encodeHashToBase64,
+} from "@holochain/client";
 import { ComputedRef, inject } from "vue";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
 import AgentProfilesList from "./AgentProfilesList.vue";
