@@ -197,3 +197,15 @@ export declare type CacheData<R = any, P = any> = {
   params: P;
   time: number;
 };
+
+export type HashPagination = {
+  start_time?: number | null;
+  limit: number;
+};
+
+export type LoadMoreDataType = {
+  list: any[];
+  [key: string]: any;
+  nextPage: HashPagination;
+  noMore: boolean;
+};
