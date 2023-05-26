@@ -712,6 +712,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "hc_link_pagination"
+version = "0.0.1"
+dependencies = [
+ "hdk",
+ "serde",
+]
+
+[[package]]
 name = "hc_zome_profiles_coordinator"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1164,6 +1172,7 @@ name = "mews"
 version = "0.0.1"
 dependencies = [
  "hc_call_utils",
+ "hc_link_pagination",
  "hdk",
  "mews_integrity",
  "mews_types",

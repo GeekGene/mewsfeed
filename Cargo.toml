@@ -46,3 +46,6 @@ path = "dnas/mewsfeed/zomes/integrity/profiles"
 
 [workspace.dependencies.hc_call_utils]
 path = "crates/hc_call_utils"
+
+[workspace.dependencies.hc_link_pagination]
+path = "crates/hc_link_pagination"
