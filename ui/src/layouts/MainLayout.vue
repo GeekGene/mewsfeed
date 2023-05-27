@@ -3,13 +3,18 @@
     <QHeader elevated class="row justify-center">
       <QToolbar class="col-12 col-md-6 col-xl-5">
         <QTabs v-model="tab" dense inline-label class="col-grow">
-          <QRouteTab
-            :to="{ name: ROUTES.feed }"
-            :disable="data && data.length === 0 && !myProfile"
-          >
+          <QRouteTab v-if="isNewUser" :to="{ name: ROUTES.discover }">
             <QIcon name="svguse:/icons.svg#cat" size="lg" />
           </QRouteTab>
-          <QRouteTab :to="{ name: ROUTES.discover }" icon="explore" />
+          <QRouteTab v-else :to="{ name: ROUTES.feed }">
+            <QIcon name="svguse:/icons.svg#cat" size="lg" />
+          </QRouteTab>
+
+          <QRouteTab
+            v-if="!isNewUser"
+            :to="{ name: ROUTES.discover }"
+            icon="explore"
+          />
 
           <SearchEverythingInput />
 
@@ -102,6 +107,8 @@ import { showMessage } from "@/utils/toasts";
 import { makeUseNotificationsStore } from "@/stores/notifications";
 import { storeToRefs } from "pinia";
 import { useRequest } from "vue-request";
+import { useNewUserStore } from "@/stores/newuser";
+import { localStorageCacheSettings } from "@/utils/requests";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const dnaProperties = (
@@ -114,6 +121,8 @@ const router = useRouter();
 const route = useRoute();
 const useNotificationsStore = makeUseNotificationsStore(client);
 const { unreadCount } = storeToRefs(useNotificationsStore());
+const { isNewUser } = storeToRefs(useNewUserStore());
+const { setNewUser } = useNewUserStore();
 
 const tab = ref("");
 const showCreateMewDialog = ref(false);
@@ -121,8 +130,12 @@ const forceReloadRouterViewKey = ref(0);
 
 const onCreateMew = () => {
   showCreateMewDialog.value = false;
+  setNewUser(false);
   showMessage("Published Mew");
-  if (router.currentRoute.value.name === ROUTES.feed) {
+  if (
+    router.currentRoute.value.name === ROUTES.feed ||
+    router.currentRoute.value.name === ROUTES.discover
+  ) {
     forceReloadRouterViewKey.value += 1;
   } else {
     router.push({ name: ROUTES.feed });
@@ -140,5 +153,14 @@ const fetchMewsFeed = (): Promise<FeedMew[]> =>
 const { data } = useRequest(fetchMewsFeed, {
   cacheKey: `mews/get_my_followed_creators_mews_with_context`,
   loadingDelay: 1000,
+  ...localStorageCacheSettings,
+});
+
+watch(data, (val) => {
+  if (val && val.length > 0) {
+    setNewUser(false);
+  } else {
+    setNewUser(true);
+  }
 });
 </script>

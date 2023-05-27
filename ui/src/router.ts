@@ -9,6 +9,8 @@ import HashtagMewsFeed from "./pages/CashtagMewsFeed.vue";
 import MentionMewsFeed from "./pages/MentionMewsFeed.vue";
 import NotFound from "./pages/NotFound.vue";
 import MyNotifications from "./pages/MyNotifications.vue";
+import { useNewUserStore } from "./stores/newuser";
+import { storeToRefs } from "pinia";
 
 export const PATH = {
   [TAG_SYMBOLS.CASHTAG]: "cashtag",
@@ -31,6 +33,10 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/",
     name: ROUTES.feed,
+    beforeEnter: () => {
+      const { isNewUser } = storeToRefs(useNewUserStore());
+      if (isNewUser.value) return { name: ROUTES.discover };
+    },
     component: MewsFeed,
   },
   {
