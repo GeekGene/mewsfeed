@@ -33,12 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  FeedMew,
-  LoadMoreDataType,
-  MewTypeName,
-  HashPagination,
-} from "@/types/types";
+import { FeedMew, LoadMoreDataType, MewTypeName } from "@/types/types";
 import { showError, showMessage } from "@/utils/toasts";
 import { watch } from "vue";
 import isEqual from "lodash/isEqual";
@@ -53,7 +48,6 @@ import { localStorageCacheSettings } from "@/utils/requests";
 const props = withDefaults(
   defineProps<{
     fetchFn: (loadMoreData?: LoadMoreDataType) => Promise<LoadMoreDataType>;
-    page: HashPagination;
     cacheKey: string;
     requestOptions?: any;
     showCreateMewField?: boolean;

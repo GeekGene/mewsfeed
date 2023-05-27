@@ -4,7 +4,6 @@
       :fetch-fn="fetchHashtagMews"
       :title="`Mews with ${route.meta.tag}${route.params.tag}`"
       :cache-key="`mews/get_mews_for_hashtag_with_context/${route.meta.tag}${route.params.tag}`"
-      :page="defaultPage"
     />
   </QPage>
 </template>
