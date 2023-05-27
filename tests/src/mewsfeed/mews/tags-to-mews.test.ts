@@ -282,6 +282,18 @@ test("Hashtags list are time-paginated", async () => {
         payload: createMewInput6,
       });
 
+      const mewContent7 = "My Mew with #hashtag 6";
+      const createMewInput7: Mew = {
+        text: mewContent7,
+        links: [],
+        mew_type: { [MewTypeName.Original]: null },
+      };
+      const mewActionHash7 = await alice.cells[0].callZome({
+        zome_name: "mews",
+        fn_name: "create_mew",
+        payload: createMewInput7,
+      });
+
       await pause(1000);
 
       const page1: FeedMew[] = await alice.cells[0].callZome({
@@ -344,9 +356,9 @@ test("Hashtags list are time-paginated", async () => {
 
       const page4: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
-        fn_name: "get_mews_for_hashtag_with_context",
+        fn_name: "get_mews_for_cashtag_with_context",
         payload: {
-          hashtag: "#hashtag",
+          cashtag: "$cashtag",
           page: {
             after_hash: page3[page3.length - 1].action_hash,
             limit: 2,
@@ -354,7 +366,30 @@ test("Hashtags list are time-paginated", async () => {
         },
       });
 
-      assert.lengthOf(page4, 0);
+      assert.lengthOf(page4, 1);
+      assert.deepEqual(page4[0].action_hash, mewActionHash7);
+      expect(page4[0].action.timestamp)
+        .greaterThanOrEqual(page3[0].action.timestamp)
+        .greaterThanOrEqual(page3[1].action.timestamp)
+        .greaterThanOrEqual(page3[0].action.timestamp)
+        .greaterThanOrEqual(page2[1].action.timestamp)
+        .greaterThanOrEqual(page2[0].action.timestamp)
+        .greaterThanOrEqual(page1[1].action.timestamp)
+        .greaterThanOrEqual(page1[0].action.timestamp);
+
+      const page5: FeedMew[] = await alice.cells[0].callZome({
+        zome_name: "mews",
+        fn_name: "get_mews_for_cashtag_with_context",
+        payload: {
+          cashtag: "$cashtag",
+          page: {
+            after_hash: page4[page4.length - 1].action_hash,
+            limit: 2,
+          },
+        },
+      });
+
+      assert.lengthOf(page5, 0);
     },
     true,
     { timeout: 100000 }
@@ -447,6 +482,18 @@ test("Cashtags list are time-paginated", async () => {
         payload: createMewInput6,
       });
 
+      const mewContent7 = "My Mew with $cashtag 7";
+      const createMewInput7: Mew = {
+        text: mewContent7,
+        links: [],
+        mew_type: { [MewTypeName.Original]: null },
+      };
+      const mewActionHash7 = await alice.cells[0].callZome({
+        zome_name: "mews",
+        fn_name: "create_mew",
+        payload: createMewInput7,
+      });
+
       await pause(1000);
 
       const page1: FeedMew[] = await alice.cells[0].callZome({
@@ -519,7 +566,30 @@ test("Cashtags list are time-paginated", async () => {
         },
       });
 
-      assert.lengthOf(page4, 0);
+      assert.lengthOf(page4, 1);
+      assert.deepEqual(page4[0].action_hash, mewActionHash7);
+      expect(page4[0].action.timestamp)
+        .greaterThanOrEqual(page3[0].action.timestamp)
+        .greaterThanOrEqual(page3[1].action.timestamp)
+        .greaterThanOrEqual(page3[0].action.timestamp)
+        .greaterThanOrEqual(page2[1].action.timestamp)
+        .greaterThanOrEqual(page2[0].action.timestamp)
+        .greaterThanOrEqual(page1[1].action.timestamp)
+        .greaterThanOrEqual(page1[0].action.timestamp);
+
+      const page5: FeedMew[] = await alice.cells[0].callZome({
+        zome_name: "mews",
+        fn_name: "get_mews_for_cashtag_with_context",
+        payload: {
+          cashtag: "$cashtag",
+          page: {
+            after_hash: page4[page4.length - 1].action_hash,
+            limit: 2,
+          },
+        },
+      });
+
+      assert.lengthOf(page5, 0);
     },
     true,
     { timeout: 100000 }

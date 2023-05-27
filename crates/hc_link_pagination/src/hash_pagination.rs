@@ -26,9 +26,9 @@ pub fn get_by_hash_pagination(
                 None => 0,
             };
 
-            let maybe_slice = match limit <= links.len() {
-                true => links.get(start_index..start_index+limit),
-                false => links.get(start_index..links.len()),
+            let maybe_slice = match start_index+limit < links_copy.len() {
+                true => links_copy.get(start_index..start_index+limit),
+                false => links_copy.get(start_index..links_copy.len()),
             };
 
             match maybe_slice {
