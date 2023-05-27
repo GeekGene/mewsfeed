@@ -1,29 +1,33 @@
 <template>
-  <div
+  <QPage
     v-if="loadingClient"
     class="row justify-center items-center"
     style="height: 100%"
   >
-    <sl-spinner style="font-size: 4rem"></sl-spinner>
-  </div>
-  <template v-else>
-    <HoloLogin v-if="IS_HOLO_HOSTED">
-      <profiles-context :store="profilesStore">
-        <MainLayout />
-      </profiles-context>
-    </HoloLogin>
-
-    <profiles-context v-else :store="profilesStore">
-      <MainLayout />
-    </profiles-context>
-    <div
-      v-if="loadingCells"
-      class="row justify-between"
-      style="position: fixed; right: 25px; bottom: 25px"
-    >
-      <sl-spinner style="font-size: 1rem" class="q-mr-sm"></sl-spinner>
-      <div>Cells loading...</div>
+    <div class="column justify-center items-center">
+      <div class="row justify-center items-center">
+        <sl-spinner style="font-size: 2rem" class="q-mr-lg"></sl-spinner>
+        <h6>Connecting...</h6>
+      </div>
     </div>
+  </QPage>
+  <template v-else>
+    <profiles-context :store="profilesStore">
+      <HoloLogin v-if="IS_HOLO_HOSTED">
+        <MainLayout />
+      </HoloLogin>
+
+      <MainLayout v-else />
+
+      <div
+        v-if="loadingCells"
+        class="row justify-between"
+        style="position: fixed; right: 25px; bottom: 25px"
+      >
+        <sl-spinner style="font-size: 1rem" class="q-mr-sm"></sl-spinner>
+        <div>Cells loading...</div>
+      </div>
+    </profiles-context>
   </template>
 </template>
 

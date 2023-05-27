@@ -1,14 +1,14 @@
 use hdk::prelude::*;
 use std::collections::BTreeMap;
 
-#[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone, PartialEq, Eq)]
 pub enum LinkTarget {
     Mention(AgentPubKey),
     Url(String),
     Record(ActionHash),
 }
 
-#[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone, PartialEq, Eq)]
 pub enum MewType {
     Original,
     Reply(ActionHash),
@@ -17,7 +17,7 @@ pub enum MewType {
 }
 
 #[hdk_entry_helper]
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Eq)]
 pub enum ResponseType {
     Reply,
     Quote,
@@ -25,7 +25,7 @@ pub enum ResponseType {
 }
 
 #[hdk_entry_helper]
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct Mew {
     pub text: String,
     pub links: Vec<LinkTarget>,
@@ -50,7 +50,7 @@ pub struct FeedMew {
     pub deleted_timestamp: Option<Timestamp>,
     pub author_profile: Option<Profile>,
     pub is_pinned: bool,
-    pub original_mew: Option<EmbedMew>
+    pub original_mew: Option<EmbedMew>,
 }
 
 #[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]

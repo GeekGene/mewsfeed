@@ -38,12 +38,10 @@
         </QList>
 
         <MewList
-          v-if="mew && mew.replies.length > 0"
           :key="forceReloadRepliesKey"
           :fetch-fn="fetchReplies"
-          :cache-key="`mews/get_batch_mews_with_context/${mew.replies}`"
+          :cache-key="`mews/get_batch_mews_with_context/${mew?.replies}`"
           :show-yarn-link="false"
-          :enable-upsert-on-response="false"
         />
       </QCardSection>
     </QCard>

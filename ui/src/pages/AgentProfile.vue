@@ -72,7 +72,7 @@
         title="Pinned Mews"
         :fetch-fn="fetchPinnedMews"
         :cache-key="`mews/get_mews_for_pinner_with_context/${agentPubKey}`"
-        :enable-upsert-on-response="false"
+        :insert-responses="false"
         @mew-pinned="
           () => {
             forceReloadPinnedMewsKey += 1;
@@ -95,7 +95,7 @@
         title="Authored Mews"
         :fetch-fn="fetchAgentMews"
         :cache-key="`mews/get_agent_mews_with_context/${agentPubKey}`"
-        :enable-upsert-on-response="isMyProfile"
+        :insert-responses="isMyProfile"
         @mew-pinned="forceReloadPinnedMewsKey += 1"
         @mew-unpinned="forceReloadPinnedMewsKey += 1"
       />
