@@ -24,5 +24,5 @@ export const showError = (error: unknown) => {
   console.error(error);
   const message =
     error instanceof Error ? error.message : JSON.stringify(error, null, 4);
-  Notify.create({ message, color: "red", position: "bottom" });
+  Notify.create({ message, color: "red", position: "bottom", timeout: 2000 });
 };

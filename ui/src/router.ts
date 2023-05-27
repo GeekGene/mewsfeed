@@ -9,6 +9,8 @@ import HashtagMewsFeed from "./pages/HashtagMewsFeed.vue";
 import MentionMewsFeed from "./pages/MentionMewsFeed.vue";
 import NotFound from "./pages/NotFound.vue";
 import MyNotifications from "./pages/MyNotifications.vue";
+import { useNewUserStore } from "./stores/newuser";
+import { storeToRefs } from "pinia";
 
 export const ROUTES = {
   discover: "discover",
@@ -25,6 +27,10 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/",
     name: ROUTES.feed,
+    beforeEnter: () => {
+      const { isNewUser } = storeToRefs(useNewUserStore());
+      if (isNewUser.value) return { name: ROUTES.discover };
+    },
     component: MewsFeed,
   },
   {
