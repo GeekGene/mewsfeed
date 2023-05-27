@@ -1,5 +1,6 @@
 use hdk::prelude::*;
 pub mod agent_mews;
+pub mod agent_to_notifications;
 pub mod all_mews;
 pub mod cashtag_to_mews;
 pub mod followed_creators_mews;

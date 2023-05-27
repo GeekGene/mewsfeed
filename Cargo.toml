@@ -43,3 +43,6 @@ path = "dnas/mewsfeed/zomes/coordinator/profiles"
 
 [workspace.dependencies.profiles_integrity]
 path = "dnas/mewsfeed/zomes/integrity/profiles"
+
+[workspace.dependencies.hc_call_utils]
+path = "crates/hc_call_utils"

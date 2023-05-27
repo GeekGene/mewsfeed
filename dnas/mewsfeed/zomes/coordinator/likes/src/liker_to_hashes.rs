@@ -35,15 +35,26 @@ pub fn get_hashes_for_liker(liker: AgentPubKey) -> ExternResult<Vec<AnyLinkableH
 
 #[hdk_extern]
 pub fn get_likers_for_hash(hash: AnyLinkableHash) -> ExternResult<Vec<AgentPubKey>> {
-    let links = get_links(hash, LinkTypes::HashToLikers, None)?;
-
-    let mut agents: Vec<AgentPubKey> = links
+    let links = get_liker_links_for_hash(hash)?;
+    let agents: Vec<AgentPubKey> = links
         .into_iter()
         .map(|link| AgentPubKey::from(EntryHash::from(link.target)))
         .collect();
-    agents.dedup();
 
     Ok(agents)
+}
+
+#[hdk_extern]
+pub fn get_liker_links_for_hash(hash: AnyLinkableHash) -> ExternResult<Vec<Link>> {
+    let mut links = get_links(hash, LinkTypes::HashToLikers, None)?;
+    links.dedup_by_key(|l| l.target.clone());
+
+    Ok(links)
+}
+
+#[hdk_extern]
+pub fn get_liker_link_details_for_hash(hash: AnyLinkableHash) -> ExternResult<LinkDetails> {
+    get_link_details(hash, LinkTypes::HashToLikers, None)
 }
 
 #[derive(Serialize, Deserialize, Debug)]

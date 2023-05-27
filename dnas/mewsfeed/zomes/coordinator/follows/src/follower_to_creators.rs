@@ -38,7 +38,7 @@ pub fn get_creators_for_follower(follower: AgentPubKey) -> ExternResult<Vec<Agen
 
 #[hdk_extern]
 pub fn get_followers_for_creator(creator: AgentPubKey) -> ExternResult<Vec<AgentPubKey>> {
-    let links = get_links(creator, LinkTypes::CreatorToFollowers, None)?;
+    let links = get_follower_links_for_creator(creator)?;
 
     let agents: Vec<AgentPubKey> = links
         .into_iter()
@@ -46,6 +46,21 @@ pub fn get_followers_for_creator(creator: AgentPubKey) -> ExternResult<Vec<Agent
         .collect();
 
     Ok(agents)
+}
+
+#[hdk_extern]
+pub fn get_follower_links_for_creator(creator: AgentPubKey) -> ExternResult<Vec<Link>> {
+    let mut links = get_links(creator, LinkTypes::CreatorToFollowers, None)?;
+    links.dedup_by_key(|l| l.target.clone());
+
+    Ok(links)
+}
+
+#[hdk_extern]
+pub fn get_follower_link_details_for_creator(creator: AgentPubKey) -> ExternResult<LinkDetails> {
+    let links = get_link_details(creator, LinkTypes::CreatorToFollowers, None)?;
+
+    Ok(links)
 }
 
 #[derive(Serialize, Deserialize, Debug)]

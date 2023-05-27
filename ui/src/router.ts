@@ -8,6 +8,7 @@ import CashtagMewsFeed from "./pages/CashtagMewsFeed.vue";
 import HashtagMewsFeed from "./pages/CashtagMewsFeed.vue";
 import MentionMewsFeed from "./pages/MentionMewsFeed.vue";
 import NotFound from "./pages/NotFound.vue";
+import MyNotifications from "./pages/MyNotifications.vue";
 
 export const PATH = {
   [TAG_SYMBOLS.CASHTAG]: "cashtag",
@@ -18,6 +19,7 @@ export const PATH = {
 export const ROUTES = {
   discover: "discover",
   profile: "profile",
+  notifications: "notifications",
   feed: "feed",
   yarn: "yarn",
   [PATH[TAG_SYMBOLS.CASHTAG]]: PATH[TAG_SYMBOLS.CASHTAG],
@@ -35,6 +37,11 @@ export const routes: RouteRecordRaw[] = [
     path: "/profiles/:agent",
     name: ROUTES.profile,
     component: AgentProfile,
+  },
+  {
+    path: "/notifications",
+    name: ROUTES.notifications,
+    component: MyNotifications,
   },
   {
     path: "/discover",

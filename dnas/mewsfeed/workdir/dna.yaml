@@ -9,6 +9,10 @@ integrity:
     prefix_index_width: 3
   origin_time: 1681948586688419
   zomes:
+    - name: profiles_integrity
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/profiles_integrity.wasm"
+      dependencies: ~
     - name: mews_integrity
       hash: ~
       bundled: "../../../target/wasm32-unknown-unknown/release/mews_integrity.wasm"
@@ -16,10 +20,6 @@ integrity:
     - name: follows_integrity
       hash: ~
       bundled: "../../../target/wasm32-unknown-unknown/release/follows_integrity.wasm"
-      dependencies: ~
-    - name: profiles_integrity
-      hash: ~
-      bundled: "../../../target/wasm32-unknown-unknown/release/profiles_integrity.wasm"
       dependencies: ~
     - name: likes_integrity
       hash: ~
@@ -31,6 +31,11 @@ integrity:
       dependencies: ~
 coordinator:
   zomes:
+    - name: profiles
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/profiles.wasm"
+      dependencies:
+        - name: profiles_integrity
     - name: mews
       hash: ~
       bundled: "../../../target/wasm32-unknown-unknown/release/mews.wasm"
@@ -42,22 +47,17 @@ coordinator:
       bundled: "../../../target/wasm32-unknown-unknown/release/follows.wasm"
       dependencies:
         - name: follows_integrity
-    - name: profiles
-      hash: ~
-      bundled: "../../../target/wasm32-unknown-unknown/release/profiles.wasm"
-      dependencies:
-        - name: profiles_integrity
     - name: likes
       hash: ~
       bundled: "../../../target/wasm32-unknown-unknown/release/likes.wasm"
       dependencies:
         - name: likes_integrity
-    - name: ping
-      hash: ~
-      bundled: "../../../target/wasm32-unknown-unknown/release/ping.wasm"
-      dependencies: ~
     - name: agent_pins
       hash: ~
       bundled: "../../../target/wasm32-unknown-unknown/release/agent_pins.wasm"
       dependencies:
         - name: agent_pins_integrity
+    - name: ping
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/ping.wasm"
+      dependencies: ~

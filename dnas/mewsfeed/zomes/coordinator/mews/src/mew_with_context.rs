@@ -1,8 +1,10 @@
 use crate::licker_to_mews::*;
 use crate::mew_to_responses::*;
 use crate::pinner_to_mews::get_is_hash_pinned;
+use hc_call_utils::call_local_zome;
 use hdk::prelude::*;
 use mews_integrity::*;
+use mews_types::Profile;
 
 #[hdk_extern]
 pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedMew> {
@@ -121,40 +123,25 @@ pub fn get_batch_mews_with_context(hashes: Vec<ActionHash>) -> ExternResult<Vec<
         .collect::<ExternResult<Vec<FeedMew>>>()
 }
 
-fn get_agent_profile(agentpubkey: AgentPubKey) -> ExternResult<Option<Profile>> {
-    let zome_call_response = call(
-        CallTargetCell::Local,
+fn get_agent_profile(agent_pub_key: AgentPubKey) -> ExternResult<Option<Profile>> {
+    let maybe_record = call_local_zome::<Option<Record>, AgentPubKey>(
         "profiles",
-        FunctionName::from("get_agent_profile"),
-        None,
-        agentpubkey,
+        "get_agent_profile",
+        agent_pub_key,
     )?;
 
-    match zome_call_response {
-        ZomeCallResponse::Ok(response) => {
-            let maybe_record: Option<Record> = response.decode().map_err(|_| {
-                wasm_error!(WasmErrorInner::Guest(
-                    "Failed to deserialize zome call response".into()
-                ))
-            })?;
+    match maybe_record {
+        Some(record) => {
+            let profile: Profile = record
+                .entry()
+                .to_app_option()
+                .map_err(|e| wasm_error!(WasmErrorInner::Guest(e.into())))?
+                .ok_or(wasm_error!(WasmErrorInner::Guest(String::from(
+                    "Malformed Profile"
+                ))))?;
 
-            match maybe_record {
-                Some(record) => {
-                    let profile: Profile = record
-                        .entry()
-                        .to_app_option()
-                        .map_err(|e| wasm_error!(WasmErrorInner::Guest(e.into())))?
-                        .ok_or(wasm_error!(WasmErrorInner::Guest(String::from(
-                            "Malformed Profile"
-                        ))))?;
-
-                    Ok(Some(profile))
-                }
-                None => Ok(None),
-            }
+            Ok(Some(profile))
         }
-        _ => Err(wasm_error!(WasmErrorInner::Guest(
-            "Failed to call 'get_agent_profile' in zome 'profiles'".into()
-        ))),
+        None => Ok(None),
     }
 }

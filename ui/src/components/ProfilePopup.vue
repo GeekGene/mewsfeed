@@ -62,7 +62,7 @@
 import { QCard, QCardSection } from "quasar";
 import { PROFILE_FIELDS } from "@/types/types";
 import isEqual from "lodash/isEqual";
-import { showError } from "@/utils/notification";
+import { showError } from "@/utils/toasts";
 import { ROUTES } from "@/router";
 import {
   AgentPubKey,
@@ -86,9 +86,7 @@ const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 
-const isMyProfile = computed(() =>
-  isEqual(props.agentPubKey, client.myPubKey)
-);
+const isMyProfile = computed(() => isEqual(props.agentPubKey, client.myPubKey));
 const isCurrentProfile = computed(
   () =>
     router.currentRoute.value.params.agent ===

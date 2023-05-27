@@ -153,3 +153,41 @@ export type AgentProfile = {
   agentPubKey: AgentPubKey;
   profile: Profile;
 };
+
+export type NotificationKey = {
+  notificationType: NotificationType;
+  timestamp: number;
+  agent: AgentPubKey;
+  mewActionHash: ActionHash | null;
+};
+
+export type Notification = {
+  notification_type: NotificationType;
+  timestamp: number;
+  agent: AgentPubKey;
+  agent_profile: Profile | null;
+  feed_mew: FeedMew | null;
+};
+
+export enum NotificationTypeName {
+  MyMewLicked = "MyMewLicked",
+  MyMewUnlicked = "MyMewUnlicked",
+  MyMewPinned = "MyMewPinned",
+  MyMewUnpinned = "MyMewUnpinned",
+  MyMewResponded = "MyMewResponded",
+  MyAgentMentioned = "MyAgentMentioned",
+  MyAgentFollowed = "MyAgentFollowed",
+  MyAgentUnfollowed = "MyAgentUnfollowed",
+  FollowedYarnResponded = "FollowedYarnResponded",
+}
+
+export type NotificationType =
+  | { [NotificationTypeName.MyMewLicked]: null }
+  | { [NotificationTypeName.MyMewUnlicked]: null }
+  | { [NotificationTypeName.MyMewPinned]: null }
+  | { [NotificationTypeName.MyMewUnpinned]: null }
+  | { [NotificationTypeName.MyMewResponded]: null }
+  | { [NotificationTypeName.MyAgentMentioned]: null }
+  | { [NotificationTypeName.MyAgentFollowed]: null }
+  | { [NotificationTypeName.MyAgentUnfollowed]: null }
+  | { [NotificationTypeName.FollowedYarnResponded]: null };

@@ -26,6 +26,18 @@
           <QRouteTab
             v-if="myProfile && client"
             :to="{
+              name: ROUTES.notifications,
+            }"
+            icon="notifications"
+          >
+            <QBadge v-if="unreadCount > 0" color="green" floating>
+              {{ unreadCount }}
+            </QBadge>
+            <QTooltip>Notifications</QTooltip>
+          </QRouteTab>
+          <QRouteTab
+            v-if="myProfile && client"
+            :to="{
               name: ROUTES.profile,
               params: { agent: encodeHashToBase64(client.myPubKey) },
             }"
@@ -46,7 +58,7 @@
       <QSpace />
       <RouterView
         :key="`${route.fullPath}-${forceReloadRouterViewKey}`"
-        class="col-12 col-md-6 col-xl-5"
+        class="col-12 col-md-6 col-xl-5 q-mb-xl"
       />
       <QSpace />
     </QPageContainer>
@@ -74,6 +86,7 @@ import {
   QRouteTab,
   QTabs,
   QBtn,
+  QBadge,
   QLayout,
   QHeader,
   QToolbar,
@@ -85,7 +98,9 @@ import { useRouter, useRoute } from "vue-router";
 import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
 import SearchEverythingInput from "@/components/SearchEverythingInput.vue";
-import { showMessage } from "@/utils/notification";
+import { showMessage } from "@/utils/toasts";
+import { makeUseNotificationsStore } from "@/stores/notifications";
+import { storeToRefs } from "pinia";
 import { useRequest } from "vue-request";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
@@ -97,6 +112,8 @@ const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
 const myProfile = inject("myProfile") as ComputedRef<Profile>;
 const router = useRouter();
 const route = useRoute();
+const useNotificationsStore = makeUseNotificationsStore(client);
+const { unreadCount } = storeToRefs(useNotificationsStore());
 
 const tab = ref("");
 const showCreateMewDialog = ref(false);

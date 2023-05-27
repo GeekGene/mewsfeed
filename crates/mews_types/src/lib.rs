@@ -61,3 +61,25 @@ pub struct EmbedMew {
     pub author_profile: Option<Profile>,
     pub deleted_timestamp: Option<Timestamp>,
 }
+
+#[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
+pub struct Notification {
+    pub notification_type: NotificationType,
+    pub timestamp: Timestamp,
+    pub agent: AgentPubKey,
+    pub agent_profile: Option<Profile>,
+    pub feed_mew: Option<FeedMew>,
+}
+
+#[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
+pub enum NotificationType {
+    MyMewLicked,
+    MyMewUnlicked,
+    MyMewPinned,
+    MyMewUnpinned,
+    MyMewResponded,
+    MyAgentMentioned,
+    MyAgentFollowed,
+    MyAgentUnfollowed,
+    FollowedYarnResponded,
+}

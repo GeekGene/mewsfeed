@@ -66,7 +66,7 @@
         <QSpace />
 
         <span class="q-ml-md text-caption">
-          <MewTimestamp :timestamp="feedMew.action.timestamp" />
+          <BaseTimestamp :timestamp="feedMew.action.timestamp" />
         </span>
       </div>
 
@@ -135,7 +135,7 @@
               />
               {{ feedMew.licks.length }}
               <QTooltip v-if="!isDeleted">
-                {{ isLickedByMe ? "Lick" : "Unlick" }} mew
+                {{ isLickedByMe ? "Unlick" : "Lick" }} mew
               </QTooltip>
             </QBtn>
             <QBtn
@@ -200,7 +200,7 @@
           v-if="feedMew.deleted_timestamp !== null"
           class="text-red text-bold"
         >
-          Deleted <MewTimestamp :timestamp="feedMew.deleted_timestamp" />
+          Deleted <BaseTimestamp :timestamp="feedMew.deleted_timestamp" />
         </div>
       </div>
     </QItemSection>
@@ -228,7 +228,7 @@
       v-model="showCreateMewmewDialog"
       @profile-created="createMewmew"
     />
-    <ConfirmDialog
+    <BaseConfirmDialog
       v-model="showConfirmDeleteDialog"
       title="Delete Mew"
       confirm-text="Delete"
@@ -239,7 +239,7 @@
         Note that other peers may still have copies of the data, and you can't
         force them to delete it.
       </p>
-    </ConfirmDialog>
+    </BaseConfirmDialog>
   </QItem>
 </template>
 
@@ -259,10 +259,10 @@ import remove from "lodash/remove";
 import { AgentPubKey } from "@holochain/client";
 import { useRouter } from "vue-router";
 import { AppAgentClient } from "@holochain/client";
-import MewTimestamp from "./MewTimestamp.vue";
+import BaseTimestamp from "./BaseTimestamp.vue";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
-import ConfirmDialog from "@/components/ConfirmDialog.vue";
-import { showMessage } from "@/utils/notification";
+import BaseConfirmDialog from "@/components/BaseConfirmDialog.vue";
+import { showMessage } from "@/utils/toasts";
 import dayjs from "dayjs";
 import BaseEmbedMew from "@/components/BaseEmbedMew.vue";
 

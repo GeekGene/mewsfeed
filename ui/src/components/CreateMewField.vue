@@ -147,7 +147,7 @@ import {
   QTooltip,
   QBtn,
 } from "quasar";
-import { showError } from "@/utils/notification";
+import { showError } from "@/utils/toasts";
 import { useSearchProfiles } from "@/utils/profiles";
 import { Profile } from "@holochain-open-dev/profiles";
 import { isMentionTag, isRawUrl, isLinkTag, TAG_SYMBOLS } from "@/utils/tags";

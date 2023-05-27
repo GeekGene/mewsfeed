@@ -1,11 +1,11 @@
 [package]
-name = "mews_types"
+name = "hc_call_utils"
 version = "0.0.1"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
-name = "mews_types"
+name = "hc_call_utils"
 
 [dependencies]
 hdk = { workspace = true }

@@ -1,5 +1,5 @@
 <template>
-  <QBtn size="md" color="secondary" @click="toggleFollow">
+  <QBtn size="md" color="secondary" @click.stop.prevent="toggleFollow">
     <template v-if="isFollowing">
       <div class="q-mr-sm">Unfollow</div>
       <QIcon name="svguse:/icons.svg#cat" />
@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 import { PROFILE_FIELDS } from "@/types/types";
-import { showError, showMessage } from "@/utils/notification";
+import { showError, showMessage } from "@/utils/toasts";
 import { AgentPubKey } from "@holochain/client";
 import { ComputedRef, inject, onMounted, PropType, ref } from "vue";
 import { QBtn, QIcon } from "quasar";
