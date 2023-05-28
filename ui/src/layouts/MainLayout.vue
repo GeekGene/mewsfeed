@@ -146,10 +146,8 @@ const fetchMewsFeed = (): Promise<FeedMew[]> =>
   client.callZome({
     role_name: "mewsfeed",
     zome_name: "mews",
-    fn_name: `get_followed_creators_mews_with_context/${encodeHashToBase64(
-      client.myPubKey
-    )}`,
-    payload: null,
+    fn_name: "get_followed_creators_mews_with_context",
+    payload: client.myPubKey,
   });
 
 const { data } = useRequest(fetchMewsFeed, {
