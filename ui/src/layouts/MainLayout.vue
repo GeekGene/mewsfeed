@@ -146,12 +146,16 @@ const fetchMewsFeed = (): Promise<FeedMew[]> =>
   client.callZome({
     role_name: "mewsfeed",
     zome_name: "mews",
-    fn_name: "get_my_followed_creators_mews_with_context",
+    fn_name: `get_followed_creators_mews_with_context/${encodeHashToBase64(
+      client.myPubKey
+    )}`,
     payload: null,
   });
 
 const { data } = useRequest(fetchMewsFeed, {
-  cacheKey: `mews/get_my_followed_creators_mews_with_context`,
+  cacheKey: `mews/get_followed_creators_mews_with_context/${encodeHashToBase64(
+    client.myPubKey
+  )}`,
   loadingDelay: 1000,
   ...localStorageCacheSettings,
 });

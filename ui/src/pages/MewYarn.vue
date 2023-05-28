@@ -38,9 +38,12 @@
         </QList>
 
         <MewList
+          v-if="mew"
           :key="forceReloadRepliesKey"
           :fetch-fn="fetchReplies"
-          :cache-key="`mews/get_batch_mews_with_context/${mew?.replies}`"
+          :cache-key="`mews/get_batch_mews_with_context/replies/${encodeHashToBase64(
+            mew.action_hash
+          )}`"
           :show-yarn-link="false"
         />
       </QCardSection>
@@ -55,7 +58,7 @@ import MewListItem from "@/components/MewListItem.vue";
 import MewList from "@/components/MewList.vue";
 import { FeedMew, MewTypeName } from "@/types/types";
 import { pageHeightCorrection } from "@/utils/page-layout";
-import { decodeHashFromBase64 } from "@holochain/client";
+import { decodeHashFromBase64, encodeHashToBase64 } from "@holochain/client";
 import { ComputedRef, computed, inject, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { AppAgentClient } from "@holochain/client";

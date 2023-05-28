@@ -23,6 +23,7 @@ import MewListItemSkeleton from "@/components/MewListItemSkeleton.vue";
 import { useRequest } from "vue-request";
 import { FeedMew } from "@/types/types";
 import { localStorageCacheSettings } from "@/utils/requests";
+import { encodeHashToBase64 } from "@holochain/client";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 
@@ -47,7 +48,7 @@ const {
   error,
   mutate,
 } = useRequest(fetchMew, {
-  cacheKey: `mews/get_mew_with_context/${props.actionHash}`,
+  cacheKey: `mews/get_mew_with_context/${encodeHashToBase64(props.actionHash)}`,
   loadingDelay: 1000,
   ...localStorageCacheSettings,
 });
