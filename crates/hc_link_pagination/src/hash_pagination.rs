@@ -1,4 +1,5 @@
 use hdk::prelude::*;
+use crate::{Hashed, Timestamped};
 
 #[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
 pub struct HashPagination {
@@ -6,19 +7,22 @@ pub struct HashPagination {
     pub limit: usize,
 }
 
-pub fn get_by_hash_pagination(
-    links: Vec<Link>,
+pub fn get_by_hash_pagination<T>(
+    links: Vec<T>,
     page: Option<HashPagination>,
-) -> ExternResult<Vec<Link>> {
+) -> ExternResult<Vec<T>> 
+where
+    T: Clone + Hashed + Timestamped
+{
     let mut links_copy = links.clone();
-    links_copy.sort_by_key(|l| l.timestamp);
+    links_copy.sort_by_key(|l| l.timestamp());
 
     match page {
         Some(HashPagination { after_hash, limit }) => {
             
             let start_index = match after_hash {
                 Some(hash) => {
-                    match links_copy.iter().position(|l| l.target == hash) {
+                    match links_copy.iter().position(|l| l.hash() == hash) {
                         Some(prev_position) => prev_position + 1,
                         None => 0
                     }

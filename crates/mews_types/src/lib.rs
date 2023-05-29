@@ -1,3 +1,4 @@
+use hc_link_pagination::Timestamped;
 use hdk::prelude::*;
 use std::collections::BTreeMap;
 
@@ -69,6 +70,12 @@ pub struct Notification {
     pub agent: AgentPubKey,
     pub agent_profile: Option<Profile>,
     pub feed_mew: Option<FeedMew>,
+}
+
+impl Timestamped for Notification {
+    fn timestamp(&self) -> Timestamp {
+        self.timestamp
+    }
 }
 
 #[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]

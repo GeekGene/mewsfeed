@@ -1198,6 +1198,7 @@ dependencies = [
 name = "mews_types"
 version = "0.0.1"
 dependencies = [
+ "hc_link_pagination",
  "hdk",
  "serde",
 ]

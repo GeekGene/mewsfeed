@@ -199,9 +199,24 @@ export declare type CacheData<R = any, P = any> = {
 };
 
 export type HashPagination = {
-  start_time?: number | null;
+  after_hash?: Uint8Array | null;
   limit: number;
 };
+
+export type TimestampPagination = {
+  after_timestamp?: number | null;
+  direction?: PaginationDirectionType | null;
+  limit: number;
+};
+
+export type PaginationDirectionType =
+  | { [PaginationDirectionName.Ascending]: null }
+  | { [PaginationDirectionName.Descending]: null };
+
+export enum PaginationDirectionName {
+  Ascending = "Ascending",
+  Descending = "Descending",
+}
 
 export type LoadMoreDataType = {
   list: any[];

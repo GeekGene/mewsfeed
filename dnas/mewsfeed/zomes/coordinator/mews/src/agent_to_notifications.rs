@@ -2,16 +2,21 @@ use crate::agent_mews::get_agent_mews;
 use crate::mew_to_responses::{get_responses_for_mew, GetResponsesForMewInput};
 use crate::mew_with_context::get_mew_with_context;
 use hc_call_utils::call_local_zome;
+use hc_link_pagination::{get_by_timestamp_pagination, TimestampPagination};
 use hdk::prelude::*;
 use mews_types::{Mew, MewType, Notification, NotificationType, Profile};
-use std::cmp::Reverse;
 
+#[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
+pub struct GetNotificationsForAgentInput {
+    agent: AgentPubKey,
+    page: Option<TimestampPagination>,
+}
 #[hdk_extern]
-pub fn get_notifications_for_agent(agent: AgentPubKey) -> ExternResult<Vec<Notification>> {
-    let my_mews = get_agent_mews(agent.clone())?;
+pub fn get_notifications_for_agent(input: GetNotificationsForAgentInput) -> ExternResult<Vec<Notification>> {
+    let my_mews = get_agent_mews(input.agent.clone())?;
 
     let agent_link_details = get_link_details(
-        agent.clone(),
+        input.agent.clone(),
         LinkTypeFilter::Types(vec![
             // Mentions of agent (MentionToMews)
             (ZomeIndex(1), vec![LinkType(6)]),
@@ -97,7 +102,7 @@ pub fn get_notifications_for_agent(agent: AgentPubKey) -> ExternResult<Vec<Notif
         .iter()
         .flatten()
         .cloned()
-        .filter(|r| r.action().author().clone() != agent.clone())
+        .filter(|r| r.action().author().clone() != input.agent.clone())
         .collect();
 
     let mut n = make_notifications_for_records(
@@ -108,14 +113,14 @@ pub fn get_notifications_for_agent(agent: AgentPubKey) -> ExternResult<Vec<Notif
     notifications.append(&mut n);
 
     // All of this combined into one list sorted by timestamp descending
-    notifications.sort_by_key(|n| Reverse(n.timestamp));
+    let notifications_page = get_by_timestamp_pagination(notifications.clone(), input.page)?;
 
-    Ok(notifications)
+    Ok(notifications_page)
 }
 
 #[hdk_extern]
-pub fn get_my_notifications(_: ()) -> ExternResult<Vec<Notification>> {
-    get_notifications_for_agent(agent_info()?.agent_initial_pubkey)
+pub fn get_my_notifications(page: Option<TimestampPagination>) -> ExternResult<Vec<Notification>> {
+    get_notifications_for_agent(GetNotificationsForAgentInput { agent: agent_info()?.agent_initial_pubkey, page } )
 }
 
 fn make_notifications(
