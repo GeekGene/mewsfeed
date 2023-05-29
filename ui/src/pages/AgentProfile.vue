@@ -1,7 +1,11 @@
 <template>
   <QPage class="row" :style-fn="pageHeightCorrection">
     <div class="col-8">
-      <QSpinnerPie v-if="loading || !agentPubKey" size="10%" color="primary" />
+      <QSpinnerPie
+        v-if="isLoadingProfile || !agentPubKey"
+        size="10%"
+        color="primary"
+      />
       <QCard
         v-else-if="!showEditProfileForm"
         v-bind="$attrs"
@@ -65,37 +69,50 @@
         </QCardSection>
       </QCard>
 
-      <MewList
-        :key="forceReloadPinnedMewsKey"
+      <BaseMewList
         title="Pinned Mews"
-        :fetch-fn="fetchPinnedMews"
-        :cache-key="`mews/get_mews_for_pinner_with_context/${encodeHashToBase64(agentPubKey)}`"
-        :insert-responses="false"
+        :feed-mews="pinnedMews"
+        :is-loading="isLoadingPinnedMews"
         @mew-pinned="
           () => {
-            forceReloadPinnedMewsKey += 1;
-            forceReloadAgentMewsKey += 1;
+            refetchPinnedMews();
+            refetchAuthoredMews();
           }
         "
         @mew-unpinned="
           () => {
-            forceReloadPinnedMewsKey += 1;
-            forceReloadAgentMewsKey += 1;
+            refetchPinnedMews();
+            refetchAuthoredMews();
           }
         "
-        @reply-created="forceReloadAgentMewsKey += 1"
-        @mewmew-created="forceReloadAgentMewsKey += 1"
-        @quote-created="forceReloadAgentMewsKey += 1"
+        @mew-licked="refetchPinnedMews"
+        @mew-unlicked="refetchPinnedMews"
+        @reply-created="refetchAuthoredMews"
+        @mewmew-created="refetchAuthoredMews"
+        @quote-created="refetchAuthoredMews"
       />
 
-      <MewList
-        :key="forceReloadAgentMewsKey"
+      <BaseMewList
         title="Authored Mews"
-        :fetch-fn="fetchAgentMews"
-        :cache-key="`mews/get_agent_mews_with_context/${encodeHashToBase64(agentPubKey)}`"
-        :insert-responses="isMyProfile"
-        @mew-pinned="forceReloadPinnedMewsKey += 1"
-        @mew-unpinned="forceReloadPinnedMewsKey += 1"
+        :feed-mews="authoredMews"
+        :is-loading="isLoadingAuthoredMews"
+        @mew-pinned="
+          () => {
+            refetchPinnedMews();
+            refetchAuthoredMews();
+          }
+        "
+        @mew-unpinned="
+          () => {
+            refetchPinnedMews();
+            refetchAuthoredMews();
+          }
+        "
+        @mew-licked="refetchAuthoredMews"
+        @mew-unlicked="refetchAuthoredMews"
+        @reply-created="refetchAuthoredMews"
+        @mewmew-created="refetchAuthoredMews"
+        @quote-created="refetchAuthoredMews"
       />
     </div>
 
@@ -144,13 +161,12 @@ import {
   decodeHashFromBase64,
   encodeHashToBase64,
 } from "@holochain/client";
-import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
+import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { ComputedRef, computed, inject, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import MewList from "@/components/MewList.vue";
+import BaseMewList from "@/components/BaseMewList.vue";
 import { AppAgentClient } from "@holochain/client";
-import { useRequest } from "vue-request";
-import { localStorageCacheSettings } from "@/utils/requests";
+import { useQuery } from "@tanstack/vue-query";
 
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
@@ -161,21 +177,36 @@ const agentPubKey = computed(() =>
   decodeHashFromBase64(route.params.agent as string)
 );
 const forceReloadFollowersListKey = ref(0);
-const forceReloadPinnedMewsKey = ref(0);
-const forceReloadAgentMewsKey = ref(0);
 const showEditProfileForm = ref(false);
 
 const isMyProfile = computed(() =>
   isEqual(agentPubKey.value, client.myPubKey as AgentPubKey)
 );
 
-const fetchAgentMews = () =>
+const fetchAuthoredMews = () =>
   client.callZome({
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_agent_mews_with_context",
     payload: agentPubKey.value,
   });
+
+const {
+  data: authoredMews,
+  isLoading: isLoadingAuthoredMews,
+  error: errorAuthoredMews,
+  refetch: refetchAuthoredMews,
+} = useQuery({
+  queryKey: [
+    "profiles",
+    "get_agent_mews_with_context",
+    encodeHashToBase64(agentPubKey.value),
+  ],
+  queryFn: fetchAuthoredMews,
+  refetchOnMount: "always",
+  refetchOnReconnect: true,
+  refetchOnWindowFocus: true,
+});
 
 const fetchPinnedMews = () =>
   client.callZome({
@@ -184,6 +215,23 @@ const fetchPinnedMews = () =>
     fn_name: "get_mews_for_pinner_with_context",
     payload: agentPubKey.value,
   });
+
+const {
+  data: pinnedMews,
+  isLoading: isLoadingPinnedMews,
+  error: errorPinnedMews,
+  refetch: refetchPinnedMews,
+} = useQuery({
+  queryKey: [
+    "profiles",
+    "get_mews_for_pinner_with_context",
+    encodeHashToBase64(agentPubKey.value),
+  ],
+  queryFn: fetchPinnedMews,
+  refetchOnMount: "always",
+  refetchOnReconnect: true,
+  refetchOnWindowFocus: true,
+});
 
 const fetchProfile = async () => {
   const profile = await profilesStore.client.getAgentProfile(agentPubKey.value);
@@ -197,26 +245,30 @@ const fetchProfile = async () => {
 
 const {
   data: profile,
-  loading,
-  error,
-  mutate: mutateProfile,
-} = useRequest(fetchProfile, {
-  cacheKey: `profiles/getAgentProfile/${encodeHashToBase64(agentPubKey.value)}`,
-  refreshOnWindowFocus: true,
-  refocusTimespan: 25000, // 25 seconds between window focus to trigger refresh
-  loadingDelay: 1000,
-  ...localStorageCacheSettings,
+  isLoading: isLoadingProfile,
+  error: errorProfile,
+  refetch,
+} = useQuery({
+  queryKey: [
+    "profiles",
+    "getAgentProfile",
+    encodeHashToBase64(agentPubKey.value),
+  ],
+  queryFn: fetchProfile,
+  refetchOnMount: "always",
+  refetchOnReconnect: true,
+  refetchOnWindowFocus: true,
 });
-watch(error, showError);
+watch([errorProfile, errorPinnedMews, errorAuthoredMews], showError);
 
-const onEditProfile = (event: CustomEvent<{ profile: Profile }>) => {
+const onEditProfile = () => {
   showEditProfileForm.value = false;
-  mutateProfile(event.detail.profile);
+  refetch();
 };
 </script>
 
 <style lang="sass">
 .follow-col
   position: sticky
-  top: $toolbar-min-height + map-get(map-get($spaces, "xl"), "y")
+  top: $toolbar-min-height + map-get(map-get($spaces, "xl"), "y") + 10
 </style>
