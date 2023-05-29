@@ -1,52 +1,41 @@
 <template>
   <QPage class="text-center" :style-fn="pageHeightCorrection">
     <div class="row justify-end">
-      <QBtn
-        @click="
-          () => {
-            runFetchRandomTags();
-            forceReloadMewsListsKey += 1;
-          }
-        "
-      >
+      <QBtn @click="runFetchRandomTags">
         <QIcon name="svguse:/icons.svg#dice-multiple" class="q-mr-xs" />
         Shuffle
       </QBtn>
     </div>
 
-    <div class="q-mb-xl">
-      <MewList
-        :key="`random-mews-${forceReloadMewsListsKey}`"
-        :fetch-fn="fetchMews"
+    <div v-if="randomMews" class="q-mb-xl">
+      <BaseMewList
         title="Discover Mews"
-        cache-key="mews/get_random_mews_with_context"
-        :request-options="{
-          pollingInterval: undefined,
-          refocusTimespan: undefined,
-          refreshOnWindowFocus: false,
-          loadingDelay: 1000,
-        }"
+        :feed-mews="randomMews"
+        :is-loading="isLoadingRandomMews || isLoadingRandomTags"
       />
     </div>
 
-    <div
-      v-for="tag in tags"
-      :key="`random-tagged-mews-container-${tag}-${forceReloadMewsListsKey}`"
-      class="q-mb-xl"
-    >
-      <MewList
-        :key="tag"
-        :fetch-fn="fetchMewsWithRandomTag(tag)"
-        :title="
-          tags && tags.length > 0 ? `Mews about ${tag}` : 'Discover Topics'
-        "
-        :cache-key="`mews/get_random_mews_for_tag_with_context/${tag}`"
-        :request-options="{
-          pollingInterval: undefined,
-          refocusTimespan: undefined,
-          refreshOnWindowFocus: false,
-          loadingDelay: 1000,
-        }"
+    <div v-if="tag1Enabled" class="q-mb-xl">
+      <BaseMewList
+        :title="`Mews about ${randomTags[0]}`"
+        :feed-mews="randomMewsWithTag1"
+        :is-loading="isLoadingRandomMewsWithTag1"
+      />
+    </div>
+
+    <div v-if="tag2Enabled" class="q-mb-xl">
+      <BaseMewList
+        :title="`Mews about ${randomTags[1]}`"
+        :feed-mews="randomMewsWithTag2"
+        :is-loading="isLoadingRandomMewsWithTag2"
+      />
+    </div>
+
+    <div v-if="tag3Enabled" class="q-mb-xl">
+      <BaseMewList
+        :title="`Mews about ${randomTags[2]}`"
+        :feed-mews="randomMewsWithTag3"
+        :is-loading="isLoadingRandomMewsWithTag3"
       />
     </div>
   </QPage>
@@ -55,47 +44,177 @@
 <script setup lang="ts">
 import { QPage, QBtn, QIcon } from "quasar";
 import { pageHeightCorrection } from "@/utils/page-layout";
-import { ComputedRef, inject, ref } from "vue";
+import { ComputedRef, computed, inject, watch } from "vue";
 import { AppAgentClient } from "@holochain/client";
-import MewList from "@/components/MewList.vue";
+import BaseMewList from "@/components/BaseMewList.vue";
 import { FeedMew } from "@/types/types";
-import { useRequest } from "vue-request";
-import { localStorageCacheSettings } from "@/utils/requests";
+import { useQuery } from "@tanstack/vue-query";
+import { showError } from "@/utils/toasts";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
-const forceReloadMewsListsKey = ref(0);
 
-const fetchMews = (): Promise<FeedMew[]> =>
-  client.callZome({
+const fetchMews = (): Promise<FeedMew[]> => {
+  console.log("fetchMews");
+  return client.callZome({
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_random_mews_with_context",
     payload: 3,
   });
+};
 
-const fetchRandomTags = (): Promise<string[]> =>
-  client.callZome({
+const {
+  data: randomMews,
+  error: errorRandomMews,
+  isLoading: isLoadingRandomMews,
+  refetch: refetchRandomMews,
+} = useQuery({
+  queryKey: ["mews", "get_random_mews_with_context"],
+  queryFn: fetchMews,
+  refetchOnWindowFocus: false,
+  refetchOnMount: false,
+  refetchOnReconnect: false,
+});
+
+const fetchRandomTags = async (): Promise<string[]> => {
+  console.log("fetchRandomTags");
+
+  const res = await client.callZome({
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_random_tags",
     payload: 4,
   });
+  console.log("random tags are", res);
+  console.log("random tags length", randomTags.value.length);
+  console.log("random tags 2 length", randomTags.value[2] !== undefined);
+  return res;
+};
 
-const { data: tags, run: runFetchRandomTags } = useRequest(fetchRandomTags, {
-  cacheKey: `get_random_tags`,
-  ...localStorageCacheSettings,
+const {
+  data: randomTags,
+  error: errorRandomTags,
+  isLoading: isLoadingRandomTags,
+  refetch: refetchRandomTags,
+} = useQuery({
+  queryKey: ["mews", "get_random_tags"],
+  queryFn: fetchRandomTags,
+  initialData: [],
+  refetchOnWindowFocus: false,
+  refetchOnMount: false,
+  refetchOnReconnect: false,
 });
 
-const fetchMewsWithRandomTag = (tag: string) => {
-  return (): Promise<FeedMew[]> =>
-    client.callZome({
-      role_name: "mewsfeed",
-      zome_name: "mews",
-      fn_name: "get_random_mews_for_tag_with_context",
-      payload: {
-        tag: tag,
-        count: 3,
-      },
-    });
+const fetchRandomMewsWithTag = (tag: string) => {
+  console.log("fetchRandomMewsWithTag", tag);
+
+  return client.callZome({
+    role_name: "mewsfeed",
+    zome_name: "mews",
+    fn_name: "get_random_mews_for_tag_with_context",
+    payload: {
+      tag: tag,
+      count: 3,
+    },
+  });
+};
+
+const tag1Enabled = computed<boolean>(
+  () =>
+    randomTags.value !== undefined &&
+    randomTags.value.length > 0 &&
+    randomTags.value[0] !== undefined
+);
+const tag2Enabled = computed<boolean>(
+  () =>
+    randomTags.value !== undefined &&
+    randomTags.value.length > 1 &&
+    randomTags.value[1] !== undefined
+);
+const tag3Enabled = computed<boolean>(
+  () =>
+    randomTags.value !== undefined &&
+    randomTags.value.length > 2 &&
+    randomTags.value[2] !== undefined
+);
+
+const {
+  data: randomMewsWithTag1,
+  error: errorRandomMewsWithTag1,
+  isLoading: isLoadingRandomMewsWithTag1,
+  refetch: refetchRandomMewsWithTag1,
+} = useQuery({
+  queryKey: [
+    "mews",
+    "get_random_mews_for_tag_with_context",
+    randomTags.value[0],
+  ],
+  queryFn: () => fetchRandomMewsWithTag(randomTags.value[0]),
+  enabled: tag1Enabled,
+  refetchOnWindowFocus: false,
+  refetchOnMount: false,
+  refetchOnReconnect: false,
+});
+
+const {
+  data: randomMewsWithTag2,
+  error: errorRandomMewsWithTag2,
+  isLoading: isLoadingRandomMewsWithTag2,
+  refetch: refetchRandomMewsWithTag2,
+} = useQuery({
+  queryKey: [
+    "mews",
+    "get_random_mews_for_tag_with_context",
+    randomTags.value[1],
+  ],
+  queryFn: () => fetchRandomMewsWithTag(randomTags.value[1]),
+  enabled: tag2Enabled,
+  refetchOnWindowFocus: false,
+  refetchOnMount: false,
+  refetchOnReconnect: false,
+});
+
+const {
+  data: randomMewsWithTag3,
+  error: errorRandomMewsWithTag3,
+  isLoading: isLoadingRandomMewsWithTag3,
+  refetch: refetchRandomMewsWithTag3,
+} = useQuery({
+  queryKey: [
+    "mews",
+    "get_random_mews_for_tag_with_context",
+    randomTags.value[2],
+  ],
+  queryFn: () => fetchRandomMewsWithTag(randomTags.value[2]),
+  enabled: tag3Enabled,
+  refetchOnWindowFocus: false,
+  refetchOnMount: false,
+  refetchOnReconnect: false,
+});
+
+watch(
+  [
+    errorRandomMews,
+    errorRandomTags,
+    errorRandomMewsWithTag1,
+    errorRandomMewsWithTag2,
+    errorRandomMewsWithTag3,
+  ],
+  showError
+);
+
+const runFetchRandomTags = async () => {
+  refetchRandomMews();
+  await refetchRandomTags();
+
+  if (tag1Enabled.value) {
+    refetchRandomMewsWithTag1();
+  }
+  if (tag2Enabled.value) {
+    refetchRandomMewsWithTag2();
+  }
+  if (tag3Enabled.value) {
+    refetchRandomMewsWithTag3();
+  }
 };
 </script>

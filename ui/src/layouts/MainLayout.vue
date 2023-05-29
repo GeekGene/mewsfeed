@@ -175,7 +175,6 @@ watch(followedCreators, (val) => {
 });
 
 const fetchNotifications = async () => {
-  console.log("main layout fetchNotifications");
   const res: Notification[] = await client.callZome({
     role_name: "mewsfeed",
     zome_name: "mews",
