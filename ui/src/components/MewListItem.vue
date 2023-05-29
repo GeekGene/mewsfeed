@@ -1,5 +1,5 @@
 <template>
-  <MewListItemSkeleton v-if="loading || !mew" />
+  <BaseMewListItemSkeleton v-if="loading || !mew" />
   <BaseMewListItem
     v-else
     :feed-mew="mew"
@@ -19,7 +19,7 @@ import { showError } from "@/utils/toasts";
 import { ActionHash, AppAgentClient } from "@holochain/client";
 import { inject, ComputedRef, watch } from "vue";
 import BaseMewListItem from "@/components/BaseMewListItem.vue";
-import MewListItemSkeleton from "@/components/MewListItemSkeleton.vue";
+import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
 import { useRequest } from "vue-request";
 import { FeedMew } from "@/types/types";
 import { localStorageCacheSettings } from "@/utils/requests";

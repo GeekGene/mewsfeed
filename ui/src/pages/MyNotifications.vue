@@ -35,8 +35,8 @@
         <QIcon name="svguse:/icons.svg#paw" size="40px" color="grey-4" />
       </div>
     </QInfiniteScroll>
-    <MewListSkeleton v-else-if="isInitialLoading" />
-    <EmptyMewsFeed v-else />
+    <BaseMewListSkeleton v-else-if="isInitialLoading" />
+    <BaseEmptyMewsFeed v-else />
   </QPage>
 </template>
 
@@ -46,8 +46,8 @@ import { inject, ComputedRef, watch } from "vue";
 import { QPage, QInfiniteScroll, QSpinnerDots, QIcon, QList } from "quasar";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import BaseNotification from "@/components/BaseNotification.vue";
-import EmptyMewsFeed from "@/components/EmptyMewsFeed.vue";
-import MewListSkeleton from "@/components/MewListSkeleton.vue";
+import BaseEmptyMewsFeed from "@/components/BaseEmptyMewsFeed.vue";
+import BaseMewListSkeleton from "@/components/BaseMewListSkeleton.vue";
 import { showError } from "@/utils/toasts";
 import { useInfiniteQuery } from "@tanstack/vue-query";
 import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";

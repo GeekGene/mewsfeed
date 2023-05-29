@@ -14,16 +14,16 @@
       v-bind="$attrs"
     />
   </QList>
-  <MewListSkeleton v-else-if="isLoading" />
-  <EmptyMewsFeed v-else />
+  <BaseMewListSkeleton v-else-if="isLoading" />
+  <BaseEmptyMewsFeed v-else />
 </template>
 
 <script setup lang="ts">
 import { QList } from "quasar";
 import BaseMewListItem from "@/components/BaseMewListItem.vue";
-import MewListSkeleton from "@/components/MewListSkeleton.vue";
+import BaseMewListSkeleton from "@/components/BaseMewListSkeleton.vue";
 import { FeedMew } from "@/types/types";
-import EmptyMewsFeed from "@/components/EmptyMewsFeed.vue";
+import BaseEmptyMewsFeed from "@/components/BaseEmptyMewsFeed.vue";
 
 withDefaults(
   defineProps<{

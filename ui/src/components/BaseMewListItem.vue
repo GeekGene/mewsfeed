@@ -70,7 +70,7 @@
         </span>
       </div>
 
-      <MewContent
+      <BaseMewContent
         v-if="(!isDeleted || showIfDeleted) && isMewmew && feedMew.original_mew"
         :mew="feedMew.original_mew.mew as Mew"
         class="q-my-sm cursor-pointer text-left"
@@ -81,7 +81,7 @@
           (!isDeleted || showIfDeleted) && isQuote && feedMew.original_mew
         "
       >
-        <MewContent :mew="feedMew.mew as Mew" class="q-my-sm cursor-pointer" />
+        <BaseMewContent :mew="feedMew.mew as Mew" class="q-my-sm cursor-pointer" />
 
         <div class="row justify-start q-my-md">
           <div class="row items-start">
@@ -103,7 +103,7 @@
           </div>
         </div>
       </div>
-      <MewContent
+      <BaseMewContent
         v-else-if="!isDeleted || showIfDeleted"
         :mew="feedMew.mew as Mew"
         class="q-my-sm cursor-pointer"
@@ -228,7 +228,7 @@
       v-model="showCreateMewmewDialog"
       @profile-created="createMewmew"
     />
-    <ConfirmDialog
+    <BaseConfirmDialog
       v-model="showConfirmDeleteDialog"
       title="Delete Mew"
       confirm-text="Delete"
@@ -239,7 +239,7 @@
         Note that other peers may still have copies of the data, and you can't
         force them to delete it.
       </p>
-    </ConfirmDialog>
+    </BaseConfirmDialog>
   </QItem>
 </template>
 
@@ -253,7 +253,7 @@ import { QItem } from "quasar";
 import { computed, ComputedRef, inject, ref } from "vue";
 import ProfileAvatarWithPopup from "./ProfileAvatarWithPopup.vue";
 import CreateMewForm from "./CreateMewForm.vue";
-import MewContent from "./MewContent.vue";
+import BaseMewContent from "./BaseMewContent.vue";
 import isEqual from "lodash/isEqual";
 import remove from "lodash/remove";
 import { AgentPubKey } from "@holochain/client";
@@ -261,7 +261,7 @@ import { useRouter } from "vue-router";
 import { AppAgentClient } from "@holochain/client";
 import BaseTimestamp from "./BaseTimestamp.vue";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
-import ConfirmDialog from "@/components/ConfirmDialog.vue";
+import BaseConfirmDialog from "@/components/BaseConfirmDialog.vue";
 import { showMessage } from "@/utils/toasts";
 import dayjs from "dayjs";
 import BaseEmbedMew from "@/components/BaseEmbedMew.vue";

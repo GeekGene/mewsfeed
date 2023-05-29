@@ -48,8 +48,8 @@
         <QIcon name="svguse:/icons.svg#paw" size="40px" color="grey-4" />
       </div>
     </QInfiniteScroll>
-    <MewListSkeleton v-else-if="isLoading" />
-    <EmptyMewsFeed v-else />
+    <BaseMewListSkeleton v-else-if="isLoading" />
+    <BaseEmptyMewsFeed v-else />
   </QPage>
 </template>
 
@@ -60,8 +60,8 @@ import { AppAgentClient, decodeHashFromBase64 } from "@holochain/client";
 import { ComputedRef, inject } from "vue";
 import { useRoute } from "vue-router";
 import { useInfiniteQuery } from "@tanstack/vue-query";
-import MewListSkeleton from "@/components/MewListSkeleton.vue";
-import EmptyMewsFeed from "@/components/EmptyMewsFeed.vue";
+import BaseMewListSkeleton from "@/components/BaseMewListSkeleton.vue";
+import BaseEmptyMewsFeed from "@/components/BaseEmptyMewsFeed.vue";
 import BaseMewListItem from "@/components/BaseMewListItem.vue";
 import { watch } from "vue";
 import { showError } from "@/utils/toasts";
