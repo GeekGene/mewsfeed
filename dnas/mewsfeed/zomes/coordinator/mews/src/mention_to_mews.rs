@@ -1,7 +1,7 @@
 use crate::mew_with_context::get_batch_mews_with_context;
+use hc_link_pagination::{get_by_hash_pagination, HashPagination};
 use hdk::prelude::*;
 use mews_integrity::*;
-use hc_link_pagination::{get_by_hash_pagination, HashPagination};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AddMentionForMewInput {
@@ -19,7 +19,6 @@ pub fn add_mention_for_mew(input: AddMentionForMewInput) -> ExternResult<()> {
 
     Ok(())
 }
-
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct GetMewsForMentionInput {
@@ -50,13 +49,18 @@ pub struct GetMewsForMentionWithContextInput {
     page: Option<HashPagination>,
 }
 #[hdk_extern]
-pub fn get_mews_for_mention_with_context(input: GetMewsForMentionWithContextInput) -> ExternResult<Vec<FeedMew>> {
+pub fn get_mews_for_mention_with_context(
+    input: GetMewsForMentionWithContextInput,
+) -> ExternResult<Vec<FeedMew>> {
     let hashes = get_mew_hashes_for_mention(input.mention, input.page)?;
 
     get_batch_mews_with_context(hashes)
 }
 
-fn get_mew_hashes_for_mention(mention: AgentPubKey, page: Option<HashPagination>) -> ExternResult<Vec<ActionHash>> {
+fn get_mew_hashes_for_mention(
+    mention: AgentPubKey,
+    page: Option<HashPagination>,
+) -> ExternResult<Vec<ActionHash>> {
     let links: Vec<Link> = get_links(mention, LinkTypes::MentionToMews, None)?;
     let links_page = get_by_hash_pagination(links, page)?;
 

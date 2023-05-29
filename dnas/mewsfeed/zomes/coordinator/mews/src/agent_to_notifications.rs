@@ -12,7 +12,9 @@ pub struct GetNotificationsForAgentInput {
     page: Option<TimestampPagination>,
 }
 #[hdk_extern]
-pub fn get_notifications_for_agent(input: GetNotificationsForAgentInput) -> ExternResult<Vec<Notification>> {
+pub fn get_notifications_for_agent(
+    input: GetNotificationsForAgentInput,
+) -> ExternResult<Vec<Notification>> {
     let my_mews = get_agent_mews(input.agent.clone())?;
 
     let agent_link_details = get_link_details(
@@ -120,7 +122,10 @@ pub fn get_notifications_for_agent(input: GetNotificationsForAgentInput) -> Exte
 
 #[hdk_extern]
 pub fn get_my_notifications(page: Option<TimestampPagination>) -> ExternResult<Vec<Notification>> {
-    get_notifications_for_agent(GetNotificationsForAgentInput { agent: agent_info()?.agent_initial_pubkey, page } )
+    get_notifications_for_agent(GetNotificationsForAgentInput {
+        agent: agent_info()?.agent_initial_pubkey,
+        page,
+    })
 }
 
 fn make_notifications(

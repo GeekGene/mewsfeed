@@ -1,5 +1,5 @@
-use hdk::prelude::*;
 use crate::{Hashed, Timestamped};
+use hdk::prelude::*;
 
 #[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
 pub struct HashPagination {
@@ -10,35 +10,30 @@ pub struct HashPagination {
 pub fn get_by_hash_pagination<T>(
     links: Vec<T>,
     page: Option<HashPagination>,
-) -> ExternResult<Vec<T>> 
+) -> ExternResult<Vec<T>>
 where
-    T: Clone + Hashed + Timestamped
+    T: Clone + Hashed + Timestamped,
 {
     let mut links_copy = links.clone();
     links_copy.sort_by_key(|l| l.timestamp());
 
     match page {
         Some(HashPagination { after_hash, limit }) => {
-            
             let start_index = match after_hash {
-                Some(hash) => {
-                    match links_copy.iter().position(|l| l.hash() == hash) {
-                        Some(prev_position) => prev_position + 1,
-                        None => 0
-                    }
-                }
+                Some(hash) => match links_copy.iter().position(|l| l.hash() == hash) {
+                    Some(prev_position) => prev_position + 1,
+                    None => 0,
+                },
                 None => 0,
             };
 
-            let maybe_slice = match start_index+limit < links_copy.len() {
-                true => links_copy.get(start_index..start_index+limit),
+            let maybe_slice = match start_index + limit < links_copy.len() {
+                true => links_copy.get(start_index..start_index + limit),
                 false => links_copy.get(start_index..links_copy.len()),
             };
 
             match maybe_slice {
-                Some(slice) => {
-                    Ok(slice.to_vec())
-                }
+                Some(slice) => Ok(slice.to_vec()),
                 None => Ok(vec![]),
             }
         }
