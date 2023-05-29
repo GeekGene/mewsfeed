@@ -7,6 +7,7 @@ import MewYarn from "./pages/MewYarn.vue";
 import CashtagMewsFeed from "./pages/CashtagMewsFeed.vue";
 import HashtagMewsFeed from "./pages/HashtagMewsFeed.vue";
 import MentionMewsFeed from "./pages/MentionMewsFeed.vue";
+import AuthoredMewsFeed from "./pages/AuthoredMewsFeed.vue";
 import NotFound from "./pages/NotFound.vue";
 import MyNotifications from "./pages/MyNotifications.vue";
 import { useNewUserStore } from "./stores/newuser";
@@ -15,6 +16,7 @@ import { storeToRefs } from "pinia";
 export const ROUTES = {
   discover: "discover",
   profile: "profile",
+  authoredMews: "authoredMews",
   notifications: "notifications",
   feed: "feed",
   yarn: "yarn",
@@ -34,9 +36,14 @@ export const routes: RouteRecordRaw[] = [
     component: MewsFeed,
   },
   {
-    path: "/profiles/:agent",
+    path: "/profiles/:agentPubKey",
     name: ROUTES.profile,
     component: AgentProfile,
+  },
+  {
+    path: "/profiles/:agentPubKey/mews",
+    name: ROUTES.authoredMews,
+    component: AuthoredMewsFeed,
   },
   {
     path: "/notifications",

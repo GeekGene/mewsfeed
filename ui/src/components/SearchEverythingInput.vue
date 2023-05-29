@@ -133,7 +133,7 @@ const search = (
             agentPubKey,
             value: {
               name: ROUTES.profile,
-              params: { agent: encodeHashToBase64(agentPubKey) },
+              params: { agentPubKey: encodeHashToBase64(agentPubKey) },
             },
             label: profile.fields["Display Name"]
               ? `${profile.fields["Display Name"]} (@${profile.nickname})`

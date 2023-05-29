@@ -114,6 +114,23 @@
         @mewmew-created="refetchAuthoredMews"
         @quote-created="refetchAuthoredMews"
       />
+      <div class="row justify-center">
+        <QBtn
+          flat
+          dense
+          style="width: 100%"
+          @click="
+            router.push({
+              name: 'authoredMews',
+              params: {
+                agentPubKey: route.params.agentPubKey,
+              },
+            })
+          "
+        >
+          View All
+        </QBtn>
+      </div>
     </div>
 
     <div class="follow-col col self-start q-pl-xl q-pr-md">
@@ -174,7 +191,7 @@ const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const route = useRoute();
 const router = useRouter();
 const agentPubKey = computed(() =>
-  decodeHashFromBase64(route.params.agent as string)
+  decodeHashFromBase64(route.params.agentPubKey as string)
 );
 const forceReloadFollowersListKey = ref(0);
 const showEditProfileForm = ref(false);
@@ -188,7 +205,12 @@ const fetchAuthoredMews = () =>
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_agent_mews_with_context",
-    payload: agentPubKey.value,
+    payload: {
+      agent: agentPubKey.value,
+      page: {
+        limit: 5,
+      },
+    },
   });
 
 const {
@@ -207,6 +229,7 @@ const {
   refetchOnReconnect: true,
   refetchOnWindowFocus: true,
 });
+watch(errorAuthoredMews, showError);
 
 const fetchPinnedMews = () =>
   client.callZome({
@@ -232,6 +255,7 @@ const {
   refetchOnReconnect: true,
   refetchOnWindowFocus: true,
 });
+watch(errorPinnedMews, showError);
 
 const fetchProfile = async () => {
   const profile = await profilesStore.client.getAgentProfile(agentPubKey.value);
@@ -259,7 +283,7 @@ const {
   refetchOnReconnect: true,
   refetchOnWindowFocus: true,
 });
-watch([errorProfile, errorPinnedMews, errorAuthoredMews], showError);
+watch(errorProfile, showError);
 
 const onEditProfile = () => {
   showEditProfileForm.value = false;

@@ -12,7 +12,7 @@
         <RouterLink
           :to="{
             name: ROUTES.profile,
-            params: { agent: encodeHashToBase64(feedMew.action.author) },
+            params: { agentPubKey: encodeHashToBase64(feedMew.action.author) },
           }"
           @click.stop.prevent
         >

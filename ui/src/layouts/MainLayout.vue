@@ -44,7 +44,7 @@
             v-if="myProfile && client"
             :to="{
               name: ROUTES.profile,
-              params: { agent: encodeHashToBase64(client.myPubKey) },
+              params: { agentPubKey: encodeHashToBase64(client.myPubKey) },
             }"
           >
             <agent-avatar

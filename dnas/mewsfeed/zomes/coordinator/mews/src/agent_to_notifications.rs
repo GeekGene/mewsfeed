@@ -5,6 +5,7 @@ use hc_call_utils::call_local_zome;
 use hc_link_pagination::{get_by_timestamp_pagination, TimestampPagination};
 use hdk::prelude::*;
 use mews_types::{Mew, MewType, Notification, NotificationType, Profile};
+use crate::agent_mews::GetAgentMewsInput;
 
 #[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
 pub struct GetNotificationsForAgentInput {
@@ -15,7 +16,7 @@ pub struct GetNotificationsForAgentInput {
 pub fn get_notifications_for_agent(
     input: GetNotificationsForAgentInput,
 ) -> ExternResult<Vec<Notification>> {
-    let my_mews = get_agent_mews(input.agent.clone())?;
+    let my_mews = get_agent_mews(GetAgentMewsInput { agent: input.agent.clone(), page: None })?;
 
     let agent_link_details = get_link_details(
         input.agent.clone(),
