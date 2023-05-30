@@ -37,8 +37,8 @@ const vueQueryOptions: VueQueryPluginOptions = {
   queryClientConfig: {
     defaultOptions: {
       queries: {
-        cacheTime: 1000 * 60 * 60 * 24, // 24 hours
-        staleTime: 1000 * 60 * 5, // 5 minutes
+        cacheTime: 1000 * 60 * 15, // 15 minutes
+        staleTime: 0,
       },
     },
   },
