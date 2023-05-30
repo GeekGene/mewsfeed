@@ -75,7 +75,7 @@ const vueQueryOptions: VueQueryPluginOptions = {
         },
         throttleTime: 250,
       }),
-      maxAge: Infinity,
+      maxAge: 1000 * 60 * 60 * 2, // 2 hours
     });
   },
 };
