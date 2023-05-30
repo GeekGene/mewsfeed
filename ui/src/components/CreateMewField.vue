@@ -297,6 +297,7 @@ const publishMew = async () => {
       payload: mew,
     });
     emit("mew-created", feedMew);
+    showMessage("Published Mew");
   } catch (error) {
     showError(error);
   } finally {
@@ -307,7 +308,6 @@ const publishMew = async () => {
   hideAutocompleter();
   resetLinkTargetInput();
   focusInputField();
-  showMessage("Published Mew");
 };
 
 /**
