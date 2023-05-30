@@ -1,18 +1,13 @@
 use crate::Timestamped;
 use hdk::prelude::*;
 use std::cmp::Reverse;
+use crate::Direction;
 
 #[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
 pub struct TimestampPagination {
     pub after_timestamp: Option<Timestamp>,
-    pub direction: Option<SortDirection>,
+    pub direction: Option<Direction>,
     pub limit: usize,
-}
-
-#[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
-pub enum SortDirection {
-    Ascending,
-    Descending,
 }
 
 pub fn get_by_timestamp_pagination<T>(
@@ -30,10 +25,8 @@ where
         }) => {
             // Sort items by timestamp() ascending or descending
             match direction {
-                Some(d) => match d {
-                    SortDirection::Descending => items.sort_by_key(|i| Reverse(i.timestamp())),
-                    SortDirection::Ascending => items.sort_by_key(|i| i.timestamp()),
-                },
+                Some(Direction::Descending) => items.sort_by_key(|i| Reverse(i.timestamp())),
+                Some(Direction::Ascending) => items.sort_by_key(|i| i.timestamp()),
 
                 // Default to ascending
                 None => items.sort_by_key(|i| i.timestamp()),

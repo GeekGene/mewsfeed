@@ -1,6 +1,6 @@
 use crate::mew_with_context::get_batch_mews_with_context;
 use hc_call_utils::call_local_zome;
-use hc_link_pagination::{get_by_agentpubkey_pagination, AgentPubKeyPagination};
+use hc_link_pagination::{HashPagination, get_by_hash_pagination};
 use hdk::prelude::*;
 use mews_integrity::*;
 use follows_types::GetCreatorsForFollowerInput;
@@ -8,7 +8,7 @@ use follows_types::GetCreatorsForFollowerInput;
 #[derive(Serialize, Deserialize, SerializedBytes, Clone, Debug)]
 pub struct GetFollowedCreatorsMewsInput {
     pub agent: AgentPubKey,
-    pub page: Option<AgentPubKeyPagination>,
+    pub page: Option<HashPagination>,
 }
 #[hdk_extern]
 pub fn get_followed_creators_mews(
@@ -42,7 +42,7 @@ fn get_followed_creators_mew_hashes(
         "get_creators_for_follower",
         GetCreatorsForFollowerInput {
             follower: input.agent.clone(),
-            page: input.page.clone()
+            page: None
         },
     )?;
     creators.push(input.agent);
@@ -54,7 +54,7 @@ fn get_followed_creators_mew_hashes(
         })
         .flatten()
         .collect();
-    let links_page = get_by_agentpubkey_pagination(links, input.page)?;
+    let links_page = get_by_hash_pagination(links, input.page)?;
 
     let hashes: Vec<ActionHash> = links_page
         .into_iter()
@@ -66,7 +66,7 @@ fn get_followed_creators_mew_hashes(
 
 #[hdk_extern]
 pub fn get_my_followed_creators_mews_with_context(
-    page: Option<AgentPubKeyPagination>,
+    page: Option<HashPagination>,
 ) -> ExternResult<Vec<FeedMew>> {
     get_followed_creators_mews_with_context(GetFollowedCreatorsMewsInput {
         agent: agent_info()?.agent_initial_pubkey,

@@ -1,9 +1,12 @@
-use crate::{Hashed, Timestamped};
+use std::cmp::Reverse;
+
+use crate::{Hashed, Timestamped, Direction};
 use hdk::prelude::*;
 
 #[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
 pub struct HashPagination {
     pub after_hash: Option<AnyLinkableHash>,
+    pub direction: Option<Direction>,
     pub limit: usize,
 }
 
@@ -14,10 +17,16 @@ pub fn get_by_hash_pagination<T>(
 where
     T: Clone + Hashed + Timestamped,
 {
-    items.sort_by_key(|l| l.timestamp());
-
     match page {
-        Some(HashPagination { after_hash, limit }) => {
+        Some(HashPagination { after_hash, limit, direction }) => {
+            match direction {
+                Some(Direction::Ascending) => items.sort_by_key(|l| l.timestamp()),
+                Some(Direction::Descending) => items.sort_by_key(|l| Reverse(l.timestamp())),
+              
+                // Default to ascending
+                None => items.sort_by_key(|l| l.timestamp()),
+            }
+
             let start_index = match after_hash {
                 Some(hash) => match items.iter().position(|l| l.hash() == hash) {
                     Some(prev_position) => prev_position + 1,
@@ -60,10 +69,12 @@ where
             match p.after_agentpubkey {
                 Some(agentpubkey) => Some(HashPagination {
                     after_hash: Some(AnyLinkableHash::from(EntryHash::from(agentpubkey))),
+                    direction: None,
                     limit: p.limit
                 }),
                 None => Some(HashPagination {
                     limit: p.limit,
+                    direction: None,
                     after_hash: None
                 })
             }
