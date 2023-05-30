@@ -39,6 +39,9 @@ const vueQueryOptions: VueQueryPluginOptions = {
       queries: {
         cacheTime: 1000 * 60 * 15, // 15 minutes
         staleTime: 0,
+        refetchOnMount: "always",
+        refetchOnWindowFocus: "always",
+        refetchOnReconnect: "always",
       },
     },
   },

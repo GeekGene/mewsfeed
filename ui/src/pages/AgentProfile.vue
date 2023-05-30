@@ -260,9 +260,6 @@ const {
     encodeHashToBase64(agentPubKey.value),
   ],
   queryFn: fetchAuthoredMews,
-  refetchOnMount: "always",
-  refetchOnReconnect: true,
-  refetchOnWindowFocus: true,
 });
 watch(errorAuthoredMews, showError);
 
@@ -286,9 +283,6 @@ const {
     encodeHashToBase64(agentPubKey.value),
   ],
   queryFn: fetchPinnedMews,
-  refetchOnMount: "always",
-  refetchOnWindowFocus: "always",
-  refetchOnReconnect: true,
 });
 watch(errorPinnedMews, showError);
 
@@ -314,9 +308,6 @@ const {
     encodeHashToBase64(agentPubKey.value),
   ],
   queryFn: fetchProfile,
-  refetchOnMount: "always",
-  refetchOnWindowFocus: "always",
-  refetchOnReconnect: true,
 });
 watch(errorProfile, showError);
 
@@ -365,9 +356,6 @@ const {
     route.params.agentPubKey as string,
   ],
   queryFn: fetchFollowers,
-  refetchOnMount: "always",
-  refetchOnWindowFocus: "always",
-  refetchOnReconnect: true,
 });
 watch(errorFollowers, showError);
 
@@ -410,9 +398,6 @@ const {
     route.params.agentPubKey as string,
   ],
   queryFn: fetchCreators,
-  refetchOnMount: "always",
-  refetchOnReconnect: true,
-  refetchOnWindowFocus: true,
 });
 watch(errorCreators, showError);
 </script>

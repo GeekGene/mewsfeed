@@ -71,9 +71,6 @@ const {
 } = useQuery({
   queryKey: ["mews", "get_random_mews_with_context"],
   queryFn: fetchMews,
-  refetchOnWindowFocus: false,
-  refetchOnMount: false,
-  refetchOnReconnect: false,
 });
 
 const fetchRandomTags = async (): Promise<string[]> => {
@@ -100,9 +97,6 @@ const {
   queryKey: ["mews", "get_random_tags"],
   queryFn: fetchRandomTags,
   initialData: [],
-  refetchOnWindowFocus: false,
-  refetchOnMount: false,
-  refetchOnReconnect: false,
 });
 
 const fetchRandomMewsWithTag = (tag: string) => {
@@ -151,9 +145,6 @@ const {
   ],
   queryFn: () => fetchRandomMewsWithTag(randomTags.value[0]),
   enabled: tag1Enabled,
-  refetchOnWindowFocus: false,
-  refetchOnMount: false,
-  refetchOnReconnect: false,
 });
 
 const {
@@ -169,9 +160,6 @@ const {
   ],
   queryFn: () => fetchRandomMewsWithTag(randomTags.value[1]),
   enabled: tag2Enabled,
-  refetchOnWindowFocus: false,
-  refetchOnMount: false,
-  refetchOnReconnect: false,
 });
 
 const {
@@ -187,9 +175,6 @@ const {
   ],
   queryFn: () => fetchRandomMewsWithTag(randomTags.value[2]),
   enabled: tag3Enabled,
-  refetchOnWindowFocus: false,
-  refetchOnMount: false,
-  refetchOnReconnect: false,
 });
 
 watch(

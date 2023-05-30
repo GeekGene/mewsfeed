@@ -104,9 +104,6 @@ const { data, error, fetchNextPage, hasNextPage, isLoading } = useInfiniteQuery(
       return { after_agentpubkey: lastPage[lastPage.length - 1] };
     },
     refetchInterval: 1000 * 60 * 2, // 2 minutes
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    refetchOnReconnect: true,
   }
 );
 
@@ -125,9 +122,6 @@ const fetchProfile = async () => {
 const { data: profile, error: errorProfile } = useQuery({
   queryKey: ["profiles", "getAgentProfile", route.params.agentPubKey],
   queryFn: fetchProfile,
-  refetchOnMount: "always",
-  refetchOnReconnect: true,
-  refetchOnWindowFocus: true,
 });
 
 const fetchNextPageInfiniteScroll = async (

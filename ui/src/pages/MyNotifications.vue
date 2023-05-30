@@ -89,8 +89,6 @@ const { data, error, fetchNextPage, hasNextPage, isInitialLoading } =
       return { after_timestamp: lastPage[lastPage.length - 1].timestamp };
     },
     refetchInterval: 1000 * 60 * 2, // 2 minutes
-    refetchOnMount: "always",
-    refetchOnWindowFocus: "always",
   });
 watch(error, showError);
 

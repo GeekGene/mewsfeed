@@ -106,7 +106,7 @@ const {
   hasNextPage,
   isLoading,
   refetch,
-  isRefetching
+  isRefetching,
 } = useInfiniteQuery({
   queryKey: [
     "mews",
@@ -121,9 +121,6 @@ const {
     return { after_hash: lastPage[lastPage.length - 1].action_hash };
   },
   refetchInterval: 1000 * 60 * 2, // 2 minutes
-  refetchOnMount: "always",
-  refetchOnWindowFocus: "always",
-  refetchOnReconnect: "always",
 });
 watch(error, showError);
 
