@@ -19,6 +19,26 @@
               once: true,
             }"
             :notification="notification"
+            @mew-deleted="
+              refetch({ refetchPage: (page, index) => index === i })
+            "
+            @mew-licked="refetch({ refetchPage: (page, index) => index === i })"
+            @mew-pinned="refetch({ refetchPage: (page, index) => index === i })"
+            @mew-unlicked="
+              refetch({ refetchPage: (page, index) => index === i })
+            "
+            @mew-unpinned="
+              refetch({ refetchPage: (page, index) => index === i })
+            "
+            @mewmew-created="
+              refetch({ refetchPage: (page, index) => index === i })
+            "
+            @quote-created="
+              refetch({ refetchPage: (page, index) => index === i })
+            "
+            @reply-created="
+              refetch({ refetchPage: (page, index) => index === i })
+            "
           />
         </template>
       </QList>
@@ -32,7 +52,7 @@
         <QIcon name="svguse:/icons.svg#paw" size="40px" color="grey-4" />
       </div>
     </QInfiniteScroll>
-    <BaseMewListSkeleton v-else-if="isLoading" />
+    <BaseMewListSkeleton v-else-if="isInitialLoading" />
     <BaseEmptyMewsFeed v-else />
   </QPage>
 </template>
@@ -75,8 +95,8 @@ const fetchNotifications = async (params: any) => {
   return res;
 };
 
-const { data, error, fetchNextPage, hasNextPage, isLoading } = useInfiniteQuery(
-  {
+const { data, error, fetchNextPage, hasNextPage, refetch, isInitialLoading } =
+  useInfiniteQuery({
     queryKey: ["mews", "get_notifications_for_agent", client.myPubKey],
     queryFn: fetchNotifications,
     getNextPageParam: (lastPage) => {
@@ -86,8 +106,7 @@ const { data, error, fetchNextPage, hasNextPage, isLoading } = useInfiniteQuery(
       return { after_timestamp: lastPage[lastPage.length - 1].timestamp };
     },
     refetchInterval: 1000 * 60 * 2, // 2 minutes
-  }
-);
+  });
 watch(error, showError);
 
 const fetchNextPageInfiniteScroll = async (
