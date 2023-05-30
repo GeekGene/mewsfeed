@@ -27,7 +27,7 @@
           <ButtonFollow
             v-if="!isMyProfile"
             :agentPubKey="agentPubKey"
-            @toggle-follow="forceReloadFollowersListKey += 1"
+            @toggle-follow="refetchFollowers"
           />
           <QBtn
             v-if="isMyProfile"
@@ -114,14 +114,58 @@
         @mewmew-created="refetchAuthoredMews"
         @quote-created="refetchAuthoredMews"
       />
-      <div class="row justify-center">
+      <QBtn
+        v-if="authoredMews.length === pageLimit"
+        flat
+        dense
+        style="width: 100%"
+        @click="
+          router.push({
+            name: 'authoredMews',
+            params: {
+              agentPubKey: route.params.agentPubKey,
+            },
+          })
+        "
+      >
+        View All
+      </QBtn>
+    </div>
+
+    <div class="follow-col col self-start q-pl-xl q-pr-md">
+      <h6 class="q-mt-none q-mb-md">Following</h6>
+      <BaseAgentProfilesList
+        :agent-profiles="creators"
+        :loading="isLoadingCreators"
+      />
+      <QBtn
+        v-if="creators?.length === pageLimit"
+        flat
+        dense
+        @click="
+          router.push({
+            name: 'creators',
+            params: {
+              agentPubKey: route.params.agentPubKey,
+            },
+          })
+        "
+      >
+        View All
+      </QBtn>
+
+      <h6 class="q-mb-md">Followed by</h6>
+      <BaseAgentProfilesList
+        :agent-profiles="followers"
+        :loading="isLoadingFollowers"
+      />
+      <div v-if="followers?.length === pageLimit" class="row justify-center">
         <QBtn
           flat
           dense
-          style="width: 100%"
           @click="
             router.push({
-              name: 'authoredMews',
+              name: 'followers',
               params: {
                 agentPubKey: route.params.agentPubKey,
               },
@@ -131,16 +175,7 @@
           View All
         </QBtn>
       </div>
-    </div>
 
-    <div class="follow-col col self-start q-pl-xl q-pr-md">
-      <h6 class="q-mt-none q-mb-md">Following</h6>
-      <FolloweesList :agentPubKey="agentPubKey" />
-      <h6 class="q-mb-md">Followed by</h6>
-      <FollowersList
-        :key="forceReloadFollowersListKey"
-        :agentPubKey="agentPubKey"
-      />
       <h6 class="q-mb-md">
         <QBtn
           v-if="profile?.nickname"
@@ -166,9 +201,7 @@
 <script setup lang="ts">
 import { QPage, QSpinnerPie, QCard, QCardSection, QBtn } from "quasar";
 import ButtonFollow from "@/components/ButtonFollow.vue";
-import FolloweesList from "@/components/FolloweesList.vue";
-import FollowersList from "@/components/FollowersList.vue";
-import { PROFILE_FIELDS } from "@/types/types";
+import { AgentProfile, PROFILE_FIELDS } from "@/types/types";
 import isEqual from "lodash/isEqual";
 import { showError } from "@/utils/toasts";
 import { pageHeightCorrection } from "@/utils/page-layout";
@@ -182,6 +215,7 @@ import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { ComputedRef, computed, inject, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import BaseMewList from "@/components/BaseMewList.vue";
+import BaseAgentProfilesList from "@/components/BaseAgentProfilesList.vue";
 import { AppAgentClient } from "@holochain/client";
 import { useQuery } from "@tanstack/vue-query";
 
@@ -193,12 +227,13 @@ const router = useRouter();
 const agentPubKey = computed(() =>
   decodeHashFromBase64(route.params.agentPubKey as string)
 );
-const forceReloadFollowersListKey = ref(0);
 const showEditProfileForm = ref(false);
 
 const isMyProfile = computed(() =>
   isEqual(agentPubKey.value, client.myPubKey as AgentPubKey)
 );
+
+const pageLimit = 5;
 
 const fetchAuthoredMews = () =>
   client.callZome({
@@ -208,7 +243,7 @@ const fetchAuthoredMews = () =>
     payload: {
       agent: agentPubKey.value,
       page: {
-        limit: 5,
+        limit: pageLimit,
       },
     },
   });
@@ -252,8 +287,8 @@ const {
   ],
   queryFn: fetchPinnedMews,
   refetchOnMount: "always",
+  refetchOnWindowFocus: "always",
   refetchOnReconnect: true,
-  refetchOnWindowFocus: true,
 });
 watch(errorPinnedMews, showError);
 
@@ -280,8 +315,8 @@ const {
   ],
   queryFn: fetchProfile,
   refetchOnMount: "always",
+  refetchOnWindowFocus: "always",
   refetchOnReconnect: true,
-  refetchOnWindowFocus: true,
 });
 watch(errorProfile, showError);
 
@@ -289,6 +324,97 @@ const onEditProfile = () => {
   showEditProfileForm.value = false;
   refetch();
 };
+
+const fetchFollowers = async () => {
+  const agents: AgentPubKey[] = await await client.callZome({
+    role_name: "mewsfeed",
+    zome_name: "follows",
+    fn_name: "get_followers_for_creator",
+    payload: {
+      creator: decodeHashFromBase64(route.params.agentPubKey as string),
+      page: {
+        limit: pageLimit,
+      },
+    },
+  });
+
+  const agentProfiles = await Promise.all(
+    agents.map(async (agentPubKey) => {
+      const profile = await profilesStore.client.getAgentProfile(agentPubKey);
+      if (!profile) return null;
+
+      return {
+        agentPubKey,
+        profile: profile,
+      };
+    })
+  );
+
+  return agentProfiles.filter(Boolean) as AgentProfile[];
+};
+
+const {
+  data: followers,
+  isLoading: isLoadingFollowers,
+  error: errorFollowers,
+  refetch: refetchFollowers,
+} = useQuery({
+  queryKey: [
+    "follows",
+    "get_followers_for_creator",
+    route.params.agentPubKey as string,
+  ],
+  queryFn: fetchFollowers,
+  refetchOnMount: "always",
+  refetchOnWindowFocus: "always",
+  refetchOnReconnect: true,
+});
+watch(errorFollowers, showError);
+
+const fetchCreators = async () => {
+  const agents: AgentPubKey[] = await await client.callZome({
+    role_name: "mewsfeed",
+    zome_name: "follows",
+    fn_name: "get_creators_for_follower",
+    payload: {
+      follower: decodeHashFromBase64(route.params.agentPubKey as string),
+      page: {
+        limit: pageLimit,
+      },
+    },
+  });
+
+  const agentProfiles = await Promise.all(
+    agents.map(async (agentPubKey) => {
+      const profile = await profilesStore.client.getAgentProfile(agentPubKey);
+      if (!profile) return null;
+
+      return {
+        agentPubKey,
+        profile: profile,
+      };
+    })
+  );
+
+  return agentProfiles.filter(Boolean) as AgentProfile[];
+};
+
+const {
+  data: creators,
+  isLoading: isLoadingCreators,
+  error: errorCreators,
+} = useQuery({
+  queryKey: [
+    "follows",
+    "get_creators_for_follower",
+    route.params.agentPubKey as string,
+  ],
+  queryFn: fetchCreators,
+  refetchOnMount: "always",
+  refetchOnReconnect: true,
+  refetchOnWindowFocus: true,
+});
+watch(errorCreators, showError);
 </script>
 
 <style lang="sass">

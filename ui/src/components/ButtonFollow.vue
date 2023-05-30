@@ -54,7 +54,9 @@ onMounted(async () => {
       role_name: "mewsfeed",
       zome_name: "follows",
       fn_name: "get_creators_for_follower",
-      payload: client.myPubKey,
+      payload: {
+        follower: client.myPubKey,
+      },
     });
     isFollowing.value = currentMyFollowing.some((agent) =>
       isEqual(agent, props.agentPubKey)

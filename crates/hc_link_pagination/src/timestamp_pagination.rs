@@ -31,9 +31,7 @@ where
             // Sort items by timestamp() ascending or descending
             match direction {
                 Some(d) => match d {
-                    SortDirection::Descending => {
-                        items.sort_by_key(|i| Reverse(i.timestamp()))
-                    }
+                    SortDirection::Descending => items.sort_by_key(|i| Reverse(i.timestamp())),
                     SortDirection::Ascending => items.sort_by_key(|i| i.timestamp()),
                 },
 
@@ -43,12 +41,10 @@ where
 
             // Determine start index for page slice
             let start_index = match after_timestamp {
-                Some(timestamp) => {
-                    match items.iter().position(|l| l.timestamp() == timestamp) {
-                        Some(prev_position) => prev_position + 1,
-                        None => 0,
-                    }
-                }
+                Some(timestamp) => match items.iter().position(|l| l.timestamp() == timestamp) {
+                    Some(prev_position) => prev_position + 1,
+                    None => 0,
+                },
                 None => 0,
             };
 

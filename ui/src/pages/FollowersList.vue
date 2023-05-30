@@ -1,7 +1,7 @@
 <template>
   <QPage :style-fn="pageHeightCorrection">
     <h6 class="q-mb-md row items-center">
-      Mews authored by
+      Followers of
       <BaseAgentProfileLinkPopup
         class="q-ml-md"
         :agentPubKey="decodeHashFromBase64(route.params.agentPubKey as string)"
@@ -17,31 +17,7 @@
     >
       <QList bordered separator class="q-mb-lg">
         <template v-for="(page, i) in data.pages" :key="i">
-          <BaseMewListItem
-            v-for="(mew, j) of page"
-            :key="j"
-            :feed-mew="mew"
-            @mew-deleted="
-              refetch({ refetchPage: (page, index) => index === i })
-            "
-            @mew-licked="refetch({ refetchPage: (page, index) => index === i })"
-            @mew-pinned="refetch({ refetchPage: (page, index) => index === i })"
-            @mew-unlicked="
-              refetch({ refetchPage: (page, index) => index === i })
-            "
-            @mew-unpinned="
-              refetch({ refetchPage: (page, index) => index === i })
-            "
-            @mewmew-created="
-              refetch({ refetchPage: (page, index) => index === i })
-            "
-            @quote-created="
-              refetch({ refetchPage: (page, index) => index === i })
-            "
-            @reply-created="
-              refetch({ refetchPage: (page, index) => index === i })
-            "
-          />
+          <BaseAgentProfilesList :agent-profiles="page" :loading="isLoading" />
         </template>
       </QList>
 
@@ -54,7 +30,11 @@
         <QIcon name="svguse:/icons.svg#paw" size="40px" color="grey-4" />
       </div>
     </QInfiniteScroll>
-    <BaseMewListSkeleton v-else-if="isLoading" />
+    <BaseProfileSkeleton
+      v-for="x in [0, 1, 2, 3]"
+      v-else-if="isLoading"
+      :key="x"
+    />
     <BaseEmptyMewsFeed v-else />
   </QPage>
 </template>
@@ -66,14 +46,16 @@ import { AppAgentClient } from "@holochain/client";
 import { ComputedRef, inject } from "vue";
 import { useRoute } from "vue-router";
 import { useInfiniteQuery, useQuery } from "@tanstack/vue-query";
-import BaseMewListSkeleton from "@/components/BaseMewListSkeleton.vue";
+import BaseProfileSkeleton from "@/components/BaseProfileSkeleton.vue";
 import BaseEmptyMewsFeed from "@/components/BaseEmptyMewsFeed.vue";
-import BaseMewListItem from "@/components/BaseMewListItem.vue";
+import BaseAgentProfilesList from "@/components/BaseAgentProfilesList.vue";
 import BaseAgentProfileLinkPopup from "@/components/BaseAgentProfileLinkPopup.vue";
 import { watch } from "vue";
 import { showError } from "@/utils/toasts";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { decodeHashFromBase64 } from "@holochain/client";
+import { AgentProfile } from "@/types/types";
+import { AgentPubKey } from "@holochain/client";
 
 const route = useRoute();
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
@@ -82,37 +64,51 @@ const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
 
 const pageLimit = 10;
 
-const fetchAuthoredMews = async (params: any) => {
-  const res = await client.callZome({
+const fetchCreators = async (params: any) => {
+  const agents: AgentPubKey[] = await await client.callZome({
     role_name: "mewsfeed",
-    zome_name: "mews",
-    fn_name: "get_agent_mews_with_context",
+    zome_name: "follows",
+    fn_name: "get_followers_for_creator",
     payload: {
-      agent: decodeHashFromBase64(route.params.agentPubKey as string),
+      creator: decodeHashFromBase64(route.params.agentPubKey as string),
       page: {
         limit: pageLimit,
         ...params.pageParam,
       },
     },
   });
-  return res;
+
+  const agentProfiles = await Promise.all(
+    agents.map(async (agentPubKey) => {
+      const profile = await profilesStore.client.getAgentProfile(agentPubKey);
+      if (!profile) return null;
+
+      return {
+        agentPubKey,
+        profile: profile,
+      };
+    })
+  );
+
+  return agentProfiles.filter(Boolean) as AgentProfile[];
 };
 
-const { data, error, fetchNextPage, hasNextPage, isLoading, refetch } =
-  useInfiniteQuery({
-    queryKey: ["mews", "get_agent_mews_with_context", route.params.agentPubKey],
-    queryFn: fetchAuthoredMews,
+const { data, error, fetchNextPage, hasNextPage, isLoading } = useInfiniteQuery(
+  {
+    queryKey: ["mews", "get_followers_for_creator", route.params.agentPubKey],
+    queryFn: fetchCreators,
     getNextPageParam: (lastPage) => {
       if (lastPage.length === 0) return;
       if (lastPage.length < pageLimit) return;
 
-      return { after_hash: lastPage[lastPage.length - 1].action_hash };
+      return { after_agentpubkey: lastPage[lastPage.length - 1] };
     },
     refetchInterval: 1000 * 60 * 2, // 2 minutes
     refetchOnWindowFocus: true,
     refetchOnMount: true,
     refetchOnReconnect: true,
-  });
+  }
+);
 
 const fetchProfile = async () => {
   const profile = await profilesStore.client.getAgentProfile(

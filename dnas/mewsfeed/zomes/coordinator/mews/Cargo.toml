@@ -18,3 +18,4 @@ mews_types = { workspace = true }
 rand = "0.8.5"
 hc_call_utils = { workspace = true }
 hc_link_pagination = { workspace = true }
+follows_types = { workspace = true }

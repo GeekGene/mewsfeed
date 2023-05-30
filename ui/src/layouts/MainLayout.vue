@@ -150,15 +150,20 @@ const onCreateMew = () => {
   }
 };
 
-const fetchMewsFeed = (): Promise<FeedMew[]> =>
+const fetchMostRecentMew = (): Promise<FeedMew[]> =>
   client.callZome({
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_followed_creators_mews_with_context",
-    payload: client.myPubKey,
+    payload: {
+      agent: client.myPubKey,
+      page: {
+        limit: 1,
+      },
+    },
   });
 
-const { data: followedCreators } = useRequest(fetchMewsFeed, {
+const { data: mostRecentMew } = useRequest(fetchMostRecentMew, {
   cacheKey: `mews/get_followed_creators_mews_with_context/${encodeHashToBase64(
     client.myPubKey
   )}`,
@@ -166,7 +171,7 @@ const { data: followedCreators } = useRequest(fetchMewsFeed, {
   ...localStorageCacheSettings,
 });
 
-watch(followedCreators, (val) => {
+watch(mostRecentMew, (val) => {
   if (val && val.length > 0) {
     setNewUser(false);
   } else {

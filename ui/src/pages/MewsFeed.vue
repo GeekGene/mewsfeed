@@ -29,6 +29,8 @@ const fetchMewsFeed = (): Promise<FeedMew[]> =>
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_followed_creators_mews_with_context",
-    payload: client.myPubKey,
+    payload: {
+      agent: client.myPubKey,
+    },
   });
 </script>

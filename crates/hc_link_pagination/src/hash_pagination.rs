@@ -39,3 +39,37 @@ where
         None => Ok(items),
     }
 }
+
+
+
+#[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
+pub struct AgentPubKeyPagination {
+    pub after_agentpubkey: Option<AgentPubKey>,
+    pub limit: usize,
+}
+
+pub fn get_by_agentpubkey_pagination<T>(
+    items: Vec<T>,
+    page: Option<AgentPubKeyPagination>
+) -> ExternResult<Vec<T>>
+where
+    T: Clone + Hashed + Timestamped,
+{
+    let wrapped_page = match page {
+        Some(p) => {
+            match p.after_agentpubkey {
+                Some(agentpubkey) => Some(HashPagination {
+                    after_hash: Some(AnyLinkableHash::from(EntryHash::from(agentpubkey))),
+                    limit: p.limit
+                }),
+                None => Some(HashPagination {
+                    limit: p.limit,
+                    after_hash: None
+                })
+            }
+        }
+        None => None
+    };
+
+    get_by_hash_pagination(items, wrapped_page)
+}
