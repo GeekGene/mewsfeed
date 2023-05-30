@@ -4,16 +4,13 @@
 
     <QInfiniteScroll
       v-if="
-        !isInitialLoading &&
-        data &&
-        data?.pages.length > 0 &&
-        data?.pages[0].length > 0
+        data && data.pages && data.pages.length > 0 && data.pages[0].length > 0
       "
       :offset="250"
       @load="fetchNextPageInfiniteScroll"
     >
       <QList bordered separator class="q-mb-lg">
-        <template v-for="(page, i) in data.pages" :key="i">
+        <template v-for="(page, i) in data?.pages" :key="i">
           <BaseNotification
             v-for="(notification, j) of page"
             :key="j"
@@ -35,7 +32,7 @@
         <QIcon name="svguse:/icons.svg#paw" size="40px" color="grey-4" />
       </div>
     </QInfiniteScroll>
-    <BaseMewListSkeleton v-else-if="isInitialLoading" />
+    <BaseMewListSkeleton v-else-if="isLoading" />
     <BaseEmptyMewsFeed v-else />
   </QPage>
 </template>
@@ -78,8 +75,8 @@ const fetchNotifications = async (params: any) => {
   return res;
 };
 
-const { data, error, fetchNextPage, hasNextPage, isInitialLoading } =
-  useInfiniteQuery({
+const { data, error, fetchNextPage, hasNextPage, isLoading } = useInfiniteQuery(
+  {
     queryKey: ["mews", "get_notifications_for_agent", client.myPubKey],
     queryFn: fetchNotifications,
     getNextPageParam: (lastPage) => {
@@ -89,7 +86,8 @@ const { data, error, fetchNextPage, hasNextPage, isInitialLoading } =
       return { after_timestamp: lastPage[lastPage.length - 1].timestamp };
     },
     refetchInterval: 1000 * 60 * 2, // 2 minutes
-  });
+  }
+);
 watch(error, showError);
 
 const fetchNextPageInfiniteScroll = async (

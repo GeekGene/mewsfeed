@@ -5,10 +5,7 @@
       @mew-created="onCreateMew"
     />
 
-    <div class="row justify-start items-center">
-      <h6 class="q-mb-md">Your Mews Feed</h6>
-      <QSpinnerBall v-if="isRefetching" />
-    </div>
+    <h6 class="q-mb-md">Your Mews Feed</h6>
 
     <QInfiniteScroll
       v-if="
