@@ -1,7 +1,7 @@
 use follows_integrity::*;
+use follows_types::*;
 use hc_link_pagination::get_by_agentpubkey_pagination;
 use hdk::prelude::*;
-use follows_types::*;
 
 #[hdk_extern]
 pub fn add_creator_for_follower(input: AddCreatorForFollowerInput) -> ExternResult<()> {
@@ -22,7 +22,9 @@ pub fn add_creator_for_follower(input: AddCreatorForFollowerInput) -> ExternResu
 }
 
 #[hdk_extern]
-pub fn get_creators_for_follower(input: GetCreatorsForFollowerInput) -> ExternResult<Vec<AgentPubKey>> {
+pub fn get_creators_for_follower(
+    input: GetCreatorsForFollowerInput,
+) -> ExternResult<Vec<AgentPubKey>> {
     let links = get_links(input.follower, LinkTypes::FollowerToCreators, None)?;
     let links_page = get_by_agentpubkey_pagination(links, input.page)?;
 
@@ -35,7 +37,9 @@ pub fn get_creators_for_follower(input: GetCreatorsForFollowerInput) -> ExternRe
 }
 
 #[hdk_extern]
-pub fn get_followers_for_creator(input: GetFollowersForCreatorInput) -> ExternResult<Vec<AgentPubKey>> {
+pub fn get_followers_for_creator(
+    input: GetFollowersForCreatorInput,
+) -> ExternResult<Vec<AgentPubKey>> {
     let links = get_follower_links_for_creator(input)?;
 
     let agents: Vec<AgentPubKey> = links
@@ -47,7 +51,9 @@ pub fn get_followers_for_creator(input: GetFollowersForCreatorInput) -> ExternRe
 }
 
 #[hdk_extern]
-pub fn get_follower_links_for_creator(input: GetFollowersForCreatorInput) -> ExternResult<Vec<Link>> {
+pub fn get_follower_links_for_creator(
+    input: GetFollowersForCreatorInput,
+) -> ExternResult<Vec<Link>> {
     let mut links = get_links(input.creator, LinkTypes::CreatorToFollowers, None)?;
     links.dedup_by_key(|l| l.target.clone());
     let links_page = get_by_agentpubkey_pagination(links, input.page)?;

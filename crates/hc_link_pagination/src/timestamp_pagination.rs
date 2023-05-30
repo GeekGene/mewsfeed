@@ -1,7 +1,7 @@
+use crate::Direction;
 use crate::Timestamped;
 use hdk::prelude::*;
 use std::cmp::Reverse;
-use crate::Direction;
 
 #[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
 pub struct TimestampPagination {

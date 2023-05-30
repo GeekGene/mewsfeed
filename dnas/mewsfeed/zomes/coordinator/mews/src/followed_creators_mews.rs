@@ -1,9 +1,9 @@
 use crate::mew_with_context::get_batch_mews_with_context;
+use follows_types::GetCreatorsForFollowerInput;
 use hc_call_utils::call_local_zome;
-use hc_link_pagination::{HashPagination, get_by_hash_pagination};
+use hc_link_pagination::{get_by_hash_pagination, HashPagination};
 use hdk::prelude::*;
 use mews_integrity::*;
-use follows_types::GetCreatorsForFollowerInput;
 
 #[derive(Serialize, Deserialize, SerializedBytes, Clone, Debug)]
 pub struct GetFollowedCreatorsMewsInput {
@@ -37,14 +37,15 @@ pub fn get_followed_creators_mews_with_context(
 fn get_followed_creators_mew_hashes(
     input: GetFollowedCreatorsMewsInput,
 ) -> ExternResult<Vec<ActionHash>> {
-    let mut creators: Vec<AgentPubKey> = call_local_zome::<Vec<AgentPubKey>, GetCreatorsForFollowerInput>(
-        "follows",
-        "get_creators_for_follower",
-        GetCreatorsForFollowerInput {
-            follower: input.agent.clone(),
-            page: None
-        },
-    )?;
+    let mut creators: Vec<AgentPubKey> =
+        call_local_zome::<Vec<AgentPubKey>, GetCreatorsForFollowerInput>(
+            "follows",
+            "get_creators_for_follower",
+            GetCreatorsForFollowerInput {
+                follower: input.agent.clone(),
+                page: None,
+            },
+        )?;
     creators.push(input.agent);
 
     let links: Vec<Link> = creators

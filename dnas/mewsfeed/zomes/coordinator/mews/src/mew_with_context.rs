@@ -127,7 +127,9 @@ pub fn get_batch_mews_with_context(hashes: Vec<ActionHash>) -> ExternResult<Vec<
 }
 
 #[hdk_extern]
-pub fn get_responses_for_mew_with_context(input: GetResponsesForMewInput) -> ExternResult<Vec<FeedMew>> {
+pub fn get_responses_for_mew_with_context(
+    input: GetResponsesForMewInput,
+) -> ExternResult<Vec<FeedMew>> {
     let response_hashes = get_response_hashes_for_mew(input)?;
 
     get_batch_mews_with_context(response_hashes)

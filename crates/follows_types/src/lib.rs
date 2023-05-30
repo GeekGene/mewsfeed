@@ -1,5 +1,5 @@
+use hc_link_pagination::AgentPubKeyPagination;
 use hdk::prelude::*;
-use hc_link_pagination::{AgentPubKeyPagination};
 
 #[derive(Serialize, Deserialize, SerializedBytes, Clone, Debug)]
 pub struct AddCreatorForFollowerInput {
