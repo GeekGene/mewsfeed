@@ -50,6 +50,7 @@ import { MewsfeedDnaProperties } from "./types/types";
 import asyncRetry from "async-retry";
 import { CellType } from "@holochain/client";
 import { QueryClient } from "@tanstack/vue-query";
+import { setHomeRedirect } from "@/utils/homeRedirect";
 
 const client = ref<AppAgentClient | WebSdkApi>();
 const appInfo = ref<AppInfo>();
@@ -121,6 +122,7 @@ watch(client, (newClient) => {
   if (myPubKeyB64 !== cachedPubKeyB64) {
     queryClient.clear();
     localStorage.setItem("myPubKeyB64", myPubKeyB64);
+    setHomeRedirect(true);
 
     console.log("Clearing query client cache");
   }

@@ -3,7 +3,7 @@
     <QHeader elevated class="row justify-center">
       <QToolbar class="col-12 col-md-6 col-xl-5">
         <QTabs v-model="tab" dense inline-label class="col-grow">
-          <QRouteTab v-if="isNewUser" :to="{ name: ROUTES.discover }">
+          <QRouteTab v-if="getHomeRedirect()" :to="{ name: ROUTES.discover }">
             <QIcon name="svguse:/icons.svg#cat" size="lg" />
           </QRouteTab>
           <QRouteTab v-else :to="{ name: ROUTES.feed }">
@@ -11,7 +11,7 @@
           </QRouteTab>
 
           <QRouteTab
-            v-if="!isNewUser"
+            v-if="!getHomeRedirect()"
             :to="{ name: ROUTES.discover }"
             icon="explore"
           />
@@ -111,7 +111,7 @@ import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundD
 import SearchEverythingInput from "@/components/SearchEverythingInput.vue";
 import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";
 import { storeToRefs } from "pinia";
-import { useNewUserStore } from "@/stores/newuser";
+import { getHomeRedirect, setHomeRedirect } from "@/utils/homeRedirect";
 import { useQuery } from "@tanstack/vue-query";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
@@ -126,8 +126,6 @@ const route = useRoute();
 const useNotificationsReadStore = makeUseNotificationsReadStore(client);
 const { unreadCount } = storeToRefs(useNotificationsReadStore());
 const { addNotificationStatus } = useNotificationsReadStore();
-const { isNewUser } = storeToRefs(useNewUserStore());
-const { setNewUser } = useNewUserStore();
 
 const tab = ref("");
 const showCreateMewDialog = ref(false);
@@ -135,7 +133,7 @@ const forceReloadRouterViewKey = ref(0);
 
 const onCreateMew = () => {
   showCreateMewDialog.value = false;
-  setNewUser(false);
+  setHomeRedirect(false);
 
   if (
     router.currentRoute.value.name === ROUTES.feed ||
@@ -165,15 +163,14 @@ const { data: mostRecentMew } = useQuery({
     "mews",
     "get_followed_creators_mews_with_context",
     encodeHashToBase64(client.myPubKey),
+    { page: { limit: 1 }}
   ],
   queryFn: fetchMostRecentMew,
 });
 
 watch(mostRecentMew, (val) => {
   if (val && val.length > 0) {
-    setNewUser(false);
-  } else {
-    setNewUser(true);
+    setHomeRedirect(false);
   }
 });
 

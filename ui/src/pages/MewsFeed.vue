@@ -59,20 +59,13 @@
 </template>
 
 <script setup lang="ts">
-import {
-  QPage,
-  QList,
-  QSpinnerDots,
-  QIcon,
-  QInfiniteScroll,
-  QSpinnerBall,
-} from "quasar";
+import { QPage, QList, QSpinnerDots, QIcon, QInfiniteScroll } from "quasar";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { AppAgentClient, encodeHashToBase64 } from "@holochain/client";
 import { ComputedRef, inject, watch } from "vue";
 import { FeedMew, MewTypeName, PaginationDirectionName } from "@/types/types";
-import { useInfiniteQuery, useMutation } from "@tanstack/vue-query";
-import { showError, showMessage } from "@/utils/toasts";
+import { useInfiniteQuery } from "@tanstack/vue-query";
+import { showError } from "@/utils/toasts";
 import BaseMewListItem from "@/components/BaseMewListItem.vue";
 import BaseMewListSkeleton from "@/components/BaseMewListSkeleton.vue";
 import CreateMewField from "@/components/CreateMewField.vue";
@@ -96,29 +89,22 @@ const fetchMewsFeed = (params: any): Promise<FeedMew[]> =>
     },
   });
 
-const {
-  data,
-  error,
-  fetchNextPage,
-  hasNextPage,
-  isLoading,
-  refetch,
-  isRefetching,
-} = useInfiniteQuery({
-  queryKey: [
-    "mews",
-    "get_followed_creators_mews_with_context",
-    encodeHashToBase64(client.myPubKey),
-  ],
-  queryFn: fetchMewsFeed,
-  getNextPageParam: (lastPage) => {
-    if (lastPage.length === 0) return;
-    if (lastPage.length < pageLimit) return;
+const { data, error, fetchNextPage, hasNextPage, isLoading, refetch } =
+  useInfiniteQuery({
+    queryKey: [
+      "mews",
+      "get_followed_creators_mews_with_context",
+      encodeHashToBase64(client.myPubKey),
+    ],
+    queryFn: fetchMewsFeed,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.length === 0) return;
+      if (lastPage.length < pageLimit) return;
 
-    return { after_hash: lastPage[lastPage.length - 1].action_hash };
-  },
-  refetchInterval: 1000 * 60 * 2, // 2 minutes
-});
+      return { after_hash: lastPage[lastPage.length - 1].action_hash };
+    },
+    refetchInterval: 1000 * 60 * 2, // 2 minutes
+  });
 watch(error, showError);
 
 const fetchNextPageInfiniteScroll = async (

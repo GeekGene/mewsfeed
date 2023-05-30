@@ -30,17 +30,8 @@ import "@shoelace-style/shoelace/dist/themes/light.css";
 import "@shoelace-style/shoelace/dist/themes/dark.css";
 import { setBasePath } from "@shoelace-style/shoelace/dist/utilities/base-path";
 import { decodeHashFromBase64, encodeHashToBase64 } from "@holochain/client";
+import { setupHomeRedirect } from "./utils/homeRedirect";
 setBasePath("shoelace");
-
-const app = createApp(App);
-const pinia = createPinia();
-pinia.use(piniaPluginPersistedState);
-app.use(pinia);
-app.use(router);
-app.use(Quasar, {
-  plugins: { Dialog, Notify },
-});
-app.use(VueObserveVisibility);
 
 // Setup @tanstack/query
 const vueQueryOptions: VueQueryPluginOptions = {
@@ -80,5 +71,18 @@ const vueQueryOptions: VueQueryPluginOptions = {
   },
 };
 
+// Setup home page redirection
+setupHomeRedirect();
+
+// Setup app
+const app = createApp(App);
+const pinia = createPinia();
+pinia.use(piniaPluginPersistedState);
+app.use(pinia);
+app.use(router);
+app.use(Quasar, {
+  plugins: { Dialog, Notify },
+});
+app.use(VueObserveVisibility);
 app.use(VueQueryPlugin, vueQueryOptions);
 app.mount("#app");

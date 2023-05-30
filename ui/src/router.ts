@@ -12,8 +12,7 @@ import CreatorsList from "./pages/CreatorsList.vue";
 import FollowersList from "./pages/FollowersList.vue";
 import NotFound from "./pages/NotFound.vue";
 import MyNotifications from "./pages/MyNotifications.vue";
-import { useNewUserStore } from "./stores/newuser";
-import { storeToRefs } from "pinia";
+import { getHomeRedirect } from "./utils/homeRedirect";
 
 export const ROUTES = {
   discover: "discover",
@@ -34,8 +33,7 @@ export const routes: RouteRecordRaw[] = [
     path: "/",
     name: ROUTES.feed,
     beforeEnter: () => {
-      const { isNewUser } = storeToRefs(useNewUserStore());
-      if (isNewUser.value) return { name: ROUTES.discover };
+      if (getHomeRedirect()) return { name: ROUTES.discover };
     },
     component: MewsFeed,
   },
