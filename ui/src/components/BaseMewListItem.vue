@@ -81,7 +81,10 @@
           (!isDeleted || showIfDeleted) && isQuote && feedMew.original_mew
         "
       >
-        <BaseMewContent :mew="feedMew.mew as Mew" class="q-my-sm cursor-pointer" />
+        <BaseMewContent
+          :mew="feedMew.mew as Mew"
+          class="q-my-sm cursor-pointer"
+        />
 
         <div class="row justify-start q-my-md">
           <div class="row items-start">
@@ -322,7 +325,7 @@ const isDeleted = computed(() => props.feedMew.deleted_timestamp !== null);
 const navigateToYarn = (actionHash: ActionHash) => {
   router.push({
     name: ROUTES.yarn,
-    params: { hash: encodeHashToBase64(actionHash) },
+    params: { actionHash: encodeHashToBase64(actionHash) },
   });
 };
 

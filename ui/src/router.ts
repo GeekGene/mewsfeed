@@ -70,7 +70,7 @@ export const routes: RouteRecordRaw[] = [
     component: DiscoverCreators,
   },
   {
-    path: "/yarn/:hash",
+    path: "/yarn/:actionHash",
     name: ROUTES.yarn,
     component: MewYarn,
   },
