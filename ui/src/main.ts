@@ -32,6 +32,16 @@ import { setBasePath } from "@shoelace-style/shoelace/dist/utilities/base-path";
 import { decodeHashFromBase64, encodeHashToBase64 } from "@holochain/client";
 setBasePath("shoelace");
 
+const app = createApp(App);
+const pinia = createPinia();
+pinia.use(piniaPluginPersistedState);
+app.use(pinia);
+app.use(router);
+app.use(Quasar, {
+  plugins: { Dialog, Notify },
+});
+app.use(VueObserveVisibility);
+
 // Setup @tanstack/query
 const vueQueryOptions: VueQueryPluginOptions = {
   queryClientConfig: {
@@ -70,14 +80,5 @@ const vueQueryOptions: VueQueryPluginOptions = {
   },
 };
 
-const app = createApp(App);
-const pinia = createPinia();
-pinia.use(piniaPluginPersistedState);
-app.use(pinia);
-app.use(router);
-app.use(Quasar, {
-  plugins: { Dialog, Notify },
-});
-app.use(VueObserveVisibility);
 app.use(VueQueryPlugin, vueQueryOptions);
 app.mount("#app");

@@ -109,12 +109,9 @@ import { useRouter, useRoute } from "vue-router";
 import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
 import SearchEverythingInput from "@/components/SearchEverythingInput.vue";
-import { showMessage } from "@/utils/toasts";
 import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";
 import { storeToRefs } from "pinia";
-import { useRequest } from "vue-request";
 import { useNewUserStore } from "@/stores/newuser";
-import { localStorageCacheSettings } from "@/utils/requests";
 import { useQuery } from "@tanstack/vue-query";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
@@ -163,12 +160,13 @@ const fetchMostRecentMew = (): Promise<FeedMew[]> =>
     },
   });
 
-const { data: mostRecentMew } = useRequest(fetchMostRecentMew, {
-  cacheKey: `mews/get_followed_creators_mews_with_context/${encodeHashToBase64(
-    client.myPubKey
-  )}`,
-  loadingDelay: 1000,
-  ...localStorageCacheSettings,
+const { data: mostRecentMew } = useQuery({
+  queryKey: [
+    "mews",
+    "get_followed_creators_mews_with_context",
+    encodeHashToBase64(client.myPubKey),
+  ],
+  queryFn: fetchMostRecentMew,
 });
 
 watch(mostRecentMew, (val) => {
