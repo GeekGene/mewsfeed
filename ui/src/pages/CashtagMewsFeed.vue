@@ -5,7 +5,9 @@
     </h6>
 
     <QInfiniteScroll
-      v-if="data && data.pages.length > 0 && data.pages[0].length > 0"
+      v-if="
+        data && data.pages && data.pages.length > 0 && data.pages[0].length > 0
+      "
       :offset="250"
       @load="fetchNextPageInfiniteScroll"
     >
