@@ -112,7 +112,7 @@ import SearchEverythingInput from "@/components/SearchEverythingInput.vue";
 import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";
 import { storeToRefs } from "pinia";
 import { getHomeRedirect, setHomeRedirect } from "@/utils/homeRedirect";
-import { useQuery } from "@tanstack/vue-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/vue-query";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const dnaProperties = (
@@ -163,7 +163,7 @@ const { data: mostRecentMew } = useQuery({
     "mews",
     "get_followed_creators_mews_with_context",
     encodeHashToBase64(client.myPubKey),
-    { page: { limit: 1 }}
+    { page: { limit: 1 } },
   ],
   queryFn: fetchMostRecentMew,
 });
@@ -191,7 +191,7 @@ const fetchNotifications = async () => {
   return res;
 };
 
-useQuery({
+useInfiniteQuery({
   queryKey: ["mews", "get_notifications_for_agent", client.myPubKey],
   queryFn: fetchNotifications,
   refetchInterval: 1000 * 30, // 30 seconds
