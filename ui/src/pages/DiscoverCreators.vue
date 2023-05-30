@@ -44,7 +44,7 @@
 <script setup lang="ts">
 import { QPage, QBtn, QIcon } from "quasar";
 import { pageHeightCorrection } from "@/utils/page-layout";
-import { ComputedRef, computed, inject, watch } from "vue";
+import { ComputedRef, computed, inject, onMounted, watch } from "vue";
 import { AppAgentClient } from "@holochain/client";
 import BaseMewList from "@/components/BaseMewList.vue";
 import { FeedMew } from "@/types/types";
@@ -103,6 +103,12 @@ const {
   refetchOnWindowFocus: false,
   refetchOnMount: false,
   refetchOnReconnect: false,
+});
+
+onMounted(() => {
+  if (randomTags.value == undefined || randomTags.value.length === 0) {
+    refetchRandomTags();
+  }
 });
 
 const fetchRandomMewsWithTag = (tag: string) => {
