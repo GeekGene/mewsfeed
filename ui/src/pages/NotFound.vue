@@ -6,7 +6,7 @@
       color="accent"
       label="Come back home, Kitty"
       size="md"
-      :to="{ name: ROUTES.home }"
+      :to="{ name: ROUTES.feed }"
     />
   </QPage>
 </template>

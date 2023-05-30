@@ -114,7 +114,7 @@
           color="secondary"
           @click="
             router.push({
-              name: ROUTES[PATH[TAG_SYMBOLS.MENTION]],
+              name: ROUTES.mention,
               params: {
                 tag: profile.nickname,
                 agentPubKey: encodeHashToBase64(agentPubKey),
@@ -138,8 +138,7 @@ import { PROFILE_FIELDS } from "@/types/types";
 import isEqual from "lodash/isEqual";
 import { showError } from "@/utils/toasts";
 import { pageHeightCorrection } from "@/utils/page-layout";
-import { PATH, ROUTES } from "@/router";
-import { TAG_SYMBOLS } from "@/utils/tags";
+import { ROUTES } from "@/router";
 import {
   AgentPubKey,
   decodeHashFromBase64,
