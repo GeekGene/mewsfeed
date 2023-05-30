@@ -122,8 +122,12 @@
       </QBtn>
 
       <div class="row justify-between">
-        <div>
-          <template v-if="!isDeleted || showIfDeleted">
+        <div
+          v-if="!isDeleted || showIfDeleted"
+          class="row justify-between items-center"
+          style="width: 100%"
+        >
+          <div>
             <QBtn
               :disable="isUpdatingLick || isDeleted"
               size="sm"
@@ -171,16 +175,8 @@
               {{ feedMew.quotes.length }}
               <QTooltip v-if="!isDeleted">Quote mew</QTooltip>
             </QBtn>
-            <QBtn
-              v-if="isAuthoredByMe"
-              :disable="isDeleted"
-              size="sm"
-              icon="delete"
-              flat
-              @click.stop.prevent="showConfirmDeleteDialog = true"
-            >
-              <QTooltip v-if="!isDeleted">Delete mew</QTooltip>
-            </QBtn>
+          </div>
+          <div>
             <QBtn
               :disable="isDeleted && !props.feedMew.is_pinned"
               size="sm"
@@ -197,13 +193,26 @@
                 {{ props.feedMew.is_pinned ? "Unpin" : "Pin" }} mew
               </QTooltip>
             </QBtn>
-          </template>
+            <QBtn
+              v-if="isAuthoredByMe"
+              :disable="isDeleted"
+              size="sm"
+              icon="delete"
+              flat
+              @click.stop.prevent="showConfirmDeleteDialog = true"
+            >
+              <QTooltip v-if="!isDeleted">Delete mew</QTooltip>
+            </QBtn>
+          </div>
         </div>
         <div
           v-if="feedMew.deleted_timestamp !== null"
-          class="text-red text-bold"
+          class="text-red text-bold row justify-end"
+          style="width: 100%"
         >
-          Deleted <BaseTimestamp :timestamp="feedMew.deleted_timestamp" />
+          <div>
+            Deleted <BaseTimestamp :timestamp="feedMew.deleted_timestamp" />
+          </div>
         </div>
       </div>
     </QItemSection>
