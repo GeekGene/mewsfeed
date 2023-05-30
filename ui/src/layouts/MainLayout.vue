@@ -139,7 +139,7 @@ const forceReloadRouterViewKey = ref(0);
 const onCreateMew = () => {
   showCreateMewDialog.value = false;
   setNewUser(false);
-  showMessage("Published Mew");
+
   if (
     router.currentRoute.value.name === ROUTES.feed ||
     router.currentRoute.value.name === ROUTES.discover

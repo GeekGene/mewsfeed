@@ -200,6 +200,7 @@ export declare type CacheData<R = any, P = any> = {
 
 export type HashPagination = {
   after_hash?: Uint8Array | null;
+  direction?: PaginationDirectionType | null;
   limit: number;
 };
 
