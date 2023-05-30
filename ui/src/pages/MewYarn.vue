@@ -36,7 +36,7 @@
               <CreateMewField
                 :mew-type="{ [MewTypeName.Reply]: actionHash }"
                 class="full-width"
-                @mew-created="refetchMewAndRepliesPage(0)"
+                @mew-created="refetchMewAndRepliesLastPage"
               />
             </div>
           </QItem>
@@ -99,7 +99,7 @@ import {
 import CreateMewField from "@/components/CreateMewField.vue";
 import BaseMewListItem from "@/components/BaseMewListItem.vue";
 import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
-import { MewTypeName } from "@/types/types";
+import { MewTypeName, PaginationDirectionName } from "@/types/types";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { decodeHashFromBase64 } from "@holochain/client";
 import { ComputedRef, computed, inject, watch } from "vue";
@@ -107,7 +107,7 @@ import { useRoute, useRouter } from "vue-router";
 import { AppAgentClient } from "@holochain/client";
 import { showError } from "@/utils/toasts";
 import { useInfiniteQuery, useQuery } from "@tanstack/vue-query";
-import findIndex from "lodash/findIndex";
+import { encodeHashToBase64 } from "@holochain/client";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const route = useRoute();
@@ -134,7 +134,7 @@ const {
   isLoading: isLoadingMew,
   refetch: refetchMew,
 } = useQuery({
-  queryKey: ["mews", "get_mew_with_context", actionHash],
+  queryKey: ["mews", "get_mew_with_context", route.params.actionHash as string],
   queryFn: fetchMew,
   enabled: hasActionHash,
   refetchInterval: 1000 * 60 * 2, // 2 minutes
@@ -142,18 +142,19 @@ const {
 watch(mewError, showError);
 
 const fetchReplies = (params: any) => {
-  const payload = params.pageParam
-    ? mew.value?.replies.slice(
-        params.pageParam.sliceStart,
-        params.pageParam.sliceEnd
-      )
-    : mew.value?.replies.slice(0, pageLimit);
-
+  console.log("fetchReplies", params);
   return client.callZome({
     role_name: "mewsfeed",
     zome_name: "mews",
-    fn_name: "get_batch_mews_with_context",
-    payload,
+    fn_name: "get_responses_for_mew_with_context",
+    payload: {
+      original_mew_hash: mew?.value.action_hash,
+      page: {
+        limit: pageLimit,
+        direction: { [PaginationDirectionName.Ascending]: null },
+        ...params.pageParam,
+      },
+    },
   });
 };
 
@@ -167,27 +168,18 @@ const {
   isLoading: isLoadingReplies,
   refetch: refetchReplies,
 } = useInfiniteQuery({
-  queryKey: ["mews", "get_batch_mews_with_context", mew.value?.replies],
+  queryKey: [
+    "mews",
+    "get_responses_for_mew_with_context",
+    route.params.actionHash as string,
+  ],
   queryFn: fetchReplies,
   enabled: hasMew,
   getNextPageParam: (lastPage) => {
     if (lastPage.length === 0) return;
     if (lastPage.length < pageLimit) return;
 
-    const lastActionHash = lastPage[lastPage.length - 1].action_hash;
-    const lastActionHashIndex = findIndex(mew.value?.replies, lastActionHash);
-    const params = {
-      sliceStart: lastActionHashIndex + 1,
-      sliceEnd:
-        mew.value?.replies.length >= lastActionHashIndex + 1 + pageLimit
-          ? lastActionHashIndex + 1 + pageLimit
-          : mew.value?.replies.length,
-    };
-    console.log("page params are ", params);
-
-    if (params.sliceStart === params.sliceEnd) return;
-
-    return params;
+    return { after_hash: lastPage[lastPage.length - 1].action_hash };
   },
   refetchInterval: 1000 * 60 * 2, // 2 minutes
 });
@@ -210,5 +202,25 @@ const refetchRepliesPage = async (pageIndex: number) => {
   await refetchReplies({
     refetchPage: (page: any, index: number) => index === pageIndex,
   });
+};
+
+const refetchMewAndRepliesLastPage = async () => {
+  await refetchMew();
+
+  if (
+    !mew.value.replies ||
+    !replies.value ||
+    replies.value.pages.length === 0
+  ) {
+    await refetchRepliesPage(0);
+  } else if (
+    mew.value.replies.length <
+    replies.value.pages.length * pageLimit
+  ) {
+    await refetchRepliesPage(replies.value.pages.length - 1);
+  } else {
+    await refetchRepliesPage(replies.value.pages.length - 1);
+    await fetchNextPage();
+  }
 };
 </script>

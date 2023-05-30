@@ -102,6 +102,7 @@ pub fn get_notifications_for_agent(
             get_responses_for_mew(GetResponsesForMewInput {
                 original_mew_hash: ah.clone(),
                 response_type: None,
+                page: None,
             })
         })
         .collect::<ExternResult<Vec<Vec<Record>>>>()?

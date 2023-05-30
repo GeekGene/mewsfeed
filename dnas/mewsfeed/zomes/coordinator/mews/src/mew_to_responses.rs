@@ -1,5 +1,6 @@
 use hdk::prelude::*;
 use mews_integrity::*;
+use hc_link_pagination::{get_by_hash_pagination, HashPagination};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AddResponseForMewInput {
@@ -28,6 +29,7 @@ pub fn add_response_for_mew(input: AddResponseForMewInput) -> ExternResult<()> {
 pub struct GetResponsesForMewInput {
     pub original_mew_hash: ActionHash,
     pub response_type: Option<ResponseType>,
+    pub page: Option<HashPagination>,
 }
 #[hdk_extern]
 pub fn get_response_hashes_for_mew(
@@ -47,7 +49,8 @@ pub fn get_response_hashes_for_mew(
     };
 
     let links = get_links(input.original_mew_hash, LinkTypes::MewToResponses, tag)?;
-    let hashes: Vec<ActionHash> = links
+    let links_page = get_by_hash_pagination(links, input.page)?;
+    let hashes: Vec<ActionHash> = links_page
         .into_iter()
         .map(|link| ActionHash::from(link.target))
         .collect();
