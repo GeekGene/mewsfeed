@@ -77,7 +77,6 @@ const { markRead, addNotificationStatus } = useNotificationsReadStore();
 const pageLimit = 10;
 
 const fetchNotifications = async (params: any) => {
-  console.log("fetch notifications", params);
   const res: Notification[] = await client.callZome({
     role_name: "mewsfeed",
     zome_name: "mews",
