@@ -7,7 +7,7 @@
       </QBtn>
     </div>
 
-    <div v-if="randomMews" class="q-mb-xl">
+    <div class="q-mb-xl">
       <BaseMewList
         title="Discover Mews"
         :feed-mews="randomMews"
