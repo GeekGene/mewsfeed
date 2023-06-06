@@ -115,7 +115,7 @@
         @quote-created="refetchAuthoredMews"
       />
       <QBtn
-        v-if="authoredMews.length === pageLimit"
+        v-if="authoredMews && authoredMews.length === pageLimit"
         flat
         dense
         style="width: 100%"
