@@ -43,6 +43,7 @@ const vueQueryOptions: VueQueryPluginOptions = {
         refetchOnMount: "always",
         refetchOnWindowFocus: "always",
         refetchOnReconnect: "always",
+        retryOnMount: true,
       },
     },
   },

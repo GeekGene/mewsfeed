@@ -142,6 +142,7 @@ const onCreateMew = () => {
     forceReloadRouterViewKey.value += 1;
   } else {
     router.push({ name: ROUTES.feed });
+    forceReloadRouterViewKey.value += 1;
   }
 };
 
