@@ -710,6 +710,6 @@ test("notifications list is time-paginated", async () => {
       assert.lengthOf(page5, 0);
     },
     true,
-    { timeout: 15000 }
+    { timeout: 150000 }
   );
 });

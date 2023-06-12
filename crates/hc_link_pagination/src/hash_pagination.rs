@@ -24,11 +24,11 @@ where
             direction,
         }) => {
             match direction {
-                Some(Direction::Ascending) => items.sort_by_key(|l| l.timestamp()),
+                Some(Direction::Ascending) => items.sort_by_key(|l| l.timestamp()), 
                 Some(Direction::Descending) => items.sort_by_key(|l| Reverse(l.timestamp())),
 
-                // Default to ascending
-                None => items.sort_by_key(|l| l.timestamp()),
+                // Default to descending
+                None => items.sort_by_key(|l| Reverse(l.timestamp()))
             }
 
             let start_index = match after_hash {
@@ -49,7 +49,11 @@ where
                 None => Ok(vec![]),
             }
         }
-        None => Ok(items),
+        None => {
+            // Default sort by timestamp descending
+            items.sort_by_key(|l| Reverse(l.timestamp()));
+            Ok(items)
+        }
     }
 }
 

@@ -28,8 +28,8 @@ where
                 Some(Direction::Descending) => items.sort_by_key(|i| Reverse(i.timestamp())),
                 Some(Direction::Ascending) => items.sort_by_key(|i| i.timestamp()),
 
-                // Default to ascending
-                None => items.sort_by_key(|i| i.timestamp()),
+                // Default to descending
+                None => items.sort_by_key(|i| Reverse(i.timestamp())),
             }
 
             // Determine start index for page slice
@@ -52,6 +52,10 @@ where
                 None => Ok(vec![]),
             }
         }
-        None => Ok(items),
+        None => {
+            // Default sort by timestamp descending
+            items.sort_by_key(|i| Reverse(i.timestamp()));
+            Ok(items)
+        }
     }
 }
