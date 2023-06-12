@@ -59,7 +59,9 @@ test("link a Follower to a Creator", async () => {
       linksOutput = await bob.cells[0].callZome({
         zome_name: "follows",
         fn_name: "get_followers_for_creator",
-        payload: targetAddress,
+        payload: {
+          creator: targetAddress,
+        },
       });
       assert.equal(linksOutput.length, 1);
 
@@ -88,7 +90,9 @@ test("link a Follower to a Creator", async () => {
       linksOutput = await bob.cells[0].callZome({
         zome_name: "follows",
         fn_name: "get_followers_for_creator",
-        payload: targetAddress,
+        payload: {
+          creator: targetAddress,
+        },
       });
       assert.equal(linksOutput.length, 0);
     },
@@ -96,6 +100,7 @@ test("link a Follower to a Creator", async () => {
     { timeout: 100000 }
   );
 });
+
 
 test("Agent cannot follow themselves", async () => {
   await runScenario(
@@ -126,6 +131,7 @@ test("Agent cannot follow themselves", async () => {
     { timeout: 100000 }
   );
 });
+
 
 test("Agent can only change their own follows", async () => {
   await runScenario(
@@ -277,8 +283,8 @@ test(
           },
         });
 
-        assert.deepEqual(page1[0], bob.agentPubKey);
-        assert.deepEqual(page1[1], carol.agentPubKey);
+        assert.deepEqual(page1[0], mary.agentPubKey);
+        assert.deepEqual(page1[1], steve.agentPubKey);
 
         const page2: AgentPubKey[] = await alice.cells[0].callZome({
           zome_name: "follows",
@@ -292,7 +298,7 @@ test(
           },
         });
         assert.deepEqual(page2[0], john.agentPubKey);
-        assert.deepEqual(page2[1], steve.agentPubKey);
+        assert.deepEqual(page2[1], carol.agentPubKey);
 
         const page3: AgentPubKey[] = await alice.cells[0].callZome({
           zome_name: "follows",
@@ -306,7 +312,7 @@ test(
           },
         });
         assert.lengthOf(page3, 1);
-        assert.deepEqual(page3[0], mary.agentPubKey);
+        assert.deepEqual(page3[0], bob.agentPubKey);
 
         const page5: AgentPubKey[] = await alice.cells[0].callZome({
           zome_name: "follows",
@@ -407,8 +413,8 @@ test(
           },
         });
 
-        assert.deepEqual(page1[0], bob.agentPubKey);
-        assert.deepEqual(page1[1], carol.agentPubKey);
+        assert.deepEqual(page1[0], mary.agentPubKey);
+        assert.deepEqual(page1[1], steve.agentPubKey);
 
         const page2: AgentPubKey[] = await alice.cells[0].callZome({
           zome_name: "follows",
@@ -422,7 +428,7 @@ test(
           },
         });
         assert.deepEqual(page2[0], john.agentPubKey);
-        assert.deepEqual(page2[1], steve.agentPubKey);
+        assert.deepEqual(page2[1], carol.agentPubKey);
 
         const page3: AgentPubKey[] = await alice.cells[0].callZome({
           zome_name: "follows",
@@ -436,7 +442,7 @@ test(
           },
         });
         assert.lengthOf(page3, 1);
-        assert.deepEqual(page3[0], mary.agentPubKey);
+        assert.deepEqual(page3[0], bob.agentPubKey);
 
         const page5: AgentPubKey[] = await alice.cells[0].callZome({
           zome_name: "follows",
