@@ -53,15 +53,13 @@ import { showError } from "@/utils/toasts";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 
-const fetchMews = (): Promise<FeedMew[]> => {
-  console.log("fetchMews");
-  return client.callZome({
+const fetchMews = (): Promise<FeedMew[]> =>
+  client.callZome({
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_random_mews_with_context",
     payload: 3,
   });
-};
 
 const {
   data: randomMews,
@@ -76,20 +74,13 @@ const {
   refetchOnReconnect: false,
 });
 
-const fetchRandomTags = async (): Promise<string[]> => {
-  console.log("fetchRandomTags");
-
-  const res = await client.callZome({
+const fetchRandomTags = (): Promise<string[]> =>
+  client.callZome({
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_random_tags",
     payload: 4,
   });
-  console.log("random tags are", res);
-  console.log("random tags length", randomTags.value.length);
-  console.log("random tags 2 length", randomTags.value[2] !== undefined);
-  return res;
-};
 
 const {
   data: randomTags,
@@ -111,10 +102,8 @@ onMounted(() => {
   }
 });
 
-const fetchRandomMewsWithTag = (tag: string) => {
-  console.log("fetchRandomMewsWithTag", tag);
-
-  return client.callZome({
+const fetchRandomMewsWithTag = (tag: string) =>
+  client.callZome({
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_random_mews_for_tag_with_context",
@@ -123,7 +112,6 @@ const fetchRandomMewsWithTag = (tag: string) => {
       count: 3,
     },
   });
-};
 
 const tag1Enabled = computed<boolean>(
   () =>

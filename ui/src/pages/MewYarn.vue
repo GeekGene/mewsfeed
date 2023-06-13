@@ -141,9 +141,8 @@ const {
 });
 watch(mewError, showError);
 
-const fetchReplies = (params: any) => {
-  console.log("fetchReplies", params);
-  return client.callZome({
+const fetchReplies = (params: any) =>
+  client.callZome({
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_responses_for_mew_with_context",
@@ -156,7 +155,6 @@ const fetchReplies = (params: any) => {
       },
     },
   });
-};
 
 const hasMew = computed(() => mew.value !== undefined);
 

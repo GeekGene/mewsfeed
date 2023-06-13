@@ -73,9 +73,8 @@ const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 
 const pageLimit = 5;
 
-const fetchCashtagMews = async (params: any) => {
-  console.log("fetchCashtagMews params=", params);
-  const res = await client.callZome({
+const fetchCashtagMews = async (params: any) =>
+  client.callZome({
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_mews_for_cashtag_with_context",
@@ -87,8 +86,6 @@ const fetchCashtagMews = async (params: any) => {
       },
     },
   });
-  return res;
-};
 
 const { data, error, fetchNextPage, hasNextPage, isLoading, refetch } =
   useInfiniteQuery({
