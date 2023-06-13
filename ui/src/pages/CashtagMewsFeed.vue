@@ -1,6 +1,14 @@
 <template>
   <QPage :style-fn="pageHeightCorrection">
-    <h6 class="q-mb-md">
+    <QBtn flat @click="router.back()">
+      <QIcon
+        name="arrow_right_alt"
+        size="lg"
+        style="transform: rotate(180deg); font-weight: 100"
+      />
+      Back
+    </QBtn>
+    <h6 class="q-mt-md q-mb-md">
       Mews with {{ route.meta.tag }}{{ route.params.tag }}
     </h6>
 
@@ -56,11 +64,18 @@
 </template>
 
 <script setup lang="ts">
-import { QPage, QList, QIcon, QSpinnerDots, QInfiniteScroll } from "quasar";
+import {
+  QPage,
+  QList,
+  QIcon,
+  QSpinnerDots,
+  QInfiniteScroll,
+  QBtn,
+} from "quasar";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { AppAgentClient } from "@holochain/client";
 import { ComputedRef, inject } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useInfiniteQuery } from "@tanstack/vue-query";
 import BaseMewListSkeleton from "@/components/BaseMewListSkeleton.vue";
 import BaseEmptyMewsFeed from "@/components/BaseEmptyMewsFeed.vue";
@@ -68,6 +83,7 @@ import BaseMewListItem from "@/components/BaseMewListItem.vue";
 import { watch } from "vue";
 import { showError } from "@/utils/toasts";
 
+const router = useRouter();
 const route = useRoute();
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 
