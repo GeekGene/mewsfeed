@@ -26,9 +26,13 @@
       @load="fetchNextPageInfiniteScroll"
     >
       <QList bordered separator class="q-mb-lg">
-        <template v-for="(page, i) in data.pages" :key="i">
-          <BaseAgentProfilesList :agent-profiles="page" :loading="isLoading" />
-        </template>
+        <BaseAgentProfilesList
+          v-for="(page, i) in data.pages"
+          :key="i"
+          class="q-px-md"
+          :agent-profiles="page"
+          :loading="isLoading"
+        />
       </QList>
 
       <template #loading>

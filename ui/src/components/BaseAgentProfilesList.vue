@@ -11,7 +11,7 @@
   />
 
   <template v-else>
-    <QList>
+    <QList v-bind="$attrs">
       <BaseAgentProfilesListItem
         v-for="(agentProfile, index) of agentProfiles"
         :key="index"
