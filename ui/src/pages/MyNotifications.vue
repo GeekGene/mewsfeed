@@ -23,7 +23,7 @@
             v-for="(notification, j) of page"
             :key="j"
             v-observe-visibility="{
-              callback: () => markRead(notification),
+              callback: () => markRead(toRaw(notification)),
               once: true,
             }"
             :notification="notification"
@@ -67,7 +67,7 @@
 
 <script setup lang="ts">
 import { AppAgentClient } from "@holochain/client";
-import { inject, ComputedRef, watch } from "vue";
+import { inject, ComputedRef, watch, toRaw } from "vue";
 import {
   QPage,
   QInfiniteScroll,
