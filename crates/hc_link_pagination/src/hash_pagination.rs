@@ -10,7 +10,7 @@ pub struct HashPagination {
     pub limit: usize,
 }
 
-pub fn get_by_hash_pagination<T>(
+pub fn paginate_by_hash<T>(
     mut items: Vec<T>,
     page: Option<HashPagination>,
 ) -> ExternResult<Vec<T>>
@@ -63,7 +63,7 @@ pub struct AgentPubKeyPagination {
     pub limit: usize,
 }
 
-pub fn get_by_agentpubkey_pagination<T>(
+pub fn paginate_by_agentpubkey<T>(
     items: Vec<T>,
     page: Option<AgentPubKeyPagination>,
 ) -> ExternResult<Vec<T>>
@@ -86,5 +86,5 @@ where
         None => None,
     };
 
-    get_by_hash_pagination(items, wrapped_page)
+    paginate_by_hash(items, wrapped_page)
 }

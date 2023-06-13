@@ -1,5 +1,5 @@
 use crate::mew_with_context::get_batch_mews_with_context;
-use hc_link_pagination::{get_by_hash_pagination, HashPagination};
+use hc_link_pagination::{paginate_by_hash, HashPagination};
 use hdk::prelude::*;
 use mews_integrity::*;
 
@@ -29,7 +29,7 @@ pub fn get_agent_mews_with_context(input: GetAgentMewsInput) -> ExternResult<Vec
 
 fn get_agent_mew_hashes(input: GetAgentMewsInput) -> ExternResult<Vec<ActionHash>> {
     let links = get_links(input.agent, LinkTypes::AgentMews, None)?;
-    let links_slice = get_by_hash_pagination(links, input.page)?;
+    let links_slice = paginate_by_hash(links, input.page)?;
 
     let hashes: Vec<ActionHash> = links_slice
         .into_iter()

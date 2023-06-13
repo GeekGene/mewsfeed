@@ -1,5 +1,5 @@
 use crate::mew_with_context::get_batch_mews_with_context;
-use hc_link_pagination::{get_by_hash_pagination, HashPagination};
+use hc_link_pagination::{paginate_by_hash, HashPagination};
 use hdk::prelude::*;
 use mews_integrity::*;
 
@@ -62,7 +62,7 @@ fn get_mew_hashes_for_mention(
     page: Option<HashPagination>,
 ) -> ExternResult<Vec<ActionHash>> {
     let links: Vec<Link> = get_links(mention, LinkTypes::MentionToMews, None)?;
-    let links_page = get_by_hash_pagination(links, page)?;
+    let links_page = paginate_by_hash(links, page)?;
 
     let hashes: Vec<ActionHash> = links_page
         .into_iter()

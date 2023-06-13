@@ -1,4 +1,4 @@
-use hc_link_pagination::{get_by_hash_pagination, HashPagination};
+use hc_link_pagination::{paginate_by_hash, HashPagination};
 use hdk::prelude::*;
 use mews_integrity::*;
 
@@ -49,7 +49,7 @@ pub fn get_response_hashes_for_mew(
     };
 
     let links = get_links(input.original_mew_hash, LinkTypes::MewToResponses, tag)?;
-    let links_page = get_by_hash_pagination(links, input.page)?;
+    let links_page = paginate_by_hash(links, input.page)?;
     let hashes: Vec<ActionHash> = links_page
         .into_iter()
         .map(|link| ActionHash::from(link.target))

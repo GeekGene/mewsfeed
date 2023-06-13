@@ -10,7 +10,7 @@ pub struct TimestampPagination {
     pub limit: usize,
 }
 
-pub fn get_by_timestamp_pagination<T>(
+pub fn paginate_by_timestamp<T>(
     mut items: Vec<T>,
     page: Option<TimestampPagination>,
 ) -> ExternResult<Vec<T>>

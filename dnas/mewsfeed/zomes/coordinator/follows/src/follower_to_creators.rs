@@ -1,6 +1,6 @@
 use follows_integrity::*;
 use follows_types::*;
-use hc_link_pagination::get_by_agentpubkey_pagination;
+use hc_link_pagination::paginate_by_agentpubkey;
 use hdk::prelude::*;
 
 #[hdk_extern]
@@ -26,7 +26,7 @@ pub fn get_creators_for_follower(
     input: GetCreatorsForFollowerInput,
 ) -> ExternResult<Vec<AgentPubKey>> {
     let links = get_links(input.follower, LinkTypes::FollowerToCreators, None)?;
-    let links_page = get_by_agentpubkey_pagination(links, input.page)?;
+    let links_page = paginate_by_agentpubkey(links, input.page)?;
 
     let agents: Vec<AgentPubKey> = links_page
         .into_iter()
@@ -56,7 +56,7 @@ pub fn get_follower_links_for_creator(
 ) -> ExternResult<Vec<Link>> {
     let mut links = get_links(input.creator, LinkTypes::CreatorToFollowers, None)?;
     links.dedup_by_key(|l| l.target.clone());
-    let links_page = get_by_agentpubkey_pagination(links, input.page)?;
+    let links_page = paginate_by_agentpubkey(links, input.page)?;
 
     Ok(links_page)
 }

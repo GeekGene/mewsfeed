@@ -3,7 +3,7 @@ use crate::agent_mews::GetAgentMewsInput;
 use crate::mew_to_responses::{get_responses_for_mew, GetResponsesForMewInput};
 use crate::mew_with_context::get_mew_with_context;
 use hc_call_utils::call_local_zome;
-use hc_link_pagination::{get_by_timestamp_pagination, TimestampPagination};
+use hc_link_pagination::{paginate_by_timestamp, TimestampPagination};
 use hdk::prelude::*;
 use mews_types::{Mew, MewType, Notification, NotificationType, Profile};
 
@@ -120,7 +120,7 @@ pub fn get_notifications_for_agent(
     notifications.append(&mut n);
 
     // All of this combined into one list sorted by timestamp descending
-    let notifications_page = get_by_timestamp_pagination(notifications.clone(), input.page)?;
+    let notifications_page = paginate_by_timestamp(notifications.clone(), input.page)?;
 
     Ok(notifications_page)
 }

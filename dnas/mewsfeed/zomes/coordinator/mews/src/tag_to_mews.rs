@@ -1,5 +1,5 @@
 use crate::mew_with_context::get_mew_with_context;
-use hc_link_pagination::{get_by_hash_pagination, HashPagination};
+use hc_link_pagination::{paginate_by_hash, HashPagination};
 use hdk::prelude::*;
 use mews_integrity::*;
 
@@ -13,7 +13,7 @@ pub fn get_mew_hashes_for_tag(
     let result_path: Path = prefix_index.make_result_path(tag_text, Some(tag))?;
 
     let links = get_links(result_path.path_entry_hash()?, link_type, None)?;
-    let links_page = get_by_hash_pagination(links, page)?;
+    let links_page = paginate_by_hash(links, page)?;
     let hashes: Vec<ActionHash> = links_page
         .iter()
         .map(|l| ActionHash::from(l.target.clone()))

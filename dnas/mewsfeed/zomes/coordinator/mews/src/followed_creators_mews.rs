@@ -1,7 +1,7 @@
 use crate::mew_with_context::get_batch_mews_with_context;
 use follows_types::GetCreatorsForFollowerInput;
 use hc_call_utils::call_local_zome;
-use hc_link_pagination::{get_by_hash_pagination, HashPagination};
+use hc_link_pagination::{paginate_by_hash, HashPagination};
 use hdk::prelude::*;
 use mews_integrity::*;
 
@@ -55,7 +55,7 @@ fn get_followed_creators_mew_hashes(
         })
         .flatten()
         .collect();
-    let links_page = get_by_hash_pagination(links, input.page)?;
+    let links_page = paginate_by_hash(links, input.page)?;
 
     let hashes: Vec<ActionHash> = links_page
         .into_iter()
