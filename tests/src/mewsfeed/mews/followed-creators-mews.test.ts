@@ -5,7 +5,6 @@ import { createMew } from "./common";
 import { FeedMew, Mew, MewTypeName } from "../../../../ui/src/types/types";
 import { mewsfeedAppBundleSource } from "../../common";
 
-/*
 test("create a Mew and get followed creators mews", async () => {
   await runScenario(
     async (scenario) => {
@@ -23,10 +22,17 @@ test("create a Mew and get followed creators mews", async () => {
       // conductor of the scenario.
       await scenario.shareAllAgents();
 
-      // Bob gets all mews
+      // Bob follows alice
+      await bob.cells[0].callZome({
+        zome_name: "follows",
+        fn_name: "follow",
+        payload: alice.agentPubKey,
+      });
+
+      // Bob gets followed creators mews
       let collectionOutput: Record[] = await bob.cells[0].callZome({
         zome_name: "mews",
-        fn_name: "get_all_mews",
+        fn_name: "get_my_followed_creators_mews_with_context",
         payload: null,
       });
       assert.equal(collectionOutput.length, 0);
@@ -37,10 +43,10 @@ test("create a Mew and get followed creators mews", async () => {
 
       await pause(1200);
 
-      // Bob gets all mews again
+      // Bob gets followed creators mews again
       collectionOutput = await bob.cells[0].callZome({
         zome_name: "mews",
-        fn_name: "get_all_mews",
+        fn_name: "get_my_followed_creators_mews_with_context",
         payload: null,
       });
       assert.equal(collectionOutput.length, 1);
@@ -420,8 +426,6 @@ test("Followed creators mews should be ordered by timestamp in descending order"
     { timeout: 100000 }
   );
 });
-
-*/
 
 test("Followed creators mews list are time-paginated", async () => {
   await runScenario(
