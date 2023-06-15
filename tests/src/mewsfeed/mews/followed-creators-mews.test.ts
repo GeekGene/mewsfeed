@@ -30,7 +30,7 @@ test("create a Mew and get followed creators mews", async () => {
       });
 
       // Bob gets followed creators mews
-      let collectionOutput: Record[] = await bob.cells[0].callZome({
+      let collectionOutput: FeedMew[] = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_my_followed_creators_mews_with_context",
         payload: null,
@@ -49,11 +49,9 @@ test("create a Mew and get followed creators mews", async () => {
         fn_name: "get_my_followed_creators_mews_with_context",
         payload: null,
       });
+
       assert.equal(collectionOutput.length, 1);
-      assert.deepEqual(
-        actionHash,
-        collectionOutput[0].signed_action.hashed.hash
-      );
+      assert.deepEqual(actionHash, collectionOutput[0].action_hash);
     },
     true,
     { timeout: 100000 }
