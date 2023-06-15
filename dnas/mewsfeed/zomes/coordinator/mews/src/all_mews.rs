@@ -1,4 +1,3 @@
-use crate::mew_with_context::get_batch_mews_with_context;
 use hdk::prelude::*;
 use mews_integrity::*;
 
