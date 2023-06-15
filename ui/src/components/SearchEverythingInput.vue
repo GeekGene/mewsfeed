@@ -56,15 +56,15 @@
             <ComboboxOption
               v-for="(item, i) in results"
               :key="i"
-              v-slot="{ selected, active }"
+              v-slot="{ active }"
               as="template"
               :value="item"
             >
               <QItem
                 v-if="item.resultType === SearchResult.Agent"
+                :focused="active"
+                manual-focus
                 clickable
-                :active="active"
-                :focused="selected"
                 dense
                 class="q-py-sm"
               >
@@ -83,9 +83,9 @@
               </QItem>
               <QItem
                 v-else-if="item.resultType === SearchResult.Hashtag"
+                :focused="active"
+                manual-focus
                 clickable
-                :active="active"
-                :focused="selected"
                 dense
                 class="q-py-sm"
               >
@@ -95,9 +95,9 @@
               </QItem>
               <QItem
                 v-else-if="item.resultType === SearchResult.Cashtag"
+                :focused="active"
+                manual-focus
                 clickable
-                :active="active"
-                :focused="selected"
                 dense
                 class="q-py-sm"
               >
