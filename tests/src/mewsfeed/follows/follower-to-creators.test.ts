@@ -101,7 +101,6 @@ test("link a Follower to a Creator", async () => {
   );
 });
 
-
 test("Agent cannot follow themselves", async () => {
   await runScenario(
     async (scenario) => {
