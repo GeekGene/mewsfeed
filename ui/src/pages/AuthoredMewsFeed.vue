@@ -1,13 +1,6 @@
 <template>
   <QPage :style-fn="pageHeightCorrection">
-    <QBtn flat @click="router.back()">
-      <QIcon
-        name="arrow_right_alt"
-        size="lg"
-        style="transform: rotate(180deg); font-weight: 100"
-      />
-      Back
-    </QBtn>
+    <BaseButtonBack />
     <h6 class="q-mt-md q-mb-md row items-center">
       Mews authored by
       <BaseAgentProfileLinkPopup
@@ -70,18 +63,11 @@
 </template>
 
 <script setup lang="ts">
-import {
-  QPage,
-  QList,
-  QIcon,
-  QSpinnerDots,
-  QInfiniteScroll,
-  QBtn,
-} from "quasar";
+import { QPage, QList, QIcon, QSpinnerDots, QInfiniteScroll } from "quasar";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { AppAgentClient } from "@holochain/client";
 import { ComputedRef, inject } from "vue";
-import { useRoute, useRouter, onBeforeRouteLeave } from "vue-router";
+import { useRoute, onBeforeRouteLeave } from "vue-router";
 import {
   useInfiniteQuery,
   useQuery,
@@ -95,8 +81,8 @@ import { watch } from "vue";
 import { showError } from "@/utils/toasts";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { decodeHashFromBase64 } from "@holochain/client";
+import BaseButtonBack from "@/components/BaseButtonBack.vue";
 
-const router = useRouter();
 const route = useRoute();
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)

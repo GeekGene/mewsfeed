@@ -2,14 +2,7 @@
   <QPage :style-fn="pageHeightCorrection">
     <QCard flat>
       <QCardSection class="q-pb-none">
-        <QBtn flat @click="router.back()">
-          <QIcon
-            name="arrow_right_alt"
-            size="lg"
-            style="transform: rotate(180deg); font-weight: 100"
-          />
-          Back
-        </QBtn>
+        <BaseButtonBack />
       </QCardSection>
 
       <QCardSection class="yarn-container">
@@ -91,7 +84,6 @@ import {
   QSpinnerDots,
   QCard,
   QCardSection,
-  QBtn,
   QIcon,
   QItem,
   QList,
@@ -103,7 +95,7 @@ import { MewTypeName, PaginationDirectionName } from "@/types/types";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { decodeHashFromBase64 } from "@holochain/client";
 import { ComputedRef, computed, inject, watch } from "vue";
-import { useRoute, useRouter, onBeforeRouteLeave } from "vue-router";
+import { useRoute, onBeforeRouteLeave } from "vue-router";
 import { AppAgentClient } from "@holochain/client";
 import { showError } from "@/utils/toasts";
 import {
@@ -111,10 +103,10 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/vue-query";
+import BaseButtonBack from "@/components/BaseButtonBack.vue";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const route = useRoute();
-const router = useRouter();
 const queryClient = useQueryClient();
 
 const pageLimit = 10;
