@@ -60,8 +60,8 @@ import { QPage, QList, QIcon, QSpinnerDots, QInfiniteScroll } from "quasar";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { AppAgentClient, decodeHashFromBase64 } from "@holochain/client";
 import { ComputedRef, inject } from "vue";
-import { useRoute } from "vue-router";
-import { useInfiniteQuery } from "@tanstack/vue-query";
+import { useRoute, onBeforeRouteLeave } from "vue-router";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
 import BaseMewListSkeleton from "@/components/BaseMewListSkeleton.vue";
 import BaseEmptyMewsFeed from "@/components/BaseEmptyMewsFeed.vue";
 import BaseMewListItem from "@/components/BaseMewListItem.vue";
@@ -70,6 +70,7 @@ import { showError } from "@/utils/toasts";
 
 const route = useRoute();
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+const queryClient = useQueryClient();
 
 const pageLimit = 10;
 
@@ -114,4 +115,20 @@ const fetchNextPageInfiniteScroll = async (
   await fetchNextPage();
   done(!hasNextPage?.value);
 };
+
+onBeforeRouteLeave(() => {
+  if (data.value && data.value.pages.length > 1) {
+    queryClient.setQueryData(
+      [
+        "mews",
+        "get_mews_for_mention_with_context",
+        `${route.meta.tag}${route.params.tag}`,
+      ],
+      (d: any) => ({
+        pages: [d.pages[0]],
+        pageParams: [d.pageParams[0]],
+      })
+    );
+  }
+});
 </script>

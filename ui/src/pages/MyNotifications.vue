@@ -60,19 +60,21 @@
 <script setup lang="ts">
 import { AppAgentClient } from "@holochain/client";
 import { inject, ComputedRef, watch } from "vue";
+import { onBeforeRouteLeave } from "vue-router";
 import { QPage, QInfiniteScroll, QSpinnerDots, QIcon, QList } from "quasar";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import BaseNotification from "@/components/BaseNotification.vue";
 import BaseEmptyMewsFeed from "@/components/BaseEmptyMewsFeed.vue";
 import BaseMewListSkeleton from "@/components/BaseMewListSkeleton.vue";
 import { showError } from "@/utils/toasts";
-import { useInfiniteQuery } from "@tanstack/vue-query";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
 import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";
 import { PaginationDirectionName, Notification } from "@/types/types";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const useNotificationsReadStore = makeUseNotificationsReadStore(client);
 const { markRead, addNotificationStatus } = useNotificationsReadStore();
+const queryClient = useQueryClient();
 
 const pageLimit = 10;
 
@@ -115,4 +117,16 @@ const fetchNextPageInfiniteScroll = async (
   await fetchNextPage();
   done(!hasNextPage?.value);
 };
+
+onBeforeRouteLeave(() => {
+  if (data.value && data.value.pages.length > 1) {
+    queryClient.setQueryData(
+      ["mews", "get_notifications_for_agent", client.myPubKey],
+      (d: any) => ({
+        pages: [d.pages[0]],
+        pageParams: [d.pageParams[0]],
+      })
+    );
+  }
+});
 </script>
