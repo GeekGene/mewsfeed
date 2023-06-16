@@ -1,7 +1,11 @@
 <template>
   <QPage class="row" :style-fn="pageHeightCorrection">
     <div class="col-8">
-      <QSpinnerPie v-if="loading || !agentPubKey" size="10%" color="primary" />
+      <QSpinnerPie
+        v-if="isLoadingProfile || !agentPubKey"
+        size="10%"
+        color="primary"
+      />
       <QCard
         v-else-if="!showEditProfileForm"
         v-bind="$attrs"
@@ -23,7 +27,7 @@
           <ButtonFollow
             v-if="!isMyProfile"
             :agentPubKey="agentPubKey"
-            @toggle-follow="forceReloadFollowersListKey += 1"
+            @toggle-follow="refetchFollowers"
           />
           <QBtn
             v-if="isMyProfile"
@@ -65,48 +69,113 @@
         </QCardSection>
       </QCard>
 
-      <MewList
-        :key="forceReloadPinnedMewsKey"
+      <BaseMewList
         title="Pinned Mews"
-        :fetch-fn="fetchPinnedMews"
-        :cache-key="`mews/get_mews_for_pinner_with_context/${agentPubKey}`"
-        :insert-responses="false"
+        :feed-mews="pinnedMews"
+        :is-loading="isLoadingPinnedMews"
         @mew-pinned="
           () => {
-            forceReloadPinnedMewsKey += 1;
-            forceReloadAgentMewsKey += 1;
+            refetchPinnedMews();
+            refetchAuthoredMews();
           }
         "
         @mew-unpinned="
           () => {
-            forceReloadPinnedMewsKey += 1;
-            forceReloadAgentMewsKey += 1;
+            refetchPinnedMews();
+            refetchAuthoredMews();
           }
         "
-        @reply-created="forceReloadAgentMewsKey += 1"
-        @mewmew-created="forceReloadAgentMewsKey += 1"
-        @quote-created="forceReloadAgentMewsKey += 1"
+        @mew-licked="refetchPinnedMews"
+        @mew-unlicked="refetchPinnedMews"
+        @reply-created="refetchAuthoredMews"
+        @mewmew-created="refetchAuthoredMews"
+        @quote-created="refetchAuthoredMews"
       />
 
-      <MewList
-        :key="forceReloadAgentMewsKey"
+      <BaseMewList
         title="Authored Mews"
-        :fetch-fn="fetchAgentMews"
-        :cache-key="`mews/get_agent_mews_with_context/${agentPubKey}`"
-        :insert-responses="isMyProfile"
-        @mew-pinned="forceReloadPinnedMewsKey += 1"
-        @mew-unpinned="forceReloadPinnedMewsKey += 1"
+        :feed-mews="authoredMews"
+        :is-loading="isLoadingAuthoredMews"
+        @mew-pinned="
+          () => {
+            refetchPinnedMews();
+            refetchAuthoredMews();
+          }
+        "
+        @mew-unpinned="
+          () => {
+            refetchPinnedMews();
+            refetchAuthoredMews();
+          }
+        "
+        @mew-licked="refetchAuthoredMews"
+        @mew-unlicked="refetchAuthoredMews"
+        @reply-created="refetchAuthoredMews"
+        @mewmew-created="refetchAuthoredMews"
+        @quote-created="refetchAuthoredMews"
       />
+      <QBtn
+        v-if="authoredMews && authoredMews.length === pageLimit"
+        flat
+        dense
+        style="width: 100%"
+        @click="
+          router.push({
+            name: 'authoredMews',
+            params: {
+              agentPubKey: route.params.agentPubKey,
+            },
+          })
+        "
+      >
+        View All
+      </QBtn>
     </div>
 
     <div class="follow-col col self-start q-pl-xl q-pr-md">
       <h6 class="q-mt-none q-mb-md">Following</h6>
-      <FolloweesList :agentPubKey="agentPubKey" />
-      <h6 class="q-mb-md">Followed by</h6>
-      <FollowersList
-        :key="forceReloadFollowersListKey"
-        :agentPubKey="agentPubKey"
+      <BaseAgentProfilesList
+        :agent-profiles="creators"
+        :loading="isLoadingCreators"
       />
+      <QBtn
+        v-if="creators?.length === pageLimit"
+        flat
+        dense
+        @click="
+          router.push({
+            name: 'creators',
+            params: {
+              agentPubKey: route.params.agentPubKey,
+            },
+          })
+        "
+      >
+        View All
+      </QBtn>
+
+      <h6 class="q-mb-md">Followed by</h6>
+      <BaseAgentProfilesList
+        :agent-profiles="followers"
+        :loading="isLoadingFollowers"
+      />
+      <div v-if="followers?.length === pageLimit" class="row justify-center">
+        <QBtn
+          flat
+          dense
+          @click="
+            router.push({
+              name: 'followers',
+              params: {
+                agentPubKey: route.params.agentPubKey,
+              },
+            })
+          "
+        >
+          View All
+        </QBtn>
+      </div>
+
       <h6 class="q-mb-md">
         <QBtn
           v-if="profile?.nickname"
@@ -132,9 +201,7 @@
 <script setup lang="ts">
 import { QPage, QSpinnerPie, QCard, QCardSection, QBtn } from "quasar";
 import ButtonFollow from "@/components/ButtonFollow.vue";
-import FolloweesList from "@/components/FolloweesList.vue";
-import FollowersList from "@/components/FollowersList.vue";
-import { PROFILE_FIELDS } from "@/types/types";
+import { AgentProfile, PROFILE_FIELDS } from "@/types/types";
 import isEqual from "lodash/isEqual";
 import { showError } from "@/utils/toasts";
 import { pageHeightCorrection } from "@/utils/page-layout";
@@ -144,13 +211,13 @@ import {
   decodeHashFromBase64,
   encodeHashToBase64,
 } from "@holochain/client";
-import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
+import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { ComputedRef, computed, inject, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import MewList from "@/components/MewList.vue";
+import BaseMewList from "@/components/BaseMewList.vue";
+import BaseAgentProfilesList from "@/components/BaseAgentProfilesList.vue";
 import { AppAgentClient } from "@holochain/client";
-import { useRequest } from "vue-request";
-import { localStorageCacheSettings } from "@/utils/requests";
+import { useQuery } from "@tanstack/vue-query";
 
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
@@ -158,24 +225,43 @@ const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const route = useRoute();
 const router = useRouter();
 const agentPubKey = computed(() =>
-  decodeHashFromBase64(route.params.agent as string)
+  decodeHashFromBase64(route.params.agentPubKey as string)
 );
-const forceReloadFollowersListKey = ref(0);
-const forceReloadPinnedMewsKey = ref(0);
-const forceReloadAgentMewsKey = ref(0);
 const showEditProfileForm = ref(false);
 
 const isMyProfile = computed(() =>
   isEqual(agentPubKey.value, client.myPubKey as AgentPubKey)
 );
 
-const fetchAgentMews = () =>
+const pageLimit = 5;
+
+const fetchAuthoredMews = () =>
   client.callZome({
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_agent_mews_with_context",
-    payload: agentPubKey.value,
+    payload: {
+      agent: agentPubKey.value,
+      page: {
+        limit: pageLimit,
+      },
+    },
   });
+
+const {
+  data: authoredMews,
+  isLoading: isLoadingAuthoredMews,
+  error: errorAuthoredMews,
+  refetch: refetchAuthoredMews,
+} = useQuery({
+  queryKey: [
+    "profiles",
+    "get_agent_mews_with_context",
+    encodeHashToBase64(agentPubKey.value),
+  ],
+  queryFn: fetchAuthoredMews,
+});
+watch(errorAuthoredMews, showError);
 
 const fetchPinnedMews = () =>
   client.callZome({
@@ -184,6 +270,21 @@ const fetchPinnedMews = () =>
     fn_name: "get_mews_for_pinner_with_context",
     payload: agentPubKey.value,
   });
+
+const {
+  data: pinnedMews,
+  isLoading: isLoadingPinnedMews,
+  error: errorPinnedMews,
+  refetch: refetchPinnedMews,
+} = useQuery({
+  queryKey: [
+    "profiles",
+    "get_mews_for_pinner_with_context",
+    encodeHashToBase64(agentPubKey.value),
+  ],
+  queryFn: fetchPinnedMews,
+});
+watch(errorPinnedMews, showError);
 
 const fetchProfile = async () => {
   const profile = await profilesStore.client.getAgentProfile(agentPubKey.value);
@@ -197,26 +298,112 @@ const fetchProfile = async () => {
 
 const {
   data: profile,
-  loading,
-  error,
-  mutate: mutateProfile,
-} = useRequest(fetchProfile, {
-  cacheKey: `profiles/getAgentProfile/${agentPubKey.value}`,
-  refreshOnWindowFocus: true,
-  refocusTimespan: 25000, // 25 seconds between window focus to trigger refresh
-  loadingDelay: 1000,
-  ...localStorageCacheSettings,
+  isLoading: isLoadingProfile,
+  error: errorProfile,
+  refetch,
+} = useQuery({
+  queryKey: [
+    "profiles",
+    "getAgentProfile",
+    encodeHashToBase64(agentPubKey.value),
+  ],
+  queryFn: fetchProfile,
 });
-watch(error, showError);
+watch(errorProfile, showError);
 
-const onEditProfile = (event: CustomEvent<{ profile: Profile }>) => {
+const onEditProfile = () => {
   showEditProfileForm.value = false;
-  mutateProfile(event.detail.profile);
+  refetch();
 };
+
+const fetchFollowers = async () => {
+  const agents: AgentPubKey[] = await await client.callZome({
+    role_name: "mewsfeed",
+    zome_name: "follows",
+    fn_name: "get_followers_for_creator",
+    payload: {
+      creator: decodeHashFromBase64(route.params.agentPubKey as string),
+      page: {
+        limit: pageLimit,
+      },
+    },
+  });
+
+  const agentProfiles = await Promise.all(
+    agents.map(async (agentPubKey) => {
+      const profile = await profilesStore.client.getAgentProfile(agentPubKey);
+      if (!profile) return null;
+
+      return {
+        agentPubKey,
+        profile: profile,
+      };
+    })
+  );
+
+  return agentProfiles.filter(Boolean) as AgentProfile[];
+};
+
+const {
+  data: followers,
+  isLoading: isLoadingFollowers,
+  error: errorFollowers,
+  refetch: refetchFollowers,
+} = useQuery({
+  queryKey: [
+    "follows",
+    "get_followers_for_creator",
+    route.params.agentPubKey as string,
+  ],
+  queryFn: fetchFollowers,
+});
+watch(errorFollowers, showError);
+
+const fetchCreators = async () => {
+  const agents: AgentPubKey[] = await await client.callZome({
+    role_name: "mewsfeed",
+    zome_name: "follows",
+    fn_name: "get_creators_for_follower",
+    payload: {
+      follower: decodeHashFromBase64(route.params.agentPubKey as string),
+      page: {
+        limit: pageLimit,
+      },
+    },
+  });
+
+  const agentProfiles = await Promise.all(
+    agents.map(async (agentPubKey) => {
+      const profile = await profilesStore.client.getAgentProfile(agentPubKey);
+      if (!profile) return null;
+
+      return {
+        agentPubKey,
+        profile: profile,
+      };
+    })
+  );
+
+  return agentProfiles.filter(Boolean) as AgentProfile[];
+};
+
+const {
+  data: creators,
+  isLoading: isLoadingCreators,
+  error: errorCreators,
+} = useQuery({
+  queryKey: [
+    "follows",
+    "get_creators_for_follower",
+    route.params.agentPubKey as string,
+  ],
+  queryFn: fetchCreators,
+});
+watch(errorCreators, showError);
 </script>
 
 <style lang="sass">
 .follow-col
   position: sticky
-  top: $toolbar-min-height + map-get(map-get($spaces, "xl"), "y")
+  top: $toolbar-min-height + map-get(map-get($spaces, "xl"), "y") + 10
 </style>

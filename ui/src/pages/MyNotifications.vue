@@ -1,41 +1,132 @@
 <template>
-  <QPage class="text-center" :style-fn="pageHeightCorrection">
-    <h6 class="q-mt-none q-mb-md">Notifications</h6>
-    <MewListSkeleton v-if="loading || !notifications" />
-    <EmptyMewsFeed
-      v-else-if="notifications && !loading && notifications.length === 0"
-    />
-    <QList bordered separator>
-      <BaseNotification
-        v-for="(notification, i) in notifications"
-        :key="i"
-        v-observe-visibility="{
-          callback: () => markRead(notification),
-          once: true,
-        }"
-        :notification="notification"
-      />
-    </QList>
+  <QPage :style-fn="pageHeightCorrection">
+    <h6 class="q-mb-md">Notifications</h6>
+
+    <QInfiniteScroll
+      v-if="
+        data && data.pages && data.pages.length > 0 && data.pages[0].length > 0
+      "
+      :offset="250"
+      @load="fetchNextPageInfiniteScroll"
+    >
+      <QList bordered separator class="q-mb-lg">
+        <template v-for="(page, i) in data?.pages" :key="i">
+          <BaseNotification
+            v-for="(notification, j) of page"
+            :key="j"
+            v-observe-visibility="{
+              callback: () => markRead(notification),
+              once: true,
+            }"
+            :notification="notification"
+            @mew-deleted="
+              refetch({ refetchPage: (page, index) => index === i })
+            "
+            @mew-licked="refetch({ refetchPage: (page, index) => index === i })"
+            @mew-pinned="refetch({ refetchPage: (page, index) => index === i })"
+            @mew-unlicked="
+              refetch({ refetchPage: (page, index) => index === i })
+            "
+            @mew-unpinned="
+              refetch({ refetchPage: (page, index) => index === i })
+            "
+            @mewmew-created="
+              refetch({ refetchPage: (page, index) => index === i })
+            "
+            @quote-created="
+              refetch({ refetchPage: (page, index) => index === i })
+            "
+            @reply-created="
+              refetch({ refetchPage: (page, index) => index === i })
+            "
+          />
+        </template>
+      </QList>
+
+      <template #loading>
+        <div class="row justify-center q-mt-lg">
+          <QSpinnerDots color="primary" size="40px" />
+        </div>
+      </template>
+      <div v-if="!hasNextPage" class="row justify-center q-mt-lg">
+        <QIcon name="svguse:/icons.svg#paw" size="40px" color="grey-4" />
+      </div>
+    </QInfiniteScroll>
+    <BaseMewListSkeleton v-else-if="isInitialLoading" />
+    <BaseEmptyMewsFeed v-else />
   </QPage>
 </template>
 
 <script setup lang="ts">
 import { AppAgentClient } from "@holochain/client";
 import { inject, ComputedRef, watch } from "vue";
-import { QPage, QList } from "quasar";
+import { onBeforeRouteLeave } from "vue-router";
+import { QPage, QInfiniteScroll, QSpinnerDots, QIcon, QList } from "quasar";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import BaseNotification from "@/components/BaseNotification.vue";
-import EmptyMewsFeed from "@/components/EmptyMewsFeed.vue";
+import BaseEmptyMewsFeed from "@/components/BaseEmptyMewsFeed.vue";
+import BaseMewListSkeleton from "@/components/BaseMewListSkeleton.vue";
 import { showError } from "@/utils/toasts";
-import { makeUseNotificationsStore } from "@/stores/notifications";
-import { storeToRefs } from "pinia";
-import { onMounted } from "vue";
-const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
+import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";
+import { PaginationDirectionName, Notification } from "@/types/types";
 
-const useNotificationsStore = makeUseNotificationsStore(client);
-const { notifications, loading, error } = storeToRefs(useNotificationsStore());
-const { markRead, runAsync } = useNotificationsStore();
+const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+const useNotificationsReadStore = makeUseNotificationsReadStore(client);
+const { markRead, addNotificationStatus } = useNotificationsReadStore();
+const queryClient = useQueryClient();
+
+const pageLimit = 10;
+
+const fetchNotifications = async (params: any) => {
+  const res: Notification[] = await client.callZome({
+    role_name: "mewsfeed",
+    zome_name: "mews",
+    fn_name: "get_notifications_for_agent",
+    payload: {
+      agent: client.myPubKey,
+      page: {
+        limit: pageLimit,
+        direction: { [PaginationDirectionName.Descending]: null },
+        ...params.pageParam,
+      },
+    },
+  });
+  res.forEach((n) => addNotificationStatus(n, true));
+  return res;
+};
+
+const { data, error, fetchNextPage, hasNextPage, refetch, isInitialLoading } =
+  useInfiniteQuery({
+    queryKey: ["mews", "get_notifications_for_agent", client.myPubKey],
+    queryFn: fetchNotifications,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.length === 0) return;
+      if (lastPage.length < pageLimit) return;
+
+      return { after_timestamp: lastPage[lastPage.length - 1].timestamp };
+    },
+    refetchInterval: 1000 * 60 * 2, // 2 minutes
+  });
 watch(error, showError);
 
-onMounted(() => runAsync());
+const fetchNextPageInfiniteScroll = async (
+  index: number,
+  done: (stop?: boolean) => void
+) => {
+  await fetchNextPage();
+  done(!hasNextPage?.value);
+};
+
+onBeforeRouteLeave(() => {
+  if (data.value && data.value.pages.length > 1) {
+    queryClient.setQueryData(
+      ["mews", "get_notifications_for_agent", client.myPubKey],
+      (d: any) => ({
+        pages: [d.pages[0]],
+        pageParams: [d.pageParams[0]],
+      })
+    );
+  }
+});
 </script>

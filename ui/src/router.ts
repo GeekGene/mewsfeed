@@ -7,14 +7,19 @@ import MewYarn from "./pages/MewYarn.vue";
 import CashtagMewsFeed from "./pages/CashtagMewsFeed.vue";
 import HashtagMewsFeed from "./pages/HashtagMewsFeed.vue";
 import MentionMewsFeed from "./pages/MentionMewsFeed.vue";
+import AuthoredMewsFeed from "./pages/AuthoredMewsFeed.vue";
+import CreatorsList from "./pages/CreatorsList.vue";
+import FollowersList from "./pages/FollowersList.vue";
 import NotFound from "./pages/NotFound.vue";
 import MyNotifications from "./pages/MyNotifications.vue";
-import { useNewUserStore } from "./stores/newuser";
-import { storeToRefs } from "pinia";
+import { getHomeRedirect } from "./utils/homeRedirect";
 
 export const ROUTES = {
   discover: "discover",
   profile: "profile",
+  authoredMews: "authoredMews",
+  creators: "creators",
+  followers: "followers",
   notifications: "notifications",
   feed: "feed",
   yarn: "yarn",
@@ -28,15 +33,29 @@ export const routes: RouteRecordRaw[] = [
     path: "/",
     name: ROUTES.feed,
     beforeEnter: () => {
-      const { isNewUser } = storeToRefs(useNewUserStore());
-      if (isNewUser.value) return { name: ROUTES.discover };
+      if (getHomeRedirect()) return { name: ROUTES.discover };
     },
     component: MewsFeed,
   },
   {
-    path: "/profiles/:agent",
+    path: "/profiles/:agentPubKey",
     name: ROUTES.profile,
     component: AgentProfile,
+  },
+  {
+    path: "/profiles/:agentPubKey/mews",
+    name: ROUTES.authoredMews,
+    component: AuthoredMewsFeed,
+  },
+  {
+    path: "/profiles/:agentPubKey/creators",
+    name: ROUTES.creators,
+    component: CreatorsList,
+  },
+  {
+    path: "/profiles/:agentPubKey/followers",
+    name: ROUTES.followers,
+    component: FollowersList,
   },
   {
     path: "/notifications",
@@ -49,7 +68,7 @@ export const routes: RouteRecordRaw[] = [
     component: DiscoverCreators,
   },
   {
-    path: "/yarn/:hash",
+    path: "/yarn/:actionHash",
     name: ROUTES.yarn,
     component: MewYarn,
   },

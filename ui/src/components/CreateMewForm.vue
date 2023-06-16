@@ -31,7 +31,7 @@
       "
     >
       <div class="q-mb-md text-subtitle1 text-grey-7">
-        <MewContent :mew="originalMew.mew" />
+        <BaseMewContent :mew="originalMew.mew" />
       </div>
     </QCardSection>
 
@@ -49,7 +49,7 @@ import { QCard, QCardSection } from "quasar";
 import CreateMewField from "@/components/CreateMewField.vue";
 import { FeedMew, MewType, MewTypeName, PROFILE_FIELDS } from "@/types/types";
 import { Profile } from "@holochain-open-dev/profiles";
-import MewContent from "./MewContent.vue";
+import BaseMewContent from "./BaseMewContent.vue";
 
 defineProps<{
   mewType: MewType;

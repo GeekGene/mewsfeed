@@ -14,15 +14,20 @@
 
       <QCardSection class="yarn-container">
         <QList>
-          <MewListItem
-            :key="forceReloadMewKey"
-            v-model="mew"
+          <BaseMewListItem
+            v-if="mew"
+            :feed-mew="mew"
             class="q-mb-md bg-orange-1"
-            :action-hash="actionHash"
-            @reply-created="forceReloadAll"
-            @mewmew-created="forceReloadAll"
-            @quote-created="forceReloadAll"
+            @mew-deleted="refetchMewAndRepliesPage(0)"
+            @mew-licked="refetchMewAndRepliesPage(0)"
+            @mew-pinned="refetchMewAndRepliesPage(0)"
+            @mew-unlicked="refetchMewAndRepliesPage(0)"
+            @mew-unpinned="refetchMewAndRepliesPage(0)"
+            @mewmew-created="refetchMewAndRepliesPage(0)"
+            @quote-created="refetchMewAndRepliesPage(0)"
+            @reply-created="refetchMewAndRepliesPage(0)"
           />
+          <BaseMewListItemSkeleton v-else-if="isLoadingMew" />
 
           <QItem class="q-mb-md q-px-none">
             <div class="col-grow">
@@ -31,73 +36,209 @@
               <CreateMewField
                 :mew-type="{ [MewTypeName.Reply]: actionHash }"
                 class="full-width"
-                @mew-created="onCreateReply"
+                @mew-created="refetchMewAndRepliesLastPage"
               />
             </div>
           </QItem>
         </QList>
 
-        <MewList
-          :key="forceReloadRepliesKey"
-          :fetch-fn="fetchReplies"
-          :cache-key="`mews/get_batch_mews_with_context/${mew?.replies}`"
-          :show-yarn-link="false"
-        />
+        <QInfiniteScroll
+          v-if="
+            replies && replies.pages.length > 0 && replies.pages[0].length > 0
+          "
+          :offset="250"
+          @load="fetchNextPageReplies"
+        >
+          <QList bordered separator class="q-mb-lg">
+            <template v-for="(page, i) in replies.pages" :key="i">
+              <BaseMewListItem
+                v-for="(reply, j) of page"
+                :key="j"
+                :feed-mew="reply"
+                :show-yarn-link="false"
+                @mew-deleted="refetchRepliesPage(i)"
+                @mew-licked="refetchRepliesPage(i)"
+                @mew-pinned="refetchRepliesPage(i)"
+                @mew-unlicked="refetchRepliesPage(i)"
+                @mew-unpinned="refetchRepliesPage(i)"
+                @mewmew-created="refetchRepliesPage(i)"
+                @quote-created="refetchRepliesPage(i)"
+                @reply-created="refetchRepliesPage(i)"
+              />
+            </template>
+          </QList>
+
+          <template #loading>
+            <div class="row justify-center q-mt-lg">
+              <QSpinnerDots color="primary" size="40px" />
+            </div>
+          </template>
+          <div v-if="!hasNextPage" class="row justify-center q-mt-lg">
+            <QIcon name="svguse:/icons.svg#paw" size="40px" color="grey-4" />
+          </div>
+        </QInfiniteScroll>
+        <BaseMewListSkeleton v-else-if="isLoadingReplies" />
+        <BaseEmptyMewsFeed v-else />
       </QCardSection>
     </QCard>
   </QPage>
 </template>
 
 <script setup lang="ts">
-import { QPage, QCard, QCardSection, QBtn, QIcon, QItem, QList } from "quasar";
+import {
+  QPage,
+  QInfiniteScroll,
+  QSpinnerDots,
+  QCard,
+  QCardSection,
+  QBtn,
+  QIcon,
+  QItem,
+  QList,
+} from "quasar";
 import CreateMewField from "@/components/CreateMewField.vue";
-import MewListItem from "@/components/MewListItem.vue";
-import MewList from "@/components/MewList.vue";
-import { FeedMew, MewTypeName } from "@/types/types";
+import BaseMewListItem from "@/components/BaseMewListItem.vue";
+import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
+import { MewTypeName, PaginationDirectionName } from "@/types/types";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { decodeHashFromBase64 } from "@holochain/client";
-import { ComputedRef, computed, inject, ref, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { ComputedRef, computed, inject, watch } from "vue";
+import { useRoute, useRouter, onBeforeRouteLeave } from "vue-router";
 import { AppAgentClient } from "@holochain/client";
-import isEqual from "lodash/isEqual";
-import { showMessage } from "@/utils/toasts";
+import { showError } from "@/utils/toasts";
+import {
+  useInfiniteQuery,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/vue-query";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const route = useRoute();
 const router = useRouter();
+const queryClient = useQueryClient();
 
-const forceReloadRepliesKey = ref(0);
-const forceReloadMewKey = ref(0);
-const mew = ref<FeedMew>();
+const pageLimit = 10;
 
 const actionHash = computed(() =>
-  decodeHashFromBase64(route.params.hash as string)
+  decodeHashFromBase64(route.params.actionHash as string)
 );
+const hasActionHash = computed(() => actionHash.value !== undefined);
 
-const fetchReplies = () => {
-  if (!mew.value?.replies || mew.value.replies.length === 0)
-    return Promise.resolve([]);
-
-  return client.callZome({
+const fetchMew = () =>
+  client.callZome({
     role_name: "mewsfeed",
     zome_name: "mews",
-    fn_name: "get_batch_mews_with_context",
-    payload: mew.value?.replies,
+    fn_name: "get_mew_with_context",
+    payload: actionHash.value,
+  });
+
+const {
+  data: mew,
+  error: mewError,
+  isLoading: isLoadingMew,
+  refetch: refetchMew,
+} = useQuery({
+  queryKey: ["mews", "get_mew_with_context", route.params.actionHash as string],
+  queryFn: fetchMew,
+  enabled: hasActionHash,
+  refetchInterval: 1000 * 60 * 2, // 2 minutes
+});
+watch(mewError, showError);
+
+const fetchReplies = (params: any) =>
+  client.callZome({
+    role_name: "mewsfeed",
+    zome_name: "mews",
+    fn_name: "get_responses_for_mew_with_context",
+    payload: {
+      original_mew_hash: mew?.value.action_hash,
+      page: {
+        limit: pageLimit,
+        direction: { [PaginationDirectionName.Ascending]: null },
+        ...params.pageParam,
+      },
+    },
+  });
+
+const hasMew = computed(() => mew.value !== undefined);
+
+const {
+  data: replies,
+  error: errorReplies,
+  fetchNextPage,
+  hasNextPage,
+  isLoading: isLoadingReplies,
+  refetch: refetchReplies,
+} = useInfiniteQuery({
+  queryKey: [
+    "mews",
+    "get_responses_for_mew_with_context",
+    route.params.actionHash as string,
+  ],
+  queryFn: fetchReplies,
+  enabled: hasMew,
+  getNextPageParam: (lastPage) => {
+    if (lastPage.length === 0) return;
+    if (lastPage.length < pageLimit) return;
+
+    return { after_hash: lastPage[lastPage.length - 1].action_hash };
+  },
+  refetchInterval: 1000 * 60 * 2, // 2 minutes
+});
+watch(errorReplies, showError);
+
+const fetchNextPageReplies = async (
+  index: number,
+  done: (stop?: boolean) => void
+) => {
+  await fetchNextPage();
+  done(!hasNextPage?.value);
+};
+
+const refetchMewAndRepliesPage = async (pageIndex: number) => {
+  await refetchMew();
+  await refetchRepliesPage(pageIndex);
+};
+
+const refetchRepliesPage = async (pageIndex: number) => {
+  await refetchReplies({
+    refetchPage: (page: any, index: number) => index === pageIndex,
   });
 };
 
-const forceReloadAll = () => {
-  forceReloadRepliesKey.value += 1;
-  forceReloadMewKey.value += 1;
+const refetchMewAndRepliesLastPage = async () => {
+  await refetchMew();
+
+  if (
+    !mew.value.replies ||
+    !replies.value ||
+    replies.value.pages.length === 0
+  ) {
+    await refetchRepliesPage(0);
+  } else if (
+    mew.value.replies.length <
+    replies.value.pages.length * pageLimit
+  ) {
+    await refetchRepliesPage(replies.value.pages.length - 1);
+  } else {
+    await refetchRepliesPage(replies.value.pages.length - 1);
+    await fetchNextPage();
+  }
 };
 
-const onCreateReply = () => {
-  forceReloadAll();
-  showMessage("Replied to Mew");
-};
-
-watch(mew, (newMew, oldMew) => {
-  if (!oldMew || !isEqual(newMew?.replies, oldMew?.replies))
-    forceReloadRepliesKey.value += 1;
+onBeforeRouteLeave(() => {
+  if (replies.value && replies.value.pages.length > 1) {
+    queryClient.setQueryData(
+      [
+        "mews",
+        "get_responses_for_mew_with_context",
+        route.params.actionHash as string,
+      ],
+      (d: any) => ({
+        pages: [d.pages[0]],
+        pageParams: [d.pageParams[0]],
+      })
+    );
+  }
 });
 </script>

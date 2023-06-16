@@ -10,7 +10,7 @@ name = "follows"
 [dependencies]
 hdk = { workspace = true }
 holochain_integrity_types = { workspace = true }
-
 serde = { workspace = true }
-
 follows_integrity = { workspace = true } 
+hc_link_pagination = { workspace = true }
+follows_types = { workspace = true }

@@ -1,13 +1,12 @@
 [package]
-name = "mews_types"
+name = "hc_link_pagination"
 version = "0.0.1"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
-name = "mews_types"
+name = "hc_link_pagination"
 
 [dependencies]
 hdk = { workspace = true }
 serde = { workspace = true }
-hc_link_pagination = { workspace = true }

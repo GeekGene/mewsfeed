@@ -3,7 +3,7 @@
     :to="
       to || {
         name: ROUTES.profile,
-        params: { agent: encodeHashToBase64(agentPubKey) },
+        params: { agentPubKey: encodeHashToBase64(agentPubKey) },
       }
     "
     class="text-secondary text-bold"

@@ -1,4 +1,4 @@
-import { assert, test } from "vitest";
+import { assert, expect, test } from "vitest";
 import { runScenario, pause } from "@holochain/tryorama";
 import { ActionHash, Record } from "@holochain/client";
 import { createMew } from "./common";
@@ -22,10 +22,17 @@ test("create a Mew and get followed creators mews", async () => {
       // conductor of the scenario.
       await scenario.shareAllAgents();
 
-      // Bob gets all mews
-      let collectionOutput: Record[] = await bob.cells[0].callZome({
+      // Bob follows alice
+      await bob.cells[0].callZome({
+        zome_name: "follows",
+        fn_name: "follow",
+        payload: alice.agentPubKey,
+      });
+
+      // Bob gets followed creators mews
+      let collectionOutput: FeedMew[] = await bob.cells[0].callZome({
         zome_name: "mews",
-        fn_name: "get_all_mews",
+        fn_name: "get_my_followed_creators_mews_with_context",
         payload: null,
       });
       assert.equal(collectionOutput.length, 0);
@@ -36,17 +43,15 @@ test("create a Mew and get followed creators mews", async () => {
 
       await pause(1200);
 
-      // Bob gets all mews again
+      // Bob gets followed creators mews again
       collectionOutput = await bob.cells[0].callZome({
         zome_name: "mews",
-        fn_name: "get_all_mews",
+        fn_name: "get_my_followed_creators_mews_with_context",
         payload: null,
       });
+
       assert.equal(collectionOutput.length, 1);
-      assert.deepEqual(
-        actionHash,
-        collectionOutput[0].signed_action.hashed.hash
-      );
+      assert.deepEqual(actionHash, collectionOutput[0].action_hash);
     },
     true,
     { timeout: 100000 }
@@ -414,6 +419,198 @@ test("Followed creators mews should be ordered by timestamp in descending order"
         firstMewContent,
         "mew 4 in feed is first mew"
       );
+    },
+    true,
+    { timeout: 100000 }
+  );
+});
+
+test("Followed creators mews list are time-paginated", async () => {
+  await runScenario(
+    async (scenario) => {
+      // Set up the app to be installed
+      const appSource = { appBundleSource: mewsfeedAppBundleSource };
+
+      // Add 2 players with the test app to the Scenario. The returned players
+      // can be destructured.
+      const [alice, bob] = await scenario.addPlayersWithApps([
+        appSource,
+        appSource,
+      ]);
+
+      // Shortcut peer discovery through gossip and register all agents in every
+      // conductor of the scenario.
+      await scenario.shareAllAgents();
+
+      const mewContent1 = "My Mew with #hashtag 1";
+      const createMewInput1: Mew = {
+        text: mewContent1,
+        links: [],
+        mew_type: { [MewTypeName.Original]: null },
+      };
+      const mewActionHash1 = await alice.cells[0].callZome({
+        zome_name: "mews",
+        fn_name: "create_mew",
+        payload: createMewInput1,
+      });
+
+      const mewContent2 = "My Mew with #hashtag 2";
+      const createMewInput2: Mew = {
+        text: mewContent2,
+        links: [],
+        mew_type: { [MewTypeName.Original]: null },
+      };
+      const mewActionHash2 = await alice.cells[0].callZome({
+        zome_name: "mews",
+        fn_name: "create_mew",
+        payload: createMewInput2,
+      });
+
+      const mewContent3 = "My Mew with #hashtag 3";
+      const createMewInput3: Mew = {
+        text: mewContent3,
+        links: [],
+        mew_type: { [MewTypeName.Original]: null },
+      };
+      const mewActionHash3 = await alice.cells[0].callZome({
+        zome_name: "mews",
+        fn_name: "create_mew",
+        payload: createMewInput3,
+      });
+
+      const mewContent4 = "My Mew with #hashtag 4";
+      const createMewInput4: Mew = {
+        text: mewContent4,
+        links: [],
+        mew_type: { [MewTypeName.Original]: null },
+      };
+      const mewActionHash4 = await alice.cells[0].callZome({
+        zome_name: "mews",
+        fn_name: "create_mew",
+        payload: createMewInput4,
+      });
+
+      const mewContent5 = "My Mew with #hashtag 5";
+      const createMewInput5: Mew = {
+        text: mewContent5,
+        links: [],
+        mew_type: { [MewTypeName.Original]: null },
+      };
+      const mewActionHash5 = await alice.cells[0].callZome({
+        zome_name: "mews",
+        fn_name: "create_mew",
+        payload: createMewInput5,
+      });
+
+      const mewContent6 = "My Mew with #hashtag 6";
+      const createMewInput6: Mew = {
+        text: mewContent6,
+        links: [],
+        mew_type: { [MewTypeName.Original]: null },
+      };
+      const mewActionHash6 = await alice.cells[0].callZome({
+        zome_name: "mews",
+        fn_name: "create_mew",
+        payload: createMewInput6,
+      });
+
+      const mewContent7 = "My Mew with #hashtag 7";
+      const createMewInput7: Mew = {
+        text: mewContent7,
+        links: [],
+        mew_type: { [MewTypeName.Original]: null },
+      };
+      const mewActionHash7 = await alice.cells[0].callZome({
+        zome_name: "mews",
+        fn_name: "create_mew",
+        payload: createMewInput7,
+      });
+
+      await bob.cells[0].callZome({
+        zome_name: "follows",
+        fn_name: "follow",
+        payload: alice.agentPubKey,
+      });
+
+      await pause(1500);
+
+      const page1: FeedMew[] = await bob.cells[0].callZome({
+        zome_name: "mews",
+        fn_name: "get_my_followed_creators_mews_with_context",
+        payload: {
+          limit: 2,
+        },
+      });
+
+      assert.deepEqual(page1[0].action_hash, mewActionHash7);
+      assert.deepEqual(page1[1].action_hash, mewActionHash6);
+      expect(page1[0].action.timestamp).greaterThanOrEqual(
+        page1[1].action.timestamp
+      );
+
+      const page2: FeedMew[] = await bob.cells[0].callZome({
+        zome_name: "mews",
+        fn_name: "get_my_followed_creators_mews_with_context",
+        payload: {
+          after_hash: page1[page1.length - 1].action_hash,
+          limit: 2,
+        },
+      });
+
+      assert.deepEqual(page2[0].action_hash, mewActionHash5);
+      assert.deepEqual(page2[1].action_hash, mewActionHash4);
+      expect(page1[0].action.timestamp)
+        .greaterThanOrEqual(page1[1].action.timestamp)
+        .greaterThanOrEqual(page2[0].action.timestamp)
+        .greaterThanOrEqual(page2[1].action.timestamp);
+
+      const page3: FeedMew[] = await bob.cells[0].callZome({
+        zome_name: "mews",
+        fn_name: "get_my_followed_creators_mews_with_context",
+        payload: {
+          after_hash: page2[page2.length - 1].action_hash,
+          limit: 2,
+        },
+      });
+
+      assert.deepEqual(page3[0].action_hash, mewActionHash3);
+      assert.deepEqual(page3[1].action_hash, mewActionHash2);
+      expect(page1[0].action.timestamp)
+        .greaterThanOrEqual(page1[1].action.timestamp)
+        .greaterThanOrEqual(page2[0].action.timestamp)
+        .greaterThanOrEqual(page2[1].action.timestamp)
+        .greaterThanOrEqual(page3[0].action.timestamp)
+        .greaterThanOrEqual(page3[1].action.timestamp);
+
+      const page4: FeedMew[] = await bob.cells[0].callZome({
+        zome_name: "mews",
+        fn_name: "get_my_followed_creators_mews_with_context",
+        payload: {
+          after_hash: page3[page3.length - 1].action_hash,
+          limit: 2,
+        },
+      });
+
+      assert.lengthOf(page4, 1);
+      assert.deepEqual(page4[0].action_hash, mewActionHash1);
+      expect(page1[0].action.timestamp)
+        .greaterThanOrEqual(page1[1].action.timestamp)
+        .greaterThanOrEqual(page2[0].action.timestamp)
+        .greaterThanOrEqual(page2[1].action.timestamp)
+        .greaterThanOrEqual(page3[0].action.timestamp)
+        .greaterThanOrEqual(page3[1].action.timestamp)
+        .greaterThanOrEqual(page4[0].action.timestamp);
+
+      const page5: FeedMew[] = await bob.cells[0].callZome({
+        zome_name: "mews",
+        fn_name: "get_my_followed_creators_mews_with_context",
+        payload: {
+          after_hash: page4[page4.length - 1].action_hash,
+          limit: 2,
+        },
+      });
+
+      assert.lengthOf(page5, 0);
     },
     true,
     { timeout: 100000 }
