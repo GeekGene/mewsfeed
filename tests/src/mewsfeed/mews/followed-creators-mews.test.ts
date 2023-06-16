@@ -41,7 +41,7 @@ test("create a Mew and get followed creators mews", async () => {
       const actionHash: ActionHash = await createMew(alice.cells[0]);
       assert.ok(actionHash);
 
-      await pause(1200);
+      await pause(2500);
 
       // Bob gets followed creators mews again
       collectionOutput = await bob.cells[0].callZome({
@@ -223,7 +223,7 @@ test("Followed creators mews should not include mews of non-followed creator", a
         fn_name: "follow",
         payload: alice.agentPubKey,
       });
-      await pause(1000);
+      await pause(2500);
 
       const bobMewsFeed: FeedMew[] = await bob.cells[0].callZome({
         zome_name: "mews",
@@ -276,7 +276,7 @@ test("Unfollowing should exclude creators mews from feed", async () => {
         fn_name: "follow",
         payload: alice.agentPubKey,
       });
-      await pause(1000);
+      await pause(2500);
 
       const bobMewsFeedWhenFollowing: FeedMew[] = await bob.cells[0].callZome({
         zome_name: "mews",
@@ -388,7 +388,7 @@ test("Followed creators mews should be ordered by timestamp in descending order"
         payload: carol.agentPubKey,
       });
 
-      await pause(1000);
+      await pause(2500);
 
       const aliceMewsFeed: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -532,7 +532,7 @@ test("Followed creators mews list are time-paginated", async () => {
         payload: alice.agentPubKey,
       });
 
-      await pause(1500);
+      await pause(2500);
 
       const page1: FeedMew[] = await bob.cells[0].callZome({
         zome_name: "mews",
