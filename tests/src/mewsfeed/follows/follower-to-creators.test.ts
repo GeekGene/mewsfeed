@@ -1,6 +1,6 @@
 import { assert, test, expect } from "vitest";
 import { runScenario, pause } from "@holochain/tryorama";
-import { Record } from "@holochain/client";
+import { AgentPubKey, Record } from "@holochain/client";
 import { mewsfeedAppBundleSource } from "../../common";
 
 test("link a Follower to a Creator", async () => {
@@ -27,7 +27,9 @@ test("link a Follower to a Creator", async () => {
       let linksOutput: Record[] = await bob.cells[0].callZome({
         zome_name: "follows",
         fn_name: "get_creators_for_follower",
-        payload: baseAddress,
+        payload: {
+          follower: baseAddress,
+        },
       });
       assert.equal(linksOutput.length, 0);
 
@@ -47,7 +49,9 @@ test("link a Follower to a Creator", async () => {
       linksOutput = await bob.cells[0].callZome({
         zome_name: "follows",
         fn_name: "get_creators_for_follower",
-        payload: baseAddress,
+        payload: {
+          follower: baseAddress,
+        },
       });
       assert.equal(linksOutput.length, 1);
 
@@ -55,7 +59,9 @@ test("link a Follower to a Creator", async () => {
       linksOutput = await bob.cells[0].callZome({
         zome_name: "follows",
         fn_name: "get_followers_for_creator",
-        payload: targetAddress,
+        payload: {
+          creator: targetAddress,
+        },
       });
       assert.equal(linksOutput.length, 1);
 
@@ -74,7 +80,9 @@ test("link a Follower to a Creator", async () => {
       linksOutput = await bob.cells[0].callZome({
         zome_name: "follows",
         fn_name: "get_creators_for_follower",
-        payload: baseAddress,
+        payload: {
+          follower: baseAddress,
+        },
       });
       assert.equal(linksOutput.length, 0);
 
@@ -82,7 +90,9 @@ test("link a Follower to a Creator", async () => {
       linksOutput = await bob.cells[0].callZome({
         zome_name: "follows",
         fn_name: "get_followers_for_creator",
-        payload: targetAddress,
+        payload: {
+          creator: targetAddress,
+        },
       });
       assert.equal(linksOutput.length, 0);
     },
@@ -120,6 +130,7 @@ test("Agent cannot follow themselves", async () => {
     { timeout: 100000 }
   );
 });
+
 
 test("Agent can only change their own follows", async () => {
   await runScenario(
@@ -191,3 +202,263 @@ test("Agent can only change their own follows", async () => {
     { timeout: 100000 }
   );
 });
+
+test(
+  "Creators list are hash-paginated",
+  async () => {
+    await runScenario(
+      async (scenario) => {
+        // Set up the app to be installed
+        const appSource = { appBundleSource: mewsfeedAppBundleSource };
+
+        // Add 2 players with the test app to the Scenario. The returned players
+        // can be destructured.
+        const [alice, bob, carol, john, steve, mary] =
+          await scenario.addPlayersWithApps([
+            appSource,
+            appSource,
+            appSource,
+            appSource,
+            appSource,
+            appSource,
+          ]);
+
+        // Shortcut peer discovery through gossip and register all agents in every
+        // conductor of the scenario.
+        await scenario.shareAllAgents();
+
+        // Alice creates a link from Follower to Creator
+        await alice.cells[0].callZome({
+          zome_name: "follows",
+          fn_name: "add_creator_for_follower",
+          payload: {
+            base_follower: alice.agentPubKey,
+            target_creator: bob.agentPubKey,
+          },
+        });
+        await alice.cells[0].callZome({
+          zome_name: "follows",
+          fn_name: "add_creator_for_follower",
+          payload: {
+            base_follower: alice.agentPubKey,
+            target_creator: carol.agentPubKey,
+          },
+        });
+        await alice.cells[0].callZome({
+          zome_name: "follows",
+          fn_name: "add_creator_for_follower",
+          payload: {
+            base_follower: alice.agentPubKey,
+            target_creator: john.agentPubKey,
+          },
+        });
+        await alice.cells[0].callZome({
+          zome_name: "follows",
+          fn_name: "add_creator_for_follower",
+          payload: {
+            base_follower: alice.agentPubKey,
+            target_creator: steve.agentPubKey,
+          },
+        });
+        await alice.cells[0].callZome({
+          zome_name: "follows",
+          fn_name: "add_creator_for_follower",
+          payload: {
+            base_follower: alice.agentPubKey,
+            target_creator: mary.agentPubKey,
+          },
+        });
+
+        await pause(1000);
+
+        const page1: AgentPubKey[] = await alice.cells[0].callZome({
+          zome_name: "follows",
+          fn_name: "get_creators_for_follower",
+          payload: {
+            follower: alice.agentPubKey,
+            page: {
+              limit: 2,
+            },
+          },
+        });
+
+        assert.deepEqual(page1[0], mary.agentPubKey);
+        assert.deepEqual(page1[1], steve.agentPubKey);
+
+        const page2: AgentPubKey[] = await alice.cells[0].callZome({
+          zome_name: "follows",
+          fn_name: "get_creators_for_follower",
+          payload: {
+            follower: alice.agentPubKey,
+            page: {
+              after_agentpubkey: page1[1],
+              limit: 2,
+            },
+          },
+        });
+        assert.deepEqual(page2[0], john.agentPubKey);
+        assert.deepEqual(page2[1], carol.agentPubKey);
+
+        const page3: AgentPubKey[] = await alice.cells[0].callZome({
+          zome_name: "follows",
+          fn_name: "get_creators_for_follower",
+          payload: {
+            follower: alice.agentPubKey,
+            page: {
+              after_agentpubkey: page2[1],
+              limit: 2,
+            },
+          },
+        });
+        assert.lengthOf(page3, 1);
+        assert.deepEqual(page3[0], bob.agentPubKey);
+
+        const page5: AgentPubKey[] = await alice.cells[0].callZome({
+          zome_name: "follows",
+          fn_name: "get_creators_for_follower",
+          payload: {
+            follower: alice.agentPubKey,
+            page: {
+              after_agentpubkey: page3[0],
+              limit: 2,
+            },
+          },
+        });
+        assert.lengthOf(page5, 0);
+      },
+      true,
+      { timeout: 500000 }
+    );
+  },
+  { timeout: 500000 }
+);
+
+test(
+  "Followers list are hash-paginated",
+  async () => {
+    await runScenario(
+      async (scenario) => {
+        // Set up the app to be installed
+        const appSource = { appBundleSource: mewsfeedAppBundleSource };
+
+        // Add 2 players with the test app to the Scenario. The returned players
+        // can be destructured.
+        const [alice, bob, carol, john, steve, mary] =
+          await scenario.addPlayersWithApps([
+            appSource,
+            appSource,
+            appSource,
+            appSource,
+            appSource,
+            appSource,
+          ]);
+
+        // Shortcut peer discovery through gossip and register all agents in every
+        // conductor of the scenario.
+        await scenario.shareAllAgents();
+
+        // Alice creates a link from Follower to Creator
+        await bob.cells[0].callZome({
+          zome_name: "follows",
+          fn_name: "add_creator_for_follower",
+          payload: {
+            base_follower: bob.agentPubKey,
+            target_creator: alice.agentPubKey,
+          },
+        });
+        await carol.cells[0].callZome({
+          zome_name: "follows",
+          fn_name: "add_creator_for_follower",
+          payload: {
+            base_follower: carol.agentPubKey,
+            target_creator: alice.agentPubKey,
+          },
+        });
+        await john.cells[0].callZome({
+          zome_name: "follows",
+          fn_name: "add_creator_for_follower",
+          payload: {
+            base_follower: john.agentPubKey,
+            target_creator: alice.agentPubKey,
+          },
+        });
+        await steve.cells[0].callZome({
+          zome_name: "follows",
+          fn_name: "add_creator_for_follower",
+          payload: {
+            base_follower: steve.agentPubKey,
+            target_creator: alice.agentPubKey,
+          },
+        });
+        await mary.cells[0].callZome({
+          zome_name: "follows",
+          fn_name: "add_creator_for_follower",
+          payload: {
+            base_follower: mary.agentPubKey,
+            target_creator: alice.agentPubKey,
+          },
+        });
+
+        await pause(1000);
+
+        const page1: AgentPubKey[] = await alice.cells[0].callZome({
+          zome_name: "follows",
+          fn_name: "get_followers_for_creator",
+          payload: {
+            creator: alice.agentPubKey,
+            page: {
+              limit: 2,
+            },
+          },
+        });
+
+        assert.deepEqual(page1[0], mary.agentPubKey);
+        assert.deepEqual(page1[1], steve.agentPubKey);
+
+        const page2: AgentPubKey[] = await alice.cells[0].callZome({
+          zome_name: "follows",
+          fn_name: "get_followers_for_creator",
+          payload: {
+            creator: alice.agentPubKey,
+            page: {
+              after_agentpubkey: page1[1],
+              limit: 2,
+            },
+          },
+        });
+        assert.deepEqual(page2[0], john.agentPubKey);
+        assert.deepEqual(page2[1], carol.agentPubKey);
+
+        const page3: AgentPubKey[] = await alice.cells[0].callZome({
+          zome_name: "follows",
+          fn_name: "get_followers_for_creator",
+          payload: {
+            creator: alice.agentPubKey,
+            page: {
+              after_agentpubkey: page2[1],
+              limit: 2,
+            },
+          },
+        });
+        assert.lengthOf(page3, 1);
+        assert.deepEqual(page3[0], bob.agentPubKey);
+
+        const page5: AgentPubKey[] = await alice.cells[0].callZome({
+          zome_name: "follows",
+          fn_name: "get_followers_for_creator",
+          payload: {
+            creator: alice.agentPubKey,
+            page: {
+              after_agentpubkey: page3[0],
+              limit: 2,
+            },
+          },
+        });
+        assert.lengthOf(page5, 0);
+      },
+      true,
+      { timeout: 500000 }
+    );
+  },
+  { timeout: 500000 }
+);

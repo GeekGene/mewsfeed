@@ -2,7 +2,7 @@
   <RouterLink
     :to="{
       name: ROUTES.profile,
-      params: { agent: encodeHashToBase64(agentPubKey) },
+      params: { agentPubKey: encodeHashToBase64(agentPubKey) },
     }"
     style="z-index: 200; width: 350px; position: absolute"
     @click.stop
@@ -89,7 +89,7 @@ const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const isMyProfile = computed(() => isEqual(props.agentPubKey, client.myPubKey));
 const isCurrentProfile = computed(
   () =>
-    router.currentRoute.value.params.agent ===
+    router.currentRoute.value.params.agentPubKey ===
     encodeHashToBase64(props.agentPubKey)
 );
 

@@ -5,7 +5,7 @@
       style="overflow-wrap: anywhere; white-space: pre-line"
     >
       <template v-for="(contentPart, index) of partsDisplayed" :key="index">
-        <MewContentTag
+        <BaseMewContentTag
           v-if="contentPart.tagType !== undefined"
           :content-part="contentPart"
         />
@@ -26,7 +26,7 @@
 import { Mew, MewContentPart } from "@/types/types";
 import { splitMewTextIntoContentParts } from "@/utils/tags";
 import { computed, ref } from "vue";
-import MewContentTag from "./MewContentTag.vue";
+import BaseMewContentTag from "./BaseMewContentTag.vue";
 
 const props = defineProps<{
   mew: Mew;

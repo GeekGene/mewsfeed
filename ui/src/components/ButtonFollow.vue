@@ -29,6 +29,7 @@ import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
 import { AppAgentClient } from "@holochain/client";
 import CreateProfileIfNotFoundDialog from "./CreateProfileIfNotFoundDialog.vue";
 import isEqual from "lodash/isEqual";
+import { setHomeRedirect } from "@/utils/homeRedirect";
 
 const props = defineProps({
   agentPubKey: {
@@ -52,7 +53,9 @@ onMounted(async () => {
       role_name: "mewsfeed",
       zome_name: "follows",
       fn_name: "get_creators_for_follower",
-      payload: client.myPubKey,
+      payload: {
+        follower: client.myPubKey,
+      },
     });
     isFollowing.value = currentMyFollowing.some((agent) =>
       isEqual(agent, props.agentPubKey)
@@ -89,6 +92,10 @@ const toggleFollow = async () => {
           }),
     ]);
     isFollowing.value = !isFollowing.value;
+    if (isFollowing.value) {
+      setHomeRedirect(false);
+    }
+
     const name = `${profile?.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
       profile?.nickname
     })`;

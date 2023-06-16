@@ -10,7 +10,7 @@
     "start": "npm run network",
     "network": "npm run build:happ && UI_PORT=8888 concurrently \"npm run playground\" \"npm run start:agent\" \"npm run start:agent\"",
     "start:agent": "HC_PORT=$(port) HC_ADMIN_PORT=$(port) concurrently \"npm run launch:happ\" \"npm run start:browser -w ui\"",
-    "launch:happ": "hc s clean && echo pass | RUST_LOG=warn hc s --piped -f=$HC_ADMIN_PORT generate ./workdir/mewsfeed.happ --run=$HC_PORT -a mewsfeed network mdns",    
+    "launch:happ": "hc s clean && echo pass | RUST_LOG=warn hc s --piped -f=$HC_ADMIN_PORT generate ./workdir/mewsfeed.happ --run=$HC_PORT -a mewsfeed network mdns",
     "start:launcher": "AGENTS=2 npm run network:launcher",
     "network:launcher": "hc s clean && npm run build:happ && UI_PORT=8888 concurrently \"npm start -w ui\" \"npm run launch:happ:launcher\" \"holochain-playground\"",
     "launch:happ:launcher": "echo \"pass\" | RUST_LOG=warn hc launch --piped -n $AGENTS workdir/mewsfeed.happ --ui-port $UI_PORT network mdns",

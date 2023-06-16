@@ -27,14 +27,17 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
             let replies = get_response_hashes_for_mew(GetResponsesForMewInput {
                 original_mew_hash: original_mew_hash.clone(),
                 response_type: Some(ResponseType::Reply),
+                page: None,
             })?;
             let quotes = get_response_hashes_for_mew(GetResponsesForMewInput {
                 original_mew_hash: original_mew_hash.clone(),
                 response_type: Some(ResponseType::Quote),
+                page: None,
             })?;
             let mewmews = get_response_hashes_for_mew(GetResponsesForMewInput {
                 original_mew_hash: original_mew_hash.clone(),
                 response_type: Some(ResponseType::Mewmew),
+                page: None,
             })?;
             let licks = get_lickers_for_mew(original_mew_hash)?;
             let deleted_timestamp = deletes
@@ -121,6 +124,15 @@ pub fn get_batch_mews_with_context(hashes: Vec<ActionHash>) -> ExternResult<Vec<
         .into_iter()
         .map(get_mew_with_context)
         .collect::<ExternResult<Vec<FeedMew>>>()
+}
+
+#[hdk_extern]
+pub fn get_responses_for_mew_with_context(
+    input: GetResponsesForMewInput,
+) -> ExternResult<Vec<FeedMew>> {
+    let response_hashes = get_response_hashes_for_mew(input)?;
+
+    get_batch_mews_with_context(response_hashes)
 }
 
 fn get_agent_profile(agent_pub_key: AgentPubKey) -> ExternResult<Option<Profile>> {

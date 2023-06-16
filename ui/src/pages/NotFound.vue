@@ -6,13 +6,13 @@
       color="accent"
       label="Come back home, Kitty"
       size="md"
-      :to="{ name: ROUTES.home }"
+      :to="{ name: ROUTES.feed }"
     />
   </QPage>
 </template>
 
 <script setup lang="ts">
-import { QPage } from "quasar";
+import { QPage, QBtn } from "quasar";
 import { ROUTES } from "@/router";
 import { pageHeightCorrection } from "@/utils/page-layout";
 </script>

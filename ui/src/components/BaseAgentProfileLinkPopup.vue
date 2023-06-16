@@ -4,7 +4,7 @@
       <div v-if="profile" class="row justify-center items-center">
         <agent-avatar
           :agentPubKey="agentPubKey"
-          size="20"
+          :size="avatarSize"
           disable-tooltip
           disable-copy
           class="q-mr-xs"
@@ -27,10 +27,17 @@ import { AgentPubKey, encodeHashToBase64 } from "@holochain/client";
 import LinkProfilePopup from "@/components/LinkProfilePopup.vue";
 import { PROFILE_FIELDS } from "@/types/types";
 
-defineProps<{
-  agentPubKey: AgentPubKey;
-  profile?: Profile | null;
-}>();
+withDefaults(
+  defineProps<{
+    agentPubKey: AgentPubKey;
+    profile?: Profile | null;
+    avatarSize?: number;
+  }>(),
+  {
+    avatarSize: 20,
+    profile: null,
+  }
+);
 </script>
 
 <style scoped></style>

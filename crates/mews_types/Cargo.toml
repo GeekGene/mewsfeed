@@ -10,3 +10,4 @@ name = "mews_types"
 [dependencies]
 hdk = { workspace = true }
 serde = { workspace = true }
+hc_link_pagination = { workspace = true }

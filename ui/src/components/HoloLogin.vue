@@ -23,7 +23,7 @@ watch(
   () => client.agent.isAvailable,
   (isLoggedIn) => {
     if (isLoggedIn) {
-      router.replace({ name: ROUTES.home, force: true });
+      router.replace({ name: ROUTES.feed, force: true });
     }
   }
 );

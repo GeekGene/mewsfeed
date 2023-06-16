@@ -1,4 +1,5 @@
 use crate::mew_with_context::get_batch_mews_with_context;
+use hc_link_pagination::{paginate_by_hash, HashPagination};
 use hdk::prelude::*;
 use mews_integrity::*;
 
@@ -19,9 +20,14 @@ pub fn add_mention_for_mew(input: AddMentionForMewInput) -> ExternResult<()> {
     Ok(())
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GetMewsForMentionInput {
+    mention: AgentPubKey,
+    page: Option<HashPagination>,
+}
 #[hdk_extern]
-pub fn get_mews_for_mention(mention: AgentPubKey) -> ExternResult<Vec<Record>> {
-    let hashes = get_mew_hashes_for_mention(mention)?;
+pub fn get_mews_for_mention(input: GetMewsForMentionInput) -> ExternResult<Vec<Record>> {
+    let hashes = get_mew_hashes_for_mention(input.mention, input.page)?;
     let get_input: Vec<GetInput> = hashes
         .into_iter()
         .map(|hash| GetInput::new(hash.into(), GetOptions::default()))
@@ -37,17 +43,28 @@ pub fn get_mews_for_mention(mention: AgentPubKey) -> ExternResult<Vec<Record>> {
     Ok(records)
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GetMewsForMentionWithContextInput {
+    mention: AgentPubKey,
+    page: Option<HashPagination>,
+}
 #[hdk_extern]
-pub fn get_mews_for_mention_with_context(mention: AgentPubKey) -> ExternResult<Vec<FeedMew>> {
-    let hashes = get_mew_hashes_for_mention(mention)?;
+pub fn get_mews_for_mention_with_context(
+    input: GetMewsForMentionWithContextInput,
+) -> ExternResult<Vec<FeedMew>> {
+    let hashes = get_mew_hashes_for_mention(input.mention, input.page)?;
 
     get_batch_mews_with_context(hashes)
 }
 
-fn get_mew_hashes_for_mention(mention: AgentPubKey) -> ExternResult<Vec<ActionHash>> {
+fn get_mew_hashes_for_mention(
+    mention: AgentPubKey,
+    page: Option<HashPagination>,
+) -> ExternResult<Vec<ActionHash>> {
     let links: Vec<Link> = get_links(mention, LinkTypes::MentionToMews, None)?;
+    let links_page = paginate_by_hash(links, page)?;
 
-    let hashes: Vec<ActionHash> = links
+    let hashes: Vec<ActionHash> = links_page
         .into_iter()
         .map(|link| ActionHash::from(link.target))
         .collect();

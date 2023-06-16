@@ -627,6 +627,8 @@ name = "follows"
 version = "0.0.1"
 dependencies = [
  "follows_integrity",
+ "follows_types",
+ "hc_link_pagination",
  "hdk",
  "holochain_integrity_types",
  "serde",
@@ -638,6 +640,15 @@ version = "0.0.1"
 dependencies = [
  "hdi",
  "holochain_integrity_types",
+ "serde",
+]
+
+[[package]]
+name = "follows_types"
+version = "0.0.1"
+dependencies = [
+ "hc_link_pagination",
+ "hdk",
  "serde",
 ]
 
@@ -705,6 +716,14 @@ dependencies = [
 
 [[package]]
 name = "hc_call_utils"
+version = "0.0.1"
+dependencies = [
+ "hdk",
+ "serde",
+]
+
+[[package]]
+name = "hc_link_pagination"
 version = "0.0.1"
 dependencies = [
  "hdk",
@@ -1163,7 +1182,9 @@ dependencies = [
 name = "mews"
 version = "0.0.1"
 dependencies = [
+ "follows_types",
  "hc_call_utils",
+ "hc_link_pagination",
  "hdk",
  "mews_integrity",
  "mews_types",
@@ -1189,6 +1210,7 @@ dependencies = [
 name = "mews_types"
 version = "0.0.1"
 dependencies = [
+ "hc_link_pagination",
  "hdk",
  "serde",
 ]

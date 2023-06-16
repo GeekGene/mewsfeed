@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, provide, ref, toRaw } from "vue";
+import { computed, onMounted, provide, ref, toRaw, watch } from "vue";
 import { IS_HOLO_HOSTED, setupHolo, setupHolochain } from "@/utils/client";
 import HoloLogin from "@/components/HoloLogin.vue";
 import MainLayout from "@/layouts/MainLayout.vue";
@@ -43,12 +43,14 @@ import {
   ProfilesClient,
   ProfilesStore,
 } from "@holochain-open-dev/profiles";
-import { AppAgentClient, AppInfo } from "@holochain/client";
+import { AppAgentClient, AppInfo, encodeHashToBase64 } from "@holochain/client";
 import WebSdkApi from "@holo-host/web-sdk";
 import { decode } from "@msgpack/msgpack";
 import { MewsfeedDnaProperties } from "./types/types";
 import asyncRetry from "async-retry";
 import { CellType } from "@holochain/client";
+import { QueryClient } from "@tanstack/vue-query";
+import { setHomeRedirect } from "@/utils/homeRedirect";
 
 const client = ref<AppAgentClient | WebSdkApi>();
 const appInfo = ref<AppInfo>();
@@ -108,6 +110,23 @@ const setup = async () => {
   console.log("Cells responding to zome calls");
   loadingCells.value = false;
 };
+
+const queryClient = new QueryClient();
+
+watch(client, (newClient) => {
+  if (!newClient) return;
+
+  const myPubKeyB64 = encodeHashToBase64(newClient.myPubKey);
+  const cachedPubKeyB64 = localStorage.getItem("myPubKeyB64");
+
+  if (myPubKeyB64 !== cachedPubKeyB64) {
+    queryClient.clear();
+    localStorage.setItem("myPubKeyB64", myPubKeyB64);
+    setHomeRedirect(true);
+
+    console.log("Clearing query client cache");
+  }
+});
 
 provide("client", client);
 provide("appInfo", appInfo);

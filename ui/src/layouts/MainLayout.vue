@@ -2,17 +2,22 @@
   <QLayout view="hHh lpr fFf">
     <QHeader elevated class="row justify-center">
       <QToolbar class="col-12 col-md-6 col-xl-5">
-        <QTabs v-model="tab" dense inline-label class="col-grow">
-          <QRouteTab
-            :to="{ name: ROUTES.feed }"
-            :disable="data && data.length === 0 && !myProfile"
-          >
+        <QTabs inline-label>
+          <QRouteTab v-if="getHomeRedirect()" :to="{ name: ROUTES.discover }">
             <QIcon name="svguse:/icons.svg#cat" size="lg" />
           </QRouteTab>
-          <QRouteTab :to="{ name: ROUTES.discover }" icon="explore" />
+          <QRouteTab v-else :to="{ name: ROUTES.feed }">
+            <QIcon name="svguse:/icons.svg#cat" size="lg" />
+          </QRouteTab>
 
-          <SearchEverythingInput />
-
+          <QRouteTab
+            v-if="!getHomeRedirect()"
+            :to="{ name: ROUTES.discover }"
+            icon="explore"
+          />
+        </QTabs>
+        <SearchEverythingInput />
+        <QTabs inline-label>
           <QBtn
             icon="add"
             color="secondary"
@@ -31,7 +36,7 @@
             icon="notifications"
           >
             <QBadge v-if="unreadCount > 0" color="green" floating>
-              {{ unreadCount }}
+              {{ unreadCount < 5 ? unreadCount : "5+" }}
             </QBadge>
             <QTooltip>Notifications</QTooltip>
           </QRouteTab>
@@ -39,7 +44,7 @@
             v-if="myProfile && client"
             :to="{
               name: ROUTES.profile,
-              params: { agent: encodeHashToBase64(client.myPubKey) },
+              params: { agentPubKey: encodeHashToBase64(client.myPubKey) },
             }"
           >
             <agent-avatar
@@ -78,7 +83,13 @@
 <script setup lang="ts">
 import CreateMewForm from "@/components/CreateMewForm.vue";
 import { ROUTES } from "@/router";
-import { FeedMew, MewTypeName, MewsfeedDnaProperties } from "@/types/types";
+import {
+  FeedMew,
+  MewTypeName,
+  MewsfeedDnaProperties,
+  PaginationDirectionName,
+  Notification,
+} from "@/types/types";
 import { AppAgentClient, encodeHashToBase64 } from "@holochain/client";
 import {
   QPageContainer,
@@ -98,10 +109,11 @@ import { useRouter, useRoute } from "vue-router";
 import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
 import SearchEverythingInput from "@/components/SearchEverythingInput.vue";
-import { showMessage } from "@/utils/toasts";
-import { makeUseNotificationsStore } from "@/stores/notifications";
+import SearchEverythingInput2 from "@/components/SearchEverythingInput2.vue";
+import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";
 import { storeToRefs } from "pinia";
-import { useRequest } from "vue-request";
+import { getHomeRedirect, setHomeRedirect } from "@/utils/homeRedirect";
+import { useInfiniteQuery, useQuery } from "@tanstack/vue-query";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const dnaProperties = (
@@ -112,33 +124,78 @@ const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
 const myProfile = inject("myProfile") as ComputedRef<Profile>;
 const router = useRouter();
 const route = useRoute();
-const useNotificationsStore = makeUseNotificationsStore(client);
-const { unreadCount } = storeToRefs(useNotificationsStore());
+const useNotificationsReadStore = makeUseNotificationsReadStore(client);
+const { unreadCount } = storeToRefs(useNotificationsReadStore());
+const { addNotificationStatus } = useNotificationsReadStore();
 
-const tab = ref("");
 const showCreateMewDialog = ref(false);
 const forceReloadRouterViewKey = ref(0);
 
 const onCreateMew = () => {
   showCreateMewDialog.value = false;
-  showMessage("Published Mew");
-  if (router.currentRoute.value.name === ROUTES.feed) {
+  setHomeRedirect(false);
+
+  if (
+    router.currentRoute.value.name === ROUTES.feed ||
+    router.currentRoute.value.name === ROUTES.discover
+  ) {
     forceReloadRouterViewKey.value += 1;
   } else {
     router.push({ name: ROUTES.feed });
+    forceReloadRouterViewKey.value += 1;
   }
 };
 
-const fetchMewsFeed = (): Promise<FeedMew[]> =>
+const fetchMostRecentMew = (): Promise<FeedMew[]> =>
   client.callZome({
     role_name: "mewsfeed",
     zome_name: "mews",
-    fn_name: "get_my_followed_creators_mews_with_context",
-    payload: null,
+    fn_name: "get_followed_creators_mews_with_context",
+    payload: {
+      agent: client.myPubKey,
+      page: {
+        limit: 1,
+      },
+    },
   });
 
-const { data } = useRequest(fetchMewsFeed, {
-  cacheKey: `mews/get_my_followed_creators_mews_with_context`,
-  loadingDelay: 1000,
+const { data: mostRecentMew } = useQuery({
+  queryKey: [
+    "mews",
+    "get_followed_creators_mews_with_context",
+    encodeHashToBase64(client.myPubKey),
+    { page: { limit: 1 } },
+  ],
+  queryFn: fetchMostRecentMew,
+});
+
+watch(mostRecentMew, (val) => {
+  if (val && val.length > 0) {
+    setHomeRedirect(false);
+  }
+});
+
+const fetchNotifications = async () => {
+  const res: Notification[] = await client.callZome({
+    role_name: "mewsfeed",
+    zome_name: "mews",
+    fn_name: "get_notifications_for_agent",
+    payload: {
+      agent: client.myPubKey,
+      page: {
+        limit: 5,
+        direction: { [PaginationDirectionName.Descending]: null },
+      },
+    },
+  });
+  res.forEach((n) => addNotificationStatus(n));
+  return res;
+};
+
+useInfiniteQuery({
+  queryKey: ["mews", "get_notifications_for_agent", client.myPubKey],
+  queryFn: fetchNotifications,
+  refetchInterval: 1000 * 30, // 30 seconds
+  refetchIntervalInBackground: true,
 });
 </script>

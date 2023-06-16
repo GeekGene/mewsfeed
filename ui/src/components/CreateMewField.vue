@@ -147,11 +147,11 @@ import {
   QTooltip,
   QBtn,
 } from "quasar";
-import { showError } from "@/utils/toasts";
+import { showError, showMessage } from "@/utils/toasts";
 import { useSearchProfiles } from "@/utils/profiles";
 import { Profile } from "@holochain-open-dev/profiles";
 import { isMentionTag, isRawUrl, isLinkTag, TAG_SYMBOLS } from "@/utils/tags";
-import { onMounted, ref, computed, ComputedRef, inject } from "vue";
+import { onMounted, ref, computed, ComputedRef, inject, watch } from "vue";
 import {
   Mew,
   ElementWithInnerText,
@@ -297,6 +297,7 @@ const publishMew = async () => {
       payload: mew,
     });
     emit("mew-created", feedMew);
+    showMessage("Published Mew");
   } catch (error) {
     showError(error);
   } finally {

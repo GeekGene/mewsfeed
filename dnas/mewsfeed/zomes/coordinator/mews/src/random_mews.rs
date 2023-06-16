@@ -37,7 +37,7 @@ pub struct GetRandomMewsForTagInput {
 pub fn get_random_mews_for_tag_with_context(
     input: GetRandomMewsForTagInput,
 ) -> ExternResult<Vec<FeedMew>> {
-    let hashes = get_mew_hashes_for_tag(input.tag, ..)?;
+    let hashes = get_mew_hashes_for_tag(input.tag, .., None)?;
 
     let selected_hashes: Vec<ActionHash> = hashes
         .choose_multiple(&mut rand::thread_rng(), input.count)

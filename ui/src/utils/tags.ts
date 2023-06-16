@@ -1,4 +1,4 @@
-import { PATH, ROUTES } from "@/router";
+import { ROUTES } from "@/router";
 import {
   LinkTarget,
   LinkTargetName,
@@ -39,7 +39,7 @@ const regexpString = [
 const TAG_REGEX = new RegExp(`${regexpString.join("|")}`, "mi");
 
 const RAW_URL_REGEX =
-  /(?:(?<!\^)\b(?:(?:[a-z][\w-]+:(?:\/{1,3}|[a-z0-9%])|[a-z0-9.-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()[\]{};:'".,<>?«»“”‘’])))/;
+  /\b(?:(?:[a-z][\w-]+:(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()[\]{};:'".,<>?«»“”‘’]))/;
 
 const TAG_OR_RAW_URL_REGEX = new RegExp(
   `(${[...regexpString, RAW_URL_REGEX.source].join("|")})`,
@@ -86,7 +86,7 @@ export const splitMewTextIntoContentParts = (
       ] as AgentPubKey;
 
       const route: RouteLocationRaw = {
-        name: ROUTES[PATH[part[0]]],
+        name: ROUTES.mention,
         params: {
           tag: part.substring(1),
           agentPubKey: encodeHashToBase64(agentPubKey),
@@ -108,7 +108,7 @@ export const splitMewTextIntoContentParts = (
       };
     } else if (partIsTag && part[0] === TAG_SYMBOLS.HASHTAG) {
       const route: RouteLocationRaw = {
-        name: ROUTES[PATH[part[0]]],
+        name: ROUTES.hashtag,
         params: { tag: part.substring(1) },
       };
 
@@ -119,7 +119,7 @@ export const splitMewTextIntoContentParts = (
       };
     } else if (partIsTag && part[0] === TAG_SYMBOLS.CASHTAG) {
       const route: RouteLocationRaw = {
-        name: ROUTES[PATH[part[0]]],
+        name: ROUTES.cashtag,
         params: { tag: part.substring(1) },
       };
 

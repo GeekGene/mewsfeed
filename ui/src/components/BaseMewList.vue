@@ -1,9 +1,12 @@
 <template>
   <h6 v-if="title" class="q-mb-md">{{ title }}</h6>
 
-  <MewListSkeleton v-if="isLoading || !feedMews" />
-  <BaseEmptyMewsFeed v-else-if="feedMews && !isLoading && feedMews.length === 0" />
-  <QList v-else bordered separator>
+  <QList
+    v-if="feedMews && feedMews.length > 0"
+    bordered
+    separator
+    class="q-mb-lg"
+  >
     <BaseMewListItem
       v-for="(mew, index) of feedMews"
       :key="index"
@@ -11,14 +14,16 @@
       v-bind="$attrs"
     />
   </QList>
+  <BaseMewListSkeleton v-else-if="isLoading" />
+  <BaseEmptyMewsFeed v-else />
 </template>
 
 <script setup lang="ts">
 import { QList } from "quasar";
 import BaseMewListItem from "@/components/BaseMewListItem.vue";
-import MewListSkeleton from "@/components/MewListSkeleton.vue";
+import BaseMewListSkeleton from "@/components/BaseMewListSkeleton.vue";
 import { FeedMew } from "@/types/types";
-import BaseEmptyMewsFeed from "./BaseEmptyMewsFeed.vue";
+import BaseEmptyMewsFeed from "@/components/BaseEmptyMewsFeed.vue";
 
 withDefaults(
   defineProps<{

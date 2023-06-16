@@ -50,7 +50,10 @@
         <div><BaseTimestamp :timestamp="notification.timestamp" /></div>
       </div>
       <div class="bg-grey-2">
-        <BaseMewListItem :feed-mew="(notification.feed_mew as FeedMew)" />
+        <BaseMewListItem
+          :feed-mew="(notification.feed_mew as FeedMew)"
+          v-bind="$attrs"
+        />
       </div>
     </div>
 
@@ -72,7 +75,10 @@
         <div><BaseTimestamp :timestamp="notification.timestamp" /></div>
       </div>
       <div class="bg-grey-2 q-mx-lg q-mt-lg">
-        <BaseMewListItem :feed-mew="(notification.feed_mew as FeedMew)" />
+        <BaseMewListItem
+          :feed-mew="(notification.feed_mew as FeedMew)"
+          v-bind="$attrs"
+        />
       </div>
     </div>
 
@@ -94,7 +100,10 @@
         <div><BaseTimestamp :timestamp="notification.timestamp" /></div>
       </div>
       <div class="bg-grey-2 q-mx-lg q-mt-lg">
-        <BaseMewListItem :feed-mew="(notification.feed_mew as FeedMew)" />
+        <BaseMewListItem
+          :feed-mew="(notification.feed_mew as FeedMew)"
+          v-bind="$attrs"
+        />
       </div>
     </div>
 
@@ -116,7 +125,10 @@
         <div><BaseTimestamp :timestamp="notification.timestamp" /></div>
       </div>
       <div class="bg-grey-2 q-mx-lg q-mt-lg">
-        <BaseMewListItem :feed-mew="(notification.feed_mew as FeedMew)" />
+        <BaseMewListItem
+          :feed-mew="(notification.feed_mew as FeedMew)"
+          v-bind="$attrs"
+        />
       </div>
     </div>
 
@@ -138,7 +150,10 @@
         <div><BaseTimestamp :timestamp="notification.timestamp" /></div>
       </div>
       <div class="bg-grey-2 q-mx-lg q-mt-lg">
-        <BaseMewListItem :feed-mew="(notification.feed_mew as FeedMew)" />
+        <BaseMewListItem
+          :feed-mew="(notification.feed_mew as FeedMew)"
+          v-bind="$attrs"
+        />
       </div>
     </div>
 
@@ -186,7 +201,10 @@
         <div><BaseTimestamp :timestamp="notification.timestamp" /></div>
       </div>
       <div class="bg-grey-2 q-mx-lg q-mt-lg">
-        <BaseMewListItem :feed-mew="(notification.feed_mew as FeedMew)" />
+        <BaseMewListItem
+          :feed-mew="(notification.feed_mew as FeedMew)"
+          v-bind="$attrs"
+        />
       </div>
     </div>
 
@@ -235,7 +253,10 @@
         <div><BaseTimestamp :timestamp="notification.timestamp" /></div>
       </div>
       <div class="bg-grey-2 q-mx-lg q-mt-lg">
-        <BaseMewListItem :feed-mew="(notification.feed_mew as FeedMew)" />
+        <BaseMewListItem
+          :feed-mew="(notification.feed_mew as FeedMew)"
+          v-bind="$attrs"
+        />
       </div>
     </div>
   </QItem>
