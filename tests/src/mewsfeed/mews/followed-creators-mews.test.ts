@@ -120,62 +120,6 @@ test("Followed creators mews should include mews of followed creator", async () 
   );
 });
 
-test("Followed creators mews should include own mews", async () => {
-  await runScenario(
-    async (scenario) => {
-      // Set up the app to be installed
-      const appSource = { appBundleSource: mewsfeedAppBundleSource };
-
-      // Add 2 players with the test app to the Scenario. The returned players
-      // can be destructured.
-      const [alice] = await scenario.addPlayersWithApps([appSource]);
-
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
-
-      const aliceMewsFeedInitial: FeedMew[] = await alice.cells[0].callZome({
-        zome_name: "mews",
-        fn_name: "get_my_followed_creators_mews_with_context",
-        payload: null,
-      });
-      assert.ok(
-        aliceMewsFeedInitial.length === 0,
-        "alice's mews feed is initially empty"
-      );
-
-      const mewContent = "test-mew";
-      const mewInput: Mew = {
-        text: mewContent,
-        links: [],
-        mew_type: { [MewTypeName.Original]: null },
-      };
-      await alice.cells[0].callZome({
-        zome_name: "mews",
-        fn_name: "create_mew",
-        payload: mewInput,
-      });
-
-      const aliceMewsFeed: FeedMew[] = await alice.cells[0].callZome({
-        zome_name: "mews",
-        fn_name: "get_my_followed_creators_mews_with_context",
-        payload: null,
-      });
-      assert.ok(
-        aliceMewsFeed.length === 1,
-        "alice's mews feed includes her mew"
-      );
-      assert.equal(
-        aliceMewsFeed[0].mew.text,
-        mewContent,
-        "mew content matches"
-      );
-    },
-    true,
-    { timeout: 100000 }
-  );
-});
-
 test("Followed creators mews should not include mews of non-followed creator", async () => {
   await runScenario(
     async (scenario) => {
@@ -335,7 +279,7 @@ test("Followed creators mews should be ordered by timestamp in descending order"
         links: [],
         mew_type: { [MewTypeName.Original]: null },
       };
-      await alice.cells[0].callZome({
+      await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "create_mew",
         payload: firstMewInput,
@@ -396,28 +340,23 @@ test("Followed creators mews should be ordered by timestamp in descending order"
         payload: null,
       });
       assert.ok(
-        aliceMewsFeed.length === 4,
-        "alice's mews feed includes all 4 mews"
+        aliceMewsFeed.length === 3,
+        "alice's mews feed includes all 3 mews by followed creators"
       );
       assert.equal(
         aliceMewsFeed[0].mew.text,
-        fourthMewContent,
-        "mew 1 in feed is fourth mew"
+        thirdMewContent,
+        "mew 1 in feed is third mew"
       );
       assert.equal(
         aliceMewsFeed[1].mew.text,
-        thirdMewContent,
-        "mew 2 in feed is third mew"
+        secondMewContent,
+        "mew 2 in feed is second mew"
       );
       assert.equal(
         aliceMewsFeed[2].mew.text,
-        secondMewContent,
-        "mew 3 in feed is second mew"
-      );
-      assert.equal(
-        aliceMewsFeed[3].mew.text,
         firstMewContent,
-        "mew 4 in feed is first mew"
+        "mew 3 in feed is first mew"
       );
     },
     true,

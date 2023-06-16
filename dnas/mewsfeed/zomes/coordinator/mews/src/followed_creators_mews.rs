@@ -37,7 +37,7 @@ pub fn get_followed_creators_mews_with_context(
 fn get_followed_creators_mew_hashes(
     input: GetFollowedCreatorsMewsInput,
 ) -> ExternResult<Vec<ActionHash>> {
-    let mut creators: Vec<AgentPubKey> =
+    let creators: Vec<AgentPubKey> =
         call_local_zome::<Vec<AgentPubKey>, GetCreatorsForFollowerInput>(
             "follows",
             "get_creators_for_follower",
@@ -46,7 +46,6 @@ fn get_followed_creators_mew_hashes(
                 page: None,
             },
         )?;
-    creators.push(input.agent);
 
     let links: Vec<Link> = creators
         .into_iter()
