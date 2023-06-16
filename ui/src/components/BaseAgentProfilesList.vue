@@ -25,8 +25,8 @@
 import { QList } from "quasar";
 import { AgentProfile } from "@/types/types";
 import BaseAgentProfilesListItem from "@/components/BaseAgentProfilesListItem.vue";
-import BaseEmptyMewsFeed from "@/components/BaseEmptyMewsFeed.vue";
-import BaseProfileSkeleton from "@/components/BaseProfileSkeleton.vue";
+import BaseEmptyMewsFeed from "./BaseEmptyMewsFeed.vue";
+import BaseProfileSkeleton from "./BaseProfileSkeleton.vue";
 
 defineProps<{
   agentProfiles?: AgentProfile[];
