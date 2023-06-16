@@ -10,10 +10,7 @@ pub struct HashPagination {
     pub limit: usize,
 }
 
-pub fn paginate_by_hash<T>(
-    mut items: Vec<T>,
-    page: Option<HashPagination>,
-) -> ExternResult<Vec<T>>
+pub fn paginate_by_hash<T>(mut items: Vec<T>, page: Option<HashPagination>) -> ExternResult<Vec<T>>
 where
     T: Clone + Hashed + Timestamped,
 {
@@ -24,11 +21,11 @@ where
             direction,
         }) => {
             match direction {
-                Some(Direction::Ascending) => items.sort_by_key(|l| l.timestamp()), 
+                Some(Direction::Ascending) => items.sort_by_key(|l| l.timestamp()),
                 Some(Direction::Descending) => items.sort_by_key(|l| Reverse(l.timestamp())),
 
                 // Default to descending
-                None => items.sort_by_key(|l| Reverse(l.timestamp()))
+                None => items.sort_by_key(|l| Reverse(l.timestamp())),
             }
 
             let start_index = match after_hash {

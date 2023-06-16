@@ -218,14 +218,16 @@
           "holonix",
           "empty"
         ],
-        "versions": "versions"
+        "versions": [
+          "versions"
+        ]
       },
       "locked": {
-        "lastModified": 1686810123,
-        "narHash": "sha256-8awdBVgTW6PieQsu98ifhm6m6cJrm6ARUdjEFroXS+8=",
+        "lastModified": 1686918603,
+        "narHash": "sha256-EB6AFOX1N5XhyId6tWb0yC5vza2RgnR+WMXKJto3Xhw=",
         "owner": "holochain",
         "repo": "holochain",
-        "rev": "a24daa59c750bd0fc19fd7fe7ae8ab398f42b3cb",
+        "rev": "02af30532e62f781a2be964703fea4d786484fc7",
         "type": "github"
       },
       "original": {
@@ -285,11 +287,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1686592866,
-        "narHash": "sha256-riGg89eWhXJcPNrQGcSwTEEm7CGxWC06oSX44hajeMw=",
+        "lastModified": 1686776226,
+        "narHash": "sha256-o6WbKvENj98QJz9Mco6T6SZGrjPewMDAFyKg0Lp8avU=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "0eeebd64de89e4163f4d3cf34ffe925a5cf67a05",
+        "rev": "0d2cf7fe5fa05d5271a15a8933414ee0a1570648",
         "type": "github"
       },
       "original": {
@@ -338,7 +340,8 @@
         "nixpkgs": [
           "holonix",
           "nixpkgs"
-        ]
+        ],
+        "versions": "versions"
       }
     },
     "rust-overlay": {
@@ -377,11 +380,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1686795910,
-        "narHash": "sha256-jDa40qRZ0GRQtP9EMZdf+uCbvzuLnJglTUI2JoHfWDc=",
+        "lastModified": 1686882360,
+        "narHash": "sha256-6iWVGIdIzmx/CgXPVLPyyxxBhPGYMl8sG09S8hpQ6pc=",
         "owner": "oxalica",
         "repo": "rust-overlay",
-        "rev": "5c2b97c0a9bc5217fc3dfb1555aae0fb756d99f9",
+        "rev": "b519b1d7a31f1bd35423990398adecc6f7dd4dd2",
         "type": "github"
       },
       "original": {
@@ -431,11 +434,11 @@
       },
       "locked": {
         "dir": "versions/0_1",
-        "lastModified": 1686810123,
-        "narHash": "sha256-8awdBVgTW6PieQsu98ifhm6m6cJrm6ARUdjEFroXS+8=",
+        "lastModified": 1686918603,
+        "narHash": "sha256-EB6AFOX1N5XhyId6tWb0yC5vza2RgnR+WMXKJto3Xhw=",
         "owner": "holochain",
         "repo": "holochain",
-        "rev": "a24daa59c750bd0fc19fd7fe7ae8ab398f42b3cb",
+        "rev": "02af30532e62f781a2be964703fea4d786484fc7",
         "type": "github"
       },
       "original": {

@@ -526,13 +526,13 @@ test("Followed creators mews list are time-paginated", async () => {
         payload: createMewInput7,
       });
 
-      await pause(1000);
-
       await bob.cells[0].callZome({
         zome_name: "follows",
         fn_name: "follow",
         payload: alice.agentPubKey,
       });
+
+      await pause(1500);
 
       const page1: FeedMew[] = await bob.cells[0].callZome({
         zome_name: "mews",

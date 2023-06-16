@@ -31,9 +31,8 @@ jobs:
         with:
           name: holochain-ci
 
-      - name: Cache Cargo and Rust Build
-        uses: actions/cache@v2
-        if: always()  # build artifacts are correct even if job fails
+      - name: Restore cargo and build from cache
+        uses: actions/cache/restore@v3
         with:
           path: |
             .cargo
@@ -50,6 +49,14 @@ jobs:
 
       - name: Build Happ
         run: nix develop -c $SHELL -c "npm run build:happ"
+
+      - name: Save cargo and build to cache
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            .cargo
+            target
+          key: ${{ runner.os }}-build-${{ hashFiles('Cargo.lock') }}
 
       - name: Test with tryorama
         run: nix develop -c $SHELL -c "npm test"
