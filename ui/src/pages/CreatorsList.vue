@@ -1,6 +1,7 @@
 <template>
   <QPage :style-fn="pageHeightCorrection">
-    <h6 class="q-mb-md row items-center">
+    <BaseButtonBack />
+    <h6 class="q-mt-md q-mb-md row items-center">
       Creators followed by
       <BaseAgentProfileLinkPopup
         class="q-ml-md"
@@ -18,9 +19,13 @@
       @load="fetchNextPageInfiniteScroll"
     >
       <QList bordered separator class="q-mb-lg">
-        <template v-for="(page, i) in data.pages" :key="i">
-          <BaseAgentProfilesList :agent-profiles="page" :loading="isLoading" />
-        </template>
+        <BaseAgentProfilesList
+          v-for="(page, i) in data.pages"
+          :key="i"
+          class="q-px-md"
+          :agent-profiles="page"
+          :loading="isLoading"
+        />
       </QList>
 
       <template #loading>
@@ -62,6 +67,7 @@ import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { decodeHashFromBase64 } from "@holochain/client";
 import { AgentProfile } from "@/types/types";
 import { AgentPubKey } from "@holochain/client";
+import BaseButtonBack from "@/components/BaseButtonBack.vue";
 
 const route = useRoute();
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;

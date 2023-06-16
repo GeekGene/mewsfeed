@@ -1,6 +1,7 @@
 <template>
   <QPage :style-fn="pageHeightCorrection">
-    <h6 class="q-mb-md">
+    <BaseButtonBack />
+    <h6 class="q-mt-md q-mb-md">
       Mews with {{ route.meta.tag }}{{ route.params.tag }}
     </h6>
 
@@ -67,6 +68,7 @@ import BaseEmptyMewsFeed from "@/components/BaseEmptyMewsFeed.vue";
 import BaseMewListItem from "@/components/BaseMewListItem.vue";
 import { watch } from "vue";
 import { showError } from "@/utils/toasts";
+import BaseButtonBack from "@/components/BaseButtonBack.vue";
 
 const route = useRoute();
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;

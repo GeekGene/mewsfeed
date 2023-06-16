@@ -12,6 +12,7 @@
     "lint": "eslint --fix --ext .ts ./ --ext .vue src"
   },
   "dependencies": {
+    "@headlessui/vue": "^1.7.14",
     "@holochain-open-dev/profiles": "^0.14.1",
     "@holochain/client": "^0.14.1",
     "@shoelace-style/shoelace": "^2.4.0",

@@ -3,7 +3,7 @@ import {
   decodeHashFromBase64,
   encodeHashToBase64,
 } from "@holochain/client";
-import { defineStore } from "pinia";
+import { StateTree, defineStore } from "pinia";
 import { computed, ref } from "vue";
 import { Notification } from "@/types/types";
 import { encode, decode } from "@msgpack/msgpack";
@@ -50,6 +50,7 @@ export const makeUseNotificationsReadStore = (client: AppAgentClient) =>
       }
 
       return {
+        notificationsRead,
         unreadCount,
         markRead,
         addNotificationStatus,
@@ -59,13 +60,13 @@ export const makeUseNotificationsReadStore = (client: AppAgentClient) =>
       persist: {
         key: `notificationsRead/${encodeHashToBase64(client.myPubKey)}`,
         serializer: {
-          serialize(value) {
+          serialize(value: StateTree): string {
             return encodeHashToBase64(encode(value));
           },
-          deserialize(value) {
-            return decode(decodeHashFromBase64(value));
+          deserialize(value: string): StateTree {
+            return decode(decodeHashFromBase64(value)) as StateTree;
           },
         },
-      } as PersistedStateOptions,
+      },
     }
   );

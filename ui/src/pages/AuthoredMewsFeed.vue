@@ -1,6 +1,7 @@
 <template>
   <QPage :style-fn="pageHeightCorrection">
-    <h6 class="q-mb-md row items-center">
+    <BaseButtonBack />
+    <h6 class="q-mt-md q-mb-md row items-center">
       Mews authored by
       <BaseAgentProfileLinkPopup
         class="q-ml-md"
@@ -80,6 +81,7 @@ import { watch } from "vue";
 import { showError } from "@/utils/toasts";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { decodeHashFromBase64 } from "@holochain/client";
+import BaseButtonBack from "@/components/BaseButtonBack.vue";
 
 const route = useRoute();
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;

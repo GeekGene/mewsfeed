@@ -1,6 +1,7 @@
 <template>
   <QPage :style-fn="pageHeightCorrection">
-    <h6 class="q-mb-md">Notifications</h6>
+    <BaseButtonBack />
+    <h6 class="q-mt-md q-mb-md">Notifications</h6>
 
     <QInfiniteScroll
       v-if="
@@ -15,7 +16,7 @@
             v-for="(notification, j) of page"
             :key="j"
             v-observe-visibility="{
-              callback: () => markRead(notification),
+              callback: () => markRead(toRaw(notification)),
               once: true,
             }"
             :notification="notification"
@@ -59,9 +60,9 @@
 
 <script setup lang="ts">
 import { AppAgentClient } from "@holochain/client";
-import { inject, ComputedRef, watch } from "vue";
-import { onBeforeRouteLeave } from "vue-router";
+import { inject, ComputedRef, watch, toRaw } from "vue";
 import { QPage, QInfiniteScroll, QSpinnerDots, QIcon, QList } from "quasar";
+import { onBeforeRouteLeave } from "vue-router";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import BaseNotification from "@/components/BaseNotification.vue";
 import BaseEmptyMewsFeed from "@/components/BaseEmptyMewsFeed.vue";
@@ -70,6 +71,7 @@ import { showError } from "@/utils/toasts";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
 import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";
 import { PaginationDirectionName, Notification } from "@/types/types";
+import BaseButtonBack from "@/components/BaseButtonBack.vue";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const useNotificationsReadStore = makeUseNotificationsReadStore(client);

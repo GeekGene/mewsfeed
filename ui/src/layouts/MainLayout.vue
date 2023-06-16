@@ -2,7 +2,7 @@
   <QLayout view="hHh lpr fFf">
     <QHeader elevated class="row justify-center">
       <QToolbar class="col-12 col-md-6 col-xl-5">
-        <QTabs v-model="tab" dense inline-label class="col-grow">
+        <QTabs inline-label>
           <QRouteTab v-if="getHomeRedirect()" :to="{ name: ROUTES.discover }">
             <QIcon name="svguse:/icons.svg#cat" size="lg" />
           </QRouteTab>
@@ -15,9 +15,9 @@
             :to="{ name: ROUTES.discover }"
             icon="explore"
           />
-
-          <SearchEverythingInput />
-
+        </QTabs>
+        <SearchEverythingInput />
+        <QTabs inline-label>
           <QBtn
             icon="add"
             color="secondary"
@@ -109,6 +109,7 @@ import { useRouter, useRoute } from "vue-router";
 import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
 import SearchEverythingInput from "@/components/SearchEverythingInput.vue";
+import SearchEverythingInput2 from "@/components/SearchEverythingInput2.vue";
 import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";
 import { storeToRefs } from "pinia";
 import { getHomeRedirect, setHomeRedirect } from "@/utils/homeRedirect";
@@ -127,7 +128,6 @@ const useNotificationsReadStore = makeUseNotificationsReadStore(client);
 const { unreadCount } = storeToRefs(useNotificationsReadStore());
 const { addNotificationStatus } = useNotificationsReadStore();
 
-const tab = ref("");
 const showCreateMewDialog = ref(false);
 const forceReloadRouterViewKey = ref(0);
 

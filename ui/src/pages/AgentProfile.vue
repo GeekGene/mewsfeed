@@ -38,18 +38,34 @@
           >
         </QCardSection>
 
-        <QCardSection v-if="!showEditProfileForm" class="flex">
-          <div class="q-mr-md">
+        <QCardSection v-if="!showEditProfileForm">
+          <div
+            v-if="
+              profile?.fields[PROFILE_FIELDS.BIO] &&
+              profile.fields[PROFILE_FIELDS.BIO].length > 0
+            "
+            class="row justify-start items-start q-mb-md"
+          >
             <div>
-              <label class="text-weight-medium">Bio:</label>
+              <label class="q-pr-sm text-weight-bold">Bio:</label>
             </div>
-            <div>
-              <label class="text-weight-medium">Location:</label>
+            <div class="col col-grow">
+              {{ profile.fields[PROFILE_FIELDS.BIO] }}
             </div>
           </div>
-          <div class="col-grow">
-            <div>{{ profile?.fields[PROFILE_FIELDS.BIO] }}</div>
-            <div>{{ profile?.fields[PROFILE_FIELDS.LOCATION] }}</div>
+          <div
+            v-if="
+              profile?.fields[PROFILE_FIELDS.LOCATION] &&
+              profile.fields[PROFILE_FIELDS.LOCATION].length > 0
+            "
+            class="row justify-start items-start q-mb-md"
+          >
+            <div>
+              <label class="q-pr-sm text-weight-bold">Location:</label>
+            </div>
+            <div class="col col-grow">
+              {{ profile?.fields[PROFILE_FIELDS.LOCATION] }}
+            </div>
           </div>
         </QCardSection>
 
