@@ -18,11 +18,12 @@
           mewsfeed
         </h1>
         <RouterView :key="`${route.fullPath}-${forceReloadRouterViewKey}`" />
-        <CreateMewInput
-          :mew-type="{ [MewTypeName.Original]: null }"
-          class="absolute bottom-3 w-full hidden sm:block"
-          @mew-created="onCreateMew"
-        />
+        <div class="hidden sm:block absolute bottom-3 w-full">
+          <CreateMewInput
+            :mew-type="{ [MewTypeName.Original]: null }"
+            @mew-created="onCreateMew"
+          />
+        </div>
         <a
           class="absolute bottom-4 right-0 block sm:hidden btn btn-md btn-neutral rounded-full py-3 flex items-center"
           @click="showCreateMewDialog = true"
