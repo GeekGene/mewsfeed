@@ -23,6 +23,13 @@
           class="absolute bottom-3 w-full hidden sm:block"
           @mew-created="onCreateMew"
         />
+        <a
+          class="absolute bottom-4 right-0 block sm:hidden btn btn-md btn-neutral rounded-full py-3 flex items-center"
+          @click="showCreateMewDialog = true"
+        >
+          <Icon icon="ion:chatbubble-outline" class="text-xl" />
+          <div>New Mew</div>
+        </a>
       </div>
     </div>
 
@@ -31,6 +38,7 @@
       @click-search="showSearchDialog = true"
     />
     <SearchEverythingDialog v-model="showSearchDialog" />
+    <CreateMewDialog v-model="showCreateMewDialog" />
   </div>
 </template>
 
@@ -52,6 +60,8 @@ import { useRouter, useRoute } from "vue-router";
 import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";
 import { setHomeRedirect } from "@/utils/homeRedirect";
 import { useInfiniteQuery, useQuery } from "@tanstack/vue-query";
+import { Icon } from "@iconify/vue";
+import CreateMewDialog from "@/components/CreateMewDialog.vue";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 
