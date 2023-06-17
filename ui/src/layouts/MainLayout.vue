@@ -29,7 +29,7 @@
       class="block flex-0 sm:hidden w-full flex justify-between items-center"
       @click-search="showSearchModal = true"
     />
-    <SearchEverythingModal
+    <SearchEverythingDialog
       :open="showSearchModal"
       @close="showSearchModal = false"
     />
@@ -39,7 +39,7 @@
 <script setup lang="ts">
 import CreateMewInput from "@/components/CreateMewInput.vue";
 import BaseSiteMenu from "@/components/BaseSiteMenu.vue";
-import SearchEverythingModal from "@/components/SearchEverythingModal.vue";
+import SearchEverythingDialog from "@/components/SearchEverythingDialog.vue";
 import { ROUTES } from "@/router";
 import {
   FeedMew,
