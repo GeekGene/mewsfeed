@@ -1,87 +1,45 @@
 <template>
-  <QLayout view="hHh lpr fFf">
-    <QHeader elevated class="row justify-center">
-      <QToolbar class="col-12 col-md-6 col-xl-5">
-        <QTabs inline-label>
-          <QRouteTab v-if="getHomeRedirect()" :to="{ name: ROUTES.discover }">
-            <QIcon name="svguse:/icons.svg#cat" size="lg" />
-          </QRouteTab>
-          <QRouteTab v-else :to="{ name: ROUTES.feed }">
-            <QIcon name="svguse:/icons.svg#cat" size="lg" />
-          </QRouteTab>
+  <div class="w-full max-w-screen-lg h-full px-8 py-8 flex flex-col">
+    <h1 class="block sm:hidden text-2xl font-title font-bold tracking-tighter">
+      mewsfeed
+    </h1>
 
-          <QRouteTab
-            v-if="!getHomeRedirect()"
-            :to="{ name: ROUTES.discover }"
-            icon="explore"
-          />
-        </QTabs>
-        <SearchEverythingInput />
-        <QTabs inline-label>
-          <QBtn
-            icon="add"
-            color="secondary"
-            class="q-mx-md"
-            @click="showCreateMewDialog = true"
-          >
-            Mew
-            <QTooltip>Create a mew</QTooltip>
-          </QBtn>
-
-          <QRouteTab
-            v-if="myProfile && client"
-            :to="{
-              name: ROUTES.notifications,
-            }"
-            icon="notifications"
-          >
-            <QBadge v-if="unreadCount > 0" color="green" floating>
-              {{ unreadCount < 5 ? unreadCount : "5+" }}
-            </QBadge>
-            <QTooltip>Notifications</QTooltip>
-          </QRouteTab>
-          <QRouteTab
-            v-if="myProfile && client"
-            :to="{
-              name: ROUTES.profile,
-              params: { agentPubKey: encodeHashToBase64(client.myPubKey) },
-            }"
-          >
-            <agent-avatar
-              :agentPubKey="client.myPubKey"
-              size="40"
-              disable-tooltip
-              disable-copy
-            />
-            <QTooltip>Your profile</QTooltip>
-          </QRouteTab>
-        </QTabs>
-      </QToolbar>
-    </QHeader>
-
-    <QPageContainer class="row q-mt-xl bg-white">
-      <QSpace />
-      <RouterView
-        :key="`${route.fullPath}-${forceReloadRouterViewKey}`"
-        class="col-12 col-md-6 col-xl-5 q-mb-xl"
+    <div
+      class="flex sm:flex-none justify-center items-start space-x-12 sm:space-x-0 h-full"
+    >
+      <BaseSiteMenu
+        class="sticky left-0 top-0 mt-16 hidden sm:block w-14 flex flex-col justify-start items-start space-y-4"
+        @click-search="showSearchModal = true"
       />
-      <QSpace />
-    </QPageContainer>
+      <div class="flex-1 relative w-full h-full">
+        <h1
+          class="hidden sm:block text-2xl font-title font-bold tracking-tighter"
+        >
+          mewsfeed
+        </h1>
+        <RouterView :key="`${route.fullPath}-${forceReloadRouterViewKey}`" />
+        <CreateMewInput
+          :mew-type="{ [MewTypeName.Original]: null }"
+          class="absolute bottom-3 w-full hidden sm:block"
+        />
+      </div>
+    </div>
 
-    <CreateProfileIfNotFoundDialog v-model="showCreateMewDialog">
-      <CreateMewForm
-        :mew-type="{ [MewTypeName.Original]: null }"
-        :profiles-store="profilesStore"
-        :mew-length-min="dnaProperties.mew_characters_min"
-        :mew-length-max="dnaProperties.mew_characters_max"
-        @mew-created="onCreateMew"
-      />
-    </CreateProfileIfNotFoundDialog>
-  </QLayout>
+    <BaseSiteMenu
+      class="block flex-0 sm:hidden w-full flex justify-between items-center"
+      @click-search="showSearchModal = true"
+    />
+    <SearchEverythingModal
+      :open="showSearchModal"
+      @close="showSearchModal = false"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
-import CreateMewForm from "@/components/CreateMewForm.vue";
+import CreateMewInput from "@/components/CreateMewInput.vue";
+import BaseSiteMenu from "@/components/BaseSiteMenu.vue";
+import SearchEverythingModal from "@/components/SearchEverythingModal.vue";
 import { ROUTES } from "@/router";
 import {
   FeedMew,
@@ -105,11 +63,10 @@ import {
   QIcon,
 } from "quasar";
 import { ComputedRef, inject, ref, watch } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { useRouter, useRoute, RouterLink } from "vue-router";
 import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
 import SearchEverythingInput from "@/components/SearchEverythingInput.vue";
-import SearchEverythingInput2 from "@/components/SearchEverythingInput2.vue";
 import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";
 import { storeToRefs } from "pinia";
 import { getHomeRedirect, setHomeRedirect } from "@/utils/homeRedirect";
@@ -128,6 +85,7 @@ const useNotificationsReadStore = makeUseNotificationsReadStore(client);
 const { unreadCount } = storeToRefs(useNotificationsReadStore());
 const { addNotificationStatus } = useNotificationsReadStore();
 
+const showSearchModal = ref(false);
 const showCreateMewDialog = ref(false);
 const forceReloadRouterViewKey = ref(0);
 

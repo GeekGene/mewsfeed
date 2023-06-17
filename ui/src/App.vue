@@ -1,34 +1,29 @@
 <template>
-  <QPage
-    v-if="loadingClient"
-    class="flex justify-center items-center"
-    style="height: 100%"
+  <div
+    class="w-screen h-screen flex justify-center items-center relative font-content cursor-default"
   >
-    <div class="flex justify-center items-center">
-      <div class="flex justify-center items-center">
-        <sl-spinner style="font-size: 2rem" class="mr-4"></sl-spinner>
-        <h6>Connecting...</h6>
-      </div>
-    </div>
-  </QPage>
-  <template v-else>
-    <profiles-context :store="profilesStore">
-      <HoloLogin v-if="IS_HOLO_HOSTED">
-        <MainLayout />
-      </HoloLogin>
+    <template v-if="loadingClient">
+      <sl-spinner style="font-size: 2rem" class="mr-4"></sl-spinner>
+      <h6>Connecting...</h6>
+    </template>
+    <template v-else>
+      <profiles-context :store="profilesStore">
+        <HoloLogin v-if="IS_HOLO_HOSTED">
+          <MainLayout />
+        </HoloLogin>
 
-      <MainLayout v-else />
+        <MainLayout v-else />
 
-      <div
-        v-if="loadingCells"
-        class="flex justify-between"
-        style="position: fixed; right: 25px; bottom: 25px"
-      >
-        <sl-spinner style="font-size: 1rem" class="mr-2"></sl-spinner>
-        <div>Cells loading...</div>
-      </div>
-    </profiles-context>
-  </template>
+        <div
+          v-if="loadingCells"
+          class="flex justify-start items-center fixed right-5 top-0 my-8 mx-4 py-4 badge badge-warning"
+        >
+          <sl-spinner style="font-size: 1rem" class="mr-2"></sl-spinner>
+          <div>Cells loading...</div>
+        </div>
+      </profiles-context>
+    </template>
+  </div>
 </template>
 
 <script setup lang="ts">
