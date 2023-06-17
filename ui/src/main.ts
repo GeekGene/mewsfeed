@@ -1,11 +1,13 @@
+import "./index.css";
+import "@fontsource/syne/700.css";
+import "@fontsource/inter";
+import "@fontsource/inter/700.css";
+import "@fontsource/space-mono";
 import "@holochain-open-dev/profiles/dist/elements/agent-avatar.js";
 import "@holochain-open-dev/profiles/dist/elements/my-profile.js";
 import "@holochain-open-dev/profiles/dist/elements/profiles-context.js";
 import "@holochain-open-dev/profiles/dist/elements/create-profile.js";
 import "@holochain-open-dev/elements/dist/elements/holo-identicon.js";
-import "@/css/main.sass";
-import "material-icons/iconfont/material-icons.css";
-import "quasar/src/css/index.sass";
 import { Dialog, Notify, Quasar } from "quasar";
 import { createApp } from "vue";
 import { createPinia } from "pinia";

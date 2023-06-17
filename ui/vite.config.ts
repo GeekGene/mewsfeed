@@ -3,8 +3,8 @@ import { quasar, transformAssetUrls } from "@quasar/vite-plugin";
 import path from "node:path";
 import vue from "@vitejs/plugin-vue";
 import { viteStaticCopy } from "vite-plugin-static-copy";
-import rollupNodePolyFill from "rollup-plugin-node-polyfills";
 import checker from "vite-plugin-checker";
+import tailwindcss from "tailwindcss";
 
 export default defineConfig({
   server: {
@@ -53,6 +53,11 @@ export default defineConfig({
   optimizeDeps: {
     esbuildOptions: {
       target: ["es2020"],
+    },
+  },
+  css: {
+    postcss: {
+      plugins: [tailwindcss],
     },
   },
 });
