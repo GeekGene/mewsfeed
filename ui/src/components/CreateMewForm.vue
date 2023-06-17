@@ -38,7 +38,7 @@
     <QCardSection>
       <CreateMewInput
         :mew-type="mewType"
-        @mew-created="(val) => emit('mew-created', val)"
+        @mew-created="(val: any) => emit('mew-created', val)"
       />
     </QCardSection>
   </QCard>

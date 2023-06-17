@@ -19,125 +19,142 @@
       />
     </RouterLink>
 
-    <div ref="mewContainer" class="flex-1 px-4 sm:px-8 h-full">
-      <div class="h-full w-full flex flex-col justify-between items-start">
-        <div
-          id="mew-container-input"
-          contenteditable
-          class="overflow-auto w-full break-all outline-none border-0 outline-0"
-          data-placeholder="What's mewing on?"
-          @keydown="onKeyDown"
-          @keyup="onKeyUp"
-          @mouseup="onMouseUp"
-          @paste="onPaste"
-        ></div>
-
-        <div class="w-full flex justify-between items-start">
-          <div class="mt-1 flex justify-start items-center space-x-4">
-            <div
-              class="tooltip hover:tooltip-open tooltip-top"
-              data-tip="You can mention people with @ and use #hashtags and $cashtags as well
-          as ^links in a mew. You can press Ctrl/Cmd + Enter to publish."
-            >
-              <Icon
-                icon="ion:help-circle-outline"
-                class="text-xl text-neutral-content"
-              />
-            </div>
-          </div>
-
+    <div class="flex-1 px-4 sm:px-8 h-full">
+      <div ref="mewContainer" class="w-full h-full">
+        <div class="h-full w-full flex flex-col justify-between items-start">
           <div
-            v-if="!isMewEmpty"
-            class="flex justify-between text-xs text-neutral-content space-x-1"
-          >
-            <div
-              :class="{
-                'font-bold text-error':
-                  isMewFull || isMewRequireTruncation || isMewOverfull,
-                'text-neutral-content': !isMewFull && !isMewOverfull,
-              }"
-            >
-              {{ mewContentLength }} /
-              {{
-                min([TRUNCATED_MEW_LENGTH, dnaProperties.mew_characters_max])
-              }}
-              Chars
-            </div>
-            <div>
-              <div v-if="isMewUnderfull">
-                {{ dnaProperties.mew_characters_min }} Minimum
-              </div>
-            </div>
-          </div>
-          <div
-            v-if="isMewRequireTruncation"
-            class="text-xs text-neutral-content"
-          >
-            Overflow will be hidden
-          </div>
-        </div>
-      </div>
-
-      <div
-        class="link-target-input-container q-px-md q-py-sm"
-        style="min-width: 13rem"
-      >
-        <input
-          ref="linkTargetInput"
-          v-model="linkTarget"
-          type="text"
-          placeholder="Paste a URL to create a link"
-          dense
-          borderless
-          :rules="[(val: string) => isRawUrl(val) || 'Link target must be valid URL']"
-          @keydown.enter="createLinkTag"
-          @keydown.space="createLinkTag"
-          @keydown.tab="createLinkTag"
-          @blur="resetLinkTargetInput"
-        />
-      </div>
-
-      <div class="autocompleter">
-        <div v-if="currentAgentSearch.length < 3">Min. 3 letters</div>
-
-        <div v-else>
-          <div
-            v-if="autocompleterLoading"
-            class="loading loading-spinner loading-md text-secondary m-4"
+            ref="mewContainerInput"
+            contenteditable
+            class="overflow-auto w-full break-all outline-none border-0 outline-0 placeholder-container"
+            data-placeholder="What's mewing on?"
+            @keydown="onKeyDown"
+            @keyup="onKeyUp"
+            @mouseup="onMouseUp"
+            @paste="onPaste"
           ></div>
 
-          <div
-            v-else
-            class="autocompleter-list bg-white rounded-borders"
-            bordered
-            dense
-            separator
-            tabindex="-1"
-          >
+          <div class="w-full flex justify-between items-end mt-1">
+            <div class="flex justify-start items-center space-x-4">
+              <div
+                class="tooltip hover:tooltip-open tooltip-top"
+                data-tip="You can mention people with @ and use #hashtags and $cashtags as well
+          as ^links in a mew. You can press Ctrl/Cmd + Enter to publish."
+              >
+                <Icon
+                  icon="ion:help-circle-outline"
+                  class="text-xl text-neutral-content"
+                />
+              </div>
+            </div>
+
             <div
+              v-if="!isMewEmpty"
+              class="flex justify-between text-xs text-neutral-content space-x-1"
+            >
+              <div
+                :class="{
+                  'font-bold text-error':
+                    isMewFull || isMewRequireTruncation || isMewOverfull,
+                  'text-neutral-content': !isMewFull && !isMewOverfull,
+                }"
+              >
+                {{ mewContentLength }} /
+                {{
+                  min([TRUNCATED_MEW_LENGTH, dnaProperties.mew_characters_max])
+                }}
+                Chars
+              </div>
+              <div>
+                <div v-if="isMewUnderfull">
+                  ({{ dnaProperties.mew_characters_min }} Min)
+                </div>
+              </div>
+            </div>
+            <div
+              v-if="isMewRequireTruncation"
+              class="text-xs text-neutral-content"
+            >
+              Overflow will be hidden
+            </div>
+          </div>
+
+          <div
+            id="link-target-input-container"
+            class="hidden absolute bg-base-300 text-base-content shadow-md rounded-md"
+          >
+            <div class="relative">
+              <input
+                ref="linkTargetInput"
+                v-model="linkTarget"
+                type="text"
+                placeholder="Paste a URL to create a link"
+                class="block w-full rounded-md border-0 outline-none p-2 sm:text-sm sm:leading-6 bg-base-300 text-base-content"
+                :aria-invalid="!linkTargetValid"
+                aria-label="Enter a URL to create a link"
+                @keydown.enter="createLinkTag"
+                @keydown.space="createLinkTag"
+                @keydown.tab="createLinkTag"
+                @blur="resetLinkTargetInput"
+              />
+              <div
+                v-if="!linkTargetValid"
+                class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3"
+              >
+                <Icon
+                  icon="ion:alert-circle-outline"
+                  class="h-5 w-5 text-red-500"
+                  aria-hidden="true"
+                />
+              </div>
+            </div>
+            <p v-if="!linkTargetValid" class="p-2 text-sm text-error">
+              Link target must be valid URL
+            </p>
+          </div>
+        </div>
+
+        <div
+          id="autocompleter"
+          class="hidden absolute bg-base-300 text-base-content shadow-md rounded-md"
+        >
+          <div v-if="currentAgentSearch.length < 3" class="p-2 w-32">
+            Min 3 chars
+          </div>
+
+          <div
+            v-else-if="autocompleterLoading"
+            class="flex justify-center w-32"
+          >
+            <div class="loading loading-spinner loading-sm m-2"></div>
+          </div>
+
+          <div v-else-if="agentAutocompletions.length === 0" class="p-2 w-32">
+            Nothing found, Kitty
+          </div>
+
+          <div v-else>
+            <a
               v-for="([agentPubKey, profile], i) in agentAutocompletions"
               :key="i"
-              clickable
-              @keydown="onAutocompleteKeyDown"
+              tabindex="0"
+              class="cursor-pointer flex justify-start items-center space-x-2 p-2 rounded-md hover:bg-neutral-focus hover:text-neutral-content focus:bg-neutral-focus focus:text-neutral-content"
               @click="onAutocompleteAgentSelect(agentPubKey, profile)"
+              @keydown.enter.prevent="
+                onAutocompleteAgentSelect(agentPubKey, profile)
+              "
+              @keydown="onAutocompleteKeyDown"
             >
-              <div avatar class="q-pr-sm col-shrink">
-                <agent-avatar
-                  :agentPubKey="agentPubKey"
-                  disable-tooltip
-                  disable-copy
-                  size="30"
-                ></agent-avatar>
-              </div>
+              <agent-avatar
+                :agentPubKey="agentPubKey"
+                disable-tooltip
+                disable-copy
+                size="30"
+              ></agent-avatar>
               <div>
                 {{ profile.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
                 {{ TAG_SYMBOLS.MENTION }}{{ profile.nickname }}
               </div>
-            </div>
-
-            <div v-if="agentAutocompletions.length === 0">
-              Nothing found, Kitty
-            </div>
+            </a>
           </div>
         </div>
       </div>
@@ -148,8 +165,9 @@
         class="btn btn-neutral btn-md rounded-full"
         :disable="isMewEmpty || isMewOverfull || isMewUnderfull"
         :loading="saving"
-        :tabindex="agentAutocompletions.length && 0"
+        tabindex="0"
         @click="publishMew"
+        @keydown.enter.prevent="publishMew"
       >
         <div class="flex justify-start items-center space-x-2">
           <Icon icon="ion:arrow-forward-outline" class="text-xl" />
@@ -173,7 +191,6 @@ import { isMentionTag, isRawUrl, isLinkTag, TAG_SYMBOLS } from "@/utils/tags";
 import { onMounted, ref, computed, ComputedRef, inject } from "vue";
 import {
   Mew,
-  ElementWithInnerText,
   LinkTarget,
   LinkTargetName,
   MewsfeedDnaProperties,
@@ -198,7 +215,6 @@ import { ROUTES } from "@/router";
 
 const ANCHOR_DATA_ID_AGENT_PUB_KEY = "agentPubKey";
 const ANCHOR_DATA_ID_URL = "url";
-const POPUP_MARGIN_TOP = 20;
 let currentAnchorOffset: number;
 let currentFocusOffset: number;
 let currentNode: Node;
@@ -216,7 +232,8 @@ const myProfile = inject("myProfile") as ComputedRef<Profile>;
 
 const TRUNCATED_MEW_LENGTH = 300;
 
-const mewContainer = ref<HTMLDivElement | null>(null);
+const mewContainer = ref<HTMLDivElement>();
+const mewContainerInput = ref<HTMLDivElement>();
 const mewContentLength = ref(0);
 const saving = ref(false);
 const linkTarget = ref();
@@ -245,6 +262,11 @@ const isMewUnderfull = computed(
     dnaProperties.mew_characters_min !== null &&
     mewContentLength.value < dnaProperties.mew_characters_min
 );
+const linkTargetValid = computed(() => {
+  if (!linkTarget.value) return true;
+
+  return isRawUrl(linkTarget.value);
+});
 
 onMounted(async () => {
   focusInputField();
@@ -295,13 +317,10 @@ const publishMew = async () => {
   }
   showCreateProfileDialog.value = false;
 
-  const mewInput = mewContainer.value?.querySelector(
-    "#mew-container-input"
-  ) as ElementWithInnerText;
-  if (!mewInput) return;
+  if (!mewContainerInput.value) return;
 
   // build link array
-  const links = collectLinksWithinElement(mewInput);
+  const links = collectLinksWithinElement(mewContainerInput.value);
 
   const mew: Mew = {
     text: getTrimmedText(),
@@ -324,7 +343,7 @@ const publishMew = async () => {
   } finally {
     saving.value = false;
   }
-  mewInput.textContent = "";
+  mewContainerInput.value.textContent = "";
   mewContentLength.value = 0;
   hideAutocompleter();
   resetLinkTargetInput();
@@ -375,6 +394,7 @@ const loadAutocompleterUsers = async (nickname: string) => {
 };
 
 const onAutocompleteKeyDown = (keyDownEvent: KeyboardEvent) => {
+  console.log("onAutocompleteKeyDown");
   if (keyDownEvent.key === "ArrowDown") {
     keyDownEvent.preventDefault();
     const currentListItem = keyDownEvent.currentTarget;
@@ -392,12 +412,8 @@ const onAutocompleteKeyDown = (keyDownEvent: KeyboardEvent) => {
       if (previousSibling instanceof HTMLElement) {
         previousSibling.focus();
       } else {
-        const mewContent = mewContainer.value?.querySelector(
-          ".mew-container-input"
-        );
-        if (mewContent instanceof HTMLElement) {
-          mewContent.focus();
-        }
+        if (!mewContainerInput.value) return;
+        mewContainerInput.value.focus();
       }
     }
   }
@@ -427,30 +443,13 @@ const onAutocompleteAgentSelect = (agent: AgentPubKey, profile: Profile) => {
   setMewContentLength();
 };
 
-/**
- * Text Input Handling
- */
-
-const onInput = (event: KeyboardEvent) => {
-  setMewContentLength();
-
-  // Prevent input of characters if mew is already full
-  if (
-    (isMewFull.value || isMewOverfull.value) &&
-    event.key !== "Backspace" &&
-    event.key !== "Delete" &&
-    !(event.key === "a" && event.ctrlKey) &&
-    event.key !== "ArrowLeft" &&
-    event.key !== "ArrowRight" &&
-    event.key !== "ArrowUp" &&
-    event.key !== "ArrowDown"
-  ) {
-    event.preventDefault();
-  }
-};
-
 const onKeyDown = (event: KeyboardEvent) => {
   setMewContentLength();
+
+  if (agentAutocompletions.value.length > 0 && !autocompleterLoading.value) {
+    onAutocompleteKeyDown(event);
+    return;
+  }
 
   // Support Meta + Enter keys to publish
   if (
@@ -463,13 +462,9 @@ const onKeyDown = (event: KeyboardEvent) => {
 
   // Support KeyDown or Tab keys to focus on first item displayed in agents list (after typing an agent tag)
   else if (event.key === "ArrowDown" || event.key === "Tab") {
-    const firstListItem = mewContainer.value?.querySelector(
-      "#mew-container-input"
-    );
-    if (firstListItem instanceof HTMLElement) {
-      event.preventDefault();
-      firstListItem.focus();
-    }
+    if (!mewContainerInput.value) return;
+    event.preventDefault();
+    mewContainerInput.value.focus();
   }
 
   // Prevent input of leading line breaks
@@ -491,8 +486,18 @@ const onKeyDown = (event: KeyboardEvent) => {
     if (textContent.slice(-3) === "\n\n\n") {
       event.preventDefault();
     }
-  } else {
-    onInput(event);
+  } else if (
+    (isMewFull.value || isMewOverfull.value) &&
+    event.key !== "Backspace" &&
+    event.key !== "Delete" &&
+    !(event.key === "a" && event.ctrlKey) &&
+    event.key !== "ArrowLeft" &&
+    event.key !== "ArrowRight" &&
+    event.key !== "ArrowUp" &&
+    event.key !== "ArrowDown"
+  ) {
+    // Prevent input of characters if mew is already full
+    event.preventDefault();
   }
 };
 
@@ -565,7 +570,7 @@ const onCaretPositionChange = () => {
   if (currentWord.length && selection.anchorNode) {
     // current word starts with @ and is followed by at least another word character
     if (isMentionTag(currentWord)) {
-      showElement(selection.anchorNode, startOfWordIndex, ".autocompleter");
+      showElement(selection.anchorNode, startOfWordIndex, "#autocompleter");
 
       const nicknameChars = currentWord.substring(1);
       currentAgentSearch.value = nicknameChars;
@@ -579,7 +584,7 @@ const onCaretPositionChange = () => {
       showElement(
         selection.anchorNode,
         startOfWordIndex,
-        ".link-target-input-container"
+        "#link-target-input-container"
       );
       currentAnchorOffset = startOfWordIndex;
       currentFocusOffset = endOfWordIndex;
@@ -595,12 +600,7 @@ const onCaretPositionChange = () => {
  */
 
 const focusInputField = () =>
-  document
-    .getSelection()
-    ?.setPosition(
-      mewContainer.value?.querySelector("#mew-container-input") || null,
-      0
-    );
+  document.getSelection()?.setPosition(mewContainerInput.value || null, 0);
 
 const stripAnchorFromLink = (selection: Selection) => {
   if (!selection.anchorNode?.parentElement) {
@@ -616,15 +616,8 @@ const stripAnchorFromLink = (selection: Selection) => {
   }
 };
 
-const getRawText = (): string => {
-  const text = (
-    mewContainer.value?.querySelector(
-      "#mew-container-input"
-    ) as null | ElementWithInnerText
-  )?.innerText;
-
-  return text ? text : "";
-};
+const getRawText = (): string =>
+  mewContainerInput.value ? mewContainerInput.value.innerText : "";
 
 const getTrimmedText = (): string => {
   const text = getRawText();
@@ -646,20 +639,22 @@ const showElement = (
   currentNode = anchorNode;
   const selectionRect = range.getBoundingClientRect();
   const element = mewContainer.value?.querySelector(selector);
-  if (element instanceof HTMLElement && mewContainer.value) {
+  if (
+    element instanceof HTMLElement &&
+    mewContainer.value &&
+    mewContainerInput.value
+  ) {
+    const mewContainerBoundingRect = mewContainer.value.getBoundingClientRect();
+
     element.style.top =
-      Math.max(
-        0,
-        selectionRect.top - mewContainer.value.getBoundingClientRect().top
-      ) +
-      POPUP_MARGIN_TOP +
-      "px";
+      Math.max(0, selectionRect.top - mewContainerBoundingRect.top + 40) + "px";
+
     element.style.left =
-      Math.max(
-        0,
-        selectionRect.left - mewContainer.value.getBoundingClientRect().left
-      ) + "px";
+      Math.max(0, selectionRect.left - mewContainerBoundingRect.left + 100) +
+      "px";
+
     element.style.display = "block";
+    element.focus();
   }
 };
 
@@ -671,22 +666,17 @@ const hideElement = (selector: string) => {
 };
 
 const resetLinkTargetInput = () => {
-  hideElement(".link-target-input-container");
-  linkTargetInput.value.resetValidation();
+  hideElement("#link-target-input-container");
   linkTarget.value = undefined;
 };
 
-const hideAutocompleter = hideElement.bind(null, ".autocompleter");
+const hideAutocompleter = () => {
+  hideElement("#autocompleter");
+  agentAutocompletions.value = [];
+};
 </script>
-
-<style lang="sass">
-.autocompleter, .link-target-input-container
-  position: absolute
-  display: none
-  z-index: 1
-</style>
 <style scoped>
-#mew-container-input:empty::before {
+.placeholder-container:empty::before {
   content: attr(data-placeholder);
   color: hsl(var(--nc));
   display: block;
