@@ -1,6 +1,6 @@
 <template>
   <QPage class="q-pb-lg" :style-fn="pageHeightCorrection">
-    <CreateMewField
+    <CreateMewInput
       :mew-type="{ [MewTypeName.Original]: null }"
       @mew-created="onCreateMew"
     />
@@ -68,7 +68,7 @@ import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
 import { showError } from "@/utils/toasts";
 import BaseMewListItem from "@/components/BaseMewListItem.vue";
 import BaseMewListSkeleton from "@/components/BaseMewListSkeleton.vue";
-import CreateMewField from "@/components/CreateMewField.vue";
+import CreateMewInput from "@/components/CreateMewInput.vue";
 import BaseEmptyMewsFeed from "@/components/BaseEmptyMewsFeed.vue";
 import { onBeforeRouteLeave } from "vue-router";
 

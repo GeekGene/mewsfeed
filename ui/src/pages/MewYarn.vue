@@ -26,7 +26,7 @@
             <div class="col-grow">
               <div class="q-mb-md text-h6 text-medium">Reply</div>
 
-              <CreateMewField
+              <CreateMewInput
                 :mew-type="{ [MewTypeName.Reply]: actionHash }"
                 class="full-width"
                 @mew-created="refetchMewAndRepliesLastPage"
@@ -88,7 +88,7 @@ import {
   QItem,
   QList,
 } from "quasar";
-import CreateMewField from "@/components/CreateMewField.vue";
+import CreateMewInput from "@/components/CreateMewInput.vue";
 import BaseMewListItem from "@/components/BaseMewListItem.vue";
 import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
 import { MewTypeName, PaginationDirectionName } from "@/types/types";

@@ -36,7 +36,7 @@
     </QCardSection>
 
     <QCardSection>
-      <CreateMewField
+      <CreateMewInput
         :mew-type="mewType"
         @mew-created="(val) => emit('mew-created', val)"
       />
@@ -46,7 +46,7 @@
 
 <script setup lang="ts">
 import { QCard, QCardSection } from "quasar";
-import CreateMewField from "@/components/CreateMewField.vue";
+import CreateMewInput from "@/components/CreateMewInput.vue";
 import { FeedMew, MewType, MewTypeName, PROFILE_FIELDS } from "@/types/types";
 import { Profile } from "@holochain-open-dev/profiles";
 import BaseMewContent from "./BaseMewContent.vue";
