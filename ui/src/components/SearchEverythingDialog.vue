@@ -29,7 +29,7 @@
             leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
           >
             <DialogPanel>
-              <SearchEverythingInput />
+              <SearchEverythingDialogInput />
             </DialogPanel>
           </TransitionChild>
         </div>
@@ -44,8 +44,7 @@ import {
   TransitionChild,
   TransitionRoot,
 } from "@headlessui/vue";
-import { Icon } from "@iconify/vue";
-import SearchEverythingInput from "@/components/SearchEverythingInput.vue";
+import SearchEverythingDialogInput from "@/components/SearchEverythingDialogInput.vue";
 
 defineProps<{
   open: boolean;
