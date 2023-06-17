@@ -1,6 +1,10 @@
 <template>
-  <TransitionRoot as="template" :show="open">
-    <Dialog as="div" class="relative z-10" @close="emit('close')">
+  <TransitionRoot as="template" :show="modelValue">
+    <Dialog
+      as="div"
+      class="relative z-10"
+      @close="emit('update:model-value', false)"
+    >
       <TransitionChild
         as="template"
         enter="ease-out duration-300"
@@ -47,8 +51,8 @@ import {
 import SearchEverythingDialogInput from "@/components/SearchEverythingDialogInput.vue";
 
 defineProps<{
-  open: boolean;
+  modelValue: boolean;
 }>();
 
-const emit = defineEmits(["close"]);
+const emit = defineEmits(["update:model-value"]);
 </script>

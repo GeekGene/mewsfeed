@@ -9,7 +9,7 @@
     >
       <BaseSiteMenu
         class="sticky left-0 top-0 mt-16 hidden sm:block w-14 flex flex-col justify-start items-start space-y-4"
-        @click-search="showSearchModal = true"
+        @click-search="showSearchDialog = true"
       />
       <div class="flex-1 relative w-full h-full">
         <h1
@@ -28,12 +28,9 @@
 
     <BaseSiteMenu
       class="block flex-0 sm:hidden w-full flex justify-between items-center"
-      @click-search="showSearchModal = true"
+      @click-search="showSearchDialog = true"
     />
-    <SearchEverythingDialog
-      :open="showSearchModal"
-      @close="showSearchModal = false"
-    />
+    <SearchEverythingDialog v-model="showSearchDialog" />
   </div>
 </template>
 
@@ -63,7 +60,7 @@ const route = useRoute();
 const useNotificationsReadStore = makeUseNotificationsReadStore(client);
 const { addNotificationStatus } = useNotificationsReadStore();
 
-const showSearchModal = ref(false);
+const showSearchDialog = ref(false);
 const showCreateMewDialog = ref(false);
 const forceReloadRouterViewKey = ref(0);
 
