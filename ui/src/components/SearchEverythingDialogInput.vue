@@ -27,11 +27,11 @@
       >
         <div
           v-if="query !== ''"
-          class="relative transform overflow-hidden rounded-3xl bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:w-full sm:max-w-sm sm:p-6 mt-2 sm:mt-4"
+          class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-xl transition-all sm:w-full sm:max-w-sm mt-2 sm:mt-4"
         >
           <ComboboxOptions>
             <div>
-              <div v-if="results.length === 0">
+              <div v-if="results.length === 0" class="p-4">
                 {{
                   query.length < 3
                     ? "Minimum 3 characters required"
@@ -48,46 +48,35 @@
               >
                 <div
                   v-if="item.resultType === SearchResult.Agent"
-                  :focused="active"
-                  manual-focus
-                  clickable
-                  dense
-                  class="q-py-sm"
+                  class="cursor-pointer p-4 flex justify-start items-center space-x-4"
+                  :class="{ 'bg-neutral-focus text-neutral-content': active }"
                 >
-                  <div avatar>
-                    <agent-avatar
-                      :agentPubKey="item.agentPubKey"
-                      :store="profilesStore"
-                      disable-tooltip
-                      disable-copy
-                      size="40"
-                    ></agent-avatar>
-                  </div>
-                  <div class="text-body2">
+                  <agent-avatar
+                    :agentPubKey="item.agentPubKey"
+                    :store="profilesStore"
+                    disable-tooltip
+                    disable-copy
+                    size="40"
+                  ></agent-avatar>
+                  <div>
                     {{ item.label }}
                   </div>
                 </div>
                 <div
                   v-else-if="item.resultType === SearchResult.Hashtag"
-                  :focused="active"
-                  manual-focus
-                  clickable
-                  dense
-                  class="q-py-sm"
+                  class="cursor-pointer p-4"
+                  :class="{ 'bg-neutral-focus text-neutral-content': active }"
                 >
-                  <div class="text-body2">
+                  <div>
                     {{ item.label }}
                   </div>
                 </div>
                 <div
                   v-else-if="item.resultType === SearchResult.Cashtag"
-                  :focused="active"
-                  manual-focus
-                  clickable
-                  dense
-                  class="q-py-sm"
+                  class="cursor-pointer p-4"
+                  :class="{ 'bg-neutral-focus text-neutral-content': active }"
                 >
-                  <div class="text-body2">
+                  <div>
                     {{ item.label }}
                   </div>
                 </div>
