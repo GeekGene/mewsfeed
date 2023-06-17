@@ -16,7 +16,7 @@
 
         <div
           v-if="loadingCells"
-          class="flex justify-start items-center fixed right-5 top-0 my-8 mx-4 py-4 badge badge-warning"
+          class="flex justify-start items-center fixed right-5 top-0 my-8 mx-4 py-4 badge badge-warning z-50 shadow-md"
         >
           <sl-spinner style="font-size: 1rem" class="mr-2"></sl-spinner>
           <div>Cells loading...</div>
