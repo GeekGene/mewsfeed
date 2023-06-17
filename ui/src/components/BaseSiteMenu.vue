@@ -17,14 +17,25 @@
     >
       <Icon icon="ion:globe-outline" class="text-2xl" />
     </RouterLink>
-    <RouterLink
-      class="btn btn-circle btn-md btn-neutral-inverse"
-      active-class="btn-neutral"
-      alt="Home Page"
-      :to="{ name: ROUTES.notifications }"
-    >
-      <Icon icon="ion:notifications-outline" class="text-2xl" />
-    </RouterLink>
+    <div class="indicator">
+      <RouterLink
+        class="btn btn-circle btn-md btn-neutral-inverse"
+        active-class="btn-neutral"
+        alt="Home Page"
+        :to="{ name: ROUTES.notifications }"
+      >
+        <span
+          v-if="unreadCount > 0"
+          class="indicator-item indicator-bottom indicator-end badge badge-success"
+          >{{ unreadCount }}</span
+        >
+        <Icon
+          icon="ion:notifications-outline"
+          class="text-2xl place-items-center"
+        />
+      </RouterLink>
+    </div>
+
     <a
       class="btn btn-circle btn-md btn-neutral-inverse"
       active-class="btn-neutral"
@@ -59,10 +70,15 @@ import { AppAgentClient, encodeHashToBase64 } from "@holochain/client";
 import { inject, ComputedRef } from "vue";
 import { Icon } from "@iconify/vue";
 import { Profile } from "@holochain-open-dev/profiles";
-import BaseAgentProfile from "@/components/BaseAgentProfile.vue";
+import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";
+import { storeToRefs } from "pinia";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const myProfile = inject("myProfile") as ComputedRef<Profile>;
+
+const useNotificationsReadStore = makeUseNotificationsReadStore(client);
+const { unreadCount } = storeToRefs(useNotificationsReadStore());
+
 const emit = defineEmits(["click-search"]);
 </script>
 

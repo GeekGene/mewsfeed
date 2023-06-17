@@ -21,6 +21,7 @@
         <CreateMewInput
           :mew-type="{ [MewTypeName.Original]: null }"
           class="absolute bottom-3 w-full hidden sm:block"
+          @mew-created="onCreateMew"
         />
       </div>
     </div>
@@ -44,45 +45,22 @@ import { ROUTES } from "@/router";
 import {
   FeedMew,
   MewTypeName,
-  MewsfeedDnaProperties,
   PaginationDirectionName,
   Notification,
 } from "@/types/types";
 import { AppAgentClient, encodeHashToBase64 } from "@holochain/client";
-import {
-  QPageContainer,
-  QSpace,
-  QRouteTab,
-  QTabs,
-  QBtn,
-  QBadge,
-  QLayout,
-  QHeader,
-  QToolbar,
-  QTooltip,
-  QIcon,
-} from "quasar";
+
 import { ComputedRef, inject, ref, watch } from "vue";
-import { useRouter, useRoute, RouterLink } from "vue-router";
-import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
-import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
-import SearchEverythingInput from "@/components/SearchEverythingInput.vue";
+import { useRouter, useRoute } from "vue-router";
 import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";
-import { storeToRefs } from "pinia";
-import { getHomeRedirect, setHomeRedirect } from "@/utils/homeRedirect";
+import { setHomeRedirect } from "@/utils/homeRedirect";
 import { useInfiniteQuery, useQuery } from "@tanstack/vue-query";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
-const dnaProperties = (
-  inject("dnaProperties") as ComputedRef<MewsfeedDnaProperties>
-).value;
-const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
-  .value;
-const myProfile = inject("myProfile") as ComputedRef<Profile>;
+
 const router = useRouter();
 const route = useRoute();
 const useNotificationsReadStore = makeUseNotificationsReadStore(client);
-const { unreadCount } = storeToRefs(useNotificationsReadStore());
 const { addNotificationStatus } = useNotificationsReadStore();
 
 const showSearchModal = ref(false);
