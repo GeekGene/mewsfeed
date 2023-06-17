@@ -12,7 +12,7 @@
     <RouterLink
       class="btn btn-circle btn-md"
       active-class="btn-neutral"
-      alt="Home Page"
+      alt="Discover Creators Page"
       :to="{ name: ROUTES.discover }"
     >
       <Icon icon="ion:globe-outline" class="text-2xl" />
@@ -21,7 +21,7 @@
       <RouterLink
         class="btn btn-circle btn-md btn-neutral-inverse"
         active-class="btn-neutral"
-        alt="Home Page"
+        alt="Notifications Page"
         :to="{ name: ROUTES.notifications }"
       >
         <span
@@ -48,7 +48,7 @@
       v-if="myProfile"
       class="btn btn-circle btn-md btn-neutral-inverse px-0 py-0"
       active-class="btn-neutral"
-      alt="Home Page"
+      alt="My Profile Page"
       :to="{
         name: ROUTES.profile,
         params: { agentPubKey: encodeHashToBase64(client.myPubKey) },
