@@ -1,10 +1,8 @@
 <template>
-  <div
-    class="w-full shadow-xl rounded-3xl bg-neutral/5 backdrop-blur-sm flex jusify-start items-start p-3"
-  >
+  <div class="w-full shadow-xl rounded-3xl flex justify-start items-start p-3">
     <RouterLink
       v-if="myProfile"
-      class="btn btn-circle btn-md btn-neutral-inverse px-0 py-0"
+      class="btn btn-circle btn-md btn-neutral-inverse px-0 py-0 z-10"
       alt="My Profile"
       :to="{
         name: ROUTES.profile,
@@ -25,7 +23,7 @@
           <div
             ref="mewContainerInput"
             contenteditable
-            class="overflow-auto w-full break-all outline-none border-0 outline-0 placeholder-container"
+            class="overflow-auto w-full break-all outline-none border-0 outline-0 placeholder-container text-left"
             data-placeholder="What's mewing on?"
             @keydown="onKeyDown"
             @keyup="onKeyUp"

@@ -1,24 +1,22 @@
 <template>
-  <div class="column">
-    <div
-      class="text-body1 text-left"
-      style="overflow-wrap: anywhere; white-space: pre-line"
-    >
-      <template v-for="(contentPart, index) of partsDisplayed" :key="index">
-        <BaseMewContentTag
-          v-if="contentPart.tagType !== undefined"
-          :content-part="contentPart"
-        />
-        <template v-else>{{ contentPart.text }}</template>
-      </template>
+  <div
+    class="text-content text-left whitespace-pre-line"
+    style="overflow-wrap: anywhere"
+  >
+    <template v-for="(contentPart, index) of partsDisplayed" :key="index">
+      <BaseMewContentTag
+        v-if="contentPart.tagType !== undefined"
+        :content-part="contentPart"
+      />
+      <template v-else>{{ contentPart.text }}</template>
+    </template>
 
-      <span v-if="contentRequiresTruncation">
-        <span v-if="truncate">...</span>
-        <a @click.stop="truncate = !truncate">
-          Show {{ truncate ? "More" : "Less" }}
-        </a>
-      </span>
-    </div>
+    <span v-if="contentRequiresTruncation">
+      <span v-if="truncate">...</span>
+      <a @click.stop="truncate = !truncate">
+        Show {{ truncate ? "More" : "Less" }}
+      </a>
+    </span>
   </div>
 </template>
 

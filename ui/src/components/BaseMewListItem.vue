@@ -1,14 +1,12 @@
 <template>
-  <QItem
-    class="items-start cursor-pointer"
+  <div
+    class="w-full flex justify-start items-start space-x-4 p-4 cursor-pointer"
     @click.passive="navigateToYarn(feedMew.action_hash)"
   >
-    <QItemSection avatar>
-      <ProfileAvatarWithPopup :agentPubKey="feedMew.action.author" />
-    </QItemSection>
+    <ProfileAvatarWithPopup :agentPubKey="feedMew.action.author" />
 
-    <QItemSection>
-      <div class="row justify-start items-center q-mb-sm">
+    <div class="w-full">
+      <div class="w-full flex justify-between items-center">
         <RouterLink
           :to="{
             name: ROUTES.profile,
@@ -16,43 +14,46 @@
           }"
           @click.stop.prevent
         >
-          <template v-if="feedMew.author_profile">
-            <span class="q-mr-xs text-primary text-weight-bold">
+          <div v-if="feedMew.author_profile" class="flex space-x-2">
+            <div
+              v-if="feedMew.author_profile.fields[PROFILE_FIELDS.DISPLAY_NAME]"
+              class="text-primary font-bold"
+            >
               {{ feedMew.author_profile.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
-            </span>
-            <span>@{{ feedMew.author_profile.nickname }}</span>
-          </template>
-          <span v-else>
+            </div>
+            <div class="font-mono">@{{ feedMew.author_profile.nickname }}</div>
+          </div>
+          <span v-else class="font-mono">
             {{ encodeHashToBase64(feedMew.action.author).slice(0, 8) }}
           </span>
         </RouterLink>
 
-        <span v-if="feedMew.original_mew" class="q-ml-md">
-          <QBtn
+        <div v-if="feedMew.original_mew">
+          <RouterLink
             v-if="showYarnLink"
-            flat
-            color="dark"
-            size="md"
-            padding="xs"
-            no-caps
-            @click.stop.prevent="
-              navigateToYarn(feedMew.original_mew.action_hash)
-            "
+            class="btn btn-cicle btn-sm"
+            :to="{
+              name: ROUTES.yarn,
+              params: {
+                actionHash: encodeHashToBase64(
+                  feedMew.original_mew.action_hash
+                ),
+              },
+            }"
+            @click.stop.prevent
           >
-            <div class="q-mr-xs text-secondary text-lowercase">
+            <div class="text-secondary text-lowercase">
               {{ reactionLabel }}
             </div>
-            <div class="row justify-start items-center">
-              <div class="q-pr-xs text-bold">
+            <div class="flex justify-start items-center">
+              <div class="text-bold">
                 {{
                   feedMew.original_mew.author_profile?.fields[
                     PROFILE_FIELDS.DISPLAY_NAME
                   ]
                 }}
               </div>
-              <div class="q-pr-sm">
-                @{{ feedMew.original_mew.author_profile?.nickname }}
-              </div>
+              <div>@{{ feedMew.original_mew.author_profile?.nickname }}</div>
               <div
                 v-if="feedMew.original_mew.deleted_timestamp !== null"
                 class="text-bold text-secondary"
@@ -60,154 +61,170 @@
                 (Deleted Mew)
               </div>
             </div>
-          </QBtn>
-        </span>
+          </RouterLink>
+        </div>
 
-        <QSpace />
-
-        <span class="q-ml-md text-caption">
+        <div class="font-mono text-xs">
           <BaseTimestamp :timestamp="feedMew.action.timestamp" />
-        </span>
+        </div>
       </div>
 
       <BaseMewContent
         v-if="(!isDeleted || showIfDeleted) && isMewmew && feedMew.original_mew"
-        :mew="feedMew.original_mew.mew as Mew"
-        class="q-my-sm cursor-pointer text-left"
+        :mew="(feedMew.original_mew.mew as Mew)"
+        class="my-2"
       />
 
       <div
         v-else-if="
           (!isDeleted || showIfDeleted) && isQuote && feedMew.original_mew
         "
+        class="w-full"
       >
-        <BaseMewContent
-          :mew="feedMew.mew as Mew"
-          class="q-my-sm cursor-pointer"
-        />
+        <BaseMewContent :mew="(feedMew.mew as Mew)" class="my-2" />
 
-        <div class="row justify-start q-my-md">
-          <div class="row items-start">
-            <QIcon
-              name="svguse:/icons.svg#format-quote-open"
-              color="grey-5"
-              size="lg"
-            />
+        <div class="flex justify-start my-4">
+          <div class="flex items-start">
+            <Icon icon="mdi:format-quote-open" class="text-base-300 text-2xl" />
           </div>
           <div class="bg-grey-2 col">
             <BaseEmbedMew :embed-mew="feedMew.original_mew" />
           </div>
-          <div class="row items-end">
-            <QIcon
-              name="svguse:/icons.svg#format-quote-close"
-              color="grey-5"
-              size="lg"
+          <div class="flex items-end">
+            <Icon
+              icon="mdi:format-quote-close"
+              class="text-base-300 text-2xl"
             />
           </div>
         </div>
       </div>
       <BaseMewContent
         v-else-if="!isDeleted || showIfDeleted"
-        :mew="feedMew.mew as Mew"
-        class="q-my-sm cursor-pointer"
+        :mew="(feedMew.mew as Mew)"
+        class="my-2"
       />
-      <QBtn
-        v-else
-        size="sm"
-        dense
-        flat
-        @click.stop.prevent="showIfDeleted = true"
-      >
+      <a v-else class="btn btn-sm" @click.stop.prevent="showIfDeleted = true">
         Show Deleted Mew Content
-      </QBtn>
+      </a>
 
-      <div class="row justify-between">
+      <div class="flex justify-between">
         <div
           v-if="!isDeleted || showIfDeleted"
-          class="row justify-between items-center"
+          class="flex justify-between items-center"
           style="width: 100%"
         >
-          <div>
-            <QBtn
-              :disable="isUpdatingLick || isDeleted"
-              size="sm"
-              flat
-              @click.stop.prevent="toggleLickMew"
+          <div class="flex space-x-2">
+            <div
+              class="tooltip-bottom"
+              :class="{ tooltip: !isDeleted }"
+              :data-tip="`${isLickedByMe ? 'Unlick' : 'Lick'} mew`"
             >
-              <QIcon
-                name="svguse:/icons.svg#lick"
-                :color="isLickedByMe ? 'pink-4' : 'transparent'"
-                style="stroke: black"
-                class="q-mr-xs"
-              />
-              {{ feedMew.licks.length }}
-              <QTooltip v-if="!isDeleted">
-                {{ isLickedByMe ? "Unlick" : "Lick" }} mew
-              </QTooltip>
-            </QBtn>
-            <QBtn
-              :disable="isDeleted"
-              size="sm"
-              icon="reply"
-              flat
-              @click.stop.prevent="showReplyToMewDialog = true"
+              <button
+                class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
+                :disable="isUpdatingLick || isDeleted"
+                @click.stop.prevent="toggleLickMew"
+              >
+                <Icon
+                  icon="emojione:tongue"
+                  class="fill-none stroke-black"
+                  :class="{ 'fill-pink-400': isLickedByMe }"
+                />
+                <span v-if="feedMew.licks.length > 0" class="text-xs">
+                  {{ feedMew.licks.length }}
+                </span>
+              </button>
+            </div>
+
+            <div
+              class="tooltip-bottom"
+              :class="{ tooltip: !isDeleted }"
+              data-tip="Reply to mew"
             >
-              {{ feedMew.replies.length }}
-              <QTooltip v-if="!isDeleted">Reply to mew</QTooltip>
-            </QBtn>
-            <QBtn
-              :disable="isDeleted"
-              size="sm"
-              icon="forward"
-              flat
-              @click.stop.prevent="createMewmew"
+              <button
+                :disable="isDeleted"
+                class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
+                @click.stop.prevent="showReplyToMewDialog = true"
+              >
+                <Icon icon="ion:arrow-undo-sharp" />
+                <span v-if="feedMew.replies.length > 0">
+                  {{ feedMew.replies.length }}
+                </span>
+              </button>
+            </div>
+
+            <div
+              class="tooltip-bottom"
+              :class="{ tooltip: !isDeleted }"
+              data-tip="Mewmew mew"
             >
-              {{ feedMew.mewmews.length }}
-              <QTooltip v-if="!isDeleted">Mewmew mew</QTooltip>
-            </QBtn>
-            <QBtn
-              :disable="isDeleted"
-              size="sm"
-              icon="format_quote"
-              flat
-              @click.stop.prevent="showQuoteMewDialog = true"
+              <button
+                :disable="isDeleted"
+                class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
+                @click.stop.prevent="createMewmew"
+              >
+                <Icon icon="ph:repeat-bold" />
+                <span v-if="feedMew.mewmews.length > 0">
+                  {{ feedMew.mewmews.length }}
+                </span>
+              </button>
+            </div>
+
+            <div
+              class="tooltip-bottom"
+              :class="{ tooltip: !isDeleted }"
+              data-tip="Quote mew"
             >
-              {{ feedMew.quotes.length }}
-              <QTooltip v-if="!isDeleted">Quote mew</QTooltip>
-            </QBtn>
+              <button
+                :disable="isDeleted"
+                class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
+                @click.stop.prevent="showQuoteMewDialog = true"
+              >
+                <Icon icon="material-symbols:format-quote" />
+                <span v-if="feedMew.quotes.length > 0">
+                  {{ feedMew.quotes.length }}
+                </span>
+              </button>
+            </div>
           </div>
           <div>
-            <QBtn
-              :disable="isDeleted && !props.feedMew.is_pinned"
-              size="sm"
-              flat
-              @click.stop.prevent="togglePinMew"
+            <div
+              class="tooltip-bottom"
+              :class="{ tooltip: !isDeleted }"
+              :data-tip="`${props.feedMew.is_pinned ? 'Unpin' : 'Pin'} mew`"
             >
-              <QIcon
-                v-if="props.feedMew.is_pinned"
-                name="svguse:/icons.svg#push-pin-off"
-                class="q-mr-xs"
-              />
-              <QIcon v-else name="svguse:/icons.svg#push-pin" class="q-mr-xs" />
-              <QTooltip v-if="!isDeleted">
-                {{ props.feedMew.is_pinned ? "Unpin" : "Pin" }} mew
-              </QTooltip>
-            </QBtn>
-            <QBtn
+              <button
+                :disable="isDeleted && !props.feedMew.is_pinned"
+                class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
+                @click.stop.prevent="togglePinMew"
+              >
+                <Icon
+                  :icon="
+                    props.feedMew.is_pinned
+                      ? 'ic:sharp-pin-off'
+                      : 'ic:sharp-push-pin'
+                  "
+                />
+              </button>
+            </div>
+            <div
               v-if="isAuthoredByMe"
-              :disable="isDeleted"
-              size="sm"
-              icon="delete"
-              flat
-              @click.stop.prevent="showConfirmDeleteDialog = true"
+              class="tooltip-bottom"
+              :class="{ tooltip: !isDeleted }"
+              data-tip="Delete mew"
             >
-              <QTooltip v-if="!isDeleted">Delete mew</QTooltip>
-            </QBtn>
+              <button
+                :disable="isDeleted"
+                class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
+                @click.stop.prevent="showConfirmDeleteDialog = true"
+              >
+                <Icon icon="ion:trash-sharp" />
+              </button>
+            </div>
           </div>
         </div>
         <div
           v-if="feedMew.deleted_timestamp !== null"
-          class="text-red text-bold row justify-end"
+          class="text-red text-bold flex justify-end"
           style="width: 100%"
         >
           <div>
@@ -215,7 +232,7 @@
           </div>
         </div>
       </div>
-    </QItemSection>
+    </div>
     <CreateProfileIfNotFoundDialog v-model="showReplyToMewDialog">
       <CreateMewForm
         :mew-type="{ [MewTypeName.Reply]: feedMew.action_hash }"
@@ -252,16 +269,14 @@
         force them to delete it.
       </p>
     </BaseConfirmDialog>
-  </QItem>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { QItemSection, QBtn, QIcon, QTooltip, QSpace } from "quasar";
 import { ROUTES } from "@/router";
 import { Mew, FeedMew, MewTypeName, PROFILE_FIELDS } from "@/types/types";
 import { Profile } from "@holochain-open-dev/profiles";
 import { ActionHash, encodeHashToBase64 } from "@holochain/client";
-import { QItem } from "quasar";
 import { computed, ComputedRef, inject, ref } from "vue";
 import ProfileAvatarWithPopup from "./ProfileAvatarWithPopup.vue";
 import CreateMewForm from "./CreateMewForm.vue";
@@ -277,6 +292,7 @@ import BaseConfirmDialog from "@/components/BaseConfirmDialog.vue";
 import { showMessage } from "@/utils/toasts";
 import dayjs from "dayjs";
 import BaseEmbedMew from "@/components/BaseEmbedMew.vue";
+import { Icon } from "@iconify/vue";
 
 const props = withDefaults(
   defineProps<{

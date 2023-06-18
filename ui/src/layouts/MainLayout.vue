@@ -1,46 +1,46 @@
 <template>
   <div class="w-full max-w-screen-lg h-full px-8 py-8 flex flex-col">
-    <h1 class="block sm:hidden text-2xl font-title font-bold tracking-tighter">
-      mewsfeed
-    </h1>
-
     <div
-      class="flex sm:flex-none justify-center items-start space-x-12 sm:space-x-0 h-full"
+      class="flex sm:flex-none justify-center items-start space-x-0 sm:space-x-10 h-full"
     >
       <BaseSiteMenu
-        class="sticky left-0 top-0 mt-16 hidden sm:block w-14 flex flex-col justify-start items-start space-y-4"
+        class="sticky left-0 top-16 hidden sm:block w-14 flex flex-col justify-start items-start space-y-4"
         @click-search="showSearchDialog = true"
       />
-      <div class="flex-1 relative w-full h-full">
-        <h1
-          class="hidden sm:block text-2xl font-title font-bold tracking-tighter"
-        >
-          mewsfeed
-        </h1>
+      <div class="flex-1 w-full h-full" style="width: inherit">
         <RouterView :key="`${route.fullPath}-${forceReloadRouterViewKey}`" />
-        <div class="hidden sm:block absolute bottom-3 w-full">
+
+        <div
+          class="hidden sm:block sticky bottom-3 bg-neutral/5 backdrop-blur-md rounded-3xl shadow-xl"
+          style="width: inherit"
+        >
           <CreateMewInput
             :mew-type="{ [MewTypeName.Original]: null }"
             @mew-created="onCreateMew"
           />
         </div>
-        <a
-          class="absolute bottom-4 right-0 block sm:hidden btn btn-md btn-neutral rounded-full py-3 flex items-center"
-          @click="showCreateMewDialog = true"
-        >
-          <Icon icon="ion:chatbubble-outline" class="text-xl" />
-          <div>New Mew</div>
-        </a>
       </div>
     </div>
+  </div>
 
+  <button
+    class="flex-0 block sm:hidden z-50 fixed bottom-32 right-3 btn btn-md btn-neutral rounded-full py-3 flex items-center shadow-xl"
+    @click="showCreateMewDialog = true"
+  >
+    <Icon icon="ion:chatbubble-outline" class="text-xl" />
+    <div>New Mew</div>
+  </button>
+
+  <div
+    class="flex-0 block sm:hidden fixed bottom-0 bg-base-100 py-8 w-full border-t-2 border-base-200 shadow-xl"
+  >
     <BaseSiteMenu
-      class="block flex-0 sm:hidden w-full flex justify-between items-center"
+      class="w-full flex justify-evenly items-center"
       @click-search="showSearchDialog = true"
     />
-    <SearchEverythingDialog v-model="showSearchDialog" />
-    <CreateMewDialog v-model="showCreateMewDialog" />
   </div>
+  <SearchEverythingDialog v-model="showSearchDialog" />
+  <CreateMewDialog v-model="showCreateMewDialog" />
 </template>
 
 <script setup lang="ts">

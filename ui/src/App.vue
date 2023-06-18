@@ -1,28 +1,31 @@
 <template>
   <div
-    class="w-screen h-screen flex justify-center items-center relative font-content cursor-default"
+    v-if="loadingClient"
+    class="h-screen w-full flex justify-center items-center"
   >
-    <template v-if="loadingClient">
-      <sl-spinner style="font-size: 2rem" class="mr-4"></sl-spinner>
-      <h6>Connecting...</h6>
-    </template>
-    <template v-else>
-      <profiles-context :store="profilesStore">
-        <HoloLogin v-if="IS_HOLO_HOSTED">
-          <MainLayout />
-        </HoloLogin>
+    <sl-spinner style="font-size: 2rem" class="mr-4"></sl-spinner>
+    <h6>Connecting...</h6>
+  </div>
 
-        <MainLayout v-else />
+  <div
+    v-else
+    class="w-full flex justify-center items-center relative font-content cursor-default"
+  >
+    <profiles-context :store="profilesStore">
+      <HoloLogin v-if="IS_HOLO_HOSTED">
+        <MainLayout />
+      </HoloLogin>
 
-        <div
-          v-if="loadingCells"
-          class="flex justify-start items-center fixed right-5 top-0 my-8 mx-4 py-4 badge badge-warning z-50 shadow-md"
-        >
-          <sl-spinner style="font-size: 1rem" class="mr-2"></sl-spinner>
-          <div>Cells loading...</div>
-        </div>
-      </profiles-context>
-    </template>
+      <MainLayout v-else />
+
+      <div
+        v-if="loadingCells"
+        class="flex justify-start items-center fixed right-5 top-0 my-8 mx-4 py-4 badge badge-warning z-50 shadow-md"
+      >
+        <sl-spinner style="font-size: 1rem" class="mr-2"></sl-spinner>
+        <div>Cells loading...</div>
+      </div>
+    </profiles-context>
   </div>
 </template>
 
