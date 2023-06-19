@@ -52,7 +52,7 @@
         </div>
       </template>
       <div v-if="!hasNextPage" class="w-full flex justify-center my-8">
-        <Icon icon="ion:paw" class="text-base-300 text-2xl" />
+        <IconPaw class="text-base-300 text-2xl" />
       </div>
     </QInfiniteScroll>
     <BaseMewListSkeleton v-else-if="isLoading" />
@@ -71,7 +71,7 @@ import BaseMewListItem from "@/components/BaseMewListItem.vue";
 import BaseMewListSkeleton from "@/components/BaseMewListSkeleton.vue";
 import BaseEmptyMewsFeed from "@/components/BaseEmptyMewsFeed.vue";
 import { onBeforeRouteLeave } from "vue-router";
-import { Icon } from "@iconify/vue";
+import IconPaw from "~icons/ion/paw";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const queryClient = useQueryClient();

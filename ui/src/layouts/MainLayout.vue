@@ -33,7 +33,7 @@
     class="flex-0 block sm:hidden z-50 fixed bottom-32 right-3 btn btn-md btn-neutral rounded-full py-3 flex items-center shadow-xl"
     @click="showCreateMewDialog = true"
   >
-    <Icon icon="ion:chatbubble-outline" class="text-xl" />
+    <IconChatbubbleOutline class="text-md" />
     <div>New Mew</div>
   </button>
 
@@ -67,7 +67,7 @@ import { useRouter, useRoute } from "vue-router";
 import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";
 import { setHomeRedirect } from "@/utils/homeRedirect";
 import { useInfiniteQuery, useQuery } from "@tanstack/vue-query";
-import { Icon } from "@iconify/vue";
+import IconChatbubbleOutline from "~icons/ion/chatbubble-outline";
 import CreateMewDialog from "@/components/CreateMewDialog.vue";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;

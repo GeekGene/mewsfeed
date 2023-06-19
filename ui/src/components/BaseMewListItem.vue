@@ -85,16 +85,13 @@
 
         <div class="flex justify-start my-4">
           <div class="flex items-start">
-            <Icon icon="mdi:format-quote-open" class="text-base-300 text-2xl" />
+            <IconFormatQuoteOpen class="text-base-300 text-2xl" />
           </div>
           <div class="bg-grey-2 col">
             <BaseEmbedMew :embed-mew="feedMew.original_mew" />
           </div>
           <div class="flex items-end">
-            <Icon
-              icon="mdi:format-quote-close"
-              class="text-base-300 text-2xl"
-            />
+            <IconFormatQuoteClose class="text-base-300 text-2xl" />
           </div>
         </div>
       </div>
@@ -124,8 +121,7 @@
                 :disable="isUpdatingLick || isDeleted"
                 @click.stop.prevent="toggleLickMew"
               >
-                <Icon
-                  icon="emojione:tongue"
+                <IconTongue
                   class="fill-none stroke-black"
                   :class="{ 'fill-pink-400': isLickedByMe }"
                 />
@@ -145,7 +141,7 @@
                 class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
                 @click.stop.prevent="showReplyToMewDialog = true"
               >
-                <Icon icon="ion:arrow-undo-sharp" />
+                <IconArrowUndoSharp />
                 <span v-if="feedMew.replies.length > 0">
                   {{ feedMew.replies.length }}
                 </span>
@@ -162,7 +158,7 @@
                 class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
                 @click.stop.prevent="createMewmew"
               >
-                <Icon icon="ph:repeat-bold" />
+                <IconRepeatBold />
                 <span v-if="feedMew.mewmews.length > 0">
                   {{ feedMew.mewmews.length }}
                 </span>
@@ -179,7 +175,7 @@
                 class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
                 @click.stop.prevent="showQuoteMewDialog = true"
               >
-                <Icon icon="material-symbols:format-quote" />
+                <IconFormatQuote />
                 <span v-if="feedMew.quotes.length > 0">
                   {{ feedMew.quotes.length }}
                 </span>
@@ -197,13 +193,8 @@
                 class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
                 @click.stop.prevent="togglePinMew"
               >
-                <Icon
-                  :icon="
-                    props.feedMew.is_pinned
-                      ? 'ic:sharp-pin-off'
-                      : 'ic:sharp-push-pin'
-                  "
-                />
+                <IconSharpPinOff v-if="props.feedMew.is_pinned" />
+                <IconSharpPushPin v-else />
               </button>
             </div>
             <div
@@ -217,7 +208,7 @@
                 class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
                 @click.stop.prevent="showConfirmDeleteDialog = true"
               >
-                <Icon icon="ion:trash-sharp" />
+                <IconTrashSharp />
               </button>
             </div>
           </div>
@@ -292,7 +283,15 @@ import BaseConfirmDialog from "@/components/BaseConfirmDialog.vue";
 import { showMessage } from "@/utils/toasts";
 import dayjs from "dayjs";
 import BaseEmbedMew from "@/components/BaseEmbedMew.vue";
-import { Icon } from "@iconify/vue";
+import IconFormatQuoteOpen from "~icons/mdi/format-quote-open";
+import IconFormatQuoteClose from "~icons/mdi/format-quote-close";
+import IconArrowUndoSharp from "~icons/ion/arrow-undo-sharp";
+import IconRepeatBold from "~icons/ph/repeat-bold";
+import IconFormatQuote from "~icons/material-symbols/format-quote";
+import IconTrashSharp from "~icons/ion/trash-sharp";
+import IconTongue from "~icons/emojione/tongue";
+import IconSharpPinOff from "~icons/ic/sharp-pin-off";
+import IconSharpPushPin from "~icons/ic/sharp-push-pin";
 
 const props = withDefaults(
   defineProps<{

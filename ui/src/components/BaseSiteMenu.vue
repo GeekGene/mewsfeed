@@ -7,7 +7,7 @@
       alt="Home Page"
       :to="{ name: ROUTES.feed }"
     >
-      <Icon icon="ion:home" class="text-2xl" />
+      <IconHome class="text-2xl" />
     </RouterLink>
     <RouterLink
       class="btn btn-circle btn-md"
@@ -15,7 +15,7 @@
       alt="Discover Creators Page"
       :to="{ name: ROUTES.discover }"
     >
-      <Icon icon="ion:globe-outline" class="text-2xl" />
+      <IconGlobeOutline class="text-2xl" />
     </RouterLink>
     <div class="indicator">
       <RouterLink
@@ -29,10 +29,7 @@
           class="indicator-item indicator-bottom indicator-end badge badge-success"
           >{{ unreadCount }}</span
         >
-        <Icon
-          icon="ion:notifications-outline"
-          class="text-2xl place-items-center"
-        />
+        <IconNotificationsOutline class="text-2xl place-items-center" />
       </RouterLink>
     </div>
 
@@ -42,7 +39,7 @@
       alt="Search Button"
       @click="emit('click-search')"
     >
-      <Icon icon="ion:search" class="text-2xl" />
+      <IconSearch class="text-2xl" />
     </a>
     <RouterLink
       v-if="myProfile"
@@ -68,10 +65,13 @@
 import { ROUTES } from "@/router";
 import { AppAgentClient, encodeHashToBase64 } from "@holochain/client";
 import { inject, ComputedRef } from "vue";
-import { Icon } from "@iconify/vue";
 import { Profile } from "@holochain-open-dev/profiles";
 import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";
 import { storeToRefs } from "pinia";
+import IconHome from "~icons/ion/home";
+import IconGlobeOutline from "~icons/ion/globe-outline";
+import IconSearch from "~icons/ion/search";
+import IconNotificationsOutline from "~icons/ion/notifications-outline";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const myProfile = inject("myProfile") as ComputedRef<Profile>;

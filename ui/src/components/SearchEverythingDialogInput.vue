@@ -8,7 +8,7 @@
           class="flex justify-start"
           style="background: rgba(255, 255, 255, 0.075)"
         >
-          <Icon icon="ion:search" class="text-3xl mr-4" />
+          <IconSearch class="text-3xl mr-4" />
           <ComboboxInput
             id="searcheverythinginput"
             class="font-title uppercase bg-transparent border-0 outline-none w-full"
@@ -105,7 +105,7 @@ import { AppAgentClient, encodeHashToBase64 } from "@holochain/client";
 import { ComputedRef, ref, toRaw, inject } from "vue";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { watch } from "vue";
-import { Icon } from "@iconify/vue";
+import IconSearch from "~icons/ion/search";
 
 const searchProfiles = useSearchProfiles();
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;

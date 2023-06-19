@@ -39,10 +39,7 @@
                 data-tip="You can mention people with @ and use #hashtags and $cashtags as well
           as ^links in a mew. You can press Ctrl/Cmd + Enter to publish."
               >
-                <Icon
-                  icon="ion:help-circle-outline"
-                  class="text-xl text-neutral-content"
-                />
+                <IconHelpCircleOutline class="text-xl text-neutral-content" />
               </div>
             </div>
 
@@ -99,8 +96,7 @@
                 v-if="!linkTargetValid"
                 class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3"
               >
-                <Icon
-                  icon="ion:alert-circle-outline"
+                <IconAlertCircleOutline
                   class="h-5 w-5 text-red-500"
                   aria-hidden="true"
                 />
@@ -168,7 +164,7 @@
       @keydown.enter.prevent="publishMew"
     >
       <div class="flex justify-start items-center space-x-1 sm:space-x-2">
-        <Icon icon="ion:arrow-forward-outline" class="text-2xl sm:text-xl" />
+        <IconArrowForwardOutline class="text-2xl sm:text-xl" />
         <div>Send Mew</div>
       </div>
     </button>
@@ -207,9 +203,11 @@ import union from "lodash/union";
 import flatten from "lodash/flatten";
 import { AppAgentClient } from "@holochain/client";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
-import { Icon } from "@iconify/vue";
 import { ROUTES } from "@/router";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
+import IconHelpCircleOutline from "~icons/ion/help-circle-outline";
+import IconAlertCircleOutline from "~icons/ion/alert-circle-outline";
+import IconArrowForwardOutline from "~icons/ion/arrow-forward-outline";
 
 const ANCHOR_DATA_ID_AGENT_PUB_KEY = "agentPubKey";
 const ANCHOR_DATA_ID_URL = "url";
