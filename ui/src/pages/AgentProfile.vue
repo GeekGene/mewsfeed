@@ -19,10 +19,10 @@
               size="50"
               :class="['q-mr-lg', { 'cursor-pointer': !isMyProfile }]"
             />
-            <div class="q-mr-lg text-primary text-weight-medium">
-              {{ profile?.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
-            </div>
-            <div class="text-primary">@{{ profile?.nickname }}</div>
+            <BaseAgentProfileName
+              :profile="profile"
+              :agentPubKey="agentPubKey"
+            />
           </div>
           <ButtonFollow
             v-if="!isMyProfile"
@@ -234,6 +234,7 @@ import BaseMewList from "@/components/BaseMewList.vue";
 import BaseAgentProfilesList from "@/components/BaseAgentProfilesList.vue";
 import { AppAgentClient } from "@holochain/client";
 import { useQuery } from "@tanstack/vue-query";
+import BaseAgentProfileName from "@/components/BaseAgentProfileName.vue";
 
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;

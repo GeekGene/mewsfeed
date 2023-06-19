@@ -46,7 +46,10 @@
     />
   </div>
   <SearchEverythingDialog v-model="showSearchDialog" />
-  <CreateMewDialog v-model="showCreateMewDialog" />
+  <CreateMewDialog
+    v-model="showCreateMewDialog"
+    :mew-type="{ [MewTypeName.Original]: null }"
+  />
 </template>
 
 <script setup lang="ts">

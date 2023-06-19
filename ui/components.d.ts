@@ -9,6 +9,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     BaseAgentProfile: typeof import('./src/components/BaseAgentProfile.vue')['default']
     BaseAgentProfileLinkPopup: typeof import('./src/components/BaseAgentProfileLinkPopup.vue')['default']
+    BaseAgentProfileName: typeof import('./src/components/BaseAgentProfileName.vue')['default']
     BaseAgentProfilesList: typeof import('./src/components/BaseAgentProfilesList.vue')['default']
     BaseAgentProfilesListItem: typeof import('./src/components/BaseAgentProfilesListItem.vue')['default']
     BaseButtonBack: typeof import('./src/components/BaseButtonBack.vue')['default']

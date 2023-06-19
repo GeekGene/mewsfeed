@@ -1,31 +1,24 @@
 <template>
   <LinkProfilePopup :agent-pub-key="agentPubKey">
-    <div class="row justify-end items-center">
-      <div v-if="profile" class="row justify-center items-center">
-        <agent-avatar
-          :agentPubKey="agentPubKey"
-          :size="avatarSize"
-          disable-tooltip
-          disable-copy
-          class="q-mr-xs"
-        />
-        <span class="q-mr-xs text-primary text-weight-bold">
-          {{ profile.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
-        </span>
-        <span>@{{ profile.nickname }}</span>
-      </div>
-      <span v-else>
-        {{ encodeHashToBase64(agentPubKey).slice(0, 8) }}
-      </span>
+    <div class="flex justify-end items-center">
+      <agent-avatar
+        v-if="profile"
+        :agentPubKey="agentPubKey"
+        :size="avatarSize"
+        disable-tooltip
+        disable-copy
+        class="q-mr-xs"
+      />
+      <BaseAgentProfileName :profile="profile" :agentPubKey="agentPubKey" />
     </div>
   </LinkProfilePopup>
 </template>
 
 <script setup lang="ts">
 import { Profile } from "@holochain-open-dev/profiles";
-import { AgentPubKey, encodeHashToBase64 } from "@holochain/client";
+import { AgentPubKey } from "@holochain/client";
 import LinkProfilePopup from "@/components/LinkProfilePopup.vue";
-import { PROFILE_FIELDS } from "@/types/types";
+import BaseAgentProfileName from "@/components/BaseAgentProfileName.vue";
 
 withDefaults(
   defineProps<{

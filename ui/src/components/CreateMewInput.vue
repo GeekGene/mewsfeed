@@ -139,16 +139,10 @@
               "
               @keydown="onAutocompleteKeyDown"
             >
-              <agent-avatar
+              <BaseAgentProfileName
+                :profile="profile"
                 :agentPubKey="agentPubKey"
-                disable-tooltip
-                disable-copy
-                size="30"
-              ></agent-avatar>
-              <div>
-                {{ profile.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
-                {{ TAG_SYMBOLS.MENTION }}{{ profile.nickname }}
-              </div>
+              />
             </a>
           </div>
         </div>

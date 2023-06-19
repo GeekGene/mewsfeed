@@ -1,66 +1,44 @@
 <template>
   <RouterLink
+    v-if="profile"
     :to="{
       name: ROUTES.profile,
       params: { agentPubKey: encodeHashToBase64(agentPubKey) },
     }"
-    style="z-index: 200; width: 350px; position: absolute"
+    class="w-32 z-50 absolute rounded-3xl bg-base-100 shadow-lg p-4"
     @click.stop
   >
-    <QCard v-bind="$attrs" class="text-body1 bg-white">
-      <QCardSection
-        class="row justify-between items-center"
-        style="white-space: nowrap"
-      >
+    <div v-bind="$attrs">
+      <div class="flex justify-between items-center whitespace-nowrap">
         <div class="row">
-          <agent-avatar
-            :agentPubKey="agentPubKey"
-            :store="profilesStore"
-            size="50"
-            :class="['q-mr-lg', { 'cursor-pointer': !isCurrentProfile }]"
-          />
-          <div
-            :class="['q-mr-lg', { 'cursor-pointer': !isCurrentProfile }]"
-            class="q-mt-sm"
-          >
-            <div
-              class="text-primary text-weight-medium"
-              style="white-space: break-word"
-            >
-              {{ displayName }}
-            </div>
-            <div>@{{ nickname }}</div>
-          </div>
+          <BaseAgentProfileName :profile="profile" :agentPubKey="agentPubKey" />
         </div>
         <ButtonFollow v-if="!isMyProfile" :agentPubKey="agentPubKey" />
-      </QCardSection>
-      <QCardSection v-if="bio || location" class="text-black">
-        <div v-if="bio" class="row justify-start">
-          <div>
-            <label class="text-weight-bold q-mr-sm">Bio:</label>
-          </div>
-          <div>{{ bio }}</div>
+      </div>
+      <div class="flex flex-col space-y-4">
+        <div
+          v-if="profile.fields[PROFILE_FIELDS.BIO]"
+          class="flex justify-start space-x-2"
+        >
+          <label class="font-bold">Bio:</label>
+          <div>{{ profile.fields[PROFILE_FIELDS.BIO] }}</div>
         </div>
-        <div v-if="location" class="row justify-start q-mt-md">
-          <div>
-            <label class="text-weight-bold q-mr-sm">Location:</label>
-          </div>
-          <div>{{ location }}</div>
+        <div
+          v-if="profile.fields[PROFILE_FIELDS.LOCATION]"
+          class="flex justify-start space-x-2"
+        >
+          <label class="font-bold">Location:</label>
+          <div>{{ profile.fields[PROFILE_FIELDS.LOCATION] }}</div>
         </div>
-      </QCardSection>
-      <div
-        class="row justify-end items-start q-mx-sm"
-        style="white-space: nowrap"
-      >
+      </div>
+      <div class="flex justify-end items-start mx-2 whitespace-nowrap">
         <holo-identicon :hash="agentPubKey" size="30"></holo-identicon>
       </div>
-    </QCard>
+    </div>
   </RouterLink>
 </template>
 
 <script setup lang="ts">
-import { QCard, QCardSection } from "quasar";
-import { PROFILE_FIELDS } from "@/types/types";
 import isEqual from "lodash/isEqual";
 import { showError } from "@/utils/toasts";
 import { ROUTES } from "@/router";
@@ -70,9 +48,10 @@ import {
   encodeHashToBase64,
 } from "@holochain/client";
 import { computed, ComputedRef, inject, onMounted, PropType, ref } from "vue";
-import { useRouter } from "vue-router";
-import ButtonFollow from "./ButtonFollow.vue";
+import ButtonFollow from "@/components/ButtonFollow.vue";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
+import BaseAgentProfileName from "@/components/BaseAgentProfileName.vue";
+import { PROFILE_FIELDS } from "@/types/types";
 
 const props = defineProps({
   agentPubKey: {
@@ -81,35 +60,21 @@ const props = defineProps({
   },
 });
 
-const router = useRouter();
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 
 const isMyProfile = computed(() => isEqual(props.agentPubKey, client.myPubKey));
-const isCurrentProfile = computed(
-  () =>
-    router.currentRoute.value.params.agentPubKey ===
-    encodeHashToBase64(props.agentPubKey)
-);
 
-const nickname = ref("");
-const displayName = ref("");
-const bio = ref("");
-const location = ref("");
+const profile = ref();
 const loading = ref(false);
 
 onMounted(async () => {
   try {
     loading.value = true;
-    const profile = await profilesStore.client.getAgentProfile(
-      props.agentPubKey
-    );
-    if (profile) {
-      nickname.value = profile.nickname;
-      displayName.value = profile.fields[PROFILE_FIELDS.DISPLAY_NAME];
-      bio.value = profile.fields[PROFILE_FIELDS.BIO];
-      location.value = profile.fields[PROFILE_FIELDS.LOCATION];
+    const res = await profilesStore.client.getAgentProfile(props.agentPubKey);
+    if (res) {
+      profile.value = res;
     }
   } catch (error) {
     showError(error);

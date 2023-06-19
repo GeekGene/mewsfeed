@@ -36,8 +36,40 @@
               <div
                 class="relative transform overflow-hidden bg-white rounded-3xl shadow-xl transition-all w-full"
               >
+                <div
+                  v-if="
+                    (mewType !== undefined && MewTypeName.Reply in mewType) ||
+                    MewTypeName.Quote in mewType
+                  "
+                  class="font-title text-xl flex justify-start items-center px-4 py-4 mr-2"
+                >
+                  <div v-if="MewTypeName.Reply in mewType" class="mr-2">
+                    reply to
+                  </div>
+                  <div v-else-if="MewTypeName.Quote in mewType" class="mr-2">
+                    quote
+                  </div>
+
+                  <BaseAgentProfileName
+                    v-if="originalMew"
+                    :profile="originalMew.author_profile"
+                    :agentPubKey="originalMew.action.author"
+                  />
+                </div>
+
+                <BaseMewContent
+                  v-if="
+                    mewType !== undefined &&
+                    (MewTypeName.Reply in mewType ||
+                      MewTypeName.Quote in mewType) &&
+                    originalMew
+                  "
+                  :mew="originalMew.mew"
+                  class="px-8 py-4"
+                />
+
                 <CreateMewInput
-                  :mew-type="{ [MewTypeName.Original]: null }"
+                  :mew-type="mewType"
                   @mew-created="(val: any) => {emit('mew-created', val); emit('update:model-value', false);} "
                 />
               </div>
@@ -50,18 +82,32 @@
 </template>
 
 <script setup lang="ts">
-import { MewTypeName } from "@/types/types";
-import CreateMewInput from "./CreateMewInput.vue";
+import { FeedMew, MewType, MewTypeName } from "@/types/types";
+import CreateMewInput from "@/components/CreateMewInput.vue";
+import BaseMewContent from "@/components/BaseMewContent.vue";
+import BaseAgentProfileName from "@/components/BaseAgentProfileName.vue";
 import {
   Dialog,
   DialogPanel,
   TransitionChild,
   TransitionRoot,
 } from "@headlessui/vue";
+import { Profile } from "@holochain-open-dev/profiles";
 
-defineProps<{
-  modelValue: boolean;
-}>();
+withDefaults(
+  defineProps<{
+    modelValue: boolean;
+    mewType: MewType;
+    originalMew?: FeedMew;
+    originalAuthor?: Profile | null;
+  }>(),
+  {
+    modelValue: false,
+    originalMew: undefined,
+    originalAuthor: undefined,
+  }
+);
+
 const emit = defineEmits(["mew-created", "update:model-value"]);
 </script>
 

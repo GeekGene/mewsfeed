@@ -1,28 +1,21 @@
 <template>
-  <div class="row justify-end items-center">
-    <div v-if="profile" class="row justify-center items-center">
-      <agent-avatar
-        :agentPubKey="agentPubKey"
-        size="20"
-        disable-tooltip
-        disable-copy
-        class="q-mr-xs"
-      />
-      <span class="q-mr-xs text-primary text-weight-bold">
-        {{ profile.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
-      </span>
-      <span>@{{ profile.nickname }}</span>
-    </div>
-    <span v-else>
-      {{ encodeHashToBase64(agentPubKey).slice(0, 8) }}
-    </span>
+  <div class="flex justify-start items-center space-x-2">
+    <agent-avatar
+      v-if="profile"
+      :agentPubKey="agentPubKey"
+      size="20"
+      disable-tooltip
+      disable-copy
+      class="q-mr-xs"
+    />
+    <BaseAgentProfileName :agent-pub-key="agentPubKey" :profile="profile" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { Profile } from "@holochain-open-dev/profiles";
-import { AgentPubKey, encodeHashToBase64 } from "@holochain/client";
-import { PROFILE_FIELDS } from "@/types/types";
+import { AgentPubKey } from "@holochain/client";
+import BaseAgentProfileName from "./BaseAgentProfileName.vue";
 
 defineProps<{
   agentPubKey: AgentPubKey;

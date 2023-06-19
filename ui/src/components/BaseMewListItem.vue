@@ -14,18 +14,10 @@
           }"
           @click.stop.prevent
         >
-          <div v-if="feedMew.author_profile" class="flex space-x-2">
-            <div
-              v-if="feedMew.author_profile.fields[PROFILE_FIELDS.DISPLAY_NAME]"
-              class="text-primary font-bold"
-            >
-              {{ feedMew.author_profile.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
-            </div>
-            <div class="font-mono">@{{ feedMew.author_profile.nickname }}</div>
-          </div>
-          <span v-else class="font-mono">
-            {{ encodeHashToBase64(feedMew.action.author).slice(0, 8) }}
-          </span>
+          <BaseAgentProfileName
+            :profile="feedMew.author_profile"
+            :agentPubKey="feedMew.action.author"
+          />
         </RouterLink>
 
         <div v-if="feedMew.original_mew">
@@ -46,14 +38,10 @@
               {{ reactionLabel }}
             </div>
             <div class="flex justify-start items-center">
-              <div class="text-bold">
-                {{
-                  feedMew.original_mew.author_profile?.fields[
-                    PROFILE_FIELDS.DISPLAY_NAME
-                  ]
-                }}
-              </div>
-              <div>@{{ feedMew.original_mew.author_profile?.nickname }}</div>
+              <BaseAgentProfileName
+                :profile="feedMew.original_mew.author_profile"
+                :agentPubKey="feedMew.original_mew.action.author"
+              />
               <div
                 v-if="feedMew.original_mew.deleted_timestamp !== null"
                 class="text-bold text-secondary"
@@ -87,10 +75,10 @@
           <div class="flex items-start">
             <IconFormatQuoteOpen class="text-base-300 text-2xl" />
           </div>
-          <div class="bg-grey-2 col">
+          <div class="flex-1 bg-base-200 p-2 rounded-md">
             <BaseEmbedMew :embed-mew="feedMew.original_mew" />
           </div>
-          <div class="flex items-end">
+          <div class="flex justify-end items-end">
             <IconFormatQuoteClose class="text-base-300 text-2xl" />
           </div>
         </div>
@@ -235,7 +223,8 @@
       </div>
     </div>
     <CreateProfileIfNotFoundDialog v-model="showReplyToMewDialog">
-      <CreateMewForm
+      <CreateMewDialog
+        v-model="showReplyToMewDialog"
         :mew-type="{ [MewTypeName.Reply]: feedMew.action_hash }"
         :original-mew="feedMew"
         :original-author="feedMew.original_mew?.author_profile"
@@ -243,7 +232,8 @@
       />
     </CreateProfileIfNotFoundDialog>
     <CreateProfileIfNotFoundDialog v-model="showQuoteMewDialog">
-      <CreateMewForm
+      <CreateMewDialog
+        v-model="showQuoteMewDialog"
         :mew-type="{ [MewTypeName.Quote]: feedMew.action_hash }"
         :original-mew="feedMew"
         :original-author="feedMew.original_mew?.author_profile"
@@ -275,19 +265,19 @@
 
 <script setup lang="ts">
 import { ROUTES } from "@/router";
-import { Mew, FeedMew, MewTypeName, PROFILE_FIELDS } from "@/types/types";
+import { Mew, FeedMew, MewTypeName } from "@/types/types";
 import { Profile } from "@holochain-open-dev/profiles";
 import { ActionHash, encodeHashToBase64 } from "@holochain/client";
 import { computed, ComputedRef, inject, ref } from "vue";
-import ProfileAvatarWithPopup from "./ProfileAvatarWithPopup.vue";
-import CreateMewForm from "./CreateMewForm.vue";
-import BaseMewContent from "./BaseMewContent.vue";
+import ProfileAvatarWithPopup from "@/components/ProfileAvatarWithPopup.vue";
+import CreateMewDialog from "@/components/CreateMewDialog.vue";
+import BaseMewContent from "@/components/BaseMewContent.vue";
 import isEqual from "lodash/isEqual";
 import remove from "lodash/remove";
 import { AgentPubKey } from "@holochain/client";
 import { useRouter } from "vue-router";
 import { AppAgentClient } from "@holochain/client";
-import BaseTimestamp from "./BaseTimestamp.vue";
+import BaseTimestamp from "@/components/BaseTimestamp.vue";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
 import BaseConfirmDialog from "@/components/BaseConfirmDialog.vue";
 import { showMessage } from "@/utils/toasts";
@@ -301,6 +291,7 @@ import IconFormatQuote from "~icons/material-symbols/format-quote";
 import IconTrashSharp from "~icons/ion/trash-sharp";
 import IconSharpPinOff from "~icons/ic/sharp-pin-off";
 import IconSharpPushPin from "~icons/ic/sharp-push-pin";
+import BaseAgentProfileName from "@/components/BaseAgentProfileName.vue";
 
 const props = withDefaults(
   defineProps<{
