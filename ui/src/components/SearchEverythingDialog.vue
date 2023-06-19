@@ -33,7 +33,14 @@
             leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
           >
             <DialogPanel class="w-full sm:max-w-screen-sm">
-              <SearchEverythingDialogInput />
+              <SearchEverythingDialogInput
+                @selected="
+                  (val) => {
+                    emit('update:model-value', false);
+                    router.push(val);
+                  }
+                "
+              />
             </DialogPanel>
           </TransitionChild>
         </div>
@@ -49,10 +56,11 @@ import {
   TransitionRoot,
 } from "@headlessui/vue";
 import SearchEverythingDialogInput from "@/components/SearchEverythingDialogInput.vue";
+import { useRouter } from "vue-router";
 
 defineProps<{
   modelValue: boolean;
 }>();
-
 const emit = defineEmits(["update:model-value"]);
+const router = useRouter();
 </script>
