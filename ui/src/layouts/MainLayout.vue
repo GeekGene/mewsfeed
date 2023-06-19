@@ -30,7 +30,7 @@
   </div>
 
   <button
-    class="flex-0 block sm:hidden z-50 fixed bottom-32 right-3 btn btn-md btn-neutral rounded-full py-3 flex items-center shadow-xl"
+    class="flex-0 block sm:hidden z-10 fixed bottom-32 right-3 btn btn-md btn-neutral rounded-full py-3 flex items-center shadow-xl"
     @click="showCreateMewDialog = true"
   >
     <IconChatbubbleOutline class="text-md" />

@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import LinkProfilePopup from "./LinkProfilePopup.vue";
+import LinkProfilePopup from "@/components/LinkProfilePopup.vue";
 
 defineProps<{
   agentPubKey: Uint8Array;

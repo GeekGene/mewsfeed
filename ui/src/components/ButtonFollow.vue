@@ -1,18 +1,10 @@
 <template>
-  <QBtn size="md" color="secondary" @click.stop.prevent="toggleFollow">
-    <template v-if="isFollowing">
-      <div class="q-mr-sm">Unfollow</div>
-      <QIcon name="svguse:/icons.svg#cat" />
-    </template>
-    <template v-else>
-      <div class="q-mr-sm">Follow</div>
-      <QIcon
-        name="svguse:/icons.svg#cat"
-        color="secondary"
-        style="stroke: white"
-      />
-    </template>
-  </QBtn>
+  <button
+    class="btn btn-sm btn-secondary rounded-3xl px-8"
+    @click.stop.prevent="toggleFollow"
+  >
+    {{ isFollowing ? "Following" : "Follow" }}
+  </button>
   <CreateProfileIfNotFoundDialog
     v-model="showCreateProfileDialog"
     @profile-created="toggleFollow"
@@ -24,7 +16,6 @@ import { PROFILE_FIELDS } from "@/types/types";
 import { showError, showMessage } from "@/utils/toasts";
 import { AgentPubKey } from "@holochain/client";
 import { ComputedRef, inject, onMounted, PropType, ref } from "vue";
-import { QBtn, QIcon } from "quasar";
 import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
 import { AppAgentClient } from "@holochain/client";
 import CreateProfileIfNotFoundDialog from "./CreateProfileIfNotFoundDialog.vue";
