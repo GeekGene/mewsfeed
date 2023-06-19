@@ -2,7 +2,7 @@
   <Combobox v-model="selection" class="q-mx-md">
     <div class="my-8">
       <div
-        class="relative transform overflow-hidden rounded-3xl bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:w-full sm:max-w-sm sm:p-6"
+        class="relative transform overflow-hidden rounded-3xl bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all w-full sm:p-6"
       >
         <div
           class="flex justify-start"
@@ -11,7 +11,7 @@
           <Icon icon="ion:search" class="text-3xl mr-4" />
           <ComboboxInput
             id="searcheverythinginput"
-            class="font-title uppercase bg-transparent border-0 outline-none"
+            class="font-title uppercase bg-transparent border-0 outline-none w-full"
             aria-placeholder="Sniff Around"
             placeholder="sniff around"
             @change="search($event.target.value)"
@@ -27,7 +27,7 @@
       >
         <div
           v-if="query !== ''"
-          class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-xl transition-all sm:w-full sm:max-w-sm mt-2 sm:mt-4"
+          class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-xl transition-all w-full mt-2 sm:mt-4"
         >
           <ComboboxOptions>
             <div>
