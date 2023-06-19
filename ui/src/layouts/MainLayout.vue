@@ -9,10 +9,16 @@
       />
       <div class="flex-1 w-full h-full" style="width: inherit">
         <RouterView :key="`${route.fullPath}-${forceReloadRouterViewKey}`" />
+      </div>
+    </div>
+  </div>
 
+  <div class="hidden sm:block fixed left-0 bottom-5 w-full">
+    <div class="flex justify-center">
+      <div class="w-full max-w-screen-lg flex items-center space-x-10 px-8">
+        <div class="block w-14 h-14"></div>
         <div
-          class="hidden sm:block sticky bottom-3 bg-neutral/5 backdrop-blur-md rounded-3xl shadow-xl"
-          style="width: inherit"
+          class="bg-neutral/5 backdrop-blur-md rounded-3xl shadow-xl flex-1 w-full"
         >
           <CreateMewInput
             :mew-type="{ [MewTypeName.Original]: null }"
