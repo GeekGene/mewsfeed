@@ -11,6 +11,7 @@
     >
       <agent-avatar
         :agentPubKey="client.myPubKey"
+        :store="profilesStore"
         size="54"
         disable-tooltip
         disable-copy
@@ -158,21 +159,19 @@
       </div>
     </div>
 
-    <div class="flex flex-col justify-start items-center space-y-2">
-      <a
-        class="btn btn-neutral btn-md rounded-full"
-        :disable="isMewEmpty || isMewOverfull || isMewUnderfull"
-        :loading="saving"
-        tabindex="0"
-        @click="publishMew"
-        @keydown.enter.prevent="publishMew"
-      >
-        <div class="flex justify-start items-center space-x-2">
-          <Icon icon="ion:arrow-forward-outline" class="text-xl" />
-          <div>Send Mew</div>
-        </div>
-      </a>
-    </div>
+    <button
+      class="btn btn-neutral btn-md rounded-full w-20 sm:w-auto"
+      :disable="isMewEmpty || isMewOverfull || isMewUnderfull"
+      :loading="saving"
+      tabindex="0"
+      @click="publishMew"
+      @keydown.enter.prevent="publishMew"
+    >
+      <div class="flex justify-start items-center space-x-1 sm:space-x-2">
+        <Icon icon="ion:arrow-forward-outline" class="text-2xl sm:text-xl" />
+        <div>Send Mew</div>
+      </div>
+    </button>
   </div>
 
   <CreateProfileIfNotFoundDialog
@@ -210,6 +209,7 @@ import { AppAgentClient } from "@holochain/client";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
 import { Icon } from "@iconify/vue";
 import { ROUTES } from "@/router";
+import { ProfilesStore } from "@holochain-open-dev/profiles";
 
 const ANCHOR_DATA_ID_AGENT_PUB_KEY = "agentPubKey";
 const ANCHOR_DATA_ID_URL = "url";
@@ -227,6 +227,7 @@ const dnaProperties = (
   inject("dnaProperties") as ComputedRef<MewsfeedDnaProperties>
 ).value;
 const myProfile = inject("myProfile") as ComputedRef<Profile>;
+const profilesStore = inject("profilesStore") as ComputedRef<ProfilesStore>;
 
 const TRUNCATED_MEW_LENGTH = 300;
 

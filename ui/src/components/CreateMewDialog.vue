@@ -32,9 +32,9 @@
             leave-from="opacity-100 translate-y-0 sm:scale-100"
             leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
           >
-            <DialogPanel class="w-full">
+            <DialogPanel class="w-full sm:max-w-screen-sm">
               <div
-                class="relative transform overflow-hidden bg-white rounded-3xl shadow-xl transition-all w-full sm:max-w-sm w-full"
+                class="relative transform overflow-hidden bg-white rounded-3xl shadow-xl transition-all w-full"
               >
                 <CreateMewInput
                   :mew-type="{ [MewTypeName.Original]: null }"
