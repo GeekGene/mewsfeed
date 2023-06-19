@@ -114,33 +114,6 @@
             <div
               class="tooltip-bottom"
               :class="{ tooltip: !isDeleted }"
-              :data-tip="`${isLickedByMe ? 'Unlick' : 'Lick'} mew`"
-            >
-              <button
-                class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
-                :disable="isUpdatingLick || isDeleted"
-                @click.stop.prevent="toggleLickMew"
-              >
-                <svg
-                  viewBox="0 0 217.65 204.19"
-                  class="w-4 h-4 text-black"
-                  :class="{ 'text-pink-400': isLickedByMe }"
-                >
-                  <path
-                    fill="currentColor"
-                    stroke-width="15"
-                    d="M 200.06, 58.29 c 2-12.78-2.74-22.56-12.58-30.34-17.42-13.76-50-13-66.63,1.65 a 10.74,10.74,0,0,0-3.58,7.47 c -2.54,21.55-4.19,43.1-1.78,64.8,1,8.8,1.57,17.66,2,26.51.23,4.46-2.22,7.56-6.64,8.41-4.76.91-8.14-1.29-9.81-5.79a28.22,28.22,0,0,1-1.46-6.08 C 95.93,96.33,95,67.7,99.07,39.08 c .82-5.67-.74-9.57-5.72-12.39 C 74.2,15.87,54.66,14.38,35.2,25.23 c -11.49,6.4-17.74,16.19-17,30.23 a 199.25,199.25,0,0,0,23.7,85.26,111.73,111.73,0,0,0,9.41,14.41 c 31.92,42,84.64,41.94,116.05-.36 C 188.54,126.2,197,93,200.06,58.29 Z"
-                  />
-                </svg>
-                <span v-if="feedMew.licks.length > 0" class="text-xs">
-                  {{ feedMew.licks.length }}
-                </span>
-              </button>
-            </div>
-
-            <div
-              class="tooltip-bottom"
-              :class="{ tooltip: !isDeleted }"
               data-tip="Reply to mew"
             >
               <button
@@ -151,6 +124,23 @@
                 <IconArrowUndoSharp class="w-4 h-4" />
                 <span v-if="feedMew.replies.length > 0">
                   {{ feedMew.replies.length }}
+                </span>
+              </button>
+            </div>
+
+            <div
+              class="tooltip-bottom"
+              :class="{ tooltip: !isDeleted }"
+              data-tip="Quote mew"
+            >
+              <button
+                :disable="isDeleted"
+                class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
+                @click.stop.prevent="showQuoteMewDialog = true"
+              >
+                <IconFormatQuote class="w-4 h-4" />
+                <span v-if="feedMew.quotes.length > 0">
+                  {{ feedMew.quotes.length }}
                 </span>
               </button>
             </div>
@@ -175,16 +165,26 @@
             <div
               class="tooltip-bottom"
               :class="{ tooltip: !isDeleted }"
-              data-tip="Quote mew"
+              :data-tip="`${isLickedByMe ? 'Unlick' : 'Lick'} mew`"
             >
               <button
-                :disable="isDeleted"
                 class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
-                @click.stop.prevent="showQuoteMewDialog = true"
+                :disable="isUpdatingLick || isDeleted"
+                @click.stop.prevent="toggleLickMew"
               >
-                <IconFormatQuote class="w-4 h-4" />
-                <span v-if="feedMew.quotes.length > 0">
-                  {{ feedMew.quotes.length }}
+                <svg
+                  viewBox="0 0 217.65 204.19"
+                  class="w-4 h-4 text-black"
+                  :class="{ 'text-pink-400': isLickedByMe }"
+                >
+                  <path
+                    fill="currentColor"
+                    stroke-width="15"
+                    d="M 200.06, 58.29 c 2-12.78-2.74-22.56-12.58-30.34-17.42-13.76-50-13-66.63,1.65 a 10.74,10.74,0,0,0-3.58,7.47 c -2.54,21.55-4.19,43.1-1.78,64.8,1,8.8,1.57,17.66,2,26.51.23,4.46-2.22,7.56-6.64,8.41-4.76.91-8.14-1.29-9.81-5.79a28.22,28.22,0,0,1-1.46-6.08 C 95.93,96.33,95,67.7,99.07,39.08 c .82-5.67-.74-9.57-5.72-12.39 C 74.2,15.87,54.66,14.38,35.2,25.23 c -11.49,6.4-17.74,16.19-17,30.23 a 199.25,199.25,0,0,0,23.7,85.26,111.73,111.73,0,0,0,9.41,14.41 c 31.92,42,84.64,41.94,116.05-.36 C 188.54,126.2,197,93,200.06,58.29 Z"
+                  />
+                </svg>
+                <span v-if="feedMew.licks.length > 0" class="text-xs">
+                  {{ feedMew.licks.length }}
                 </span>
               </button>
             </div>
