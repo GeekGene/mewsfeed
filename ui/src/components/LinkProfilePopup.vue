@@ -15,22 +15,18 @@
       <div><slot></slot></div>
     </div>
   </RouterLink>
-  <Transition name="slide-fade">
-    <div v-show="isPopupVisible" class="absolute right-0 mt-12 w-full z-20">
-      <div class="flex justify-center">
+  <div v-show="isPopupVisible" class="absolute right-0 mt-12 w-full z-20">
+    <div class="flex justify-center">
+      <div class="w-full max-w-screen-lg flex items-center sm:space-x-10 px-8">
+        <div class="block w-0 sm:w-14 h-14"></div>
         <div
-          class="w-full max-w-screen-lg flex items-center sm:space-x-10 px-8"
+          class="bg-neutral/5 backdrop-blur-md rounded-3xl shadow-xl flex-1 w-full"
         >
-          <div class="block w-0 sm:w-14 h-14"></div>
-          <div
-            class="bg-neutral/5 backdrop-blur-md rounded-3xl shadow-xl flex-1 w-full"
-          >
-            <ProfilePopupContent :agentPubKey="agentPubKey" />
-          </div>
+          <ProfilePopupContent :agentPubKey="agentPubKey" />
         </div>
       </div>
     </div>
-  </Transition>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -47,18 +43,3 @@ defineProps<{
 
 const isPopupVisible = ref<boolean>(false);
 </script>
-<style scoped>
-.slide-fade-enter-active {
-  transition: all 0.2s linear;
-}
-
-.slide-fade-leave-active {
-  transition: all 0.2s cubic-bezier(1, 0.5, 0.8, 1);
-}
-
-.slide-fade-enter-from,
-.slide-fade-leave-to {
-  transform: translateY(-20px);
-  opacity: 0;
-}
-</style>
