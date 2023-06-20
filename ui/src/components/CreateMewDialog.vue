@@ -2,7 +2,7 @@
   <TransitionRoot as="template" :show="modelValue">
     <Dialog
       as="div"
-      class="relative z-10 w-full"
+      class="relative z-20 w-full"
       @close="emit('update:model-value', false)"
     >
       <TransitionChild

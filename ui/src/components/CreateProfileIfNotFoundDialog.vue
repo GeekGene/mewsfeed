@@ -15,11 +15,11 @@
         leave-to="opacity-0"
       >
         <div
-          class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm"
+          class="fixed inset-0 z-10 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm"
         ></div>
       </TransitionChild>
 
-      <div class="fixed inset-0 z-10 overflow-y-auto">
+      <div class="fixed inset-0 z-20 overflow-y-auto">
         <div
           class="flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0"
         >
