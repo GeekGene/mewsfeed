@@ -5,14 +5,14 @@
       name: ROUTES.profile,
       params: { agentPubKey: encodeHashToBase64(agentPubKey) },
     }"
-    class="h-full w-full rounded-3xl bg-base-200 text-base-content font-content font-normal shadow-lg"
+    class="h-full w-full text-base-content font-content font-normal shadow-lg"
     @click.stop
   >
-    <div class="flex space-x-4 h-full p-4">
+    <div class="flex space-x-6 h-full p-4">
       <div class="flex flex-col justify-between">
         <agent-avatar
           :agentPubKey="agentPubKey"
-          size="50"
+          size="80"
           disable-tooltip
           disable-copy
         />
