@@ -3,7 +3,7 @@
     class="w-full flex justify-start items-start space-x-4 p-4 cursor-pointer"
     @click.passive="navigateToYarn(feedMew.action_hash)"
   >
-    <ProfileAvatarWithPopup :agentPubKey="feedMew.action.author" />
+    <BaseAgentProfileLinkAvatar :agentPubKey="feedMew.action.author" />
 
     <div class="w-full">
       <div class="w-full flex justify-between items-center">
@@ -269,7 +269,7 @@ import { Mew, FeedMew, MewTypeName } from "@/types/types";
 import { Profile } from "@holochain-open-dev/profiles";
 import { ActionHash, encodeHashToBase64 } from "@holochain/client";
 import { computed, ComputedRef, inject, ref } from "vue";
-import ProfileAvatarWithPopup from "@/components/ProfileAvatarWithPopup.vue";
+import BaseAgentProfileLinkAvatar from "@/components/BaseAgentProfileLinkAvatar.vue";
 import CreateMewDialog from "@/components/CreateMewDialog.vue";
 import BaseMewContent from "@/components/BaseMewContent.vue";
 import isEqual from "lodash/isEqual";

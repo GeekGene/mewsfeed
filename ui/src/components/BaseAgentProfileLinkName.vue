@@ -1,13 +1,12 @@
 <template>
   <LinkProfilePopup :agent-pub-key="agentPubKey">
-    <div class="flex justify-end items-center">
+    <div class="flex justify-end items-center space-x-2">
       <agent-avatar
         v-if="profile"
         :agentPubKey="agentPubKey"
         :size="avatarSize"
         disable-tooltip
         disable-copy
-        class="q-mr-xs"
       />
       <BaseAgentProfileName :profile="profile" :agentPubKey="agentPubKey" />
     </div>

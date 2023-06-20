@@ -1,5 +1,5 @@
 <template>
-  <QPage class="row" :style-fn="pageHeightCorrection">
+  <div class="row" :style-fn="pageHeightCorrection">
     <div class="col-8">
       <QSpinnerPie
         v-if="isLoadingProfile || !agentPubKey"
@@ -211,7 +211,7 @@
         </QBtn>
       </h6>
     </div>
-  </QPage>
+  </div>
 </template>
 
 <script setup lang="ts">

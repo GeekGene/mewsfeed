@@ -8,7 +8,8 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     BaseAgentProfile: typeof import('./src/components/BaseAgentProfile.vue')['default']
-    BaseAgentProfileLinkPopup: typeof import('./src/components/BaseAgentProfileLinkPopup.vue')['default']
+    BaseAgentProfileLinkAvatar: typeof import('./src/components/BaseAgentProfileLinkAvatar.vue')['default']
+    BaseAgentProfileLinkName: typeof import('./src/components/BaseAgentProfileLinkName.vue')['default']
     BaseAgentProfileName: typeof import('./src/components/BaseAgentProfileName.vue')['default']
     BaseAgentProfileNameLarge: typeof import('./src/components/BaseAgentProfileNameLarge.vue')['default']
     BaseAgentProfilesList: typeof import('./src/components/BaseAgentProfilesList.vue')['default']
@@ -36,7 +37,6 @@ declare module 'vue' {
     IconIonChatbubbleoutline: typeof import('~icons/ion/chatbubbleoutline')['default']
     IconIonChatbubbleOutline: typeof import('~icons/ion/chatbubble-outline')['default']
     LinkProfilePopup: typeof import('./src/components/LinkProfilePopup.vue')['default']
-    ProfileAvatarWithPopup: typeof import('./src/components/ProfileAvatarWithPopup.vue')['default']
     ProfilePopupContent: typeof import('./src/components/ProfilePopupContent.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

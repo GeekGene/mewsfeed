@@ -8,7 +8,7 @@
       style="width: 100%"
     >
       <div class="row justify-start items-start">
-        <BaseAgentProfileLinkPopup
+        <BaseAgentProfileLinkName
           :agentPubKey="notification.agent"
           :profile="notification.agent_profile"
         />
@@ -24,7 +24,7 @@
       style="width: 100%"
     >
       <div class="row justify-start items-start">
-        <BaseAgentProfileLinkPopup
+        <BaseAgentProfileLinkName
           :agentPubKey="notification.agent"
           :profile="notification.agent_profile"
         />
@@ -41,7 +41,7 @@
     >
       <div class="row justify-between items-start">
         <div class="row justify-start items-start">
-          <BaseAgentProfileLinkPopup
+          <BaseAgentProfileLinkName
             :agentPubKey="notification.agent"
             :profile="notification.agent_profile"
           />
@@ -66,7 +66,7 @@
     >
       <div class="row justify-between items-start">
         <div class="row justify-start items-start">
-          <BaseAgentProfileLinkPopup
+          <BaseAgentProfileLinkName
             :agentPubKey="notification.agent"
             :profile="notification.agent_profile"
           />
@@ -91,7 +91,7 @@
     >
       <div class="row justify-between items-start">
         <div class="row justify-start items-start">
-          <BaseAgentProfileLinkPopup
+          <BaseAgentProfileLinkName
             :agentPubKey="notification.agent"
             :profile="notification.agent_profile"
           />
@@ -116,7 +116,7 @@
     >
       <div class="row justify-between items-start">
         <div class="row justify-start items-start">
-          <BaseAgentProfileLinkPopup
+          <BaseAgentProfileLinkName
             :agentPubKey="notification.agent"
             :profile="notification.agent_profile"
           />
@@ -141,7 +141,7 @@
     >
       <div class="row justify-between items-start">
         <div class="row justify-start items-start">
-          <BaseAgentProfileLinkPopup
+          <BaseAgentProfileLinkName
             :agentPubKey="notification.agent"
             :profile="notification.agent_profile"
           />
@@ -166,7 +166,7 @@
     >
       <div class="row justify-between items-start">
         <div class="row justify-start items-start">
-          <BaseAgentProfileLinkPopup
+          <BaseAgentProfileLinkName
             :agentPubKey="notification.agent"
             :profile="notification.agent_profile"
           />
@@ -218,7 +218,7 @@
     >
       <div class="row justify-between items-start">
         <div class="row justify-start items-start">
-          <BaseAgentProfileLinkPopup
+          <BaseAgentProfileLinkName
             :agentPubKey="notification.agent"
             :profile="notification.agent_profile"
           />
@@ -270,7 +270,7 @@ import {
   MewTypeName,
 } from "@/types/types";
 import BaseTimestamp from "@/components/BaseTimestamp.vue";
-import BaseAgentProfileLinkPopup from "@/components/BaseAgentProfileLinkPopup.vue";
+import BaseAgentProfileLinkName from "@/components/BaseAgentProfileLinkName.vue";
 import { QItem } from "quasar";
 import BaseMewListItem from "@/components/BaseMewListItem.vue";
 

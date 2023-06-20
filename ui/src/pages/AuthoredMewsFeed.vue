@@ -3,7 +3,7 @@
     <BaseButtonBack />
     <h6 class="q-mt-md q-mb-md row items-center">
       Mews authored by
-      <BaseAgentProfileLinkPopup
+      <BaseAgentProfileLinkName
         class="q-ml-md"
         :agentPubKey="decodeHashFromBase64(route.params.agentPubKey as string)"
         :profile="profile"
@@ -76,7 +76,7 @@ import {
 import BaseMewListSkeleton from "@/components/BaseMewListSkeleton.vue";
 import BaseEmptyMewsFeed from "@/components/BaseEmptyMewsFeed.vue";
 import BaseMewListItem from "@/components/BaseMewListItem.vue";
-import BaseAgentProfileLinkPopup from "@/components/BaseAgentProfileLinkPopup.vue";
+import BaseAgentProfileLinkName from "@/components/BaseAgentProfileLinkName.vue";
 import { watch } from "vue";
 import { showError } from "@/utils/toasts";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
