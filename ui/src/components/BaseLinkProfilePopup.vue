@@ -22,11 +22,19 @@
         <div
           class="bg-neutral/5 backdrop-blur-md rounded-3xl shadow-xl flex-1 w-full"
         >
-          <BaseAgentProfilePopupContent
-            :agentPubKey="agentPubKey"
-            @mouseenter="setPopupVisible(true)"
-            @mouseleave="setPopupVisible(false)"
-          />
+          <RouterLink
+            :to="{
+              name: ROUTES.profile,
+              params: { agentPubKey: encodeHashToBase64(agentPubKey) },
+            }"
+            @click.stop
+          >
+            <BaseAgentProfileDetail
+              :agentPubKey="agentPubKey"
+              @mouseenter="setPopupVisible(true)"
+              @mouseleave="setPopupVisible(false)"
+            />
+          </RouterLink>
         </div>
       </div>
     </div>
@@ -38,7 +46,7 @@ import { ref } from "vue";
 import { encodeHashToBase64 } from "@holochain/client";
 import { ROUTES } from "@/router";
 import { RouteLocationRaw, RouterLink } from "vue-router";
-import BaseAgentProfilePopupContent from "@/components/BaseAgentProfilePopupContent.vue";
+import BaseAgentProfileDetail from "@/components/BaseAgentProfileDetail.vue";
 import { debounce } from "lodash";
 
 defineProps<{

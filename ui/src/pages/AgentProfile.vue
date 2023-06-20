@@ -1,151 +1,96 @@
 <template>
   <div class="row" :style-fn="pageHeightCorrection">
-    <div class="col-8">
-      <QSpinnerPie
-        v-if="isLoadingProfile || !agentPubKey"
-        size="10%"
-        color="primary"
+    <div v-if="!isLoadingProfile && agentPubKey">
+      <BaseAgentProfileDetail
+        v-if="!showEditProfileForm"
+        :agentPubKey="agentPubKey"
+        :creators-count="25"
+        :followers-count="5"
+        class="bg-neutral/5 backdrop-blur-md p-4 rounded-3xl"
+        @click-edit-profile="showEditProfileForm = true"
       />
-      <QCard
-        v-else-if="!showEditProfileForm"
-        v-bind="$attrs"
-        square
-        class="q-mb-md text-body1"
+
+      <div
+        v-else
+        class="bg-neutral/5 backdrop-blur-md p-4 rounded-3xl pl-8 pr-8 pb-8"
       >
-        <QCardSection v-if="!showEditProfileForm" class="flex justify-between">
-          <div class="flex items-center">
-            <agent-avatar
-              :agentPubKey="agentPubKey"
-              size="50"
-              :class="['q-mr-lg', { 'cursor-pointer': !isMyProfile }]"
-            />
-            <BaseAgentProfileName
-              :profile="profile"
-              :agentPubKey="agentPubKey"
-            />
-          </div>
-          <ButtonFollow
-            v-if="!isMyProfile"
-            :agentPubKey="agentPubKey"
-            @toggle-follow="refetchFollowers"
-          />
-          <QBtn
-            v-if="isMyProfile"
-            icon="edit"
-            @click="showEditProfileForm = true"
-          >
-            <span class="q-pl-sm">Edit Profile</span></QBtn
-          >
-        </QCardSection>
+        <update-profile
+          :profile="profile"
+          @profile-updated="onEditProfile"
+          @cancel-edit-profile="showEditProfileForm = false"
+        ></update-profile>
+      </div>
 
-        <QCardSection v-if="!showEditProfileForm">
-          <div
-            v-if="
-              profile?.fields[PROFILE_FIELDS.BIO] &&
-              profile.fields[PROFILE_FIELDS.BIO].length > 0
-            "
-            class="row justify-start items-start q-mb-md"
-          >
-            <div>
-              <label class="q-pr-sm text-weight-bold">Bio:</label>
-            </div>
-            <div class="col col-grow">
-              {{ profile.fields[PROFILE_FIELDS.BIO] }}
-            </div>
-          </div>
-          <div
-            v-if="
-              profile?.fields[PROFILE_FIELDS.LOCATION] &&
-              profile.fields[PROFILE_FIELDS.LOCATION].length > 0
-            "
-            class="row justify-start items-start q-mb-md"
-          >
-            <div>
-              <label class="q-pr-sm text-weight-bold">Location:</label>
-            </div>
-            <div class="col col-grow">
-              {{ profile?.fields[PROFILE_FIELDS.LOCATION] }}
-            </div>
-          </div>
-        </QCardSection>
-
-        <div class="flex justify-end q-mx-sm">
-          <holo-identicon :hash="agentPubKey" size="30"></holo-identicon>
-        </div>
-      </QCard>
-
-      <QCard v-else square class="q-mb-md text-body1">
-        <QCardSection v-if="showEditProfileForm" class="flex justify-between">
-          <update-profile
-            style="width: 100%"
-            :profile="profile"
-            @profile-updated="onEditProfile"
-            @cancel-edit-profile="showEditProfileForm = false"
-          ></update-profile>
-        </QCardSection>
-      </QCard>
-
-      <BaseMewList
-        title="Pinned Mews"
+      <BaseList
+        v-slot="{ item }"
+        class="my-8"
+        title="pinned"
         :feed-mews="pinnedMews"
         :is-loading="isLoadingPinnedMews"
-        @mew-pinned="
-          () => {
-            refetchPinnedMews();
-            refetchAuthoredMews();
-          }
-        "
-        @mew-unpinned="
-          () => {
-            refetchPinnedMews();
-            refetchAuthoredMews();
-          }
-        "
-        @mew-licked="refetchPinnedMews"
-        @mew-unlicked="refetchPinnedMews"
-        @reply-created="refetchAuthoredMews"
-        @mewmew-created="refetchAuthoredMews"
-        @quote-created="refetchAuthoredMews"
-      />
+      >
+        <BaseMewListItem
+          :feed-mew="item"
+          @mew-pinned="
+            () => {
+              refetchPinnedMews();
+              refetchAuthoredMews();
+            }
+          "
+          @mew-unpinned="
+            () => {
+              refetchPinnedMews();
+              refetchAuthoredMews();
+            }
+          "
+          @mew-licked="refetchPinnedMews"
+          @mew-unlicked="refetchPinnedMews"
+          @reply-created="refetchAuthoredMews"
+          @mewmew-created="refetchAuthoredMews"
+          @quote-created="refetchAuthoredMews"
+        />
+      </BaseList>
 
-      <BaseMewList
-        title="Authored Mews"
+      <BaseList
+        v-slot="{ item }"
+        class="my-8"
+        title="mews"
         :feed-mews="authoredMews"
         :is-loading="isLoadingAuthoredMews"
-        @mew-pinned="
-          () => {
-            refetchPinnedMews();
-            refetchAuthoredMews();
-          }
-        "
-        @mew-unpinned="
-          () => {
-            refetchPinnedMews();
-            refetchAuthoredMews();
-          }
-        "
-        @mew-licked="refetchAuthoredMews"
-        @mew-unlicked="refetchAuthoredMews"
-        @reply-created="refetchAuthoredMews"
-        @mewmew-created="refetchAuthoredMews"
-        @quote-created="refetchAuthoredMews"
-      />
-      <QBtn
+      >
+        <BaseMewListItem
+          :feed-mew="item"
+          @mew-pinned="
+            () => {
+              refetchPinnedMews();
+              refetchAuthoredMews();
+            }
+          "
+          @mew-unpinned="
+            () => {
+              refetchPinnedMews();
+              refetchAuthoredMews();
+            }
+          "
+          @mew-licked="refetchAuthoredMews"
+          @mew-unlicked="refetchAuthoredMews"
+          @reply-created="refetchAuthoredMews"
+          @mewmew-created="refetchAuthoredMews"
+          @quote-created="refetchAuthoredMews"
+        />
+      </BaseList>
+
+      <RouterLink
         v-if="authoredMews && authoredMews.length === pageLimit"
-        flat
-        dense
-        style="width: 100%"
-        @click="
-          router.push({
-            name: 'authoredMews',
-            params: {
-              agentPubKey: route.params.agentPubKey,
-            },
-          })
-        "
+        class="btn btn-md btn-ghost"
+        :to="{
+          name: 'authoredMews',
+          params: {
+            agentPubKey: route.params.agentPubKey,
+          },
+        }"
       >
         View All
-      </QBtn>
+      </RouterLink>
     </div>
 
     <div class="follow-col col self-start q-pl-xl q-pr-md">
@@ -154,21 +99,18 @@
         :agent-profiles="creators"
         :loading="isLoadingCreators"
       />
-      <QBtn
+      <RouterLink
         v-if="creators?.length === pageLimit"
-        flat
-        dense
-        @click="
-          router.push({
-            name: 'creators',
-            params: {
-              agentPubKey: route.params.agentPubKey,
-            },
-          })
-        "
+        class="btn btn-md btn-ghost"
+        :to="{
+          name: 'creators',
+          params: {
+            agentPubKey: route.params.agentPubKey,
+          },
+        }"
       >
         View All
-      </QBtn>
+      </RouterLink>
 
       <h6 class="q-mb-md">Followed by</h6>
       <BaseAgentProfilesList
@@ -176,39 +118,33 @@
         :loading="isLoadingFollowers"
       />
       <div v-if="followers?.length === pageLimit" class="row justify-center">
-        <QBtn
-          flat
-          dense
-          @click="
-            router.push({
-              name: 'followers',
-              params: {
-                agentPubKey: route.params.agentPubKey,
-              },
-            })
-          "
+        <RouterLink
+          class="btn btn-md btn-neutral"
+          :to="{
+            name: 'followers',
+            params: {
+              agentPubKey: route.params.agentPubKey,
+            },
+          }"
         >
           View All
-        </QBtn>
+        </RouterLink>
       </div>
 
       <h6 class="q-mb-md">
-        <QBtn
+        <RouterLink
           v-if="profile?.nickname"
-          size="lg"
-          color="secondary"
-          @click="
-            router.push({
-              name: ROUTES.mention,
-              params: {
-                tag: profile.nickname,
-                agentPubKey: encodeHashToBase64(agentPubKey),
-              },
-            })
-          "
+          class="btn btn-md btn-primary"
+          :to="{
+            name: ROUTES.mention,
+            params: {
+              tag: profile.nickname,
+              agentPubKey: encodeHashToBase64(agentPubKey),
+            },
+          }"
         >
           Mew Mentions
-        </QBtn>
+        </RouterLink>
       </h6>
     </div>
   </div>
@@ -216,8 +152,7 @@
 
 <script setup lang="ts">
 import { QPage, QSpinnerPie, QCard, QCardSection, QBtn } from "quasar";
-import ButtonFollow from "@/components/ButtonFollow.vue";
-import { AgentProfile, PROFILE_FIELDS } from "@/types/types";
+import { AgentProfile } from "@/types/types";
 import isEqual from "lodash/isEqual";
 import { showError } from "@/utils/toasts";
 import { pageHeightCorrection } from "@/utils/page-layout";
@@ -230,11 +165,11 @@ import {
 import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { ComputedRef, computed, inject, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import BaseMewList from "@/components/BaseMewList.vue";
+import BaseList from "@/components/BaseList.vue";
 import BaseAgentProfilesList from "@/components/BaseAgentProfilesList.vue";
 import { AppAgentClient } from "@holochain/client";
 import { useQuery } from "@tanstack/vue-query";
-import BaseAgentProfileName from "@/components/BaseAgentProfileName.vue";
+import BaseAgentProfileDetail from "@/components/BaseAgentProfileDetail.vue";
 
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;

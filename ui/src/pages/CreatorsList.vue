@@ -42,7 +42,7 @@
       v-else-if="isLoading"
       :key="x"
     />
-    <BaseEmptyMewsFeed v-else />
+    <BaseEmptyList v-else />
   </QPage>
 </template>
 
@@ -58,7 +58,7 @@ import {
   useQueryClient,
 } from "@tanstack/vue-query";
 import BaseProfileSkeleton from "@/components/BaseProfileSkeleton.vue";
-import BaseEmptyMewsFeed from "@/components/BaseEmptyMewsFeed.vue";
+import BaseEmptyList from "@/components/BaseEmptyList.vue";
 import BaseAgentProfilesList from "@/components/BaseAgentProfilesList.vue";
 import BaseAgentProfileLinkName from "@/components/BaseAgentProfileLinkName.vue";
 import { watch } from "vue";

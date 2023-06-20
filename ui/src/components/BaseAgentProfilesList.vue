@@ -5,7 +5,7 @@
     </QList>
   </template>
 
-  <BaseEmptyMewsFeed
+  <BaseEmptyList
     v-else-if="agentProfiles?.length === 0"
     :text="emptyText || 'No agents yet'"
   />
@@ -25,7 +25,7 @@
 import { QList } from "quasar";
 import { AgentProfile } from "@/types/types";
 import BaseAgentProfilesListItem from "@/components/BaseAgentProfilesListItem.vue";
-import BaseEmptyMewsFeed from "./BaseEmptyMewsFeed.vue";
+import BaseEmptyList from "./BaseEmptyList.vue";
 import BaseProfileSkeleton from "./BaseProfileSkeleton.vue";
 
 defineProps<{

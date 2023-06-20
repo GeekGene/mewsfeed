@@ -71,7 +71,7 @@
           </div>
         </QInfiniteScroll>
         <BaseMewListSkeleton v-else-if="isLoadingReplies" />
-        <BaseEmptyMewsFeed v-else />
+        <BaseEmptyList v-else />
       </QCardSection>
     </QCard>
   </QPage>

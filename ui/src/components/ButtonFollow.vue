@@ -1,6 +1,6 @@
 <template>
   <button
-    class="btn btn-sm btn-secondary rounded-3xl px-8"
+    class="btn btn-sm btn-secondary rounded-3xl px-4"
     @click.stop.prevent="toggleFollow"
   >
     {{ isFollowing ? "Following" : "Follow" }}

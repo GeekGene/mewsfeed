@@ -54,7 +54,7 @@
       </div>
     </QInfiniteScroll>
     <BaseMewListSkeleton v-else-if="isInitialLoading" />
-    <BaseEmptyMewsFeed v-else />
+    <BaseEmptyList v-else />
   </QPage>
 </template>
 
@@ -65,7 +65,7 @@ import { QPage, QInfiniteScroll, QSpinnerDots, QIcon, QList } from "quasar";
 import { onBeforeRouteLeave } from "vue-router";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import BaseNotification from "@/components/BaseNotification.vue";
-import BaseEmptyMewsFeed from "@/components/BaseEmptyMewsFeed.vue";
+import BaseEmptyList from "@/components/BaseEmptyList.vue";
 import BaseMewListSkeleton from "@/components/BaseMewListSkeleton.vue";
 import { showError } from "@/utils/toasts";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";

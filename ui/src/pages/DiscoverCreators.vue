@@ -46,7 +46,7 @@ import { QPage, QBtn, QIcon } from "quasar";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import { ComputedRef, computed, inject, onMounted, watch } from "vue";
 import { AppAgentClient } from "@holochain/client";
-import BaseMewList from "@/components/BaseMewList.vue";
+import BaseList from "@/components/BaseMewList.vue";
 import { FeedMew } from "@/types/types";
 import { useQuery } from "@tanstack/vue-query";
 import { showError } from "@/utils/toasts";
