@@ -254,11 +254,13 @@
       confirm-text="Delete"
       @confirm="deleteMew"
     >
-      <p>Are you sure you want to delete this mew?</p>
-      <p>
-        Note that other peers may still have copies of the data, and you can't
-        force them to delete it.
-      </p>
+      <div class="prose">
+        <b>Are you sure you want to delete this mew?</b>
+        <p>
+          Note that other peers may still have copies of the data, and you can't
+          force them to delete it.
+        </p>
+      </div>
     </BaseConfirmDialog>
   </div>
 </template>
