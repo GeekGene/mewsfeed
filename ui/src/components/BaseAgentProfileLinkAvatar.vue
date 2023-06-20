@@ -1,5 +1,5 @@
 <template>
-  <LinkProfilePopup :agentPubKey="agentPubKey">
+  <BaseLinkProfilePopup :agentPubKey="agentPubKey">
     <agent-avatar
       :agentPubKey="agentPubKey"
       disable-tooltip
@@ -7,11 +7,11 @@
       class="self-start"
     >
     </agent-avatar>
-  </LinkProfilePopup>
+  </BaseLinkProfilePopup>
 </template>
 
 <script setup lang="ts">
-import LinkProfilePopup from "@/components/LinkProfilePopup.vue";
+import BaseLinkProfilePopup from "@/components/BaseLinkProfilePopup.vue";
 
 defineProps<{
   agentPubKey: Uint8Array;

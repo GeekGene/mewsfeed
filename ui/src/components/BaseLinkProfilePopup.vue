@@ -22,7 +22,7 @@
         <div
           class="bg-neutral/5 backdrop-blur-md rounded-3xl shadow-xl flex-1 w-full"
         >
-          <ProfilePopupContent
+          <BaseAgentProfilePopupContent
             :agentPubKey="agentPubKey"
             @mouseenter="setPopupVisible(true)"
             @mouseleave="setPopupVisible(false)"
@@ -38,7 +38,7 @@ import { ref } from "vue";
 import { encodeHashToBase64 } from "@holochain/client";
 import { ROUTES } from "@/router";
 import { RouteLocationRaw, RouterLink } from "vue-router";
-import ProfilePopupContent from "@/components/ProfilePopupContent.vue";
+import BaseAgentProfilePopupContent from "@/components/BaseAgentProfilePopupContent.vue";
 import { debounce } from "lodash";
 
 defineProps<{

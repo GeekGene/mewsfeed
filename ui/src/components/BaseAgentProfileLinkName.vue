@@ -1,5 +1,5 @@
 <template>
-  <LinkProfilePopup :agent-pub-key="agentPubKey">
+  <BaseLinkProfilePopup :agent-pub-key="agentPubKey">
     <div class="flex justify-end items-center space-x-2">
       <agent-avatar
         v-if="profile"
@@ -10,13 +10,13 @@
       />
       <BaseAgentProfileName :profile="profile" :agentPubKey="agentPubKey" />
     </div>
-  </LinkProfilePopup>
+  </BaseLinkProfilePopup>
 </template>
 
 <script setup lang="ts">
 import { Profile } from "@holochain-open-dev/profiles";
 import { AgentPubKey } from "@holochain/client";
-import LinkProfilePopup from "@/components/LinkProfilePopup.vue";
+import BaseLinkProfilePopup from "@/components/BaseLinkProfilePopup.vue";
 import BaseAgentProfileName from "@/components/BaseAgentProfileName.vue";
 
 withDefaults(

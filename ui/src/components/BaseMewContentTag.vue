@@ -16,13 +16,13 @@
     {{ contentPart.text }}
     <QTooltip>{{ contentPart.href }}</QTooltip>
   </a>
-  <LinkProfilePopup
+  <BaseLinkProfilePopup
     v-else-if="contentPart.route && contentPart.tagType === MewTagType.Mention"
     :agentPubKey="decodeHashFromBase64((contentPart.route as RouteLocationNamedRaw).params?.agentPubKey as LocationQueryValueRaw as string)"
     :to="contentPart.route"
   >
     {{ contentPart.text }}
-  </LinkProfilePopup>
+  </BaseLinkProfilePopup>
   <RouterLink
     v-else-if="
       contentPart.route &&
@@ -41,7 +41,7 @@ import { QTooltip } from "quasar";
 import { MewContentPart, MewTagType } from "@/types/types";
 import { decodeHashFromBase64 } from "@holochain/client";
 import { LocationQueryValueRaw, RouteLocationNamedRaw } from "vue-router";
-import LinkProfilePopup from "./LinkProfilePopup.vue";
+import BaseLinkProfilePopup from "./BaseLinkProfilePopup.vue";
 
 defineProps<{
   contentPart: MewContentPart;
