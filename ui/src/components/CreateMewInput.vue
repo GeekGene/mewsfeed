@@ -151,7 +151,7 @@
 
     <button
       class="btn btn-neutral btn-md rounded-full w-20 sm:w-auto"
-      :disable="isMewEmpty || isMewOverfull || isMewUnderfull"
+      :class="{ 'btn-disabled': isMewEmpty || isMewOverfull || isMewUnderfull }"
       :loading="saving"
       tabindex="0"
       @click="publishMew()"
