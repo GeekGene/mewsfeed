@@ -1,25 +1,34 @@
 <template>
-  <div class="row" :style-fn="pageHeightCorrection">
+  <div>
     <div v-if="!isLoadingProfile && agentPubKey">
       <BaseAgentProfileDetail
-        v-if="!showEditProfileForm"
         :agentPubKey="agentPubKey"
-        :creators-count="25"
-        :followers-count="5"
+        :creators-count="creators ? creators.length : 0"
+        :followers-count="followers ? followers.length : 0"
         class="bg-neutral/5 backdrop-blur-md p-4 rounded-3xl"
-        @click-edit-profile="showEditProfileForm = true"
+        @click-edit-profile="showEditProfileDialog = true"
+        @click-followers="
+          router.push({
+            name: ROUTES.followers,
+            params: {
+              agentPubKey: route.params.agentPubKey,
+            },
+          })
+        "
+        @click-creators="
+          router.push({
+            name: ROUTES.creators,
+            params: {
+              agentPubKey: route.params.agentPubKey,
+            },
+          })
+        "
       />
-
-      <div
-        v-else
-        class="bg-neutral/5 backdrop-blur-md p-4 rounded-3xl pl-8 pr-8 pb-8"
-      >
-        <update-profile
-          :profile="profile"
-          @profile-updated="onEditProfile"
-          @cancel-edit-profile="showEditProfileForm = false"
-        ></update-profile>
-      </div>
+      <EditAgentProfileDialog
+        v-model="showEditProfileDialog"
+        :profile="profile"
+        @profile-updated="refetchProfile"
+      />
 
       <BaseList
         v-slot="{ item }"
@@ -92,70 +101,12 @@
         View All
       </RouterLink>
     </div>
-
-    <div class="follow-col col self-start q-pl-xl q-pr-md">
-      <h6 class="q-mt-none q-mb-md">Following</h6>
-      <BaseAgentProfilesList
-        :agent-profiles="creators"
-        :loading="isLoadingCreators"
-      />
-      <RouterLink
-        v-if="creators?.length === pageLimit"
-        class="btn btn-md btn-ghost"
-        :to="{
-          name: 'creators',
-          params: {
-            agentPubKey: route.params.agentPubKey,
-          },
-        }"
-      >
-        View All
-      </RouterLink>
-
-      <h6 class="q-mb-md">Followed by</h6>
-      <BaseAgentProfilesList
-        :agent-profiles="followers"
-        :loading="isLoadingFollowers"
-      />
-      <div v-if="followers?.length === pageLimit" class="row justify-center">
-        <RouterLink
-          class="btn btn-md btn-neutral"
-          :to="{
-            name: 'followers',
-            params: {
-              agentPubKey: route.params.agentPubKey,
-            },
-          }"
-        >
-          View All
-        </RouterLink>
-      </div>
-
-      <h6 class="q-mb-md">
-        <RouterLink
-          v-if="profile?.nickname"
-          class="btn btn-md btn-primary"
-          :to="{
-            name: ROUTES.mention,
-            params: {
-              tag: profile.nickname,
-              agentPubKey: encodeHashToBase64(agentPubKey),
-            },
-          }"
-        >
-          Mew Mentions
-        </RouterLink>
-      </h6>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { QPage, QSpinnerPie, QCard, QCardSection, QBtn } from "quasar";
 import { AgentProfile } from "@/types/types";
-import isEqual from "lodash/isEqual";
 import { showError } from "@/utils/toasts";
-import { pageHeightCorrection } from "@/utils/page-layout";
 import { ROUTES } from "@/router";
 import {
   AgentPubKey,
@@ -166,10 +117,10 @@ import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { ComputedRef, computed, inject, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import BaseList from "@/components/BaseList.vue";
-import BaseAgentProfilesList from "@/components/BaseAgentProfilesList.vue";
 import { AppAgentClient } from "@holochain/client";
 import { useQuery } from "@tanstack/vue-query";
 import BaseAgentProfileDetail from "@/components/BaseAgentProfileDetail.vue";
+import EditAgentProfileDialog from "@/components/EditAgentProfileDialog.vue";
 
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
@@ -179,11 +130,7 @@ const router = useRouter();
 const agentPubKey = computed(() =>
   decodeHashFromBase64(route.params.agentPubKey as string)
 );
-const showEditProfileForm = ref(false);
-
-const isMyProfile = computed(() =>
-  isEqual(agentPubKey.value, client.myPubKey as AgentPubKey)
-);
+const showEditProfileDialog = ref(false);
 
 const pageLimit = 5;
 
@@ -252,7 +199,7 @@ const {
   data: profile,
   isLoading: isLoadingProfile,
   error: errorProfile,
-  refetch,
+  refetch: refetchProfile,
 } = useQuery({
   queryKey: [
     "profiles",
@@ -262,11 +209,6 @@ const {
   queryFn: fetchProfile,
 });
 watch(errorProfile, showError);
-
-const onEditProfile = () => {
-  showEditProfileForm.value = false;
-  refetch();
-};
 
 const fetchFollowers = async () => {
   const agents: AgentPubKey[] = await await client.callZome({
@@ -296,12 +238,7 @@ const fetchFollowers = async () => {
   return agentProfiles.filter(Boolean) as AgentProfile[];
 };
 
-const {
-  data: followers,
-  isLoading: isLoadingFollowers,
-  error: errorFollowers,
-  refetch: refetchFollowers,
-} = useQuery({
+const { data: followers, error: errorFollowers } = useQuery({
   queryKey: [
     "follows",
     "get_followers_for_creator",
@@ -339,11 +276,7 @@ const fetchCreators = async () => {
   return agentProfiles.filter(Boolean) as AgentProfile[];
 };
 
-const {
-  data: creators,
-  isLoading: isLoadingCreators,
-  error: errorCreators,
-} = useQuery({
+const { data: creators, error: errorCreators } = useQuery({
   queryKey: [
     "follows",
     "get_creators_for_follower",

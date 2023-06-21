@@ -31,6 +31,7 @@
           >
             <BaseAgentProfileDetail
               :agentPubKey="agentPubKey"
+              hide-edit-button
               @mouseenter="setPopupVisible(true)"
               @mouseleave="setPopupVisible(false)"
             />

@@ -154,8 +154,8 @@
       :disable="isMewEmpty || isMewOverfull || isMewUnderfull"
       :loading="saving"
       tabindex="0"
-      @click="publishMew"
-      @keydown.enter.prevent="publishMew"
+      @click="publishMew()"
+      @keydown.enter.prevent="publishMew()"
     >
       <div class="flex justify-start items-center space-x-1 sm:space-x-2">
         <IconArrowForwardOutline class="text-2xl sm:text-xl" />
@@ -166,7 +166,7 @@
 
   <CreateProfileIfNotFoundDialog
     v-model="showCreateProfileDialog"
-    @profile-created="publishMew"
+    @profile-created="(profile: Profile) => publishMew(profile)"
   />
 </template>
 
@@ -182,7 +182,6 @@ import {
   LinkTargetName,
   MewsfeedDnaProperties,
   MewType,
-  PROFILE_FIELDS,
   UrlLinkTarget,
   MentionLinkTarget,
   FeedMew,
@@ -301,8 +300,8 @@ const collectLinksWithinElement = (element: Element): LinkTarget[] => {
   }
 };
 
-const publishMew = async () => {
-  if (!myProfile.value) {
+const publishMew = async (profile: undefined | Profile = undefined) => {
+  if (!myProfile.value && !profile) {
     showCreateProfileDialog.value = true;
     return;
   }

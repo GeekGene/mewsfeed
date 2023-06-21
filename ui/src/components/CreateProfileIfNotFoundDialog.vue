@@ -43,7 +43,12 @@
                   }
                   text-align: left;
                 "
-                @profile-created="emit('profile-created')"
+                @profile-created="
+                  (e: any) => {
+                    emit('profile-created', e.detail.profile );
+                    emit('update:model-value', false);
+                  }
+                "
               ></create-profile>
               <slot v-else></slot>
             </DialogPanel>
@@ -68,13 +73,7 @@ const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const myProfile = inject("myProfile") as ComputedRef<Profile>;
 const emit = defineEmits(["update:model-value", "profile-created"]);
-withDefaults(
-  defineProps<{
-    modelValue: boolean;
-    showCloseButton?: boolean;
-  }>(),
-  {
-    showCloseButton: false,
-  }
-);
+defineProps<{
+  modelValue: boolean;
+}>();
 </script>

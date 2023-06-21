@@ -7,8 +7,16 @@
     <div class="flex space-x-6 h-full p-4">
       <div class="flex flex-col justify-between">
         <agent-avatar
+          class="hidden sm:block"
           :agentPubKey="agentPubKey"
           size="80"
+          disable-tooltip
+          disable-copy
+        />
+        <agent-avatar
+          class="block sm:hidden"
+          :agentPubKey="agentPubKey"
+          size="50"
           disable-tooltip
           disable-copy
         />
@@ -21,15 +29,17 @@
       </div>
 
       <div class="flex-1">
-        <div class="w-full flex justify-between items-start whitespace-nowrap">
+        <div
+          class="w-full flex justify-between items-center whitespace-nowrap mb-5"
+        >
           <BaseAgentProfileNameLarge
             :profile="profile"
             :agentPubKey="agentPubKey"
           />
           <ButtonFollow v-if="!isMyProfile" :agentPubKey="agentPubKey" />
           <button
-            v-else
-            class="btn btn-sm btn-secondary rounded-3xl px-4 flex items-center space-x-1"
+            v-else-if="!hideEditButton"
+            class="btn btn-xs sm:btn-sm btn-secondary rounded-3xl sm:px-4 flex items-center sm:space-x-1 w-26 sm:w-auto"
             @click="emit('click-edit-profile')"
           >
             <IconPencilSharp />
@@ -39,30 +49,44 @@
 
         <div
           v-if="profile.fields[PROFILE_FIELDS.BIO]"
-          class="flex justify-start space-x-2 text-md my-4"
+          class="flex justify-start space-x-2 text-md my-5"
         >
           {{ profile.fields[PROFILE_FIELDS.BIO] }}
         </div>
 
-        <div class="border-t-4 border-base-200"></div>
+        <div class="border-t-4 border-base-100"></div>
 
-        <template v-if="followersCount || creatorsCount">
-          <div class="flex justify-start items-center space-x-16 my-1">
-            <div v-if="creatorsCount">
+        <template
+          v-if="followersCount !== undefined || creatorsCount !== undefined"
+        >
+          <div
+            class="flex justify-start items-center space-x-2 sm:space-x-16 my-1 flex-wrap"
+          >
+            <button
+              v-if="creatorsCount !== undefined"
+              class="btn btn-ghost btn-sm"
+              @click="emit('click-creators')"
+            >
               <span class="font-bold">{{ creatorsCount }}</span>
-              following
-            </div>
-            <div v-if="followersCount">
+              <span class="font-normal font-content lowercase">following</span>
+            </button>
+            <button
+              v-if="followersCount !== undefined"
+              class="btn btn-ghost btn-sm"
+              @click="emit('click-followers')"
+            >
               <span class="font-bold">
                 {{ followersCount }}
               </span>
-              followers
-            </div>
+              <span class="font-normal font-content lowercase">followers</span>
+            </button>
           </div>
-          <div class="border-t-4 border-base-200"></div>
+          <div class="border-t-4 border-base-100"></div>
         </template>
 
-        <div class="flex justify-start items-center space-x-16 text-xs mt-3">
+        <div
+          class="flex justify-start items-center space-x-2 sm:space-x-16 text-xs mt-5"
+        >
           <div
             v-if="profile.fields[PROFILE_FIELDS.LOCATION]"
             class="flex justify-start space-x-2"
@@ -90,7 +114,6 @@
 <script setup lang="ts">
 import isEqual from "lodash/isEqual";
 import { showError } from "@/utils/toasts";
-import { ROUTES } from "@/router";
 import {
   AgentPubKey,
   AppAgentClient,
@@ -106,12 +129,24 @@ import IconCalendarOutline from "~icons/ion/calendar-outline";
 import IconShieldHalfOutline from "~icons/ion/shield-half-outline";
 import IconPencilSharp from "~icons/ion/pencil-sharp";
 
-const props = defineProps<{
-  agentPubKey: AgentPubKey;
-  creatorsCount?: number;
-  followersCount?: number;
-}>();
-const emit = defineEmits(["click-edit-profile"]);
+const props = withDefaults(
+  defineProps<{
+    agentPubKey: AgentPubKey;
+    creatorsCount?: number;
+    followersCount?: number;
+    hideEditButton?: boolean;
+  }>(),
+  {
+    hideEditButton: false,
+    creatorsCount: undefined,
+    followersCount: undefined,
+  }
+);
+const emit = defineEmits([
+  "click-edit-profile",
+  "click-creators",
+  "click-followers",
+]);
 
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;

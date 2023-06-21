@@ -70,7 +70,10 @@
 
                 <CreateMewInput
                   :mew-type="mewType"
-                  @mew-created="(val: any) => {emit('mew-created', val); emit('update:model-value', false);} "
+                  @mew-created="(val: any) => {
+                    emit('mew-created', val);
+                    emit('update:model-value', false);
+                  }"
                 />
               </div>
             </DialogPanel>
