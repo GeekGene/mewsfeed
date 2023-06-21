@@ -1,15 +1,19 @@
 <template>
-  <QPage :style-fn="pageHeightCorrection">
-    <BaseButtonBack />
-    <h6 class="q-mt-md q-mb-md row items-center">
-      Followers of
-      <BaseAgentProfileLinkName
-        class="q-ml-md"
-        :agentPubKey="decodeHashFromBase64(route.params.agentPubKey as string)"
-        :profile="profile"
-        :avatar-size="30"
-      />
-    </h6>
+  <div>
+    <BaseButtonBack class="mb-4" />
+
+    <h2
+      class="text-xl font-title font-bold tracking-tighter mb-2 flex justify-start items-center space-x-4"
+    >
+      <div>
+        <BaseAgentProfileLinkName
+          :agentPubKey="decodeHashFromBase64(route.params.agentPubKey as string)"
+          :profile="profile"
+          :avatar-size="20"
+        />
+      </div>
+      <div>following</div>
+    </h2>
 
     <QInfiniteScroll
       v-if="
@@ -18,23 +22,19 @@
       :offset="250"
       @load="fetchNextPageInfiniteScroll"
     >
-      <QList bordered separator class="q-mb-lg">
-        <BaseAgentProfilesList
-          v-for="(page, i) in data.pages"
-          :key="i"
-          class="q-px-md"
-          :agent-profiles="page"
-          :loading="isLoading"
-        />
-      </QList>
+      <BaseAgentProfilesList
+        v-for="(page, i) in data.pages"
+        :key="i"
+        class="q-px-md"
+        :agent-profiles="page"
+        :loading="isLoading"
+      />
 
       <template #loading>
-        <div class="row justify-center q-mt-lg">
-          <QSpinnerDots color="primary" size="40px" />
-        </div>
+        <div class="loading loading-dots loading-sm"></div>
       </template>
       <div v-if="!hasNextPage" class="row justify-center q-mt-lg">
-        <QIcon name="svguse:/icons.svg#paw" size="40px" color="grey-4" />
+        <IconPaw />
       </div>
     </QInfiniteScroll>
     <BaseProfileSkeleton
@@ -43,12 +43,11 @@
       :key="x"
     />
     <BaseEmptyList v-else />
-  </QPage>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { QPage, QList, QIcon, QSpinnerDots, QInfiniteScroll } from "quasar";
-import { pageHeightCorrection } from "@/utils/page-layout";
+import { QInfiniteScroll } from "quasar";
 import { AppAgentClient } from "@holochain/client";
 import { ComputedRef, inject } from "vue";
 import { useRoute, onBeforeRouteLeave } from "vue-router";
@@ -68,6 +67,7 @@ import { decodeHashFromBase64 } from "@holochain/client";
 import { AgentProfile } from "@/types/types";
 import { AgentPubKey } from "@holochain/client";
 import BaseButtonBack from "@/components/BaseButtonBack.vue";
+import IconPaw from "~icons/ion/paw";
 
 const route = useRoute();
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;

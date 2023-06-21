@@ -1,17 +1,13 @@
 <template>
-  <QBtn flat @click="router.back()">
-    <QIcon
-      name="arrow_right_alt"
-      size="lg"
-      style="transform: rotate(180deg); font-weight: 100"
-    />
-    Back
-  </QBtn>
+  <button class="btn btn-ghost btn-xs flex items-center" @click="router.back()">
+    <IconArrowBack />
+    <div>Back</div>
+  </button>
 </template>
 
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import { QBtn, QIcon } from "quasar";
+import IconArrowBack from "~icons/ion/arrow-back";
 
 const router = useRouter();
 </script>
