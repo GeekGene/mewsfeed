@@ -22,7 +22,7 @@
         />
 
         <holo-identicon
-          v-if="profile.avatar"
+          v-if="profile.fields.avatar"
           :hash="agentPubKey"
           size="30"
         ></holo-identicon>
@@ -113,15 +113,14 @@
 
 <script setup lang="ts">
 import isEqual from "lodash/isEqual";
-import { showError } from "@/utils/toasts";
 import {
   AgentPubKey,
   AppAgentClient,
   encodeHashToBase64,
 } from "@holochain/client";
-import { computed, ComputedRef, inject, onMounted, ref } from "vue";
+import { computed, ComputedRef, inject } from "vue";
 import ButtonFollow from "@/components/ButtonFollow.vue";
-import { ProfilesStore } from "@holochain-open-dev/profiles";
+import { Profile } from "@holochain-open-dev/profiles";
 import BaseAgentProfileNameLarge from "@/components/BaseAgentProfileNameLarge.vue";
 import { PROFILE_FIELDS } from "@/types/types";
 import IconNavigateCircleOutline from "~icons/ion/navigate-circle-outline";
@@ -131,12 +130,14 @@ import IconPencilSharp from "~icons/ion/pencil-sharp";
 
 const props = withDefaults(
   defineProps<{
+    profile?: Profile;
     agentPubKey: AgentPubKey;
     creatorsCount?: number;
     followersCount?: number;
     hideEditButton?: boolean;
   }>(),
   {
+    profile: undefined,
     hideEditButton: false,
     creatorsCount: undefined,
     followersCount: undefined,
@@ -148,26 +149,6 @@ const emit = defineEmits([
   "click-followers",
 ]);
 
-const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
-  .value;
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
-
 const isMyProfile = computed(() => isEqual(props.agentPubKey, client.myPubKey));
-
-const profile = ref();
-const loading = ref(false);
-
-onMounted(async () => {
-  try {
-    loading.value = true;
-    const res = await profilesStore.client.getAgentProfile(props.agentPubKey);
-    if (res) {
-      profile.value = res;
-    }
-  } catch (error) {
-    showError(error);
-  } finally {
-    loading.value = false;
-  }
-});
 </script>

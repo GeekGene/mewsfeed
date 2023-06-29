@@ -29,7 +29,7 @@
             }"
             @click.stop
           >
-            <BaseAgentProfileDetail
+            <AgentProfileDetail
               :agentPubKey="agentPubKey"
               hide-edit-button
               @mouseenter="setPopupVisible(true)"
@@ -47,7 +47,7 @@ import { ref } from "vue";
 import { encodeHashToBase64 } from "@holochain/client";
 import { ROUTES } from "@/router";
 import { RouteLocationRaw, RouterLink } from "vue-router";
-import BaseAgentProfileDetail from "@/components/BaseAgentProfileDetail.vue";
+import AgentProfileDetail from "@/components/AgentProfileDetail.vue";
 import { debounce } from "lodash";
 
 defineProps<{
