@@ -118,10 +118,6 @@ const fetchNextPageInfiniteScroll = async (
   done(!hasNextPage?.value);
 };
 
-const onCreateMew = () => {
-  refetch({ refetchPage: (page, index) => index === 0 });
-};
-
 onBeforeRouteLeave(() => {
   if (data.value && data.value.pages.length > 1) {
     queryClient.setQueryData(
