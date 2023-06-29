@@ -100,12 +100,6 @@
             <div>Joined ABC</div>
           </div>
         </div>
-        <div
-          class="flex justify-start items-center space-x-2 mt-2 text-xs break-all"
-        >
-          <IconShieldHalfOutline />
-          <div>{{ encodeHashToBase64(agentPubKey) }}</div>
-        </div>
       </div>
     </div>
   </div>
@@ -113,11 +107,7 @@
 
 <script setup lang="ts">
 import isEqual from "lodash/isEqual";
-import {
-  AgentPubKey,
-  AppAgentClient,
-  encodeHashToBase64,
-} from "@holochain/client";
+import { AgentPubKey, AppAgentClient } from "@holochain/client";
 import { computed, ComputedRef, inject } from "vue";
 import ButtonFollow from "@/components/ButtonFollow.vue";
 import { Profile } from "@holochain-open-dev/profiles";
@@ -125,7 +115,6 @@ import BaseAgentProfileNameLarge from "@/components/BaseAgentProfileNameLarge.vu
 import { PROFILE_FIELDS } from "@/types/types";
 import IconNavigateCircleOutline from "~icons/ion/navigate-circle-outline";
 import IconCalendarOutline from "~icons/ion/calendar-outline";
-import IconShieldHalfOutline from "~icons/ion/shield-half-outline";
 import IconPencilSharp from "~icons/ion/pencil-sharp";
 
 const props = withDefaults(
