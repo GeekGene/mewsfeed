@@ -363,7 +363,7 @@ const toggleLickMew = async () => {
   showToggleLickMewDialog.value = false;
 
   isUpdatingLick.value = true;
-  const newLicks = props.feedMew.licks;
+  const newLicks = [...props.feedMew.licks];
   if (isLickedByMe.value) {
     await client.callZome({
       role_name: "mewsfeed",
