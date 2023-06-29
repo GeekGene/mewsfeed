@@ -108,15 +108,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  ComputedRef,
-  computed,
-  inject,
-  onMounted,
-  ref,
-  toRaw,
-  watch,
-} from "vue";
+import { ComputedRef, computed, inject, onMounted, toRaw, watch } from "vue";
 import { AppAgentClient } from "@holochain/client";
 import BaseList from "@/components/BaseList.vue";
 import { FeedMew } from "@/types/types";
