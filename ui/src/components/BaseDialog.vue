@@ -21,7 +21,7 @@
 
       <div class="fixed inset-0 z-10 overflow-y-auto w-full">
         <div
-          class="flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0 w-full"
+          class="flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0"
         >
           <TransitionChild
             as="template"
@@ -32,7 +32,7 @@
             leave-from="opacity-100 translate-y-0 sm:scale-100"
             leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
           >
-            <DialogPanel class="w-full sm:max-w-screen-sm">
+            <DialogPanel>
               <div
                 class="relative transform overflow-hidden bg-white rounded-3xl shadow-xl transition-all w-full p-4"
               >

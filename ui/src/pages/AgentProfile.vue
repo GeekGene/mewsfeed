@@ -2,6 +2,7 @@
   <div>
     <div v-if="!isLoadingProfile && agentPubKey">
       <BaseAgentProfileDetail
+        :profile="profile"
         :agentPubKey="agentPubKey"
         :creators-count="creators ? creators.length : 0"
         :followers-count="followers ? followers.length : 0"
@@ -27,7 +28,17 @@
       <EditAgentProfileDialog
         v-model="showEditProfileDialog"
         :profile="profile"
-        @profile-updated="refetchProfile"
+        @profile-updated="(e: any) => {
+          console.log('profile-updated', e.detail.profile);
+          refetchProfile();
+          queryClient.setQueryData([
+              'profiles',
+              'getAgentProfile',
+              encodeHashToBase64(agentPubKey),
+            ],
+            e.detail.profile
+          );
+        }"
       />
 
       <BaseList
@@ -113,12 +124,12 @@ import {
   decodeHashFromBase64,
   encodeHashToBase64,
 } from "@holochain/client";
-import { ProfilesStore } from "@holochain-open-dev/profiles";
+import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
 import { ComputedRef, computed, inject, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import BaseList from "@/components/BaseList.vue";
 import { AppAgentClient } from "@holochain/client";
-import { useQuery } from "@tanstack/vue-query";
+import { useQuery, useQueryClient } from "@tanstack/vue-query";
 import BaseAgentProfileDetail from "@/components/BaseAgentProfileDetail.vue";
 import EditAgentProfileDialog from "@/components/EditAgentProfileDialog.vue";
 
@@ -127,6 +138,7 @@ const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const route = useRoute();
 const router = useRouter();
+const queryClient = useQueryClient();
 const agentPubKey = computed(() =>
   decodeHashFromBase64(route.params.agentPubKey as string)
 );
