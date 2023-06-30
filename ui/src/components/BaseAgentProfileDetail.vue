@@ -39,7 +39,7 @@
           <ButtonFollow v-if="!isMyProfile" :agentPubKey="agentPubKey" />
           <button
             v-else-if="!hideEditButton"
-            class="btn btn-xs sm:btn-sm btn-secondary rounded-3xl sm:px-4 flex items-center sm:space-x-1 w-26 sm:w-auto"
+            class="btn btn-xs sm:btn-sm btn-neutral rounded-3xl sm:px-4 flex items-center sm:space-x-1 w-26 sm:w-auto"
             @click="emit('click-edit-profile')"
           >
             <IconPencilSharp />

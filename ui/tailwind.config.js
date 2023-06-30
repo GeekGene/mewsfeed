@@ -1,5 +1,6 @@
 import daisyui from "daisyui";
 import typography from "@tailwindcss/typography";
+import daisyuiThemes from "daisyui/src/theming/themes";
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -14,6 +15,16 @@ export default {
   },
   plugins: [typography, daisyui],
   daisyui: {
-    themes: ["light", "dark", "cupcake"],
+    themes: [
+      {
+        light: {
+          // eslint-disable-next-line @typescript-eslint/no-var-requires
+          ...daisyuiThemes["[data-theme=light]"],
+          primary: "#FF5C00",
+        },
+      },
+      "dark",
+      "cupcake",
+    ],
   },
 };
