@@ -30,7 +30,10 @@
         <template #loading>
           <div class="loading loading-dots loading-sm"></div>
         </template>
-        <div v-if="!hasNextPage" class="flex justify-center mt-8 text-base-300">
+        <div
+          v-if="!hasNextPage"
+          class="flex justify-center mb-8 text-base-300 text-2xl"
+        >
           <IconPaw />
         </div>
       </QInfiniteScroll>

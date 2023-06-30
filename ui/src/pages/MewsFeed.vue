@@ -51,8 +51,11 @@
           <div class="loading loading-dots loading-md"></div>
         </div>
       </template>
-      <div v-if="!hasNextPage" class="w-full flex justify-center my-8">
-        <IconPaw class="text-base-300 text-2xl" />
+      <div
+        v-if="!hasNextPage"
+        class="flex justify-center mb-8 text-base-300 text-2xl"
+      >
+        <IconPaw />
       </div>
     </QInfiniteScroll>
     <BaseMewListSkeleton v-else-if="isLoading" />

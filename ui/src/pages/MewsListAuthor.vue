@@ -24,11 +24,9 @@
       :offset="250"
       @load="fetchNextPageInfiniteScroll"
     >
-      <QList bordered separator class="q-mb-lg">
-        <template v-for="(page, i) in data.pages" :key="i">
+      <template v-for="(page, i) in data.pages" :key="i">
+        <template v-for="(mew, j) of page" :key="j">
           <BaseMewListItem
-            v-for="(mew, j) of page"
-            :key="j"
             :feed-mew="mew"
             @mew-deleted="
               refetch({ refetchPage: (page, index) => index === i })
@@ -52,15 +50,16 @@
             "
           />
         </template>
-      </QList>
+      </template>
 
       <template #loading>
-        <div class="row justify-center q-mt-lg">
-          <QSpinnerDots color="primary" size="40px" />
-        </div>
+        <div class="loading loading-dots loading-sm"></div>
       </template>
-      <div v-if="!hasNextPage" class="row justify-center q-mt-lg">
-        <QIcon name="svguse:/icons.svg#paw" size="40px" color="grey-4" />
+      <div
+        v-if="!hasNextPage"
+        class="flex justify-center mb-8 text-base-300 text-2xl"
+      >
+        <IconPaw />
       </div>
     </QInfiniteScroll>
     <BaseMewListSkeleton v-else-if="isLoading" />
@@ -69,8 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import { QPage, QList, QIcon, QSpinnerDots, QInfiniteScroll } from "quasar";
-import { pageHeightCorrection } from "@/utils/page-layout";
+import { QInfiniteScroll } from "quasar";
 import { AppAgentClient } from "@holochain/client";
 import { ComputedRef, inject } from "vue";
 import { useRoute, onBeforeRouteLeave } from "vue-router";
@@ -88,6 +86,7 @@ import { showError } from "@/utils/toasts";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { decodeHashFromBase64 } from "@holochain/client";
 import BaseButtonBack from "@/components/BaseButtonBack.vue";
+import IconPaw from "~icons/ion/paw";
 
 const route = useRoute();
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
