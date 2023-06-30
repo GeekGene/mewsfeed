@@ -16,7 +16,7 @@
       title="random mews"
       class="mb-8"
       :items="randomMews"
-      :is-loading="isLoadingRandomMewHashes || isLoadingRandomMews"
+      :is-loading="isLoadingRandomMewHashes || isFetchingRandomMews"
     >
       <BaseMewListItem
         :feed-mew="item"
@@ -43,7 +43,7 @@
       :title="`mews about ${randomTags[0]}`"
       :items="randomMewsWithTag1"
       :is-loading="
-        isLoadingRandomMewHashesWithTag1 || isLoadingRandomMewsWithTag1
+        isLoadingRandomMewHashesWithTag1 || isFetchingRandomMewsWithTag1
       "
     >
       <BaseMewListItem
@@ -66,7 +66,7 @@
       :title="`mews about ${randomTags[1]}`"
       :items="randomMewsWithTag2"
       :is-loading="
-        isLoadingRandomMewHashesWithTag2 || isLoadingRandomMewsWithTag2
+        isLoadingRandomMewHashesWithTag2 || isFetchingRandomMewsWithTag2
       "
     >
       <BaseMewListItem
@@ -89,7 +89,7 @@
       :title="`mews about ${randomTags[2]}`"
       :items="randomMewsWithTag3"
       :is-loading="
-        isLoadingRandomMewHashesWithTag3 || isLoadingRandomMewsWithTag3
+        isLoadingRandomMewHashesWithTag3 || isFetchingRandomMewsWithTag3
       "
     >
       <BaseMewListItem
@@ -156,8 +156,8 @@ const hasRandomMewHashes = computed(
 const {
   data: randomMews,
   error: errorRandomMews,
-  isLoading: isLoadingRandomMews,
   refetch: refetchRandomMews,
+  isFetching: isFetchingRandomMews,
 } = useQuery({
   queryKey: ["mews", "get_random_mew_hashes", "get_batch_mews_with_context"],
   enabled: hasRandomMewHashes,
@@ -253,7 +253,7 @@ const hasRandomMewHashesWithTag1 = computed(
 const {
   data: randomMewsWithTag1,
   error: errorRandomMewsWithTag1,
-  isLoading: isLoadingRandomMewsWithTag1,
+  isFetching: isFetchingRandomMewsWithTag1,
   refetch: refetchRandomMewsWithTag1,
 } = useQuery({
   queryKey: [
@@ -298,7 +298,7 @@ const hasRandomMewHashesWithTag2 = computed(
 const {
   data: randomMewsWithTag2,
   error: errorRandomMewsWithTag2,
-  isLoading: isLoadingRandomMewsWithTag2,
+  isFetching: isFetchingRandomMewsWithTag2,
   refetch: refetchRandomMewsWithTag2,
 } = useQuery({
   queryKey: [
@@ -343,7 +343,7 @@ const hasRandomMewHashesWithTag3 = computed(
 const {
   data: randomMewsWithTag3,
   error: errorRandomMewsWithTag3,
-  isLoading: isLoadingRandomMewsWithTag3,
+  isFetching: isFetchingRandomMewsWithTag3,
   refetch: refetchRandomMewsWithTag3,
 } = useQuery({
   queryKey: [
