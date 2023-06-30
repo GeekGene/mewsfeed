@@ -9,20 +9,15 @@
         class="bg-neutral/5 backdrop-blur-md p-4 rounded-3xl"
         @click-edit-profile="showEditProfileDialog = true"
         @click-followers="
-          router.push({
-            name: ROUTES.followers,
-            params: {
-              agentPubKey: route.params.agentPubKey,
-            },
-          })
+          () => {
+            if (followers && followers.length > 0)
+              showFollowersListDialog = true;
+          }
         "
         @click-creators="
-          router.push({
-            name: ROUTES.creators,
-            params: {
-              agentPubKey: route.params.agentPubKey,
-            },
-          })
+          () => {
+            if (creators && creators.length > 0) showCreatorsListDialog = true;
+          }
         "
       />
       <EditAgentProfileDialog
@@ -113,36 +108,46 @@
       </RouterLink>
     </div>
   </div>
+  <FollowersListDialog
+    v-model="showFollowersListDialog"
+    :agent-pub-key="decodeHashFromBase64(route.params.agentPubKey as string)"
+  />
+  <CreatorsListDialog
+    v-model="showCreatorsListDialog"
+    :agent-pub-key="decodeHashFromBase64(route.params.agentPubKey as string)"
+  />
 </template>
 
 <script setup lang="ts">
 import { AgentProfile } from "@/types/types";
 import { showError } from "@/utils/toasts";
-import { ROUTES } from "@/router";
 import {
   AgentPubKey,
   decodeHashFromBase64,
   encodeHashToBase64,
 } from "@holochain/client";
-import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
+import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { ComputedRef, computed, inject, ref, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import BaseList from "@/components/BaseList.vue";
 import { AppAgentClient } from "@holochain/client";
 import { useQuery, useQueryClient } from "@tanstack/vue-query";
 import BaseAgentProfileDetail from "@/components/BaseAgentProfileDetail.vue";
 import EditAgentProfileDialog from "@/components/EditAgentProfileDialog.vue";
+import FollowersListDialog from "@/components/FollowersListDialog.vue";
+import CreatorsListDialog from "@/components/CreatorsListDialog.vue";
 
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const route = useRoute();
-const router = useRouter();
 const queryClient = useQueryClient();
 const agentPubKey = computed(() =>
   decodeHashFromBase64(route.params.agentPubKey as string)
 );
 const showEditProfileDialog = ref(false);
+const showFollowersListDialog = ref(false);
+const showCreatorsListDialog = ref(false);
 
 const pageLimit = 5;
 

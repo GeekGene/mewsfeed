@@ -1,56 +1,54 @@
 <template>
-  <div>
-    <BaseButtonBack class="mb-4" />
+  <BaseDialog
+    :model-value="modelValue"
+    @update:model-value="(val: boolean) => emit('update:model-value', val)"
+  >
+    <div class="w-full sm:w-96">
+      <h2 class="text-3xl font-title font-bold tracking-tighter mb-8 text-left">
+        following
+      </h2>
 
-    <h2
-      class="text-xl font-title font-bold tracking-tighter mb-2 flex justify-start items-center space-x-4"
-    >
-      <div>
-        <BaseAgentProfileLinkName
-          :agentPubKey="decodeHashFromBase64(route.params.agentPubKey as string)"
-          :profile="profile"
-          :avatar-size="20"
+      <QInfiniteScroll
+        v-if="
+          data &&
+          data.pages &&
+          data.pages.length > 0 &&
+          data.pages[0].length > 0
+        "
+        :offset="250"
+        @load="fetchNextPageInfiniteScroll"
+      >
+        <BaseAgentProfilesList
+          v-for="(page, i) in data.pages"
+          :key="i"
+          class="q-px-md"
+          :agent-profiles="page"
+          :loading="isLoading"
+          :enable-popups="false"
         />
-      </div>
-      <div>following</div>
-    </h2>
 
-    <QInfiniteScroll
-      v-if="
-        data && data.pages && data.pages.length > 0 && data.pages[0].length > 0
-      "
-      :offset="250"
-      @load="fetchNextPageInfiniteScroll"
-    >
-      <BaseAgentProfilesList
-        v-for="(page, i) in data.pages"
-        :key="i"
-        class="q-px-md"
-        :agent-profiles="page"
-        :loading="isLoading"
+        <template #loading>
+          <div class="loading loading-dots loading-sm"></div>
+        </template>
+        <div v-if="!hasNextPage" class="flex justify-center mt-8 text-base-300">
+          <IconPaw />
+        </div>
+      </QInfiniteScroll>
+      <BaseProfileSkeleton
+        v-for="x in [0, 1, 2, 3]"
+        v-else-if="isLoading"
+        :key="x"
       />
-
-      <template #loading>
-        <div class="loading loading-dots loading-sm"></div>
-      </template>
-      <div v-if="!hasNextPage" class="row justify-center q-mt-lg">
-        <IconPaw />
-      </div>
-    </QInfiniteScroll>
-    <BaseProfileSkeleton
-      v-for="x in [0, 1, 2, 3]"
-      v-else-if="isLoading"
-      :key="x"
-    />
-    <BaseEmptyList v-else />
-  </div>
+      <BaseEmptyList v-else />
+    </div>
+  </BaseDialog>
 </template>
 
 <script setup lang="ts">
 import { QInfiniteScroll } from "quasar";
 import { AppAgentClient } from "@holochain/client";
 import { ComputedRef, inject } from "vue";
-import { useRoute, onBeforeRouteLeave } from "vue-router";
+import { onBeforeRouteLeave } from "vue-router";
 import {
   useInfiniteQuery,
   useQuery,
@@ -59,17 +57,20 @@ import {
 import BaseProfileSkeleton from "@/components/BaseProfileSkeleton.vue";
 import BaseEmptyList from "@/components/BaseEmptyList.vue";
 import BaseAgentProfilesList from "@/components/BaseAgentProfilesList.vue";
-import BaseAgentProfileLinkName from "@/components/BaseAgentProfileLinkName.vue";
 import { watch } from "vue";
 import { showError } from "@/utils/toasts";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
-import { decodeHashFromBase64 } from "@holochain/client";
+import { encodeHashToBase64 } from "@holochain/client";
 import { AgentProfile } from "@/types/types";
 import { AgentPubKey } from "@holochain/client";
-import BaseButtonBack from "@/components/BaseButtonBack.vue";
 import IconPaw from "~icons/ion/paw";
 
-const route = useRoute();
+const emit = defineEmits(["update:model-value"]);
+const props = defineProps<{
+  modelValue: boolean;
+  agentPubKey: AgentPubKey;
+}>();
+
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
@@ -81,9 +82,9 @@ const fetchCreators = async (params: any) => {
   const agents: AgentPubKey[] = await await client.callZome({
     role_name: "mewsfeed",
     zome_name: "follows",
-    fn_name: "get_followers_for_creator",
+    fn_name: "get_creators_for_follower",
     payload: {
-      creator: decodeHashFromBase64(route.params.agentPubKey as string),
+      follower: props.agentPubKey,
       page: {
         limit: pageLimit,
         ...params.pageParam,
@@ -108,7 +109,11 @@ const fetchCreators = async (params: any) => {
 
 const { data, error, fetchNextPage, hasNextPage, isLoading } = useInfiniteQuery(
   {
-    queryKey: ["mews", "get_followers_for_creator", route.params.agentPubKey],
+    queryKey: [
+      "mews",
+      "get_creators_for_follower",
+      encodeHashToBase64(props.agentPubKey),
+    ],
     queryFn: fetchCreators,
     getNextPageParam: (lastPage) => {
       if (lastPage.length === 0) return;
@@ -121,9 +126,7 @@ const { data, error, fetchNextPage, hasNextPage, isLoading } = useInfiniteQuery(
 );
 
 const fetchProfile = async () => {
-  const profile = await profilesStore.client.getAgentProfile(
-    decodeHashFromBase64(route.params.agentPubKey as string)
-  );
+  const profile = await profilesStore.client.getAgentProfile(props.agentPubKey);
 
   if (profile) {
     return profile;
@@ -133,7 +136,11 @@ const fetchProfile = async () => {
 };
 
 const { data: profile, error: errorProfile } = useQuery({
-  queryKey: ["profiles", "getAgentProfile", route.params.agentPubKey],
+  queryKey: [
+    "profiles",
+    "getAgentProfile",
+    encodeHashToBase64(props.agentPubKey),
+  ],
   queryFn: fetchProfile,
 });
 
@@ -151,7 +158,11 @@ watch(errorProfile, showError);
 onBeforeRouteLeave(() => {
   if (data.value && data.value.pages.length > 1) {
     queryClient.setQueryData(
-      ["mews", "get_followers_for_creator", route.params.agentPubKey],
+      [
+        "mews",
+        "get_creators_for_follower",
+        encodeHashToBase64(props.agentPubKey),
+      ],
       (d: any) => ({
         pages: [d.pages[0]],
         pageParams: [d.pageParams[0]],
