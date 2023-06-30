@@ -70,7 +70,7 @@
         title="mews"
         :items="authoredMews"
         :is-loading="isLoadingAuthoredMews"
-        enable-more-button
+        :enable-more-button="authoredMews.length >= pageLimit"
         @click-more="
           router.push({
             name: 'authoredMews',
