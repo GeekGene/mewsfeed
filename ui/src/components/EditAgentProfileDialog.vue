@@ -3,9 +3,9 @@
     :model-value="modelValue"
     @update:model-value="(val: boolean) => emit('update:model-value', val)"
   >
-    <div class="w-80 m-4">
+    <div class="w-96">
       <profiles-context :store="profilesStore">
-        <h2 class="text-2xl font-title font-bold tracking-tighter text-left">
+        <h2 class="text-3xl font-title font-bold tracking-tighter mb-8">
           edit profile
         </h2>
         <update-profile
