@@ -141,6 +141,6 @@ provide("myProfile", myProfile);
 
 :root,
 :host
-  --sl-color-primary-600: #{$primary} !important
-  --sl-color-primary-500: #{$primary} !important
+  --sl-color-primary-600: #FF5C00 !important
+  --sl-color-primary-500: #FF5C00 !important
 </style>

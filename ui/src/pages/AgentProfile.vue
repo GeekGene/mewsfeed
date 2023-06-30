@@ -299,9 +299,3 @@ const { data: creators, error: errorCreators } = useQuery({
 });
 watch(errorCreators, showError);
 </script>
-
-<style lang="sass">
-.follow-col
-  position: sticky
-  top: $toolbar-min-height + map-get(map-get($spaces, "xl"), "y") + 10
-</style>

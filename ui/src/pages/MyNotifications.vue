@@ -1,7 +1,12 @@
 <template>
-  <QPage :style-fn="pageHeightCorrection">
-    <BaseButtonBack />
-    <h6 class="q-mt-md q-mb-md">Notifications</h6>
+  <div :style-fn="pageHeightCorrection">
+    <div class="flex justify-start items-center space-x-2 mb-8">
+      <BaseButtonBack />
+
+      <h1 class="text-2xl font-title font-bold tracking-tighter">
+        notifications
+      </h1>
+    </div>
 
     <QInfiniteScroll
       v-if="
@@ -10,11 +15,9 @@
       :offset="250"
       @load="fetchNextPageInfiniteScroll"
     >
-      <QList bordered separator class="q-mb-lg">
-        <template v-for="(page, i) in data?.pages" :key="i">
+      <template v-for="(page, i) in data?.pages" :key="i">
+        <template v-for="(notification, j) of page" :key="j">
           <BaseNotification
-            v-for="(notification, j) of page"
-            :key="j"
             v-observe-visibility="{
               callback: () => markRead(toRaw(notification)),
               once: true,
@@ -42,26 +45,28 @@
             "
           />
         </template>
-      </QList>
-
+      </template>
       <template #loading>
-        <div class="row justify-center q-mt-lg">
-          <QSpinnerDots color="primary" size="40px" />
+        <div class="flex justify-center">
+          <div class="loading loading-dots loading-sm"></div>
         </div>
       </template>
-      <div v-if="!hasNextPage" class="row justify-center q-mt-lg">
-        <QIcon name="svguse:/icons.svg#paw" size="40px" color="grey-4" />
+      <div
+        v-if="!hasNextPage"
+        class="flex justify-center mb-8 text-base-300 text-2xl"
+      >
+        <IconPaw />
       </div>
     </QInfiniteScroll>
     <BaseMewListSkeleton v-else-if="isInitialLoading" />
     <BaseEmptyList v-else />
-  </QPage>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { AppAgentClient } from "@holochain/client";
 import { inject, ComputedRef, watch, toRaw } from "vue";
-import { QPage, QInfiniteScroll, QSpinnerDots, QIcon, QList } from "quasar";
+import { QInfiniteScroll } from "quasar";
 import { onBeforeRouteLeave } from "vue-router";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import BaseNotification from "@/components/BaseNotification.vue";

@@ -46,9 +46,3 @@ defineProps<{
   contentPart: MewContentPart;
 }>();
 </script>
-
-<style lang="sass">
-a
-    color: $secondary
-    font-weight: 600
-</style>

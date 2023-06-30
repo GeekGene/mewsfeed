@@ -46,7 +46,9 @@
         </template>
       </template>
       <template #loading>
-        <div class="loading loading-dots loading-sm"></div>
+        <div class="flex justify-center">
+          <div class="loading loading-dots loading-sm"></div>
+        </div>
       </template>
       <div
         v-if="!hasNextPage"

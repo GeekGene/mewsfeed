@@ -85,9 +85,3 @@ const partsDisplayed = computed(() => {
   return truncate.value ? partsTruncated.value : parts.value;
 });
 </script>
-
-<style lang="sass">
-a
-    color: $secondary
-    font-weight: 600
-</style>
