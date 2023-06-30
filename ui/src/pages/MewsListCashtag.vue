@@ -1,9 +1,15 @@
 <template>
-  <QPage :style-fn="pageHeightCorrection">
-    <BaseButtonBack />
-    <h6 class="q-mt-md q-mb-md">
-      Mews with {{ route.meta.tag }}{{ route.params.tag }}
-    </h6>
+  <div>
+    <div class="flex justify-start items-center space-x-2 mb-8">
+      <BaseButtonBack />
+
+      <h1 class="text-2xl font-title font-bold tracking-tighter">
+        mews with
+        <span class="text-primary"
+          >{{ route.meta.tag }}{{ route.params.tag }}</span
+        >
+      </h1>
+    </div>
 
     <QInfiniteScroll
       v-if="
@@ -12,11 +18,9 @@
       :offset="250"
       @load="fetchNextPageInfiniteScroll"
     >
-      <QList bordered separator>
-        <template v-for="(page, i) in data.pages" :key="i">
+      <template v-for="(page, i) in data.pages" :key="i">
+        <template v-for="(mew, j) of page" :key="j">
           <BaseMewListItem
-            v-for="(mew, j) of page"
-            :key="j"
             :feed-mew="mew"
             @mew-deleted="
               refetch({ refetchPage: (page, index) => index === i })
@@ -40,25 +44,22 @@
             "
           />
         </template>
-      </QList>
+      </template>
 
       <template #loading>
-        <div class="row justify-center q-mt-lg">
-          <QSpinnerDots color="primary" size="40px" />
-        </div>
+        <div class="loading loading-dots loading-sm"></div>
       </template>
-      <div v-if="!hasNextPage" class="row justify-center q-mt-lg">
-        <QIcon name="svguse:/icons.svg#paw" size="40px" color="grey-4" />
+      <div v-if="!hasNextPage" class="flex justify-center mt-8 text-base-300">
+        <IconPaw />
       </div>
     </QInfiniteScroll>
     <BaseMewListSkeleton v-else-if="isLoading" />
     <BaseEmptyList v-else />
-  </QPage>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { QPage, QList, QIcon, QSpinnerDots, QInfiniteScroll } from "quasar";
-import { pageHeightCorrection } from "@/utils/page-layout";
+import { QInfiniteScroll } from "quasar";
 import { AppAgentClient } from "@holochain/client";
 import { ComputedRef, inject } from "vue";
 import { useRoute, onBeforeRouteLeave } from "vue-router";

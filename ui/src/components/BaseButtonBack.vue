@@ -1,7 +1,6 @@
 <template>
-  <button class="btn btn-ghost btn-xs flex items-center" @click="router.back()">
-    <IconArrowBack />
-    <div>Back</div>
+  <button class="btn btn-ghost btn-md flex items-center" @click="router.back()">
+    <IconArrowBack class="text-xl font-title" />
   </button>
 </template>
 

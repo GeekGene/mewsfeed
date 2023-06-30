@@ -1,15 +1,15 @@
 <template>
-  <QPage :style-fn="pageHeightCorrection">
-    <BaseButtonBack />
-    <h6 class="q-mt-md q-mb-md row items-center">
-      Mews authored by
-      <BaseAgentProfileLinkName
-        class="q-ml-md"
-        :agentPubKey="decodeHashFromBase64(route.params.agentPubKey as string)"
-        :profile="profile"
-        :avatar-size="30"
-      />
-    </h6>
+  <div class="w-full">
+    <div class="flex justify-start items-center space-x-2 mb-8">
+      <BaseButtonBack />
+
+      <h1 class="text-2xl font-title font-bold tracking-tighter">
+        mews with
+        <span class="text-primary"
+          >{{ route.meta.tag }}{{ route.params.tag }}</span
+        >
+      </h1>
+    </div>
 
     <QInfiniteScroll
       v-if="
@@ -18,11 +18,9 @@
       :offset="250"
       @load="fetchNextPageInfiniteScroll"
     >
-      <QList bordered separator class="q-mb-lg">
-        <template v-for="(page, i) in data.pages" :key="i">
+      <template v-for="(page, i) in data.pages" :key="i">
+        <template v-for="(mew, j) of page" :key="j">
           <BaseMewListItem
-            v-for="(mew, j) of page"
-            :key="j"
             :feed-mew="mew"
             @mew-deleted="
               refetch({ refetchPage: (page, index) => index === i })
@@ -46,58 +44,46 @@
             "
           />
         </template>
-      </QList>
+      </template>
 
       <template #loading>
-        <div class="row justify-center q-mt-lg">
-          <QSpinnerDots color="primary" size="40px" />
-        </div>
+        <div class="loading loading-dots loading-sm"></div>
       </template>
-      <div v-if="!hasNextPage" class="row justify-center q-mt-lg">
-        <QIcon name="svguse:/icons.svg#paw" size="40px" color="grey-4" />
+      <div v-if="!hasNextPage" class="flex justify-center mt-8 text-base-300">
+        <IconPaw />
       </div>
     </QInfiniteScroll>
     <BaseMewListSkeleton v-else-if="isLoading" />
     <BaseEmptyList v-else />
-  </QPage>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { QPage, QList, QIcon, QSpinnerDots, QInfiniteScroll } from "quasar";
-import { pageHeightCorrection } from "@/utils/page-layout";
-import { AppAgentClient } from "@holochain/client";
+import { QInfiniteScroll } from "quasar";
+import { AppAgentClient, decodeHashFromBase64 } from "@holochain/client";
 import { ComputedRef, inject } from "vue";
 import { useRoute, onBeforeRouteLeave } from "vue-router";
-import {
-  useInfiniteQuery,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/vue-query";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
 import BaseMewListSkeleton from "@/components/BaseMewListSkeleton.vue";
 import BaseEmptyList from "@/components/BaseEmptyList.vue";
 import BaseMewListItem from "@/components/BaseMewListItem.vue";
-import BaseAgentProfileLinkName from "@/components/BaseAgentProfileLinkName.vue";
 import { watch } from "vue";
 import { showError } from "@/utils/toasts";
-import { ProfilesStore } from "@holochain-open-dev/profiles";
-import { decodeHashFromBase64 } from "@holochain/client";
 import BaseButtonBack from "@/components/BaseButtonBack.vue";
 
 const route = useRoute();
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
-const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
-  .value;
 const queryClient = useQueryClient();
 
 const pageLimit = 10;
 
-const fetchAuthoredMews = async (params: any) => {
+const fetchMentionMews = async (params: any) => {
   const res = await client.callZome({
     role_name: "mewsfeed",
     zome_name: "mews",
-    fn_name: "get_agent_mews_with_context",
+    fn_name: "get_mews_for_mention_with_context",
     payload: {
-      agent: decodeHashFromBase64(route.params.agentPubKey as string),
+      mention: decodeHashFromBase64(route.params.agentPubKey as string),
       page: {
         limit: pageLimit,
         ...params.pageParam,
@@ -109,8 +95,12 @@ const fetchAuthoredMews = async (params: any) => {
 
 const { data, error, fetchNextPage, hasNextPage, isLoading, refetch } =
   useInfiniteQuery({
-    queryKey: ["mews", "get_agent_mews_with_context", route.params.agentPubKey],
-    queryFn: fetchAuthoredMews,
+    queryKey: [
+      "mews",
+      "get_mews_for_mention_with_context",
+      `${route.meta.tag}${route.params.tag}`,
+    ],
+    queryFn: fetchMentionMews,
     getNextPageParam: (lastPage) => {
       if (lastPage.length === 0) return;
       if (lastPage.length < pageLimit) return;
@@ -119,23 +109,7 @@ const { data, error, fetchNextPage, hasNextPage, isLoading, refetch } =
     },
     refetchInterval: 1000 * 60 * 2, // 2 minutes
   });
-
-const fetchProfile = async () => {
-  const profile = await profilesStore.client.getAgentProfile(
-    decodeHashFromBase64(route.params.agentPubKey as string)
-  );
-
-  if (profile) {
-    return profile;
-  } else {
-    throw new Error("No profile found");
-  }
-};
-
-const { data: profile, error: errorProfile } = useQuery({
-  queryKey: ["profiles", "getAgentProfile", route.params.agentPubKey],
-  queryFn: fetchProfile,
-});
+watch(error, showError);
 
 const fetchNextPageInfiniteScroll = async (
   index: number,
@@ -145,13 +119,14 @@ const fetchNextPageInfiniteScroll = async (
   done(!hasNextPage?.value);
 };
 
-watch(error, showError);
-watch(errorProfile, showError);
-
 onBeforeRouteLeave(() => {
   if (data.value && data.value.pages.length > 1) {
     queryClient.setQueryData(
-      ["mews", "get_agent_mews_with_context", route.params.agentPubKey],
+      [
+        "mews",
+        "get_mews_for_mention_with_context",
+        `${route.meta.tag}${route.params.tag}`,
+      ],
       (d: any) => ({
         pages: [d.pages[0]],
         pageParams: [d.pageParams[0]],

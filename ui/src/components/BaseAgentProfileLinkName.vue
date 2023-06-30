@@ -1,5 +1,5 @@
 <template>
-  <BaseLinkProfilePopup :agent-pub-key="agentPubKey">
+  <BaseLinkProfilePopup :agent-pub-key="agentPubKey" :enabled="enablePopup">
     <div class="flex justify-end items-center space-x-2">
       <agent-avatar
         v-if="profile"
@@ -24,10 +24,12 @@ withDefaults(
     agentPubKey: AgentPubKey;
     profile?: Profile | null;
     avatarSize?: number;
+    enablePopup?: boolean;
   }>(),
   {
     avatarSize: 20,
     profile: null,
+    enablePopup: true,
   }
 );
 </script>

@@ -1,9 +1,15 @@
 <template>
-  <QPage :style-fn="pageHeightCorrection">
-    <BaseButtonBack />
-    <h6 class="q-mt-md q-mb-md">
-      Mews with {{ route.meta.tag }}{{ route.params.tag }}
-    </h6>
+  <div class="w-full">
+    <div class="flex justify-start items-center space-x-2 mb-8">
+      <BaseButtonBack />
+
+      <h1 class="text-2xl font-title font-bold tracking-tighter">
+        mews with
+        <span class="text-primary"
+          >{{ route.meta.tag }}{{ route.params.tag }}</span
+        >
+      </h1>
+    </div>
 
     <QInfiniteScroll
       v-if="
@@ -12,11 +18,9 @@
       :offset="250"
       @load="fetchNextPageInfiniteScroll"
     >
-      <QList bordered separator class="q-mb-lg">
-        <template v-for="(page, i) in data.pages" :key="i">
+      <template v-for="(page, i) in data.pages" :key="i">
+        <template v-for="(mew, j) of page" :key="j">
           <BaseMewListItem
-            v-for="(mew, j) of page"
-            :key="j"
             :feed-mew="mew"
             @mew-deleted="
               refetch({ refetchPage: (page, index) => index === i })
@@ -40,26 +44,22 @@
             "
           />
         </template>
-      </QList>
-
-      <template #loading>
-        <div class="row justify-center q-mt-lg">
-          <QSpinnerDots color="primary" size="40px" />
-        </div>
       </template>
-      <div v-if="!hasNextPage" class="row justify-center q-mt-lg">
-        <QIcon name="svguse:/icons.svg#paw" size="40px" color="grey-4" />
+      <template #loading>
+        <div class="loading loading-dots loading-sm"></div>
+      </template>
+      <div v-if="!hasNextPage" class="flex justify-center mt-8 text-base-300">
+        <IconPaw />
       </div>
     </QInfiniteScroll>
     <BaseMewListSkeleton v-else-if="isLoading" />
     <BaseEmptyList v-else />
-  </QPage>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { QPage, QList, QIcon, QSpinnerDots, QInfiniteScroll } from "quasar";
-import { pageHeightCorrection } from "@/utils/page-layout";
-import { AppAgentClient, decodeHashFromBase64 } from "@holochain/client";
+import { QInfiniteScroll } from "quasar";
+import { AppAgentClient } from "@holochain/client";
 import { ComputedRef, inject } from "vue";
 import { useRoute, onBeforeRouteLeave } from "vue-router";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
@@ -69,6 +69,7 @@ import BaseMewListItem from "@/components/BaseMewListItem.vue";
 import { watch } from "vue";
 import { showError } from "@/utils/toasts";
 import BaseButtonBack from "@/components/BaseButtonBack.vue";
+import IconPaw from "~icons/ion/paw";
 
 const route = useRoute();
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
@@ -76,13 +77,13 @@ const queryClient = useQueryClient();
 
 const pageLimit = 10;
 
-const fetchMentionMews = async (params: any) => {
+const fetchHashtagMews = async (params: any) => {
   const res = await client.callZome({
     role_name: "mewsfeed",
     zome_name: "mews",
-    fn_name: "get_mews_for_mention_with_context",
+    fn_name: "get_mews_for_hashtag_with_context",
     payload: {
-      mention: decodeHashFromBase64(route.params.agentPubKey as string),
+      hashtag: `${route.meta.tag}${route.params.tag}`,
       page: {
         limit: pageLimit,
         ...params.pageParam,
@@ -96,10 +97,10 @@ const { data, error, fetchNextPage, hasNextPage, isLoading, refetch } =
   useInfiniteQuery({
     queryKey: [
       "mews",
-      "get_mews_for_mention_with_context",
+      "get_mews_for_hashtag_with_context",
       `${route.meta.tag}${route.params.tag}`,
     ],
-    queryFn: fetchMentionMews,
+    queryFn: fetchHashtagMews,
     getNextPageParam: (lastPage) => {
       if (lastPage.length === 0) return;
       if (lastPage.length < pageLimit) return;
@@ -123,7 +124,7 @@ onBeforeRouteLeave(() => {
     queryClient.setQueryData(
       [
         "mews",
-        "get_mews_for_mention_with_context",
+        "get_mews_for_hashtag_with_context",
         `${route.meta.tag}${route.params.tag}`,
       ],
       (d: any) => ({
