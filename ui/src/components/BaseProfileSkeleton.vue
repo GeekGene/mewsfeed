@@ -1,5 +1,5 @@
 <template>
-  <QItem>
+  <div>
     <QItemSection avatar>
       <QSkeleton type="QAvatar" />
     </QItemSection>
@@ -12,8 +12,8 @@
         <QSkeleton type="text" width="80%" />
       </QItemLabel>
     </QItemSection>
-  </QItem>
+  </div>
 </template>
 <script setup lang="ts">
-import { QItem, QItemSection, QSkeleton, QItemLabel } from "quasar";
+import { QItemSection, QSkeleton, QItemLabel } from "quasar";
 </script>

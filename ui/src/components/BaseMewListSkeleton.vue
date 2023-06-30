@@ -1,5 +1,5 @@
 <template>
-  <QList v-for="i of [0, 1, 2]" :key="i">
+  <div v-for="i of [0, 1, 2]" :key="i">
     <BaseProfileSkeleton />
 
     <QItem>
@@ -37,7 +37,7 @@
         </div>
       </QItemSection>
     </QItem>
-  </QList>
+  </div>
 </template>
 
 <script setup lang="ts">

@@ -11,23 +11,27 @@
   />
 
   <template v-else>
-    <QList v-bind="$attrs">
+    <BaseList
+      v-slot="{ item }"
+      v-bind="$attrs"
+      class="my-8"
+      :items="agentProfiles"
+      :is-loading="loading"
+    >
       <BaseAgentProfilesListItem
-        v-for="(agentProfile, index) of agentProfiles"
-        :key="index"
-        :agent-profile="agentProfile"
+        :agent-profile="item"
         :enable-popup="enablePopups"
       />
-    </QList>
+    </BaseList>
   </template>
 </template>
 
 <script setup lang="ts">
-import { QList } from "quasar";
 import { AgentProfile } from "@/types/types";
 import BaseAgentProfilesListItem from "@/components/BaseAgentProfilesListItem.vue";
-import BaseEmptyList from "./BaseEmptyList.vue";
-import BaseProfileSkeleton from "./BaseProfileSkeleton.vue";
+import BaseEmptyList from "@/components/BaseEmptyList.vue";
+import BaseProfileSkeleton from "@/components/BaseProfileSkeleton.vue";
+import BaseList from "@/components/BaseList.vue";
 
 withDefaults(
   defineProps<{

@@ -4,7 +4,6 @@ import {
   Create,
   SigningCredentials,
 } from "@holochain/client";
-import { QSelectOption } from "quasar";
 import { RouteLocationNamedRaw, RouteLocationRaw } from "vue-router";
 import { Profile } from "@holochain-open-dev/profiles";
 
@@ -144,7 +143,9 @@ export interface MewsfeedDnaProperties {
   mew_characters_max: number | null;
 }
 
-export type SearchResultOption = QSelectOption<RouteLocationRaw> & {
+export type SearchResultOption = {
+  value: RouteLocationRaw;
+  label: string;
   agentPubKey?: AgentPubKey;
   resultType: SearchResult;
 };

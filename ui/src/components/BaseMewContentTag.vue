@@ -7,15 +7,15 @@
   >
     {{ contentPart.text }}
   </a>
-  <a
+  <div
     v-else-if="contentPart.href && contentPart.tagType === MewTagType.Link"
-    :href="contentPart.href"
-    target="_blank"
-    @click.stop
+    class="tooltip tooltip-bottom"
+    :data-tip="contentPart.href"
   >
-    {{ contentPart.text }}
-    <QTooltip>{{ contentPart.href }}</QTooltip>
-  </a>
+    <a :href="contentPart.href" target="_blank" @click.stop>
+      {{ contentPart.text }}
+    </a>
+  </div>
   <BaseLinkProfilePopup
     v-else-if="contentPart.route && contentPart.tagType === MewTagType.Mention"
     :agentPubKey="decodeHashFromBase64((contentPart.route as RouteLocationNamedRaw).params?.agentPubKey as LocationQueryValueRaw as string)"
@@ -37,7 +37,6 @@
   </RouterLink>
 </template>
 <script setup lang="ts">
-import { QTooltip } from "quasar";
 import { MewContentPart, MewTagType } from "@/types/types";
 import { decodeHashFromBase64 } from "@holochain/client";
 import { LocationQueryValueRaw, RouteLocationNamedRaw } from "vue-router";
