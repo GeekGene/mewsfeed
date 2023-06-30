@@ -9,6 +9,15 @@
         <slot :item="item" :index="i"></slot>
         <hr v-if="i !== items.length - 1" />
       </template>
+      <div class="flex justify-center">
+        <button
+          v-if="enableMoreButton"
+          class="btn btn-xs btn-ghost"
+          @click="emit('click-more')"
+        >
+          View More
+        </button>
+      </div>
     </div>
     <div v-else-if="isLoading" class="loading loading-dots loading-sm"></div>
     <BaseEmptyList v-else />
@@ -23,10 +32,13 @@ withDefaults(
     items?: any[];
     isLoading: boolean;
     title?: string;
+    enableMoreButton?: boolean;
   }>(),
   {
     items: undefined,
     title: undefined,
+    enableMoreButton: false,
   }
 );
+const emit = defineEmits(["click-more"]);
 </script>

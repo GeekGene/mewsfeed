@@ -70,6 +70,15 @@
         title="mews"
         :items="authoredMews"
         :is-loading="isLoadingAuthoredMews"
+        enable-more-button
+        @click-more="
+          router.push({
+            name: 'authoredMews',
+            params: {
+              agentPubKey: route.params.agentPubKey,
+            },
+          })
+        "
       >
         <BaseMewListItem
           :feed-mew="item"
@@ -92,19 +101,6 @@
           @quote-created="refetchAuthoredMews"
         />
       </BaseList>
-
-      <RouterLink
-        v-if="authoredMews && authoredMews.length === pageLimit"
-        class="btn btn-md btn-ghost"
-        :to="{
-          name: 'authoredMews',
-          params: {
-            agentPubKey: route.params.agentPubKey,
-          },
-        }"
-      >
-        View All
-      </RouterLink>
     </div>
   </div>
   <FollowersListDialog
@@ -127,7 +123,7 @@ import {
 } from "@holochain/client";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { ComputedRef, computed, inject, ref, watch } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import BaseList from "@/components/BaseList.vue";
 import { AppAgentClient } from "@holochain/client";
 import { useQuery, useQueryClient } from "@tanstack/vue-query";
@@ -140,6 +136,7 @@ const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const route = useRoute();
+const router = useRouter();
 const queryClient = useQueryClient();
 const agentPubKey = computed(() =>
   decodeHashFromBase64(route.params.agentPubKey as string)
