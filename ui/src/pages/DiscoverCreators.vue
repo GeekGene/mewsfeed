@@ -161,14 +161,8 @@ const {
 } = useQuery({
   queryKey: ["mews", "get_random_mew_hashes", "get_batch_mews_with_context"],
   enabled: hasRandomMewHashes,
-  queryFn: async () => {
-    if (
-      randomMewHashes.value === undefined ||
-      randomMewHashes.value.length === 0
-    )
-      return [];
-    return fetchMewsWithContext(toRaw(randomMewHashes.value));
-  },
+  queryFn: () =>
+    fetchMewsWithContext(toRaw(randomMewHashes.value as ActionHash[])),
   refetchOnWindowFocus: false,
   refetchOnMount: false,
   refetchOnReconnect: false,
@@ -243,16 +237,18 @@ const {
 } = useQuery({
   queryKey: ["mews", "get_random_mew_hashes_for_tag", randomTags.value[0]],
   enabled: tag1Enabled,
-  queryFn: async () => {
-    if (randomTags.value === undefined || randomTags.value.length === 0)
-      return [];
-    return fetchRandomMewHashesWithTag(randomTags.value[0]);
-  },
+  queryFn: () => fetchRandomMewHashesWithTag(randomTags.value[0]),
   refetchOnWindowFocus: false,
   refetchOnMount: false,
   refetchOnReconnect: false,
 });
 watch(errorRandomMewHashesWithTag1, showError);
+const hasRandomMewHashesWithTag1 = computed(
+  () =>
+    tag1Enabled.value &&
+    randomMewHashesWithTag1.value &&
+    randomMewHashesWithTag1.value.length > 0
+);
 
 const {
   data: randomMewsWithTag1,
@@ -267,15 +263,9 @@ const {
     "get_batch_mews_with_context",
   ],
 
-  queryFn: async () => {
-    if (
-      randomMewHashesWithTag1.value === undefined ||
-      randomMewHashesWithTag1.value.length === 0
-    )
-      return [];
-    return fetchMewsWithContext(toRaw(randomMewHashesWithTag1.value));
-  },
-  enabled: tag1Enabled,
+  queryFn: () =>
+    fetchMewsWithContext(toRaw(randomMewHashesWithTag1.value as ActionHash[])),
+  enabled: hasRandomMewHashesWithTag1,
   refetchOnWindowFocus: false,
   refetchOnMount: false,
   refetchOnReconnect: false,
@@ -291,17 +281,19 @@ const {
   refetch: refetchRandomMewHashesWithTag2,
 } = useQuery({
   queryKey: ["mews", "get_random_mew_hashes_for_tag", randomTags.value[1]],
-  enabled: tag1Enabled,
-  queryFn: async () => {
-    if (randomTags.value === undefined || randomTags.value.length <= 1)
-      return [];
-    return fetchRandomMewHashesWithTag(randomTags.value[1]);
-  },
+  enabled: tag2Enabled,
+  queryFn: () => fetchRandomMewHashesWithTag(randomTags.value[1]),
   refetchOnWindowFocus: false,
   refetchOnMount: false,
   refetchOnReconnect: false,
 });
 watch(errorRandomMewHashesWithTag2, showError);
+const hasRandomMewHashesWithTag2 = computed(
+  () =>
+    tag2Enabled.value &&
+    randomMewHashesWithTag2.value &&
+    randomMewHashesWithTag2.value.length > 0
+);
 
 const {
   data: randomMewsWithTag2,
@@ -316,15 +308,9 @@ const {
     "get_batch_mews_with_context",
   ],
 
-  queryFn: async () => {
-    if (
-      randomMewHashesWithTag2.value === undefined ||
-      randomMewHashesWithTag2.value.length === 0
-    )
-      return [];
-    return fetchMewsWithContext(toRaw(randomMewHashesWithTag2.value));
-  },
-  enabled: tag2Enabled,
+  queryFn: () =>
+    fetchMewsWithContext(toRaw(randomMewHashesWithTag2.value as ActionHash[])),
+  enabled: hasRandomMewHashesWithTag2,
   refetchOnWindowFocus: false,
   refetchOnMount: false,
   refetchOnReconnect: false,
@@ -341,16 +327,18 @@ const {
 } = useQuery({
   queryKey: ["mews", "get_random_mew_hashes_for_tag", randomTags.value[2]],
   enabled: tag1Enabled,
-  queryFn: async () => {
-    if (randomTags.value === undefined || randomTags.value.length <= 2)
-      return [];
-    return fetchRandomMewHashesWithTag(randomTags.value[2]);
-  },
+  queryFn: () => fetchRandomMewHashesWithTag(randomTags.value[2]),
   refetchOnWindowFocus: false,
   refetchOnMount: false,
   refetchOnReconnect: false,
 });
 watch(errorRandomMewHashesWithTag3, showError);
+const hasRandomMewHashesWithTag3 = computed(
+  () =>
+    tag3Enabled.value &&
+    randomMewHashesWithTag3.value &&
+    randomMewHashesWithTag3.value.length > 0
+);
 
 const {
   data: randomMewsWithTag3,
@@ -365,15 +353,9 @@ const {
     "get_batch_mews_with_context",
   ],
 
-  queryFn: async () => {
-    if (
-      randomMewHashesWithTag3.value === undefined ||
-      randomMewHashesWithTag3.value.length === 0
-    )
-      return [];
-    return fetchMewsWithContext(toRaw(randomMewHashesWithTag3.value));
-  },
-  enabled: tag3Enabled,
+  queryFn: () =>
+    fetchMewsWithContext(toRaw(randomMewHashesWithTag3.value as ActionHash[])),
+  enabled: hasRandomMewHashesWithTag3,
   refetchOnWindowFocus: false,
   refetchOnMount: false,
   refetchOnReconnect: false,
