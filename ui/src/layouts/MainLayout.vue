@@ -7,7 +7,7 @@
         class="sticky mt-16 top-8 left-0 hidden sm:block w-14 flex flex-col justify-start items-start space-y-4"
         @click-search="showSearchDialog = true"
       />
-      <div class="flex-1 w-full h-full" style="width: inherit">
+      <div class="flex-1 w-full h-full pb-16" style="width: inherit">
         <RouterView :key="`${route.fullPath}-${forceReloadRouterViewKey}`" />
       </div>
     </div>

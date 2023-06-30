@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full mb-20">
+  <div class="w-full">
     <h1 class="mb-8 flex justify-between items-end">
       <div class="text-2xl font-title font-bold tracking-tighter">explore</div>
       <button
