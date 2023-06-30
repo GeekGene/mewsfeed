@@ -19,7 +19,9 @@
         </button>
       </div>
     </div>
-    <div v-else-if="isLoading" class="loading loading-dots loading-sm"></div>
+    <div v-else-if="isLoading" class="flex justify-center">
+      <div class="loading loading-dots loading-sm"></div>
+    </div>
     <BaseEmptyList v-else />
   </div>
 </template>
