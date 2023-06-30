@@ -5,7 +5,9 @@
   >
     <div class="w-96">
       <profiles-context :store="profilesStore">
-        <h2 class="text-3xl font-title font-bold tracking-tighter mb-8">
+        <h2
+          class="text-3xl text-left font-title font-bold tracking-tighter mb-4"
+        >
           edit profile
         </h2>
         <update-profile
