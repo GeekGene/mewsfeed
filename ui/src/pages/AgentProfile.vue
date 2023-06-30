@@ -24,7 +24,6 @@
         v-model="showEditProfileDialog"
         :profile="profile"
         @profile-updated="(e: any) => {
-          console.log('profile-updated', e.detail.profile);
           refetchProfile();
           queryClient.setQueryData([
               'profiles',
@@ -40,7 +39,7 @@
         v-slot="{ item }"
         class="my-8"
         title="pinned"
-        :feed-mews="pinnedMews"
+        :items="pinnedMews"
         :is-loading="isLoadingPinnedMews"
       >
         <BaseMewListItem
@@ -69,7 +68,7 @@
         v-slot="{ item }"
         class="my-8"
         title="mews"
-        :feed-mews="authoredMews"
+        :items="authoredMews"
         :is-loading="isLoadingAuthoredMews"
       >
         <BaseMewListItem

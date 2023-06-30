@@ -1,5 +1,5 @@
 <template>
-  <div class="tooltip tooltip-left lg:tooltip-bottom" :data-tip="timestamp">
+  <div class="tooltip tooltip-left xl:tooltip-bottom" :data-tip="timestamp">
     <div>{{ formattedTimestamp }}</div>
   </div>
 </template>
