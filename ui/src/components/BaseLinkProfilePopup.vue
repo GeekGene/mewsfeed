@@ -50,14 +50,23 @@ import { RouteLocationRaw, RouterLink } from "vue-router";
 import AgentProfileDetail from "@/components/AgentProfileDetail.vue";
 import { debounce } from "lodash";
 
-defineProps<{
-  to?: RouteLocationRaw;
-  agentPubKey: Uint8Array;
-}>();
+const props = withDefaults(
+  defineProps<{
+    to?: RouteLocationRaw;
+    agentPubKey: Uint8Array;
+    enabled?: boolean;
+  }>(),
+  {
+    to: undefined,
+    enabled: true,
+  }
+);
 
 const isPopupVisible = ref<boolean>(false);
 
 const setPopupVisible = debounce((val: boolean) => {
-  isPopupVisible.value = val;
+  if (props.enabled) {
+    isPopupVisible.value = val;
+  }
 }, 10);
 </script>

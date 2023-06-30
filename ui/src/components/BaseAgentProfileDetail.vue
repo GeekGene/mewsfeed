@@ -65,6 +65,7 @@
             <button
               v-if="creatorsCount !== undefined"
               class="btn btn-ghost btn-sm"
+              :class="{ 'btn-disabled': creatorsCount === 0 }"
               @click="emit('click-creators')"
             >
               <span class="font-bold">{{ creatorsCount }}</span>
@@ -73,6 +74,7 @@
             <button
               v-if="followersCount !== undefined"
               class="btn btn-ghost btn-sm"
+              :class="{ 'btn-disabled': followersCount === 0 }"
               @click="emit('click-followers')"
             >
               <span class="font-bold">

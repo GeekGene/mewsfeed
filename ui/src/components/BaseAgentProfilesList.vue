@@ -16,6 +16,7 @@
         v-for="(agentProfile, index) of agentProfiles"
         :key="index"
         :agent-profile="agentProfile"
+        :enable-popup="enablePopups"
       />
     </QList>
   </template>
@@ -28,9 +29,17 @@ import BaseAgentProfilesListItem from "@/components/BaseAgentProfilesListItem.vu
 import BaseEmptyList from "./BaseEmptyList.vue";
 import BaseProfileSkeleton from "./BaseProfileSkeleton.vue";
 
-defineProps<{
-  agentProfiles?: AgentProfile[];
-  loading: boolean;
-  emptyText?: string;
-}>();
+withDefaults(
+  defineProps<{
+    agentProfiles?: AgentProfile[];
+    loading: boolean;
+    emptyText?: string;
+    enablePopups?: boolean;
+  }>(),
+  {
+    agentProfiles: undefined,
+    emptyText: undefined,
+    enablePopups: true,
+  }
+);
 </script>

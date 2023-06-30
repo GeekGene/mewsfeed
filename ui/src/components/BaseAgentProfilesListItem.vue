@@ -1,9 +1,9 @@
 <template>
-  <div class="row justify-start items-center q-px-none">
+  <div class="flex justify-start items-center space-x-4">
     <BaseAgentProfileLinkAvatar
       :agentPubKey="agentProfile.agentPubKey"
-      class="q-mr-md"
       :size="30"
+      :enable-popup="enablePopup"
     />
     <BaseAgentProfileName
       :profile="agentProfile.profile"
@@ -17,7 +17,13 @@ import { AgentProfile } from "@/types/types";
 import BaseAgentProfileLinkAvatar from "@/components/BaseAgentProfileLinkAvatar.vue";
 import BaseAgentProfileName from "@/components/BaseAgentProfileName.vue";
 
-defineProps<{
-  agentProfile: AgentProfile;
-}>();
+withDefaults(
+  defineProps<{
+    agentProfile: AgentProfile;
+    enablePopup?: boolean;
+  }>(),
+  {
+    enablePopup: true,
+  }
+);
 </script>
