@@ -30,7 +30,7 @@ pub fn get_trusted_mews_with_context(input: RecommendedInput) -> ExternResult<Ve
     let oldest_mew_seconds = input.oldest_mew_seconds.unwrap_or(60 * 60 * 24 * 7 * 2);
 
     // get all TrustAtoms -- topic/author combos "rated" by this agent
-    let topics_by_author: Vec<TrustAtom> = call_local_zome(
+    let trust_atoms: Vec<TrustAtom> = call_local_zome(
         "trust_atom",
         "query_mine",
         QueryMineInput {
@@ -41,6 +41,16 @@ pub fn get_trusted_mews_with_context(input: RecommendedInput) -> ExternResult<Ve
             value_starts_with: None,
         },
     )?;
+
+    let topics_by_author: Vec<TrustAtom> = trust_atoms
+        .into_iter()
+        .filter(|atom| match atom.content.clone() {
+            Some(content) => content != FOLLOW_TOPIC,
+            None => true,
+        })
+        .collect();
+
+    // debug!("topics_by_author: {:#?}", topics_by_author);
 
     // filter for those TrustAtoms above a weight threshold (>= 0)
     let recomended_topics_by_author =

@@ -38,7 +38,7 @@ pub fn add_hashtag_by_author_for_mew(input: AddHashtagForMewInput) -> ExternResu
     let path_text = format!("{}.{}", tag_text, me);
     debug!("path_text on create --- {}", path_text);
 
-    let path = prefix_index.add_result_with_label(path_text, input.base_hashtag.clone())?; // TODO what should full_text be?
+    let path = prefix_index.add_result(path_text)?;
 
     // Link from hashtag to mew_hash
     create_link(
@@ -118,7 +118,7 @@ pub fn get_mews_for_hashtag_by_author_with_context(
     let path_text = format!("{}.{}", tag, agent);
     debug!("path_text --- {}", path_text);
 
-    let result_path: Path = prefix_index.make_result_path(path_text, Some(hashtag))?;
+    let result_path: Path = prefix_index.make_result_path(path_text, None)?;
 
     let links = get_links(
         result_path.path_entry_hash()?,

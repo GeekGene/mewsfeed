@@ -173,8 +173,7 @@ test("Weighted followed creators mews should be ordered by topic weights descend
         links: [],
       });
 
-      // TODO something like this -- maybe in common.ts?
-      // await awaitDhtIntegration([ann, bob], alice.cells[0].cell_id[0]);
+      await pause(2_000);
 
       let trustFeed = await ann.trustFeed({
         now: Date.now(),
