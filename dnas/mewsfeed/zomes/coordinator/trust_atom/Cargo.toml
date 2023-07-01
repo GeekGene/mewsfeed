@@ -8,8 +8,8 @@ crate-type = ["cdylib", "rlib"]
 name = "trust_atom_zome"
 
 [dependencies]
-# trust_atom = {git = "https://github.com/trustgraph/trustgraph-holochain.git", package = "trust_atom"}
-trust_atom = { path= "/Users/knight/code/trustgraph/trustgraph-holochain/zomes/trust_atom"}
+trust_atom = {git = "https://github.com/trustgraph/trustgraph-holochain.git", package = "trust_atom"}
+# trust_atom = { path= "/Users/knight/code/trustgraph/trustgraph-holochain/zomes/trust_atom"}
 
 hdk = { workspace = true }
 serde = { workspace = true }

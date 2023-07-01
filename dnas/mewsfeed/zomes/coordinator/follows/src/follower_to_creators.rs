@@ -1,7 +1,5 @@
-use follows_integrity::*;
 use follows_types::*;
 use hc_call_utils::call_local_zome;
-use hc_link_pagination::paginate_by_agentpubkey;
 use hdk::prelude::*;
 use mews_types::FOLLOW_TOPIC;
 use trust_atom_types::{QueryInput, TrustAtom, TrustAtomInput};

@@ -1,6 +1,6 @@
+use crate::mew_with_context::get_mew_with_context;
 use crate::tag_to_mews::*;
 use hc_link_pagination::HashPagination;
-use crate::{mew_with_context::get_mew_with_context, tag_to_mews::*};
 use hdk::prelude::*;
 use mews_integrity::*;
 
@@ -24,7 +24,7 @@ pub fn add_hashtag_for_mew(input: AddHashtagForMewInput) -> ExternResult<()> {
         LinkTypes::HashtagToMews,
         LinkTag(input.base_hashtag.as_bytes().to_vec()),
     )?;
-\
+
     add_hashtag_by_author_for_mew(input)?;
 
     Ok(())
@@ -88,9 +88,9 @@ pub fn get_mews_for_hashtag_with_context(
     // OLD: get_mews_for_tag_with_context(input.hashtag, LinkTypes::HashtagToMews, input.page)
 
     // Get links from hashtag to mew
-    let tag = make_hashtag_text(hashtag.clone());
+    let tag = make_hashtag_text(input.hashtag.clone());
     let prefix_index = make_tag_prefix_index()?;
-    let result_path: Path = prefix_index.make_result_path(tag, Some(hashtag))?;
+    let result_path: Path = prefix_index.make_result_path(tag, Some(input.hashtag))?;
 
     let links = get_links(
         result_path.path_entry_hash()?,

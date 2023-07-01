@@ -1,10 +1,8 @@
 use crate::hashtag_to_mews::*;
-use hc_call_utils::call_local_zome;
-// use crate::mew::get_mew_with_context;
 use crate::mew_with_context::get_batch_mews_with_context;
+use hc_call_utils::call_local_zome;
 use hdk::prelude::*;
 use mews_integrity::*;
-use mews_types::FOLLOW_TOPIC;
 use trust_atom_types::{QueryMineInput, TrustAtom};
 
 #[hdk_extern]
@@ -39,7 +37,7 @@ pub fn get_trusted_mews_with_context(input: RecommendedInput) -> ExternResult<Ve
             target: None,
             content_full: None,
             content_starts_with: None,
-            content_not_starts_with: Some(String::from("__")),
+            // content_not_starts_with: Some(String::from("__")),  // TODO use this or manually filter
             value_starts_with: None,
         },
     )?;

@@ -685,11 +685,13 @@ version = "0.0.1"
 dependencies = [
  "follows_integrity",
  "follows_types",
+ "hc_call_utils",
  "hc_link_pagination",
  "hdk",
  "holochain_integrity_types",
+ "mews_types",
  "serde",
- "trust_atom_types 0.1.1-dev (git+https://github.com/trustgraph/trustgraph-holochain.git)",
+ "trust_atom_types",
 ]
 
 [[package]]
@@ -1251,7 +1253,7 @@ dependencies = [
  "rand",
  "regex",
  "serde",
- "trust_atom_types 0.1.1-dev (git+https://github.com/trustgraph/trustgraph-holochain.git)",
+ "trust_atom_types",
 ]
 
 [[package]]
@@ -2090,22 +2092,13 @@ checksum = "683ba5022fe6dbd7133cad150478ccf51bdb6d861515181e5fc6b4323d4fa424"
 [[package]]
 name = "trust_atom"
 version = "0.1.1-dev"
+source = "git+https://github.com/trustgraph/trustgraph-holochain.git#ac14d98cdc644944b456862da9bf113b0e75e15f"
 dependencies = [
  "hdk",
  "rust_decimal",
  "serde",
- "trust_atom_integrity 0.1.1-dev",
- "trust_atom_types 0.1.1-dev",
-]
-
-[[package]]
-name = "trust_atom_integrity"
-version = "0.1.1-dev"
-dependencies = [
- "hdi",
- "rust_decimal",
- "serde",
- "trust_atom_types 0.1.1-dev",
+ "trust_atom_integrity",
+ "trust_atom_types",
 ]
 
 [[package]]
@@ -2116,7 +2109,7 @@ dependencies = [
  "hdi",
  "rust_decimal",
  "serde",
- "trust_atom_types 0.1.1-dev (git+https://github.com/trustgraph/trustgraph-holochain.git)",
+ "trust_atom_types",
 ]
 
 [[package]]
@@ -2126,15 +2119,7 @@ dependencies = [
  "hdk",
  "rust_decimal",
  "serde",
- "trust_atom_integrity 0.1.1-dev (git+https://github.com/trustgraph/trustgraph-holochain.git)",
-]
-
-[[package]]
-name = "trust_atom_types"
-version = "0.1.1-dev"
-dependencies = [
- "hdk",
- "serde",
+ "trust_atom_integrity",
 ]
 
 [[package]]

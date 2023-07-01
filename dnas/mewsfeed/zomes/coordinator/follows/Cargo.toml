@@ -14,5 +14,7 @@ serde = { workspace = true }
 follows_integrity = { workspace = true }
 hc_link_pagination = { workspace = true }
 follows_types = { workspace = true }
+mews_types = { workspace = true }
+hc_call_utils = { workspace = true }
 trust_atom_types = {git = "https://github.com/trustgraph/trustgraph-holochain.git", package = "trust_atom_types"}
 # trust_atom_types = { path= "/Users/knight/code/trustgraph/trustgraph-holochain/zomes/trust_atom_types"}
