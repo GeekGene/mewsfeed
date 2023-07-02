@@ -24,10 +24,9 @@
     </div>
 
     <h2 class="text-xl font-title font-bold tracking-tighter mb-2">replies</h2>
-    <QInfiniteScroll
+    <BaseInfiniteScroll
       v-if="replies && replies.pages.length > 0 && replies.pages[0].length > 0"
-      :offset="250"
-      @load="fetchNextPageReplies"
+      @load-next="fetchNextPageReplies"
     >
       <template v-for="(page, i) in replies.pages" :key="i">
         <template v-for="(reply, j) of page" :key="j">
@@ -45,18 +44,7 @@
           />
         </template>
       </template>
-      <template #loading>
-        <div class="flex justify-center">
-          <div class="loading loading-dots loading-sm"></div>
-        </div>
-      </template>
-      <div
-        v-if="!hasNextPage"
-        class="flex justify-center mb-8 text-base-300 text-2xl"
-      >
-        <IconPaw />
-      </div>
-    </QInfiniteScroll>
+    </BaseInfiniteScroll>
     <BaseListSkeleton v-else-if="isLoadingReplies" :count="5">
       <BaseMewListItemSkeleton />
     </BaseListSkeleton>
@@ -65,7 +53,6 @@
 </template>
 
 <script setup lang="ts">
-import { QInfiniteScroll } from "quasar";
 import BaseMewListItem from "@/components/BaseMewListItem.vue";
 import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
 import { PaginationDirectionName } from "@/types/types";
@@ -80,8 +67,8 @@ import {
   useQueryClient,
 } from "@tanstack/vue-query";
 import BaseButtonBack from "@/components/BaseButtonBack.vue";
-import IconPaw from "~icons/ion/paw";
 import BaseListSkeleton from "@/components/BaseListSkeleton.vue";
+import BaseInfiniteScroll from "@/components/BaseInfiniteScroll.vue";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const route = useRoute();
@@ -158,12 +145,9 @@ const {
 });
 watch(errorReplies, showError);
 
-const fetchNextPageReplies = async (
-  index: number,
-  done: (stop?: boolean) => void
-) => {
+const fetchNextPageReplies = async (done: (hasMore?: boolean) => void) => {
   await fetchNextPage();
-  done(!hasNextPage?.value);
+  done(hasNextPage?.value);
 };
 
 const refetchMewAndRepliesPage = async (pageIndex: number) => {

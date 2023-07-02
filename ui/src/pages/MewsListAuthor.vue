@@ -17,12 +17,11 @@
       </h1>
     </div>
 
-    <QInfiniteScroll
+    <BaseInfiniteScroll
       v-if="
         data && data.pages && data.pages.length > 0 && data.pages[0].length > 0
       "
-      :offset="250"
-      @load="fetchNextPageInfiniteScroll"
+      @load-next="fetchNextPageInfiniteScroll"
     >
       <template v-for="(page, i) in data.pages" :key="i">
         <template v-for="(mew, j) of page" :key="j">
@@ -51,19 +50,7 @@
           />
         </template>
       </template>
-
-      <template #loading>
-        <div class="flex justify-center">
-          <div class="loading loading-dots loading-sm"></div>
-        </div>
-      </template>
-      <div
-        v-if="!hasNextPage"
-        class="flex justify-center mb-8 text-base-300 text-2xl"
-      >
-        <IconPaw />
-      </div>
-    </QInfiniteScroll>
+    </BaseInfiniteScroll>
 
     <BaseListSkeleton v-else-if="isLoading" :count="5">
       <BaseMewListItemSkeleton />
@@ -73,7 +60,6 @@
 </template>
 
 <script setup lang="ts">
-import { QInfiniteScroll } from "quasar";
 import { AppAgentClient } from "@holochain/client";
 import { ComputedRef, inject } from "vue";
 import { useRoute, onBeforeRouteLeave } from "vue-router";
@@ -90,7 +76,7 @@ import { useToasts } from "@/stores/toasts";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { decodeHashFromBase64 } from "@holochain/client";
 import BaseButtonBack from "@/components/BaseButtonBack.vue";
-import IconPaw from "~icons/ion/paw";
+import BaseInfiniteScroll from "@/components/BaseInfiniteScroll.vue";
 import BaseListSkeleton from "@/components/BaseListSkeleton.vue";
 import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
 
@@ -150,11 +136,10 @@ const { data: profile, error: errorProfile } = useQuery({
 });
 
 const fetchNextPageInfiniteScroll = async (
-  index: number,
-  done: (stop?: boolean) => void
+  done: (hasMore?: boolean) => void
 ) => {
   await fetchNextPage();
-  done(!hasNextPage?.value);
+  done(hasNextPage?.value);
 };
 
 watch(error, showError);

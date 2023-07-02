@@ -1,0 +1,38 @@
+<template>
+  <div class="w-full">
+    <div class="w-full">
+      <slot></slot>
+    </div>
+
+    <div
+      v-observe-visibility="loadNextDebounced"
+      class="h-16 w-full my-8 flex justify-center"
+    >
+      <div v-if="loading" class="loading loading-dots loading-md"></div>
+      <IconPaw v-else-if="hasMore === false" class="text-base-300 text-2xl" />
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { debounce } from "lodash";
+import { ref } from "vue";
+import IconPaw from "~icons/ion/paw";
+
+const emit = defineEmits(["load-next"]);
+
+const loading = ref<boolean>(false);
+const hasMore = ref<boolean>();
+
+const loadNext = (visible: any) => {
+  console.log("load next", visible, loading);
+  if (!visible || loading.value) return;
+
+  loading.value = true;
+  emit("load-next", (val: boolean) => {
+    loading.value = false;
+    hasMore.value = val;
+  });
+};
+const loadNextDebounced = debounce(loadNext, 250);
+</script>

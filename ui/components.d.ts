@@ -22,6 +22,7 @@ declare module 'vue' {
     BaseDialog: typeof import('./src/components/BaseDialog.vue')['default']
     BaseEmbedMew: typeof import('./src/components/BaseEmbedMew.vue')['default']
     BaseEmptyList: typeof import('./src/components/BaseEmptyList.vue')['default']
+    BaseInfiniteScroll: typeof import('./src/components/BaseInfiniteScroll.vue')['default']
     BaseLinkProfilePopup: typeof import('./src/components/BaseLinkProfilePopup.vue')['default']
     BaseList: typeof import('./src/components/BaseList.vue')['default']
     BaseListSkeleton: typeof import('./src/components/BaseListSkeleton.vue')['default']

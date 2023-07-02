@@ -8,12 +8,11 @@
       </h1>
     </div>
 
-    <QInfiniteScroll
+    <BaseInfiniteScroll
       v-if="
         data && data.pages && data.pages.length > 0 && data.pages[0].length > 0
       "
-      :offset="250"
-      @load="fetchNextPageInfiniteScroll"
+      @load-next="fetchNextPageInfiniteScroll"
     >
       <template v-for="(page, i) in data?.pages" :key="i">
         <template v-for="(notification, j) of page" :key="j">
@@ -46,18 +45,7 @@
           />
         </template>
       </template>
-      <template #loading>
-        <div class="flex justify-center">
-          <div class="loading loading-dots loading-sm"></div>
-        </div>
-      </template>
-      <div
-        v-if="!hasNextPage"
-        class="flex justify-center mb-8 text-base-300 text-2xl"
-      >
-        <IconPaw />
-      </div>
-    </QInfiniteScroll>
+    </BaseInfiniteScroll>
     <BaseListSkeleton v-else-if="isInitialLoading" :count="5">
       <BaseMewListItemSkeleton />
     </BaseListSkeleton>
@@ -68,7 +56,6 @@
 <script setup lang="ts">
 import { AppAgentClient } from "@holochain/client";
 import { inject, ComputedRef, watch, toRaw } from "vue";
-import { QInfiniteScroll } from "quasar";
 import { onBeforeRouteLeave } from "vue-router";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import BaseNotification from "@/components/BaseNotification.vue";
@@ -80,6 +67,7 @@ import { PaginationDirectionName, Notification } from "@/types/types";
 import BaseButtonBack from "@/components/BaseButtonBack.vue";
 import BaseListSkeleton from "@/components/BaseListSkeleton.vue";
 import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
+import BaseInfiniteScroll from "@/components/BaseInfiniteScroll.vue";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const useNotificationsReadStore = makeUseNotificationsReadStore(client);
@@ -122,11 +110,10 @@ const { data, error, fetchNextPage, hasNextPage, refetch, isInitialLoading } =
 watch(error, showError);
 
 const fetchNextPageInfiniteScroll = async (
-  index: number,
-  done: (stop?: boolean) => void
+  done: (hasMore?: boolean) => void
 ) => {
   await fetchNextPage();
-  done(!hasNextPage?.value);
+  done(hasNextPage?.value);
 };
 
 onBeforeRouteLeave(() => {

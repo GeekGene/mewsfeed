@@ -8,15 +8,14 @@
         following
       </h2>
 
-      <QInfiniteScroll
+      <BaseInfiniteScroll
         v-if="
           data &&
           data.pages &&
           data.pages.length > 0 &&
           data.pages[0].length > 0
         "
-        :offset="250"
-        @load="fetchNextPageInfiniteScroll"
+        @load-next="fetchNextPageInfiniteScroll"
       >
         <BaseAgentProfileList
           v-for="(page, i) in data.pages"
@@ -26,19 +25,7 @@
           :loading="isLoading"
           :enable-popups="false"
         />
-
-        <template #loading>
-          <div class="flex justify-center">
-            <div class="loading loading-dots loading-sm"></div>
-          </div>
-        </template>
-        <div
-          v-if="!hasNextPage"
-          class="flex justify-center mb-8 text-base-300 text-2xl"
-        >
-          <IconPaw />
-        </div>
-      </QInfiniteScroll>
+      </BaseInfiniteScroll>
       <BaseAgentProfileListItemSkeleton
         v-for="x in [0, 1, 2, 3]"
         v-else-if="isLoading"
@@ -50,7 +37,6 @@
 </template>
 
 <script setup lang="ts">
-import { QInfiniteScroll } from "quasar";
 import { AppAgentClient } from "@holochain/client";
 import { ComputedRef, inject } from "vue";
 import { onBeforeRouteLeave } from "vue-router";
@@ -68,7 +54,7 @@ import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { encodeHashToBase64 } from "@holochain/client";
 import { AgentProfile } from "@/types/types";
 import { AgentPubKey } from "@holochain/client";
-import IconPaw from "~icons/ion/paw";
+import BaseInfiniteScroll from "@/components/BaseInfiniteScroll.vue";
 
 const emit = defineEmits(["update:model-value"]);
 const props = defineProps<{
@@ -152,10 +138,10 @@ const { data: profile, error: errorProfile } = useQuery({
 
 const fetchNextPageInfiniteScroll = async (
   index: number,
-  done: (stop?: boolean) => void
+  done: (hasMore?: boolean) => void
 ) => {
   await fetchNextPage();
-  done(!hasNextPage?.value);
+  done(hasNextPage?.value);
 };
 
 watch(error, showError);
