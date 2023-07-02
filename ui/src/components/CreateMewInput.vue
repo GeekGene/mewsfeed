@@ -184,6 +184,7 @@ import {
   UrlLinkTarget,
   MentionLinkTarget,
   FeedMew,
+  MewTypeName,
 } from "../types/types";
 import {
   AgentPubKey,
@@ -328,7 +329,9 @@ const publishMew = async (profile: undefined | Profile = undefined) => {
       payload: mew,
     });
     emit("mew-created", feedMew);
-    showMessage("Published Mew");
+    if (MewTypeName.Original in mew.mew_type) {
+      showMessage("Published Mew");
+    }
   } catch (error) {
     showError(error);
   } finally {

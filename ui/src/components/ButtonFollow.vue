@@ -91,7 +91,7 @@ const toggleFollow = async () => {
             payload: props.agentPubKey,
           }),
     ]);
-    refetchIsFollowing();
+    await refetchIsFollowing();
     if (isFollowing.value) {
       setHomeRedirect(false);
     }
@@ -100,8 +100,8 @@ const toggleFollow = async () => {
       profile?.nickname
     })`;
     const message = isFollowing.value
-      ? `You're following ${name} now`
-      : `You're not following ${name} anymore`;
+      ? `Followed ${name}`
+      : `Unfollowed ${name}`;
     showMessage(message);
     emit("toggle-follow", isFollowing.value);
   } catch (error) {

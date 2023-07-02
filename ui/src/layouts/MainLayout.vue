@@ -76,7 +76,6 @@ import CreateMewDialog from "@/components/CreateMewDialog.vue";
 import ToastNotices from "@/components/ToastNotices.vue";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
-
 const router = useRouter();
 const route = useRoute();
 const useNotificationsReadStore = makeUseNotificationsReadStore(client);
