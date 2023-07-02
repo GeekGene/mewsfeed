@@ -1,46 +1,19 @@
 <template>
-  <div v-for="i of [0, 1, 2]" :key="i">
-    <BaseAgentProfileListItemSkeleton />
-
-    <QItem>
-      <QItemSection avatar />
-
-      <QItemSection>
-        <QSkeleton height="50px" class="q-mb-sm" />
-
-        <div class="row items-center">
-          <div class="row items-center">
-            <QIcon
-              name="svguse:/icons.svg#lick"
-              color="grey-4"
-              class="q-mr-xs"
-            />
-            <QSkeleton type="text" width="30px" />
-          </div>
-          <div class="row items-center">
-            <QIcon name="reply" color="grey-4" class="q-mr-sm" size="18px" />
-            <QSkeleton type="text" width="30px" />
-          </div>
-          <div class="row items-center">
-            <QIcon name="forward" color="grey-4" class="q-mr-sm" size="18px" />
-            <QSkeleton type="text" width="30px" />
-          </div>
-          <div class="row items-center">
-            <QIcon
-              name="format_quote"
-              color="grey-4"
-              class="q-mr-sm"
-              size="18px"
-            />
-            <QSkeleton type="text" width="30px" />
-          </div>
-        </div>
-      </QItemSection>
-    </QItem>
+  <div class="flex flex-col space-y-8">
+    <BaseMewListSkeleton v-for="i in range(props.count)" :key="i" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { QList, QItem, QItemSection, QSkeleton, QIcon } from "quasar";
-import BaseAgentProfileListItemSkeleton from "./BaseAgentProfileListItemSkeleton.vue";
+import BaseMewListSkeleton from "@/components/BaseMewListSkeleton.vue";
+import { range } from "lodash";
+
+const props = withDefaults(
+  defineProps<{
+    count?: number;
+  }>(),
+  {
+    count: 3,
+  }
+);
 </script>

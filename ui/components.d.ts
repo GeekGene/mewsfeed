@@ -17,7 +17,6 @@ declare module 'vue' {
     BaseAgentProfileListItemSkeleton: typeof import('./src/components/BaseAgentProfileListItemSkeleton.vue')['default']
     BaseAgentProfileName: typeof import('./src/components/BaseAgentProfileName.vue')['default']
     BaseAgentProfileNameLarge: typeof import('./src/components/BaseAgentProfileNameLarge.vue')['default']
-    BaseAgentProfileListItem: typeof import('./src/components/BaseAgentProfileListItem.vue')['default']
     BaseButtonBack: typeof import('./src/components/BaseButtonBack.vue')['default']
     BaseConfirmDialog: typeof import('./src/components/BaseConfirmDialog.vue')['default']
     BaseDialog: typeof import('./src/components/BaseDialog.vue')['default']
