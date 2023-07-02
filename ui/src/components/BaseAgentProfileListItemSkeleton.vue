@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex items-center mt-4 space-x-3">
+    <div class="flex items-center mt-4 space-x-3 animate-pulse">
       <IconPersonCircleOutline
         class="text-base-300 fill-base-300 stroke-base-300 w-14 h-14 p-0 m-0"
       />
