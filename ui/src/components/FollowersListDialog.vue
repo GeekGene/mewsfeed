@@ -18,7 +18,7 @@
         :offset="250"
         @load="fetchNextPageInfiniteScroll"
       >
-        <BaseAgentProfilesList
+        <BaseAgentProfileList
           v-for="(page, i) in data.pages"
           :key="i"
           class="q-px-md"
@@ -61,7 +61,7 @@ import {
 } from "@tanstack/vue-query";
 import BaseAgentProfileListItemSkeleton from "@/components/BaseAgentProfileListItemSkeleton.vue";
 import BaseEmptyList from "@/components/BaseEmptyList.vue";
-import BaseAgentProfilesList from "@/components/BaseAgentProfilesList.vue";
+import BaseAgentProfileList from "@/components/BaseAgentProfileList.vue";
 import BaseAgentProfileLinkName from "@/components/BaseAgentProfileLinkName.vue";
 import { watch } from "vue";
 import { showError } from "@/utils/toasts";

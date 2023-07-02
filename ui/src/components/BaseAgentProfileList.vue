@@ -1,5 +1,5 @@
 <template>
-  <template v-if="!agentProfiles || loading || true">
+  <template v-if="!agentProfiles || loading">
     <QList v-for="i of [0, 1, 2]" :key="i">
       <BaseAgentProfileListItemSkeleton />
     </QList>
@@ -10,23 +10,24 @@
     :text="emptyText || 'No agents yet'"
   />
 
-    <BaseList
-      v-slot="{ item }"
-      v-bind="$attrs"
-      class="my-8"
-      :items="agentProfiles"
-      :is-loading="loading"
-    >
-      <BaseAgentProfilesListItem
-        :agent-profile="item"
-        :enable-popup="enablePopups"
-      />
-    </BaseList>
+  <BaseList
+    v-else
+    v-slot="{ item }"
+    v-bind="$attrs"
+    class="my-8"
+    :items="agentProfiles"
+    :is-loading="loading"
+  >
+    <BaseAgentProfileListItem
+      :agent-profile="item"
+      :enable-popup="enablePopups"
+    />
+  </BaseList>
 </template>
 
 <script setup lang="ts">
 import { AgentProfile } from "@/types/types";
-import BaseAgentProfilesListItem from "@/components/BaseAgentProfilesListItem.vue";
+import BaseAgentProfileListItem from "@/components/BaseAgentProfileListItem.vue";
 import BaseEmptyList from "@/components/BaseEmptyList.vue";
 import BaseAgentProfileListItemSkeleton from "@/components/BaseAgentProfileListItemSkeleton.vue";
 import BaseList from "@/components/BaseList.vue";
