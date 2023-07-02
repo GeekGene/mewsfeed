@@ -1,5 +1,4 @@
 import { defineConfig, PluginOption } from "vite";
-import { quasar, transformAssetUrls } from "@quasar/vite-plugin";
 import path from "node:path";
 import vue from "@vitejs/plugin-vue";
 import { viteStaticCopy } from "vite-plugin-static-copy";
@@ -35,16 +34,11 @@ export default defineConfig({
 
     vue({
       template: {
-        transformAssetUrls,
         compilerOptions: {
           isCustomElement: (tag) => tag.includes("-"),
         },
       },
     }),
-
-    quasar({
-      sassVariables: "src/css/quasar.variables.sass",
-    }) as PluginOption,
 
     checker({
       vueTsc: true,
