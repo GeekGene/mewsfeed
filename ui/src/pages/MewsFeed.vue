@@ -58,7 +58,9 @@
         <IconPaw />
       </div>
     </QInfiniteScroll>
-    <BaseMewListSkeleton v-else-if="isLoading" />
+    <BaseListSkeleton v-else-if="isLoading" :count="5">
+      <BaseMewListItemSkeleton />
+    </BaseListSkeleton>
     <BaseEmptyList v-else />
   </div>
 </template>
@@ -71,8 +73,9 @@ import { FeedMew, PaginationDirectionName } from "@/types/types";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
 import { showError } from "@/utils/toasts";
 import BaseMewListItem from "@/components/BaseMewListItem.vue";
-import BaseMewListSkeleton from "@/components/BaseMewListSkeleton.vue";
 import BaseEmptyList from "@/components/BaseEmptyList.vue";
+import BaseListSkeleton from "@/components/BaseListSkeleton.vue";
+import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
 import { onBeforeRouteLeave } from "vue-router";
 import IconPaw from "~icons/ion/paw";
 

@@ -1,8 +1,8 @@
 <template>
   <template v-if="!agentProfiles || loading">
-    <QList v-for="i of [0, 1, 2]" :key="i">
+    <BaseListSkeleton :count="3">
       <BaseAgentProfileListItemSkeleton />
-    </QList>
+    </BaseListSkeleton>
   </template>
 
   <BaseEmptyList
@@ -31,6 +31,7 @@ import BaseAgentProfileListItem from "@/components/BaseAgentProfileListItem.vue"
 import BaseEmptyList from "@/components/BaseEmptyList.vue";
 import BaseAgentProfileListItemSkeleton from "@/components/BaseAgentProfileListItemSkeleton.vue";
 import BaseList from "@/components/BaseList.vue";
+import BaseListSkeleton from "./BaseListSkeleton.vue";
 
 withDefaults(
   defineProps<{

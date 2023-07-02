@@ -34,6 +34,4 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { QItem, QItemSection, QSkeleton, QIcon } from "quasar";
-</script>
+<script setup lang="ts"></script>

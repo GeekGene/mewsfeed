@@ -64,7 +64,10 @@
         <IconPaw />
       </div>
     </QInfiniteScroll>
-    <BaseMewListSkeleton v-else-if="isLoading" />
+
+    <BaseListSkeleton v-else-if="isLoading" :count="5">
+      <BaseMewListItemSkeleton />
+    </BaseListSkeleton>
     <BaseEmptyList v-else />
   </div>
 </template>
@@ -79,7 +82,6 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/vue-query";
-import BaseMewListSkeleton from "@/components/BaseMewListSkeleton.vue";
 import BaseEmptyList from "@/components/BaseEmptyList.vue";
 import BaseMewListItem from "@/components/BaseMewListItem.vue";
 import BaseAgentProfileLinkName from "@/components/BaseAgentProfileLinkName.vue";
@@ -89,6 +91,8 @@ import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { decodeHashFromBase64 } from "@holochain/client";
 import BaseButtonBack from "@/components/BaseButtonBack.vue";
 import IconPaw from "~icons/ion/paw";
+import BaseListSkeleton from "@/components/BaseListSkeleton.vue";
+import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
 
 const route = useRoute();
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;

@@ -58,7 +58,9 @@
         <IconPaw />
       </div>
     </QInfiniteScroll>
-    <BaseMewListSkeleton v-else-if="isInitialLoading" />
+    <BaseListSkeleton v-else-if="isInitialLoading" :count="5">
+      <BaseMewListItemSkeleton />
+    </BaseListSkeleton>
     <BaseEmptyList v-else />
   </div>
 </template>
@@ -77,6 +79,8 @@ import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
 import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";
 import { PaginationDirectionName, Notification } from "@/types/types";
 import BaseButtonBack from "@/components/BaseButtonBack.vue";
+import BaseListSkeleton from "@/components/BaseListSkeleton.vue";
+import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const useNotificationsReadStore = makeUseNotificationsReadStore(client);

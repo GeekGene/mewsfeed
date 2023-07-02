@@ -1,11 +1,12 @@
 <template>
   <div class="flex flex-col space-y-8">
-    <BaseMewListSkeleton v-for="i in range(props.count)" :key="i" />
+    <template v-for="i in range(props.count)" :key="i">
+      <slot></slot>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import BaseMewListSkeleton from "@/components/BaseMewListSkeleton.vue";
 import { range } from "lodash";
 
 const props = withDefaults(

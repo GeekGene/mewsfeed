@@ -57,7 +57,9 @@
         <IconPaw />
       </div>
     </QInfiniteScroll>
-    <BaseMewListSkeleton v-else-if="isLoadingReplies" />
+    <BaseListSkeleton v-else-if="isLoadingReplies" :count="5">
+      <BaseMewListItemSkeleton />
+    </BaseListSkeleton>
     <BaseEmptyList v-else />
   </div>
 </template>
@@ -79,6 +81,7 @@ import {
 } from "@tanstack/vue-query";
 import BaseButtonBack from "@/components/BaseButtonBack.vue";
 import IconPaw from "~icons/ion/paw";
+import BaseListSkeleton from "@/components/BaseListSkeleton.vue";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const route = useRoute();
