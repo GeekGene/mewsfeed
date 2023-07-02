@@ -44,5 +44,6 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     SearchEverythingDialog: typeof import('./src/components/SearchEverythingDialog.vue')['default']
     SearchEverythingDialogInput: typeof import('./src/components/SearchEverythingDialogInput.vue')['default']
+    ToastNotices: typeof import('./src/components/ToastNotices.vue')['default']
   }
 }

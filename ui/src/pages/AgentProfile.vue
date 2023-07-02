@@ -115,7 +115,7 @@
 
 <script setup lang="ts">
 import { AgentProfile } from "@/types/types";
-import { showError } from "@/utils/toasts";
+import { useToasts } from "@/stores/toasts";
 import {
   AgentPubKey,
   decodeHashFromBase64,
@@ -138,6 +138,8 @@ const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const route = useRoute();
 const router = useRouter();
 const queryClient = useQueryClient();
+const { showError } = useToasts();
+
 const agentPubKey = computed(() =>
   decodeHashFromBase64(route.params.agentPubKey as string)
 );

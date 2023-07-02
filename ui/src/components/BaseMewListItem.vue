@@ -282,7 +282,6 @@ import { AppAgentClient } from "@holochain/client";
 import BaseTimestamp from "@/components/BaseTimestamp.vue";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
 import BaseConfirmDialog from "@/components/BaseConfirmDialog.vue";
-import { showMessage } from "@/utils/toasts";
 import dayjs from "dayjs";
 import BaseEmbedMew from "@/components/BaseEmbedMew.vue";
 import IconFormatQuoteOpen from "~icons/mdi/format-quote-open";
@@ -294,6 +293,7 @@ import IconTrashSharp from "~icons/ion/trash-sharp";
 import IconSharpPinOff from "~icons/ic/sharp-pin-off";
 import IconSharpPushPin from "~icons/ic/sharp-push-pin";
 import BaseAgentProfileName from "@/components/BaseAgentProfileName.vue";
+import { useToasts } from "@/stores/toasts";
 
 const props = withDefaults(
   defineProps<{
@@ -319,6 +319,7 @@ const emit = defineEmits([
 const router = useRouter();
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const myProfile = inject("myProfile") as ComputedRef<Profile>;
+const { showMessage } = useToasts();
 
 const showReplyToMewDialog = ref(false);
 const showQuoteMewDialog = ref(false);

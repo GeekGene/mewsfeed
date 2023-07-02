@@ -73,8 +73,7 @@ import { onBeforeRouteLeave } from "vue-router";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import BaseNotification from "@/components/BaseNotification.vue";
 import BaseEmptyList from "@/components/BaseEmptyList.vue";
-import BaseMewListSkeleton from "@/components/BaseMewListSkeleton.vue";
-import { showError } from "@/utils/toasts";
+import { useToasts } from "@/stores/toasts";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
 import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";
 import { PaginationDirectionName, Notification } from "@/types/types";
@@ -86,6 +85,7 @@ const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const useNotificationsReadStore = makeUseNotificationsReadStore(client);
 const { markRead, addNotificationStatus } = useNotificationsReadStore();
 const queryClient = useQueryClient();
+const { showError } = useToasts();
 
 const pageLimit = 10;
 

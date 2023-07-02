@@ -74,7 +74,7 @@ import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
 import BaseEmptyList from "@/components/BaseEmptyList.vue";
 import BaseMewListItem from "@/components/BaseMewListItem.vue";
 import { watch } from "vue";
-import { showError } from "@/utils/toasts";
+import { useToasts } from "@/stores/toasts";
 import BaseButtonBack from "@/components/BaseButtonBack.vue";
 import IconPaw from "~icons/ion/paw";
 import BaseListSkeleton from "@/components/BaseListSkeleton.vue";
@@ -83,7 +83,7 @@ import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
 const route = useRoute();
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const queryClient = useQueryClient();
-
+const { showError } = useToasts();
 const pageLimit = 5;
 
 const fetchCashtagMews = async (params: any) =>

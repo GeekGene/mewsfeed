@@ -226,3 +226,10 @@ export type LoadMoreDataType = {
   nextPage: HashPagination;
   noMore: boolean;
 };
+
+export type ToastMessageType = "error" | "warning" | "info" | "success";
+export type ToastMessage = {
+  id: string;
+  type: ToastMessageType;
+  text: string;
+};

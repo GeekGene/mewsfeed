@@ -171,7 +171,6 @@
 </template>
 
 <script setup lang="ts">
-import { showError, showMessage } from "@/utils/toasts";
 import { useSearchProfiles } from "@/utils/profiles";
 import { Profile } from "@holochain-open-dev/profiles";
 import { isMentionTag, isRawUrl, isLinkTag, TAG_SYMBOLS } from "@/utils/tags";
@@ -201,6 +200,7 @@ import { ProfilesStore } from "@holochain-open-dev/profiles";
 import IconHelpCircleOutline from "~icons/ion/help-circle-outline";
 import IconAlertCircleOutline from "~icons/ion/alert-circle-outline";
 import IconArrowForwardOutline from "~icons/ion/arrow-forward-outline";
+import { useToasts } from "@/stores/toasts";
 
 const ANCHOR_DATA_ID_AGENT_PUB_KEY = "agentPubKey";
 const ANCHOR_DATA_ID_URL = "url";
@@ -219,6 +219,7 @@ const dnaProperties = (
 ).value;
 const myProfile = inject("myProfile") as ComputedRef<Profile>;
 const profilesStore = inject("profilesStore") as ComputedRef<ProfilesStore>;
+const { showMessage, showError } = useToasts();
 
 const TRUNCATED_MEW_LENGTH = 300;
 

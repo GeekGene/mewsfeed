@@ -14,7 +14,6 @@
 
 <script setup lang="ts">
 import { PROFILE_FIELDS } from "@/types/types";
-import { showError, showMessage } from "@/utils/toasts";
 import { AgentPubKey, encodeHashToBase64 } from "@holochain/client";
 import { ComputedRef, inject, PropType, ref, watch } from "vue";
 import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
@@ -23,6 +22,7 @@ import CreateProfileIfNotFoundDialog from "./CreateProfileIfNotFoundDialog.vue";
 import isEqual from "lodash/isEqual";
 import { setHomeRedirect } from "@/utils/homeRedirect";
 import { useQuery } from "@tanstack/vue-query";
+import { useToasts } from "@/stores/toasts";
 
 const props = defineProps({
   agentPubKey: {
@@ -35,6 +35,7 @@ const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const myProfile = inject("myProfile") as ComputedRef<Profile>;
+const { showMessage, showError } = useToasts();
 
 const showCreateProfileDialog = ref(false);
 

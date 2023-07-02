@@ -45,6 +45,8 @@
       @click-search="showSearchDialog = true"
     />
   </div>
+
+  <ToastNotices />
   <SearchEverythingDialog v-model="showSearchDialog" />
   <CreateMewDialog
     v-model="showCreateMewDialog"
@@ -64,7 +66,6 @@ import {
   Notification,
 } from "@/types/types";
 import { AppAgentClient, encodeHashToBase64 } from "@holochain/client";
-
 import { ComputedRef, inject, ref, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";
@@ -72,6 +73,7 @@ import { setHomeRedirect } from "@/utils/homeRedirect";
 import { useInfiniteQuery, useQuery } from "@tanstack/vue-query";
 import IconChatbubbleOutline from "~icons/ion/chatbubble-outline";
 import CreateMewDialog from "@/components/CreateMewDialog.vue";
+import ToastNotices from "@/components/ToastNotices.vue";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 

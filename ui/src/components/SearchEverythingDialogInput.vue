@@ -100,7 +100,7 @@ import { isHashtag } from "@/utils/tags";
 import { SearchResult, SearchResultOption } from "@/types/types";
 import { ROUTES } from "@/router";
 import { useSearchProfiles } from "@/utils/profiles";
-import { showError } from "@/utils/toasts";
+import { useToasts } from "@/stores/toasts";
 import { AppAgentClient, encodeHashToBase64 } from "@holochain/client";
 import { ComputedRef, ref, toRaw, inject } from "vue";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
@@ -113,6 +113,7 @@ const searchProfiles = useSearchProfiles();
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
+const { showError } = useToasts();
 
 const searching = ref(false);
 const results = ref<SearchResultOption[]>([]);

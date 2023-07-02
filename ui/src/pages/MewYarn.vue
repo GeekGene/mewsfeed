@@ -73,7 +73,7 @@ import { decodeHashFromBase64 } from "@holochain/client";
 import { ComputedRef, computed, inject, watch } from "vue";
 import { useRoute, onBeforeRouteLeave } from "vue-router";
 import { AppAgentClient } from "@holochain/client";
-import { showError } from "@/utils/toasts";
+import { useToasts } from "@/stores/toasts";
 import {
   useInfiniteQuery,
   useQuery,
@@ -86,6 +86,7 @@ import BaseListSkeleton from "@/components/BaseListSkeleton.vue";
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const route = useRoute();
 const queryClient = useQueryClient();
+const { showError } = useToasts();
 
 const pageLimit = 10;
 

@@ -113,11 +113,12 @@ import { AppAgentClient } from "@holochain/client";
 import BaseList from "@/components/BaseList.vue";
 import { FeedMew } from "@/types/types";
 import { useQuery } from "@tanstack/vue-query";
-import { showError } from "@/utils/toasts";
+import { useToasts } from "@/stores/toasts";
 import IconDiceOutline from "~icons/ion/dice-outline";
 import { ActionHash } from "@holochain/client";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+const { showError } = useToasts();
 
 const fetchRandomMewHashes = (): Promise<ActionHash[]> =>
   client.callZome({

@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { showError } from "@/utils/toasts";
+import { useToasts } from "@/stores/toasts";
 import { AgentPubKey } from "@holochain/client";
 import { ComputedRef, inject, onMounted, ref } from "vue";
 import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
@@ -33,6 +33,7 @@ const props = withDefaults(
 
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
+const { showError } = useToasts();
 
 const profile = ref<Profile>();
 const loading = ref(false);
