@@ -2,10 +2,11 @@
   <div class="flex justify-start items-center space-x-4">
     <BaseAgentProfileLinkAvatar
       :agentPubKey="agentProfile.agentPubKey"
-      :size="30"
+      :size="50"
       :enable-popup="enablePopup"
     />
     <BaseAgentProfileName
+      class="text-lg"
       :profile="agentProfile.profile"
       :agentPubKey="agentProfile.agentPubKey"
     />

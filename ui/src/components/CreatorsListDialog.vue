@@ -39,7 +39,7 @@
           <IconPaw />
         </div>
       </QInfiniteScroll>
-      <BaseProfileSkeleton
+      <BaseAgentProfileListItemSkeleton
         v-for="x in [0, 1, 2, 3]"
         v-else-if="isLoading"
         :key="x"
@@ -59,7 +59,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/vue-query";
-import BaseProfileSkeleton from "@/components/BaseProfileSkeleton.vue";
+import BaseAgentProfileListItemSkeleton from "@/components/BaseAgentProfileListItemSkeleton.vue";
 import BaseEmptyList from "@/components/BaseEmptyList.vue";
 import BaseAgentProfilesList from "@/components/BaseAgentProfilesList.vue";
 import { watch } from "vue";
