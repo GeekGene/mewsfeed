@@ -136,14 +136,50 @@ provide("profilesStore", profilesStore);
 provide("myProfile", myProfile);
 </script>
 
-<style lang="sass">
-#app
-  font-family: Avenir, Helvetica, Arial, sans-serif
-  -webkit-font-smoothing: antialiased
-  -moz-osx-font-smoothing: grayscale
+<style>
+#app {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
 :root,
-:host
-  --sl-color-primary-600: #FF5C00 !important
-  --sl-color-primary-500: #FF5C00 !important
+:host {
+  --sl-color-primary-50: hsl(var(--p)) !important;
+  --sl-color-primary-100: hsl(var(--p)) !important;
+  --sl-color-primary-200: hsl(var(--p)) !important;
+  --sl-color-primary-300: hsl(var(--p)) !important;
+  --sl-color-primary-400: hsl(var(--p)) !important;
+  --sl-color-primary-500: hsl(var(--p)) !important;
+  --sl-color-primary-600: hsl(var(--p)) !important;
+  --sl-color-primary-700: hsl(var(--p)) !important;
+  --sl-color-primary-800: hsl(var(--p)) !important;
+  --sl-color-primary-900: hsl(var(--p)) !important;
+
+  --sl-color-neutral-0: hsl(var(--b2)) !important;
+  --sl-color-neutral-50: hsl(var(--b2)) !important;
+  --sl-color-neutral-100: hsl(var(--b2)) !important;
+  --sl-color-neutral-200: hsl(var(--b2)) !important;
+  --sl-color-neutral-300: hsl(var(--b2)) !important;
+  --sl-color-neutral-400: hsl(var(--b3)) !important;
+  --sl-color-neutral-500: hsl(var(--b3)) !important;
+  --sl-color-neutral-600: hsl(var(--b3)) !important;
+  --sl-color-neutral-700: hsl(var(--bc)) !important;
+  --sl-color-neutral-800: hsl(var(--bc)) !important;
+  --sl-color-neutral-900: hsl(var(--bc)) !important;
+
+  --sl-color-neutral-1000: hsl(var(--bc)) !important;
+
+  --sl-panel-background-color: hsl(var(--b1)) !important;
+
+  --sl-input-color: hsl(var(--bc)) !important;
+  --sl-input-color-hover: hsl(var(--bc)) !important;
+  --sl-input-color-focus: hsl(var(--bc)) !important;
+  --sl-input-background-color: hsl(var(--b2)) !important;
+  --sl-input-background-focus: hsl(var(--b2)) !important;
+  --sl-input-background-hover: hsl(var(--b2)) !important;
+  --sl-input-border-color: hsl(var(--b2)) !important;
+  --sl-input-border-color-hover: hsl(var(--b2)) !important;
+  --sl-input-border-color-focus: hsl(var(--b2)) !important;
+  --sl-input-border-width: hsl(var(--b2)) !important;
+}
 </style>
