@@ -30,7 +30,7 @@
         contentPart.tagType === MewTagType.Hashtag)
     "
     :to="contentPart.route"
-    class="text-secondary text-bold"
+    class="text-primary text-bold"
     @click.stop
   >
     {{ contentPart.text }}

@@ -23,7 +23,7 @@
         <div v-if="feedMew.original_mew">
           <RouterLink
             v-if="showYarnLink"
-            class="btn btn-cicle btn-sm"
+            class="btn btn-cicle btn-xs sm:btn-sm"
             :to="{
               name: ROUTES.yarn,
               params: {
@@ -34,7 +34,7 @@
             }"
             @click.stop.prevent
           >
-            <div class="text-secondary text-lowercase">
+            <div class="text-primary text-lowercase">
               {{ reactionLabel }}
             </div>
             <div class="flex justify-start items-center">
@@ -44,7 +44,7 @@
               />
               <div
                 v-if="feedMew.original_mew.deleted_timestamp !== null"
-                class="text-bold text-secondary"
+                class="text-bold text-primary"
               >
                 (Deleted Mew)
               </div>

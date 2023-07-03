@@ -6,7 +6,7 @@
         params: { agentPubKey: encodeHashToBase64(agentPubKey) },
       }
     "
-    class="text-secondary text-bold relative inline-block overflow-visible"
+    class="text-primary text-bold relative inline-block overflow-visible"
     @click.stop
     @mouseenter="setPopupVisible(true)"
     @mouseleave="setPopupVisible(false)"
