@@ -19,92 +19,93 @@
     </RouterLink>
 
     <div class="flex-1 px-4 sm:px-8 h-full">
-      <div ref="mewContainer" class="w-full h-full">
-        <div class="h-full w-full flex flex-col justify-between items-start">
-          <div
-            ref="mewContainerInput"
-            contenteditable
-            class="overflow-auto w-full break-all outline-none border-0 outline-0 placeholder-container text-left"
-            data-placeholder="What's mewing on?"
-            @keydown="onKeyDown"
-            @keyup="onKeyUp"
-            @mouseup="onMouseUp"
-            @paste="onPaste"
-          ></div>
+      <div
+        ref="mewContainer"
+        class="h-full w-full flex flex-col justify-between items-start relative"
+      >
+        <div
+          ref="mewContainerInput"
+          contenteditable
+          class="overflow-auto w-full break-all outline-none border-0 outline-0 mew-container-input text-left"
+          data-placeholder="What's mewing on?"
+          @keydown="onKeyDown"
+          @keyup="onKeyUp"
+          @mouseup="onMouseUp"
+          @paste="onPaste"
+        ></div>
 
-          <div class="w-full flex justify-between items-end mt-1">
-            <div class="flex justify-start items-center space-x-4">
-              <div
-                class="tooltip hover:tooltip-open tooltip-top z-20"
-                data-tip="You can mention people with @ and use #hashtags and $cashtags as well
+        <div class="w-full flex justify-between items-end mt-1">
+          <div class="flex justify-start items-center space-x-4">
+            <div
+              class="tooltip hover:tooltip-open tooltip-top z-20"
+              data-tip="You can mention people with @ and use #hashtags and $cashtags as well
           as ^links in a mew. You can press Ctrl/Cmd + Enter to publish."
-              >
-                <IconHelpCircleOutline class="text-xl text-base-content" />
-              </div>
-            </div>
-
-            <div
-              v-if="!isMewEmpty"
-              class="flex justify-between text-xs text-base-content space-x-1"
             >
-              <div
-                :class="{
-                  'font-bold text-error':
-                    isMewFull || isMewRequireTruncation || isMewOverfull,
-                  'text-base-content': !isMewFull && !isMewOverfull,
-                }"
-              >
-                {{ mewContentLength }} /
-                {{
-                  min([TRUNCATED_MEW_LENGTH, dnaProperties.mew_characters_max])
-                }}
-                Chars
-              </div>
-              <div>
-                <div v-if="isMewUnderfull">
-                  ({{ dnaProperties.mew_characters_min }} Min)
-                </div>
-              </div>
-            </div>
-            <div
-              v-if="isMewRequireTruncation"
-              class="text-xs text-neutral-content"
-            >
-              Overflow will be hidden
+              <IconHelpCircleOutline class="text-xl text-base-content" />
             </div>
           </div>
 
           <div
-            id="link-target-input-container"
-            class="hidden absolute bg-base-200 text-base-content shadow-md rounded-md"
+            v-if="!isMewEmpty"
+            class="flex justify-between text-xs text-base-content space-x-1"
           >
-            <div class="relative">
-              <input
-                ref="linkTargetInput"
-                v-model="linkTarget"
-                type="text"
-                placeholder="Paste a URL to create a link"
-                class="block w-full rounded-md border-0 outline-none p-2 sm:text-sm sm:leading-6 bg-base-200 text-base-content"
-                :aria-invalid="!linkTargetValid"
-                aria-label="Enter a URL to create a link"
-                @keydown.enter="createLinkTag"
-                @keydown.space="createLinkTag"
-                @keydown.tab="createLinkTag"
-                @blur="resetLinkTargetInput"
-              />
-              <div
-                v-if="!linkTargetValid"
-                class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3"
-              >
-                <IconAlertCircleOutline
-                  class="h-5 w-5 text-red-500"
-                  aria-hidden="true"
-                />
+            <div
+              :class="{
+                'font-bold text-error':
+                  isMewFull || isMewRequireTruncation || isMewOverfull,
+                'text-base-content': !isMewFull && !isMewOverfull,
+              }"
+            >
+              {{ mewContentLength }} /
+              {{
+                min([TRUNCATED_MEW_LENGTH, dnaProperties.mew_characters_max])
+              }}
+              Chars
+            </div>
+            <div>
+              <div v-if="isMewUnderfull">
+                ({{ dnaProperties.mew_characters_min }} Min)
               </div>
             </div>
-            <p v-if="!linkTargetValid" class="p-2 text-sm text-error">
-              Link target must be valid URL
-            </p>
+          </div>
+          <div
+            v-if="isMewRequireTruncation"
+            class="text-xs text-neutral-content"
+          >
+            Overflow will be hidden
+          </div>
+        </div>
+
+        <div
+          id="link-target-input-container"
+          class="hidden absolute bg-base-200 text-base-content shadow-md rounded-md"
+        >
+          <div class="relative">
+            <input
+              ref="linkTargetInput"
+              v-model="linkTarget"
+              type="text"
+              placeholder="Paste a URL to create a link"
+              class="block w-full rounded-md border-0 outline-none p-2 sm:text-sm sm:leading-6 bg-base-200 text-base-content"
+              :aria-invalid="!linkTargetValid"
+              aria-label="Enter a URL to create a link"
+              @keydown.enter="createLinkTag"
+              @keydown.space="createLinkTag"
+              @keydown.tab="createLinkTag"
+              @blur="resetLinkTargetInput"
+            />
+            <div
+              v-if="!linkTargetValid"
+              class="pointer-events-none inset-y-0 right-0 flex justify-start items-center space-x-2 px-2 pb-1"
+            >
+              <IconAlertCircleOutline
+                class="h-5 w-5 text-red-500"
+                aria-hidden="true"
+              />
+              <div class="text-sm text-error">
+                Link target must be valid URL
+              </div>
+            </div>
           </div>
         </div>
 
@@ -223,6 +224,7 @@ const profilesStore = inject("profilesStore") as ComputedRef<ProfilesStore>;
 const { showMessage, showError } = useToasts();
 
 const TRUNCATED_MEW_LENGTH = 300;
+const POPUP_MARGIN_TOP = 20;
 
 const mewContainer = ref<HTMLDivElement>();
 const mewContainerInput = ref<HTMLDivElement>();
@@ -360,6 +362,7 @@ const createLinkTag = (e: Event) => {
   // Create html link element
   const anchor = document.createElement("a");
   anchor.textContent = label;
+  anchor.className = "text-primary";
   anchor.href = "#";
   anchor.dataset[ANCHOR_DATA_ID_URL] = linkTarget.value;
   range.insertNode(anchor);
@@ -641,11 +644,12 @@ const showElement = (
     const mewContainerBoundingRect = mewContainer.value.getBoundingClientRect();
 
     element.style.top =
-      Math.max(0, selectionRect.top - mewContainerBoundingRect.top + 40) + "px";
+      Math.max(0, selectionRect.top - mewContainerBoundingRect.top) +
+      POPUP_MARGIN_TOP +
+      "px";
 
     element.style.left =
-      Math.max(0, selectionRect.left - mewContainerBoundingRect.left + 100) +
-      "px";
+      Math.max(0, selectionRect.left - mewContainerBoundingRect.left) + "px";
 
     element.style.display = "block";
     element.focus();
@@ -670,11 +674,15 @@ const hideAutocompleter = () => {
 };
 </script>
 <style scoped>
-.placeholder-container:empty::before {
+.mew-container-input:empty::before {
   content: attr(data-placeholder);
   color: hsl(var(--nc));
   display: block;
   position: absolute;
-  font-family: "Campton", sans-serif;
+  font-family: "Inter";
+}
+
+.mew-container-input a {
+  color: hsl(var(--p)) !important;
 }
 </style>
