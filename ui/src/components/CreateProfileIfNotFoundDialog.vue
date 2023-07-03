@@ -42,8 +42,3 @@ const createProfile = async (e: any) => {
 };
 </script>
 
-<style>
-create-profile .title {
-  font-family: Syne;
-}
-</style>
