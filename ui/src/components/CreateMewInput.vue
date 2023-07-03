@@ -68,17 +68,14 @@
               </div>
             </div>
           </div>
-          <div
-            v-if="isMewRequireTruncation"
-            class="text-xs text-neutral-content"
-          >
+          <div v-if="isMewRequireTruncation" class="text-xs text-base-content">
             Overflow will be hidden
           </div>
         </div>
 
         <div
           id="link-target-input-container"
-          class="hidden absolute bg-base-200 text-base-content shadow-md rounded-md"
+          class="hidden absolute bg-base-200 text-base-content shadow-md rounded-md text-xs sm:text-sm"
         >
           <div class="relative">
             <input
@@ -86,7 +83,7 @@
               v-model="linkTarget"
               type="text"
               placeholder="Paste a URL to create a link"
-              class="block w-full rounded-md border-0 outline-none px-2 py-1 sm:text-sm sm:leading-6 bg-base-200 text-base-content"
+              class="block w-full rounded-md border-0 outline-none px-2 py-1 sm:leading-6 bg-base-200 text-base-content"
               :aria-invalid="!linkTargetValid"
               aria-label="Enter a URL to create a link"
               @keydown.enter="createLinkTag"
@@ -96,35 +93,33 @@
             />
             <div
               v-if="!linkTargetValid"
-              class="pointer-events-none inset-y-0 right-0 flex justify-start items-center space-x-2 px-2 py-1 border-t-2 border-white border-solid"
+              class="pointer-events-none text-error inset-y-0 right-0 flex justify-start items-center space-x-2 px-2 py-1 border-t-2 border-base-300 border-solid"
             >
-              <IconAlertCircleOutline
-                class="h-5 w-5 text-red-500"
-                aria-hidden="true"
-              />
-              <div class="text-sm text-error">
-                Link target must be valid URL
-              </div>
+              <IconAlertCircleOutline class="h-5 w-5" aria-hidden="true" />
+              <div>Link target must be valid URL</div>
             </div>
           </div>
         </div>
 
         <div
           id="autocompleter"
-          class="hidden absolute bg-base-300 text-base-content shadow-md rounded-md"
+          class="hidden absolute bg-base-200 shadow-md rounded-md text-xs sm:text-sm p-2"
         >
-          <div v-if="currentAgentSearch.length < 3" class="p-2 w-32">
-            Min 3 chars
-          </div>
+          <div v-if="currentAgentSearch.length < 3">Min 3 chars</div>
 
           <div
             v-else-if="autocompleterLoading"
             class="flex justify-center w-32"
           >
-            <div class="loading loading-spinner loading-sm m-2"></div>
+            <div
+              class="loading loading-spinner loading-sm m-2 text-base-content"
+            ></div>
           </div>
 
-          <div v-else-if="agentAutocompletions.length === 0" class="p-2 w-32">
+          <div
+            v-else-if="agentAutocompletions.length === 0"
+            class="text-base-content"
+          >
             Nothing found, Kitty
           </div>
 
