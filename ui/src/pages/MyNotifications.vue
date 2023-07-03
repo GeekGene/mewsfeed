@@ -43,7 +43,7 @@
               refetch({ refetchPage: (page, index) => index === i })
             "
           />
-          <hr v-if="j !== page.length - 1" />
+          <hr v-if="j !== page.length - 1" class="border-base-300" />
         </template>
       </template>
     </BaseInfiniteScroll>

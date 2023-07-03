@@ -15,6 +15,7 @@
           <template v-for="(mew, j) of page" :key="j">
             <BaseMewListItem
               :feed-mew="mew"
+              class="my-4"
               @mew-deleted="
                 refetch({ refetchPage: (page, index) => index === i })
               "
@@ -40,7 +41,7 @@
                 refetch({ refetchPage: (page, index) => index === i })
               "
             />
-            <hr v-if="j !== page.length - 1" />
+            <hr v-if="j !== page.length - 1" class="border-base-300" />
           </template>
         </template>
       </div>

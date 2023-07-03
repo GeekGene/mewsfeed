@@ -7,7 +7,7 @@
     <div v-if="items && items.length > 0">
       <template v-for="(item, i) of items" :key="i">
         <slot :item="item" :index="i"></slot>
-        <hr v-if="i !== items.length - 1" />
+        <hr v-if="i !== items.length - 1" class="border-base-300" />
       </template>
       <div class="flex justify-center">
         <button

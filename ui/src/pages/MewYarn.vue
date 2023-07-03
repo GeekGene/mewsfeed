@@ -42,7 +42,7 @@
             @quote-created="refetchRepliesPage(i)"
             @reply-created="refetchRepliesPage(i)"
           />
-          <hr v-if="j !== page.length - 1" />
+          <hr v-if="j !== page.length - 1" class="border-base-300" />
         </template>
       </template>
     </BaseInfiniteScroll>

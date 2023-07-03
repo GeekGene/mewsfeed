@@ -35,7 +35,7 @@
           <div class="w-full flex justify-between items-end mt-1">
             <div class="flex justify-start items-center space-x-4">
               <div
-                class="tooltip hover:tooltip-open tooltip-top"
+                class="tooltip hover:tooltip-open tooltip-top z-20"
                 data-tip="You can mention people with @ and use #hashtags and $cashtags as well
           as ^links in a mew. You can press Ctrl/Cmd + Enter to publish."
               >
@@ -76,7 +76,7 @@
 
           <div
             id="link-target-input-container"
-            class="hidden absolute bg-base-300 text-base-content shadow-md rounded-md"
+            class="hidden absolute bg-base-200 text-base-content shadow-md rounded-md"
           >
             <div class="relative">
               <input
@@ -84,7 +84,7 @@
                 v-model="linkTarget"
                 type="text"
                 placeholder="Paste a URL to create a link"
-                class="block w-full rounded-md border-0 outline-none p-2 sm:text-sm sm:leading-6 bg-base-300 text-base-content"
+                class="block w-full rounded-md border-0 outline-none p-2 sm:text-sm sm:leading-6 bg-base-200 text-base-content"
                 :aria-invalid="!linkTargetValid"
                 aria-label="Enter a URL to create a link"
                 @keydown.enter="createLinkTag"
