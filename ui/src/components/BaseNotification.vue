@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="py-4">
     <div
       v-if="
         NotificationTypeName.MyAgentFollowed in notification.notification_type
@@ -56,7 +56,7 @@
           />
         </div>
       </div>
-      <div class="bg-base-100">
+      <div class="bg-base-200 rounded-xl mt-4 mx-4">
         <BaseMewListItem
           :feed-mew="(notification.feed_mew as FeedMew)"
           v-bind="$attrs"
@@ -85,7 +85,7 @@
           />
         </div>
       </div>
-      <div class="bg-base-100 mt-4 mx-4">
+      <div class="bg-base-200 rounded-xl mt-4 mx-4">
         <BaseMewListItem
           :feed-mew="(notification.feed_mew as FeedMew)"
           v-bind="$attrs"
@@ -115,7 +115,7 @@
           />
         </div>
       </div>
-      <div class="bg-base-100 mx-4 mt-4">
+      <div class="bg-base-200 rounded-xl mt-4 mx-4">
         <BaseMewListItem
           :feed-mew="(notification.feed_mew as FeedMew)"
           v-bind="$attrs"
@@ -144,7 +144,7 @@
           />
         </div>
       </div>
-      <div class="bg-base-100 mx-4 mt-4">
+      <div class="bg-base-200 rounded-xl mt-4 mx-4">
         <BaseMewListItem
           :feed-mew="(notification.feed_mew as FeedMew)"
           v-bind="$attrs"
@@ -173,7 +173,7 @@
           />
         </div>
       </div>
-      <div class="bg-base-100 mx-4 mt-4">
+      <div class="bg-base-200 rounded-xl mt-4 mx-4">
         <BaseMewListItem
           :feed-mew="(notification.feed_mew as FeedMew)"
           v-bind="$attrs"
@@ -228,7 +228,7 @@
           />
         </div>
       </div>
-      <div class="bg-base-100 mx-4 mt-4">
+      <div class="bg-base-200 rounded-xl mt-4 mx-4">
         <BaseMewListItem
           :feed-mew="(notification.feed_mew as FeedMew)"
           v-bind="$attrs"
@@ -284,7 +284,7 @@
           />
         </div>
       </div>
-      <div class="bg-base-100 mx-4 mt-4">
+      <div class="bg-base-200 rounded-xl mt-4 mx-4">
         <BaseMewListItem
           :feed-mew="(notification.feed_mew as FeedMew)"
           v-bind="$attrs"

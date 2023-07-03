@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full flex justify-start items-start space-x-4 p-4 cursor-pointer"
+    class="w-full flex justify-start items-start space-x-4 p-4 cursor-pointer overflow-hidden"
     @click.passive="navigateToYarn(feedMew.action_hash)"
   >
     <BaseAgentProfileLinkAvatar :agentPubKey="feedMew.action.author" />

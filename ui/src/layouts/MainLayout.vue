@@ -1,5 +1,7 @@
 <template>
-  <div class="w-full max-w-screen-lg h-full px-8 py-6 flex flex-col">
+  <div
+    class="w-full max-w-screen-lg h-full px-3 sm:px-8 py-3 sm:py-6 flex flex-col"
+  >
     <div
       class="flex sm:flex-none justify-center items-start space-x-0 sm:space-x-10 h-full"
     >
