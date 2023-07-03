@@ -86,7 +86,7 @@
               v-model="linkTarget"
               type="text"
               placeholder="Paste a URL to create a link"
-              class="block w-full rounded-md border-0 outline-none p-2 sm:text-sm sm:leading-6 bg-base-200 text-base-content"
+              class="block w-full rounded-md border-0 outline-none px-2 py-1 sm:text-sm sm:leading-6 bg-base-200 text-base-content"
               :aria-invalid="!linkTargetValid"
               aria-label="Enter a URL to create a link"
               @keydown.enter="createLinkTag"
@@ -96,7 +96,7 @@
             />
             <div
               v-if="!linkTargetValid"
-              class="pointer-events-none inset-y-0 right-0 flex justify-start items-center space-x-2 px-2 pb-1"
+              class="pointer-events-none inset-y-0 right-0 flex justify-start items-center space-x-2 px-2 py-1 border-t-2 border-white border-solid"
             >
               <IconAlertCircleOutline
                 class="h-5 w-5 text-red-500"
@@ -224,7 +224,7 @@ const profilesStore = inject("profilesStore") as ComputedRef<ProfilesStore>;
 const { showMessage, showError } = useToasts();
 
 const TRUNCATED_MEW_LENGTH = 300;
-const POPUP_MARGIN_TOP = 20;
+const POPUP_MARGIN_TOP = 18;
 
 const mewContainer = ref<HTMLDivElement>();
 const mewContainerInput = ref<HTMLDivElement>();
