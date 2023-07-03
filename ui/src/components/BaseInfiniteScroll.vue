@@ -8,7 +8,10 @@
       v-observe-visibility="loadNextDebounced"
       class="h-16 w-full my-8 flex justify-center"
     >
-      <div v-if="loading" class="loading loading-dots loading-md"></div>
+      <div
+        v-if="loading || hasMore === undefined"
+        class="loading loading-dots loading-md text-base-300 text-2xl"
+      ></div>
       <IconPaw v-else-if="hasMore === false" class="text-base-300 text-2xl" />
     </div>
   </div>

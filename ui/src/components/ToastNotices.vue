@@ -30,5 +30,3 @@ import IconWarningOutline from "~icons/ion/warning-outline";
 
 const { messages } = storeToRefs(useToasts());
 </script>
-
-<style scoped></style>

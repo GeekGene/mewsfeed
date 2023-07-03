@@ -1,7 +1,11 @@
 <template>
   <div class="w-full">
     <h1 class="mb-8 flex justify-between items-end">
-      <div class="text-2xl font-title font-bold tracking-tighter">explore</div>
+      <div class="flex justify-start items-center space-x-2 mb-8">
+        <BaseButtonBack v-if="!getHomeRedirect()" />
+
+        <h1 class="text-2xl font-title font-bold tracking-tighter">explore</h1>
+      </div>
       <button
         class="btn btn-xs flex items-center justify-start space-x-1"
         @click="shuffle()"
@@ -116,6 +120,7 @@ import { useQuery } from "@tanstack/vue-query";
 import { useToasts } from "@/stores/toasts";
 import IconDiceOutline from "~icons/ion/dice-outline";
 import { ActionHash } from "@holochain/client";
+import { getHomeRedirect } from "@/utils/homeRedirect";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const { showError } = useToasts();
