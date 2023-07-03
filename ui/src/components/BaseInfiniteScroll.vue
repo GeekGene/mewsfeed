@@ -28,7 +28,6 @@ const loading = ref<boolean>(false);
 const hasMore = ref<boolean>();
 
 const loadNext = (visible: any) => {
-  console.log("load next", visible, loading);
   if (!visible || loading.value) return;
 
   loading.value = true;

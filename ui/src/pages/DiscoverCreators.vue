@@ -24,12 +24,7 @@
     >
       <BaseMewListItem
         :feed-mew="item"
-        @mew-deleted="
-          () => {
-            console.log('mew-deleted');
-            refetchRandomMews();
-          }
-        "
+        @mew-deleted="refetchRandomMews()"
         @mew-licked="refetchRandomMews()"
         @mew-unlicked="refetchRandomMews()"
         @mew-pinned="refetchRandomMews()"

@@ -386,7 +386,6 @@ const loadAutocompleterUsers = async (nickname: string) => {
 };
 
 const onAutocompleteKeyDown = (keyDownEvent: KeyboardEvent) => {
-  console.log("onAutocompleteKeyDown");
   if (keyDownEvent.key === "ArrowDown") {
     keyDownEvent.preventDefault();
     const currentListItem = keyDownEvent.currentTarget;
