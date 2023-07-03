@@ -27,7 +27,7 @@
 
         <div
           v-if="profile.fields.avatar"
-          class="tooltip tooltip-right xl:tooltip-bottom before:break-words md:before:max-w-none"
+          class="tooltip tooltip-right xl:tooltip-bottom before:break-words md:before:max-w-none mt-8"
           :data-tip="encodeHashToBase64(agentPubKey)"
         >
           <holo-identicon
@@ -38,7 +38,7 @@
         </div>
       </div>
 
-      <div class="flex-1">
+      <div class="flex-1 flex flex-col justify-between">
         <div
           class="w-full flex justify-between items-center whitespace-nowrap mb-5"
         >
@@ -64,52 +64,58 @@
           {{ profile.fields[PROFILE_FIELDS.BIO] }}
         </div>
 
-        <div class="border-t-4 border-base-100"></div>
-
-        <template
-          v-if="followersCount !== undefined || creatorsCount !== undefined"
-        >
-          <div
-            class="flex justify-start items-center space-x-2 sm:space-x-16 my-1 flex-wrap"
-          >
-            <button
-              v-if="creatorsCount !== undefined"
-              class="btn btn-ghost btn-sm"
-              :class="{ 'btn-disabled': creatorsCount === 0 }"
-              @click="emit('click-creators')"
-            >
-              <span class="font-bold">{{ creatorsCount }}</span>
-              <span class="font-normal font-content lowercase">following</span>
-            </button>
-            <button
-              v-if="followersCount !== undefined"
-              class="btn btn-ghost btn-sm"
-              :class="{ 'btn-disabled': followersCount === 0 }"
-              @click="emit('click-followers')"
-            >
-              <span class="font-bold">
-                {{ followersCount }}
-              </span>
-              <span class="font-normal font-content lowercase">followers</span>
-            </button>
-          </div>
+        <div>
           <div class="border-t-4 border-base-100"></div>
-        </template>
 
-        <div
-          class="flex justify-start items-center space-x-2 sm:space-x-16 text-xs mt-5"
-        >
-          <div
-            v-if="profile.fields[PROFILE_FIELDS.LOCATION]"
-            class="flex justify-start space-x-2"
+          <template
+            v-if="followersCount !== undefined || creatorsCount !== undefined"
           >
-            <IconNavigateCircleOutline />
-            <div>{{ profile.fields[PROFILE_FIELDS.LOCATION] }}</div>
-          </div>
+            <div
+              class="flex justify-start items-center space-x-2 sm:space-x-16 my-1 flex-wrap"
+            >
+              <button
+                v-if="creatorsCount !== undefined"
+                class="btn btn-ghost btn-sm"
+                :class="{ 'btn-disabled': creatorsCount === 0 }"
+                @click="emit('click-creators')"
+              >
+                <span class="font-bold">{{ creatorsCount }}</span>
+                <span class="font-normal font-content lowercase"
+                  >following</span
+                >
+              </button>
+              <button
+                v-if="followersCount !== undefined"
+                class="btn btn-ghost btn-sm"
+                :class="{ 'btn-disabled': followersCount === 0 }"
+                @click="emit('click-followers')"
+              >
+                <span class="font-bold">
+                  {{ followersCount }}
+                </span>
+                <span class="font-normal font-content lowercase"
+                  >followers</span
+                >
+              </button>
+            </div>
+            <div class="border-t-4 border-base-100"></div>
+          </template>
 
-          <div class="flex justify-start items-center space-x-2 text-xs">
-            <IconCalendarOutline />
-            <div>Joined ABC</div>
+          <div
+            class="flex justify-start items-center space-x-2 sm:space-x-16 text-xs mt-5"
+          >
+            <div
+              v-if="profile.fields[PROFILE_FIELDS.LOCATION]"
+              class="flex justify-start space-x-2"
+            >
+              <IconNavigateCircleOutline />
+              <div>{{ profile.fields[PROFILE_FIELDS.LOCATION] }}</div>
+            </div>
+
+            <div class="flex justify-start items-center space-x-2 text-xs">
+              <IconCalendarOutline />
+              <div>Joined ABC</div>
+            </div>
           </div>
         </div>
       </div>
