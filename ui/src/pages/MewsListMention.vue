@@ -46,7 +46,7 @@
         </template>
       </template>
     </BaseInfiniteScroll>
-    <BaseListSkeleton v-else-if="isLoading" :count="5">
+    <BaseListSkeleton v-else-if="isLoading" :count="4">
       <BaseMewListItemSkeleton />
     </BaseListSkeleton>
     <BaseEmptyList v-else />
