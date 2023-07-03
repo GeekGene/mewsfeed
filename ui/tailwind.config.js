@@ -23,7 +23,12 @@ export default {
           primary: "#FF5C00",
         },
       },
-      "dark",
+      {
+        dark: {
+          ...daisyuiThemes["[data-theme=dark]"],
+          primary: "#FF5C00",
+        },
+      },
     ],
   },
 };
