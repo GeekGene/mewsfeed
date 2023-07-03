@@ -1,6 +1,6 @@
 import "./index.css";
 import "@fontsource/syne/700.css";
-import "@fontsource/inter";
+import "@fontsource/inter/400.css";
 import "@fontsource/inter/700.css";
 import "@fontsource/space-mono";
 import "@holochain-open-dev/profiles/dist/elements/agent-avatar.js";
