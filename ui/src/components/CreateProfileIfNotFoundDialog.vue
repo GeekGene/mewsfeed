@@ -1,62 +1,25 @@
 <template>
-  <TransitionRoot as="template" :show="modelValue">
-    <Dialog
-      as="div"
-      class="relative z-20"
-      @close="emit('update:model-value', false)"
-    >
-      <TransitionChild
-        as="template"
-        enter="ease-out duration-300"
-        enter-from="opacity-0"
-        enter-to="opacity-100"
-        leave="ease-in duration-200"
-        leave-from="opacity-100"
-        leave-to="opacity-0"
-      >
-        <div
-          class="fixed inset-0 z-10 bg-base-300 bg-opacity-75 transition-opacity backdrop-blur-sm"
-        ></div>
-      </TransitionChild>
-
-      <div class="fixed inset-0 z-20 overflow-y-auto">
-        <div
-          class="flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0"
+  <BaseDialog
+    :model-value="modelValue"
+    @update:model-value="(val: boolean) => emit('update:model-value', val)"
+  >
+    <profiles-context :store="profilesStore">
+      <div class="w-96">
+        <h2
+          class="text-3xl text-left font-title font-bold tracking-tighter mb-4"
         >
-          <TransitionChild
-            as="template"
-            enter="ease-out duration-300"
-            enter-from="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-            enter-to="opacity-100 translate-y-0 sm:scale-100"
-            leave="ease-in duration-200"
-            leave-from="opacity-100 translate-y-0 sm:scale-100"
-            leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-          >
-            <DialogPanel>
-              <create-profile
-                v-if="profilesStore && !myProfile"
-                :store="profilesStore"
-                class="font-content text-left prose"
-                style="
-                  .title {
-                    font-family: Syne;
-                  }
-                  text-align: left;
-                "
-                @profile-created="
-                  (e: any) => {
-                    emit('profile-created', e.detail.profile );
-                    emit('update:model-value', false);
-                  }
-                "
-              ></create-profile>
-              <slot v-else></slot>
-            </DialogPanel>
-          </TransitionChild>
-        </div>
+          create profile
+        </h2>
+        <edit-profile
+          v-if="profilesStore && !myProfile"
+          class="font-content text-left prose update-profile-element"
+          :store="profilesStore"
+          @save-profile="createProfile"
+        ></edit-profile>
+        <slot v-else></slot>
       </div>
-    </Dialog>
-  </TransitionRoot>
+    </profiles-context>
+  </BaseDialog>
 </template>
 
 <script setup lang="ts">
@@ -76,4 +39,16 @@ const emit = defineEmits(["update:model-value", "profile-created"]);
 defineProps<{
   modelValue: boolean;
 }>();
+
+const createProfile = async (e: any) => {
+  await profilesStore.client.createProfile(e.detail.profile);
+  emit("profile-created", e.detail.profile);
+  emit("update:model-value", false);
+};
 </script>
+
+<style>
+create-profile .title {
+  font-family: Syne;
+}
+</style>
