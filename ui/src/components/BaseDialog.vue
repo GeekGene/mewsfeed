@@ -38,7 +38,7 @@
               :class="dialogPanelClass"
             >
               <div
-                class="relative transform overflow-hidden bg-base-100 rounded-3xl shadow-xl transition-all w-full p-2 sm:p-4"
+                class="relative transform overflow-hidden bg-base-100 rounded-3xl shadow-xl transition-all w-full p-2 sm:p-8"
               >
                 <slot></slot>
               </div>
