@@ -34,7 +34,7 @@
           >
             <DialogPanel>
               <div
-                class="relative transform overflow-hidden bg-neutral-100 rounded-3xl shadow-xl transition-all w-full p-8"
+                class="relative transform overflow-hidden bg-base-100 rounded-3xl shadow-xl transition-all w-full p-8"
               >
                 <slot></slot>
               </div>

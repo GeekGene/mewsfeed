@@ -6,7 +6,7 @@
         :agentPubKey="agentPubKey"
         :creators-count="creators ? creators.length : 0"
         :followers-count="followers ? followers.length : 0"
-        class="bg-neutral/5 backdrop-blur-md p-4 rounded-3xl"
+        class="bg-base-200 backdrop-blur-md p-4 rounded-3xl"
         @click-edit-profile="showEditProfileDialog = true"
         @click-followers="
           () => {

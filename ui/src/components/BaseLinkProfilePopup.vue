@@ -6,18 +6,23 @@
         params: { agentPubKey: encodeHashToBase64(agentPubKey) },
       }
     "
-    class="text-primary text-bold relative inline-block overflow-visible"
+    class="text-primary text-bold inline-block"
+    v-bind="$attrs"
     @click.stop
     @mouseenter="setPopupVisible(true)"
     @mouseleave="setPopupVisible(false)"
   >
-    <div>
-      <div><slot></slot></div>
-    </div>
+    <slot></slot>
   </RouterLink>
-  <div v-show="isPopupVisible" class="absolute right-0 w-full z-20 mt-12">
+  <div
+    v-show="isPopupVisible"
+    class="absolute right-0 w-full z-20"
+    :class="popupClass"
+  >
     <div class="flex justify-center">
-      <div class="w-full max-w-screen-lg flex items-center sm:space-x-10 px-8">
+      <div
+        class="w-full max-w-screen-lg flex items-center sm:space-x-10 px-2 sm:px-8"
+      >
         <div class="block w-0 sm:w-14 h-14"></div>
         <div
           class="bg-neutral/5 backdrop-blur-md rounded-3xl shadow-xl flex-1 w-full"
@@ -55,10 +60,12 @@ const props = withDefaults(
     to?: RouteLocationRaw;
     agentPubKey: Uint8Array;
     enabled?: boolean;
+    popupClass?: string;
   }>(),
   {
     to: undefined,
     enabled: true,
+    popupClass: "",
   }
 );
 
@@ -68,5 +75,5 @@ const setPopupVisible = debounce((val: boolean) => {
   if (props.enabled) {
     isPopupVisible.value = val;
   }
-}, 10);
+}, 50);
 </script>

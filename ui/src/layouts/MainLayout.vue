@@ -49,7 +49,9 @@
   </div>
 
   <ToastNotices />
-  <BaseThemeSelect class="absolute top-5 right-5 text-base-300" />
+  <BaseThemeSelect
+    class="absolute top-1 md:top-5 right-1 md:right-5 text-base-300"
+  />
 
   <SearchEverythingDialog v-model="showSearchDialog" />
   <CreateMewDialog

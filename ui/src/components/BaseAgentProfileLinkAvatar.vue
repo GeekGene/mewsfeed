@@ -1,13 +1,18 @@
 <template>
-  <BaseLinkProfilePopup :agentPubKey="agentPubKey" :enabled="enablePopup">
-    <agent-avatar
-      :agentPubKey="agentPubKey"
-      disable-tooltip
-      :size="size"
-      class="self-start"
-      :store="profilesStore"
-    >
-    </agent-avatar>
+  <BaseLinkProfilePopup
+    :agentPubKey="agentPubKey"
+    :enabled="enablePopup"
+    popup-class="mt-11"
+  >
+    <div class="pr-4">
+      <agent-avatar
+        :agentPubKey="agentPubKey"
+        disable-tooltip
+        :size="size"
+        :store="profilesStore"
+      >
+      </agent-avatar>
+    </div>
   </BaseLinkProfilePopup>
 </template>
 

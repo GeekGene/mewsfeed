@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full flex justify-start items-start space-x-4 p-4 cursor-pointer overflow-hidden"
+    class="w-full flex justify-start items-start space-x-4 p-4 cursor-pointer"
     @click.passive="navigateToYarn(feedMew.action_hash)"
   >
     <BaseAgentProfileLinkAvatar :agentPubKey="feedMew.action.author" />
@@ -172,7 +172,7 @@
           </div>
           <div>
             <div
-              class="tooltip-bottom"
+              class="tooltip-left sm:tooltip-bottom"
               :class="{ tooltip: !isDeleted }"
               :data-tip="`${props.feedMew.is_pinned ? 'Unpin' : 'Pin'} mew`"
             >
@@ -190,7 +190,7 @@
             </div>
             <div
               v-if="isAuthoredByMe"
-              class="tooltip-bottom"
+              class="tooltip-left sm:tooltip-bottom"
               :class="{ tooltip: !isDeleted }"
               data-tip="Delete mew"
             >

@@ -1,7 +1,7 @@
 <template>
   <div class="w-full">
-    <h1 class="mb-8 flex justify-between items-end">
-      <div class="flex justify-start items-center space-x-2 mb-8">
+    <h1 class="mb-8 flex justify-between items-center">
+      <div class="flex justify-start items-center space-x-2">
         <BaseButtonBack v-if="!getHomeRedirect()" />
 
         <h1 class="text-2xl font-title font-bold tracking-tighter">explore</h1>

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="profile" class="flex flex-col text-neutral">
+    <div v-if="profile" class="flex flex-col text-base-content">
       <div
         v-if="profile.fields[PROFILE_FIELDS.DISPLAY_NAME]"
         class="font-bold text-xl"
