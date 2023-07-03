@@ -16,6 +16,7 @@
       >
         <div
           class="fixed inset-0 z-10 bg-base-300 bg-opacity-75 transition-opacity backdrop-blur-sm"
+          style="-webkit-backdrop-filter: blur(10px)"
         ></div>
       </TransitionChild>
 

@@ -20,7 +20,8 @@
       <div class="w-full max-w-screen-lg flex items-center space-x-10 px-8">
         <div class="block w-14 h-14"></div>
         <div
-          class="bg-base-300/[0.01] backdrop-blur-md rounded-3xl shadow-xl flex-1 w-full"
+          class="bg-base-300/10 backdrop-blur-md rounded-3xl shadow-2xl flex-1 w-full"
+          style="-webkit-backdrop-filter: blur(10px)"
         >
           <CreateMewInput
             :mew-type="{ [MewTypeName.Original]: null }"

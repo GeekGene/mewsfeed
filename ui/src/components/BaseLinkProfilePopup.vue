@@ -26,6 +26,7 @@
         <div class="block w-0 sm:w-14 h-14"></div>
         <div
           class="bg-neutral/5 backdrop-blur-md rounded-3xl shadow-xl flex-1 w-full"
+          style="-webkit-backdrop-filter: blur(10px)"
         >
           <RouterLink
             :to="{

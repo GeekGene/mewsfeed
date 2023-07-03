@@ -39,19 +39,19 @@
                 data-tip="You can mention people with @ and use #hashtags and $cashtags as well
           as ^links in a mew. You can press Ctrl/Cmd + Enter to publish."
               >
-                <IconHelpCircleOutline class="text-xl text-neutral-content" />
+                <IconHelpCircleOutline class="text-xl text-base-content" />
               </div>
             </div>
 
             <div
               v-if="!isMewEmpty"
-              class="flex justify-between text-xs text-neutral-content space-x-1"
+              class="flex justify-between text-xs text-base-content space-x-1"
             >
               <div
                 :class="{
                   'font-bold text-error':
                     isMewFull || isMewRequireTruncation || isMewOverfull,
-                  'text-neutral-content': !isMewFull && !isMewOverfull,
+                  'text-base-content': !isMewFull && !isMewOverfull,
                 }"
               >
                 {{ mewContentLength }} /

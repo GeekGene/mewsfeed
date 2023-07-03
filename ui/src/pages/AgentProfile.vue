@@ -7,6 +7,7 @@
         :creators-count="creators ? creators.length : 0"
         :followers-count="followers ? followers.length : 0"
         class="bg-base-200 backdrop-blur-md p-4 rounded-3xl"
+        style="-webkit-backdrop-filter: blur(10px)"
         @click-edit-profile="showEditProfileDialog = true"
         @click-followers="
           () => {
