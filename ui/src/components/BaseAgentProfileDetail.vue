@@ -6,26 +6,36 @@
   >
     <div class="flex space-x-6 h-full p-4">
       <div class="flex flex-col justify-between">
-        <agent-avatar
-          class="hidden sm:block"
-          :agentPubKey="agentPubKey"
-          size="80"
-          disable-tooltip
-          disable-copy
-        />
-        <agent-avatar
-          class="block sm:hidden"
-          :agentPubKey="agentPubKey"
-          size="50"
-          disable-tooltip
-          disable-copy
-        />
+        <div
+          class="tooltip-right xl:tooltip-bottom before:break-words md:before:max-w-none"
+          :class="{ tooltip: !profile.fields.avatar }"
+          :data-tip="encodeHashToBase64(agentPubKey)"
+        >
+          <agent-avatar
+            class="hidden sm:block"
+            :agentPubKey="agentPubKey"
+            size="80"
+            disable-tooltip
+          />
+          <agent-avatar
+            class="block sm:hidden"
+            :agentPubKey="agentPubKey"
+            size="50"
+            disable-tooltip
+          />
+        </div>
 
-        <holo-identicon
+        <div
           v-if="profile.fields.avatar"
-          :hash="agentPubKey"
-          size="30"
-        ></holo-identicon>
+          class="tooltip tooltip-right xl:tooltip-bottom before:break-words md:before:max-w-none"
+          :data-tip="encodeHashToBase64(agentPubKey)"
+        >
+          <holo-identicon
+            :hash="agentPubKey"
+            size="30"
+            disable-tooltip
+          ></holo-identicon>
+        </div>
       </div>
 
       <div class="flex-1">
@@ -109,7 +119,11 @@
 
 <script setup lang="ts">
 import isEqual from "lodash/isEqual";
-import { AgentPubKey, AppAgentClient } from "@holochain/client";
+import {
+  AgentPubKey,
+  AppAgentClient,
+  encodeHashToBase64,
+} from "@holochain/client";
 import { computed, ComputedRef, inject } from "vue";
 import ButtonFollow from "@/components/ButtonFollow.vue";
 import { Profile } from "@holochain-open-dev/profiles";
