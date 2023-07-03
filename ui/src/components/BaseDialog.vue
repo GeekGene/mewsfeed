@@ -21,7 +21,7 @@
 
       <div class="fixed inset-0 z-10 overflow-y-auto w-full">
         <div
-          class="flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0"
+          class="flex min-h-full items-center justify-center text-center sm:items-center px-2 sm:px-0"
         >
           <TransitionChild
             as="template"
@@ -32,9 +32,12 @@
             leave-from="opacity-100 translate-y-0 sm:scale-100"
             leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
           >
-            <DialogPanel>
+            <DialogPanel
+              class="w-full md:w-2/3 sm:px-8"
+              :class="dialogPanelClass"
+            >
               <div
-                class="relative transform overflow-hidden bg-base-100 rounded-3xl shadow-xl transition-all w-full p-8"
+                class="relative transform overflow-hidden bg-base-100 rounded-3xl shadow-xl transition-all w-full p-2 sm:p-4"
               >
                 <slot></slot>
               </div>
@@ -55,7 +58,13 @@ import {
 } from "@headlessui/vue";
 
 const emit = defineEmits(["update:model-value"]);
-defineProps<{
-  modelValue: boolean;
-}>();
+withDefaults(
+  defineProps<{
+    modelValue: boolean;
+    dialogPanelClass?: string;
+  }>(),
+  {
+    dialogPanelClass: "",
+  }
+);
 </script>

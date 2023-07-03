@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full shadow-xl rounded-3xl flex justify-start items-start p-3">
+  <div class="w-full rounded-3xl flex justify-start items-start p-3">
     <RouterLink
       v-if="myProfile"
       class="btn btn-circle btn-md btn-neutral-inverse px-0 py-0 z-10"
@@ -150,7 +150,7 @@
     </div>
 
     <button
-      class="btn btn-neutral btn-md rounded-full w-20 sm:w-auto"
+      class="btn btn-neutral btn-sm sm:btn-md rounded-full"
       :class="{ 'btn-disabled': isMewEmpty || isMewOverfull || isMewUnderfull }"
       :loading="saving"
       tabindex="0"
@@ -158,8 +158,8 @@
       @keydown.enter.prevent="publishMew()"
     >
       <div class="flex justify-start items-center space-x-1 sm:space-x-2">
-        <IconArrowForwardOutline class="text-2xl sm:text-xl" />
-        <div>Send Mew</div>
+        <IconArrowForwardOutline class="text-xl" />
+        <div>Send <br class="inline-block sm:hidden" />Mew</div>
       </div>
     </button>
   </div>

@@ -1,6 +1,7 @@
 <template>
   <BaseDialog
     :model-value="modelValue"
+    dialog-panel-class="md:w-auto"
     @update:model-value="(val: boolean) => emit('update:model-value', val)"
   >
     <div class="w-96">
@@ -11,7 +12,7 @@
           edit profile
         </h2>
         <update-profile
-          class="font-content text-left prose update-profile-element"
+          class="font-content text-left prose"
           :profile="profile"
           :store="profilesStore"
           @profile-updated="
