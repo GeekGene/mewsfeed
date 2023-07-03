@@ -57,16 +57,20 @@
                   />
                 </div>
 
-                <BaseMewContent
+                <div
                   v-if="
                     mewType !== undefined &&
                     (MewTypeName.Reply in mewType ||
                       MewTypeName.Quote in mewType) &&
                     originalMew
                   "
-                  :mew="originalMew.mew"
-                  class="px-8 py-4"
-                />
+                  class="bg-base-200 rounded-3xl mb-4 mx-4"
+                >
+                  <BaseMewListItem
+                    :feed-mew="originalMew"
+                    :show-buttons="false"
+                  />
+                </div>
 
                 <CreateMewInput
                   :mew-type="mewType"

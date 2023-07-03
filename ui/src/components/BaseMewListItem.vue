@@ -94,7 +94,7 @@
 
       <div class="flex justify-between">
         <div
-          v-if="!isDeleted || showIfDeleted"
+          v-if="(!isDeleted || showIfDeleted) && showButtons"
           class="flex justify-between items-center"
           style="width: 100%"
         >
@@ -294,10 +294,12 @@ const props = withDefaults(
     feedMew: FeedMew;
     showYarnLink?: boolean;
     showIfDeletedDefault?: boolean;
+    showButtons?: boolean;
   }>(),
   {
     showYarnLink: true,
     showIfDeletedDefault: false,
+    showButtons: true,
   }
 );
 const emit = defineEmits([
