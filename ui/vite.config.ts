@@ -7,6 +7,7 @@ import tailwindcss from "tailwindcss";
 import Components from "unplugin-vue-components/vite";
 import Icons from "unplugin-icons/vite";
 import IconsResolver from "unplugin-icons/resolver";
+import legacy from "@vitejs/plugin-legacy";
 
 export default defineConfig({
   server: {
@@ -49,6 +50,10 @@ export default defineConfig({
     }) as PluginOption,
 
     Icons({ autoInstall: true }) as PluginOption,
+
+    legacy({
+      targets: ["defaults", ">= Safari 13"],
+    }),
   ],
   build: {
     target: "es2020",
