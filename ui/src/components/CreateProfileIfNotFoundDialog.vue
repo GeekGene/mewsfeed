@@ -37,8 +37,9 @@ defineProps<{
 
 const createProfile = async (e: any) => {
   await profilesStore.client.createProfile(e.detail.profile);
+  await profilesStore.myProfile.reload();
+
   emit("profile-created", e.detail.profile);
   emit("update:model-value", false);
 };
 </script>
-
