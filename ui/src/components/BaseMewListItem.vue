@@ -161,7 +161,7 @@
                 @click.stop.prevent="toggleLickMew"
               >
                 <BaseIconTongue
-                  class="text-black"
+                  class="text-base-content"
                   :class="{ 'text-pink-400': isLickedByMe }"
                 />
                 <span v-if="feedMew.licks.length > 0" class="text-xs">

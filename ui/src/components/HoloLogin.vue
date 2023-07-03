@@ -52,7 +52,6 @@ html {
   font-family: "Nunito Sans", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #fafcfe;
   height: 100%;
   display: flex;
   flex-direction: column;

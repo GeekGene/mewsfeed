@@ -1,4 +1,5 @@
 <template>
+  <BaseThemeSelect class="absolute top-5 right-5 text-base-300" />
   <div class="w-full max-w-screen-lg h-full px-8 py-8 flex flex-col">
     <div
       class="flex sm:flex-none justify-center items-start space-x-0 sm:space-x-10 h-full"
@@ -74,6 +75,7 @@ import { useInfiniteQuery, useQuery } from "@tanstack/vue-query";
 import IconChatbubbleOutline from "~icons/ion/chatbubble-outline";
 import CreateMewDialog from "@/components/CreateMewDialog.vue";
 import ToastNotices from "@/components/ToastNotices.vue";
+import BaseThemeSelect from "@/components/BaseThemeSelect.vue";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const router = useRouter();

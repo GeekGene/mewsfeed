@@ -15,7 +15,7 @@
         leave-to="opacity-0"
       >
         <div
-          class="fixed inset-0 z-10 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm"
+          class="fixed inset-0 z-10 bg-base-300 bg-opacity-75 transition-opacity backdrop-blur-sm"
         ></div>
       </TransitionChild>
 

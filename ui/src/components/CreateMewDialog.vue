@@ -15,7 +15,7 @@
         leave-to="opacity-0"
       >
         <div
-          class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm"
+          class="fixed inset-0 bg-base-300 bg-opacity-75 transition-opacity backdrop-blur-sm"
         ></div>
       </TransitionChild>
 
@@ -34,7 +34,7 @@
           >
             <DialogPanel class="w-full sm:max-w-screen-sm">
               <div
-                class="relative transform overflow-hidden bg-white rounded-3xl shadow-xl transition-all w-full"
+                class="relative transform overflow-hidden bg-base-100 rounded-3xl shadow-xl transition-all w-full"
               >
                 <div
                   v-if="

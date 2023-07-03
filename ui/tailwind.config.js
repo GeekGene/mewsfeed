@@ -24,7 +24,6 @@ export default {
         },
       },
       "dark",
-      "cupcake",
     ],
   },
 };

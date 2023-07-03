@@ -9,7 +9,7 @@
 
   <div
     v-else
-    class="w-full flex justify-center items-center relative font-content cursor-default"
+    class="bg-base w-full flex justify-center items-center relative font-content cursor-default"
   >
     <profiles-context :store="profilesStore">
       <HoloLogin v-if="IS_HOLO_HOSTED">
@@ -49,6 +49,7 @@ import asyncRetry from "async-retry";
 import { CellType } from "@holochain/client";
 import { QueryClient } from "@tanstack/vue-query";
 import { setHomeRedirect } from "@/utils/homeRedirect";
+import { useThemeStore } from "@/stores/theme";
 
 const client = ref<AppAgentClient | WebSdkApi>();
 const appInfo = ref<AppInfo>();
@@ -56,6 +57,8 @@ const profilesStore = ref<ProfilesStore>();
 const myProfile = ref<Profile>();
 const loadingClient = ref<boolean>(true);
 const loadingCells = ref<boolean>(true);
+const themeStore = useThemeStore();
+themeStore.apply();
 
 const dnaProperties = computed(() =>
   appInfo.value
