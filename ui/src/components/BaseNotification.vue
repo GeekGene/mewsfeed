@@ -12,9 +12,11 @@
           :agentPubKey="notification.agent"
           :profile="notification.agent_profile"
         />
-        <div>Followed you</div>
+        <div class="font-mono">Followed you</div>
       </div>
-      <div><BaseTimestamp :timestamp="notification.timestamp" /></div>
+      <div>
+        <BaseTimestamp class="font-mono" :timestamp="notification.timestamp" />
+      </div>
     </div>
     <div
       v-else-if="
@@ -27,9 +29,11 @@
           :agentPubKey="notification.agent"
           :profile="notification.agent_profile"
         />
-        <div>Unfollowed you</div>
+        <div class="font-mono">Unfollowed you</div>
       </div>
-      <div><BaseTimestamp :timestamp="notification.timestamp" /></div>
+      <div>
+        <BaseTimestamp class="font-mono" :timestamp="notification.timestamp" />
+      </div>
     </div>
     <div
       v-else-if="
@@ -43,9 +47,14 @@
             :agentPubKey="notification.agent"
             :profile="notification.agent_profile"
           />
-          <div>Mentioned you in a mew</div>
+          <div class="font-mono">Mentioned you in a mew</div>
         </div>
-        <div><BaseTimestamp :timestamp="notification.timestamp" /></div>
+        <div>
+          <BaseTimestamp
+            class="font-mono"
+            :timestamp="notification.timestamp"
+          />
+        </div>
       </div>
       <div class="bg-base-100">
         <BaseMewListItem
@@ -67,9 +76,14 @@
             :agentPubKey="notification.agent"
             :profile="notification.agent_profile"
           />
-          <div>Licked your mew</div>
+          <div class="font-mono">Licked your mew</div>
         </div>
-        <div><BaseTimestamp :timestamp="notification.timestamp" /></div>
+        <div>
+          <BaseTimestamp
+            class="font-mono"
+            :timestamp="notification.timestamp"
+          />
+        </div>
       </div>
       <div class="bg-base-100 mt-4 mx-4">
         <BaseMewListItem
@@ -92,9 +106,14 @@
             :agentPubKey="notification.agent"
             :profile="notification.agent_profile"
           />
-          <div>Unlicked your mew</div>
+          <div class="font-mono">Unlicked your mew</div>
         </div>
-        <div><BaseTimestamp :timestamp="notification.timestamp" /></div>
+        <div>
+          <BaseTimestamp
+            class="font-mono"
+            :timestamp="notification.timestamp"
+          />
+        </div>
       </div>
       <div class="bg-base-100 mx-4 mt-4">
         <BaseMewListItem
@@ -116,9 +135,14 @@
             :agentPubKey="notification.agent"
             :profile="notification.agent_profile"
           />
-          <div>Pinned your mew</div>
+          <div class="font-mono">Pinned your mew</div>
         </div>
-        <div><BaseTimestamp :timestamp="notification.timestamp" /></div>
+        <div>
+          <BaseTimestamp
+            class="font-mono"
+            :timestamp="notification.timestamp"
+          />
+        </div>
       </div>
       <div class="bg-base-100 mx-4 mt-4">
         <BaseMewListItem
@@ -140,9 +164,14 @@
             :agentPubKey="notification.agent"
             :profile="notification.agent_profile"
           />
-          <div>Unpinned your mew</div>
+          <div class="font-mono">Unpinned your mew</div>
         </div>
-        <div><BaseTimestamp :timestamp="notification.timestamp" /></div>
+        <div>
+          <BaseTimestamp
+            class="font-mono"
+            :timestamp="notification.timestamp"
+          />
+        </div>
       </div>
       <div class="bg-base-100 mx-4 mt-4">
         <BaseMewListItem
@@ -169,6 +198,7 @@
               notification.feed_mew &&
               MewTypeName.Reply in notification.feed_mew.mew.mew_type
             "
+            class="font-mono"
           >
             Replied to your mew
           </div>
@@ -177,6 +207,7 @@
               notification.feed_mew &&
               MewTypeName.Quote in notification.feed_mew.mew.mew_type
             "
+            class="font-mono"
           >
             Quoted your mew
           </div>
@@ -185,11 +216,17 @@
               notification.feed_mew &&
               MewTypeName.Mewmew in notification.feed_mew.mew.mew_type
             "
+            class="font-mono"
           >
             Mewmewed your mew
           </div>
         </div>
-        <div><BaseTimestamp :timestamp="notification.timestamp" /></div>
+        <div>
+          <BaseTimestamp
+            class="font-mono"
+            :timestamp="notification.timestamp"
+          />
+        </div>
       </div>
       <div class="bg-base-100 mx-4 mt-4">
         <BaseMewListItem
@@ -217,6 +254,7 @@
               notification.feed_mew &&
               MewTypeName.Reply in notification.feed_mew.mew.mew_type
             "
+            class="font-mono"
           >
             Replied to a yarn you participated in
           </div>
@@ -225,6 +263,7 @@
               notification.feed_mew &&
               MewTypeName.Quote in notification.feed_mew.mew.mew_type
             "
+            class="font-mono"
           >
             Quoted a yarn you participated in
           </div>
@@ -233,11 +272,17 @@
               notification.feed_mew &&
               MewTypeName.Mewmew in notification.feed_mew.mew.mew_type
             "
+            class="font-mono"
           >
             Memewed a yarn you participated in
           </div>
         </div>
-        <div><BaseTimestamp :timestamp="notification.timestamp" /></div>
+        <div>
+          <BaseTimestamp
+            class="font-mono"
+            :timestamp="notification.timestamp"
+          />
+        </div>
       </div>
       <div class="bg-base-100 mx-4 mt-4">
         <BaseMewListItem

@@ -1,5 +1,8 @@
 <template>
-  <div class="tooltip tooltip-left xl:tooltip-bottom" :data-tip="timestamp">
+  <div
+    class="tooltip tooltip-left xl:tooltip-bottom font-mono"
+    :data-tip="timestamp"
+  >
     <div>{{ formattedTimestamp }}</div>
   </div>
 </template>
