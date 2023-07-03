@@ -1,14 +1,13 @@
 <template>
-  <div
-    class="text-content text-left whitespace-pre-line"
-    style="overflow-wrap: anywhere"
-  >
+  <div class="text-content text-left">
     <template v-for="(contentPart, index) of partsDisplayed" :key="index">
       <BaseMewContentTag
         v-if="contentPart.tagType !== undefined"
         :content-part="contentPart"
       />
-      <template v-else>{{ contentPart.text }}</template>
+      <div v-else class="inline-block whitespace-pre-line pr-1">
+        {{ contentPart.text }}
+      </div>
     </template>
 
     <span v-if="contentRequiresTruncation">
