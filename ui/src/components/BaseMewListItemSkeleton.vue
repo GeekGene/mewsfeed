@@ -25,8 +25,8 @@
           <div class="bg-base-200 rounded-full w-4 h-4"></div>
         </div>
         <div class="flex justify-start items-center space-x-2">
-          <div class="bg-base-300 rounded-full w-4 h-4"></div>
-          <div class="bg-base-300 rounded-full w-4 h-4"></div>
+          <div class="bg-base-200 rounded-full w-4 h-4"></div>
+          <div class="bg-base-200 rounded-full w-4 h-4"></div>
         </div>
       </div>
     </div>
