@@ -150,10 +150,10 @@ provide("myProfile", myProfile);
   --sl-color-primary-300: hsl(var(--p)) !important;
   --sl-color-primary-400: hsl(var(--p)) !important;
   --sl-color-primary-500: hsl(var(--p)) !important;
-  --sl-color-primary-600: hsl(var(--p)) !important;
-  --sl-color-primary-700: hsl(var(--p)) !important;
-  --sl-color-primary-800: hsl(var(--p)) !important;
-  --sl-color-primary-900: hsl(var(--p)) !important;
+  --sl-color-primary-600: hsl(var(--pf)) !important;
+  --sl-color-primary-700: hsl(var(--pf)) !important;
+  --sl-color-primary-800: hsl(var(--pf)) !important;
+  --sl-color-primary-900: hsl(var(--pf)) !important;
 
   --sl-color-neutral-0: hsl(var(--b2)) !important;
   --sl-color-neutral-50: hsl(var(--b2)) !important;
@@ -169,8 +169,6 @@ provide("myProfile", myProfile);
 
   --sl-color-neutral-1000: hsl(var(--bc)) !important;
 
-  --sl-panel-background-color: hsl(var(--b1)) !important;
-
   --sl-input-color: hsl(var(--bc)) !important;
   --sl-input-color-hover: hsl(var(--bc)) !important;
   --sl-input-color-focus: hsl(var(--bc)) !important;
@@ -181,5 +179,6 @@ provide("myProfile", myProfile);
   --sl-input-border-color-hover: hsl(var(--b2)) !important;
   --sl-input-border-color-focus: hsl(var(--b2)) !important;
   --sl-input-border-width: hsl(var(--b2)) !important;
+  --sl-input-help-text-color: hsl(var(--nc)) !important;
 }
 </style>

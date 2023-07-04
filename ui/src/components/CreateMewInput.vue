@@ -41,19 +41,18 @@
               data-tip="You can mention people with @ and use #hashtags and $cashtags as well
           as ^links in a mew. You can press Ctrl/Cmd + Enter to publish."
             >
-              <IconHelpCircleOutline class="text-xl text-base-content" />
+              <IconHelpCircleOutline class="text-xl text-neutral-content" />
             </div>
           </div>
 
           <div
             v-if="!isMewEmpty"
-            class="flex justify-between text-xs text-base-content space-x-1"
+            class="flex justify-start items-center text-xs space-x-1"
           >
             <div
               :class="{
-                'font-bold text-error':
-                  isMewFull || isMewRequireTruncation || isMewOverfull,
-                'text-base-content': !isMewFull && !isMewOverfull,
+                'text-error': !mewLengthOk,
+                'text-neutral-content': mewLengthOk,
               }"
             >
               {{ mewContentLength }} /
@@ -62,14 +61,12 @@
               }}
               Chars
             </div>
-            <div>
-              <div v-if="isMewUnderfull">
-                ({{ dnaProperties.mew_characters_min }} Min)
-              </div>
+            <div v-if="isMewUnderfull" class="text-error">
+              ({{ dnaProperties.mew_characters_min }} Min)
             </div>
-          </div>
-          <div v-if="isMewRequireTruncation" class="text-xs text-base-content">
-            Overflow will be hidden
+            <div v-if="isMewRequireTruncation" class="text-error">
+              (Overflow will be hidden)
+            </div>
           </div>
         </div>
 
@@ -250,6 +247,13 @@ const isMewUnderfull = computed(
   () =>
     dnaProperties.mew_characters_min !== null &&
     mewContentLength.value < dnaProperties.mew_characters_min
+);
+const mewLengthOk = computed(
+  () =>
+    !isMewUnderfull.value &&
+    !isMewFull.value &&
+    !isMewRequireTruncation.value &&
+    !isMewOverfull.value
 );
 const linkTargetValid = computed(() => {
   if (!linkTarget.value) return true;

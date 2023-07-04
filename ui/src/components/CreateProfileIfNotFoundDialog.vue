@@ -1,7 +1,7 @@
 <template>
   <BaseDialog
     :model-value="modelValue"
-    dialog-panel-class="md:w-auto"
+    dialog-panel-class="md:w-auto bg-base-100"
     @update:model-value="(val: boolean) => emit('update:model-value', val)"
   >
     <profiles-context :store="profilesStore">

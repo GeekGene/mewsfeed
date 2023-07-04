@@ -41,7 +41,7 @@
   </button>
 
   <div
-    class="flex-0 block sm:hidden fixed bottom-0 bg-base-100 py-8 w-full border-t-2 border-base-200 shadow-xl"
+    class="flex-0 block sm:hidden fixed bottom-0 bg-neutral py-8 w-full border-t-2 border-neutral shadow-xl"
   >
     <BaseSiteMenu
       class="w-full flex justify-evenly items-center"
@@ -51,7 +51,7 @@
 
   <ToastNotices />
   <BaseThemeSelect
-    class="absolute top-1 md:top-5 right-1 md:right-5 text-base-300"
+    class="absolute top-1 md:top-5 right-1 md:right-5 text-neutral-content"
   />
 
   <SearchEverythingDialog v-model="showSearchDialog" />
