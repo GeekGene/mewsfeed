@@ -1,9 +1,11 @@
 
-# MewsFeed
+# mewsfeed
 
 We are currently working towards the first major release of MewsFeed.
 
 [Collaborate on GitHub](https://github.com/orgs/GeekGene/projects/1) and [join our Discord](https://discord.gg/D3BykUZumM)!
+
+![mewsfeed logo](./assets/logo-cropped-512x512.png)
 
 ## Environment Setup
 
