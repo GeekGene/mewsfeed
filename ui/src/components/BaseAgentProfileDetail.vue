@@ -12,12 +12,30 @@
           :data-tip="encodeHashToBase64(agentPubKey)"
         >
           <agent-avatar
+            v-if="!enableCopyAgentPubKey"
+            class="hidden sm:block"
+            :agentPubKey="agentPubKey"
+            size="80"
+            disable-tooltip
+            disable-copy
+          />
+          <agent-avatar
+            v-else
             class="hidden sm:block"
             :agentPubKey="agentPubKey"
             size="80"
             disable-tooltip
           />
           <agent-avatar
+            v-if="!enableCopyAgentPubKey"
+            class="block sm:hidden"
+            :agentPubKey="agentPubKey"
+            size="50"
+            disable-tooltip
+            disable-copy
+          />
+          <agent-avatar
+            v-else
             class="block sm:hidden"
             :agentPubKey="agentPubKey"
             size="50"
@@ -27,10 +45,18 @@
 
         <div
           v-if="profile.fields.avatar"
-          class="tooltip tooltip-right xl:tooltip-bottom before:break-words md:before:max-w-none mt-8"
+          class="tooltip tooltip-right xl:tooltip-bottom before:break-words md:before:max-w-none mt-8 relative"
           :data-tip="encodeHashToBase64(agentPubKey)"
         >
           <holo-identicon
+            v-if="!enableCopyAgentPubKey"
+            :hash="agentPubKey"
+            size="30"
+            disable-tooltip
+            disable-copy
+          ></holo-identicon>
+          <holo-identicon
+            v-else
             :hash="agentPubKey"
             size="30"
             disable-tooltip
@@ -151,6 +177,7 @@ const props = withDefaults(
     creatorsCount?: number;
     followersCount?: number;
     hideEditButton?: boolean;
+    enableCopyAgentPubKey?: boolean;
   }>(),
   {
     profile: undefined,
@@ -158,6 +185,7 @@ const props = withDefaults(
     hideEditButton: false,
     creatorsCount: undefined,
     followersCount: undefined,
+    enableCopyAgentPubKey: false,
   }
 );
 const emit = defineEmits([

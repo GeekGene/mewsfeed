@@ -8,6 +8,7 @@
       <agent-avatar
         :agentPubKey="agentPubKey"
         disable-tooltip
+        disable-copy
         :size="size"
         :store="profilesStore"
       >
