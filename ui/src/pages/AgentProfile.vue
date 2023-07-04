@@ -2,7 +2,8 @@
   <div>
     <div v-if="!isLoadingProfile && agentPubKey">
       <BaseAgentProfileDetail
-        :profile="profile"
+        :profile="profileWithContext?.profile"
+        :joined-timestamp="profileWithContext?.joinedTimestamp"
         :agentPubKey="agentPubKey"
         :creators-count="creators ? creators.length : 0"
         :followers-count="followers ? followers.length : 0"
@@ -23,7 +24,7 @@
       />
       <EditAgentProfileDialog
         v-model="showEditProfileDialog"
-        :profile="profile"
+        :profile="profileWithContext?.profile"
         @profile-updated="(e: any) => {
           refetchProfile();
           queryClient.setQueryData([
@@ -201,18 +202,27 @@ const {
 });
 watch(errorPinnedMews, showError);
 
-const fetchProfile = async () => {
+const fetchProfileWithContext = async () => {
   const profile = await profilesStore.client.getAgentProfile(agentPubKey.value);
+  const joinedTimestamp = await client.callZome({
+    role_name: "mewsfeed",
+    zome_name: "profiles",
+    fn_name: "get_joining_timestamp_for_agent",
+    payload: agentPubKey.value,
+  });
 
   if (profile) {
-    return profile;
+    return {
+      profile,
+      joinedTimestamp,
+    };
   } else {
     throw new Error("No profile found");
   }
 };
 
 const {
-  data: profile,
+  data: profileWithContext,
   isLoading: isLoadingProfile,
   error: errorProfile,
   refetch: refetchProfile,
@@ -222,7 +232,7 @@ const {
     "getAgentProfile",
     encodeHashToBase64(agentPubKey.value),
   ],
-  queryFn: fetchProfile,
+  queryFn: fetchProfileWithContext,
 });
 watch(errorProfile, showError);
 

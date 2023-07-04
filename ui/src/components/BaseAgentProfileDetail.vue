@@ -112,9 +112,12 @@
               <div>{{ profile.fields[PROFILE_FIELDS.LOCATION] }}</div>
             </div>
 
-            <div class="flex justify-start items-center space-x-2 text-xs">
+            <div
+              v-if="joinedTimestamp !== undefined"
+              class="flex justify-start items-center space-x-2 text-xs"
+            >
               <IconCalendarOutline />
-              <div>Joined ABC</div>
+              <div>Joined <BaseTimestamp :timestamp="joinedTimestamp" /></div>
             </div>
           </div>
         </div>
@@ -138,10 +141,12 @@ import { PROFILE_FIELDS } from "@/types/types";
 import IconNavigateCircleOutline from "~icons/ion/navigate-circle-outline";
 import IconCalendarOutline from "~icons/ion/calendar-outline";
 import IconPencilSharp from "~icons/ion/pencil-sharp";
+import { Timestamp } from "@holochain/client";
 
 const props = withDefaults(
   defineProps<{
     profile?: Profile;
+    joinedTimestamp?: Timestamp;
     agentPubKey: AgentPubKey;
     creatorsCount?: number;
     followersCount?: number;
@@ -149,6 +154,7 @@ const props = withDefaults(
   }>(),
   {
     profile: undefined,
+    joinedTimestamp: undefined,
     hideEditButton: false,
     creatorsCount: undefined,
     followersCount: undefined,
