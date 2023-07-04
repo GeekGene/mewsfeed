@@ -3,36 +3,30 @@
     :model-value="modelValue"
     @update:model-value="(val: boolean) => emit('update:model-value', val)"
   >
-    <div class="w-full sm:w-96">
-      <h2 class="text-3xl font-title font-bold tracking-tighter mb-8 text-left">
-        followers
-      </h2>
+    <h2 class="text-3xl font-title font-bold tracking-tighter mb-8 text-left">
+      followers
+    </h2>
 
-      <BaseInfiniteScroll
-        v-if="
-          data &&
-          data.pages &&
-          data.pages.length > 0 &&
-          data.pages[0].length > 0
-        "
-        @load-next="fetchNextPageInfiniteScroll"
-      >
-        <BaseAgentProfileList
-          v-for="(page, i) in data.pages"
-          :key="i"
-          class="q-px-md"
-          :agent-profiles="page"
-          :loading="isLoading"
-          :enable-popups="false"
-        />
-      </BaseInfiniteScroll>
-      <BaseAgentProfileListItemSkeleton
-        v-for="x in [0, 1, 2, 3]"
-        v-else-if="isLoading"
-        :key="x"
+    <BaseInfiniteScroll
+      v-if="
+        data && data.pages && data.pages.length > 0 && data.pages[0].length > 0
+      "
+      @load-next="fetchNextPageInfiniteScroll"
+    >
+      <BaseAgentProfileList
+        v-for="(page, i) in data.pages"
+        :key="i"
+        :agent-profiles="page"
+        :loading="isLoading"
+        :enable-popups="false"
       />
-      <BaseEmptyList v-else />
-    </div>
+    </BaseInfiniteScroll>
+    <BaseAgentProfileListItemSkeleton
+      v-for="x in [0, 1, 2, 3]"
+      v-else-if="isLoading"
+      :key="x"
+    />
+    <BaseEmptyList v-else />
   </BaseDialog>
 </template>
 

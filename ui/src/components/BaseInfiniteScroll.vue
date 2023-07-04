@@ -6,7 +6,7 @@
 
     <div
       v-observe-visibility="loadNextDebounced"
-      class="h-16 w-full my-8 flex justify-center"
+      class="h-16 w-full flex justify-center items-center"
     >
       <div
         v-if="loading || hasMore === undefined"
