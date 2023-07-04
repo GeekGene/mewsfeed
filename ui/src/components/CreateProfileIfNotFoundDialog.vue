@@ -5,20 +5,19 @@
     @update:model-value="(val: boolean) => emit('update:model-value', val)"
   >
     <profiles-context :store="profilesStore">
-      <div class="w-96">
+      <div v-if="profilesStore && !myProfile" class="w-96">
         <h2
           class="text-3xl text-left font-title font-bold tracking-tighter mb-4"
         >
           create profile
         </h2>
         <edit-profile
-          v-if="profilesStore && !myProfile"
           class="font-content text-left prose"
           :store="profilesStore"
           @save-profile="createProfile"
         ></edit-profile>
-        <slot v-else></slot>
       </div>
+      <slot v-else></slot>
     </profiles-context>
   </BaseDialog>
 </template>
