@@ -7,7 +7,7 @@
       alt="Home Page"
       :to="{ name: ROUTES.feed }"
     >
-      <IconHome class="text-2xl" />
+      <IconHome class="w-6 h-6" />
     </RouterLink>
     <RouterLink
       class="btn btn-circle btn-md"
@@ -15,7 +15,7 @@
       alt="Discover Creators Page"
       :to="{ name: ROUTES.discover }"
     >
-      <IconGlobeOutline class="text-2xl" />
+      <IconGlobeOutline class="w-6 h-6" />
     </RouterLink>
     <div class="indicator">
       <RouterLink
@@ -29,7 +29,7 @@
           class="indicator-item indicator-bottom indicator-end badge badge-success"
           >{{ unreadCount }}</span
         >
-        <IconNotificationsOutline class="text-2xl place-items-center" />
+        <IconNotificationsOutline class="w-6 h-6" />
       </RouterLink>
     </div>
 
@@ -39,7 +39,7 @@
       alt="Search Button"
       @click="emit('click-search')"
     >
-      <IconSearch class="text-2xl" />
+      <IconSearch class="w-6 h-6" />
     </a>
     <RouterLink
       v-if="myProfile"
@@ -70,7 +70,7 @@ import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";
 import { storeToRefs } from "pinia";
 import IconHome from "~icons/ion/home";
 import IconGlobeOutline from "~icons/ion/globe-outline";
-import IconSearch from "~icons/ion/search";
+import IconSearch from "~icons/ion/search-outline";
 import IconNotificationsOutline from "~icons/ion/notifications-outline";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
