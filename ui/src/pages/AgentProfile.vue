@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="mt-4">
     <div v-if="!isLoadingProfile && agentPubKey">
       <BaseAgentProfileDetail
         :profile="profileWithContext?.profile"
@@ -7,7 +7,7 @@
         :agentPubKey="agentPubKey"
         :creators-count="creators ? creators.length : 0"
         :followers-count="followers ? followers.length : 0"
-        class="bg-base-200 backdrop-blur-md p-4 rounded-3xl"
+        class="bg-base-200 py-4 rounded-3xl"
         style="-webkit-backdrop-filter: blur(10px)"
         enable-copy-agent-pub-key
         @click-edit-profile="showEditProfileDialog = true"
@@ -40,7 +40,7 @@
 
       <BaseList
         v-slot="{ item }"
-        class="my-8"
+        class="my-8 px-4"
         title="pinned"
         :items="pinnedMews"
         :is-loading="isLoadingPinnedMews"
@@ -69,7 +69,7 @@
 
       <BaseList
         v-slot="{ item }"
-        class="my-8"
+        class="my-8 px-4"
         title="mews"
         :items="authoredMews"
         :is-loading="isLoadingAuthoredMews"
