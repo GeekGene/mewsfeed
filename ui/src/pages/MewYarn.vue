@@ -32,7 +32,6 @@
         <template v-for="(reply, j) of page" :key="j">
           <BaseMewListItem
             :feed-mew="reply"
-            :show-yarn-link="false"
             @mew-deleted="refetchRepliesPage(i)"
             @mew-licked="refetchRepliesPage(i)"
             @mew-pinned="refetchRepliesPage(i)"
