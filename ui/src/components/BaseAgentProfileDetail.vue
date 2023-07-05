@@ -66,26 +66,28 @@
 
       <div class="flex-1 flex flex-col justify-between">
         <div
-          class="w-full flex justify-between items-center whitespace-nowrap mb-5"
+          class="w-full flex justify-between items-start whitespace-nowrap mb-5"
         >
           <BaseAgentProfileNameLarge
             :profile="profile"
             :agentPubKey="agentPubKey"
           />
           <ButtonFollow v-if="!isMyProfile" :agentPubKey="agentPubKey" />
-          <button
-            v-else-if="!hideEditButton"
-            class="btn btn-xs sm:btn-sm btn-neutral rounded-3xl sm:px-4 flex items-center sm:space-x-1 w-26 sm:w-auto"
-            @click="emit('click-edit-profile')"
-          >
-            <IconPencilSharp />
-            <div>Edit Profile</div>
-          </button>
+          <div v-else-if="!hideEditButton" class="flex flex-col space-y-2">
+            <button
+              class="btn btn-xs sm:btn-sm px-4 btn-neutral rounded-3xl flex justify-center items-center space-x-2"
+              @click="emit('click-edit-profile')"
+            >
+              <IconPencilSharp />
+              <div>Edit Profile</div>
+            </button>
+            <BaseThemeSelect />
+          </div>
         </div>
 
         <div
           v-if="profile.fields[PROFILE_FIELDS.BIO]"
-          class="flex justify-start space-x-2 text-md my-5"
+          class="flex justify-start space-x-2 text-md mb-5"
         >
           {{ profile.fields[PROFILE_FIELDS.BIO] }}
         </div>
