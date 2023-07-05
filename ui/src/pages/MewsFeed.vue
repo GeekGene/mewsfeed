@@ -1,6 +1,6 @@
 <template>
   <div class="w-full">
-    <h1 class="text-2xl font-title font-bold tracking-tighter mb-8 py-2 px-4">
+    <h1 class="text-2xl font-title font-bold tracking-tighter mb-8 px-4">
       mewsfeed
     </h1>
 

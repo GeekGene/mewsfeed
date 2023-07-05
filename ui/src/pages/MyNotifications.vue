@@ -1,12 +1,8 @@
 <template>
   <div :style-fn="pageHeightCorrection">
-    <div class="flex justify-start items-center space-x-2 mb-8">
-      <BaseButtonBack />
-
-      <h1 class="text-2xl font-title font-bold tracking-tighter">
-        notifications
-      </h1>
-    </div>
+    <h1 class="text-2xl font-title font-bold tracking-tighter mb-8">
+      notifications
+    </h1>
 
     <BaseInfiniteScroll
       v-if="

@@ -1,11 +1,8 @@
 <template>
   <div class="w-full">
-    <h1 class="mb-8 flex justify-between items-center">
-      <div class="flex justify-start items-center space-x-2">
-        <BaseButtonBack v-if="!getHomeRedirect()" />
+    <div class="mb-8 flex justify-between items-center">
+      <h1 class="text-2xl font-title font-bold tracking-tighter">explore</h1>
 
-        <h1 class="text-2xl font-title font-bold tracking-tighter">explore</h1>
-      </div>
       <button
         class="btn btn-xs flex items-center justify-start space-x-1"
         @click="shuffle()"
@@ -13,7 +10,7 @@
         <IconDiceOutline />
         <div>Shuffle</div>
       </button>
-    </h1>
+    </div>
 
     <BaseList
       v-slot="{ item }"
