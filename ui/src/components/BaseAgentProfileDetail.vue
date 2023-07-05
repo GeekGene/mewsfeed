@@ -91,7 +91,7 @@
         </div>
 
         <div>
-          <div class="border-t-4 border-base-100"></div>
+          <div class="border-t-[1px] border-base-100"></div>
 
           <template
             v-if="followersCount !== undefined || creatorsCount !== undefined"
@@ -124,7 +124,7 @@
                 >
               </button>
             </div>
-            <div class="border-t-4 border-base-100"></div>
+            <div class="border-t-[1px] border-base-100"></div>
           </template>
 
           <div
