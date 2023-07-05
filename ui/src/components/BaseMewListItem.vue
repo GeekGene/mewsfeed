@@ -107,7 +107,7 @@
             class="flex justify-between items-center"
             style="width: 100%"
           >
-            <div class="flex space-x-2">
+            <div class="flex justify-start items-center space-x-2">
               <div
                 class="tooltip-bottom"
                 :class="{ tooltip: !isDeleted }"
@@ -115,7 +115,7 @@
               >
                 <button
                   :disable="isDeleted"
-                  class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
+                  class="flex justify-start items-center space-x-1 text-neutral-content hover:text-neutral p-2"
                   @click.stop.prevent="showReplyToMewDialog = true"
                 >
                   <IconArrowUndoSharp class="w-4 h-4" />
@@ -132,7 +132,7 @@
               >
                 <button
                   :disable="isDeleted"
-                  class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
+                  class="flex justify-start items-center space-x-1 text-neutral-content hover:text-neutral p-2"
                   @click.stop.prevent="showQuoteMewDialog = true"
                 >
                   <IconFormatQuote class="w-4 h-4" />
@@ -149,13 +149,13 @@
               >
                 <button
                   :disable="isDeleted"
-                  class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
+                  class="flex justify-start items-center space-x-1 text-neutral-content hover:text-neutral p-2"
                   @click.stop.prevent="createMewmew"
                 >
                   <IconRepeatBold class="w-4 h-4" />
-                  <span v-if="feedMew.mewmews.length > 0">
+                  <div v-if="feedMew.mewmews.length > 0" class="text-xs">
                     {{ feedMew.mewmews.length }}
-                  </span>
+                  </div>
                 </button>
               </div>
 
@@ -165,21 +165,19 @@
                 :data-tip="`${isLickedByMe ? 'Unlick' : 'Lick'} mew`"
               >
                 <button
-                  class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
+                  class="flex justify-start items-center space-x-1 text-neutral-content hover:text-neutral p-2"
+                  :class="{ 'text-pink-400 hover:text-pink-600': isLickedByMe }"
                   :disable="isUpdatingLick || isDeleted"
                   @click.stop.prevent="toggleLickMew"
                 >
-                  <BaseIconTongue
-                    class="text-base-content"
-                    :class="{ 'text-pink-400': isLickedByMe }"
-                  />
-                  <span v-if="feedMew.licks.length > 0" class="text-xs">
+                  <BaseIconTongue class="w-4 h-4" />
+                  <div v-if="feedMew.licks.length > 0" class="text-xs">
                     {{ feedMew.licks.length }}
-                  </span>
+                  </div>
                 </button>
               </div>
             </div>
-            <div>
+            <div class="flex justify-start items-center space-x-2">
               <div
                 class="tooltip-left sm:tooltip-bottom"
                 :class="{ tooltip: !isDeleted }"
@@ -187,7 +185,7 @@
               >
                 <button
                   :disable="isDeleted && !props.feedMew.is_pinned"
-                  class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
+                  class="flex justify-start items-center space-x-1 text-neutral-content hover:text-neutral p-2"
                   @click.stop.prevent="togglePinMew"
                 >
                   <IconSharpPinOff
@@ -205,7 +203,7 @@
               >
                 <button
                   :disable="isDeleted"
-                  class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
+                  class="flex justify-start items-center space-x-1 text-neutral-content hover:text-neutral p-2"
                   @click.stop.prevent="showConfirmDeleteDialog = true"
                 >
                   <IconTrashSharp class="w-4 h-4" />
