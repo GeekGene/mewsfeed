@@ -44,6 +44,7 @@
         title="pinned"
         :items="pinnedMews"
         :is-loading="isLoadingPinnedMews"
+        :show-empty-list="false"
       >
         <BaseMewListItem
           :feed-mew="item"

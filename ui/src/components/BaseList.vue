@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="showEmptyList || (items && items.length > 0)">
     <h2 v-if="title" class="text-xl font-title font-bold tracking-tighter mb-2">
       {{ title }}
     </h2>
@@ -35,11 +35,13 @@ withDefaults(
     isLoading: boolean;
     title?: string;
     enableMoreButton?: boolean;
+    showEmptyList?: boolean;
   }>(),
   {
     items: undefined,
     title: undefined,
     enableMoreButton: false,
+    showEmptyList: true,
   }
 );
 const emit = defineEmits(["click-more"]);
