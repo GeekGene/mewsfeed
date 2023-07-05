@@ -43,7 +43,7 @@
     </a>
     <RouterLink
       v-if="myProfile"
-      class="btn btn-circle btn-md btn-neutral-inverse px-0 py-0"
+      class="btn btn-circle btn-md btn-neutral-inverse"
       active-class="btn-neutral"
       alt="My Profile Page"
       :to="{
