@@ -5,7 +5,7 @@
   >
     <div
       v-if="feedMew.original_mew && showYarnLink"
-      class="flex justify-between items-center w-full"
+      class="flex justify-between items-center w-full pt-4 px-4"
     >
       <RouterLink
         class="btn btn-cicle btn-xs"
