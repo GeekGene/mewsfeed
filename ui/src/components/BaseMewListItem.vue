@@ -1,216 +1,226 @@
 <template>
   <div
-    class="w-full flex justify-start items-start space-x-4 p-4 cursor-pointer"
+    class="w-full flex flex-col justify-start items-start"
     @click.passive="navigateToYarn(feedMew.action_hash)"
   >
-    <BaseAgentProfileLinkAvatar :agentPubKey="feedMew.action.author" />
-
-    <div class="w-full">
-      <div class="w-full flex justify-between items-center">
-        <RouterLink
-          :to="{
-            name: ROUTES.profile,
-            params: { agentPubKey: encodeHashToBase64(feedMew.action.author) },
-          }"
-          @click.stop.prevent
-        >
+    <div
+      v-if="feedMew.original_mew && showYarnLink"
+      class="flex justify-between items-center w-full"
+    >
+      <RouterLink
+        class="btn btn-cicle btn-xs"
+        :to="{
+          name: ROUTES.yarn,
+          params: {
+            actionHash: encodeHashToBase64(feedMew.original_mew.action_hash),
+          },
+        }"
+        @click.stop.prevent
+      >
+        <div class="text-primary text-lowercase">
+          {{ reactionLabel }}
+        </div>
+        <div class="flex justify-start items-center">
           <BaseAgentProfileName
-            :profile="feedMew.author_profile"
-            :agentPubKey="feedMew.action.author"
+            :profile="feedMew.original_mew.author_profile"
+            :agentPubKey="feedMew.original_mew.action.author"
           />
-        </RouterLink>
+          <div
+            v-if="feedMew.original_mew.deleted_timestamp !== null"
+            class="text-bold text-primary"
+          >
+            (Deleted Mew)
+          </div>
+        </div>
+      </RouterLink>
 
-        <div v-if="feedMew.original_mew">
+      <div class="font-mono text-xs">
+        <BaseTimestamp :timestamp="feedMew.action.timestamp" />
+      </div>
+    </div>
+
+    <div class="flex justify-start items-start w-full space-x-4 p-4">
+      <BaseAgentProfileLinkAvatar :agentPubKey="feedMew.action.author" />
+
+      <div class="w-full">
+        <div class="w-full flex justify-between items-center">
           <RouterLink
-            v-if="showYarnLink"
-            class="btn btn-cicle btn-xs sm:btn-sm"
             :to="{
-              name: ROUTES.yarn,
+              name: ROUTES.profile,
               params: {
-                actionHash: encodeHashToBase64(
-                  feedMew.original_mew.action_hash
-                ),
+                agentPubKey: encodeHashToBase64(feedMew.action.author),
               },
             }"
             @click.stop.prevent
           >
-            <div class="text-primary text-lowercase">
-              {{ reactionLabel }}
+            <BaseAgentProfileName
+              :profile="feedMew.author_profile"
+              :agentPubKey="feedMew.action.author"
+            />
+          </RouterLink>
+
+          <div v-if="!feedMew.original_mew" class="font-mono text-xs">
+            <BaseTimestamp :timestamp="feedMew.action.timestamp" />
+          </div>
+        </div>
+
+        <BaseMewContent
+          v-if="
+            (!isDeleted || showIfDeleted) && isMewmew && feedMew.original_mew
+          "
+          :mew="(feedMew.original_mew.mew as Mew)"
+          class="my-2"
+        />
+
+        <div
+          v-else-if="
+            (!isDeleted || showIfDeleted) && isQuote && feedMew.original_mew
+          "
+          class="w-full"
+        >
+          <BaseMewContent :mew="(feedMew.mew as Mew)" class="my-2" />
+
+          <div class="flex justify-start my-4">
+            <div class="flex items-start">
+              <IconFormatQuoteOpen class="text-base-300 text-2xl" />
             </div>
-            <div class="flex justify-start items-center">
-              <BaseAgentProfileName
-                :profile="feedMew.original_mew.author_profile"
-                :agentPubKey="feedMew.original_mew.action.author"
-              />
+            <div class="flex-1 bg-base-200 p-2 rounded-md">
+              <BaseEmbedMew :embed-mew="feedMew.original_mew" />
+            </div>
+            <div class="flex justify-end items-end">
+              <IconFormatQuoteClose class="text-base-300 text-2xl" />
+            </div>
+          </div>
+        </div>
+        <BaseMewContent
+          v-else-if="!isDeleted || showIfDeleted"
+          :mew="(feedMew.mew as Mew)"
+          class="my-2"
+        />
+        <a v-else class="btn btn-sm" @click.stop.prevent="showIfDeleted = true">
+          Show Deleted Mew Content
+        </a>
+
+        <div class="flex justify-between">
+          <div
+            v-if="(!isDeleted || showIfDeleted) && showButtons"
+            class="flex justify-between items-center"
+            style="width: 100%"
+          >
+            <div class="flex space-x-2">
               <div
-                v-if="feedMew.original_mew.deleted_timestamp !== null"
-                class="text-bold text-primary"
+                class="tooltip-bottom"
+                :class="{ tooltip: !isDeleted }"
+                data-tip="Reply to mew"
               >
-                (Deleted Mew)
+                <button
+                  :disable="isDeleted"
+                  class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
+                  @click.stop.prevent="showReplyToMewDialog = true"
+                >
+                  <IconArrowUndoSharp class="w-4 h-4" />
+                  <span v-if="feedMew.replies.length > 0">
+                    {{ feedMew.replies.length }}
+                  </span>
+                </button>
+              </div>
+
+              <div
+                class="tooltip-bottom"
+                :class="{ tooltip: !isDeleted }"
+                data-tip="Quote mew"
+              >
+                <button
+                  :disable="isDeleted"
+                  class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
+                  @click.stop.prevent="showQuoteMewDialog = true"
+                >
+                  <IconFormatQuote class="w-4 h-4" />
+                  <span v-if="feedMew.quotes.length > 0">
+                    {{ feedMew.quotes.length }}
+                  </span>
+                </button>
+              </div>
+
+              <div
+                class="tooltip-bottom"
+                :class="{ tooltip: !isDeleted }"
+                data-tip="Mewmew mew"
+              >
+                <button
+                  :disable="isDeleted"
+                  class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
+                  @click.stop.prevent="createMewmew"
+                >
+                  <IconRepeatBold class="w-4 h-4" />
+                  <span v-if="feedMew.mewmews.length > 0">
+                    {{ feedMew.mewmews.length }}
+                  </span>
+                </button>
+              </div>
+
+              <div
+                class="tooltip-bottom"
+                :class="{ tooltip: !isDeleted }"
+                :data-tip="`${isLickedByMe ? 'Unlick' : 'Lick'} mew`"
+              >
+                <button
+                  class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
+                  :disable="isUpdatingLick || isDeleted"
+                  @click.stop.prevent="toggleLickMew"
+                >
+                  <BaseIconTongue
+                    class="text-base-content"
+                    :class="{ 'text-pink-400': isLickedByMe }"
+                  />
+                  <span v-if="feedMew.licks.length > 0" class="text-xs">
+                    {{ feedMew.licks.length }}
+                  </span>
+                </button>
               </div>
             </div>
-          </RouterLink>
-        </div>
-
-        <div class="font-mono text-xs">
-          <BaseTimestamp :timestamp="feedMew.action.timestamp" />
-        </div>
-      </div>
-
-      <BaseMewContent
-        v-if="(!isDeleted || showIfDeleted) && isMewmew && feedMew.original_mew"
-        :mew="(feedMew.original_mew.mew as Mew)"
-        class="my-2"
-      />
-
-      <div
-        v-else-if="
-          (!isDeleted || showIfDeleted) && isQuote && feedMew.original_mew
-        "
-        class="w-full"
-      >
-        <BaseMewContent :mew="(feedMew.mew as Mew)" class="my-2" />
-
-        <div class="flex justify-start my-4">
-          <div class="flex items-start">
-            <IconFormatQuoteOpen class="text-base-300 text-2xl" />
-          </div>
-          <div class="flex-1 bg-base-200 p-2 rounded-md">
-            <BaseEmbedMew :embed-mew="feedMew.original_mew" />
-          </div>
-          <div class="flex justify-end items-end">
-            <IconFormatQuoteClose class="text-base-300 text-2xl" />
-          </div>
-        </div>
-      </div>
-      <BaseMewContent
-        v-else-if="!isDeleted || showIfDeleted"
-        :mew="(feedMew.mew as Mew)"
-        class="my-2"
-      />
-      <a v-else class="btn btn-sm" @click.stop.prevent="showIfDeleted = true">
-        Show Deleted Mew Content
-      </a>
-
-      <div class="flex justify-between">
-        <div
-          v-if="(!isDeleted || showIfDeleted) && showButtons"
-          class="flex justify-between items-center"
-          style="width: 100%"
-        >
-          <div class="flex space-x-2">
-            <div
-              class="tooltip-bottom"
-              :class="{ tooltip: !isDeleted }"
-              data-tip="Reply to mew"
-            >
-              <button
-                :disable="isDeleted"
-                class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
-                @click.stop.prevent="showReplyToMewDialog = true"
+            <div>
+              <div
+                class="tooltip-left sm:tooltip-bottom"
+                :class="{ tooltip: !isDeleted }"
+                :data-tip="`${props.feedMew.is_pinned ? 'Unpin' : 'Pin'} mew`"
               >
-                <IconArrowUndoSharp class="w-4 h-4" />
-                <span v-if="feedMew.replies.length > 0">
-                  {{ feedMew.replies.length }}
-                </span>
-              </button>
-            </div>
-
-            <div
-              class="tooltip-bottom"
-              :class="{ tooltip: !isDeleted }"
-              data-tip="Quote mew"
-            >
-              <button
-                :disable="isDeleted"
-                class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
-                @click.stop.prevent="showQuoteMewDialog = true"
+                <button
+                  :disable="isDeleted && !props.feedMew.is_pinned"
+                  class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
+                  @click.stop.prevent="togglePinMew"
+                >
+                  <IconSharpPinOff
+                    v-if="props.feedMew.is_pinned"
+                    class="w-4 h-4"
+                  />
+                  <IconSharpPushPin v-else class="w-4 h-4" />
+                </button>
+              </div>
+              <div
+                v-if="isAuthoredByMe"
+                class="tooltip-left sm:tooltip-bottom"
+                :class="{ tooltip: !isDeleted }"
+                data-tip="Delete mew"
               >
-                <IconFormatQuote class="w-4 h-4" />
-                <span v-if="feedMew.quotes.length > 0">
-                  {{ feedMew.quotes.length }}
-                </span>
-              </button>
-            </div>
-
-            <div
-              class="tooltip-bottom"
-              :class="{ tooltip: !isDeleted }"
-              data-tip="Mewmew mew"
-            >
-              <button
-                :disable="isDeleted"
-                class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
-                @click.stop.prevent="createMewmew"
-              >
-                <IconRepeatBold class="w-4 h-4" />
-                <span v-if="feedMew.mewmews.length > 0">
-                  {{ feedMew.mewmews.length }}
-                </span>
-              </button>
-            </div>
-
-            <div
-              class="tooltip-bottom"
-              :class="{ tooltip: !isDeleted }"
-              :data-tip="`${isLickedByMe ? 'Unlick' : 'Lick'} mew`"
-            >
-              <button
-                class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
-                :disable="isUpdatingLick || isDeleted"
-                @click.stop.prevent="toggleLickMew"
-              >
-                <BaseIconTongue
-                  class="text-base-content"
-                  :class="{ 'text-pink-400': isLickedByMe }"
-                />
-                <span v-if="feedMew.licks.length > 0" class="text-xs">
-                  {{ feedMew.licks.length }}
-                </span>
-              </button>
+                <button
+                  :disable="isDeleted"
+                  class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
+                  @click.stop.prevent="showConfirmDeleteDialog = true"
+                >
+                  <IconTrashSharp class="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
-          <div>
-            <div
-              class="tooltip-left sm:tooltip-bottom"
-              :class="{ tooltip: !isDeleted }"
-              :data-tip="`${props.feedMew.is_pinned ? 'Unpin' : 'Pin'} mew`"
-            >
-              <button
-                :disable="isDeleted && !props.feedMew.is_pinned"
-                class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
-                @click.stop.prevent="togglePinMew"
-              >
-                <IconSharpPinOff
-                  v-if="props.feedMew.is_pinned"
-                  class="w-4 h-4"
-                />
-                <IconSharpPushPin v-else class="w-4 h-4" />
-              </button>
+          <div
+            v-if="feedMew.deleted_timestamp !== null"
+            class="text-red text-bold flex justify-end"
+            style="width: 100%"
+          >
+            <div>
+              Deleted <BaseTimestamp :timestamp="feedMew.deleted_timestamp" />
             </div>
-            <div
-              v-if="isAuthoredByMe"
-              class="tooltip-left sm:tooltip-bottom"
-              :class="{ tooltip: !isDeleted }"
-              data-tip="Delete mew"
-            >
-              <button
-                :disable="isDeleted"
-                class="btn btn-xs rounded-full btn-ghost flex justify-start items-center space-x-1"
-                @click.stop.prevent="showConfirmDeleteDialog = true"
-              >
-                <IconTrashSharp class="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        </div>
-        <div
-          v-if="feedMew.deleted_timestamp !== null"
-          class="text-red text-bold flex justify-end"
-          style="width: 100%"
-        >
-          <div>
-            Deleted <BaseTimestamp :timestamp="feedMew.deleted_timestamp" />
           </div>
         </div>
       </div>
