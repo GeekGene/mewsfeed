@@ -20,7 +20,7 @@
       <div class="w-full max-w-screen-lg flex items-center space-x-10 px-8">
         <div class="block w-14 h-14"></div>
         <div
-          class="bg-black/[0.04] backdrop-blur-md rounded-3xl shadow-2xl flex-1 w-full"
+          class="bg-black/[0.04] backdrop-blur-md rounded-[2rem] shadow-2xl flex-1 w-full"
           style="-webkit-backdrop-filter: blur(10px)"
         >
           <CreateMewInput

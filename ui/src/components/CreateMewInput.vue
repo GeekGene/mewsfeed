@@ -1,8 +1,8 @@
 <template>
-  <div class="w-full rounded-3xl flex justify-start items-start p-3">
+  <div class="w-full flex justify-start items-start p-3">
     <RouterLink
       v-if="myProfile"
-      class="btn btn-circle btn-md btn-neutral-inverse px-0 py-0 z-10"
+      class="px-0 py-0 z-10"
       alt="My Profile"
       :to="{
         name: ROUTES.profile,
@@ -41,7 +41,7 @@
               data-tip="You can mention people with @ and use #hashtags and $cashtags as well
           as ^links in a mew. You can press Ctrl/Cmd + Enter to publish."
             >
-              <IconHelpCircleOutline class="text-xl text-neutral-content" />
+              <IconHelpCircleOutline class="w-5 h-5 text-neutral-content" />
             </div>
           </div>
 
