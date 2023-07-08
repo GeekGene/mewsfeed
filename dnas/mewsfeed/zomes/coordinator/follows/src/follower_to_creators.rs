@@ -2,7 +2,7 @@ use follows_types::*;
 use hc_call_utils::call_local_zome;
 use hdk::prelude::*;
 use mews_types::FOLLOW_TOPIC;
-use trust_atom_types::{QueryInput, TrustAtom, TrustAtomInput};
+use trust_atom_types::{DeleteReport, QueryInput, TrustAtom, TrustAtomInput};
 
 #[derive(Debug, Serialize, Deserialize, SerializedBytes)]
 #[serde(rename_all = "camelCase")]
@@ -119,7 +119,7 @@ pub fn get_followers_for_creator(creator: AgentPubKey) -> ExternResult<Vec<Agent
 
 #[hdk_extern]
 pub fn remove_creator_for_follower(input: RemoveCreatorForFollowerInput) -> ExternResult<()> {
-    let _deleted_link_count: usize = call_local_zome(
+    let _deleted_link_count: DeleteReport = call_local_zome(
         "trust_atom",
         "delete_trust_atoms",
         AnyLinkableHash::from(input.target_creator),

@@ -88,7 +88,10 @@ const toggleFollow = async () => {
             role_name: "mewsfeed",
             zome_name: "follows",
             fn_name: "follow",
-            payload: props.agentPubKey,
+            payload: {
+              agent: props.agentPubKey,
+              followTopics: [],  // TODO: add topics
+            }
           }),
     ]);
     isFollowing.value = !isFollowing.value;

@@ -10,7 +10,7 @@ test("trusted_feed_is_based_on_follow_topics", async () => {
 
       await ann.follow({
         agent: bob.pubkey,
-        follow_topics: [
+        followTopics: [
           {
             topic: "holochain",
             weight: "1.0",
@@ -20,7 +20,7 @@ test("trusted_feed_is_based_on_follow_topics", async () => {
 
       await ann.follow({
         agent: cat.pubkey,
-        follow_topics: [
+        followTopics: [
           {
             topic: "blockchain",
             weight: "1.0",
@@ -65,7 +65,7 @@ test("trusted_feed_is_filtered_by_recency", async () => {
 
       await ann.follow({
         agent: bob.pubkey,
-        follow_topics: [
+        followTopics: [
           {
             topic: "holochain",
             weight: "0.9",

@@ -3,7 +3,7 @@ import { runScenario, pause } from "@holochain/tryorama";
 import { ActionHash, Record } from "@holochain/client";
 import { createMew } from "./common";
 import { FeedMew, Mew, MewTypeName } from "../../../../ui/src/types/types";
-import { createAgents } from "../../common";
+import { createAgents, mewsfeedAppBundleSource } from "../../common";
 
 test("create a Mew and get followed creators mews", async () => {
   await runScenario(
@@ -21,7 +21,7 @@ test("create a Mew and get followed creators mews", async () => {
         fn_name: "follow",
         payload: {
           agent: alice.agentPubKey,
-          follow_topics: [],
+          followTopics: [],
         },
       });
 
@@ -88,7 +88,7 @@ test("Followed creators mews should include mews of followed creator", async () 
 
       await bob.follow({
         agent: alice.agentPubKey,
-        follow_topics: [],
+        followTopics: [],
       });
 
       const bobMewsFeed: FeedMew[] = await bob.cells[0].callZome({
@@ -196,7 +196,7 @@ test("Followed creators mews should not include mews of non-followed creator", a
 
       await bob.follow({
         agent: alice.agentPubKey,
-        follow_topics: [],
+        followTopics: [],
       });
       await pause(2500);
 
@@ -241,7 +241,7 @@ test("Unfollowing should exclude creators mews from feed", async () => {
 
       await bob.follow({
         agent: alice.agentPubKey,
-        follow_topics: [],
+        followTopics: [],
       });
       await pause(2500);
 
@@ -282,7 +282,7 @@ test("Followed creators mews should be ordered by timestamp in descending order"
   await runScenario(
     async (scenario) => {
       // Add 2 players with the test app to the Scenario.
-      const [ann, bob, cat] = await createAgents(scenario);
+      const [alice, bob, carol] = await createAgents(scenario);
 
       // Shortcut peer discovery through gossip and register all agents in every
       // conductor of the scenario.
@@ -338,11 +338,11 @@ test("Followed creators mews should be ordered by timestamp in descending order"
       // alice starts following bob and carol
       await alice.follow({
         agent: bob.agentPubKey,
-        follow_topics: [],
+        followTopics: [],
       });
       await alice.follow({
         agent: carol.agentPubKey,
-        follow_topics: [],
+        followTopics: [],
       });
 
       await pause(2500);
@@ -488,7 +488,7 @@ test("Followed creators mews list are time-paginated", async () => {
         fn_name: "follow",
         payload: {
           agent: alice.agentPubKey,
-          follow_topics: [],
+          followTopics: [],
         },
       });
 

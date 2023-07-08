@@ -33,8 +33,8 @@ test("notifications include my agent follows & unfollows", async () => {
         zome_name: "follows",
         fn_name: "add_creator_for_follower",
         payload: {
-          base_follower: bob.agentPubKey,
-          target_creator: alice.agentPubKey,
+          baseFollower: bob.agentPubKey,
+          targetCreator: alice.agentPubKey,
         },
       });
 
@@ -43,8 +43,8 @@ test("notifications include my agent follows & unfollows", async () => {
         zome_name: "follows",
         fn_name: "remove_creator_for_follower",
         payload: {
-          base_follower: bob.agentPubKey,
-          target_creator: alice.agentPubKey,
+          baseFollower: bob.agentPubKey,
+          targetCreator: alice.agentPubKey,
         },
       });
 

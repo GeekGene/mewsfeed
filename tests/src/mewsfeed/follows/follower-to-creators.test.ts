@@ -1,7 +1,7 @@
 import { assert, test, expect } from "vitest";
 import { runScenario, pause } from "@holochain/tryorama";
 import { Record } from "@holochain/client";
-import { createAgents } from "../../common";
+import { createAgents, mewsfeedAppBundleSource } from "../../common";
 
 test("link a Follower to a Creator", async () => {
   await runScenario(
@@ -32,8 +32,8 @@ test("link a Follower to a Creator", async () => {
         zome_name: "follows",
         fn_name: "add_creator_for_follower",
         payload: {
-          base_follower: baseAddress,
-          target_creator: targetAddress,
+          baseFollower: baseAddress,
+          targetCreator: targetAddress,
         },
       });
 
@@ -63,8 +63,8 @@ test("link a Follower to a Creator", async () => {
         zome_name: "follows",
         fn_name: "remove_creator_for_follower",
         payload: {
-          base_follower: baseAddress,
-          target_creator: targetAddress,
+          baseFollower: baseAddress,
+          targetCreator: targetAddress,
         },
       });
 
@@ -95,6 +95,7 @@ test("link a Follower to a Creator", async () => {
   );
 });
 
+// TODO TG handle this
 test("Agent cannot follow themselves", async () => {
   await runScenario(
     async (scenario) => {
@@ -109,7 +110,7 @@ test("Agent cannot follow themselves", async () => {
       // Alice tries to follow herself
       const response = alice.follow({
         agent: alice.agentPubKey,
-        follow_topics: [],
+        followTopics: [],
       });
       await expect(response).rejects.toHaveProperty(
         "data.data",
@@ -121,7 +122,7 @@ test("Agent cannot follow themselves", async () => {
   );
 });
 
-
+// TODO TG handle this
 test("Agent can only change their own follows", async () => {
   await runScenario(
     async (scenario) => {
@@ -139,7 +140,7 @@ test("Agent can only change their own follows", async () => {
       // Alice follows bob
       await alice.follow({
         agent: targetAddress,
-        follow_topics: [],
+        followTopics: [],
       });
 
       await pause(1200);
@@ -149,8 +150,8 @@ test("Agent can only change their own follows", async () => {
         zome_name: "follows",
         fn_name: "remove_creator_for_follower",
         payload: {
-          base_follower: baseAddress,
-          target_creator: targetAddress,
+          baseFollower: baseAddress,
+          targetCreator: targetAddress,
         },
       });
       await expect(response).rejects.toHaveProperty(
@@ -172,8 +173,8 @@ test("Agent can only change their own follows", async () => {
         zome_name: "follows",
         fn_name: "add_creator_for_follower",
         payload: {
-          base_follower: baseAddress,
-          target_creator: targetAddress,
+          baseFollower: baseAddress,
+          targetCreator: targetAddress,
         },
       });
       await expect(response2).rejects.toHaveProperty(
@@ -215,40 +216,40 @@ test(
           zome_name: "follows",
           fn_name: "add_creator_for_follower",
           payload: {
-            base_follower: alice.agentPubKey,
-            target_creator: bob.agentPubKey,
+            baseFollower: alice.agentPubKey,
+            targetCreator: bob.agentPubKey,
           },
         });
         await alice.cells[0].callZome({
           zome_name: "follows",
           fn_name: "add_creator_for_follower",
           payload: {
-            base_follower: alice.agentPubKey,
-            target_creator: carol.agentPubKey,
+            baseFollower: alice.agentPubKey,
+            targetCreator: carol.agentPubKey,
           },
         });
         await alice.cells[0].callZome({
           zome_name: "follows",
           fn_name: "add_creator_for_follower",
           payload: {
-            base_follower: alice.agentPubKey,
-            target_creator: john.agentPubKey,
+            baseFollower: alice.agentPubKey,
+            targetCreator: john.agentPubKey,
           },
         });
         await alice.cells[0].callZome({
           zome_name: "follows",
           fn_name: "add_creator_for_follower",
           payload: {
-            base_follower: alice.agentPubKey,
-            target_creator: steve.agentPubKey,
+            baseFollower: alice.agentPubKey,
+            targetCreator: steve.agentPubKey,
           },
         });
         await alice.cells[0].callZome({
           zome_name: "follows",
           fn_name: "add_creator_for_follower",
           payload: {
-            base_follower: alice.agentPubKey,
-            target_creator: mary.agentPubKey,
+            baseFollower: alice.agentPubKey,
+            targetCreator: mary.agentPubKey,
           },
         });
 
@@ -345,40 +346,40 @@ test(
           zome_name: "follows",
           fn_name: "add_creator_for_follower",
           payload: {
-            base_follower: bob.agentPubKey,
-            target_creator: alice.agentPubKey,
+            baseFollower: bob.agentPubKey,
+            targetCreator: alice.agentPubKey,
           },
         });
         await carol.cells[0].callZome({
           zome_name: "follows",
           fn_name: "add_creator_for_follower",
           payload: {
-            base_follower: carol.agentPubKey,
-            target_creator: alice.agentPubKey,
+            baseFollower: carol.agentPubKey,
+            targetCreator: alice.agentPubKey,
           },
         });
         await john.cells[0].callZome({
           zome_name: "follows",
           fn_name: "add_creator_for_follower",
           payload: {
-            base_follower: john.agentPubKey,
-            target_creator: alice.agentPubKey,
+            baseFollower: john.agentPubKey,
+            targetCreator: alice.agentPubKey,
           },
         });
         await steve.cells[0].callZome({
           zome_name: "follows",
           fn_name: "add_creator_for_follower",
           payload: {
-            base_follower: steve.agentPubKey,
-            target_creator: alice.agentPubKey,
+            baseFollower: steve.agentPubKey,
+            targetCreator: alice.agentPubKey,
           },
         });
         await mary.cells[0].callZome({
           zome_name: "follows",
           fn_name: "add_creator_for_follower",
           payload: {
-            base_follower: mary.agentPubKey,
-            target_creator: alice.agentPubKey,
+            baseFollower: mary.agentPubKey,
+            targetCreator: alice.agentPubKey,
           },
         });
 
