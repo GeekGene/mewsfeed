@@ -75,3 +75,9 @@ jobs:
 
       - name: Check rust formatting
         run: nix develop -c $SHELL -c "npm run cargo:fmt:check"
+
+      - name: Check for TypeScript errors in tests
+        run: nix develop -c $SHELL -c "npm run types"
+
+      - name: Build UI
+        run: nix develop -c $SHELL -c "cd ui && npm run build"
