@@ -14,5 +14,8 @@
     "typescript": "^4.9.4",
     "vitest": "^0.28.5"
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "@types/ws": "^8.5.5"
+  }
 }
