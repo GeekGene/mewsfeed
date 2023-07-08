@@ -6,5 +6,10 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */
-  }
+  },
+  // "exclude": [
+  //   "../node_modules",
+  //   "node_modules"
+  // ],
+  // "include": ["./**/*"]
 }

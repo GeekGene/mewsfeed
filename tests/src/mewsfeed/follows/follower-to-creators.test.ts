@@ -1,6 +1,6 @@
 import { assert, test, expect } from "vitest";
 import { runScenario, pause } from "@holochain/tryorama";
-import { Record } from "@holochain/client";
+import { AgentPubKey, Record } from "@holochain/client";
 import { createAgents, mewsfeedAppBundleSource } from "../../common";
 
 test("link a Follower to a Creator", async () => {

@@ -2,6 +2,7 @@
   "name": "tests",
   "private": true,
   "scripts": {
+    "types": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest watch",
     "test:watch:pattern": "set -x && vitest watch --testNamePattern ${PATTERN}"
