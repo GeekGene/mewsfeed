@@ -1,18 +1,10 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
     "target": "ES2017",
     "module": "ESNext",
     "moduleResolution": "node",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true, /* Disallow inconsistently-cased references to the same file. */
-    "typeRoots": ["./node_modules/@types"],
-  },
-  "types": [],
-  "exclude": [
-    "../node_modules",
-    "node_modules"
-  ],
-  "include": ["./**/*"]
+  }
 }
