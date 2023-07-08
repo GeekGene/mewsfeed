@@ -42,12 +42,14 @@ pub fn add_creator_for_follower(input: AddCreatorForFollowerInput) -> ExternResu
 }
 
 #[hdk_extern]
-pub fn get_creators_for_follower(follower: AgentPubKey) -> ExternResult<Vec<AgentPubKey>> {
+pub fn get_creators_for_follower(
+    input: GetCreatorsForFollowerInput,
+) -> ExternResult<Vec<AgentPubKey>> {
     let links_from_follower_to_creators: Vec<TrustAtom> = call_local_zome(
         "trust_atom",
         "query",
         QueryInput {
-            source: Some(AnyLinkableHash::from(follower)),
+            source: Some(AnyLinkableHash::from(input.follower)),
             target: None,
             content_full: Some(String::from(FOLLOW_TOPIC)),
             content_starts_with: None,
@@ -61,6 +63,18 @@ pub fn get_creators_for_follower(follower: AgentPubKey) -> ExternResult<Vec<Agen
         .collect();
 
     Ok(creators)
+
+    // TODO integrate pagination, something like:
+
+    // let links = get_links(input.follower, LinkTypes::FollowerToCreators, None)?;
+    // let links_page = paginate_by_agentpubkey(links, input.page)?;
+
+    // let agents: Vec<AgentPubKey> = links_page
+    //     .into_iter()
+    //     .map(|link| AgentPubKey::from(EntryHash::from(link.target)))
+    //     .collect();
+
+    // Ok(agents)
 }
 
 #[hdk_extern]

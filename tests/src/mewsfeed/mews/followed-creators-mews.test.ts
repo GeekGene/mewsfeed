@@ -19,7 +19,10 @@ test("create a Mew and get followed creators mews", async () => {
       await bob.cells[0].callZome({
         zome_name: "follows",
         fn_name: "follow",
-        payload: alice.agentPubKey,
+        payload: {
+          agent: alice.agentPubKey,
+          follow_topics: [],
+        },
       });
 
       // Bob gets followed creators mews
@@ -483,7 +486,10 @@ test("Followed creators mews list are time-paginated", async () => {
       await bob.cells[0].callZome({
         zome_name: "follows",
         fn_name: "follow",
-        payload: alice.agentPubKey,
+        payload: {
+          agent: alice.agentPubKey,
+          follow_topics: [],
+        },
       });
 
       await pause(2500);
