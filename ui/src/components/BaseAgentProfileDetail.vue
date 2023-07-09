@@ -152,6 +152,7 @@
       </div>
     </div>
   </div>
+  <BaseAgentProfileDetailSkeleton v-else />
 </template>
 
 <script setup lang="ts">
@@ -170,6 +171,7 @@ import IconNavigateCircleOutline from "~icons/ion/navigate-circle-outline";
 import IconCalendarOutline from "~icons/ion/calendar-outline";
 import IconPencilSharp from "~icons/ion/pencil-sharp";
 import { Timestamp } from "@holochain/client";
+import BaseAgentProfileDetailSkeleton from "@/components/BaseAgentProfileDetailSkeleton.vue";
 
 const props = withDefaults(
   defineProps<{
