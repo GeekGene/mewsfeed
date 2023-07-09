@@ -51,6 +51,10 @@ pub struct FeedMew {
     pub deleted_timestamp: Option<Timestamp>,
     pub author_profile: Option<Profile>,
     pub is_pinned: bool,
+    pub is_licked: bool,
+    pub is_mewmewed: bool,
+    pub is_replied: bool,
+    pub is_quoted: bool,
     pub original_mew: Option<EmbedMew>,
 }
 

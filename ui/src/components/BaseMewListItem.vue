@@ -115,7 +115,12 @@
               >
                 <button
                   :disable="isDeleted"
-                  class="flex justify-start items-center space-x-1 text-neutral-content hover:text-neutral p-2"
+                  class="flex justify-start items-center space-x-1 p-2"
+                  :class="{
+                    'text-green-400 hover:text-green-600': feedMew.is_replied,
+                    'text-neutral-content hover:text-neutral':
+                      !feedMew.is_replied,
+                  }"
                   @click.stop.prevent="showReplyToMewDialog = true"
                 >
                   <IconArrowUndoSharp class="w-4 h-4" />
@@ -132,7 +137,12 @@
               >
                 <button
                   :disable="isDeleted"
-                  class="flex justify-start items-center space-x-1 text-neutral-content hover:text-neutral p-2"
+                  class="flex justify-start items-center space-x-1 p-2"
+                  :class="{
+                    'text-green-400 hover:text-green-600': feedMew.is_quoted,
+                    'text-neutral-content hover:text-neutral':
+                      !feedMew.is_quoted,
+                  }"
                   @click.stop.prevent="showQuoteMewDialog = true"
                 >
                   <IconFormatQuote class="w-4 h-4" />
@@ -149,7 +159,12 @@
               >
                 <button
                   :disable="isDeleted"
-                  class="flex justify-start items-center space-x-1 text-neutral-content hover:text-neutral p-2"
+                  class="flex justify-start items-center space-x-1 p-2"
+                  :class="{
+                    'text-green-400 hover:text-green-600': feedMew.is_mewmewed,
+                    'text-neutral-content hover:text-neutral':
+                      !feedMew.is_mewmewed,
+                  }"
                   @click.stop.prevent="createMewmew"
                 >
                   <IconRepeatBold class="w-4 h-4" />
@@ -162,11 +177,15 @@
               <div
                 class="tooltip-bottom"
                 :class="{ tooltip: !isDeleted }"
-                :data-tip="`${isLickedByMe ? 'Unlick' : 'Lick'} mew`"
+                :data-tip="`${feedMew.is_licked ? 'Unlick' : 'Lick'} mew`"
               >
                 <button
-                  class="flex justify-start items-center space-x-1 text-neutral-content hover:text-neutral p-2"
-                  :class="{ 'text-pink-400 hover:text-pink-600': isLickedByMe }"
+                  class="flex justify-start items-center space-x-1 p-2"
+                  :class="{
+                    'text-pink-400 hover:text-pink-600': feedMew.is_licked,
+                    'text-neutral-content hover:text-neutral':
+                      !feedMew.is_licked,
+                  }"
                   :disable="isUpdatingLick || isDeleted"
                   @click.stop.prevent="toggleLickMew"
                 >
@@ -185,7 +204,12 @@
               >
                 <button
                   :disable="isDeleted && !props.feedMew.is_pinned"
-                  class="flex justify-start items-center space-x-1 text-neutral-content hover:text-neutral p-2"
+                  class="flex justify-start items-center space-x-1 p-2"
+                  :class="{
+                    'text-green-400 hover:text-green-600': feedMew.is_pinned,
+                    'text-neutral-content hover:text-neutral':
+                      !feedMew.is_pinned,
+                  }"
                   @click.stop.prevent="togglePinMew"
                 >
                   <IconSharpPinOff
@@ -277,7 +301,6 @@ import CreateMewDialog from "@/components/CreateMewDialog.vue";
 import BaseMewContent from "@/components/BaseMewContent.vue";
 import isEqual from "lodash/isEqual";
 import remove from "lodash/remove";
-import { AgentPubKey } from "@holochain/client";
 import { useRouter } from "vue-router";
 import { AppAgentClient } from "@holochain/client";
 import BaseTimestamp from "@/components/BaseTimestamp.vue";
@@ -343,11 +366,6 @@ const isReply = computed(() => MewTypeName.Reply in props.feedMew.mew.mew_type);
 const reactionLabel = computed(() =>
   isMewmew.value ? "mewmewed from" : isReply.value ? "replied to" : "quoted"
 );
-const isLickedByMe = computed(() =>
-  props.feedMew.licks.some((lick) =>
-    isEqual(lick, client.myPubKey as AgentPubKey)
-  )
-);
 const isAuthoredByMe = computed(() =>
   isEqual(client.myPubKey, props.feedMew.action.author)
 );
@@ -369,7 +387,7 @@ const toggleLickMew = async () => {
 
   isUpdatingLick.value = true;
   const newLicks = [...props.feedMew.licks];
-  if (isLickedByMe.value) {
+  if (props.feedMew.is_licked) {
     await client.callZome({
       role_name: "mewsfeed",
       zome_name: "likes",

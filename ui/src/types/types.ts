@@ -84,6 +84,10 @@ export interface FeedMew {
   licks: AgentPubKey[];
   mewmews: ActionHash[];
   is_pinned: boolean;
+  is_licked: boolean;
+  is_mewmewed: boolean;
+  is_replied: boolean;
+  is_quoted: boolean;
   author_profile: Profile | null;
   deleted_timestamp: number | null;
   original_mew: EmbedMew | null;
