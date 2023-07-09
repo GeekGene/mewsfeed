@@ -3,6 +3,7 @@
     <Dialog
       as="div"
       class="relative z-20 w-full"
+      :open="modelValue"
       @close="emit('update:model-value', false)"
     >
       <TransitionChild
