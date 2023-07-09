@@ -56,25 +56,25 @@
 </template>
 
 <script setup lang="ts">
-import { ComputedRef, inject, ref } from "vue";
-import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
+import { ref } from "vue";
+import { Profile } from "@holochain-open-dev/profiles";
 import { PROFILE_FIELDS } from "@/types/types";
 import BaseAvatarInput from "@/components/BaseAvatarInput.vue";
 import { useToasts } from "@/stores/toasts";
 
-const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
-  .value;
-const emit = defineEmits(["profile-updated"]);
+const emit = defineEmits(["update:model-value"]);
 const props = defineProps<{
-  profile: Profile;
+  modelValue?: Profile;
 }>();
 const { showMessage } = useToasts();
 
-const avatar = ref(props.profile.fields.avatar);
-const nickname = ref(props.profile.nickname);
-const displayName = ref(props.profile.fields[PROFILE_FIELDS.DISPLAY_NAME]);
-const bio = ref(props.profile.fields[PROFILE_FIELDS.BIO]);
-const location = ref(props.profile.fields[PROFILE_FIELDS.LOCATION]);
+const avatar = ref(props.modelValue?.fields.avatar || "");
+const nickname = ref(props.modelValue?.nickname || "");
+const displayName = ref(
+  props.modelValue?.fields[PROFILE_FIELDS.DISPLAY_NAME] || ""
+);
+const bio = ref(props.modelValue?.fields[PROFILE_FIELDS.BIO] || "");
+const location = ref(props.modelValue?.fields[PROFILE_FIELDS.LOCATION] || "");
 
 const save = async () => {
   const newProfile = {
@@ -92,9 +92,6 @@ const save = async () => {
     return;
   }
 
-  await profilesStore.client.updateProfile(newProfile);
-  await profilesStore.myProfile.reload();
-
-  emit("profile-updated", newProfile);
+  emit("update:model-value", newProfile);
 };
 </script>

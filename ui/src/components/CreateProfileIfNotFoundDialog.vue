@@ -5,17 +5,13 @@
     @update:model-value="(val: boolean) => emit('update:model-value', val)"
   >
     <profiles-context :store="profilesStore">
-      <div v-if="profilesStore && !myProfile" class="w-96">
+      <div v-if="profilesStore && !myProfile">
         <h2
           class="text-3xl text-left font-title font-bold tracking-tighter mb-4"
         >
           create profile
         </h2>
-        <edit-profile
-          class="font-content text-left prose"
-          :store="profilesStore"
-          @save-profile="createProfile"
-        ></edit-profile>
+        <BaseEditAgentProfileForm @update:model-value="createProfile" />
       </div>
       <slot v-else></slot>
     </profiles-context>
@@ -25,6 +21,7 @@
 <script setup lang="ts">
 import { ComputedRef, inject } from "vue";
 import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
+import BaseEditAgentProfileForm from "@/components/BaseEditAgentProfileForm.vue";
 
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
@@ -34,11 +31,12 @@ defineProps<{
   modelValue: boolean;
 }>();
 
-const createProfile = async (e: any) => {
-  await profilesStore.client.createProfile(e.detail.profile);
+const createProfile = async (profile: Profile) => {
+  console.log("createPRofile", profile);
+  await profilesStore.client.createProfile(profile);
   await profilesStore.myProfile.reload();
 
-  emit("profile-created", e.detail.profile);
+  emit("profile-created", profile);
   emit("update:model-value", false);
 };
 </script>

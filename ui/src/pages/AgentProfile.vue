@@ -24,8 +24,9 @@
         "
       />
       <EditAgentProfileDialog
+        v-if="profileWithContext"
         v-model="showEditProfileDialog"
-        :profile="profileWithContext?.profile"
+        :profile="profileWithContext.profile"
         @profile-updated="(profile: any) => {
           refetchProfile();
           queryClient.setQueryData([
