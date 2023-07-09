@@ -2,7 +2,7 @@
   <div class="dropdown dropdown-bottom dropdown-end w-full">
     <label ref="button" tabindex="0">
       <button
-        class="btn btn-xs sm:btn-sm btn-neutral rounded-3xl flex justify-center items-center w-full"
+        class="btn btn-xs sm:btn-xs btn-outline rounded-3xl flex justify-center items-center w-full"
       >
         <IconSwatchesFill />
         <div>Switch Theme</div>

@@ -66,16 +66,20 @@
 
       <div class="flex-1 flex flex-col justify-between">
         <div
-          class="w-full flex justify-between items-start whitespace-nowrap mb-5"
+          class="w-full flex justify-between items-start whitespace-nowrap mb-5 space-x-14"
         >
           <BaseAgentProfileNameLarge
             :profile="profile"
             :agentPubKey="agentPubKey"
           />
-          <ButtonFollow v-if="!isMyProfile" :agentPubKey="agentPubKey" />
+          <ButtonFollow
+            v-if="!isMyProfile"
+            :agentPubKey="agentPubKey"
+            :big="bigFollowButton"
+          />
           <div v-else-if="!hideEditButton" class="flex flex-col space-y-2">
             <button
-              class="btn btn-xs sm:btn-sm px-4 btn-neutral rounded-3xl flex justify-center items-center space-x-2"
+              class="btn btn-xs sm:btn-md px-4 btn-outline rounded-3xl flex justify-center items-center space-x-2"
               @click="emit('click-edit-profile')"
             >
               <IconPencilSharp />
@@ -182,6 +186,7 @@ const props = withDefaults(
     followersCount?: number;
     hideEditButton?: boolean;
     enableCopyAgentPubKey?: boolean;
+    bigFollowButton?: boolean;
   }>(),
   {
     profile: undefined,
@@ -190,6 +195,7 @@ const props = withDefaults(
     creatorsCount: undefined,
     followersCount: undefined,
     enableCopyAgentPubKey: false,
+    bigFollowButton: true,
   }
 );
 const emit = defineEmits([

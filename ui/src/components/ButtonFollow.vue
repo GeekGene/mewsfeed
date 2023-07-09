@@ -1,7 +1,11 @@
 <template>
   <button
     class="btn btn-sm rounded-3xl px-4"
-    :class="{ 'btn-primary': isFollowing, 'btn-neutral': !isFollowing }"
+    :class="{
+      'btn-primary': isFollowing,
+      'btn-neutral': !isFollowing,
+      'md:btn-md': big,
+    }"
     @click.stop.prevent="toggleFollow"
   >
     {{ isFollowing ? "Following" : "Follow" }}
@@ -24,12 +28,15 @@ import { setHomeRedirect } from "@/utils/homeRedirect";
 import { useQuery } from "@tanstack/vue-query";
 import { useToasts } from "@/stores/toasts";
 
-const props = defineProps({
-  agentPubKey: {
-    type: Object as PropType<AgentPubKey>,
-    required: true,
-  },
-});
+const props = withDefaults(
+  defineProps<{
+    agentPubKey: AgentPubKey;
+    big?: boolean;
+  }>(),
+  {
+    big: true,
+  }
+);
 const emit = defineEmits(["toggle-follow"]);
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;

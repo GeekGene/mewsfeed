@@ -38,6 +38,7 @@
             <AgentProfileDetail
               :agentPubKey="agentPubKey"
               hide-edit-button
+              :big-follow-button="false"
               @mouseenter="setPopupVisible(true)"
               @mouseleave="setPopupVisible(false)"
             />
