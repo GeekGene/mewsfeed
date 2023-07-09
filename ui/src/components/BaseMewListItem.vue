@@ -7,8 +7,13 @@
       v-if="feedMew.original_mew && showYarnLink"
       class="flex justify-between items-center w-full pt-4 px-4"
     >
-      <RouterLink
-        class="btn btn-cicle btn-xs"
+      <Component
+        :is="enableYarnLink ? 'RouterLink' : 'span'"
+        :class="{
+          'flex justify-start items-center space-x-1 bg-base-200 font-bold px-2 py-1 text-xs rounded-lg uppercase cursor-normal':
+            !enableYarnLink,
+          'btn btn-xs': enableYarnLink,
+        }"
         :to="{
           name: ROUTES.yarn,
           params: {
@@ -17,7 +22,11 @@
         }"
         @click.stop.prevent
       >
-        <div class="text-primary text-lowercase">
+        <div
+          :class="{
+            'text-primary': enableYarnLink,
+          }"
+        >
           {{ reactionLabel }}
         </div>
         <div class="flex justify-start items-center">
@@ -32,7 +41,7 @@
             (Deleted Mew)
           </div>
         </div>
-      </RouterLink>
+      </Component>
 
       <div class="font-mono text-xs">
         <BaseTimestamp :timestamp="feedMew.action.timestamp" />
@@ -324,11 +333,13 @@ const props = withDefaults(
   defineProps<{
     feedMew: FeedMew;
     showYarnLink?: boolean;
+    enableYarnLink?: boolean;
     showIfDeletedDefault?: boolean;
     showButtons?: boolean;
   }>(),
   {
     showYarnLink: true,
+    enableYarnLink: true,
     showIfDeletedDefault: false,
     showButtons: true,
   }
