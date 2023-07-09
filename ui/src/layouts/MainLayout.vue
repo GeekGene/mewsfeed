@@ -20,6 +20,7 @@
       <div class="w-full max-w-screen-md flex items-center space-x-10 px-8">
         <div class="block w-14 h-14"></div>
         <div
+          v-if="route.name === ROUTES.feed"
           class="bg-neutral/[0.1] backdrop-blur-md rounded-[2rem] flex-1 w-full"
           style="-webkit-backdrop-filter: blur(10px)"
         >
@@ -28,12 +29,21 @@
             @mew-created="onCreateMew"
           />
         </div>
+        <div v-else class="flex-1 w-full flex justify-end">
+          <button
+            class="z-10 btn btn-md btn-neutral rounded-full py-3 flex justify-start items-center"
+            @click="showCreateMewDialog = true"
+          >
+            <IconChatbubbleOutline class="text-md" />
+            <div>New Mew</div>
+          </button>
+        </div>
       </div>
     </div>
   </div>
 
   <button
-    class="flex-0 block sm:hidden z-10 fixed bottom-32 right-3 btn btn-md btn-neutral rounded-full py-3 flex items-center"
+    class="block sm:hidden z-10 fixed bottom-32 right-3 btn btn-md btn-neutral rounded-full py-3 flex justify-start items-center"
     @click="showCreateMewDialog = true"
   >
     <IconChatbubbleOutline class="text-md" />
