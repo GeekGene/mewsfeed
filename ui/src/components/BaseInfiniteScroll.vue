@@ -12,7 +12,7 @@
         v-if="loading || hasMore === undefined"
         class="loading loading-dots loading-md text-base-300 text-2xl"
       ></div>
-      <IconPaw v-else-if="hasMore === false" class="text-base-300 text-2xl" />
+      <IconPaw v-else-if="hasMore === false" class="text-base-200 text-2xl" />
     </div>
   </div>
 </template>

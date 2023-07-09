@@ -2,7 +2,7 @@
 <template>
   <div>
     <RouterLink
-      class="btn btn-circle btn-md btn-neutral-inverse"
+      class="btn btn-circle btn-md"
       active-class="btn-neutral"
       alt="Home Page"
       :to="{ name: ROUTES.feed }"
@@ -19,7 +19,7 @@
     </RouterLink>
     <div class="indicator">
       <RouterLink
-        class="btn btn-circle btn-md btn-neutral-inverse"
+        class="btn btn-circle btn-md"
         active-class="btn-neutral"
         alt="Notifications Page"
         :to="{ name: ROUTES.notifications }"
@@ -34,7 +34,7 @@
     </div>
 
     <a
-      class="btn btn-circle btn-md btn-neutral-inverse"
+      class="btn btn-circle btn-md"
       active-class="btn-neutral"
       alt="Search Button"
       @click="emit('click-search')"
@@ -43,7 +43,7 @@
     </a>
     <RouterLink
       v-if="myProfile"
-      class="btn btn-circle btn-md btn-neutral-inverse"
+      class="btn btn-circle btn-md"
       active-class="btn-neutral"
       alt="My Profile Page"
       :to="{

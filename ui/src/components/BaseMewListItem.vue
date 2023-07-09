@@ -127,8 +127,7 @@
                   class="flex justify-start items-center space-x-1 p-2"
                   :class="{
                     'text-green-400 hover:text-green-600': feedMew.is_replied,
-                    'text-neutral-content hover:text-neutral':
-                      !feedMew.is_replied,
+                    'text-base-300 hover:text-neutral': !feedMew.is_replied,
                   }"
                   @click.stop.prevent="showReplyToMewDialog = true"
                 >
@@ -149,8 +148,7 @@
                   class="flex justify-start items-center space-x-1 p-2"
                   :class="{
                     'text-green-400 hover:text-green-600': feedMew.is_quoted,
-                    'text-neutral-content hover:text-neutral':
-                      !feedMew.is_quoted,
+                    'text-base-300 hover:text-neutral': !feedMew.is_quoted,
                   }"
                   @click.stop.prevent="showQuoteMewDialog = true"
                 >
@@ -171,8 +169,7 @@
                   class="flex justify-start items-center space-x-1 p-2"
                   :class="{
                     'text-green-400 hover:text-green-600': feedMew.is_mewmewed,
-                    'text-neutral-content hover:text-neutral':
-                      !feedMew.is_mewmewed,
+                    'text-base-300 hover:text-neutral': !feedMew.is_mewmewed,
                   }"
                   @click.stop.prevent="createMewmew"
                 >
@@ -192,8 +189,7 @@
                   class="flex justify-start items-center space-x-1 p-2"
                   :class="{
                     'text-pink-400 hover:text-pink-600': feedMew.is_licked,
-                    'text-neutral-content hover:text-neutral':
-                      !feedMew.is_licked,
+                    'text-base-300 hover:text-neutral': !feedMew.is_licked,
                   }"
                   :disable="isUpdatingLick || isDeleted"
                   @click.stop.prevent="toggleLickMew"
@@ -216,8 +212,7 @@
                   class="flex justify-start items-center space-x-1 p-2"
                   :class="{
                     'text-green-400 hover:text-green-600': feedMew.is_pinned,
-                    'text-neutral-content hover:text-neutral':
-                      !feedMew.is_pinned,
+                    'text-base-300 hover:text-neutral': !feedMew.is_pinned,
                   }"
                   @click.stop.prevent="togglePinMew"
                 >
@@ -236,7 +231,7 @@
               >
                 <button
                   :disable="isDeleted"
-                  class="flex justify-start items-center space-x-1 text-neutral-content hover:text-neutral p-2"
+                  class="flex justify-start items-center space-x-1 text-base-300 hover:text-neutral p-2"
                   @click.stop.prevent="showConfirmDeleteDialog = true"
                 >
                   <IconTrashSharp class="w-4 h-4" />
