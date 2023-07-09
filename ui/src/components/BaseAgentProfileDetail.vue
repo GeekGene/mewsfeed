@@ -134,7 +134,7 @@
           >
             <div
               v-if="profile.fields[PROFILE_FIELDS.LOCATION]"
-              class="flex justify-start space-x-2"
+              class="flex justify-start space-x-2 font-mono"
             >
               <IconNavigateCircleOutline />
               <div>{{ profile.fields[PROFILE_FIELDS.LOCATION] }}</div>
@@ -142,7 +142,7 @@
 
             <div
               v-if="joinedTimestamp !== undefined"
-              class="flex justify-start items-center space-x-2 text-xs"
+              class="flex justify-start items-center space-x-2 text-xs font-mono"
             >
               <IconCalendarOutline />
               <div>Joined <BaseTimestamp :timestamp="joinedTimestamp" /></div>
