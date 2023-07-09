@@ -21,7 +21,7 @@
   >
     <div class="flex justify-center">
       <div
-        class="w-full max-w-screen-lg flex justify-start items-center sm:space-x-10 px-2 sm:px-8"
+        class="w-full max-w-screen-md flex justify-start items-center sm:space-x-10 px-2 sm:px-8"
       >
         <div class="block w-0 sm:w-14 h-14 flex-none"></div>
         <div

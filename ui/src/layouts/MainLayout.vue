@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full max-w-screen-lg h-full px-3 sm:px-8 py-3 sm:py-6 flex flex-col"
+    class="w-full max-w-screen-md h-full px-3 sm:px-8 py-3 sm:py-6 flex flex-col"
   >
     <div
       class="flex sm:flex-none justify-center items-start space-x-0 sm:space-x-10 h-full"
@@ -17,7 +17,7 @@
 
   <div class="hidden sm:block fixed left-0 bottom-6 w-full">
     <div class="flex justify-center">
-      <div class="w-full max-w-screen-lg flex items-center space-x-10 px-8">
+      <div class="w-full max-w-screen-md flex items-center space-x-10 px-8">
         <div class="block w-14 h-14"></div>
         <div
           class="bg-neutral/[0.1] backdrop-blur-md rounded-[2rem] flex-1 w-full"
