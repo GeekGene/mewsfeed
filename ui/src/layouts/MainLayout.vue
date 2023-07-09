@@ -20,7 +20,7 @@
       <div class="w-full max-w-screen-lg flex items-center space-x-10 px-8">
         <div class="block w-14 h-14"></div>
         <div
-          class="bg-neutral/[0.1] backdrop-blur-md rounded-[2rem] shadow-2xl flex-1 w-full"
+          class="bg-neutral/[0.1] backdrop-blur-md rounded-[2rem] flex-1 w-full"
           style="-webkit-backdrop-filter: blur(10px)"
         >
           <CreateMewInput
@@ -33,7 +33,7 @@
   </div>
 
   <button
-    class="flex-0 block sm:hidden z-10 fixed bottom-32 right-3 btn btn-md btn-neutral rounded-full py-3 flex items-center shadow-xl"
+    class="flex-0 block sm:hidden z-10 fixed bottom-32 right-3 btn btn-md btn-neutral rounded-full py-3 flex items-center"
     @click="showCreateMewDialog = true"
   >
     <IconChatbubbleOutline class="text-md" />
@@ -41,7 +41,7 @@
   </button>
 
   <div
-    class="flex-0 block sm:hidden fixed bottom-0 bg-base-100 py-8 w-full border-t-2 border-base-300 shadow-xl"
+    class="flex-0 block sm:hidden fixed bottom-0 bg-base-100 py-8 w-full border-t-2 border-base-300"
   >
     <BaseSiteMenu
       class="w-full flex justify-evenly items-center"

@@ -25,7 +25,7 @@
       >
         <div class="block w-0 sm:w-14 h-14 flex-none"></div>
         <div
-          class="bg-neutral/5 backdrop-blur-md rounded-3xl shadow-xl flex-initial"
+          class="bg-neutral/5 backdrop-blur-md rounded-3xl flex-initial"
           style="-webkit-backdrop-filter: blur(10px)"
         >
           <RouterLink

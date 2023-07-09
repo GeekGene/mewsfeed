@@ -2,7 +2,7 @@
   <Combobox v-model="selection" class="q-mx-md">
     <div class="my-8">
       <div
-        class="relative transform overflow-hidden rounded-3xl bg-base-100 px-4 pb-4 pt-5 text-left shadow-xl transition-all w-full sm:p-6"
+        class="relative transform overflow-hidden rounded-3xl bg-base-100 px-4 pb-4 pt-5 text-left transition-all w-full sm:p-6"
       >
         <div class="flex justify-start">
           <IconSearch class="text-3xl mr-4" />
@@ -24,7 +24,7 @@
       >
         <div
           v-if="query !== ''"
-          class="relative transform overflow-hidden rounded-3xl bg-base-100 text-left shadow-xl transition-all w-full mt-2 sm:mt-4"
+          class="relative transform overflow-hidden rounded-3xl bg-base-100 text-left transition-all w-full mt-2 sm:mt-4"
         >
           <ComboboxOptions>
             <div>

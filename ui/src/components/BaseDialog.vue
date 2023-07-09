@@ -35,7 +35,7 @@
             leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
           >
             <DialogPanel
-              class="relative transform overflow-hidden bg-base-100 rounded-3xl shadow-xl transition-all w-full p-2 sm:p-8 md:w-2/3 sm:px-8"
+              class="relative transform overflow-hidden bg-base-100 rounded-3xl transition-all w-full p-2 sm:p-8 md:w-2/3 sm:px-8"
               :class="dialogPanelClass"
             >
               <slot></slot>

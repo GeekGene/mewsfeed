@@ -72,7 +72,7 @@
 
         <div
           id="link-target-input-container"
-          class="hidden absolute bg-base-200 text-base-content shadow-md rounded-md text-xs sm:text-sm"
+          class="hidden absolute bg-base-200 text-base-content rounded-md text-xs sm:text-sm"
         >
           <div class="relative">
             <input
@@ -100,7 +100,7 @@
 
         <div
           id="autocompleter"
-          class="hidden absolute bg-base-200 shadow-md rounded-md text-xs sm:text-sm p-2"
+          class="hidden absolute bg-base-200 rounded-md text-xs sm:text-sm p-2"
         >
           <div v-if="currentAgentSearch.length < 3">Min 3 chars</div>
 
