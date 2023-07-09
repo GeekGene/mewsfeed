@@ -49,7 +49,7 @@
     />
   </div>
 
-  <ToastNotices />
+  <ToastNotices class="z-30" />
 
   <SearchEverythingDialog v-model="showSearchDialog" />
   <CreateMewDialog

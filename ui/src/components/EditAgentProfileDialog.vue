@@ -11,18 +11,15 @@
         >
           edit profile
         </h2>
-        <update-profile
-          class="font-content text-left prose"
-          :profile="profile"
-          :store="profilesStore"
+        <BaseEditAgentProfileForm
+          :profile="profile ? profile : {nickname: '', fields: { avatar: '', bio: '', location: ''} } as Profile"
           @profile-updated="
             (profile: Profile) => {
               emit('update:model-value', false);
               emit('profile-updated', profile);
             }
           "
-          @cancel-edit-profile="emit('update:model-value', false)"
-        ></update-profile>
+        ></BaseEditAgentProfileForm>
       </profiles-context>
     </div>
   </BaseDialog>
@@ -31,6 +28,7 @@
 <script setup lang="ts">
 import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
 import { ComputedRef, inject } from "vue";
+import BaseEditAgentProfileForm from "@/components/BaseEditAgentProfileForm.vue";
 
 defineProps<{
   profile?: Profile | null;

@@ -26,14 +26,14 @@
       <EditAgentProfileDialog
         v-model="showEditProfileDialog"
         :profile="profileWithContext?.profile"
-        @profile-updated="(e: any) => {
+        @profile-updated="(profile: any) => {
           refetchProfile();
           queryClient.setQueryData([
               'profiles',
               'getAgentProfile',
               encodeHashToBase64(agentPubKey),
             ],
-            e.detail.profile
+            profile
           );
         }"
       />
