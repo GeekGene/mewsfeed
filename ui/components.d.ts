@@ -39,7 +39,6 @@ declare module 'vue' {
     BaseThemeSelect: typeof import('./src/components/BaseThemeSelect.vue')['default']
     BaseTimestamp: typeof import('./src/components/BaseTimestamp.vue')['default']
     ButtonFollow: typeof import('./src/components/ButtonFollow.vue')['default']
-    copy: typeof import('./src/components/BaseMewListItemSkeleton copy.vue')['default']
     CreateMewDialog: typeof import('./src/components/CreateMewDialog.vue')['default']
     CreateMewInput: typeof import('./src/components/CreateMewInput.vue')['default']
     CreateProfileIfNotFoundDialog: typeof import('./src/components/CreateProfileIfNotFoundDialog.vue')['default']
