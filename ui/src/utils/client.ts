@@ -57,8 +57,9 @@ export const setupHolo = async () => {
 // set up zome call signing when run outside of launcher
 export const authorizeClient = async (appInfo: AppInfo) => {
   if (typeof window === "object" && !("__HC_LAUNCHER_ENV__" in window)) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    if (!(CellType.Provisioned in appInfo.cell_info.mewsfeed[0])) {
+      throw new Error("mewsfeed cell not provisioned");
+    }
     const { cell_id } = appInfo.cell_info.mewsfeed[0][CellType.Provisioned];
     const adminWs = await AdminWebsocket.connect(
       new URL(`ws://localhost:${import.meta.env.VITE_HC_ADMIN_PORT}`)
