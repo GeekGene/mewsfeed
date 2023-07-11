@@ -7,7 +7,9 @@ import {
 import WebSdkApi from "@holo-host/web-sdk";
 
 export const HOLOCHAIN_APP_ID = "mewsfeed";
-export const HOLOCHAIN_URL = `ws://localhost:${import.meta.env.VITE_HC_PORT}`;
+export const HOLOCHAIN_URL = new URL(
+  `ws://localhost:${import.meta.env.VITE_HC_PORT}`
+);
 export const IS_HOLO_HOSTED = Boolean(import.meta.env.VITE_IS_HOLO_HOSTED);
 
 export const HOLO_CHAPERONE_URL = import.meta.env.VITE_CHAPERONE_SERVER_URL
@@ -59,7 +61,7 @@ export const authorizeClient = async (appInfo: AppInfo) => {
     // @ts-ignore
     const { cell_id } = appInfo.cell_info.mewsfeed[0][CellType.Provisioned];
     const adminWs = await AdminWebsocket.connect(
-      `ws://localhost:${import.meta.env.VITE_HC_ADMIN_PORT}`
+      new URL(`ws://localhost:${import.meta.env.VITE_HC_ADMIN_PORT}`)
     );
     await adminWs.authorizeSigningCredentials(cell_id);
     console.log("Holochain app client authorized for zome calls");

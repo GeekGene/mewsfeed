@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 ### Changed
+- **BREAKING CHANGE**: upgrade Holochain to v0.3.0-beta-dev.8
+- **BREAKING CHANGE**: upgrade JS client to v0.15.0
+- **BREAKING CHANGE**: upgrade Tryorama to v0.15.0-rc.1
 ### Fixed
 ### Removed
 
