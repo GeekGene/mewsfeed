@@ -13,4 +13,4 @@ hdk = { workspace = true }
 serde = { workspace = true }
 
 profiles_integrity = { workspace = true } 
-hc_zome_profiles_coordinator = "0.1.2"
+hc_zome_profiles_coordinator = "0.2"
