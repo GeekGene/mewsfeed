@@ -33,7 +33,7 @@ fn get_agent_mew_hashes(input: GetAgentMewsInput) -> ExternResult<Vec<ActionHash
 
     let hashes: Vec<ActionHash> = links_slice
         .into_iter()
-        .map(|link| ActionHash::from(link.target))
+        .filter_map(|link| ActionHash::try_from(link.target).ok())
         .collect();
 
     Ok(hashes)

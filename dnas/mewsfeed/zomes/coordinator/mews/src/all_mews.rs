@@ -7,7 +7,7 @@ pub fn get_all_mew_hashes() -> ExternResult<Vec<ActionHash>> {
     links.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
     let hashes: Vec<ActionHash> = links
         .into_iter()
-        .map(|link| ActionHash::from(link.target))
+        .filter_map(|link| ActionHash::try_from(link.target).ok())
         .collect();
 
     Ok(hashes)

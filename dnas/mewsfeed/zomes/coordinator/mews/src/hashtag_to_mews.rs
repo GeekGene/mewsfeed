@@ -43,7 +43,9 @@ pub fn remove_hashtag_for_mew(input: RemoveHashtagForMewInput) -> ExternResult<(
         Some(LinkTag(input.base_hashtag.as_bytes().to_vec())),
     )?;
     for link in links {
-        if ActionHash::from(link.target.clone()).eq(&input.target_mew_hash) {
+        let action_hash =
+            ActionHash::try_from(link.target.clone()).map_err(|err| wasm_error!(err))?;
+        if action_hash.eq(&input.target_mew_hash) {
             delete_link(link.create_link_hash)?;
         }
     }

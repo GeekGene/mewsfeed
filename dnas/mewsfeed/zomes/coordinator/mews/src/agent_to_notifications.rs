@@ -140,7 +140,10 @@ fn make_notifications(
     match (create.zome_index, create.link_type) {
         // MentionToMews
         (ZomeIndex(1), LinkType(6)) => {
-            let feed_mew_hash = Some(ActionHash::from(create.target_address.clone()));
+            let feed_mew_hash = Some(
+                ActionHash::try_from(create.target_address.clone())
+                    .map_err(|err| wasm_error!(err))?,
+            );
 
             make_notifications_for_createlinks(
                 vec![create],
@@ -169,7 +172,10 @@ fn make_notifications(
 
         // MewToResponses
         (ZomeIndex(1), LinkType(5)) => {
-            let feed_mew_hash = Some(ActionHash::from(create.target_address.clone()));
+            let feed_mew_hash = Some(
+                ActionHash::try_from(create.target_address.clone())
+                    .map_err(|err| wasm_error!(err))?,
+            );
 
             make_notifications_for_createlinks(
                 vec![create],
@@ -180,7 +186,10 @@ fn make_notifications(
 
         // HashToLikers
         (ZomeIndex(3), LinkType(1)) => {
-            let feed_mew_hash = Some(ActionHash::from(create.base_address.clone()));
+            let feed_mew_hash = Some(
+                ActionHash::try_from(create.base_address.clone())
+                    .map_err(|err| wasm_error!(err))?,
+            );
 
             let mut all_notifications = make_notifications_for_createlinks(
                 vec![create],
@@ -200,7 +209,10 @@ fn make_notifications(
 
         // HashToPinners
         (ZomeIndex(4), LinkType(1)) => {
-            let feed_mew_hash = Some(ActionHash::from(create.base_address.clone()));
+            let feed_mew_hash = Some(
+                ActionHash::try_from(create.base_address.clone())
+                    .map_err(|err| wasm_error!(err))?,
+            );
 
             let mut all_notifications = make_notifications_for_createlinks(
                 vec![create],

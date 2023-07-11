@@ -30,7 +30,8 @@ pub fn get_creators_for_follower(
 
     let agents: Vec<AgentPubKey> = links_page
         .into_iter()
-        .map(|link| AgentPubKey::from(EntryHash::from(link.target)))
+        .filter_map(|link| EntryHash::try_from(link.target).ok())
+        .map(|entry_hash| AgentPubKey::from(entry_hash))
         .collect();
 
     Ok(agents)
@@ -44,7 +45,8 @@ pub fn get_followers_for_creator(
 
     let agents: Vec<AgentPubKey> = links
         .into_iter()
-        .map(|link| AgentPubKey::from(EntryHash::from(link.target)))
+        .filter_map(|link| EntryHash::try_from(link.target).ok())
+        .map(|entry_hash| AgentPubKey::from(entry_hash))
         .collect();
 
     Ok(agents)
@@ -77,7 +79,9 @@ pub fn remove_creator_for_follower(input: RemoveCreatorForFollowerInput) -> Exte
     )?;
 
     for link in links {
-        if AgentPubKey::from(EntryHash::from(link.target.clone())).eq(&input.target_creator) {
+        let entry_hash =
+            EntryHash::try_from(link.target.clone()).map_err(|err| wasm_error!(err))?;
+        if AgentPubKey::from(entry_hash).eq(&input.target_creator) {
             delete_link(link.create_link_hash)?;
         }
     }
@@ -89,7 +93,9 @@ pub fn remove_creator_for_follower(input: RemoveCreatorForFollowerInput) -> Exte
     )?;
 
     for link in links {
-        if AgentPubKey::from(EntryHash::from(link.target.clone())).eq(&input.base_follower) {
+        let entry_hash =
+            EntryHash::try_from(link.target.clone()).map_err(|err| wasm_error!(err))?;
+        if AgentPubKey::from(entry_hash).eq(&input.base_follower) {
             delete_link(link.create_link_hash)?;
         }
     }

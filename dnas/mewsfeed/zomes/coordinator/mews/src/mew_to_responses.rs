@@ -52,7 +52,7 @@ pub fn get_response_hashes_for_mew(
     let links_page = paginate_by_hash(links, input.page)?;
     let hashes: Vec<ActionHash> = links_page
         .into_iter()
-        .map(|link| ActionHash::from(link.target))
+        .filter_map(|link| ActionHash::try_from(link.target).ok())
         .collect();
 
     Ok(hashes)
@@ -86,7 +86,9 @@ pub fn remove_response_for_mew(input: RemoveResponseForMewInput) -> ExternResult
         None,
     )?;
     for link in links {
-        if ActionHash::from(link.target.clone()).eq(&input.target_response_mew_hash) {
+        let action_hash =
+            ActionHash::try_from(link.target.clone()).map_err(|err| wasm_error!(err))?;
+        if action_hash.eq(&input.target_response_mew_hash) {
             delete_link(link.create_link_hash)?;
         }
     }
