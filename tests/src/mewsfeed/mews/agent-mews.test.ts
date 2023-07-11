@@ -1,10 +1,9 @@
+import { ActionHash } from "@holochain/client";
+import { pause, runScenario } from "@holochain/tryorama";
 import { assert, expect, test } from "vitest";
-import { runScenario, pause } from "@holochain/tryorama";
-import { ActionHash, Record } from "@holochain/client";
-import { decode } from "@msgpack/msgpack";
-import { createMew } from "./common";
 import { FeedMew, Mew, MewTypeName } from "../../../../ui/src/types/types";
 import { mewsfeedAppBundleSource } from "../../common";
+import { createMew } from "./common";
 
 test("create a Mew and get agent mews", async () => {
   await runScenario(

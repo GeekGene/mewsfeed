@@ -131,7 +131,6 @@ test("Agent cannot follow themselves", async () => {
   );
 });
 
-
 test("Agent can only change their own follows", async () => {
   await runScenario(
     async (scenario) => {

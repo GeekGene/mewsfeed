@@ -1,6 +1,6 @@
-import { Record } from "@holochain/client";
-import { getZomeCaller, runScenario } from "@holochain/tryorama";
-import { assert, test, expect } from "vitest";
+import { ActionHash } from "@holochain/client";
+import { runScenario } from "@holochain/tryorama";
+import { assert, expect, test } from "vitest";
 import { Mew, MewTypeName } from "../../../../ui/src/types/types.js";
 import {
   mewsfeedAppBundleSource,

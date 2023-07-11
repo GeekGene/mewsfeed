@@ -1,8 +1,8 @@
+import { ActionHash } from "@holochain/client";
+import { pause, runScenario } from "@holochain/tryorama";
 import { assert, test } from "vitest";
-import { runScenario, pause } from "@holochain/tryorama";
-import { ActionHash, Record } from "@holochain/client";
-import { createMew } from "./common.js";
 import { FeedMew } from "../../../../ui/src/types/types.js";
+import { createMew } from "./common.js";
 
 test("link a Pinner to a Mew", async () => {
   await runScenario(

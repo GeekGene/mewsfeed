@@ -1,4 +1,4 @@
-import { Record } from "@holochain/client";
+import { ActionHash } from "@holochain/client";
 import { runScenario } from "@holochain/tryorama";
 import { assert, test } from "vitest";
 import { FeedMew, Mew, MewTypeName } from "../../../../ui/src/types/types.js";

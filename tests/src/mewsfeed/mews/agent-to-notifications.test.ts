@@ -1,7 +1,6 @@
-import { assert, expect, test } from "vitest";
-import { runScenario, pause } from "@holochain/tryorama";
 import { ActionHash } from "@holochain/client";
-import { createMew } from "./common";
+import { pause, runScenario } from "@holochain/tryorama";
+import { assert, expect, test } from "vitest";
 import {
   FeedMew,
   Mew,
@@ -10,6 +9,7 @@ import {
   PaginationDirectionName,
 } from "../../../../ui/src/types/types";
 import { mewsfeedAppBundleSource } from "../../common";
+import { createMew } from "./common";
 
 test("notifications include my agent follows & unfollows", async () => {
   await runScenario(
