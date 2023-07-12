@@ -31,21 +31,27 @@ jobs:
         with:
           name: holochain-ci
 
-      # - name: Restore cargo and build from cache
-      #   uses: actions/cache/restore@v3
-      #   with:
-      #     path: |
-      #       .cargo
-      #       target
-      #     key: ${{ runner.os }}-build-${{ hashFiles('Cargo.lock') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-build-
+      - name: Restore cargo and build from cache
+        uses: actions/cache/restore@v3
+        with:
+          path: |
+            .cargo
+            target
+          key: ${{ runner.os }}-build-${{ hashFiles('Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-
 
       - name: Install nix packages
         run: nix develop -c $SHELL -c "echo Nix packages installed"
 
       - name: Install JS packages
         run: nix develop -c $SHELL -c "npm ci"
+
+      - name: Clippy
+        run: nix develop -c $SHELL -c "npm run cargo:clippy"
+
+      - name: Check rust formatting
+        run: nix develop -c $SHELL -c "npm run cargo:fmt:check"
 
       - name: Build Happ
         run: nix develop -c $SHELL -c "npm run build:happ"
@@ -60,9 +66,3 @@ jobs:
 
       - name: Test with tryorama
         run: nix develop -c $SHELL -c "npm test"
-
-      - name: Clippy
-        run: nix develop -c $SHELL -c "npm run cargo:clippy"
-
-      - name: Check rust formatting
-        run: nix develop -c $SHELL -c "npm run cargo:fmt:check"
