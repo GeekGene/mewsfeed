@@ -31,7 +31,7 @@ pub fn get_creators_for_follower(
     let agents: Vec<AgentPubKey> = links_page
         .into_iter()
         .filter_map(|link| EntryHash::try_from(link.target).ok())
-        .map(|entry_hash| AgentPubKey::from(entry_hash))
+        .map(AgentPubKey::from)
         .collect();
 
     Ok(agents)
@@ -46,7 +46,7 @@ pub fn get_followers_for_creator(
     let agents: Vec<AgentPubKey> = links
         .into_iter()
         .filter_map(|link| EntryHash::try_from(link.target).ok())
-        .map(|entry_hash| AgentPubKey::from(entry_hash))
+        .map(AgentPubKey::from)
         .collect();
 
     Ok(agents)
