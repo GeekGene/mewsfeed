@@ -39,7 +39,7 @@ pub fn get_likers_for_hash(hash: AnyLinkableHash) -> ExternResult<Vec<AgentPubKe
     let agents: Vec<AgentPubKey> = links
         .into_iter()
         .filter_map(|link| EntryHash::try_from(link.target).ok())
-        .map(|entry_hash| AgentPubKey::from(entry_hash))
+        .map(AgentPubKey::from)
         .collect();
 
     Ok(agents)
