@@ -27,19 +27,18 @@
             'text-primary': enableYarnLink,
           }"
         >
-          {{ reactionLabel }}
+          {{ responseLabel }}
         </div>
-        <div class="flex justify-start items-center">
-          <BaseAgentProfileName
-            :profile="feedMew.original_mew.author_profile"
-            :agentPubKey="feedMew.original_mew.action.author"
-          />
-          <div
-            v-if="feedMew.original_mew.deleted_timestamp !== null"
-            class="text-bold text-primary"
-          >
-            (Deleted Mew)
-          </div>
+        <BaseAgentProfileName
+          :profile="feedMew.original_mew.author_profile"
+          :agentPubKey="feedMew.original_mew.action.author"
+        />
+
+        <div
+          v-if="feedMew.original_mew.deleted_timestamp !== null"
+          class="text-bold text-primary"
+        >
+          (Deleted)
         </div>
       </Component>
 
@@ -369,7 +368,7 @@ const isMewmew = computed(
 );
 const isQuote = computed(() => MewTypeName.Quote in props.feedMew.mew.mew_type);
 const isReply = computed(() => MewTypeName.Reply in props.feedMew.mew.mew_type);
-const reactionLabel = computed(() =>
+const responseLabel = computed(() =>
   isMewmew.value ? "mewmewed from" : isReply.value ? "replied to" : "quoted"
 );
 const isAuthoredByMe = computed(() =>
