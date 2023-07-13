@@ -27,7 +27,7 @@
         <span
           v-if="unreadCount > 0"
           class="indicator-item indicator-bottom indicator-end badge badge-success"
-          >{{ unreadCount }}</span
+          >{{ unreadCount <= 20 ? unreadCount : "20+" }}</span
         >
         <IconNotificationsOutline class="w-6 h-6" />
       </RouterLink>
