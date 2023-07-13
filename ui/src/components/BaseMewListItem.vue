@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full flex flex-col justify-start items-start"
+    class="w-full flex flex-col justify-start items-start cursor-pointer"
     @click.passive="navigateToYarn(feedMew.action_hash)"
   >
     <div
@@ -10,7 +10,7 @@
       <Component
         :is="enableYarnLink ? 'RouterLink' : 'span'"
         :class="{
-          'flex justify-start items-center space-x-1 bg-base-200 font-bold px-2 py-1 text-xs rounded-lg uppercase cursor-normal':
+          'flex justify-start items-center space-x-1 bg-base-200 font-bold px-2 py-1 text-xs rounded-lg uppercase cursor-default':
             !enableYarnLink,
           'btn btn-xs': enableYarnLink,
         }"
