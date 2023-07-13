@@ -39,11 +39,7 @@
 import { AppAgentClient } from "@holochain/client";
 import { ComputedRef, inject } from "vue";
 import { onBeforeRouteLeave } from "vue-router";
-import {
-  useInfiniteQuery,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/vue-query";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
 import BaseAgentProfileListItemSkeleton from "@/components/BaseAgentProfileListItemSkeleton.vue";
 import BaseEmptyList from "@/components/BaseEmptyList.vue";
 import BaseAgentProfileList from "@/components/BaseAgentProfileList.vue";
@@ -116,25 +112,6 @@ const { data, error, fetchNextPage, hasNextPage, isInitialLoading } =
     refetchOnMount: true,
   });
 
-const fetchProfile = async () => {
-  const profile = await profilesStore.client.getAgentProfile(props.agentPubKey);
-
-  if (profile) {
-    return profile;
-  } else {
-    throw new Error("No profile found");
-  }
-};
-
-const { data: profile, error: errorProfile } = useQuery({
-  queryKey: [
-    "profiles",
-    "getAgentProfile",
-    encodeHashToBase64(props.agentPubKey),
-  ],
-  queryFn: fetchProfile,
-});
-
 const fetchNextPageInfiniteScroll = async (
   done: (hasMore?: boolean) => void
 ) => {
@@ -143,7 +120,6 @@ const fetchNextPageInfiniteScroll = async (
 };
 
 watch(error, showError);
-watch(errorProfile, showError);
 
 onBeforeRouteLeave(() => {
   if (data.value && data.value.pages.length > 1) {
