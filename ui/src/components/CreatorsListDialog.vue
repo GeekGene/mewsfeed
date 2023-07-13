@@ -3,30 +3,35 @@
     :model-value="modelValue"
     @update:model-value="(val: boolean) => emit('update:model-value', val)"
   >
-    <h2 class="text-3xl font-title font-bold tracking-tighter mb-8 text-left">
-      following
-    </h2>
+    <profiles-context :store="profilesStore">
+      <h2 class="text-3xl font-title font-bold tracking-tighter mb-8 text-left">
+        following
+      </h2>
 
-    <BaseInfiniteScroll
-      v-if="
-        data && data.pages && data.pages.length > 0 && data.pages[0].length > 0
-      "
-      @load-next="fetchNextPageInfiniteScroll"
-    >
-      <BaseAgentProfileList
-        v-for="(page, i) in data.pages"
-        :key="i"
-        :agent-profiles="page"
-        :loading="isInitialLoading"
-        :enable-popups="false"
+      <BaseInfiniteScroll
+        v-if="
+          data &&
+          data.pages &&
+          data.pages.length > 0 &&
+          data.pages[0].length > 0
+        "
+        @load-next="fetchNextPageInfiniteScroll"
+      >
+        <BaseAgentProfileList
+          v-for="(page, i) in data.pages"
+          :key="i"
+          :agent-profiles="page"
+          :loading="isInitialLoading"
+          :enable-popups="false"
+        />
+      </BaseInfiniteScroll>
+      <BaseAgentProfileListItemSkeleton
+        v-for="x in [0, 1, 2, 3]"
+        v-else-if="isInitialLoading"
+        :key="x"
       />
-    </BaseInfiniteScroll>
-    <BaseAgentProfileListItemSkeleton
-      v-for="x in [0, 1, 2, 3]"
-      v-else-if="isInitialLoading"
-      :key="x"
-    />
-    <BaseEmptyList v-else />
+      <BaseEmptyList v-else />
+    </profiles-context>
   </BaseDialog>
 </template>
 
