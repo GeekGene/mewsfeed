@@ -88,7 +88,6 @@ import { useInfiniteQuery, useQuery } from "@tanstack/vue-query";
 import IconChatbubbleOutline from "~icons/ion/chatbubble-outline";
 import CreateMewDialog from "@/components/CreateMewDialog.vue";
 import ToastNotices from "@/components/ToastNotices.vue";
-import BaseThemeSelect from "@/components/BaseThemeSelect.vue";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const router = useRouter();
@@ -166,5 +165,6 @@ useInfiniteQuery({
   queryFn: fetchNotifications,
   refetchInterval: 1000 * 30, // 30 seconds
   refetchIntervalInBackground: true,
+  refetchOnMount: true,
 });
 </script>

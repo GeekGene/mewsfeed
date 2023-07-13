@@ -61,7 +61,6 @@ import { useToasts } from "@/stores/toasts";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
 import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";
 import { PaginationDirectionName, Notification } from "@/types/types";
-import BaseButtonBack from "@/components/BaseButtonBack.vue";
 import BaseListSkeleton from "@/components/BaseListSkeleton.vue";
 import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
 import BaseInfiniteScroll from "@/components/BaseInfiniteScroll.vue";
@@ -103,6 +102,7 @@ const { data, error, fetchNextPage, hasNextPage, refetch, isInitialLoading } =
       return { after_timestamp: lastPage[lastPage.length - 1].timestamp };
     },
     refetchInterval: 1000 * 60 * 2, // 2 minutes
+    refetchOnMount: true,
   });
 watch(error, showError);
 

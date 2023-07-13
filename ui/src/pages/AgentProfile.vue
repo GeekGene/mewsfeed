@@ -1,6 +1,6 @@
 <template>
   <div class="mt-4">
-    <div v-if="!isLoadingProfile && agentPubKey">
+    <div v-if="!isInitialLoadingProfile && agentPubKey">
       <BaseAgentProfileDetail
         :profile="profileWithContext?.profile"
         :joined-timestamp="profileWithContext?.joinedTimestamp"
@@ -226,7 +226,7 @@ const fetchProfileWithContext = async () => {
 
 const {
   data: profileWithContext,
-  isLoading: isLoadingProfile,
+  isInitialLoading: isInitialLoadingProfile,
   error: errorProfile,
   refetch: refetchProfile,
 } = useQuery({

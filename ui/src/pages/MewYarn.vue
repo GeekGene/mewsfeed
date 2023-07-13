@@ -20,7 +20,7 @@
         @quote-created="refetchMewAndRepliesPage(0)"
         @reply-created="refetchMewAndRepliesPage(0)"
       />
-      <BaseMewListItemSkeleton v-else-if="isLoadingMew" />
+      <BaseMewListItemSkeleton v-else-if="isInitialLoadingMew" />
     </div>
 
     <h2 class="text-xl font-title font-bold tracking-tighter mb-2">replies</h2>
@@ -46,7 +46,7 @@
         </template>
       </template>
     </BaseInfiniteScroll>
-    <BaseListSkeleton v-else-if="isLoadingReplies" :count="4">
+    <BaseListSkeleton v-else-if="isInitialLoadingReplies" :count="4">
       <BaseMewListItemSkeleton />
     </BaseListSkeleton>
     <BaseEmptyList v-else />
@@ -94,7 +94,7 @@ const fetchMew = () =>
 const {
   data: mew,
   error: mewError,
-  isLoading: isLoadingMew,
+  isInitialLoading: isInitialLoadingMew,
   refetch: refetchMew,
 } = useQuery({
   queryKey: ["mews", "get_mew_with_context", route.params.actionHash as string],
@@ -126,7 +126,7 @@ const {
   error: errorReplies,
   fetchNextPage,
   hasNextPage,
-  isLoading: isLoadingReplies,
+  isInitialLoading: isInitialLoadingReplies,
   refetch: refetchReplies,
 } = useInfiniteQuery({
   queryKey: [
@@ -143,6 +143,7 @@ const {
     return { after_hash: lastPage[lastPage.length - 1].action_hash };
   },
   refetchInterval: 1000 * 60 * 2, // 2 minutes
+  refetchOnMount: true,
 });
 watch(errorReplies, showError);
 

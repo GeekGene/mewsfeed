@@ -17,13 +17,13 @@
         v-for="(page, i) in data.pages"
         :key="i"
         :agent-profiles="page"
-        :loading="isLoading"
+        :loading="isInitialLoading"
         :enable-popups="false"
       />
     </BaseInfiniteScroll>
     <BaseAgentProfileListItemSkeleton
       v-for="x in [0, 1, 2, 3]"
-      v-else-if="isLoading"
+      v-else-if="isInitialLoading"
       :key="x"
     />
     <BaseEmptyList v-else />
@@ -93,8 +93,8 @@ const fetchCreators = async (params: any) => {
   return agentProfiles.filter(Boolean) as AgentProfile[];
 };
 
-const { data, error, fetchNextPage, hasNextPage, isLoading } = useInfiniteQuery(
-  {
+const { data, error, fetchNextPage, hasNextPage, isInitialLoading } =
+  useInfiniteQuery({
     queryKey: [
       "mews",
       "get_creators_for_follower",
@@ -108,8 +108,8 @@ const { data, error, fetchNextPage, hasNextPage, isLoading } = useInfiniteQuery(
       return { after_agentpubkey: lastPage[lastPage.length - 1] };
     },
     refetchInterval: 1000 * 60 * 2, // 2 minutes
-  }
-);
+    refetchOnMount: true,
+  });
 
 const fetchProfile = async () => {
   const profile = await profilesStore.client.getAgentProfile(props.agentPubKey);

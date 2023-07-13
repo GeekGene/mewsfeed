@@ -46,7 +46,7 @@
         </template>
       </div>
     </BaseInfiniteScroll>
-    <BaseListSkeleton v-else-if="isLoading" :count="4">
+    <BaseListSkeleton v-else-if="isInitialLoading" :count="4">
       <BaseMewListItemSkeleton />
     </BaseListSkeleton>
     <BaseEmptyList v-else />
@@ -86,7 +86,7 @@ const fetchMewsFeed = (params: any): Promise<FeedMew[]> =>
     },
   });
 
-const { data, error, fetchNextPage, hasNextPage, isLoading, refetch } =
+const { data, error, fetchNextPage, hasNextPage, isInitialLoading, refetch } =
   useInfiniteQuery<FeedMew[]>({
     queryKey: [
       "mews",
@@ -101,6 +101,7 @@ const { data, error, fetchNextPage, hasNextPage, isLoading, refetch } =
       return { after_hash: lastPage[lastPage.length - 1].action_hash };
     },
     refetchInterval: 1000 * 60 * 2, // 2 minutes
+    refetchOnMount: true,
   });
 watch(error, showError);
 
