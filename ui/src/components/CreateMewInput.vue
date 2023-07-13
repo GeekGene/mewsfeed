@@ -41,7 +41,7 @@
               data-tip="You can mention people with @ and use #hashtags and $cashtags as well
           as ^links in a mew. You can press Ctrl/Cmd + Enter to publish."
             >
-              <IconHelpCircleOutline class="w-5 h-5 text-base-300" />
+              <IconHelpCircleOutline class="w-5 h-5 text-base-content/50" />
             </div>
           </div>
 
@@ -674,10 +674,11 @@ const hideAutocompleter = () => {
 <style scoped>
 .mew-container-input:empty::before {
   content: attr(data-placeholder);
-  color: hsl(var(--b3));
   display: block;
   position: absolute;
   font-family: "Inter";
+
+  @apply text-base-content/50;
 }
 
 .mew-container-input a {
