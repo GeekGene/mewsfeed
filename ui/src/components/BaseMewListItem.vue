@@ -187,8 +187,8 @@
                 <button
                   class="flex justify-start items-center space-x-1 p-2"
                   :class="{
-                    'text-pink-400 hover:text-pink-600': feedMew.is_licked,
-                    'text-base-300 hover:text-neutral': !feedMew.is_licked,
+                    'text-red-500 hover:text-red-600': feedMew.is_licked,
+                    'text-base-300 hover:text-red-500': !feedMew.is_licked,
                   }"
                   :disable="isUpdatingLick || isDeleted"
                   @click.stop.prevent="toggleLickMew"
