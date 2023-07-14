@@ -44,19 +44,21 @@
     <RouterLink
       v-if="myProfile"
       class="btn btn-circle btn-md"
-      active-class="btn-neutral"
+      active-class="btn-neutral ring-inset ring-8 ring-neutral"
       alt="My Profile Page"
       :to="{
         name: ROUTES.profile,
         params: { agentPubKey: encodeHashToBase64(client.myPubKey) },
       }"
     >
-      <agent-avatar
-        :agentPubKey="client.myPubKey"
-        size="50"
-        disable-tooltip
-        disable-copy
-      />
+      <div class="flex justify-center items-center relative w-8 h-8">
+        <agent-avatar
+          :agentPubKey="client.myPubKey"
+          size="48"
+          disable-tooltip
+          disable-copy
+        />
+      </div>
     </RouterLink>
   </div>
 </template>
