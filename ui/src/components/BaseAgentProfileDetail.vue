@@ -107,7 +107,7 @@
             >
               <button
                 v-if="creatorsCount !== undefined"
-                class="btn btn-ghost btn-sm"
+                class="btn btn-ghost btn-xs"
                 :class="{ 'btn-disabled': creatorsCount === 0 }"
                 @click="emit('click-creators')"
               >
@@ -118,7 +118,7 @@
               </button>
               <button
                 v-if="followersCount !== undefined"
-                class="btn btn-ghost btn-sm"
+                class="btn btn-ghost btn-xs"
                 :class="{ 'btn-disabled': followersCount === 0 }"
                 @click="emit('click-followers')"
               >
@@ -134,11 +134,11 @@
           </template>
 
           <div
-            class="flex justify-start items-center space-x-2 sm:space-x-16 text-xs mt-5"
+            class="flex justify-start items-center space-x-2 sm:space-x-16 text-xs mt-3"
           >
             <div
               v-if="profile.fields[PROFILE_FIELDS.LOCATION]"
-              class="flex justify-start items-center space-x-2 text-xs font-mono px-3"
+              class="flex justify-start items-center space-x-2 text-xs font-mono px-2"
             >
               <IconNavigateCircleOutline />
               <div>{{ profile.fields[PROFILE_FIELDS.LOCATION] }}</div>
@@ -146,7 +146,7 @@
 
             <div
               v-if="joinedTimestamp !== undefined"
-              class="flex justify-start items-center space-x-2 text-xs font-mono px-3"
+              class="flex justify-start items-center space-x-2 text-xs font-mono px-2"
             >
               <IconCalendarOutline />
               <div>Joined <BaseTimestamp :timestamp="joinedTimestamp" /></div>
