@@ -21,6 +21,15 @@
     <BaseAgentProfileListItem
       :agent-profile="item"
       :enable-popup="enablePopups"
+      class="cursor-pointer"
+      @click="
+        router.push({
+          name: ROUTES.profile,
+          params: {
+            agentPubKey: encodeHashToBase64(item.agentPubKey),
+          },
+        })
+      "
     />
   </BaseList>
 </template>
@@ -32,6 +41,9 @@ import BaseEmptyList from "@/components/BaseEmptyList.vue";
 import BaseAgentProfileListItemSkeleton from "@/components/BaseAgentProfileListItemSkeleton.vue";
 import BaseList from "@/components/BaseList.vue";
 import BaseListSkeleton from "./BaseListSkeleton.vue";
+import { ROUTES } from "@/router";
+import { useRouter } from "vue-router";
+import { encodeHashToBase64 } from "@holochain/client";
 
 withDefaults(
   defineProps<{
@@ -46,4 +58,5 @@ withDefaults(
     enablePopups: true,
   }
 );
+const router = useRouter();
 </script>
