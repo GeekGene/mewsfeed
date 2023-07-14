@@ -173,10 +173,14 @@
                 :disable="isDeleted"
                 class="flex justify-start items-center space-x-1 p-2"
                 :class="{
-                  'text-green-400 hover:text-green-600': feedMew.is_mewmewed,
+                  'text-green-400 cursor-default': feedMew.is_mewmewed,
                   'text-base-300 hover:text-neutral': !feedMew.is_mewmewed,
                 }"
-                @click.stop.prevent="createMewmew"
+                @click.stop.prevent="
+                  if (!feedMew.is_mewmewed) {
+                    createMewmew();
+                  }
+                "
               >
                 <IconRepeatBold class="w-4 h-4" />
                 <div v-if="feedMew.mewmews.length > 0" class="text-xs">
