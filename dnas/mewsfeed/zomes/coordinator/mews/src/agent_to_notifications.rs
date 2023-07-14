@@ -16,7 +16,7 @@ pub struct GetNotificationsForAgentInput {
 pub fn get_notifications_for_agent(
     input: GetNotificationsForAgentInput,
 ) -> ExternResult<Vec<Notification>> {
-    let my_mews = get_agent_mews(GetAgentMewsInput {
+    let agent_mews = get_agent_mews(GetAgentMewsInput {
         agent: input.agent.clone(),
         page: None,
     })?;
@@ -32,7 +32,7 @@ pub fn get_notifications_for_agent(
         None,
     )?;
 
-    let mut all_link_details = my_mews
+    let mut all_link_details = agent_mews
         .iter()
         .map(|mew| {
             get_link_details(
@@ -64,8 +64,13 @@ pub fn get_notifications_for_agent(
                         Action::CreateLink(a) => Ok(a.clone()),
                         _ => Err(wasm_error!(WasmErrorInner::Guest("Expected first element of LinkDetails to be CreateLink".into())))
                     }?;
+                    if create.author == input.agent {
+                        return Ok(vec!());
+                    }
+
                     let deletes = delete_actions_hashed
                         .iter()
+                        .filter(|action_hashed| *action_hashed.action().author() != input.agent)
                         .map(|action_hashed| -> ExternResult<DeleteLink> {
                             match action_hashed.action() {
                                 Action::DeleteLink(a) => Ok(a.clone()),
@@ -86,7 +91,7 @@ pub fn get_notifications_for_agent(
         .collect();
 
     // Responses to Mews I have responded to
-    let mew_hashes_i_responded_to: Vec<ActionHash> = my_mews
+    let mew_hashes_i_responded_to: Vec<ActionHash> = agent_mews
         .iter()
         .filter_map(|record| match record.entry().to_app_option::<Mew>().ok() {
             Some(Some(mew)) => match mew.mew_type {
