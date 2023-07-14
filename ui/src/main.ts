@@ -26,6 +26,10 @@ import {
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import { encode, decode } from "@msgpack/msgpack";
 
+// Floating vue (tooltips)
+import FloatingVue from "floating-vue";
+import "floating-vue/dist/style.css";
+
 // Shoelace
 import "@shoelace-style/shoelace/dist/themes/light.css";
 import "@shoelace-style/shoelace/dist/themes/dark.css";
@@ -84,4 +88,5 @@ app.use(pinia);
 app.use(router);
 app.use(VueObserveVisibility);
 app.use(VueQueryPlugin, vueQueryOptions);
+app.use(FloatingVue);
 app.mount("#app");

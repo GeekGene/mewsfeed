@@ -1,7 +1,10 @@
 <template>
   <div
-    class="tooltip tooltip-left xl:tooltip-bottom font-mono"
-    :data-tip="timestamp"
+    v-tooltip.bottom="{
+      content: timestamp.toString(),
+      popperClass: 'text-xs font-mono',
+    }"
+    class="font-mono inline-block"
   >
     <div>{{ formattedTimestamp }}</div>
   </div>

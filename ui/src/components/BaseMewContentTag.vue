@@ -10,8 +10,10 @@
   </a>
   <div
     v-else-if="contentPart.href && contentPart.tagType === MewTagType.Link"
-    class="tooltip tooltip-bottom"
-    :data-tip="contentPart.href"
+    v-tooltip.bottom="{
+      content: contentPart.href,
+      popperClass: 'text-xs',
+    }"
   >
     <a
       :href="contentPart.href"

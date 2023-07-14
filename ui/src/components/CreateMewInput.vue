@@ -36,13 +36,15 @@
 
         <div class="w-full flex justify-between items-end mt-1">
           <div class="flex justify-start items-center space-x-4">
-            <div
-              class="tooltip hover:tooltip-open tooltip-right sm:tooltip-top z-20"
-              data-tip="You can mention people with @ and use #hashtags and $cashtags as well
-          as ^links in a mew. You can press Ctrl/Cmd + Enter to publish."
-            >
-              <IconHelpCircleOutline class="w-5 h-5 text-base-content/50" />
-            </div>
+            <IconHelpCircleOutline
+              v-tooltip.bottom="{
+                html: true,
+                content:
+                  'You can mention people with @ and use #hashtags and $cashtags as well as ^links in a mew. <br /></br />You can press Ctrl/Cmd + Enter to publish.',
+                popperClass: 'w-96',
+              }"
+              class="w-5 h-5 text-base-content/50"
+            />
           </div>
 
           <div

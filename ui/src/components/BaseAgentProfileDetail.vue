@@ -7,9 +7,11 @@
     <div class="flex space-x-6 h-full p-4">
       <div class="flex flex-col justify-between">
         <div
-          class="tooltip-right xl:tooltip-bottom before:break-words md:before:max-w-none"
-          :class="{ tooltip: !profile.fields.avatar }"
-          :data-tip="encodeHashToBase64(agentPubKey)"
+          v-tooltip.bottom="{
+            disabled: !!profile.fields.avatar,
+            content: encodeHashToBase64(agentPubKey),
+            popperClass: 'text-xs',
+          }"
         >
           <agent-avatar
             v-if="!enableCopyAgentPubKey"
@@ -45,8 +47,11 @@
 
         <div
           v-if="profile.fields.avatar"
-          class="tooltip tooltip-right xl:tooltip-bottom before:break-words md:before:max-w-none mt-8 relative"
-          :data-tip="encodeHashToBase64(agentPubKey)"
+          v-tooltip.bottom="{
+            content: encodeHashToBase64(agentPubKey),
+            popperClass: 'text-xs',
+          }"
+          class="mt-8 relative w-fit flex items-end"
         >
           <holo-identicon
             v-if="!enableCopyAgentPubKey"

@@ -121,126 +121,121 @@
             style="width: 100%"
           >
             <div class="flex justify-start items-center space-x-2">
-              <div
-                class="tooltip-bottom"
-                :class="{ tooltip: !isDeleted }"
-                data-tip="Reply to mew"
+              <button
+                v-tooltip.bottom="{
+                  disabled: isDeleted,
+                  content: 'Reply to mew',
+                  popperClass: 'text-xs',
+                }"
+                :disable="isDeleted"
+                class="flex justify-start items-center space-x-1 p-2"
+                :class="{
+                  'text-green-400 hover:text-green-600': feedMew.is_replied,
+                  'text-base-300 hover:text-neutral': !feedMew.is_replied,
+                }"
+                @click.stop.prevent="showReplyToMewDialog = true"
               >
-                <button
-                  :disable="isDeleted"
-                  class="flex justify-start items-center space-x-1 p-2"
-                  :class="{
-                    'text-green-400 hover:text-green-600': feedMew.is_replied,
-                    'text-base-300 hover:text-neutral': !feedMew.is_replied,
-                  }"
-                  @click.stop.prevent="showReplyToMewDialog = true"
-                >
-                  <IconArrowUndoSharp class="w-4 h-4" />
-                  <span v-if="feedMew.replies.length > 0">
-                    {{ feedMew.replies.length }}
-                  </span>
-                </button>
-              </div>
+                <IconArrowUndoSharp class="w-4 h-4" />
+                <span v-if="feedMew.replies.length > 0">
+                  {{ feedMew.replies.length }}
+                </span>
+              </button>
 
-              <div
-                class="tooltip-bottom"
-                :class="{ tooltip: !isDeleted }"
-                data-tip="Quote mew"
+              <button
+                v-tooltip.bottom="{
+                  disabled: isDeleted,
+                  content: 'Quote mew',
+                  popperClass: 'text-xs',
+                }"
+                :disable="isDeleted"
+                class="flex justify-start items-center space-x-1 p-2"
+                :class="{
+                  'text-green-400 hover:text-green-600': feedMew.is_quoted,
+                  'text-base-300 hover:text-neutral': !feedMew.is_quoted,
+                }"
+                @click.stop.prevent="showQuoteMewDialog = true"
               >
-                <button
-                  :disable="isDeleted"
-                  class="flex justify-start items-center space-x-1 p-2"
-                  :class="{
-                    'text-green-400 hover:text-green-600': feedMew.is_quoted,
-                    'text-base-300 hover:text-neutral': !feedMew.is_quoted,
-                  }"
-                  @click.stop.prevent="showQuoteMewDialog = true"
-                >
-                  <IconFormatQuote class="w-4 h-4" />
-                  <span v-if="feedMew.quotes.length > 0">
-                    {{ feedMew.quotes.length }}
-                  </span>
-                </button>
-              </div>
+                <IconFormatQuote class="w-4 h-4" />
+                <span v-if="feedMew.quotes.length > 0">
+                  {{ feedMew.quotes.length }}
+                </span>
+              </button>
 
-              <div
-                class="tooltip-bottom"
-                :class="{ tooltip: !isDeleted }"
-                data-tip="Mewmew mew"
+              <button
+                v-tooltip.bottom="{
+                  disabled: isDeleted,
+                  content: 'Mewmew mew',
+                  popperClass: 'text-xs',
+                }"
+                :disable="isDeleted"
+                class="flex justify-start items-center space-x-1 p-2"
+                :class="{
+                  'text-green-400 hover:text-green-600': feedMew.is_mewmewed,
+                  'text-base-300 hover:text-neutral': !feedMew.is_mewmewed,
+                }"
+                @click.stop.prevent="createMewmew"
               >
-                <button
-                  :disable="isDeleted"
-                  class="flex justify-start items-center space-x-1 p-2"
-                  :class="{
-                    'text-green-400 hover:text-green-600': feedMew.is_mewmewed,
-                    'text-base-300 hover:text-neutral': !feedMew.is_mewmewed,
-                  }"
-                  @click.stop.prevent="createMewmew"
-                >
-                  <IconRepeatBold class="w-4 h-4" />
-                  <div v-if="feedMew.mewmews.length > 0" class="text-xs">
-                    {{ feedMew.mewmews.length }}
-                  </div>
-                </button>
-              </div>
+                <IconRepeatBold class="w-4 h-4" />
+                <div v-if="feedMew.mewmews.length > 0" class="text-xs">
+                  {{ feedMew.mewmews.length }}
+                </div>
+              </button>
 
-              <div
-                class="tooltip-bottom"
-                :class="{ tooltip: !isDeleted }"
-                :data-tip="`${feedMew.is_licked ? 'Unlick' : 'Lick'} mew`"
+              <button
+                v-tooltip.bottom="{
+                  disabled: isDeleted,
+                  content: `${feedMew.is_licked ? 'Unlick' : 'Lick'} mew`,
+                  popperClass: 'text-xs',
+                }"
+                class="flex justify-start items-center space-x-1 p-2"
+                :class="{
+                  'text-red-500 hover:text-red-600': feedMew.is_licked,
+                  'text-base-300 hover:text-red-500': !feedMew.is_licked,
+                }"
+                :disable="isUpdatingLick || isDeleted"
+                @click.stop.prevent="toggleLickMew"
               >
-                <button
-                  class="flex justify-start items-center space-x-1 p-2"
-                  :class="{
-                    'text-red-500 hover:text-red-600': feedMew.is_licked,
-                    'text-base-300 hover:text-red-500': !feedMew.is_licked,
-                  }"
-                  :disable="isUpdatingLick || isDeleted"
-                  @click.stop.prevent="toggleLickMew"
-                >
-                  <BaseIconTongue class="w-4 h-4" />
-                  <div v-if="feedMew.licks.length > 0" class="text-xs">
-                    {{ feedMew.licks.length }}
-                  </div>
-                </button>
-              </div>
+                <BaseIconTongue class="w-4 h-4" />
+                <div v-if="feedMew.licks.length > 0" class="text-xs">
+                  {{ feedMew.licks.length }}
+                </div>
+              </button>
             </div>
             <div class="flex justify-start items-center space-x-2">
-              <div
-                class="tooltip-left sm:tooltip-bottom"
-                :class="{ tooltip: !isDeleted }"
-                :data-tip="`${props.feedMew.is_pinned ? 'Unpin' : 'Pin'} mew`"
+              <button
+                v-tooltip.bottom="{
+                  disabled: isDeleted,
+                  content: `${props.feedMew.is_pinned ? 'Unpin' : 'Pin'} mew`,
+                  popperClass: 'text-xs',
+                }"
+                :disable="isDeleted && !props.feedMew.is_pinned"
+                class="flex justify-start items-center space-x-1 p-2"
+                :class="{
+                  'text-green-400 hover:text-green-600': feedMew.is_pinned,
+                  'text-base-300 hover:text-neutral': !feedMew.is_pinned,
+                }"
+                @click.stop.prevent="togglePinMew"
               >
-                <button
-                  :disable="isDeleted && !props.feedMew.is_pinned"
-                  class="flex justify-start items-center space-x-1 p-2"
-                  :class="{
-                    'text-green-400 hover:text-green-600': feedMew.is_pinned,
-                    'text-base-300 hover:text-neutral': !feedMew.is_pinned,
-                  }"
-                  @click.stop.prevent="togglePinMew"
-                >
-                  <IconSharpPinOff
-                    v-if="props.feedMew.is_pinned"
-                    class="w-4 h-4"
-                  />
-                  <IconSharpPushPin v-else class="w-4 h-4" />
-                </button>
-              </div>
-              <div
+                <IconSharpPinOff
+                  v-if="props.feedMew.is_pinned"
+                  class="w-4 h-4"
+                />
+                <IconSharpPushPin v-else class="w-4 h-4" />
+              </button>
+
+              <button
                 v-if="isAuthoredByMe"
-                class="tooltip-left sm:tooltip-bottom"
-                :class="{ tooltip: !isDeleted }"
-                data-tip="Delete mew"
+                v-tooltip.bottom="{
+                  disabled: isDeleted,
+                  content: 'Delete mew',
+                  popperClass: 'text-xs',
+                }"
+                :disable="isDeleted"
+                class="flex justify-start items-center space-x-1 text-base-300 hover:text-neutral p-2"
+                @click.stop.prevent="showConfirmDeleteDialog = true"
               >
-                <button
-                  :disable="isDeleted"
-                  class="flex justify-start items-center space-x-1 text-base-300 hover:text-neutral p-2"
-                  @click.stop.prevent="showConfirmDeleteDialog = true"
-                >
-                  <IconTrashSharp class="w-4 h-4" />
-                </button>
-              </div>
+                <IconTrashSharp class="w-4 h-4" />
+              </button>
             </div>
           </div>
         </div>
