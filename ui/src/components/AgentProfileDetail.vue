@@ -1,10 +1,9 @@
 <template>
   <BaseAgentProfileDetail
-    v-if="profile"
-    :profile="profile"
-    :agentPubKey="agentPubKey"
-    :creators-count="creatorsCount"
-    :followers-count="followersCount"
+    v-if="profileWithContext"
+    :profile="profileWithContext.profile"
+    :agentPubKey="props.agentPubKey"
+    :joined-timestamp="profileWithContext.joinedTimestamp"
     :hide-edit-button="hideEditButton"
     v-bind="$attrs"
   />
@@ -12,43 +11,50 @@
 
 <script setup lang="ts">
 import { useToasts } from "@/stores/toasts";
-import { AgentPubKey } from "@holochain/client";
-import { ComputedRef, inject, onMounted, ref } from "vue";
-import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
+import { AgentPubKey, AppAgentClient } from "@holochain/client";
+import { ComputedRef, inject, watch } from "vue";
+import { ProfilesStore } from "@holochain-open-dev/profiles";
 import BaseAgentProfileDetail from "@/components/BaseAgentProfileDetail.vue";
+import { useQuery } from "@tanstack/vue-query";
 
 const props = withDefaults(
   defineProps<{
     agentPubKey: AgentPubKey;
-    creatorsCount?: number;
-    followersCount?: number;
     hideEditButton?: boolean;
   }>(),
   {
     hideEditButton: false,
-    creatorsCount: undefined,
-    followersCount: undefined,
   }
 );
 
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
+const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const { showError } = useToasts();
 
-const profile = ref<Profile>();
-const loading = ref(false);
+const fetchProfileWithContext = async () => {
+  const profile = await profilesStore.client.getAgentProfile(props.agentPubKey);
+  const joinedTimestamp = await client.callZome({
+    role_name: "mewsfeed",
+    zome_name: "profiles",
+    fn_name: "get_joining_timestamp_for_agent",
+    payload: props.agentPubKey,
+  });
 
-onMounted(async () => {
-  try {
-    loading.value = true;
-    const res = await profilesStore.client.getAgentProfile(props.agentPubKey);
-    if (res) {
-      profile.value = res;
-    }
-  } catch (error) {
-    showError(error);
-  } finally {
-    loading.value = false;
+  if (profile) {
+    return {
+      profile,
+      joinedTimestamp,
+    };
+  } else {
+    throw new Error("No profile found");
   }
+};
+
+const { data: profileWithContext, error: errorProfile } = useQuery({
+  queryKey: ["profiles", "getAgentProfile", props.agentPubKey],
+  queryFn: fetchProfileWithContext,
+  refetchOnMount: true,
 });
+watch(errorProfile, showError);
 </script>
