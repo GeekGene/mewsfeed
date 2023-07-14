@@ -8,23 +8,21 @@
   >
     {{ contentPart.text }}
   </a>
-  <div
+
+  <a
     v-else-if="contentPart.href && contentPart.tagType === MewTagType.Link"
     v-tooltip.bottom="{
       content: contentPart.href,
       popperClass: 'text-xs',
       triggers: ['hover'],
     }"
+    :href="contentPart.href"
+    target="_blank"
+    class="text-primary pr-1"
+    @click.stop
   >
-    <a
-      :href="contentPart.href"
-      target="_blank"
-      class="text-primary pr-1"
-      @click.stop
-    >
-      {{ contentPart.text }}
-    </a>
-  </div>
+    {{ contentPart.text }}
+  </a>
   <BaseLinkProfilePopup
     v-else-if="contentPart.route && contentPart.tagType === MewTagType.Mention"
     :agentPubKey="decodeHashFromBase64((contentPart.route as RouteLocationNamedRaw).params?.agentPubKey as LocationQueryValueRaw as string)"
