@@ -6,7 +6,6 @@ integrity:
   properties:
     mew_characters_min: 10
     mew_characters_max: ~
-    prefix_index_width: 3
   origin_time: 1681948586688419
   zomes:
     - name: profiles_integrity
