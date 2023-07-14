@@ -355,7 +355,7 @@ const emit = defineEmits([
 const router = useRouter();
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const myProfile = inject("myProfile") as ComputedRef<Profile>;
-const { showMessage } = useToasts();
+const { showMessage, showError } = useToasts();
 
 const showReplyToMewDialog = ref(false);
 const showQuoteMewDialog = ref(false);
@@ -397,31 +397,39 @@ const toggleLickMew = async () => {
   isUpdatingLick.value = true;
   const newLicks = [...props.feedMew.licks];
   if (props.feedMew.is_licked) {
-    await client.callZome({
-      role_name: "mewsfeed",
-      zome_name: "likes",
-      fn_name: "unlike",
-      payload: props.feedMew.action_hash,
-    });
-    remove(newLicks, (l) => isEqual(l, client.myPubKey));
-    showMessage("Unlicked Mew");
-    emit("mew-unlicked", {
-      ...props.feedMew,
-      licks: newLicks,
-    });
+    try {
+      await client.callZome({
+        role_name: "mewsfeed",
+        zome_name: "likes",
+        fn_name: "unlike",
+        payload: props.feedMew.action_hash,
+      });
+      remove(newLicks, (l) => isEqual(l, client.myPubKey));
+      showMessage("Unlicked Mew");
+      emit("mew-unlicked", {
+        ...props.feedMew,
+        licks: newLicks,
+      });
+    } catch (e) {
+      showError(e);
+    }
   } else {
-    await client.callZome({
-      role_name: "mewsfeed",
-      zome_name: "likes",
-      fn_name: "like",
-      payload: props.feedMew.action_hash,
-    });
-    newLicks.push(client.myPubKey);
-    showMessage("Licked Mew");
-    emit("mew-licked", {
-      ...props.feedMew,
-      licks: newLicks,
-    });
+    try {
+      await client.callZome({
+        role_name: "mewsfeed",
+        zome_name: "likes",
+        fn_name: "like",
+        payload: props.feedMew.action_hash,
+      });
+      newLicks.push(client.myPubKey);
+      showMessage("Licked Mew");
+      emit("mew-licked", {
+        ...props.feedMew,
+        licks: newLicks,
+      });
+    } catch (e) {
+      showError(e);
+    }
   }
 
   isUpdatingLick.value = false;
@@ -436,29 +444,37 @@ const togglePinMew = async () => {
 
   isUpdatingPin.value = true;
   if (props.feedMew.is_pinned) {
-    await client.callZome({
-      role_name: "mewsfeed",
-      zome_name: "agent_pins",
-      fn_name: "unpin_hash",
-      payload: props.feedMew.action_hash,
-    });
-    showMessage("Unpinned Mew");
-    emit("mew-unpinned", {
-      ...props.feedMew,
-      is_pinned: false,
-    });
+    try {
+      await client.callZome({
+        role_name: "mewsfeed",
+        zome_name: "agent_pins",
+        fn_name: "unpin_hash",
+        payload: props.feedMew.action_hash,
+      });
+      showMessage("Unpinned Mew");
+      emit("mew-unpinned", {
+        ...props.feedMew,
+        is_pinned: false,
+      });
+    } catch (e) {
+      showError(e);
+    }
   } else {
-    await client.callZome({
-      role_name: "mewsfeed",
-      zome_name: "agent_pins",
-      fn_name: "pin_hash",
-      payload: props.feedMew.action_hash,
-    });
-    showMessage("Pinned Mew");
-    emit("mew-pinned", {
-      ...props.feedMew,
-      is_pinned: true,
-    });
+    try {
+      await client.callZome({
+        role_name: "mewsfeed",
+        zome_name: "agent_pins",
+        fn_name: "pin_hash",
+        payload: props.feedMew.action_hash,
+      });
+      showMessage("Pinned Mew");
+      emit("mew-pinned", {
+        ...props.feedMew,
+        is_pinned: true,
+      });
+    } catch (e) {
+      showError(e);
+    }
   }
 
   isUpdatingPin.value = false;
@@ -481,14 +497,19 @@ const createMewmew = async () => {
     text: "",
     links: [],
   };
-  const feedMew: FeedMew = await client.callZome({
-    role_name: "mewsfeed",
-    zome_name: "mews",
-    fn_name: "create_mew_with_context",
-    payload: mew,
-  });
-  emit("mewmew-created", feedMew);
-  showMessage("Mewmewed");
+
+  try {
+    const feedMew: FeedMew = await client.callZome({
+      role_name: "mewsfeed",
+      zome_name: "mews",
+      fn_name: "create_mew_with_context",
+      payload: mew,
+    });
+    emit("mewmew-created", feedMew);
+    showMessage("Mewmewed");
+  } catch (e) {
+    showError(e);
+  }
 };
 
 const onCreateQuote = async (feedMew: FeedMew) => {
@@ -504,16 +525,20 @@ const onCreateReply = async (feedMew: FeedMew) => {
 };
 
 const deleteMew = async () => {
-  await client.callZome({
-    role_name: "mewsfeed",
-    zome_name: "mews",
-    fn_name: "delete_mew",
-    payload: props.feedMew.action_hash,
-  });
-  emit("mew-deleted", {
-    ...props.feedMew,
-    deleted_timestamp: dayjs().valueOf() * 1000,
-  });
-  showMessage("Deleted mew");
+  try {
+    await client.callZome({
+      role_name: "mewsfeed",
+      zome_name: "mews",
+      fn_name: "delete_mew",
+      payload: props.feedMew.action_hash,
+    });
+    emit("mew-deleted", {
+      ...props.feedMew,
+      deleted_timestamp: dayjs().valueOf() * 1000,
+    });
+    showMessage("Deleted mew");
+  } catch (e) {
+    showError(e);
+  }
 };
 </script>
