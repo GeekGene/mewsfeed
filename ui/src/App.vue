@@ -47,9 +47,9 @@ import { decode } from "@msgpack/msgpack";
 import { MewsfeedDnaProperties } from "./types/types";
 import asyncRetry from "async-retry";
 import { CellType } from "@holochain/client";
-import { QueryClient } from "@tanstack/vue-query";
 import { setHomeRedirect } from "@/utils/homeRedirect";
 import { useThemeStore } from "@/stores/theme";
+import { useQueryClient } from "@tanstack/vue-query";
 
 const client = ref<AppAgentClient | WebSdkApi>();
 const appInfo = ref<AppInfo>();
@@ -59,6 +59,7 @@ const loadingClient = ref<boolean>(true);
 const loadingCells = ref<boolean>(true);
 const themeStore = useThemeStore();
 themeStore.apply();
+const queryClient = useQueryClient();
 
 const dnaProperties = computed(() =>
   appInfo.value
@@ -111,8 +112,6 @@ const setup = async () => {
   console.log("Cells responding to zome calls");
   loadingCells.value = false;
 };
-
-const queryClient = new QueryClient();
 
 watch(client, (newClient) => {
   if (!newClient) return;
