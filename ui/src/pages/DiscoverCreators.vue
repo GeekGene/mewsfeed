@@ -13,28 +13,33 @@
     </div>
 
     <BaseList
-      v-slot="{ item }"
       title="random mews"
       class="mb-8"
       :items="randomMews"
       :is-loading="isLoadingRandomMewHashes || isFetchingRandomMews"
     >
-      <BaseMewListItem
-        :feed-mew="item"
-        @mew-deleted="refetchRandomMews()"
-        @mew-licked="refetchRandomMews()"
-        @mew-unlicked="refetchRandomMews()"
-        @mew-pinned="refetchRandomMews()"
-        @mew-unpinned="refetchRandomMews()"
-        @mewmew-created="refetchRandomMews()"
-        @reply-created="refetchRandomMews()"
-        @quote-created="refetchRandomMews()"
-      />
+      <template #default="{ item }">
+        <BaseMewListItem
+          :feed-mew="item"
+          @mew-deleted="refetchRandomMews()"
+          @mew-licked="refetchRandomMews()"
+          @mew-unlicked="refetchRandomMews()"
+          @mew-pinned="refetchRandomMews()"
+          @mew-unpinned="refetchRandomMews()"
+          @mewmew-created="refetchRandomMews()"
+          @reply-created="refetchRandomMews()"
+          @quote-created="refetchRandomMews()"
+        />
+      </template>
+      <template #loading>
+        <BaseListSkeleton :count="4">
+          <BaseMewListItemSkeleton />
+        </BaseListSkeleton>
+      </template>
     </BaseList>
 
     <BaseList
       v-if="tag1Enabled"
-      v-slot="{ item }"
       class="mb-8"
       :title="`mews about ${randomTags[0]}`"
       :items="randomMewsWithTag1"
@@ -42,22 +47,28 @@
         isLoadingRandomMewHashesWithTag1 || isFetchingRandomMewsWithTag1
       "
     >
-      <BaseMewListItem
-        :feed-mew="item"
-        @mew-deleted="refetchRandomMewsWithTag1()"
-        @mew-licked="refetchRandomMewsWithTag1()"
-        @mew-unlicked="refetchRandomMewsWithTag1()"
-        @mew-pinned="refetchRandomMewsWithTag1()"
-        @mew-unpinned="refetchRandomMewsWithTag1()"
-        @mewmew-created="refetchRandomMewsWithTag1()"
-        @reply-created="refetchRandomMewsWithTag1()"
-        @quote-created="refetchRandomMewsWithTag1()"
-      />
+      <template #default="{ item }">
+        <BaseMewListItem
+          :feed-mew="item"
+          @mew-deleted="refetchRandomMewsWithTag1()"
+          @mew-licked="refetchRandomMewsWithTag1()"
+          @mew-unlicked="refetchRandomMewsWithTag1()"
+          @mew-pinned="refetchRandomMewsWithTag1()"
+          @mew-unpinned="refetchRandomMewsWithTag1()"
+          @mewmew-created="refetchRandomMewsWithTag1()"
+          @reply-created="refetchRandomMewsWithTag1()"
+          @quote-created="refetchRandomMewsWithTag1()"
+        />
+      </template>
+      <template #loading>
+        <BaseListSkeleton :count="4">
+          <BaseMewListItemSkeleton />
+        </BaseListSkeleton>
+      </template>
     </BaseList>
 
     <BaseList
       v-if="tag2Enabled"
-      v-slot="{ item }"
       class="mb-8"
       :title="`mews about ${randomTags[1]}`"
       :items="randomMewsWithTag2"
@@ -65,22 +76,28 @@
         isLoadingRandomMewHashesWithTag2 || isFetchingRandomMewsWithTag2
       "
     >
-      <BaseMewListItem
-        :feed-mew="item"
-        @mew-deleted="refetchRandomMewsWithTag2()"
-        @mew-licked="refetchRandomMewsWithTag2()"
-        @mew-unlicked="refetchRandomMewsWithTag2()"
-        @mew-pinned="refetchRandomMewsWithTag2()"
-        @mew-unpinned="refetchRandomMewsWithTag2()"
-        @mewmew-created="refetchRandomMewsWithTag2()"
-        @reply-created="refetchRandomMewsWithTag2()"
-        @quote-created="refetchRandomMewsWithTag2()"
-      />
+      <template #default="{ item }">
+        <BaseMewListItem
+          :feed-mew="item"
+          @mew-deleted="refetchRandomMewsWithTag2()"
+          @mew-licked="refetchRandomMewsWithTag2()"
+          @mew-unlicked="refetchRandomMewsWithTag2()"
+          @mew-pinned="refetchRandomMewsWithTag2()"
+          @mew-unpinned="refetchRandomMewsWithTag2()"
+          @mewmew-created="refetchRandomMewsWithTag2()"
+          @reply-created="refetchRandomMewsWithTag2()"
+          @quote-created="refetchRandomMewsWithTag2()"
+        />
+      </template>
+      <template #loading>
+        <BaseListSkeleton :count="4">
+          <BaseMewListItemSkeleton />
+        </BaseListSkeleton>
+      </template>
     </BaseList>
 
     <BaseList
       v-if="tag3Enabled"
-      v-slot="{ item }"
       class="mb-8"
       :title="`mews about ${randomTags[2]}`"
       :items="randomMewsWithTag3"
@@ -88,17 +105,25 @@
         isLoadingRandomMewHashesWithTag3 || isFetchingRandomMewsWithTag3
       "
     >
-      <BaseMewListItem
-        :feed-mew="item"
-        @mew-deleted="refetchRandomMewsWithTag3()"
-        @mew-licked="refetchRandomMewsWithTag3()"
-        @mew-unlicked="refetchRandomMewsWithTag3()"
-        @mew-pinned="refetchRandomMewsWithTag3()"
-        @mew-unpinned="refetchRandomMewsWithTag3()"
-        @mewmew-created="refetchRandomMewsWithTag3()"
-        @reply-created="refetchRandomMewsWithTag3()"
-        @quote-created="refetchRandomMewsWithTag3()"
-      />
+      <template #default="{ item }">
+        <BaseMewListItem
+          :feed-mew="item"
+          @mew-deleted="refetchRandomMewsWithTag3()"
+          @mew-licked="refetchRandomMewsWithTag3()"
+          @mew-unlicked="refetchRandomMewsWithTag3()"
+          @mew-pinned="refetchRandomMewsWithTag3()"
+          @mew-unpinned="refetchRandomMewsWithTag3()"
+          @mewmew-created="refetchRandomMewsWithTag3()"
+          @reply-created="refetchRandomMewsWithTag3()"
+          @quote-created="refetchRandomMewsWithTag3()"
+        />
+      </template>
+
+      <template #loading>
+        <BaseListSkeleton :count="4">
+          <BaseMewListItemSkeleton />
+        </BaseListSkeleton>
+      </template>
     </BaseList>
   </div>
 </template>
@@ -112,6 +137,8 @@ import { useQuery } from "@tanstack/vue-query";
 import { useToasts } from "@/stores/toasts";
 import IconDiceOutline from "~icons/ion/dice-outline";
 import { ActionHash } from "@holochain/client";
+import BaseListSkeleton from "@/components/BaseListSkeleton.vue";
+import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const { showError } = useToasts();

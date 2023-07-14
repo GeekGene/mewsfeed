@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col space-y-8 mt-8">
+  <div class="flex flex-col space-y-8 w-full">
     <template v-for="i in range(props.count)" :key="i">
       <slot></slot>
 
