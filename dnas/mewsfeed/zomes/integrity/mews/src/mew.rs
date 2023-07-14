@@ -42,7 +42,7 @@ pub fn validate_create_mew(
                 ChainFilter {chain_top: action.prev_action().clone(), include_cached_entries: true, filters: ChainFilters::ToGenesis}
             )?;
 
-            let past_create_mew_agent_activity: Vec<RegisterAgentActivity> = agent_activity
+            let has_identical_mewmews = agent_activity
                 .into_iter()
                 .filter_map(|agent_activity| 
                     match agent_activity.action.action().action_type() {
@@ -62,10 +62,6 @@ pub fn validate_create_mew(
                         _ => None
                     }   
                 )
-                .collect();
-            
-            let past_create_mews: Vec<Mew> = past_create_mew_agent_activity
-                .into_iter()
                 .filter_map(|agent_activity| 
                     agent_activity.action.action().entry_data().and_then(|(entry_hash, ..)| 
                         must_get_entry(entry_hash.clone()).ok().and_then(|entry|
@@ -73,19 +69,14 @@ pub fn validate_create_mew(
                         )
                     )
                 )
-                .collect();
-
-            let identical_mewmews: Vec<Mew> = past_create_mews
-                .into_iter()
-                .filter(|mew| match mew.mew_type.clone() {
+                .any(|mew| match mew.mew_type {
                     MewType::Mewmew(ah) => {
                         ah == original_mew_ah
                     }
                     _ => false
-                })
-                .collect();
-
-            if identical_mewmews.len() > 0 {
+                });
+            
+            if has_identical_mewmews {
                 return Ok(ValidateCallbackResult::Invalid("A mew can only be mewmewed once".into()));
             }
         }
