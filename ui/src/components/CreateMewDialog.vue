@@ -32,13 +32,7 @@
         <BaseMewListItem :feed-mew="originalMew" :show-buttons="false" />
       </div>
 
-      <CreateMewInput
-        :mew-type="mewType"
-        @mew-created="(val: any) => {
-        emit('mew-created', val);
-        emit('update:model-value', false);
-      }"
-      />
+      <CreateMewInput :mew-type="mewType" @mew-created="onCreateMew" />
     </profiles-context>
   </BaseDialog>
 </template>
@@ -50,6 +44,9 @@ import BaseAgentProfileName from "@/components/BaseAgentProfileName.vue";
 import BaseDialog from "@/components/BaseDialog.vue";
 import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
 import { ComputedRef, inject } from "vue";
+import { ROUTES } from "@/router";
+import { useRouter } from "vue-router";
+import { setHomeRedirect } from "@/utils/homeRedirect";
 
 withDefaults(
   defineProps<{
@@ -64,11 +61,20 @@ withDefaults(
     originalAuthor: undefined,
   }
 );
-
 const emit = defineEmits(["mew-created", "update:model-value"]);
-
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
+const router = useRouter();
+
+const onCreateMew = (val: FeedMew) => {
+  setHomeRedirect(false);
+
+  if (MewTypeName.Original in val.mew.mew_type) {
+    router.push({ name: ROUTES.feed });
+  }
+  emit("mew-created", val);
+  emit("update:model-value", false);
+};
 </script>
 
 <style scoped></style>

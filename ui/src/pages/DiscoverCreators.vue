@@ -112,7 +112,6 @@ import { useQuery } from "@tanstack/vue-query";
 import { useToasts } from "@/stores/toasts";
 import IconDiceOutline from "~icons/ion/dice-outline";
 import { ActionHash } from "@holochain/client";
-import { getHomeRedirect } from "@/utils/homeRedirect";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const { showError } = useToasts();
