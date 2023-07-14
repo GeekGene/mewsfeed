@@ -34,8 +34,8 @@
             class="z-10 btn btn-md btn-neutral rounded-full py-3 flex justify-start items-center"
             @click="showCreateMewDialog = true"
           >
-            <IconChatbubbleOutline class="text-md" />
-            <div>New Mew</div>
+            <IconAdd class="w-6 h-6" />
+            <div>Mew</div>
           </button>
         </div>
       </div>
@@ -46,8 +46,8 @@
     class="block sm:hidden z-10 fixed bottom-32 right-3 btn btn-md btn-neutral rounded-full py-3 flex justify-start items-center"
     @click="showCreateMewDialog = true"
   >
-    <IconChatbubbleOutline class="text-md" />
-    <div>New Mew</div>
+    <IconAdd class="w-6 h-6" />
+    <div>Mew</div>
   </button>
 
   <div
@@ -86,6 +86,7 @@ import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";
 import { setHomeRedirect } from "@/utils/homeRedirect";
 import { useInfiniteQuery, useQuery } from "@tanstack/vue-query";
 import IconChatbubbleOutline from "~icons/ion/chatbubble-outline";
+import IconAdd from "~icons/ion/add";
 import CreateMewDialog from "@/components/CreateMewDialog.vue";
 import ToastNotices from "@/components/ToastNotices.vue";
 
