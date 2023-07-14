@@ -21,13 +21,19 @@
             disable-tooltip
             disable-copy
           />
-          <agent-avatar
+          <BaseCopyOnClick
             v-else
+            :text="encodeHashToBase64(agentPubKey)"
+            notice-text="Copied public key"
             class="hidden sm:block"
-            :agentPubKey="agentPubKey"
-            size="80"
-            disable-tooltip
-          />
+          >
+            <agent-avatar
+              :agentPubKey="agentPubKey"
+              size="80"
+              disable-tooltip
+              disable-copy
+            />
+          </BaseCopyOnClick>
           <agent-avatar
             v-if="!enableCopyAgentPubKey"
             class="block sm:hidden"
@@ -36,13 +42,19 @@
             disable-tooltip
             disable-copy
           />
-          <agent-avatar
+          <BaseCopyOnClick
             v-else
+            :text="encodeHashToBase64(agentPubKey)"
+            notice-text="Copied public key"
             class="block sm:hidden"
-            :agentPubKey="agentPubKey"
-            size="50"
-            disable-tooltip
-          />
+          >
+            <agent-avatar
+              :agentPubKey="agentPubKey"
+              size="50"
+              disable-tooltip
+              disable-copy
+            />
+          </BaseCopyOnClick>
         </div>
 
         <div
@@ -181,6 +193,7 @@ import IconCalendarOutline from "~icons/ion/calendar-outline";
 import IconPencilSharp from "~icons/ion/pencil-sharp";
 import { Timestamp } from "@holochain/client";
 import BaseAgentProfileDetailSkeleton from "@/components/BaseAgentProfileDetailSkeleton.vue";
+import BaseCopyOnClick from "@/components/BaseCopyOnClick.vue";
 
 const props = withDefaults(
   defineProps<{

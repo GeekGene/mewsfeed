@@ -22,6 +22,7 @@ declare module 'vue' {
     BaseAvatarInput: typeof import('./src/components/BaseAvatarInput.vue')['default']
     BaseButtonBack: typeof import('./src/components/BaseButtonBack.vue')['default']
     BaseConfirmDialog: typeof import('./src/components/BaseConfirmDialog.vue')['default']
+    BaseCopyOnClick: typeof import('./src/components/BaseCopyOnClick.vue')['default']
     BaseDialog: typeof import('./src/components/BaseDialog.vue')['default']
     BaseEditAgentProfileForm: typeof import('./src/components/BaseEditAgentProfileForm.vue')['default']
     BaseEmbedMew: typeof import('./src/components/BaseEmbedMew.vue')['default']
