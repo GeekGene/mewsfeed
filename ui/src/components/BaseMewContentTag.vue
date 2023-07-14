@@ -13,6 +13,7 @@
     v-tooltip.bottom="{
       content: contentPart.href,
       popperClass: 'text-xs',
+      triggers: ['hover'],
     }"
   >
     <a

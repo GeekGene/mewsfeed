@@ -126,6 +126,7 @@
                   disabled: isDeleted,
                   content: 'Reply to mew',
                   popperClass: 'text-xs',
+                  triggers: ['hover'],
                 }"
                 :disable="isDeleted"
                 class="flex justify-start items-center space-x-1 p-2"
@@ -146,6 +147,7 @@
                   disabled: isDeleted,
                   content: 'Quote mew',
                   popperClass: 'text-xs',
+                  triggers: ['hover'],
                 }"
                 :disable="isDeleted"
                 class="flex justify-start items-center space-x-1 p-2"
@@ -166,6 +168,7 @@
                   disabled: isDeleted,
                   content: 'Mewmew mew',
                   popperClass: 'text-xs',
+                  triggers: ['hover'],
                 }"
                 :disable="isDeleted"
                 class="flex justify-start items-center space-x-1 p-2"
@@ -186,6 +189,7 @@
                   disabled: isDeleted,
                   content: `${feedMew.is_licked ? 'Unlick' : 'Lick'} mew`,
                   popperClass: 'text-xs',
+                  triggers: ['hover'],
                 }"
                 class="flex justify-start items-center space-x-1 p-2"
                 :class="{
@@ -207,6 +211,7 @@
                   disabled: isDeleted,
                   content: `${props.feedMew.is_pinned ? 'Unpin' : 'Pin'} mew`,
                   popperClass: 'text-xs',
+                  triggers: ['hover'],
                 }"
                 :disable="isDeleted && !props.feedMew.is_pinned"
                 class="flex justify-start items-center space-x-1 p-2"
@@ -229,6 +234,7 @@
                   disabled: isDeleted,
                   content: 'Delete mew',
                   popperClass: 'text-xs',
+                  triggers: ['hover'],
                 }"
                 :disable="isDeleted"
                 class="flex justify-start items-center space-x-1 text-base-300 hover:text-neutral p-2"

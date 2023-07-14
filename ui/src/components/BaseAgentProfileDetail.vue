@@ -11,6 +11,7 @@
             disabled: !!profile.fields.avatar,
             content: encodeHashToBase64(agentPubKey),
             popperClass: 'text-xs',
+            triggers: ['hover'],
           }"
         >
           <agent-avatar
@@ -62,6 +63,7 @@
           v-tooltip.bottom="{
             content: encodeHashToBase64(agentPubKey),
             popperClass: 'text-xs',
+            triggers: ['hover'],
           }"
           class="mt-8 relative w-fit flex items-end"
         >

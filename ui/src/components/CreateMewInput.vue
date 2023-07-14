@@ -42,6 +42,7 @@
                 content:
                   'You can mention people with @ and use #hashtags and $cashtags as well as ^links in a mew. <br /></br />You can press Ctrl/Cmd + Enter to publish.',
                 popperClass: 'w-96',
+                triggers: ['hover'],
               }"
               class="w-5 h-5 text-base-content/50"
             />

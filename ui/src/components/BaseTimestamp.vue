@@ -3,6 +3,7 @@
     v-tooltip.bottom="{
       content: timestamp.toString(),
       popperClass: 'text-xs font-mono',
+      triggers: ['hover'],
     }"
     class="font-mono inline-block"
   >
