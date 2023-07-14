@@ -9,7 +9,7 @@
         class="sticky mt-16 top-8 left-0 hidden sm:block w-14 flex flex-col justify-start items-start space-y-4"
         @click-search="showSearchDialog = true"
       />
-      <div class="flex-1 w-full h-full pb-16" style="width: inherit">
+      <div class="flex-1 w-full h-full pb-32 sm:pb-16" style="width: inherit">
         <RouterView :key="`${route.fullPath}-${forceReloadRouterViewKey}`" />
       </div>
     </div>
@@ -85,7 +85,6 @@ import { useRouter, useRoute } from "vue-router";
 import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";
 import { setHomeRedirect } from "@/utils/homeRedirect";
 import { useInfiniteQuery, useQuery } from "@tanstack/vue-query";
-import IconChatbubbleOutline from "~icons/ion/chatbubble-outline";
 import IconAdd from "~icons/ion/add";
 import CreateMewDialog from "@/components/CreateMewDialog.vue";
 import ToastNotices from "@/components/ToastNotices.vue";
