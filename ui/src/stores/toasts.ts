@@ -10,8 +10,15 @@ export const useToasts = defineStore("toasts", () => {
 
   const showError = (error: any) => {
     console.error(error);
-    const text =
-      error instanceof Error ? error.message : JSON.stringify(error, null, 4);
+
+    let text;
+    if (error instanceof Error) {
+      text = error.message;
+    } else if (error.type === "error" && "data" in error) {
+      text = error.data.data;
+    } else {
+      text = JSON.stringify(error, null, 4);
+    }
 
     showMessage(text, "error");
   };
