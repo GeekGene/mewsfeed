@@ -3,7 +3,7 @@ use hdi::prelude::*;
 use mews_types::*;
 
 pub fn validate_create_mew(
-    _action: EntryCreationAction,
+    action: EntryCreationAction,
     mew: Mew,
 ) -> ExternResult<ValidateCallbackResult> {
     let properties = get_dna_properties(())?;
@@ -30,11 +30,63 @@ pub fn validate_create_mew(
                 }
             }
         }
-        MewType::Mewmew(_) => {
+        MewType::Mewmew(original_mew_ah) => {
             if !mew.text.is_empty() {
                 return Ok(ValidateCallbackResult::Invalid(
                     "Mewmew cannot contain text".into(),
                 ));
+            }
+
+            let agent_activity = must_get_agent_activity(
+                action.author().clone(), 
+                ChainFilter {chain_top: action.prev_action().clone(), include_cached_entries: true, filters: ChainFilters::ToGenesis}
+            )?;
+
+            let past_create_mew_agent_activity: Vec<RegisterAgentActivity> = agent_activity
+                .into_iter()
+                .filter_map(|agent_activity| 
+                    match agent_activity.action.action().action_type() {
+                        ActionType::Create => {
+                            agent_activity.action.clone().action().entry_type().and_then(
+                                |entry_type: &EntryType| match entry_type.clone() {
+                                    EntryType::App(app_entry_def) => {
+                                        match (app_entry_def.zome_index, app_entry_def.entry_index) {
+                                            (ZomeIndex(1), EntryDefIndex(0)) => Some(agent_activity),
+                                            _ => None
+                                        }
+                                    }
+                                    _ => None
+                                }
+                            )
+                        }
+                        _ => None
+                    }   
+                )
+                .collect();
+            
+            let past_create_mews: Vec<Mew> = past_create_mew_agent_activity
+                .into_iter()
+                .filter_map(|agent_activity| 
+                    agent_activity.action.action().entry_data().and_then(|(entry_hash, ..)| 
+                        must_get_entry(entry_hash.clone()).ok().and_then(|entry|
+                            Mew::try_from(entry.as_content()).ok()
+                        )
+                    )
+                )
+                .collect();
+
+            let identical_mewmews: Vec<Mew> = past_create_mews
+                .into_iter()
+                .filter(|mew| match mew.mew_type.clone() {
+                    MewType::Mewmew(ah) => {
+                        ah == original_mew_ah
+                    }
+                    _ => false
+                })
+                .collect();
+
+            if identical_mewmews.len() > 0 {
+                return Ok(ValidateCallbackResult::Invalid("A mew can only be mewmewed once".into()));
             }
         }
     }

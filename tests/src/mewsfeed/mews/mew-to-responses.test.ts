@@ -1,8 +1,8 @@
-import { Record } from "@holochain/client";
 import { runScenario } from "@holochain/tryorama";
-import { assert, test } from "vitest";
+import { assert, expect, test } from "vitest";
 import { FeedMew, Mew, MewTypeName } from "../../../../ui/src/types/types.js";
 import { mewsfeedAppBundleSource } from "../../common.js";
+import { ActionHash } from "@holochain/client";
 
 test("Agent can reply to a mew", async () => {
   await runScenario(
@@ -76,7 +76,7 @@ test("Agent can reply to a mew", async () => {
   );
 });
 
-test("Agent can mewmew a mew", async () => {
+test("Agent can mewmew a mew, only once", async () => {
   await runScenario(
     async (scenario) => {
       // Set up the app to be installed
@@ -140,6 +140,17 @@ test("Agent can mewmew a mew", async () => {
         originalMew.mewmews[0],
         mewmew_action_hash,
         "original mew's mewmew is alice's mewmew"
+      );
+
+      // Mewmew the same mew again
+      const response = alice.cells[0].callZome({
+        zome_name: "mews",
+        fn_name: "create_mew",
+        payload: aliceMewmewInput,
+      });
+      await expect(response).rejects.toHaveProperty(
+        "data.data",
+        expect.stringContaining("InvalidCommit")
       );
     },
     true,
