@@ -72,42 +72,47 @@
           </div>
         </div>
 
-        <BaseMewContent
-          v-if="
-            (!isDeleted || showIfDeleted) && isMewmew && feedMew.original_mew
-          "
-          :mew="(feedMew.original_mew.mew as Mew)"
-          class="my-2"
-        />
+        <div class="my-2 w-full">
+          <BaseMewContent
+            v-if="
+              (!isDeleted || showIfDeleted) && isMewmew && feedMew.original_mew
+            "
+            :mew="(feedMew.original_mew.mew as Mew)"
+          />
 
-        <div
-          v-else-if="
-            (!isDeleted || showIfDeleted) && isQuote && feedMew.original_mew
-          "
-          class="w-full"
-        >
-          <BaseMewContent :mew="(feedMew.mew as Mew)" class="my-2" />
+          <div
+            v-else-if="
+              (!isDeleted || showIfDeleted) && isQuote && feedMew.original_mew
+            "
+            class="w-full"
+          >
+            <BaseMewContent :mew="(feedMew.mew as Mew)" />
 
-          <div class="flex justify-start my-4">
-            <div class="flex items-start">
-              <IconFormatQuoteOpen class="text-base-300 text-2xl" />
-            </div>
-            <div class="flex-1 bg-base-200 p-2 rounded-md">
-              <BaseEmbedMew :embed-mew="feedMew.original_mew" />
-            </div>
-            <div class="flex justify-end items-end">
-              <IconFormatQuoteClose class="text-base-300 text-2xl" />
+            <div class="flex justify-start my-4">
+              <div class="flex items-start">
+                <IconFormatQuoteOpen class="text-base-300 text-2xl" />
+              </div>
+              <div class="flex-1 bg-base-200 p-2 rounded-md">
+                <BaseEmbedMew :embed-mew="feedMew.original_mew" />
+              </div>
+              <div class="flex justify-end items-end">
+                <IconFormatQuoteClose class="text-base-300 text-2xl" />
+              </div>
             </div>
           </div>
+          <div v-else-if="isDeleted" class="w-full">
+            <a
+              v-if="!showIfDeleted"
+              class="btn btn-sm w-full"
+              @click.stop.prevent="showIfDeleted = true"
+            >
+              Show Content
+            </a>
+            <BaseMewContent v-if="showIfDeleted" :mew="(feedMew.mew as Mew)" />
+          </div>
+
+          <BaseMewContent v-else :mew="(feedMew.mew as Mew)" />
         </div>
-        <BaseMewContent
-          v-else-if="!isDeleted || showIfDeleted"
-          :mew="(feedMew.mew as Mew)"
-          class="my-2"
-        />
-        <a v-else class="btn btn-sm" @click.stop.prevent="showIfDeleted = true">
-          Show Deleted Mew Content
-        </a>
 
         <div class="flex justify-between">
           <div
@@ -238,15 +243,13 @@
               </div>
             </div>
           </div>
-          <div
-            v-if="feedMew.deleted_timestamp !== null"
-            class="text-red text-bold flex justify-end"
-            style="width: 100%"
-          >
-            <div>
-              Deleted <BaseTimestamp :timestamp="feedMew.deleted_timestamp" />
-            </div>
-          </div>
+        </div>
+        <div
+          v-if="feedMew.deleted_timestamp !== null"
+          class="text-error font-mono flex items-center justify-end w-full space-x-2"
+        >
+          <div>Deleted</div>
+          <BaseTimestamp :timestamp="feedMew.deleted_timestamp" />
         </div>
       </div>
     </div>
