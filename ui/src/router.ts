@@ -13,6 +13,7 @@ import MyNotifications from "./pages/MyNotifications.vue";
 import { getHomeRedirect } from "./utils/homeRedirect";
 
 export const ROUTES = {
+  landing: "landing",
   discover: "discover",
   profile: "profile",
   authoredMews: "authoredMews",
@@ -29,10 +30,13 @@ export const ROUTES = {
 export const routes: RouteRecordRaw[] = [
   {
     path: "/",
+    name: ROUTES.landing,
+    redirect: () =>
+      getHomeRedirect() ? { path: ROUTES.discover } : { name: ROUTES.feed },
+  },
+  {
+    path: "/feed",
     name: ROUTES.feed,
-    beforeEnter: () => {
-      if (getHomeRedirect()) return { name: ROUTES.discover };
-    },
     component: MewsFeed,
   },
   {
