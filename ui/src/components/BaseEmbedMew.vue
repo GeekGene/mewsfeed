@@ -1,9 +1,10 @@
 <template>
-  <div class="q-mx-sm q-my-sm">
-    <BaseMewContent :mew="embedMew.mew as Mew" class="cursor-pointer q-mb-sm" />
+  <div>
+    <BaseMewContent :mew="(embedMew.mew as Mew)" class="cursor-pointer mb-2" />
     <BaseAgentProfile
       :agent-pub-key="embedMew.action.author"
       :profile="embedMew.author_profile"
+      class="flex justify-end"
     />
   </div>
 </template>

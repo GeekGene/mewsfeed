@@ -1,17 +1,16 @@
 <template>
-  <QPage
+  <div
     v-if="loadingClient"
-    class="row justify-center items-center"
-    style="height: 100%"
+    class="h-screen w-full flex justify-center items-center"
   >
-    <div class="column justify-center items-center">
-      <div class="row justify-center items-center">
-        <sl-spinner style="font-size: 2rem" class="q-mr-lg"></sl-spinner>
-        <h6>Connecting...</h6>
-      </div>
-    </div>
-  </QPage>
-  <template v-else>
+    <sl-spinner style="font-size: 2rem" class="mr-4"></sl-spinner>
+    <h6>Connecting...</h6>
+  </div>
+
+  <div
+    v-else
+    class="bg-base w-full flex justify-center items-center relative font-content cursor-default"
+  >
     <profiles-context :store="profilesStore">
       <HoloLogin v-if="IS_HOLO_HOSTED">
         <MainLayout />
@@ -21,14 +20,13 @@
 
       <div
         v-if="loadingCells"
-        class="row justify-between"
-        style="position: fixed; right: 25px; bottom: 25px"
+        class="flex justify-start items-center fixed right-5 top-0 my-8 mx-4 py-4 badge badge-warning z-50"
       >
-        <sl-spinner style="font-size: 1rem" class="q-mr-sm"></sl-spinner>
+        <sl-spinner style="font-size: 1rem" class="mr-2"></sl-spinner>
         <div>Cells loading...</div>
       </div>
     </profiles-context>
-  </template>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -49,8 +47,9 @@ import { decode } from "@msgpack/msgpack";
 import { MewsfeedDnaProperties } from "./types/types";
 import asyncRetry from "async-retry";
 import { CellType } from "@holochain/client";
-import { QueryClient } from "@tanstack/vue-query";
 import { setHomeRedirect } from "@/utils/homeRedirect";
+import { useThemeStore } from "@/stores/theme";
+import { useQueryClient } from "@tanstack/vue-query";
 
 const client = ref<AppAgentClient | WebSdkApi>();
 const appInfo = ref<AppInfo>();
@@ -58,6 +57,9 @@ const profilesStore = ref<ProfilesStore>();
 const myProfile = ref<Profile>();
 const loadingClient = ref<boolean>(true);
 const loadingCells = ref<boolean>(true);
+const themeStore = useThemeStore();
+themeStore.apply();
+const queryClient = useQueryClient();
 
 const dnaProperties = computed(() =>
   appInfo.value
@@ -111,8 +113,6 @@ const setup = async () => {
   loadingCells.value = false;
 };
 
-const queryClient = new QueryClient();
-
 watch(client, (newClient) => {
   if (!newClient) return;
 
@@ -135,14 +135,49 @@ provide("profilesStore", profilesStore);
 provide("myProfile", myProfile);
 </script>
 
-<style lang="sass">
-#app
-  font-family: Avenir, Helvetica, Arial, sans-serif
-  -webkit-font-smoothing: antialiased
-  -moz-osx-font-smoothing: grayscale
+<style>
+#app {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
 :root,
-:host
-  --sl-color-primary-600: #{$primary} !important
-  --sl-color-primary-500: #{$primary} !important
+:host {
+  --sl-color-primary-50: hsl(var(--p)) !important;
+  --sl-color-primary-100: hsl(var(--p)) !important;
+  --sl-color-primary-200: hsl(var(--p)) !important;
+  --sl-color-primary-300: hsl(var(--p)) !important;
+  --sl-color-primary-400: hsl(var(--p)) !important;
+  --sl-color-primary-500: hsl(var(--p)) !important;
+  --sl-color-primary-600: hsl(var(--pf)) !important;
+  --sl-color-primary-700: hsl(var(--pf)) !important;
+  --sl-color-primary-800: hsl(var(--pf)) !important;
+  --sl-color-primary-900: hsl(var(--pf)) !important;
+
+  --sl-color-neutral-0: hsl(var(--b2)) !important;
+  --sl-color-neutral-50: hsl(var(--b2)) !important;
+  --sl-color-neutral-100: hsl(var(--b2)) !important;
+  --sl-color-neutral-200: hsl(var(--b2)) !important;
+  --sl-color-neutral-300: hsl(var(--b2)) !important;
+  --sl-color-neutral-400: hsl(var(--b3)) !important;
+  --sl-color-neutral-500: hsl(var(--b3)) !important;
+  --sl-color-neutral-600: hsl(var(--b3)) !important;
+  --sl-color-neutral-700: hsl(var(--bc)) !important;
+  --sl-color-neutral-800: hsl(var(--bc)) !important;
+  --sl-color-neutral-900: hsl(var(--bc)) !important;
+
+  --sl-color-neutral-1000: hsl(var(--bc)) !important;
+
+  --sl-input-color: hsl(var(--bc)) !important;
+  --sl-input-color-hover: hsl(var(--bc)) !important;
+  --sl-input-color-focus: hsl(var(--bc)) !important;
+  --sl-input-background-color: hsl(var(--b2)) !important;
+  --sl-input-background-focus: hsl(var(--b2)) !important;
+  --sl-input-background-hover: hsl(var(--b2)) !important;
+  --sl-input-border-color: hsl(var(--b2)) !important;
+  --sl-input-border-color-hover: hsl(var(--b2)) !important;
+  --sl-input-border-color-focus: hsl(var(--b2)) !important;
+  --sl-input-border-width: hsl(var(--b2)) !important;
+  --sl-input-help-text-color: hsl(var(--nc)) !important;
+}
 </style>

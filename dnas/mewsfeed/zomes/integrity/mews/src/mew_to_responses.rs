@@ -1,4 +1,5 @@
 use hdi::prelude::*;
+use mews_types::MewType;
 
 pub fn validate_create_link_mew_to_responses(
     _action: CreateLink,
@@ -6,8 +7,8 @@ pub fn validate_create_link_mew_to_responses(
     target_address: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    let action_hash = ActionHash::from(base_address);
-    let record = must_get_valid_record(action_hash)?;
+    let base_ah = ActionHash::from(base_address);
+    let record = must_get_valid_record(base_ah.clone())?;
     let _mew: crate::Mew = record
         .entry()
         .to_app_option()
@@ -15,15 +16,27 @@ pub fn validate_create_link_mew_to_responses(
         .ok_or(wasm_error!(WasmErrorInner::Guest(String::from(
             "Linked action must reference an entry"
         ))))?;
-    let action_hash = ActionHash::from(target_address);
-    let record = must_get_valid_record(action_hash)?;
-    let _mew: crate::Mew = record
+    let target_ah = ActionHash::from(target_address);
+    let record = must_get_valid_record(target_ah)?;
+    let response_mew: crate::Mew = record
         .entry()
         .to_app_option()
         .map_err(|e| wasm_error!(e))?
         .ok_or(wasm_error!(WasmErrorInner::Guest(String::from(
             "Linked action must reference an entry"
         ))))?;
+
+    match response_mew.mew_type {
+        MewType::Reply(original_mew_ah)
+        | MewType::Quote(original_mew_ah)
+        | MewType::Mewmew(original_mew_ah) => {
+            if original_mew_ah != base_ah {
+                return Ok(ValidateCallbackResult::Invalid("Response mew referenced action hash is different from linked response action hash".into()));
+            }
+        }
+        _ => {}
+    }
+
     Ok(ValidateCallbackResult::Valid)
 }
 

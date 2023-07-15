@@ -1,10 +1,12 @@
 import { defineConfig, PluginOption } from "vite";
-import { quasar, transformAssetUrls } from "@quasar/vite-plugin";
 import path from "node:path";
 import vue from "@vitejs/plugin-vue";
 import { viteStaticCopy } from "vite-plugin-static-copy";
-import rollupNodePolyFill from "rollup-plugin-node-polyfills";
 import checker from "vite-plugin-checker";
+import tailwindcss from "tailwindcss";
+import Components from "unplugin-vue-components/vite";
+import Icons from "unplugin-icons/vite";
+import IconsResolver from "unplugin-icons/resolver";
 
 export default defineConfig({
   server: {
@@ -32,20 +34,21 @@ export default defineConfig({
 
     vue({
       template: {
-        transformAssetUrls,
         compilerOptions: {
           isCustomElement: (tag) => tag.includes("-"),
         },
       },
     }),
 
-    quasar({
-      sassVariables: "src/css/quasar.variables.sass",
-    }) as PluginOption,
-
     checker({
       vueTsc: true,
-    }),
+    }) as PluginOption,
+
+    Components({
+      resolvers: [IconsResolver({ prefix: "icon" })],
+    }) as PluginOption,
+
+    Icons({ autoInstall: true }) as PluginOption,
   ],
   build: {
     target: "es2020",
@@ -53,6 +56,11 @@ export default defineConfig({
   optimizeDeps: {
     esbuildOptions: {
       target: ["es2020"],
+    },
+  },
+  css: {
+    postcss: {
+      plugins: [tailwindcss],
     },
   },
 });

@@ -4,17 +4,16 @@ import DiscoverCreators from "./pages/DiscoverCreators.vue";
 import MewsFeed from "./pages/MewsFeed.vue";
 import AgentProfile from "./pages/AgentProfile.vue";
 import MewYarn from "./pages/MewYarn.vue";
-import CashtagMewsFeed from "./pages/CashtagMewsFeed.vue";
-import HashtagMewsFeed from "./pages/HashtagMewsFeed.vue";
-import MentionMewsFeed from "./pages/MentionMewsFeed.vue";
-import AuthoredMewsFeed from "./pages/AuthoredMewsFeed.vue";
-import CreatorsList from "./pages/CreatorsList.vue";
-import FollowersList from "./pages/FollowersList.vue";
+import MewsListCashtag from "./pages/MewsListCashtag.vue";
+import MewsListHashtag from "./pages/MewsListHashtag.vue";
+import MewsListMention from "./pages/MewsListMention.vue";
+import MewsListAuthor from "./pages/MewsListAuthor.vue";
 import NotFound from "./pages/NotFound.vue";
 import MyNotifications from "./pages/MyNotifications.vue";
 import { getHomeRedirect } from "./utils/homeRedirect";
 
 export const ROUTES = {
+  landing: "landing",
   discover: "discover",
   profile: "profile",
   authoredMews: "authoredMews",
@@ -31,10 +30,13 @@ export const ROUTES = {
 export const routes: RouteRecordRaw[] = [
   {
     path: "/",
+    name: ROUTES.landing,
+    redirect: () =>
+      getHomeRedirect() ? { path: ROUTES.discover } : { name: ROUTES.feed },
+  },
+  {
+    path: "/feed",
     name: ROUTES.feed,
-    beforeEnter: () => {
-      if (getHomeRedirect()) return { name: ROUTES.discover };
-    },
     component: MewsFeed,
   },
   {
@@ -45,17 +47,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/profiles/:agentPubKey/mews",
     name: ROUTES.authoredMews,
-    component: AuthoredMewsFeed,
-  },
-  {
-    path: "/profiles/:agentPubKey/creators",
-    name: ROUTES.creators,
-    component: CreatorsList,
-  },
-  {
-    path: "/profiles/:agentPubKey/followers",
-    name: ROUTES.followers,
-    component: FollowersList,
+    component: MewsListAuthor,
   },
   {
     path: "/notifications",
@@ -75,19 +67,19 @@ export const routes: RouteRecordRaw[] = [
   {
     path: `/cashtag/:tag`,
     name: ROUTES.cashtag,
-    component: CashtagMewsFeed,
+    component: MewsListCashtag,
     meta: { tag: TAG_SYMBOLS.CASHTAG },
   },
   {
     path: `/hashtag/:tag`,
     name: ROUTES.hashtag,
-    component: HashtagMewsFeed,
+    component: MewsListHashtag,
     meta: { tag: TAG_SYMBOLS.HASHTAG },
   },
   {
     path: `/mention/:tag/:agentPubKey`,
     name: ROUTES.mention,
-    component: MentionMewsFeed,
+    component: MewsListMention,
     meta: { tag: TAG_SYMBOLS.MENTION },
   },
   { path: "/:pathMatch(.*)", component: NotFound },

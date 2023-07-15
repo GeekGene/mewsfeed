@@ -4,7 +4,6 @@ import {
   Create,
   SigningCredentials,
 } from "@holochain/client";
-import { QSelectOption } from "quasar";
 import { RouteLocationNamedRaw, RouteLocationRaw } from "vue-router";
 import { Profile } from "@holochain-open-dev/profiles";
 
@@ -85,6 +84,10 @@ export interface FeedMew {
   licks: AgentPubKey[];
   mewmews: ActionHash[];
   is_pinned: boolean;
+  is_licked: boolean;
+  is_mewmewed: boolean;
+  is_replied: boolean;
+  is_quoted: boolean;
   author_profile: Profile | null;
   deleted_timestamp: number | null;
   original_mew: EmbedMew | null;
@@ -144,7 +147,9 @@ export interface MewsfeedDnaProperties {
   mew_characters_max: number | null;
 }
 
-export type SearchResultOption = QSelectOption<RouteLocationRaw> & {
+export type SearchResultOption = {
+  value: RouteLocationRaw;
+  label: string;
   agentPubKey?: AgentPubKey;
   resultType: SearchResult;
 };
@@ -224,4 +229,11 @@ export type LoadMoreDataType = {
   [key: string]: any;
   nextPage: HashPagination;
   noMore: boolean;
+};
+
+export type ToastMessageType = "error" | "warning" | "info" | "success";
+export type ToastMessage = {
+  id: string;
+  type: ToastMessageType;
+  text: string;
 };

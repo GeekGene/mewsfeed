@@ -1,21 +1,19 @@
 <template>
   <Combobox v-model="selection" class="q-mx-md">
-    <div class="col col-grow">
-      <div class="q-pa-md row" style="background: rgba(255, 255, 255, 0.075)">
-        <QIcon name="search" color="white" size="sm" class="q-mr-sm" />
-        <ComboboxInput
-          id="searcheverythinginput"
-          style="
-            background-color: transparent;
-            border: none;
-            outline: none;
-            color: white;
-          "
-          class="col-grow"
-          aria-placeholder="Sniff Around"
-          placeholder="Sniff Around"
-          @change="search($event.target.value)"
-        />
+    <div class="my-8">
+      <div
+        class="relative transform overflow-hidden rounded-3xl bg-base-100 px-4 pb-4 pt-5 text-left transition-all w-full sm:p-6"
+      >
+        <div class="flex justify-start">
+          <IconSearch class="text-3xl mr-4" />
+          <ComboboxInput
+            id="searcheverythinginput"
+            class="font-title uppercase bg-transparent border-0 outline-none w-full"
+            aria-placeholder="Sniff Around"
+            placeholder="sniff around"
+            @change="search($event.target.value)"
+          />
+        </div>
       </div>
       <TransitionRoot
         leave="transition ease-in duration-100"
@@ -24,51 +22,32 @@
         style="width: 100%; position: relative"
         @after-leave="query = ''"
       >
-        <ComboboxOptions
-          style="
-            padding: 0;
-            margin: 0;
-            z-index: 50;
-            top: 100;
-            position: absolute;
-            width: 100%;
-          "
+        <div
+          v-if="query !== ''"
+          class="relative transform overflow-hidden rounded-3xl bg-base-100 text-left transition-all w-full mt-2 sm:mt-4"
         >
-          <div
-            style="
-              margin-left: 0;
-              background-color: white;
-              color: black;
-              width: 100%;
-            "
-            class="shadow-1"
-          >
-            <QItem v-if="results.length === 0 && query !== ''">
-              <QItemSection>
+          <ComboboxOptions>
+            <div>
+              <div v-if="results.length === 0" class="p-4">
                 {{
                   query.length < 3
                     ? "Minimum 3 characters required"
                     : "Nothing found, Kitty"
                 }}
-              </QItemSection>
-            </QItem>
+              </div>
 
-            <ComboboxOption
-              v-for="(item, i) in results"
-              :key="i"
-              v-slot="{ active }"
-              as="template"
-              :value="item"
-            >
-              <QItem
-                v-if="item.resultType === SearchResult.Agent"
-                :focused="active"
-                manual-focus
-                clickable
-                dense
-                class="q-py-sm"
+              <ComboboxOption
+                v-for="(item, i) in results"
+                :key="i"
+                v-slot="{ active }"
+                as="template"
+                :value="item"
               >
-                <QItemSection avatar>
+                <div
+                  v-if="item.resultType === SearchResult.Agent"
+                  class="cursor-pointer p-4 flex justify-start items-center space-x-4"
+                  :class="{ 'bg-neutral-focus text-neutral-content': active }"
+                >
                   <agent-avatar
                     :agentPubKey="item.agentPubKey"
                     :store="profilesStore"
@@ -76,38 +55,32 @@
                     disable-copy
                     size="40"
                   ></agent-avatar>
-                </QItemSection>
-                <QItemSection class="text-body2">
-                  {{ item.label }}
-                </QItemSection>
-              </QItem>
-              <QItem
-                v-else-if="item.resultType === SearchResult.Hashtag"
-                :focused="active"
-                manual-focus
-                clickable
-                dense
-                class="q-py-sm"
-              >
-                <QItemSection class="text-body2">
-                  {{ item.label }}
-                </QItemSection>
-              </QItem>
-              <QItem
-                v-else-if="item.resultType === SearchResult.Cashtag"
-                :focused="active"
-                manual-focus
-                clickable
-                dense
-                class="q-py-sm"
-              >
-                <QItemSection class="text-body2">
-                  {{ item.label }}
-                </QItemSection>
-              </QItem>
-            </ComboboxOption>
-          </div>
-        </ComboboxOptions>
+                  <div>
+                    {{ item.label }}
+                  </div>
+                </div>
+                <div
+                  v-else-if="item.resultType === SearchResult.Hashtag"
+                  class="cursor-pointer p-4"
+                  :class="{ 'bg-neutral-focus text-neutral-content': active }"
+                >
+                  <div>
+                    {{ item.label }}
+                  </div>
+                </div>
+                <div
+                  v-else-if="item.resultType === SearchResult.Cashtag"
+                  class="cursor-pointer p-4"
+                  :class="{ 'bg-neutral-focus text-neutral-content': active }"
+                >
+                  <div>
+                    {{ item.label }}
+                  </div>
+                </div>
+              </ComboboxOption>
+            </div>
+          </ComboboxOptions>
+        </div>
       </TransitionRoot>
     </div>
   </Combobox>
@@ -120,26 +93,28 @@ import {
   ComboboxOption,
   TransitionRoot,
 } from "@headlessui/vue";
-
 import { isHashtag } from "@/utils/tags";
 import { SearchResult, SearchResultOption } from "@/types/types";
-import { ROUTES, router } from "@/router";
+import { ROUTES } from "@/router";
 import { useSearchProfiles } from "@/utils/profiles";
-import { showError } from "@/utils/toasts";
+import { useToasts } from "@/stores/toasts";
 import { AppAgentClient, encodeHashToBase64 } from "@holochain/client";
-import { QSelectOption, QIcon, QItem, QItemSection } from "quasar";
 import { ComputedRef, ref, toRaw, inject } from "vue";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { watch } from "vue";
+import IconSearch from "~icons/ion/search";
+
+const emit = defineEmits(["selected"]);
 
 const searchProfiles = useSearchProfiles();
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
+const { showError } = useToasts();
 
 const searching = ref(false);
 const results = ref<SearchResultOption[]>([]);
-const selection = ref<QSelectOption>();
+const selection = ref<SearchResultOption>();
 const query = ref("");
 
 const search = async (inputValue: string) => {
@@ -214,35 +189,9 @@ const search = async (inputValue: string) => {
 };
 watch(selection, (result: any) => {
   if (result) {
-    router.push(toRaw(result.value));
+    emit("selected", toRaw(result.value));
     query.value = "";
     selection.value = undefined;
   }
 });
 </script>
-<style scoped>
-#searcheverythinginput::placeholder {
-  color: white;
-}
-#searcheverythinginput::-webkit-input-placeholder {
-  color: white;
-}
-#searcheverythinginput:-moz-placeholder {
-  /* FF 4-18 */
-  color: white;
-  opacity: 1;
-}
-#searcheverythinginput::-moz-placeholder {
-  /* FF 19+ */
-  color: white;
-  opacity: 1;
-}
-#searcheverythinginput:-ms-input-placeholder {
-  /* IE 10+ */
-  color: white;
-}
-#searcheverythinginput::-ms-input-placeholder {
-  /* Microsoft Edge */
-  color: white;
-}
-</style>

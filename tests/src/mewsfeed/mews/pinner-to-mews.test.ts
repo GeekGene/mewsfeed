@@ -43,7 +43,7 @@ test("link a Pinner to a Mew", async () => {
         payload: targetActionHash,
       });
 
-      await pause(1200);
+      await pause(2500);
 
       // Bob gets the links again
       linksOutput = await bob.cells[0].callZome({
@@ -60,7 +60,7 @@ test("link a Pinner to a Mew", async () => {
         payload: targetActionHash,
       });
 
-      await pause(1200);
+      await pause(2500);
 
       // Bob gets the links again
       linksOutput = await bob.cells[0].callZome({
