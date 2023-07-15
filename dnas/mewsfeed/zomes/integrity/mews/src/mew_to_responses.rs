@@ -25,16 +25,18 @@ pub fn validate_create_link_mew_to_responses(
         .ok_or(wasm_error!(WasmErrorInner::Guest(String::from(
             "Linked action must reference an entry"
         ))))?;
-    
+
     match response_mew.mew_type {
-        MewType::Reply(original_mew_ah) | MewType::Quote(original_mew_ah) | MewType::Mewmew(original_mew_ah) => {
+        MewType::Reply(original_mew_ah)
+        | MewType::Quote(original_mew_ah)
+        | MewType::Mewmew(original_mew_ah) => {
             if original_mew_ah != base_ah {
                 return Ok(ValidateCallbackResult::Invalid("Response mew referenced action hash is different from linked response action hash".into()));
             }
         }
         _ => {}
     }
-    
+
     Ok(ValidateCallbackResult::Valid)
 }
 
