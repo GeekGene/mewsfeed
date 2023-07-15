@@ -1,24 +1,21 @@
 <template>
-  <div class="column">
-    <div
-      class="text-body1 text-left"
-      style="overflow-wrap: anywhere; white-space: pre-line"
-    >
-      <template v-for="(contentPart, index) of partsDisplayed" :key="index">
-        <BaseMewContentTag
-          v-if="contentPart.tagType !== undefined"
-          :content-part="contentPart"
-        />
-        <template v-else>{{ contentPart.text }}</template>
-      </template>
+  <div class="text-content text-left">
+    <template v-for="(contentPart, index) of partsDisplayed" :key="index">
+      <BaseMewContentTag
+        v-if="contentPart.tagType !== undefined"
+        :content-part="contentPart"
+      />
+      <div v-else class="inline-block whitespace-pre-line pr-1">
+        {{ contentPart.text }}
+      </div>
+    </template>
 
-      <span v-if="contentRequiresTruncation">
-        <span v-if="truncate">...</span>
-        <a @click.stop="truncate = !truncate">
-          Show {{ truncate ? "More" : "Less" }}
-        </a>
-      </span>
-    </div>
+    <span v-if="contentRequiresTruncation">
+      <span v-if="truncate">...</span>
+      <a @click.stop="truncate = !truncate">
+        Show {{ truncate ? "More" : "Less" }}
+      </a>
+    </span>
   </div>
 </template>
 
@@ -87,9 +84,3 @@ const partsDisplayed = computed(() => {
   return truncate.value ? partsTruncated.value : parts.value;
 });
 </script>
-
-<style lang="sass">
-a
-    color: $secondary
-    font-weight: 600
-</style>

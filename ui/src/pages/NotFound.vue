@@ -1,18 +1,15 @@
 <template>
-  <QPage class="text-center" :style-fn="pageHeightCorrection">
-    <h4>You've lost the thread</h4>
-    <QBtn
-      icon="explore"
-      color="accent"
-      label="Come back home, Kitty"
-      size="md"
-      :to="{ name: ROUTES.feed }"
-    />
-  </QPage>
+  <div class="w-full h-full flex flex-col justify-center items-center">
+    <h1 class="text-2xl font-title font-bold tracking-tighter mb-8">
+      you've lost the thread
+    </h1>
+
+    <RouterLink class="btn btn-primary btn-xl" :to="{ name: ROUTES.feed }">
+      Come back home, Kitty
+    </RouterLink>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { QPage, QBtn } from "quasar";
 import { ROUTES } from "@/router";
-import { pageHeightCorrection } from "@/utils/page-layout";
 </script>

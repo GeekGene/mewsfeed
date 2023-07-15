@@ -1,113 +1,80 @@
 <template>
-  <QPage :style-fn="pageHeightCorrection">
-    <QCard flat>
-      <QCardSection class="q-pb-none">
-        <BaseButtonBack />
-      </QCardSection>
+  <div class="w-full">
+    <div class="flex justify-start items-center space-x-2 mb-8">
+      <BaseButtonBack />
 
-      <QCardSection class="yarn-container">
-        <QList>
+      <h1 class="text-2xl font-title font-bold tracking-tighter">yarn</h1>
+    </div>
+
+    <div>
+      <BaseMewListItem
+        v-if="mew"
+        :feed-mew="mew"
+        class="bg-base-200 rounded-3xl mb-8 !cursor-default"
+        @mew-deleted="refetchMewAndRepliesPage(0)"
+        @mew-licked="refetchMewAndRepliesPage(0)"
+        @mew-pinned="refetchMewAndRepliesPage(0)"
+        @mew-unlicked="refetchMewAndRepliesPage(0)"
+        @mew-unpinned="refetchMewAndRepliesPage(0)"
+        @mewmew-created="refetchMewAndRepliesPage(0)"
+        @quote-created="refetchMewAndRepliesPage(0)"
+        @reply-created="refetchMewAndRepliesPage(0)"
+      />
+      <BaseMewListItemSkeleton v-else-if="isInitialLoadingMew" />
+    </div>
+
+    <h2 class="text-xl font-title font-bold tracking-tighter mb-2">replies</h2>
+    <BaseInfiniteScroll
+      v-if="replies && replies.pages.length > 0 && replies.pages[0].length > 0"
+      @load-next="fetchNextPageReplies"
+    >
+      <template v-for="(page, i) in replies.pages" :key="i">
+        <template v-for="(reply, j) of page" :key="j">
           <BaseMewListItem
-            v-if="mew"
-            :feed-mew="mew"
-            class="q-mb-md bg-orange-1"
-            @mew-deleted="refetchMewAndRepliesPage(0)"
-            @mew-licked="refetchMewAndRepliesPage(0)"
-            @mew-pinned="refetchMewAndRepliesPage(0)"
-            @mew-unlicked="refetchMewAndRepliesPage(0)"
-            @mew-unpinned="refetchMewAndRepliesPage(0)"
-            @mewmew-created="refetchMewAndRepliesPage(0)"
-            @quote-created="refetchMewAndRepliesPage(0)"
-            @reply-created="refetchMewAndRepliesPage(0)"
+            :feed-mew="reply"
+            :enable-yarn-link="false"
+            @mew-deleted="refetchRepliesPage(i)"
+            @mew-licked="refetchRepliesPage(i)"
+            @mew-pinned="refetchRepliesPage(i)"
+            @mew-unlicked="refetchRepliesPage(i)"
+            @mew-unpinned="refetchRepliesPage(i)"
+            @mewmew-created="refetchRepliesPage(i)"
+            @quote-created="refetchRepliesPage(i)"
+            @reply-created="refetchRepliesPage(i)"
           />
-          <BaseMewListItemSkeleton v-else-if="isLoadingMew" />
-
-          <QItem class="q-mb-md q-px-none">
-            <div class="col-grow">
-              <div class="q-mb-md text-h6 text-medium">Reply</div>
-
-              <CreateMewField
-                :mew-type="{ [MewTypeName.Reply]: actionHash }"
-                class="full-width"
-                @mew-created="refetchMewAndRepliesLastPage"
-              />
-            </div>
-          </QItem>
-        </QList>
-
-        <QInfiniteScroll
-          v-if="
-            replies && replies.pages.length > 0 && replies.pages[0].length > 0
-          "
-          :offset="250"
-          @load="fetchNextPageReplies"
-        >
-          <QList bordered separator class="q-mb-lg">
-            <template v-for="(page, i) in replies.pages" :key="i">
-              <BaseMewListItem
-                v-for="(reply, j) of page"
-                :key="j"
-                :feed-mew="reply"
-                :show-yarn-link="false"
-                @mew-deleted="refetchRepliesPage(i)"
-                @mew-licked="refetchRepliesPage(i)"
-                @mew-pinned="refetchRepliesPage(i)"
-                @mew-unlicked="refetchRepliesPage(i)"
-                @mew-unpinned="refetchRepliesPage(i)"
-                @mewmew-created="refetchRepliesPage(i)"
-                @quote-created="refetchRepliesPage(i)"
-                @reply-created="refetchRepliesPage(i)"
-              />
-            </template>
-          </QList>
-
-          <template #loading>
-            <div class="row justify-center q-mt-lg">
-              <QSpinnerDots color="primary" size="40px" />
-            </div>
-          </template>
-          <div v-if="!hasNextPage" class="row justify-center q-mt-lg">
-            <QIcon name="svguse:/icons.svg#paw" size="40px" color="grey-4" />
-          </div>
-        </QInfiniteScroll>
-        <BaseMewListSkeleton v-else-if="isLoadingReplies" />
-        <BaseEmptyMewsFeed v-else />
-      </QCardSection>
-    </QCard>
-  </QPage>
+          <hr v-if="j !== page.length - 1" class="border-base-300" />
+        </template>
+      </template>
+    </BaseInfiniteScroll>
+    <BaseListSkeleton v-else-if="isInitialLoadingReplies" :count="4">
+      <BaseMewListItemSkeleton />
+    </BaseListSkeleton>
+    <BaseEmptyList v-else />
+  </div>
 </template>
 
 <script setup lang="ts">
-import {
-  QPage,
-  QInfiniteScroll,
-  QSpinnerDots,
-  QCard,
-  QCardSection,
-  QIcon,
-  QItem,
-  QList,
-} from "quasar";
-import CreateMewField from "@/components/CreateMewField.vue";
 import BaseMewListItem from "@/components/BaseMewListItem.vue";
 import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
-import { MewTypeName, PaginationDirectionName } from "@/types/types";
-import { pageHeightCorrection } from "@/utils/page-layout";
+import { PaginationDirectionName } from "@/types/types";
 import { decodeHashFromBase64 } from "@holochain/client";
 import { ComputedRef, computed, inject, watch } from "vue";
 import { useRoute, onBeforeRouteLeave } from "vue-router";
 import { AppAgentClient } from "@holochain/client";
-import { showError } from "@/utils/toasts";
+import { useToasts } from "@/stores/toasts";
 import {
   useInfiniteQuery,
   useQuery,
   useQueryClient,
 } from "@tanstack/vue-query";
 import BaseButtonBack from "@/components/BaseButtonBack.vue";
+import BaseListSkeleton from "@/components/BaseListSkeleton.vue";
+import BaseInfiniteScroll from "@/components/BaseInfiniteScroll.vue";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const route = useRoute();
 const queryClient = useQueryClient();
+const { showError } = useToasts();
 
 const pageLimit = 10;
 
@@ -127,7 +94,7 @@ const fetchMew = () =>
 const {
   data: mew,
   error: mewError,
-  isLoading: isLoadingMew,
+  isInitialLoading: isInitialLoadingMew,
   refetch: refetchMew,
 } = useQuery({
   queryKey: ["mews", "get_mew_with_context", route.params.actionHash as string],
@@ -159,7 +126,7 @@ const {
   error: errorReplies,
   fetchNextPage,
   hasNextPage,
-  isLoading: isLoadingReplies,
+  isInitialLoading: isInitialLoadingReplies,
   refetch: refetchReplies,
 } = useInfiniteQuery({
   queryKey: [
@@ -176,15 +143,13 @@ const {
     return { after_hash: lastPage[lastPage.length - 1].action_hash };
   },
   refetchInterval: 1000 * 60 * 2, // 2 minutes
+  refetchOnMount: true,
 });
 watch(errorReplies, showError);
 
-const fetchNextPageReplies = async (
-  index: number,
-  done: (stop?: boolean) => void
-) => {
+const fetchNextPageReplies = async (done: (hasMore?: boolean) => void) => {
   await fetchNextPage();
-  done(!hasNextPage?.value);
+  done(hasNextPage?.value);
 };
 
 const refetchMewAndRepliesPage = async (pageIndex: number) => {

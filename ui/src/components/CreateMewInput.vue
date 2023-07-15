@@ -1,168 +1,186 @@
 <template>
-  <div class="text-center">
-    <div ref="mewContainer" class="text-left" style="position: relative">
-      <QCard
-        contenteditable="true"
-        class="mew-content text-body1 q-pa-md overflow-auto"
-        style="word-break: break-all"
-        bordered
-        flat
-        @keydown="onKeyDown"
-        @keyup="onKeyUp"
-        @mouseup="onMouseUp"
-        @paste="onPaste"
-        @input="onInput"
+  <div class="w-full flex justify-start items-start p-3">
+    <RouterLink
+      v-if="myProfile"
+      class="px-0 py-0 z-10"
+      alt="My Profile"
+      :to="{
+        name: ROUTES.profile,
+        params: { agentPubKey: encodeHashToBase64(client.myPubKey) },
+      }"
+    >
+      <agent-avatar
+        :agentPubKey="client.myPubKey"
+        :store="profilesStore"
+        size="54"
+        disable-tooltip
+        disable-copy
       />
-      <div class="flex justify-between q-pa-sm">
-        <div class="q-mr-xl">
-          <div
-            :class="{
-              'text-red text-bold':
-                isMewFull || isMewRequireTruncation || isMewOverfull,
-              'text-caption text-grey': !isMewFull && !isMewOverfull,
-            }"
-          >
-            {{ mewContentLength }} /
-            {{ min([TRUNCATED_MEW_LENGTH, dnaProperties.mew_characters_max]) }}
-            Characters
-          </div>
-          <div style="height: 20px">
-            <div v-if="isMewUnderfull" class="text-caption text-grey">
-              {{ dnaProperties.mew_characters_min }} Minimum
-            </div>
-            <div v-if="isMewRequireTruncation" class="text-caption text-grey">
-              Overflow will be hidden
-            </div>
-          </div>
-        </div>
+    </RouterLink>
 
-        <div class="q-mb-xs text-right text-caption text-grey">
-          Ctrl/Cmd + Enter to publish
-        </div>
-      </div>
-
-      <QCard
-        class="link-target-input-container q-px-md q-py-sm"
-        style="min-width: 13rem"
+    <div class="flex-1 px-4 sm:px-8 h-full">
+      <div
+        ref="mewContainer"
+        class="h-full w-full flex flex-col justify-between items-start relative"
       >
-        <QInput
-          ref="linkTargetInput"
-          v-model="linkTarget"
-          type="text"
-          placeholder="Paste a URL to create a link"
-          dense
-          borderless
-          :rules="[(val: string) => isRawUrl(val) || 'Link target must be valid URL']"
-          @keydown.enter="createLinkTag"
-          @keydown.space="createLinkTag"
-          @keydown.tab="createLinkTag"
-          @blur="resetLinkTargetInput"
-        />
-      </QCard>
+        <div
+          ref="mewContainerInput"
+          contenteditable
+          class="overflow-auto w-full break-all outline-none border-0 outline-0 mew-container-input text-left"
+          data-placeholder="What's mewing on?"
+          @keydown="onKeyDown"
+          @keyup="onKeyUp"
+          @mouseup="onMouseUp"
+          @paste="onPaste"
+        ></div>
 
-      <QCard class="autocompleter">
-        <template v-if="currentAgentSearch.length < 3">
-          <QCardSection>Min. 3 letters</QCardSection>
-        </template>
+        <div class="w-full flex justify-between items-end mt-1">
+          <div class="flex justify-start items-center space-x-4">
+            <IconHelpCircleOutline
+              v-tooltip.bottom="{
+                html: true,
+                content:
+                  'You can mention people with @ and use #hashtags and $cashtags as well as ^links in a mew. <br /></br />You can press Ctrl/Cmd + Enter to publish.',
+                popperClass: 'w-96',
+                triggers: ['hover'],
+              }"
+              class="w-5 h-5 text-base-content/50"
+            />
+          </div>
 
-        <template v-else>
-          <QSpinnerPie
-            v-if="autocompleterLoading"
-            color="secondary"
-            size="md"
-            class="q-mx-lg q-my-xs"
-          />
-
-          <QList
-            v-else
-            class="autocompleter-list bg-white rounded-borders"
-            bordered
-            dense
-            separator
-            tabindex="-1"
+          <div
+            v-if="!isMewEmpty"
+            class="flex justify-start items-center text-xs space-x-1"
           >
-            <QItem
+            <div
+              :class="{
+                'text-error': !mewLengthOk,
+                'text-base-300': mewLengthOk,
+              }"
+            >
+              {{ mewContentLength }} /
+              {{
+                min([TRUNCATED_MEW_LENGTH, dnaProperties.mew_characters_max])
+              }}
+              Chars
+            </div>
+            <div v-if="isMewUnderfull" class="text-error">
+              ({{ dnaProperties.mew_characters_min }} Min)
+            </div>
+            <div v-if="isMewRequireTruncation" class="text-error">
+              (Overflow will be hidden)
+            </div>
+          </div>
+        </div>
+
+        <div
+          id="link-target-input-container"
+          class="hidden absolute bg-base-200 text-base-content rounded-md text-xs sm:text-sm"
+        >
+          <div class="relative">
+            <input
+              ref="linkTargetInput"
+              v-model="linkTarget"
+              type="text"
+              placeholder="Paste a URL to create a link"
+              class="block w-full rounded-md border-0 outline-none px-2 py-1 sm:leading-6 bg-base-200 text-base-content"
+              :aria-invalid="!linkTargetValid"
+              aria-label="Enter a URL to create a link"
+              @keydown.enter="createLinkTag"
+              @keydown.space="createLinkTag"
+              @keydown.tab="createLinkTag"
+              @blur="resetLinkTargetInput"
+            />
+            <div
+              v-if="!linkTargetValid"
+              class="pointer-events-none text-error inset-y-0 right-0 flex justify-start items-center space-x-2 px-2 py-1 border-t-2 border-base-300 border-solid"
+            >
+              <IconAlertCircleOutline class="h-5 w-5" aria-hidden="true" />
+              <div>Link target must be valid URL</div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          id="autocompleter"
+          class="hidden absolute bg-base-200 rounded-md text-xs sm:text-sm p-2"
+        >
+          <div v-if="currentAgentSearch.length < 3">Min 3 chars</div>
+
+          <div
+            v-else-if="autocompleterLoading"
+            class="flex justify-center w-32"
+          >
+            <div
+              class="loading loading-spinner loading-sm m-2 text-base-content"
+            ></div>
+          </div>
+
+          <div
+            v-else-if="agentAutocompletions.length === 0"
+            class="text-base-content"
+          >
+            Nothing found, Kitty
+          </div>
+
+          <div v-else>
+            <a
               v-for="([agentPubKey, profile], i) in agentAutocompletions"
               :key="i"
-              clickable
-              @keydown="onAutocompleteKeyDown"
+              tabindex="0"
+              class="cursor-pointer flex justify-start items-center space-x-2 p-2 rounded-md hover:bg-neutral-focus hover:text-neutral-content focus:bg-neutral-focus focus:text-neutral-content"
               @click="onAutocompleteAgentSelect(agentPubKey, profile)"
+              @keydown.enter.prevent="
+                onAutocompleteAgentSelect(agentPubKey, profile)
+              "
+              @keydown="onAutocompleteKeyDown"
             >
-              <QItemSection avatar class="q-pr-sm col-shrink">
-                <agent-avatar
-                  :agentPubKey="agentPubKey"
-                  disable-tooltip
-                  disable-copy
-                  size="30"
-                ></agent-avatar>
-              </QItemSection>
-              <QItemSection>
-                {{ profile.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
-                {{ TAG_SYMBOLS.MENTION }}{{ profile.nickname }}
-              </QItemSection>
-            </QItem>
-
-            <QItem v-if="agentAutocompletions.length === 0">
-              <QItemSection>Nothing found, Kitty</QItemSection>
-            </QItem>
-          </QList>
-        </template>
-      </QCard>
-
-      <QIcon name="help" color="grey" size="xs" class="help-text">
-        <QTooltip class="text-body2" anchor="top middle" self="bottom middle">
-          You can mention people with @ and use #hashtags and $cashtags as well
-          as ^links in a mew.
-        </QTooltip>
-      </QIcon>
+              <BaseAgentProfileName
+                :profile="profile"
+                :agentPubKey="agentPubKey"
+              />
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <QBtn
-      :disable="isMewEmpty || isMewOverfull || isMewUnderfull"
+    <button
+      class="btn btn-neutral btn-sm sm:btn-md rounded-full"
+      :class="{ 'btn-disabled': isMewEmpty || isMewOverfull || isMewUnderfull }"
       :loading="saving"
-      :tabindex="agentAutocompletions.length && 0"
-      color="accent"
-      @click="publishMew"
+      tabindex="0"
+      @click="publishMew()"
+      @keydown.enter.prevent="publishMew()"
     >
-      Publish Mew
-    </QBtn>
-
-    <CreateProfileIfNotFoundDialog
-      v-model="showCreateProfileDialog"
-      @profile-created="publishMew"
-    />
+      <div class="flex justify-start items-center space-x-1 sm:space-x-2">
+        <IconArrowForwardOutline class="text-xl" />
+        <div>Send <br class="inline-block sm:hidden" />Mew</div>
+      </div>
+    </button>
   </div>
+
+  <CreateProfileIfNotFoundDialog
+    v-model="showCreateProfileDialog"
+    @profile-created="(profile: Profile) => publishMew(profile)"
+  />
 </template>
 
 <script setup lang="ts">
-import {
-  QCard,
-  QInput,
-  QCardSection,
-  QSpinnerPie,
-  QList,
-  QItem,
-  QItemSection,
-  QIcon,
-  QTooltip,
-  QBtn,
-} from "quasar";
-import { showError, showMessage } from "@/utils/toasts";
 import { useSearchProfiles } from "@/utils/profiles";
 import { Profile } from "@holochain-open-dev/profiles";
 import { isMentionTag, isRawUrl, isLinkTag, TAG_SYMBOLS } from "@/utils/tags";
-import { onMounted, ref, computed, ComputedRef, inject, watch } from "vue";
+import { onMounted, ref, computed, ComputedRef, inject } from "vue";
 import {
   Mew,
-  ElementWithInnerText,
   LinkTarget,
   LinkTargetName,
   MewsfeedDnaProperties,
   MewType,
-  PROFILE_FIELDS,
   UrlLinkTarget,
   MentionLinkTarget,
   FeedMew,
+  MewTypeName,
 } from "../types/types";
 import {
   AgentPubKey,
@@ -174,10 +192,15 @@ import union from "lodash/union";
 import flatten from "lodash/flatten";
 import { AppAgentClient } from "@holochain/client";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
+import { ROUTES } from "@/router";
+import { ProfilesStore } from "@holochain-open-dev/profiles";
+import IconHelpCircleOutline from "~icons/ion/help-circle-outline";
+import IconAlertCircleOutline from "~icons/ion/alert-circle-outline";
+import IconArrowForwardOutline from "~icons/ion/arrow-forward-outline";
+import { useToasts } from "@/stores/toasts";
 
 const ANCHOR_DATA_ID_AGENT_PUB_KEY = "agentPubKey";
 const ANCHOR_DATA_ID_URL = "url";
-const POPUP_MARGIN_TOP = 20;
 let currentAnchorOffset: number;
 let currentFocusOffset: number;
 let currentNode: Node;
@@ -192,10 +215,14 @@ const dnaProperties = (
   inject("dnaProperties") as ComputedRef<MewsfeedDnaProperties>
 ).value;
 const myProfile = inject("myProfile") as ComputedRef<Profile>;
+const profilesStore = inject("profilesStore") as ComputedRef<ProfilesStore>;
+const { showMessage, showError } = useToasts();
 
 const TRUNCATED_MEW_LENGTH = 300;
+const POPUP_MARGIN_TOP = 18;
 
-const mewContainer = ref<HTMLDivElement | null>(null);
+const mewContainer = ref<HTMLDivElement>();
+const mewContainerInput = ref<HTMLDivElement>();
 const mewContentLength = ref(0);
 const saving = ref(false);
 const linkTarget = ref();
@@ -224,6 +251,18 @@ const isMewUnderfull = computed(
     dnaProperties.mew_characters_min !== null &&
     mewContentLength.value < dnaProperties.mew_characters_min
 );
+const mewLengthOk = computed(
+  () =>
+    !isMewUnderfull.value &&
+    !isMewFull.value &&
+    !isMewRequireTruncation.value &&
+    !isMewOverfull.value
+);
+const linkTargetValid = computed(() => {
+  if (!linkTarget.value) return true;
+
+  return isRawUrl(linkTarget.value);
+});
 
 onMounted(async () => {
   focusInputField();
@@ -267,20 +306,17 @@ const collectLinksWithinElement = (element: Element): LinkTarget[] => {
   }
 };
 
-const publishMew = async () => {
-  if (!myProfile.value) {
+const publishMew = async (profile: undefined | Profile = undefined) => {
+  if (!myProfile.value && !profile) {
     showCreateProfileDialog.value = true;
     return;
   }
   showCreateProfileDialog.value = false;
 
-  const mewInput = mewContainer.value?.querySelector(
-    ".mew-content"
-  ) as ElementWithInnerText;
-  if (!mewInput) return;
+  if (!mewContainerInput.value) return;
 
   // build link array
-  const links = collectLinksWithinElement(mewInput);
+  const links = collectLinksWithinElement(mewContainerInput.value);
 
   const mew: Mew = {
     text: getTrimmedText(),
@@ -297,13 +333,15 @@ const publishMew = async () => {
       payload: mew,
     });
     emit("mew-created", feedMew);
-    showMessage("Published Mew");
+    if (MewTypeName.Original in mew.mew_type) {
+      showMessage("Published Mew");
+    }
   } catch (error) {
     showError(error);
   } finally {
     saving.value = false;
   }
-  mewInput.textContent = "";
+  mewContainerInput.value.textContent = "";
   mewContentLength.value = 0;
   hideAutocompleter();
   resetLinkTargetInput();
@@ -326,6 +364,7 @@ const createLinkTag = (e: Event) => {
   // Create html link element
   const anchor = document.createElement("a");
   anchor.textContent = label;
+  anchor.className = "text-primary";
   anchor.href = "#";
   anchor.dataset[ANCHOR_DATA_ID_URL] = linkTarget.value;
   range.insertNode(anchor);
@@ -371,10 +410,8 @@ const onAutocompleteKeyDown = (keyDownEvent: KeyboardEvent) => {
       if (previousSibling instanceof HTMLElement) {
         previousSibling.focus();
       } else {
-        const mewContent = mewContainer.value?.querySelector(".mew-content");
-        if (mewContent instanceof HTMLElement) {
-          mewContent.focus();
-        }
+        if (!mewContainerInput.value) return;
+        mewContainerInput.value.focus();
       }
     }
   }
@@ -404,30 +441,13 @@ const onAutocompleteAgentSelect = (agent: AgentPubKey, profile: Profile) => {
   setMewContentLength();
 };
 
-/**
- * Text Input Handling
- */
-
-const onInput = (event: KeyboardEvent) => {
-  setMewContentLength();
-
-  // Prevent input of characters if mew is already full
-  if (
-    (isMewFull.value || isMewOverfull.value) &&
-    event.key !== "Backspace" &&
-    event.key !== "Delete" &&
-    !(event.key === "a" && event.ctrlKey) &&
-    event.key !== "ArrowLeft" &&
-    event.key !== "ArrowRight" &&
-    event.key !== "ArrowUp" &&
-    event.key !== "ArrowDown"
-  ) {
-    event.preventDefault();
-  }
-};
-
 const onKeyDown = (event: KeyboardEvent) => {
   setMewContentLength();
+
+  if (agentAutocompletions.value.length > 0 && !autocompleterLoading.value) {
+    onAutocompleteKeyDown(event);
+    return;
+  }
 
   // Support Meta + Enter keys to publish
   if (
@@ -440,11 +460,9 @@ const onKeyDown = (event: KeyboardEvent) => {
 
   // Support KeyDown or Tab keys to focus on first item displayed in agents list (after typing an agent tag)
   else if (event.key === "ArrowDown" || event.key === "Tab") {
-    const firstListItem = mewContainer.value?.querySelector(".QItem");
-    if (firstListItem instanceof HTMLElement) {
-      event.preventDefault();
-      firstListItem.focus();
-    }
+    if (!mewContainerInput.value) return;
+    event.preventDefault();
+    mewContainerInput.value.focus();
   }
 
   // Prevent input of leading line breaks
@@ -466,8 +484,18 @@ const onKeyDown = (event: KeyboardEvent) => {
     if (textContent.slice(-3) === "\n\n\n") {
       event.preventDefault();
     }
-  } else {
-    onInput(event);
+  } else if (
+    (isMewFull.value || isMewOverfull.value) &&
+    event.key !== "Backspace" &&
+    event.key !== "Delete" &&
+    !(event.key === "a" && event.ctrlKey) &&
+    event.key !== "ArrowLeft" &&
+    event.key !== "ArrowRight" &&
+    event.key !== "ArrowUp" &&
+    event.key !== "ArrowDown"
+  ) {
+    // Prevent input of characters if mew is already full
+    event.preventDefault();
   }
 };
 
@@ -540,7 +568,7 @@ const onCaretPositionChange = () => {
   if (currentWord.length && selection.anchorNode) {
     // current word starts with @ and is followed by at least another word character
     if (isMentionTag(currentWord)) {
-      showElement(selection.anchorNode, startOfWordIndex, ".autocompleter");
+      showElement(selection.anchorNode, startOfWordIndex, "#autocompleter");
 
       const nicknameChars = currentWord.substring(1);
       currentAgentSearch.value = nicknameChars;
@@ -554,7 +582,7 @@ const onCaretPositionChange = () => {
       showElement(
         selection.anchorNode,
         startOfWordIndex,
-        ".link-target-input-container"
+        "#link-target-input-container"
       );
       currentAnchorOffset = startOfWordIndex;
       currentFocusOffset = endOfWordIndex;
@@ -570,9 +598,7 @@ const onCaretPositionChange = () => {
  */
 
 const focusInputField = () =>
-  document
-    .getSelection()
-    ?.setPosition(mewContainer.value?.querySelector(".mew-content") || null, 0);
+  document.getSelection()?.setPosition(mewContainerInput.value || null, 0);
 
 const stripAnchorFromLink = (selection: Selection) => {
   if (!selection.anchorNode?.parentElement) {
@@ -588,15 +614,8 @@ const stripAnchorFromLink = (selection: Selection) => {
   }
 };
 
-const getRawText = (): string => {
-  const text = (
-    mewContainer.value?.querySelector(
-      ".mew-content"
-    ) as null | ElementWithInnerText
-  )?.innerText;
-
-  return text ? text : "";
-};
+const getRawText = (): string =>
+  mewContainerInput.value ? mewContainerInput.value.innerText : "";
 
 const getTrimmedText = (): string => {
   const text = getRawText();
@@ -618,20 +637,23 @@ const showElement = (
   currentNode = anchorNode;
   const selectionRect = range.getBoundingClientRect();
   const element = mewContainer.value?.querySelector(selector);
-  if (element instanceof HTMLElement && mewContainer.value) {
+  if (
+    element instanceof HTMLElement &&
+    mewContainer.value &&
+    mewContainerInput.value
+  ) {
+    const mewContainerBoundingRect = mewContainer.value.getBoundingClientRect();
+
     element.style.top =
-      Math.max(
-        0,
-        selectionRect.top - mewContainer.value.getBoundingClientRect().top
-      ) +
+      Math.max(0, selectionRect.top - mewContainerBoundingRect.top) +
       POPUP_MARGIN_TOP +
       "px";
+
     element.style.left =
-      Math.max(
-        0,
-        selectionRect.left - mewContainer.value.getBoundingClientRect().left
-      ) + "px";
+      Math.max(0, selectionRect.left - mewContainerBoundingRect.left) + "px";
+
     element.style.display = "block";
+    element.focus();
   }
 };
 
@@ -643,32 +665,26 @@ const hideElement = (selector: string) => {
 };
 
 const resetLinkTargetInput = () => {
-  hideElement(".link-target-input-container");
-  linkTargetInput.value.resetValidation();
+  hideElement("#link-target-input-container");
   linkTarget.value = undefined;
 };
 
-const hideAutocompleter = hideElement.bind(null, ".autocompleter");
+const hideAutocompleter = () => {
+  hideElement("#autocompleter");
+  agentAutocompletions.value = [];
+};
 </script>
+<style scoped>
+.mew-container-input:empty::before {
+  content: attr(data-placeholder);
+  display: block;
+  position: absolute;
+  font-family: "Inter";
 
-<style lang="sass">
-.mew-content
-  min-height: $body-font-size * $body-line-height * 2
+  @apply text-base-content/50;
+}
 
-  &:focus
-    outline-color: $primary
-  a
-    color: $secondary
-    font-weight: 600
-
-.help-text
-  position: absolute
-  cursor: default
-  top: 5px
-  right: 5px
-
-.autocompleter, .link-target-input-container
-  position: absolute
-  display: none
-  z-index: 1
+.mew-container-input a {
+  color: hsl(var(--p)) !important;
+}
 </style>
