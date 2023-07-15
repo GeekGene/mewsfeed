@@ -1,4 +1,4 @@
-import { pause, runScenario } from "@holochain/tryorama";
+import { dhtSync, runScenario } from "@holochain/tryorama";
 import { assert, expect, test } from "vitest";
 import {
   FeedMew,
@@ -45,7 +45,7 @@ test("mention in mews", async () => {
         mew_type: { Original: null },
       });
 
-      await pause(1000);
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
       const mentionedMewsBob: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -169,8 +169,6 @@ test("Mentions list are time-paginated", async () => {
         fn_name: "create_mew",
         payload: createMewInput7,
       });
-
-      await pause(1000);
 
       const page1: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",

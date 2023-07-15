@@ -1,5 +1,5 @@
 import { assert, expect, test } from "vitest";
-import { runScenario, pause } from "@holochain/tryorama";
+import { runScenario, dhtSync } from "@holochain/tryorama";
 import { Record, fakeActionHash } from "@holochain/client";
 import { mewsfeedAppBundleSource } from "../../common";
 
@@ -41,7 +41,7 @@ test("link a Liker to a Hash", async () => {
         },
       });
 
-      await pause(1200);
+      await dhtSync([alice, bob], alice.cells[0][0]);
 
       // Bob gets the links again
       linksOutput = await bob.cells[0].callZome({
@@ -68,7 +68,7 @@ test("link a Liker to a Hash", async () => {
         },
       });
 
-      await pause(1200);
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
       // Bob gets the links again
       linksOutput = await bob.cells[0].callZome({
@@ -117,7 +117,7 @@ test("Agent can only change their own likes", async () => {
         payload: targetAddress,
       });
 
-      await pause(1200);
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
       // Bob tries to remove alices' like
       const response = bob.cells[0].callZome({
@@ -140,7 +140,7 @@ test("Agent can only change their own likes", async () => {
         payload: targetAddress,
       });
 
-      await pause(1200);
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
       // Bob tries to add a like for allice
       const response2 = bob.cells[0].callZome({

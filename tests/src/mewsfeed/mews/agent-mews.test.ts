@@ -1,5 +1,5 @@
 import { ActionHash } from "@holochain/client";
-import { pause, runScenario } from "@holochain/tryorama";
+import { dhtSync, runScenario } from "@holochain/tryorama";
 import { assert, expect, test } from "vitest";
 import { FeedMew, Mew, MewTypeName } from "../../../../ui/src/types/types";
 import { mewsfeedAppBundleSource } from "../../common";
@@ -36,7 +36,7 @@ test("create a Mew and get agent mews", async () => {
       const actionHash: ActionHash = await createMew(alice.cells[0]);
       assert.ok(actionHash);
 
-      await pause(1200);
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
       // Bob gets agent mews again
       collectionOutput = await bob.cells[0].callZome({
@@ -151,8 +151,6 @@ test("Agent mews list are time-paginated", async () => {
         fn_name: "create_mew",
         payload: createMewInput7,
       });
-
-      await pause(1000);
 
       const page1: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
