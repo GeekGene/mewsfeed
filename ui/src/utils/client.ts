@@ -57,7 +57,7 @@ export const authorizeClient = async (appInfo: AppInfo) => {
   if (typeof window === "object" && !("__HC_LAUNCHER_ENV__" in window)) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    const { cell_id } = appInfo.cell_info.mewsfeed[0][CellType.Provisioned];
+    const { cell_id } = appInfo.cell_info[HOLOCHAIN_APP_ID][0][CellType.Provisioned];
     const adminWs = await AdminWebsocket.connect(
       `ws://localhost:${import.meta.env.VITE_HC_ADMIN_PORT}`
     );
