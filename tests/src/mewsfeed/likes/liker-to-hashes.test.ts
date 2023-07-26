@@ -41,7 +41,7 @@ test("link a Liker to a Hash", async () => {
         },
       });
 
-      await dhtSync([alice, bob], alice.cells[0][0]);
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
       // Bob gets the links again
       linksOutput = await bob.cells[0].callZome({
