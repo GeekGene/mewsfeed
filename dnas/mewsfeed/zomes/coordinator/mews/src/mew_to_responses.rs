@@ -58,6 +58,84 @@ pub fn get_response_hashes_for_mew(
     Ok(hashes)
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GetResponseCountForMewInput {
+    pub original_mew_hash: ActionHash,
+    pub response_type: Option<ResponseType>,
+}
+#[hdk_extern]
+pub fn get_response_count_for_mew(
+    input: GetResponseCountForMewInput,
+) -> ExternResult<usize> {
+    let maybe_tag = match input.response_type {
+        Some(response_type) => {
+            let tag: SerializedBytes = response_type.try_into().map_err(|_| {
+                wasm_error!(WasmErrorInner::Guest(
+                    "Failed to seriailize response_type".into()
+                ))
+            })?;
+
+            Some(LinkTag::from(tag.bytes().clone()))
+        }
+        None => None,
+    };
+
+    let mut query = LinkQuery::new(
+        input.original_mew_hash.clone(), 
+        LinkTypeFilter::single_type(
+            ZomeIndex(1), 
+            LinkType(5), // LinkTypes::MewToResponses
+        )
+    );
+
+    if let Some(tag) = maybe_tag {
+        query = query.tag_prefix(tag)
+    } 
+
+    count_links(query)
+}
+
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GetResponseForMewExistsInput {
+    pub original_mew_hash: ActionHash,
+    pub response_type: Option<ResponseType>,
+    pub response_author: AgentPubKey,
+}
+#[hdk_extern]
+pub fn get_response_for_mew_exists(
+    input: GetResponseForMewExistsInput,
+) -> ExternResult<bool> {
+    let maybe_tag = match input.response_type {
+        Some(response_type) => {
+            let tag: SerializedBytes = response_type.try_into().map_err(|_| {
+                wasm_error!(WasmErrorInner::Guest(
+                    "Failed to seriailize response_type".into()
+                ))
+            })?;
+
+            Some(LinkTag::from(tag.bytes().clone()))
+        }
+        None => None,
+    };
+
+    let mut query = LinkQuery::new(
+        input.original_mew_hash.clone(), 
+        LinkTypeFilter::single_type(
+            ZomeIndex(1), 
+            LinkType(5), // LinkTypes::MewToResponses
+        )
+    ).author(input.response_author);
+
+    if let Some(tag) = maybe_tag {
+        query = query.tag_prefix(tag)
+    } 
+
+    let count = count_links(query)?;
+
+    Ok(count > 0)
+}
+
 #[hdk_extern]
 pub fn get_responses_for_mew(input: GetResponsesForMewInput) -> ExternResult<Vec<Record>> {
     let response_hashes = get_response_hashes_for_mew(input)?;

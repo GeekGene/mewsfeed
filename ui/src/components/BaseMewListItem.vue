@@ -137,8 +137,8 @@
                 @click.stop.prevent="showReplyToMewDialog = true"
               >
                 <IconArrowUndoSharp class="w-4 h-4" />
-                <span v-if="feedMew.replies.length > 0">
-                  {{ feedMew.replies.length }}
+                <span v-if="feedMew.replies_count > 0">
+                  {{ feedMew.replies_count }}
                 </span>
               </button>
 
@@ -158,8 +158,8 @@
                 @click.stop.prevent="showQuoteMewDialog = true"
               >
                 <IconFormatQuote class="w-4 h-4" />
-                <span v-if="feedMew.quotes.length > 0">
-                  {{ feedMew.quotes.length }}
+                <span v-if="feedMew.quotes_count > 0">
+                  {{ feedMew.quotes_count }}
                 </span>
               </button>
 
@@ -183,8 +183,8 @@
                 "
               >
                 <IconRepeatBold class="w-4 h-4" />
-                <div v-if="feedMew.mewmews.length > 0" class="text-xs">
-                  {{ feedMew.mewmews.length }}
+                <div v-if="feedMew.mewmews_count > 0" class="text-xs">
+                  {{ feedMew.mewmews_count }}
                 </div>
               </button>
 
@@ -204,8 +204,8 @@
                 @click.stop.prevent="toggleLickMew"
               >
                 <BaseIconTongue class="w-4 h-4" />
-                <div v-if="feedMew.licks.length > 0" class="text-xs">
-                  {{ feedMew.licks.length }}
+                <div v-if="feedMew.licks_count > 0" class="text-xs">
+                  {{ feedMew.licks_count }}
                 </div>
               </button>
             </div>
@@ -311,7 +311,6 @@ import BaseAgentProfileLinkAvatar from "@/components/BaseAgentProfileLinkAvatar.
 import CreateMewDialog from "@/components/CreateMewDialog.vue";
 import BaseMewContent from "@/components/BaseMewContent.vue";
 import isEqual from "lodash/isEqual";
-import remove from "lodash/remove";
 import { useRouter } from "vue-router";
 import { AppAgentClient } from "@holochain/client";
 import BaseTimestamp from "@/components/BaseTimestamp.vue";
@@ -399,7 +398,6 @@ const toggleLickMew = async () => {
   showToggleLickMewDialog.value = false;
 
   isUpdatingLick.value = true;
-  const newLicks = [...props.feedMew.licks];
   if (props.feedMew.is_licked) {
     try {
       await client.callZome({
@@ -408,11 +406,10 @@ const toggleLickMew = async () => {
         fn_name: "unlike",
         payload: props.feedMew.action_hash,
       });
-      remove(newLicks, (l) => isEqual(l, client.myPubKey));
       showMessage("Unlicked Mew");
       emit("mew-unlicked", {
         ...props.feedMew,
-        licks: newLicks,
+        licks_count: props.feedMew.licks_count - 1,
       });
     } catch (e) {
       showError(e);
@@ -425,11 +422,10 @@ const toggleLickMew = async () => {
         fn_name: "like",
         payload: props.feedMew.action_hash,
       });
-      newLicks.push(client.myPubKey);
       showMessage("Licked Mew");
       emit("mew-licked", {
         ...props.feedMew,
-        licks: newLicks,
+        licks_count: props.feedMew.licks_count + 1,
       });
     } catch (e) {
       showError(e);

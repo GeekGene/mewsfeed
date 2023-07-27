@@ -5,7 +5,6 @@ use hc_call_utils::call_local_zome;
 use hdk::prelude::*;
 use mews_integrity::*;
 use mews_types::Profile;
-use std::collections::HashSet;
 
 #[hdk_extern]
 pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedMew> {
@@ -25,36 +24,37 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                     "Malformed mew"
                 ))))?;
             let my_pubkey = agent_info()?.agent_initial_pubkey;
-            let my_mews_hashset: HashSet<ActionHash> =
-                get_links(my_pubkey.clone(), LinkTypes::AgentMews, None)?
-                    .into_iter()
-                    .map(|l| ActionHash::try_from(l.target).map_err(|e| wasm_error!(e)))
-                    .collect::<ExternResult<HashSet<ActionHash>>>()?;
 
-            let replies = get_response_hashes_for_mew(GetResponsesForMewInput {
+            let replies_count = get_response_count_for_mew(GetResponseCountForMewInput {
                 original_mew_hash: original_mew_hash.clone(),
                 response_type: Some(ResponseType::Reply),
-                page: None,
             })?;
-            let replies_hashset: HashSet<ActionHash> = replies.clone().into_iter().collect();
-            let is_replied = my_mews_hashset.intersection(&replies_hashset).count() > 0;
+            let is_replied = get_response_for_mew_exists(GetResponseForMewExistsInput {
+                original_mew_hash: original_mew_hash.clone(),
+                response_type: Some(ResponseType::Reply),
+                response_author: my_pubkey.clone(),
+            })?;
 
-            let quotes = get_response_hashes_for_mew(GetResponsesForMewInput {
+            let quotes_count = get_response_count_for_mew(GetResponseCountForMewInput {
                 original_mew_hash: original_mew_hash.clone(),
                 response_type: Some(ResponseType::Quote),
-                page: None,
             })?;
-            let quotes_hashset: HashSet<ActionHash> = quotes.clone().into_iter().collect();
-            let is_quoted = my_mews_hashset.intersection(&quotes_hashset).count() > 0;
+            let is_quoted = get_response_for_mew_exists(GetResponseForMewExistsInput {
+                original_mew_hash: original_mew_hash.clone(),
+                response_type: Some(ResponseType::Quote),
+                response_author: my_pubkey.clone(),
+            })?;
 
-            let mewmews = get_response_hashes_for_mew(GetResponsesForMewInput {
+            let mewmews_count = get_response_count_for_mew(GetResponseCountForMewInput {
                 original_mew_hash: original_mew_hash.clone(),
                 response_type: Some(ResponseType::Mewmew),
-                page: None,
             })?;
-            let mewmews_hashset: HashSet<ActionHash> = mewmews.clone().into_iter().collect();
-            let is_mewmewed = my_mews_hashset.intersection(&mewmews_hashset).count() > 0;
-
+            let is_mewmewed = get_response_for_mew_exists(GetResponseForMewExistsInput {
+                original_mew_hash: original_mew_hash.clone(),
+                response_type: Some(ResponseType::Mewmew),
+                response_author: my_pubkey.clone(),
+            })?;
+            
             let licks = get_lickers_for_mew(original_mew_hash)?;
             let is_licked = licks.contains(&my_pubkey);
 
@@ -69,10 +69,10 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                     mew,
                     action: record.action().clone(),
                     action_hash: record.signed_action().as_hash().clone(),
-                    replies,
-                    quotes,
-                    licks,
-                    mewmews,
+                    replies_count,
+                    quotes_count,
+                    licks_count: licks.len(),
+                    mewmews_count,
                     deleted_timestamp,
                     author_profile,
                     is_pinned,
@@ -111,10 +111,10 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                                 mew,
                                 action: record.action().clone(),
                                 action_hash: record.signed_action().as_hash().clone(),
-                                replies,
-                                quotes,
-                                licks,
-                                mewmews,
+                                replies_count,
+                                quotes_count,
+                                licks_count: licks.len(),
+                                mewmews_count,
                                 author_profile,
                                 deleted_timestamp,
                                 is_pinned,
