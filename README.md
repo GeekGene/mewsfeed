@@ -56,6 +56,16 @@ npm start
 
 Each new agent that you create this way will get assigned its own port and get connected to the other agents.
 
+## Holo Hosting
+
+1. Get a copy of the Holo envoy server directly from a Holo team member, copy it to the root of the directory as `holo-dev-server`
+
+To test out a holo hosted agent:
+
+```bash
+npm start:agent:holo
+```
+
 ## Package
 
 To package the web happ:
