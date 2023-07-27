@@ -48,8 +48,5 @@
   },
   "engines": {
     "npm": ">=7.0.0"
-  },
-  "dependencies": {
-    "@holo-host/web-sdk": "github:mattyg/web-sdk#fix/update-hc-client"
   }
 }

@@ -7,16 +7,13 @@ import {
 import WebSdkApi from "@holo-host/web-sdk";
 
 export const HOLOCHAIN_APP_ID = "mewsfeed";
-export const HOLOCHAIN_URL = new URL(
-  `ws://localhost:${import.meta.env.VITE_HC_PORT}`
-);
 export const IS_HOLO_HOSTED = Boolean(import.meta.env.VITE_IS_HOLO_HOSTED);
 
-export const HOLO_CHAPERONE_URL = import.meta.env.VITE_CHAPERONE_SERVER_URL
-  ? import.meta.env.VITE_CHAPERONE_SERVER_URL
-  : "http://localhost:24274";
-
 export const setupHolochain = async () => {
+  const HOLOCHAIN_URL = new URL(
+    `ws://localhost:${import.meta.env.VITE_HC_PORT}`
+  );
+
   try {
     const client = await AppAgentWebsocket.connect(
       HOLOCHAIN_URL,
@@ -37,12 +34,15 @@ export const setupHolochain = async () => {
 };
 
 export const setupHolo = async () => {
+  const HOLO_CHAPERONE_URL = import.meta.env.VITE_CHAPERONE_SERVER_URL
+    ? import.meta.env.VITE_CHAPERONE_SERVER_URL
+    : "http://localhost:24274";
+
   try {
     const client = await WebSdkApi.connect({
       chaperoneUrl: HOLO_CHAPERONE_URL,
       authFormCustomization: {
-        logoUrl: "assets/cat-eating-bird-circle.png",
-        appName: "MewsFeed",
+        appName: "mewsfeed",
         requireRegistrationCode: false,
       },
     });

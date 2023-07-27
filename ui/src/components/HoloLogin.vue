@@ -1,39 +1,31 @@
 <template>
-  <template v-if="!client.agent.isAnonymous && client.agent.isAvailable">
-    <slot />
+  <template
+    v-if="agentState && !agentState.isAnonymous && agentState.isAvailable"
+  >
+    <slot></slot>
   </template>
 </template>
 
-<script setup lang="ts">
-import { ROUTES } from "@/router";
-import WebSdkApi from "@holo-host/web-sdk";
-import { ComputedRef, inject, onMounted, watch } from "vue";
-import { useRouter } from "vue-router";
+<script lang="ts" setup>
+import WebSdkApi, { AgentState } from "@holo-host/web-sdk";
+import { ComputedRef, inject, onMounted, ref, toRaw } from "vue";
 
 const client = (inject("client") as ComputedRef<WebSdkApi>).value;
-const router = useRouter();
+const agentState = ref<AgentState>();
 
 onMounted(() => {
-  if (client.agent.isAnonymous) {
+  agentState.value = client.agentState;
+  if (client.agentState.isAnonymous) {
     client.signUp({});
   }
-});
 
-watch(
-  () => client.agent.isAvailable,
-  (isLoggedIn) => {
-    if (isLoggedIn) {
-      router.replace({ name: ROUTES.feed, force: true });
-    }
-  }
-);
+  toRaw(client).on("agent-state", (newAgentState: AgentState) => {
+    console.log("agent-state signal", newAgentState);
+    agentState.value = newAgentState;
 
-watch(
-  () => client.agent.isAnonymous,
-  () => {
-    if (client?.agent.isAnonymous) {
+    if (agentState.value.isAnonymous) {
       client.signUp({});
     }
-  }
-);
+  });
+});
 </script>

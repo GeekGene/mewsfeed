@@ -73,9 +73,7 @@ const dnaProperties = computed(() =>
 );
 
 onMounted(() => {
-  asyncRetry(setup, {
-    factor: 1.3,
-  });
+  setup();
 });
 
 const setup = async () => {
@@ -83,8 +81,19 @@ const setup = async () => {
   if (IS_HOLO_HOSTED) {
     client.value = await setupHolo();
   } else {
-    client.value = await setupHolochain();
+    client.value = await asyncRetry(setupHolochain, {
+      factor: 1.3,
+    });
   }
+
+  await asyncRetry(setupApp, {
+    factor: 1.3,
+  });
+};
+
+const setupApp = async () => {
+  if (!client.value) throw Error("Holo / Holochain client not ready");
+
   appInfo.value = await client.value.appInfo();
 
   // Setup profiles
