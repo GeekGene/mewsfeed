@@ -54,9 +54,12 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                 response_type: Some(ResponseType::Mewmew),
                 response_author: my_pubkey.clone(),
             })?;
-            
-            let licks = get_lickers_for_mew(original_mew_hash)?;
-            let is_licked = licks.contains(&my_pubkey);
+
+            let licks_count = count_lickers_for_mew(original_mew_hash.clone())?;
+            let is_licked = is_licker_for_mew(IsLikerForHashInput {
+                liker: my_pubkey,
+                hash: original_mew_hash.into(),
+            })?;
 
             let deleted_timestamp = deletes
                 .first()
@@ -71,7 +74,7 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                     action_hash: record.signed_action().as_hash().clone(),
                     replies_count,
                     quotes_count,
-                    licks_count: licks.len(),
+                    licks_count,
                     mewmews_count,
                     deleted_timestamp,
                     author_profile,
@@ -113,7 +116,7 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                                 action_hash: record.signed_action().as_hash().clone(),
                                 replies_count,
                                 quotes_count,
-                                licks_count: licks.len(),
+                                licks_count,
                                 mewmews_count,
                                 author_profile,
                                 deleted_timestamp,
