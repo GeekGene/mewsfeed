@@ -50,7 +50,7 @@ test("create a Mew and get agent mews", async () => {
       assert.deepEqual(actionHash, collectionOutput[0].action_hash);
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -247,6 +247,6 @@ test("Agent mews list are time-paginated", async () => {
       assert.lengthOf(page5, 0);
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });

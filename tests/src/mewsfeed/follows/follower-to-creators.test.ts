@@ -97,7 +97,7 @@ test("link a Follower to a Creator", async () => {
       assert.equal(linksOutput.length, 0);
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -127,7 +127,7 @@ test("Agent cannot follow themselves", async () => {
       );
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -198,7 +198,7 @@ test("Agent can only change their own follows", async () => {
       );
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 

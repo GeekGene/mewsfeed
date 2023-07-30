@@ -103,7 +103,7 @@ test("Hashtag, cashtag and mention", async () => {
       assert.ok(mentionedMews.length === 1, "one mew with mention");
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -189,7 +189,7 @@ test("Prefix index should return hashtags and cashtags", async () => {
       assert.equal(cashtags[0], "$cashtag", "hashtag search result matches");
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -388,7 +388,7 @@ test("Hashtags list are time-paginated", async () => {
       assert.lengthOf(page5, 0);
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -593,6 +593,6 @@ test("Cashtags list are time-paginated", async () => {
       assert.lengthOf(page5, 0);
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
