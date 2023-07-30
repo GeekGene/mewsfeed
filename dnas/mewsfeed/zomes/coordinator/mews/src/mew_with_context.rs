@@ -25,7 +25,7 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                 ))))?;
             let my_pubkey = agent_info()?.agent_initial_pubkey;
 
-            let replies_count = get_response_count_for_mew(GetResponseCountForMewInput {
+            let replies_count = count_responses_for_mew(CountResponsesForMewInput {
                 original_mew_hash: original_mew_hash.clone(),
                 response_type: Some(ResponseType::Reply),
             })?;
@@ -35,7 +35,7 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                 response_author: my_pubkey.clone(),
             })?;
 
-            let quotes_count = get_response_count_for_mew(GetResponseCountForMewInput {
+            let quotes_count = count_responses_for_mew(CountResponsesForMewInput {
                 original_mew_hash: original_mew_hash.clone(),
                 response_type: Some(ResponseType::Quote),
             })?;
@@ -45,7 +45,7 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                 response_author: my_pubkey.clone(),
             })?;
 
-            let mewmews_count = get_response_count_for_mew(GetResponseCountForMewInput {
+            let mewmews_count = count_responses_for_mew(CountResponsesForMewInput {
                 original_mew_hash: original_mew_hash.clone(),
                 response_type: Some(ResponseType::Mewmew),
             })?;

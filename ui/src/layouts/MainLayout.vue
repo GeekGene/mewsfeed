@@ -73,12 +73,7 @@ import CreateMewInput from "@/components/CreateMewInput.vue";
 import BaseSiteMenu from "@/components/BaseSiteMenu.vue";
 import SearchEverythingDialog from "@/components/SearchEverythingDialog.vue";
 import { ROUTES } from "@/router";
-import {
-  FeedMew,
-  MewTypeName,
-  PaginationDirectionName,
-  Notification,
-} from "@/types/types";
+import { FeedMew, MewTypeName, PaginationDirectionName } from "@/types/types";
 import { AppAgentClient, encodeHashToBase64 } from "@holochain/client";
 import { ComputedRef, inject, ref, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
@@ -93,7 +88,7 @@ const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const router = useRouter();
 const route = useRoute();
 const useNotificationsReadStore = makeUseNotificationsReadStore(client);
-const { addNotificationStatus } = useNotificationsReadStore();
+const { setNotificationsCount } = useNotificationsReadStore();
 
 const showSearchDialog = ref(false);
 const showCreateMewDialog = ref(false);
@@ -144,24 +139,18 @@ watch(mostRecentMew, (val) => {
 });
 
 const fetchNotifications = async () => {
-  const res: Notification[] = await client.callZome({
+  const count: number = await client.callZome({
     role_name: "mewsfeed",
     zome_name: "mews",
-    fn_name: "get_notifications_for_agent",
-    payload: {
-      agent: client.myPubKey,
-      page: {
-        limit: 5,
-        direction: { [PaginationDirectionName.Descending]: null },
-      },
-    },
+    fn_name: "count_notifications_for_agent",
+    payload: client.myPubKey,
   });
-  res.forEach((n) => addNotificationStatus(n));
-  return res;
+  setNotificationsCount(count);
+  return count;
 };
 
 useInfiniteQuery({
-  queryKey: ["mews", "get_notifications_for_agent", client.myPubKey],
+  queryKey: ["mews", "count_notifications_for_agent", client.myPubKey],
   queryFn: fetchNotifications,
   refetchInterval: 1000 * 30, // 30 seconds
   refetchIntervalInBackground: true,

@@ -59,12 +59,12 @@ pub fn get_response_hashes_for_mew(
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct GetResponseCountForMewInput {
+pub struct CountResponsesForMewInput {
     pub original_mew_hash: ActionHash,
     pub response_type: Option<ResponseType>,
 }
 #[hdk_extern]
-pub fn get_response_count_for_mew(input: GetResponseCountForMewInput) -> ExternResult<usize> {
+pub fn count_responses_for_mew(input: CountResponsesForMewInput) -> ExternResult<usize> {
     let maybe_tag = match input.response_type {
         Some(response_type) => {
             let tag: SerializedBytes = response_type.try_into().map_err(|_| {
