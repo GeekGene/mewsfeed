@@ -37,56 +37,54 @@ pub fn validate_create_mew(
                 ));
             }
 
-            let agent_activity = must_get_agent_activity(
-                action.author().clone(),
-                ChainFilter {
-                    chain_top: action.prev_action().clone(),
-                    include_cached_entries: true,
-                    filters: ChainFilters::ToGenesis,
-                },
-            )?;
+            if action.action_seq().clone() > 5 {
+                let agent_activity = must_get_agent_activity(
+                    action.author().clone(),
+                    ChainFilter::new(action.prev_action().clone()).include_cached_entries(),
+                )?;
 
-            let has_identical_mewmews = agent_activity
-                .into_iter()
-                .filter_map(
-                    |agent_activity| match agent_activity.action.action().action_type() {
-                        ActionType::Create => agent_activity
-                            .action
-                            .clone()
-                            .action()
-                            .entry_type()
-                            .and_then(|entry_type: &EntryType| match entry_type.clone() {
-                                EntryType::App(app_entry_def) => {
-                                    match (app_entry_def.zome_index, app_entry_def.entry_index) {
-                                        (ZomeIndex(1), EntryDefIndex(0)) => Some(agent_activity),
-                                        _ => None,
+                let has_identical_mewmews = agent_activity
+                    .into_iter()
+                    .filter_map(
+                        |agent_activity| match agent_activity.action.action().action_type() {
+                            ActionType::Create => agent_activity
+                                .action
+                                .clone()
+                                .action()
+                                .entry_type()
+                                .and_then(|entry_type: &EntryType| match entry_type.clone() {
+                                    EntryType::App(app_entry_def) => {
+                                        match (app_entry_def.zome_index, app_entry_def.entry_index) {
+                                            (ZomeIndex(1), EntryDefIndex(0)) => Some(agent_activity),
+                                            _ => None,
+                                        }
                                     }
-                                }
-                                _ => None,
-                            }),
-                        _ => None,
-                    },
-                )
-                .filter_map(|agent_activity| {
-                    agent_activity
-                        .action
-                        .action()
-                        .entry_data()
-                        .and_then(|(entry_hash, ..)| {
-                            must_get_entry(entry_hash.clone())
-                                .ok()
-                                .and_then(|entry| Mew::try_from(entry.as_content()).ok())
-                        })
-                })
-                .any(|mew| match mew.mew_type {
-                    MewType::Mewmew(ah) => ah == original_mew_ah,
-                    _ => false,
-                });
+                                    _ => None,
+                                }),
+                            _ => None,
+                        },
+                    )
+                    .filter_map(|agent_activity| {
+                        agent_activity
+                            .action
+                            .action()
+                            .entry_data()
+                            .and_then(|(entry_hash, ..)| {
+                                must_get_entry(entry_hash.clone())
+                                    .ok()
+                                    .and_then(|entry| Mew::try_from(entry.as_content()).ok())
+                            })
+                    })
+                    .any(|mew| match mew.mew_type {
+                        MewType::Mewmew(ah) => ah == original_mew_ah,
+                        _ => false,
+                    });
 
-            if has_identical_mewmews {
-                return Ok(ValidateCallbackResult::Invalid(
-                    "A mew can only be mewmewed once".into(),
-                ));
+                if has_identical_mewmews {
+                    return Ok(ValidateCallbackResult::Invalid(
+                        "A mew can only be mewmewed once".into(),
+                    ));
+                }
             }
         }
     }
