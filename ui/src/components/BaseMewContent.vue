@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 import { Mew, MewContentPart } from "@/types/types";
-import { splitMewTextIntoContentParts } from "@/utils/tags";
+import { splitMewTextIntoContentParts } from "@/utils/mewText";
 import { computed, ref } from "vue";
 import BaseMewContentTag from "./BaseMewContentTag.vue";
 

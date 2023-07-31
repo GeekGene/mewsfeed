@@ -1,5 +1,5 @@
 import { assert, test, expect } from "vitest";
-import { runScenario, pause } from "@holochain/tryorama";
+import { runScenario, dhtSync } from "@holochain/tryorama";
 import { AgentPubKey, Record } from "@holochain/client";
 import { mewsfeedAppBundleSource } from "../../common";
 
@@ -43,7 +43,7 @@ test("link a Follower to a Creator", async () => {
         },
       });
 
-      await pause(1200);
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
       // Bob gets the links again
       linksOutput = await bob.cells[0].callZome({
@@ -74,7 +74,7 @@ test("link a Follower to a Creator", async () => {
         },
       });
 
-      await pause(1200);
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
       // Bob gets the links again
       linksOutput = await bob.cells[0].callZome({
@@ -97,7 +97,7 @@ test("link a Follower to a Creator", async () => {
       assert.equal(linksOutput.length, 0);
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -127,10 +127,9 @@ test("Agent cannot follow themselves", async () => {
       );
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
-
 
 test("Agent can only change their own follows", async () => {
   await runScenario(
@@ -159,7 +158,7 @@ test("Agent can only change their own follows", async () => {
         payload: targetAddress,
       });
 
-      await pause(1200);
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
       // Bob tries to remove alices' follow
       const response = bob.cells[0].callZome({
@@ -182,7 +181,7 @@ test("Agent can only change their own follows", async () => {
         payload: targetAddress,
       });
 
-      await pause(1200);
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
       // Bob tries to add a follow for allice
       const response2 = bob.cells[0].callZome({
@@ -199,7 +198,7 @@ test("Agent can only change their own follows", async () => {
       );
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -269,7 +268,7 @@ test(
           },
         });
 
-        await pause(1000);
+        await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
         const page1: AgentPubKey[] = await alice.cells[0].callZome({
           zome_name: "follows",
@@ -399,7 +398,10 @@ test(
           },
         });
 
-        await pause(1000);
+        await dhtSync(
+          [alice, bob, carol, john, steve, mary],
+          alice.cells[0].cell_id[0]
+        );
 
         const page1: AgentPubKey[] = await alice.cells[0].callZome({
           zome_name: "follows",

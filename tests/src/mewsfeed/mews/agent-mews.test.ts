@@ -1,10 +1,9 @@
+import { ActionHash } from "@holochain/client";
+import { dhtSync, runScenario } from "@holochain/tryorama";
 import { assert, expect, test } from "vitest";
-import { runScenario, pause } from "@holochain/tryorama";
-import { ActionHash, Record } from "@holochain/client";
-import { decode } from "@msgpack/msgpack";
-import { createMew } from "./common";
 import { FeedMew, Mew, MewTypeName } from "../../../../ui/src/types/types";
 import { mewsfeedAppBundleSource } from "../../common";
+import { createMew } from "./common";
 
 test("create a Mew and get agent mews", async () => {
   await runScenario(
@@ -37,7 +36,7 @@ test("create a Mew and get agent mews", async () => {
       const actionHash: ActionHash = await createMew(alice.cells[0]);
       assert.ok(actionHash);
 
-      await pause(1200);
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
       // Bob gets agent mews again
       collectionOutput = await bob.cells[0].callZome({
@@ -51,7 +50,7 @@ test("create a Mew and get agent mews", async () => {
       assert.deepEqual(actionHash, collectionOutput[0].action_hash);
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -153,8 +152,6 @@ test("Agent mews list are time-paginated", async () => {
         payload: createMewInput7,
       });
 
-      await pause(1000);
-
       const page1: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_agent_mews_with_context",
@@ -250,6 +247,6 @@ test("Agent mews list are time-paginated", async () => {
       assert.lengthOf(page5, 0);
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });

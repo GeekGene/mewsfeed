@@ -1,6 +1,6 @@
 import { assert, test } from "vitest";
 
-import { runScenario, pause } from "@holochain/tryorama";
+import { runScenario, dhtSync } from "@holochain/tryorama";
 import { AgentPubKey, HoloHash, fakeActionHash } from "@holochain/client";
 
 test("link a Pinner to a Hash", async () => {
@@ -42,7 +42,7 @@ test("link a Pinner to a Hash", async () => {
         payload: targetHash,
       });
 
-      await pause(1200);
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
       // Bob gets the links again
       linksOutput = await bob.cells[0].callZome({
@@ -67,7 +67,7 @@ test("link a Pinner to a Hash", async () => {
         payload: targetHash,
       });
 
-      await pause(1200);
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
       // Bob gets the links again
       linksOutput = await bob.cells[0].callZome({
@@ -87,6 +87,6 @@ test("link a Pinner to a Hash", async () => {
       assert.equal(linksOutput.length, 0);
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });

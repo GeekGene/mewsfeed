@@ -1,7 +1,6 @@
-import { assert, expect, test } from "vitest";
-import { runScenario, pause } from "@holochain/tryorama";
 import { ActionHash } from "@holochain/client";
-import { createMew } from "./common";
+import { dhtSync, runScenario } from "@holochain/tryorama";
+import { assert, expect, test } from "vitest";
 import {
   FeedMew,
   Mew,
@@ -10,6 +9,7 @@ import {
   PaginationDirectionName,
 } from "../../../../ui/src/types/types";
 import { mewsfeedAppBundleSource } from "../../common";
+import { createMew } from "./common";
 
 test("notifications include my agent follows & unfollows", async () => {
   await runScenario(
@@ -48,7 +48,7 @@ test("notifications include my agent follows & unfollows", async () => {
         },
       });
 
-      await pause(1200);
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
       // Alice gets notifications
       const notifications = await alice.cells[0].callZome({
@@ -68,7 +68,7 @@ test("notifications include my agent follows & unfollows", async () => {
       });
     },
     true,
-    { timeout: 150000 }
+    { timeout: 500000 }
   );
 });
 
@@ -98,7 +98,7 @@ test("notifications include my mews' likes & unlikes", async () => {
         payload: actionHash,
       });
 
-      await pause(1200);
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
       // Bob likes Alice's Mew
       await bob.cells[0].callZome({
@@ -120,7 +120,7 @@ test("notifications include my mews' likes & unlikes", async () => {
         },
       });
 
-      await pause(1200);
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
       // Alice gets notifications
       const notifications = await alice.cells[0].callZome({
@@ -141,7 +141,7 @@ test("notifications include my mews' likes & unlikes", async () => {
       });
     },
     true,
-    { timeout: 150000 }
+    { timeout: 500000 }
   );
 });
 
@@ -171,7 +171,7 @@ test("notifications include my mews' pins & unpins", async () => {
         payload: actionHash,
       });
 
-      await pause(1200);
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
       // Bob likes Alice's Mew
       await bob.cells[0].callZome({
@@ -193,7 +193,7 @@ test("notifications include my mews' pins & unpins", async () => {
         },
       });
 
-      await pause(1200);
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
       // Alice gets notifications
       const notifications = await alice.cells[0].callZome({
@@ -214,7 +214,7 @@ test("notifications include my mews' pins & unpins", async () => {
       });
     },
     true,
-    { timeout: 150000 }
+    { timeout: 500000 }
   );
 });
 
@@ -239,7 +239,7 @@ test("notifications include my mews' replies, quotes, mewmews", async () => {
       const actionHash: ActionHash = await createMew(alice.cells[0]);
       assert.ok(actionHash);
 
-      await pause(1200);
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
       // Bob replies to Alice's mew
       const replyInput: Mew = {
@@ -292,7 +292,7 @@ test("notifications include my mews' replies, quotes, mewmews", async () => {
         payload: quoteActionHash,
       });
 
-      await pause(1200);
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
       // Alice gets notifications
       const notifications = await alice.cells[0].callZome({
@@ -318,7 +318,7 @@ test("notifications include my mews' replies, quotes, mewmews", async () => {
       });
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -344,7 +344,7 @@ test("notifications include replies, quotes, mewmews to mews that I also respond
       const actionHash: ActionHash = await createMew(carol.cells[0]);
       assert.ok(actionHash);
 
-      await pause(1200);
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
       // Alice reply's to Carol's mew
       await alice.cells[0].callZome({
@@ -408,7 +408,7 @@ test("notifications include replies, quotes, mewmews to mews that I also respond
         payload: quoteActionHash,
       });
 
-      await pause(1200);
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
       // Alice gets notifications
       const notifications = await alice.cells[0].callZome({
@@ -440,7 +440,7 @@ test("notifications include replies, quotes, mewmews to mews that I also respond
       });
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -465,7 +465,7 @@ test("notifications list is time-paginated", async () => {
       const actionHash: ActionHash = await createMew(alice.cells[0]);
       assert.ok(actionHash);
 
-      await pause(1200);
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
       // Bob replies to Alice's mew
       const replyInput: Mew = {
@@ -586,7 +586,7 @@ test("notifications list is time-paginated", async () => {
         payload: replyActionHash7,
       });
 
-      await pause(1000);
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
       // Alice gets notifications
       const page1 = await alice.cells[0].callZome({
@@ -710,6 +710,6 @@ test("notifications list is time-paginated", async () => {
       assert.lengthOf(page5, 0);
     },
     true,
-    { timeout: 150000 }
+    { timeout: 500000 }
   );
 });

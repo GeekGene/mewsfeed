@@ -47,6 +47,12 @@ jobs:
       - name: Install JS packages
         run: nix develop -c $SHELL -c "npm ci"
 
+      - name: Clippy
+        run: nix develop -c $SHELL -c "npm run cargo:clippy"
+
+      - name: Check rust formatting
+        run: nix develop -c $SHELL -c "npm run cargo:fmt:check"
+
       - name: Build Happ
         run: nix develop -c $SHELL -c "npm run build:happ"
 
@@ -59,10 +65,4 @@ jobs:
           key: ${{ runner.os }}-build-${{ hashFiles('Cargo.lock') }}
 
       - name: Test with tryorama
-        run: nix develop -c $SHELL -c "npm test"
-
-      - name: Clippy
-        run: nix develop -c $SHELL -c "npm run cargo:clippy"
-
-      - name: Check rust formatting
-        run: nix develop -c $SHELL -c "npm run cargo:fmt:check"
+        run: nix develop -c $SHELL -c "npm run test"

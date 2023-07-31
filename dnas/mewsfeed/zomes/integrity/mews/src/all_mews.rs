@@ -7,7 +7,7 @@ pub fn validate_create_link_all_mews(
     target_address: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    let action_hash = ActionHash::from(target_address);
+    let action_hash = ActionHash::try_from(target_address).map_err(|err| wasm_error!(err))?;
     let record = must_get_valid_record(action_hash)?;
     let _mew: crate::Mew = record
         .entry()
@@ -18,7 +18,9 @@ pub fn validate_create_link_all_mews(
         ))))?;
 
     let expected_base_address = Path::from("all_mews").path_entry_hash()?;
-    if EntryHash::from(base_address) != expected_base_address {
+    let base_address_entry_hash =
+        EntryHash::try_from(base_address).map_err(|err| wasm_error!(err))?;
+    if base_address_entry_hash != expected_base_address {
         return Ok(ValidateCallbackResult::Invalid(
             "AllMews link must use 'all_mews' Path as its base".into(),
         ));

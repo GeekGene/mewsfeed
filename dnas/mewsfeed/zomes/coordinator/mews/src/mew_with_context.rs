@@ -28,8 +28,8 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
             let my_mews_hashset: HashSet<ActionHash> =
                 get_links(my_pubkey.clone(), LinkTypes::AgentMews, None)?
                     .into_iter()
-                    .map(|l| ActionHash::from(l.target))
-                    .collect();
+                    .map(|l| ActionHash::try_from(l.target).map_err(|e| wasm_error!(e)))
+                    .collect::<ExternResult<HashSet<ActionHash>>>()?;
 
             let replies = get_response_hashes_for_mew(GetResponsesForMewInput {
                 original_mew_hash: original_mew_hash.clone(),

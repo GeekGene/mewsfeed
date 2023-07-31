@@ -66,7 +66,7 @@ fn get_mew_hashes_for_mention(
 
     let hashes: Vec<ActionHash> = links_page
         .into_iter()
-        .map(|link| ActionHash::from(link.target))
+        .filter_map(|link| ActionHash::try_from(link.target).ok())
         .collect();
 
     Ok(hashes)
@@ -82,7 +82,9 @@ pub fn remove_mention_for_mew(input: RemoveMentionForMewInput) -> ExternResult<(
     let links = get_links(input.base_mention.clone(), LinkTypes::MentionToMews, None)?;
 
     for link in links {
-        if ActionHash::from(link.target.clone()).eq(&input.target_mew_hash) {
+        let action_hash =
+            ActionHash::try_from(link.target.clone()).map_err(|err| wasm_error!(err))?;
+        if action_hash.eq(&input.target_mew_hash) {
             delete_link(link.create_link_hash)?;
         }
     }

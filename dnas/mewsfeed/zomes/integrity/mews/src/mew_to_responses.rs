@@ -7,7 +7,7 @@ pub fn validate_create_link_mew_to_responses(
     target_address: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    let base_ah = ActionHash::from(base_address);
+    let base_ah = ActionHash::try_from(base_address).map_err(|err| wasm_error!(err))?;
     let record = must_get_valid_record(base_ah.clone())?;
     let _mew: crate::Mew = record
         .entry()
@@ -16,7 +16,7 @@ pub fn validate_create_link_mew_to_responses(
         .ok_or(wasm_error!(WasmErrorInner::Guest(String::from(
             "Linked action must reference an entry"
         ))))?;
-    let target_ah = ActionHash::from(target_address);
+    let target_ah = ActionHash::try_from(target_address).map_err(|err| wasm_error!(err))?;
     let record = must_get_valid_record(target_ah)?;
     let response_mew: crate::Mew = record
         .entry()
@@ -62,7 +62,7 @@ pub fn validate_create_link_response_to_mews(
     target_address: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    let action_hash = ActionHash::from(base_address);
+    let action_hash = ActionHash::try_from(base_address).map_err(|err| wasm_error!(err))?;
     let record = must_get_valid_record(action_hash)?;
     let _mew: crate::Mew = record
         .entry()
@@ -71,7 +71,7 @@ pub fn validate_create_link_response_to_mews(
         .ok_or(wasm_error!(WasmErrorInner::Guest(String::from(
             "Linked action must reference an entry"
         ))))?;
-    let action_hash = ActionHash::from(target_address);
+    let action_hash = ActionHash::try_from(target_address).map_err(|err| wasm_error!(err))?;
     let record = must_get_valid_record(action_hash)?;
     let _mew: crate::Mew = record
         .entry()

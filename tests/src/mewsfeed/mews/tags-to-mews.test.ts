@@ -43,8 +43,6 @@ test("Hashtag, cashtag and mention", async () => {
         "alice created a valid mew"
       );
 
-      await pause(1000);
-
       const hashtaggedMews: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mews_for_hashtag_with_context",
@@ -105,7 +103,7 @@ test("Hashtag, cashtag and mention", async () => {
       assert.ok(mentionedMews.length === 1, "one mew with mention");
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -141,8 +139,6 @@ test("Prefix index should return hashtags and cashtags", async () => {
         Buffer.from([132, 41, 36]),
         "alice created a valid mew"
       );
-
-      await pause(1000);
 
       const hashtags: string[] = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -193,7 +189,7 @@ test("Prefix index should return hashtags and cashtags", async () => {
       assert.equal(cashtags[0], "$cashtag", "hashtag search result matches");
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -295,8 +291,6 @@ test("Hashtags list are time-paginated", async () => {
         payload: createMewInput7,
       });
 
-      await pause(1000);
-
       const page1: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mews_for_hashtag_with_context",
@@ -394,7 +388,7 @@ test("Hashtags list are time-paginated", async () => {
       assert.lengthOf(page5, 0);
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -495,8 +489,6 @@ test("Cashtags list are time-paginated", async () => {
         fn_name: "create_mew",
         payload: createMewInput7,
       });
-
-      await pause(1000);
 
       const page1: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -601,6 +593,6 @@ test("Cashtags list are time-paginated", async () => {
       assert.lengthOf(page5, 0);
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
