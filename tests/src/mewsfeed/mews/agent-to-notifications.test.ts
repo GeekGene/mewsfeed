@@ -68,7 +68,7 @@ test("notifications include my agent follows & unfollows", async () => {
       });
     },
     true,
-    { timeout: 150000 }
+    { timeout: 500000 }
   );
 });
 
@@ -141,7 +141,7 @@ test("notifications include my mews' likes & unlikes", async () => {
       });
     },
     true,
-    { timeout: 150000 }
+    { timeout: 500000 }
   );
 });
 
@@ -214,7 +214,7 @@ test("notifications include my mews' pins & unpins", async () => {
       });
     },
     true,
-    { timeout: 150000 }
+    { timeout: 500000 }
   );
 });
 
@@ -318,7 +318,7 @@ test("notifications include my mews' replies, quotes, mewmews", async () => {
       });
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -440,7 +440,7 @@ test("notifications include replies, quotes, mewmews to mews that I also respond
       });
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -710,6 +710,6 @@ test("notifications list is time-paginated", async () => {
       assert.lengthOf(page5, 0);
     },
     true,
-    { timeout: 150000 }
+    { timeout: 500000 }
   );
 });

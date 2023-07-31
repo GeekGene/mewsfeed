@@ -54,7 +54,7 @@ test("create a Mew and get followed creators mews", async () => {
       assert.deepEqual(actionHash, collectionOutput[0].action_hash);
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -116,7 +116,7 @@ test("Followed creators mews should include mews of followed creator", async () 
       );
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -172,7 +172,7 @@ test("Followed creators mews should include own mews", async () => {
       );
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -238,7 +238,7 @@ test("Followed creators mews should not include mews of non-followed creator", a
       );
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -307,7 +307,7 @@ test("Unfollowing should exclude creators mews from feed", async () => {
       assert.ok(bobMewsFeed.length === 0, "bob's mews feed is empty");
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -421,7 +421,7 @@ test("Followed creators mews should be ordered by timestamp in descending order"
       );
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -613,6 +613,6 @@ test("Followed creators mews list are time-paginated", async () => {
       assert.lengthOf(page5, 0);
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });

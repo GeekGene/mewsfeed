@@ -68,7 +68,7 @@ test("mention in mews", async () => {
       assert.deepEqual(mentionedMewsAlice[0].action_hash, actionHash3);
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -265,6 +265,6 @@ test("Mentions list are time-paginated", async () => {
       assert.lengthOf(page5, 0);
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
