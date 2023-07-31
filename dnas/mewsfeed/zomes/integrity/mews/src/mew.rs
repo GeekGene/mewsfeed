@@ -37,7 +37,7 @@ pub fn validate_create_mew(
                 ));
             }
 
-            if action.action_seq().clone() > 5 {
+            if *action.action_seq() > 5 {
                 let agent_activity = must_get_agent_activity(
                     action.author().clone(),
                     ChainFilter::new(action.prev_action().clone()).include_cached_entries(),
@@ -45,8 +45,8 @@ pub fn validate_create_mew(
 
                 let has_identical_mewmews = agent_activity
                     .into_iter()
-                    .filter_map(
-                        |agent_activity| match agent_activity.action.action().action_type() {
+                    .filter_map(|agent_activity| {
+                        match agent_activity.action.action().action_type() {
                             ActionType::Create => agent_activity
                                 .action
                                 .clone()
@@ -54,16 +54,19 @@ pub fn validate_create_mew(
                                 .entry_type()
                                 .and_then(|entry_type: &EntryType| match entry_type.clone() {
                                     EntryType::App(app_entry_def) => {
-                                        match (app_entry_def.zome_index, app_entry_def.entry_index) {
-                                            (ZomeIndex(1), EntryDefIndex(0)) => Some(agent_activity),
+                                        match (app_entry_def.zome_index, app_entry_def.entry_index)
+                                        {
+                                            (ZomeIndex(1), EntryDefIndex(0)) => {
+                                                Some(agent_activity)
+                                            }
                                             _ => None,
                                         }
                                     }
                                     _ => None,
                                 }),
                             _ => None,
-                        },
-                    )
+                        }
+                    })
                     .filter_map(|agent_activity| {
                         agent_activity
                             .action
