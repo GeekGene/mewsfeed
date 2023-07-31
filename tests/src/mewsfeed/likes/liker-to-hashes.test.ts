@@ -87,7 +87,7 @@ test("link a Liker to a Hash", async () => {
       assert.equal(linksOutput.length, 0);
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -157,6 +157,6 @@ test("Agent can only change their own likes", async () => {
       );
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });

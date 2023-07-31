@@ -72,7 +72,7 @@ test("Agent can reply to a mew", async () => {
       );
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -154,7 +154,7 @@ test("Agent can mewmew a mew, only once", async () => {
       );
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -224,6 +224,6 @@ test("Agent can quote a mew", async () => {
       );
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });

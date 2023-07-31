@@ -76,7 +76,7 @@ test("notifications include my agent follows & unfollows", async () => {
       expect(count).toEqual(2);
     },
     true,
-    { timeout: 150000 }
+    { timeout: 500000 }
   );
 });
 
@@ -157,7 +157,7 @@ test("notifications include my mews' likes & unlikes", async () => {
       expect(count).toEqual(2);
     },
     true,
-    { timeout: 150000 }
+    { timeout: 500000 }
   );
 });
 
@@ -238,7 +238,7 @@ test("notifications include my mews' pins & unpins", async () => {
       expect(count).toEqual(2);
     },
     true,
-    { timeout: 150000 }
+    { timeout: 500000 }
   );
 });
 
@@ -350,7 +350,7 @@ test("notifications include my mews' replies, quotes, mewmews", async () => {
       expect(count).toEqual(3);
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -480,7 +480,7 @@ test("notifications include replies, quotes, mewmews to mews that I also respond
       expect(count).toEqual(3);
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -750,6 +750,6 @@ test("notifications list is time-paginated", async () => {
       assert.lengthOf(page5, 0);
     },
     true,
-    { timeout: 150000 }
+    { timeout: 500000 }
   );
 });

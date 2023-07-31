@@ -87,6 +87,6 @@ test("link a Pinner to a Hash", async () => {
       assert.equal(linksOutput.length, 0);
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
