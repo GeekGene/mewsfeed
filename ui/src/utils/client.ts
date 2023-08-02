@@ -42,7 +42,7 @@ export const setupHolo = async () => {
       chaperoneUrl: HOLO_CHAPERONE_URL,
       authFormCustomization: {
         logoUrl: "assets/cat-eating-bird-circle.png",
-        appName: "MewsFeed",
+        appName: "mewsfeed",
         requireRegistrationCode: false,
       },
     });
