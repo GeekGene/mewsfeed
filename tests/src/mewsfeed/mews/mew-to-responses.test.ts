@@ -64,10 +64,9 @@ test("Agent can reply to a mew", async () => {
         "mew is an original mew"
       );
       assert.equal(originalMew.mew.text, aliceMewContent, "mew is alice's mew");
-      assert.ok(originalMew.replies.length === 1, "original mew has 1 reply");
-      assert.deepEqual(
-        originalMew.replies[0],
-        reply_action_hash,
+      assert.ok(originalMew.replies_count === 1, "original mew has 1 reply");
+      assert.isTrue(
+        originalMew.is_replied,
         "original mew's reply is alice's reply"
       );
     },
@@ -135,11 +134,10 @@ test("Agent can mewmew a mew, only once", async () => {
         "mew is an original mew"
       );
       assert.equal(originalMew.mew.text, aliceMewContent, "mew is alice's mew");
-      assert.ok(originalMew.mewmews.length === 1, "original mew has 1 mewmew");
-      assert.deepEqual(
-        originalMew.mewmews[0],
-        mewmew_action_hash,
-        "original mew's mewmew is alice's mewmew"
+      assert.ok(originalMew.mewmews_count === 1, "original mew has 1 mewmew");
+      assert.isTrue(
+        originalMew.is_mewmewed,
+          "original mew's mewmew is alice's mewmew"
       );
 
       // Mewmew the same mew again
@@ -216,10 +214,9 @@ test("Agent can quote a mew", async () => {
         "mew is an original mew"
       );
       assert.equal(originalMew.mew.text, aliceMewContent, "mew is alice's mew");
-      assert.ok(originalMew.quotes.length === 1, "original mew has 1 quote");
-      assert.deepEqual(
-        originalMew.quotes[0],
-        quote_action_hash,
+      assert.ok(originalMew.quotes_count === 1, "original mew has 1 quote");
+      assert.isTrue(
+        originalMew.is_quoted,
         "original mew's quote is alice's quote"
       );
     },

@@ -79,10 +79,10 @@ export interface FeedMew {
   mew: Mew;
   action: Create;
   action_hash: ActionHash;
-  replies: ActionHash[];
-  quotes: ActionHash[];
-  licks: AgentPubKey[];
-  mewmews: ActionHash[];
+  replies_count: number;
+  quotes_count: number;
+  licks_count: number;
+  mewmews_count: number;
   is_pinned: boolean;
   is_licked: boolean;
   is_mewmewed: boolean;
