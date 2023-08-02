@@ -193,13 +193,14 @@ const {
 });
 watch(errorRandomMews, showError);
 
-const fetchRandomTags = (): Promise<string[]> =>
-  client.callZome({
+const fetchRandomTags = (): Promise<string[]> => {
+  return client.callZome({
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_random_tags",
     payload: 4,
   });
+};
 
 const {
   data: randomTags,
@@ -215,9 +216,12 @@ const {
 });
 watch(errorRandomTags, showError);
 
-onMounted(() => {
-  if (randomTags.value == undefined || randomTags.value.length === 0) {
-    refetchRandomTags();
+onMounted(async () => {
+  if (randomMews.value === undefined || randomMews.value.length === 0) {
+    await refetchMews();
+  }
+  if (randomTags.value === undefined || randomTags.value.length === 0) {
+    refetchTags();
   }
 });
 
@@ -387,8 +391,16 @@ const {
 watch(errorRandomMewsWithTag3, showError);
 
 const shuffle = async () => {
+  await refetchMews();
+  await refetchTags();
+};
+
+const refetchMews = async () => {
   await refetchRandomMewHashes();
   refetchRandomMews();
+};
+
+const refetchTags = async () => {
   await refetchRandomTags();
 
   if (tag1Enabled.value) {

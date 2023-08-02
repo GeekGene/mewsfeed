@@ -163,25 +163,6 @@ const refetchRepliesPage = async (pageIndex: number) => {
   });
 };
 
-const refetchMewAndRepliesLastPage = async () => {
-  await refetchMew();
-
-  if (
-    !mew.value.replies ||
-    !replies.value ||
-    replies.value.pages.length === 0
-  ) {
-    await refetchRepliesPage(0);
-  } else if (
-    mew.value.replies.length <
-    replies.value.pages.length * pageLimit
-  ) {
-    await refetchRepliesPage(replies.value.pages.length - 1);
-  } else {
-    await refetchRepliesPage(replies.value.pages.length - 1);
-    await fetchNextPage();
-  }
-};
 
 onBeforeRouteLeave(() => {
   if (replies.value && replies.value.pages.length > 1) {
