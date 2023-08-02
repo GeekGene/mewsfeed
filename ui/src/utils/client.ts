@@ -17,10 +17,8 @@ export const HOLO_CHAPERONE_URL = import.meta.env.VITE_CHAPERONE_SERVER_URL
 export const setupHolochain = async () => {
   try {
     const client = await AppAgentWebsocket.connect(
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      //@ts-ignore
       IS_LAUNCHER
-        ? ""
+        ? new URL(`ws://UNUSED`)
         : new URL(`ws://localhost:${import.meta.env.VITE_HC_PORT}`),
       HOLOCHAIN_APP_ID,
       60000
