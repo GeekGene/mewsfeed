@@ -59,4 +59,4 @@ coordinator:
     - name: ping
       hash: ~
       bundled: "../../../target/wasm32-unknown-unknown/release/ping.wasm"
-      dependencies: ~
+      dependencies: []
