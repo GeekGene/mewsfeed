@@ -10,11 +10,13 @@
           {{ contentPart.text }}
         </span>
       </template>
-      <span v-if="!disableTruncate && truncate && contentRequiresTruncation">...</span>
+      <span v-if="!disableTruncate && truncate && contentRequiresTruncation"
+        >...</span
+      >
     </div>
     <div
       v-if="!disableTruncate && contentRequiresTruncation && truncate"
-      class="w-full h-8 bg-gradient-to-b from-transparent to-base-100 absolute bottom-0 text-center flex flex-col justify-end items-end"
+      class="w-full h-8 bg-gradient-to-b from-base-100/0 to-base-100 absolute bottom-0 text-center flex flex-col justify-end items-end"
     >
       <button class="btn btn-xs btn-ghost" @click.stop="truncate = false">
         Show More
