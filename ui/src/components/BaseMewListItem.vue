@@ -78,6 +78,7 @@
               (!isDeleted || showIfDeleted) && isMewmew && feedMew.original_mew
             "
             :mew="(feedMew.original_mew.mew as Mew)"
+            :disable-truncate="disableTruncateContent"
           />
 
           <div
@@ -86,7 +87,10 @@
             "
             class="w-full"
           >
-            <BaseMewContent :mew="(feedMew.mew as Mew)" />
+            <BaseMewContent
+              :mew="(feedMew.mew as Mew)"
+              :disable-truncate="disableTruncateContent"
+            />
 
             <div class="flex justify-start my-4">
               <div class="flex items-start">
@@ -108,10 +112,18 @@
             >
               Show Content
             </a>
-            <BaseMewContent v-if="showIfDeleted" :mew="(feedMew.mew as Mew)" />
+            <BaseMewContent
+              v-if="showIfDeleted"
+              :mew="(feedMew.mew as Mew)"
+              :disable-truncate="disableTruncateContent"
+            />
           </div>
 
-          <BaseMewContent v-else :mew="(feedMew.mew as Mew)" />
+          <BaseMewContent
+            v-else
+            :mew="(feedMew.mew as Mew)"
+            :disable-truncate="disableTruncateContent"
+          />
         </div>
 
         <div class="flex justify-between">
@@ -337,12 +349,14 @@ const props = withDefaults(
     enableYarnLink?: boolean;
     showIfDeletedDefault?: boolean;
     showButtons?: boolean;
+    disableTruncateContent?: boolean;
   }>(),
   {
     showYarnLink: true,
     enableYarnLink: true,
     showIfDeletedDefault: false,
     showButtons: true,
+    disableTruncateContent: false,
   }
 );
 const emit = defineEmits([
