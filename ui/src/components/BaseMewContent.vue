@@ -1,22 +1,25 @@
 <template>
-  <div class="w-full text-content text-left break-words">
-    <template v-for="(contentPart, index) of partsDisplayed" :key="index">
-      <BaseMewContentTag
-        v-if="contentPart.tagType !== undefined"
-        :content-part="contentPart"
-      />
-      <span v-else class="whitespace-pre-line">
-        {{ contentPart.text }}
-      </span>
-    </template>
-
-    <span v-if="contentRequiresTruncation">
-      <span v-if="truncate">...</span>
-      <span v-else class="inline-block w-4"></span>
-      <button class="btn btn-xs btn-ghost" @click.stop="truncate = !truncate">
-        Show {{ truncate ? "More" : "Less" }}
+  <div class="w-full relative">
+    <div class="w-full text-content text-left break-words">
+      <template v-for="(contentPart, index) of partsDisplayed" :key="index">
+        <BaseMewContentTag
+          v-if="contentPart.tagType !== undefined"
+          :content-part="contentPart"
+        />
+        <span v-else class="whitespace-pre-line">
+          {{ contentPart.text }}
+        </span>
+      </template>
+      <span v-if="!disableTruncate && truncate && contentRequiresTruncation">...</span>
+    </div>
+    <div
+      v-if="!disableTruncate && contentRequiresTruncation && truncate"
+      class="w-full h-8 bg-gradient-to-b from-transparent to-base-100 absolute bottom-0 text-center flex flex-col justify-end items-end"
+    >
+      <button class="btn btn-xs btn-ghost" @click.stop="truncate = false">
+        Show More
       </button>
-    </span>
+    </div>
   </div>
 </template>
 
@@ -26,9 +29,15 @@ import { splitMewTextIntoContentParts } from "@/utils/mewText";
 import { computed, ref } from "vue";
 import BaseMewContentTag from "./BaseMewContentTag.vue";
 
-const props = defineProps<{
-  mew: Mew;
-}>();
+const props = withDefaults(
+  defineProps<{
+    mew: Mew;
+    disableTruncate?: boolean;
+  }>(),
+  {
+    disableTruncate: false,
+  }
+);
 
 const TRUNCATED_MEW_LENGTH = 300;
 
@@ -82,6 +91,8 @@ const partsTruncated = computed(() => {
 });
 
 const partsDisplayed = computed(() => {
-  return truncate.value ? partsTruncated.value : parts.value;
+  return !props.disableTruncate && truncate.value
+    ? partsTruncated.value
+    : parts.value;
 });
 </script>
