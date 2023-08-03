@@ -12,9 +12,10 @@
 
     <span v-if="contentRequiresTruncation">
       <span v-if="truncate">...</span>
-      <a @click.stop="truncate = !truncate">
+      <span v-else class="inline-block w-4"></span>
+      <button class="btn btn-xs btn-ghost" @click.stop="truncate = !truncate">
         Show {{ truncate ? "More" : "Less" }}
-      </a>
+      </button>
     </span>
   </div>
 </template>
