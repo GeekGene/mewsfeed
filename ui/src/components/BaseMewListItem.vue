@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full flex flex-col justify-start items-start cursor-pointer"
+    class="flex flex-col justify-start items-start cursor-pointer"
     @click.passive="navigateToYarn(feedMew.action_hash)"
   >
     <div
@@ -47,10 +47,10 @@
       </div>
     </div>
 
-    <div class="flex justify-start items-start w-full space-x-4 p-4">
+    <div class="w-full flex justify-start items-start space-x-4 p-4">
       <BaseAgentProfileLinkAvatar :agentPubKey="feedMew.action.author" />
 
-      <div class="w-full">
+      <div class="min-w-0 flex-1 w-full break-words">
         <div class="w-full flex justify-between items-center">
           <RouterLink
             :to="{

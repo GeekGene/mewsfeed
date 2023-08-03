@@ -10,7 +10,7 @@
       "
       @load-next="fetchNextPageInfiniteScroll"
     >
-      <div>
+      <div class="w-full">
         <template v-for="(page, i) in data.pages" :key="i">
           <template v-for="(mew, j) of page" :key="j">
             <BaseMewListItem
