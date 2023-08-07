@@ -68,6 +68,17 @@ const partsTruncated = computed(() => {
       totalTextLength += part.text.length;
     }
 
+    // Break very long word at limit (leaving room for ellipses and 'show more' button)
+    else if (
+      part.tagType === undefined &&
+      part.text.length > TRUNCATED_MEW_LENGTH
+    ) {
+      partsSlice.push({
+        ...part,
+        text: part.text.slice(0, TRUNCATED_MEW_LENGTH - 15),
+      });
+    }
+
     // Split plain text into words, append words unless limit reached
     else if (part.tagType === undefined) {
       const words = part.text.split(" ");
