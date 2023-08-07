@@ -96,7 +96,7 @@
               <div class="flex items-start">
                 <IconFormatQuoteOpen class="text-base-300 text-2xl" />
               </div>
-              <div class="flex-1 bg-base-200 p-2 rounded-md">
+              <div class="min-w-0 flex-1 bg-base-200 p-2 rounded-md">
                 <BaseEmbedMew :embed-mew="feedMew.original_mew" />
               </div>
               <div class="flex justify-end items-end">
@@ -104,6 +104,7 @@
               </div>
             </div>
           </div>
+
           <div v-else-if="isDeleted" class="w-full">
             <a
               v-if="!showIfDeleted"
