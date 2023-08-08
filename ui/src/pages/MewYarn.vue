@@ -10,6 +10,7 @@
       <BaseMewListItem
         v-if="mew"
         :feed-mew="mew"
+        :disable-truncate-content="true"
         class="bg-base-200 rounded-3xl mb-8 !cursor-default"
         @mew-deleted="refetchMewAndRepliesPage(0)"
         @mew-licked="refetchMewAndRepliesPage(0)"

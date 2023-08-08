@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full flex flex-col justify-start items-start cursor-pointer"
+    class="flex flex-col justify-start items-start cursor-pointer"
     @click.passive="navigateToYarn(feedMew.action_hash)"
   >
     <div
@@ -47,10 +47,10 @@
       </div>
     </div>
 
-    <div class="flex justify-start items-start w-full space-x-4 p-4">
+    <div class="w-full flex justify-start items-start space-x-4 p-4">
       <BaseAgentProfileLinkAvatar :agentPubKey="feedMew.action.author" />
 
-      <div class="w-full">
+      <div class="min-w-0 flex-1 w-full break-words">
         <div class="w-full flex justify-between items-center">
           <RouterLink
             :to="{
@@ -78,6 +78,7 @@
               (!isDeleted || showIfDeleted) && isMewmew && feedMew.original_mew
             "
             :mew="(feedMew.original_mew.mew as Mew)"
+            :disable-truncate="disableTruncateContent"
           />
 
           <div
@@ -86,13 +87,16 @@
             "
             class="w-full"
           >
-            <BaseMewContent :mew="(feedMew.mew as Mew)" />
+            <BaseMewContent
+              :mew="(feedMew.mew as Mew)"
+              :disable-truncate="disableTruncateContent"
+            />
 
             <div class="flex justify-start my-4">
               <div class="flex items-start">
                 <IconFormatQuoteOpen class="text-base-300 text-2xl" />
               </div>
-              <div class="flex-1 bg-base-200 p-2 rounded-md">
+              <div class="min-w-0 flex-1 bg-base-200 p-2 rounded-md">
                 <BaseEmbedMew :embed-mew="feedMew.original_mew" />
               </div>
               <div class="flex justify-end items-end">
@@ -100,6 +104,7 @@
               </div>
             </div>
           </div>
+
           <div v-else-if="isDeleted" class="w-full">
             <a
               v-if="!showIfDeleted"
@@ -108,10 +113,18 @@
             >
               Show Content
             </a>
-            <BaseMewContent v-if="showIfDeleted" :mew="(feedMew.mew as Mew)" />
+            <BaseMewContent
+              v-if="showIfDeleted"
+              :mew="(feedMew.mew as Mew)"
+              :disable-truncate="disableTruncateContent"
+            />
           </div>
 
-          <BaseMewContent v-else :mew="(feedMew.mew as Mew)" />
+          <BaseMewContent
+            v-else
+            :mew="(feedMew.mew as Mew)"
+            :disable-truncate="disableTruncateContent"
+          />
         </div>
 
         <div class="flex justify-between">
@@ -337,12 +350,14 @@ const props = withDefaults(
     enableYarnLink?: boolean;
     showIfDeletedDefault?: boolean;
     showButtons?: boolean;
+    disableTruncateContent?: boolean;
   }>(),
   {
     showYarnLink: true,
     enableYarnLink: true,
     showIfDeletedDefault: false,
     showButtons: true,
+    disableTruncateContent: false,
   }
 );
 const emit = defineEmits([
