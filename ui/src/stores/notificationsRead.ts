@@ -26,11 +26,14 @@ export const makeUseNotificationsReadStore = (client: AppAgentClient) =>
   defineStore(
     "notificationsRead",
     () => {
+      const notificationsCount = ref<number>(0);
       const notificationsRead = ref<{
         [key: string]: boolean;
       }>({});
       const unreadCount = computed(
-        () => Object.values(notificationsRead.value).filter((r) => !r).length
+        () =>
+          notificationsCount.value -
+          Object.values(notificationsRead.value).filter((r) => r).length
       );
 
       function markRead(notification: Notification) {
@@ -49,11 +52,16 @@ export const makeUseNotificationsReadStore = (client: AppAgentClient) =>
         }
       }
 
+      function setNotificationsCount(count: number) {
+        notificationsCount.value = count;
+      }
+
       return {
         notificationsRead,
         unreadCount,
         markRead,
         addNotificationStatus,
+        setNotificationsCount,
       };
     },
     {

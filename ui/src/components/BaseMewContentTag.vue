@@ -3,7 +3,7 @@
     v-if="contentPart.href && contentPart.tagType === MewTagType.RawUrl"
     target="_blank"
     :href="contentPart.href"
-    class="text-primary pr-1 hover:underline"
+    class="text-primary hover:underline"
     @click.stop="(e) => openLink(e, contentPart.href as string)"
   >
     {{ contentPart.text }}
@@ -18,7 +18,7 @@
     }"
     :href="contentPart.href"
     target="_blank"
-    class="text-primary pr-1 hover:underline"
+    class="text-primary hover:underline"
     @click.stop="(e) => openLink(e, contentPart.href as string)"
   >
     {{ contentPart.text }}
@@ -27,7 +27,7 @@
     v-else-if="contentPart.route && contentPart.tagType === MewTagType.Mention"
     :agentPubKey="decodeHashFromBase64((contentPart.route as RouteLocationNamedRaw).params?.agentPubKey as LocationQueryValueRaw as string)"
     :to="contentPart.route"
-    class="pr-1"
+    class="hover:underline"
     popup-class="mt-0"
   >
     {{ contentPart.text }}
@@ -39,7 +39,7 @@
         contentPart.tagType === MewTagType.Hashtag)
     "
     :to="contentPart.route"
-    class="text-primary text-bold pr-1"
+    class="text-primary hover:underline text-bold pr-1"
     @click.stop
   >
     {{ contentPart.text }}

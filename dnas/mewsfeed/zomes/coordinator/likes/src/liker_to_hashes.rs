@@ -46,6 +46,40 @@ pub fn get_likers_for_hash(hash: AnyLinkableHash) -> ExternResult<Vec<AgentPubKe
 }
 
 #[hdk_extern]
+pub fn count_likers_for_hash(hash: AnyLinkableHash) -> ExternResult<usize> {
+    let query = LinkQuery::new(
+        hash,
+        LinkTypeFilter::single_type(
+            ZomeIndex(3),
+            LinkType(1), // LinkTypes::HashToLikers
+        ),
+    );
+
+    count_links(query)
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct IsLikerForHashInput {
+    pub liker: AgentPubKey,
+    pub hash: AnyLinkableHash,
+}
+#[hdk_extern]
+pub fn is_liker_for_hash(input: IsLikerForHashInput) -> ExternResult<bool> {
+    let query = LinkQuery::new(
+        input.hash,
+        LinkTypeFilter::single_type(
+            ZomeIndex(3),
+            LinkType(1), // LinkTypes::HashToLikers
+        ),
+    )
+    .author(input.liker);
+
+    let count = count_links(query)?;
+
+    Ok(count > 0)
+}
+
+#[hdk_extern]
 pub fn get_liker_links_for_hash(hash: AnyLinkableHash) -> ExternResult<Vec<Link>> {
     let mut links = get_links(hash, LinkTypes::HashToLikers, None)?;
     links.dedup_by_key(|l| l.target.clone());

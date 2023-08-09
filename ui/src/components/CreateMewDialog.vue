@@ -29,7 +29,11 @@
         "
         class="bg-base-200 rounded-3xl mb-4 mx-4"
       >
-        <BaseMewListItem :feed-mew="originalMew" :show-buttons="false" />
+        <BaseMewListItem
+          :feed-mew="originalMew"
+          :show-buttons="false"
+          :disable-truncate-content="true"
+        />
       </div>
 
       <CreateMewInput :mew-type="mewType" @mew-created="onCreateMew" />

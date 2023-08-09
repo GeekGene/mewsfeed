@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full flex flex-col justify-start items-start cursor-pointer"
+    class="flex flex-col justify-start items-start cursor-pointer"
     @click.passive="navigateToYarn(feedMew.action_hash)"
   >
     <div
@@ -47,10 +47,10 @@
       </div>
     </div>
 
-    <div class="flex justify-start items-start w-full space-x-4 p-4">
+    <div class="w-full flex justify-start items-start space-x-4 p-4">
       <BaseAgentProfileLinkAvatar :agentPubKey="feedMew.action.author" />
 
-      <div class="w-full">
+      <div class="min-w-0 flex-1 w-full break-words">
         <div class="w-full flex justify-between items-center">
           <RouterLink
             :to="{
@@ -78,6 +78,7 @@
               (!isDeleted || showIfDeleted) && isMewmew && feedMew.original_mew
             "
             :mew="(feedMew.original_mew.mew as Mew)"
+            :disable-truncate="disableTruncateContent"
           />
 
           <div
@@ -86,13 +87,16 @@
             "
             class="w-full"
           >
-            <BaseMewContent :mew="(feedMew.mew as Mew)" />
+            <BaseMewContent
+              :mew="(feedMew.mew as Mew)"
+              :disable-truncate="disableTruncateContent"
+            />
 
             <div class="flex justify-start my-4">
               <div class="flex items-start">
                 <IconFormatQuoteOpen class="text-base-300 text-2xl" />
               </div>
-              <div class="flex-1 bg-base-200 p-2 rounded-md">
+              <div class="min-w-0 flex-1 bg-base-200 p-2 rounded-md">
                 <BaseEmbedMew :embed-mew="feedMew.original_mew" />
               </div>
               <div class="flex justify-end items-end">
@@ -100,6 +104,7 @@
               </div>
             </div>
           </div>
+
           <div v-else-if="isDeleted" class="w-full">
             <a
               v-if="!showIfDeleted"
@@ -108,10 +113,18 @@
             >
               Show Content
             </a>
-            <BaseMewContent v-if="showIfDeleted" :mew="(feedMew.mew as Mew)" />
+            <BaseMewContent
+              v-if="showIfDeleted"
+              :mew="(feedMew.mew as Mew)"
+              :disable-truncate="disableTruncateContent"
+            />
           </div>
 
-          <BaseMewContent v-else :mew="(feedMew.mew as Mew)" />
+          <BaseMewContent
+            v-else
+            :mew="(feedMew.mew as Mew)"
+            :disable-truncate="disableTruncateContent"
+          />
         </div>
 
         <div class="flex justify-between">
@@ -137,8 +150,8 @@
                 @click.stop.prevent="showReplyToMewDialog = true"
               >
                 <IconArrowUndoSharp class="w-4 h-4" />
-                <span v-if="feedMew.replies.length > 0">
-                  {{ feedMew.replies.length }}
+                <span v-if="feedMew.replies_count > 0">
+                  {{ feedMew.replies_count }}
                 </span>
               </button>
 
@@ -158,8 +171,8 @@
                 @click.stop.prevent="showQuoteMewDialog = true"
               >
                 <IconFormatQuote class="w-4 h-4" />
-                <span v-if="feedMew.quotes.length > 0">
-                  {{ feedMew.quotes.length }}
+                <span v-if="feedMew.quotes_count > 0">
+                  {{ feedMew.quotes_count }}
                 </span>
               </button>
 
@@ -183,8 +196,8 @@
                 "
               >
                 <IconRepeatBold class="w-4 h-4" />
-                <div v-if="feedMew.mewmews.length > 0" class="text-xs">
-                  {{ feedMew.mewmews.length }}
+                <div v-if="feedMew.mewmews_count > 0" class="text-xs">
+                  {{ feedMew.mewmews_count }}
                 </div>
               </button>
 
@@ -204,8 +217,8 @@
                 @click.stop.prevent="toggleLickMew"
               >
                 <BaseIconTongue class="w-4 h-4" />
-                <div v-if="feedMew.licks.length > 0" class="text-xs">
-                  {{ feedMew.licks.length }}
+                <div v-if="feedMew.licks_count > 0" class="text-xs">
+                  {{ feedMew.licks_count }}
                 </div>
               </button>
             </div>
@@ -311,7 +324,6 @@ import BaseAgentProfileLinkAvatar from "@/components/BaseAgentProfileLinkAvatar.
 import CreateMewDialog from "@/components/CreateMewDialog.vue";
 import BaseMewContent from "@/components/BaseMewContent.vue";
 import isEqual from "lodash/isEqual";
-import remove from "lodash/remove";
 import { useRouter } from "vue-router";
 import { AppAgentClient } from "@holochain/client";
 import BaseTimestamp from "@/components/BaseTimestamp.vue";
@@ -338,12 +350,14 @@ const props = withDefaults(
     enableYarnLink?: boolean;
     showIfDeletedDefault?: boolean;
     showButtons?: boolean;
+    disableTruncateContent?: boolean;
   }>(),
   {
     showYarnLink: true,
     enableYarnLink: true,
     showIfDeletedDefault: false,
     showButtons: true,
+    disableTruncateContent: false,
   }
 );
 const emit = defineEmits([
@@ -399,7 +413,6 @@ const toggleLickMew = async () => {
   showToggleLickMewDialog.value = false;
 
   isUpdatingLick.value = true;
-  const newLicks = [...props.feedMew.licks];
   if (props.feedMew.is_licked) {
     try {
       await client.callZome({
@@ -408,11 +421,10 @@ const toggleLickMew = async () => {
         fn_name: "unlike",
         payload: props.feedMew.action_hash,
       });
-      remove(newLicks, (l) => isEqual(l, client.myPubKey));
       showMessage("Unlicked Mew");
       emit("mew-unlicked", {
         ...props.feedMew,
-        licks: newLicks,
+        licks_count: props.feedMew.licks_count - 1,
       });
     } catch (e) {
       showError(e);
@@ -425,11 +437,10 @@ const toggleLickMew = async () => {
         fn_name: "like",
         payload: props.feedMew.action_hash,
       });
-      newLicks.push(client.myPubKey);
       showMessage("Licked Mew");
       emit("mew-licked", {
         ...props.feedMew,
-        licks: newLicks,
+        licks_count: props.feedMew.licks_count + 1,
       });
     } catch (e) {
       showError(e);
