@@ -1,4 +1,4 @@
-# A UI for MewsFeed based on Vue
+# A UI for mewsfeed based on Vue
 
 ## Run dev server
 ```sh

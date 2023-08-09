@@ -10,6 +10,7 @@
       <BaseMewListItem
         v-if="mew"
         :feed-mew="mew"
+        :disable-truncate-content="true"
         class="bg-base-200 rounded-3xl mb-8 !cursor-default"
         @mew-deleted="refetchMewAndRepliesPage(0)"
         @mew-licked="refetchMewAndRepliesPage(0)"
@@ -163,25 +164,6 @@ const refetchRepliesPage = async (pageIndex: number) => {
   });
 };
 
-const refetchMewAndRepliesLastPage = async () => {
-  await refetchMew();
-
-  if (
-    !mew.value.replies ||
-    !replies.value ||
-    replies.value.pages.length === 0
-  ) {
-    await refetchRepliesPage(0);
-  } else if (
-    mew.value.replies.length <
-    replies.value.pages.length * pageLimit
-  ) {
-    await refetchRepliesPage(replies.value.pages.length - 1);
-  } else {
-    await refetchRepliesPage(replies.value.pages.length - 1);
-    await fetchNextPage();
-  }
-};
 
 onBeforeRouteLeave(() => {
   if (replies.value && replies.value.pages.length > 1) {

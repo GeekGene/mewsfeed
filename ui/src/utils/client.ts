@@ -7,16 +7,15 @@ import {
 import WebSdkApi from "@holo-host/web-sdk";
 
 export const HOLOCHAIN_APP_ID = "mewsfeed";
-export const IS_HOLO_HOSTED = Boolean(import.meta.env.VITE_IS_HOLO_HOSTED);
+export const IS_LAUNCHER = import.meta.env.VITE_IS_LAUNCHER;
+export const IS_HOLO_HOSTED = import.meta.env.VITE_IS_HOLO_HOSTED;
 
 export const setupHolochain = async () => {
-  const HOLOCHAIN_URL = new URL(
-    `ws://localhost:${import.meta.env.VITE_HC_PORT}`
-  );
-
   try {
     const client = await AppAgentWebsocket.connect(
-      HOLOCHAIN_URL,
+      IS_LAUNCHER
+        ? new URL(`ws://UNUSED`)
+        : new URL(`ws://localhost:${import.meta.env.VITE_HC_PORT}`),
       HOLOCHAIN_APP_ID,
       60000
     );

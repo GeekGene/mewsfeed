@@ -1,21 +1,27 @@
 <template>
-  <div class="text-content text-left">
-    <template v-for="(contentPart, index) of partsDisplayed" :key="index">
-      <BaseMewContentTag
-        v-if="contentPart.tagType !== undefined"
-        :content-part="contentPart"
-      />
-      <div v-else class="inline-block whitespace-pre-line pr-1">
-        {{ contentPart.text }}
-      </div>
-    </template>
-
-    <span v-if="contentRequiresTruncation">
-      <span v-if="truncate">...</span>
-      <a @click.stop="truncate = !truncate">
-        Show {{ truncate ? "More" : "Less" }}
-      </a>
-    </span>
+  <div class="w-full relative">
+    <div class="w-full text-content text-left break-words">
+      <template v-for="(contentPart, index) of partsDisplayed" :key="index">
+        <BaseMewContentTag
+          v-if="contentPart.tagType !== undefined"
+          :content-part="contentPart"
+        />
+        <span v-else class="whitespace-pre-line">
+          {{ contentPart.text }}
+        </span>
+      </template>
+      <span v-if="!disableTruncate && truncate && contentRequiresTruncation"
+        >...</span
+      >
+    </div>
+    <div
+      v-if="!disableTruncate && contentRequiresTruncation && truncate"
+      class="w-full h-8 bg-gradient-to-b from-base-100/0 to-base-100 absolute bottom-0 text-center flex flex-col justify-end items-end"
+    >
+      <button class="btn btn-xs btn-ghost" @click.stop="truncate = false">
+        Show More
+      </button>
+    </div>
   </div>
 </template>
 
@@ -25,9 +31,15 @@ import { splitMewTextIntoContentParts } from "@/utils/mewText";
 import { computed, ref } from "vue";
 import BaseMewContentTag from "./BaseMewContentTag.vue";
 
-const props = defineProps<{
-  mew: Mew;
-}>();
+const props = withDefaults(
+  defineProps<{
+    mew: Mew;
+    disableTruncate?: boolean;
+  }>(),
+  {
+    disableTruncate: false,
+  }
+);
 
 const TRUNCATED_MEW_LENGTH = 300;
 
@@ -56,6 +68,17 @@ const partsTruncated = computed(() => {
       totalTextLength += part.text.length;
     }
 
+    // Break very long word at limit (leaving room for ellipses and 'show more' button)
+    else if (
+      part.tagType === undefined &&
+      part.text.length > TRUNCATED_MEW_LENGTH
+    ) {
+      partsSlice.push({
+        ...part,
+        text: part.text.slice(0, TRUNCATED_MEW_LENGTH - 15),
+      });
+    }
+
     // Split plain text into words, append words unless limit reached
     else if (part.tagType === undefined) {
       const words = part.text.split(" ");
@@ -81,6 +104,8 @@ const partsTruncated = computed(() => {
 });
 
 const partsDisplayed = computed(() => {
-  return truncate.value ? partsTruncated.value : parts.value;
+  return !props.disableTruncate && truncate.value
+    ? partsTruncated.value
+    : parts.value;
 });
 </script>

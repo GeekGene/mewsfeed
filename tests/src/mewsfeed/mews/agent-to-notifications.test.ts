@@ -66,6 +66,14 @@ test("notifications include my agent follows & unfollows", async () => {
         agent: bob.agentPubKey,
         notification_type: { [NotificationTypeName.MyAgentFollowed]: null },
       });
+
+      // Alice gets notifications count
+      const count = await alice.cells[0].callZome({
+        zome_name: "mews",
+        fn_name: "count_my_notifications",
+        payload: null,
+      });
+      expect(count).toEqual(2);
     },
     true,
     { timeout: 500000 }
@@ -139,6 +147,14 @@ test("notifications include my mews' likes & unlikes", async () => {
         notification_type: { [NotificationTypeName.MyMewLicked]: null },
         feed_mew: feedMew,
       });
+
+      // Alice gets notifications count
+      const count = await alice.cells[0].callZome({
+        zome_name: "mews",
+        fn_name: "count_my_notifications",
+        payload: null,
+      });
+      expect(count).toEqual(2);
     },
     true,
     { timeout: 500000 }
@@ -212,6 +228,14 @@ test("notifications include my mews' pins & unpins", async () => {
         notification_type: { [NotificationTypeName.MyMewPinned]: null },
         feed_mew: feedMew,
       });
+
+      // Alice gets notifications count
+      const count = await alice.cells[0].callZome({
+        zome_name: "mews",
+        fn_name: "count_my_notifications",
+        payload: null,
+      });
+      expect(count).toEqual(2);
     },
     true,
     { timeout: 500000 }
@@ -316,6 +340,14 @@ test("notifications include my mews' replies, quotes, mewmews", async () => {
         notification_type: { [NotificationTypeName.MyMewResponded]: null },
         feed_mew: replyFeedMew,
       });
+
+      // Alice gets notifications count
+      const count = await alice.cells[0].callZome({
+        zome_name: "mews",
+        fn_name: "count_my_notifications",
+        payload: null,
+      });
+      expect(count).toEqual(3);
     },
     true,
     { timeout: 500000 }
@@ -438,6 +470,14 @@ test("notifications include replies, quotes, mewmews to mews that I also respond
         },
         feed_mew: replyFeedMew,
       });
+
+      // Alice gets notifications count
+      const count = await alice.cells[0].callZome({
+        zome_name: "mews",
+        fn_name: "count_my_notifications",
+        payload: null,
+      });
+      expect(count).toEqual(3);
     },
     true,
     { timeout: 500000 }
