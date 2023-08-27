@@ -50,7 +50,9 @@ You like following cool accounts, interacting with your friends, and having inte
 
 This way you can access your favorite content and send replies to your friends even when you're offline. Alternatively, sign up on [app.mewsfeed.social](https://app.mewsfeed.social) and use it from any device through the browser.
 
-### Install as Desktop App
+### Install Options
+
+#### As Desktop App
 Download the latest release of the Desktop App here: [MewsFeed Kangaroo](https://github.com/GeekGene/mewsfeed-kangaroo/releases/tag/v0.10.1).
 
 Once installed, you'll be greeted by the Explore page.
@@ -67,7 +69,7 @@ When you try to post your first Mew (i.e. Post), you'll be prompted with the pro
 
 Set up your profile and start using the app!
 
-### Install as hApp in the Holochain Launcher
+#### As hApp in the Holochain Launcher
 Download the latest release of Holochain Launcher here: [Holochain Launcher](img/https://github.com/holochain/launcher/releases).
 
 Install the Launcher, run it, and create a password (save it somewhere safe!). Then navigate to the hApp Store.
@@ -90,7 +92,7 @@ Leave the network seed blank if you want to join the regular MewsFeed network.
 
 You'll have to go through the same profile setup steps as described in the section on installing as desktop app.
 
-### Use the Holo-hosted Web Version
+#### Use the Holo-hosted Web Version
 This one is the easiest option. Just head on over to [app.mewsfeed.social](https://app.mewsfeed.social), sign up for an account, fill out your profile, and start using the platform!
 
 ## Environment Setup
