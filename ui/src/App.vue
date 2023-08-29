@@ -9,7 +9,7 @@
 
   <div
     v-else
-    class="w-full flex justify-center items-center relative font-content cursor-default"
+    class="w-full h-full flex justify-center items-center relative font-content cursor-default"
   >
     <profiles-context :store="profilesStore">
       <HoloLogin v-if="IS_HOLO_HOSTED">
