@@ -3,7 +3,7 @@
     class="w-full max-w-screen-md h-full px-3 sm:px-8 py-3 sm:py-6 flex flex-col"
   >
     <div
-      class="h-full flex sm:flex-none justify-center items-start space-x-0 sm:space-x-10 h-full"
+      class="flex sm:flex-none justify-center items-start space-x-0 sm:space-x-10 h-full"
     >
       <BaseSiteMenu
         class="sticky mt-16 top-8 left-0 hidden sm:block w-14 flex flex-col justify-start items-start space-y-4"
