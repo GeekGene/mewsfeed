@@ -15,7 +15,7 @@
     "start:launcher": "VITE_IS_LAUNCHER=true AGENTS=2 npm run network:launcher",
     "network:launcher": "hc s clean && npm run build:happ && UI_PORT=8888 concurrently \"npm run local-services\" \"npm start -w ui\" \"npm run launch:happ:launcher\" \"holochain-playground\"",
     "launch:happ:launcher": "echo \"pass\" | RUST_LOG=warn hc launch --piped -n $AGENTS workdir/mewsfeed.happ --ui-port $UI_PORT network -b http://127.0.0.1:54000 webrtc ws://127.0.0.1:55000",
-    "start:agent:holo": "npm run build:happ && concurrently \"echo pass | lair-keystore server\" \"./holo-dev-server ./workdir/mewsfeed.happ\" \"VITE_IS_HOLO_HOSTED=true VITE_CHAPERONE_SERVER_URL=http://127.0.0.1:24274 UI_PORT=5432 npm -w ui run start\"",
+    "start:agent:holo": "npm run build:happ && concurrently \"echo pass | lair-keystore server\" \"./holo-dev-server ./workdir/mewsfeed.happ\" \"sleep 15 && VITE_IS_HOLO_HOSTED=true VITE_CHAPERONE_SERVER_URL=http://127.0.0.1:24274 UI_PORT=5432 npm -w ui run start\"",
     "test": "npm run build:happ && npm t -w tests",
     "test:watch": "cargo watch --clear -- npm test",
     "package": "npm run build:happ && VITE_IS_LAUNCHER=true npm run package:ui && hc web-app pack workdir",
