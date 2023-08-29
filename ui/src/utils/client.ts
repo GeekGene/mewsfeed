@@ -4,15 +4,11 @@ import {
   CellType,
   AppAgentWebsocket,
 } from "@holochain/client";
-import WebSdkApi from "@holo-host/web-sdk";
+import WebSdkApi, { AgentState } from "@holo-host/web-sdk";
 
 export const HOLOCHAIN_APP_ID = "mewsfeed";
 export const IS_LAUNCHER = import.meta.env.VITE_IS_LAUNCHER;
 export const IS_HOLO_HOSTED = import.meta.env.VITE_IS_HOLO_HOSTED;
-
-export const HOLO_CHAPERONE_URL = import.meta.env.VITE_CHAPERONE_SERVER_URL
-  ? import.meta.env.VITE_CHAPERONE_SERVER_URL
-  : "http://localhost:24274";
 
 export const setupHolochain = async () => {
   try {
@@ -37,15 +33,28 @@ export const setupHolochain = async () => {
 };
 
 export const setupHolo = async () => {
+  const HOLO_CHAPERONE_URL = import.meta.env.VITE_CHAPERONE_SERVER_URL
+    ? import.meta.env.VITE_CHAPERONE_SERVER_URL
+    : "http://localhost:24274";
+
   try {
     const client = await WebSdkApi.connect({
       chaperoneUrl: HOLO_CHAPERONE_URL,
       authFormCustomization: {
-        logoUrl: "assets/cat-eating-bird-circle.png",
         appName: "mewsfeed",
         requireRegistrationCode: false,
       },
     });
+
+    await new Promise((resolve) =>
+      client.on("agent-state", (state: AgentState) => {
+        if (state.isAvailable && state.isAnonymous) {
+          client.signUp({});
+        } else if (state.isAvailable && !state.isAnonymous) {
+          resolve(state);
+        }
+      })
+    );
 
     return client;
   } catch (e) {

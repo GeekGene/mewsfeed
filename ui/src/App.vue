@@ -12,11 +12,7 @@
     class="w-full flex justify-center items-center relative font-content cursor-default"
   >
     <profiles-context :store="profilesStore">
-      <HoloLogin v-if="IS_HOLO_HOSTED">
-        <MainLayout />
-      </HoloLogin>
-
-      <MainLayout v-else />
+      <MainLayout />
 
       <div
         v-if="loadingCells"
@@ -32,7 +28,6 @@
 <script setup lang="ts">
 import { computed, onMounted, provide, ref, toRaw, watch } from "vue";
 import { IS_HOLO_HOSTED, setupHolo, setupHolochain } from "@/utils/client";
-import HoloLogin from "@/components/HoloLogin.vue";
 import MainLayout from "@/layouts/MainLayout.vue";
 import { PROFILES_CONFIG } from "@/utils/profiles";
 import "@shoelace-style/shoelace/dist/components/spinner/spinner";
@@ -73,9 +68,7 @@ const dnaProperties = computed(() =>
 );
 
 onMounted(() => {
-  asyncRetry(setup, {
-    factor: 1.3,
-  });
+  setup();
 });
 
 const setup = async () => {
@@ -83,8 +76,19 @@ const setup = async () => {
   if (IS_HOLO_HOSTED) {
     client.value = await setupHolo();
   } else {
-    client.value = await setupHolochain();
+    client.value = await asyncRetry(setupHolochain, {
+      factor: 1.3,
+    });
   }
+
+  await asyncRetry(setupApp, {
+    factor: 1.3,
+  });
+};
+
+const setupApp = async () => {
+  if (!client.value) throw Error("Holo / Holochain client not ready");
+
   appInfo.value = await client.value.appInfo();
 
   // Setup profiles
