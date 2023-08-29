@@ -579,12 +579,24 @@ const onCaretPositionChange = () => {
       }
       // current word is a URL
     } else if (isLinkTag(currentWord)) {
+
+      // find start of tag that the caret is positioned at
+      const behind = content.substring(0, selection.anchorOffset - 1);
+      let lastCaretIndex = -1;
+      // find last index of space, which can be " " (32) or "&nbsp;" (160)
+      for (let i = behind.length - 1; i >= 0; i--) {
+        if (behind.charCodeAt(i) === 94) {
+          lastCaretIndex = i;
+          break;
+        }
+      }
+
       showElement(
         selection.anchorNode,
-        startOfWordIndex,
+        lastCaretIndex,
         "#link-target-input-container"
       );
-      currentAnchorOffset = startOfWordIndex;
+      currentAnchorOffset = lastCaretIndex;
       currentFocusOffset = endOfWordIndex;
     } else {
       hideAutocompleter();
