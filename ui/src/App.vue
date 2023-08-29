@@ -12,11 +12,7 @@
     class="w-full flex justify-center items-center relative font-content cursor-default"
   >
     <profiles-context :store="profilesStore">
-      <HoloLogin v-if="IS_HOLO_HOSTED">
-        <MainLayout />
-      </HoloLogin>
-
-      <MainLayout v-else />
+      <MainLayout />
 
       <div
         v-if="loadingCells"
@@ -32,7 +28,6 @@
 <script setup lang="ts">
 import { computed, onMounted, provide, ref, toRaw, watch } from "vue";
 import { IS_HOLO_HOSTED, setupHolo, setupHolochain } from "@/utils/client";
-import HoloLogin from "@/components/HoloLogin.vue";
 import MainLayout from "@/layouts/MainLayout.vue";
 import { PROFILES_CONFIG } from "@/utils/profiles";
 import "@shoelace-style/shoelace/dist/components/spinner/spinner";

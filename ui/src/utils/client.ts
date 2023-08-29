@@ -4,7 +4,7 @@ import {
   CellType,
   AppAgentWebsocket,
 } from "@holochain/client";
-import WebSdkApi from "@holo-host/web-sdk";
+import WebSdkApi, { AgentState } from "@holo-host/web-sdk";
 
 export const HOLOCHAIN_APP_ID = "mewsfeed";
 export const IS_LAUNCHER = import.meta.env.VITE_IS_LAUNCHER;
@@ -45,6 +45,16 @@ export const setupHolo = async () => {
         requireRegistrationCode: false,
       },
     });
+
+    await new Promise((resolve) =>
+      client.on("agent-state", (state: AgentState) => {
+        if (state.isAvailable && state.isAnonymous) {
+          client.signUp({});
+        } else if (state.isAvailable && !state.isAnonymous) {
+          resolve(state);
+        }
+      })
+    );
 
     return client;
   } catch (e) {
