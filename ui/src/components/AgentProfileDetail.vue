@@ -51,10 +51,17 @@ const fetchProfileWithContext = async () => {
   }
 };
 
-const { data: profileWithContext, error: errorProfile } = useQuery({
+const {
+  data: profileWithContext,
+  error: errorProfile,
+  refetch,
+} = useQuery({
   queryKey: ["profiles", "getAgentProfile", props.agentPubKey],
   queryFn: fetchProfileWithContext,
   refetchOnMount: true,
 });
 watch(errorProfile, showError);
+watch(props, () => {
+  refetch();
+});
 </script>
