@@ -370,12 +370,12 @@ const createLinkTag = (e: Event) => {
   range.insertNode(anchor);
 
   // insert space after html link
-  const spaceNode = document.createTextNode(String.fromCharCode(160));
+  const spaceNode = document.createTextNode("");
   anchor.after(spaceNode);
 
   // reset input
   resetLinkTargetInput();
-  document.getSelection()?.setPosition(spaceNode, 1);
+  document.getSelection()?.setPosition(spaceNode, 0);
 };
 
 /**
