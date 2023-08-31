@@ -53,6 +53,34 @@ pub fn get_followers_for_creator(
 }
 
 #[hdk_extern]
+pub fn count_creators_for_follower(
+    follower: AgentPubKey,
+) -> ExternResult<usize> {
+    let query = LinkQuery::new(
+        follower,
+        LinkTypeFilter::single_type(
+            ZomeIndex(2),
+            LinkType(0), // LinkTypes::FollowerToCreators
+        ),
+    );
+    count_links(query)
+}
+
+#[hdk_extern]
+pub fn count_followers_for_creator(
+    creator: AgentPubKey,
+) -> ExternResult<usize> {
+    let query = LinkQuery::new(
+        creator,
+        LinkTypeFilter::single_type(
+            ZomeIndex(2),
+            LinkType(1), // LinkTypes::CreatorToFollowers
+        ),
+    );
+    count_links(query)
+}
+
+#[hdk_extern]
 pub fn get_follower_links_for_creator(
     input: GetFollowersForCreatorInput,
 ) -> ExternResult<Vec<Link>> {
