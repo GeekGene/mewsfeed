@@ -61,6 +61,12 @@
               refetchAuthoredMews();
             }
           "
+          @mew-deleted="
+            () => {
+              refetchPinnedMews();
+              refetchAuthoredMews();
+            }
+          "
           @mew-licked="refetchPinnedMews"
           @mew-unlicked="refetchPinnedMews"
           @reply-created="refetchAuthoredMews"
@@ -94,6 +100,12 @@
             }
           "
           @mew-unpinned="
+            () => {
+              refetchPinnedMews();
+              refetchAuthoredMews();
+            }
+          "
+          @mew-deleted="
             () => {
               refetchPinnedMews();
               refetchAuthoredMews();
