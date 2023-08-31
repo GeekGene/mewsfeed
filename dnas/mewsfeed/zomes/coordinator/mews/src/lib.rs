@@ -15,7 +15,6 @@ pub mod random_mews;
 pub mod search_tags;
 pub mod tag_to_mews;
 
-use mews_integrity::LinkTypes;
 #[hdk_extern]
 pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
     Ok(InitCallbackResult::Pass)
