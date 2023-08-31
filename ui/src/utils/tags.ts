@@ -1,15 +1,3 @@
-import { ROUTES } from "@/router";
-import {
-  LinkTarget,
-  LinkTargetName,
-  MentionLinkTarget,
-  MewContentPart,
-  MewTagType,
-  UrlLinkTarget,
-} from "@/types/types";
-import { AgentPubKey, encodeHashToBase64 } from "@holochain/client";
-import { RouteLocationRaw } from "vue-router";
-
 export const TAG_SYMBOLS = {
   CASHTAG: "$",
   HASHTAG: "#",
@@ -20,7 +8,7 @@ export const TAG_SYMBOLS = {
 const MENTION_TAG_REGEX_STRING = `\\B\\${TAG_SYMBOLS.MENTION}\\S+`;
 const MENTION_TAG_REGEX = new RegExp(MENTION_TAG_REGEX_STRING, "mi");
 
-const LINK_TAG_REGEX_STRING = `\\B\\${TAG_SYMBOLS.LINK}\\S+`;
+const LINK_TAG_REGEX_STRING = `\\B\\${TAG_SYMBOLS.LINK}\\w+`;
 const LINK_TAG_REGEX = new RegExp(LINK_TAG_REGEX_STRING, "mi");
 
 const CASH_TAG_REGEX_STRING = `\\B\\${TAG_SYMBOLS.CASHTAG}\\w+`;
