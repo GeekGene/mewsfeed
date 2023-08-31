@@ -19,7 +19,7 @@
 <script setup lang="ts">
 import { PROFILE_FIELDS } from "@/types/types";
 import { AgentPubKey, encodeHashToBase64 } from "@holochain/client";
-import { ComputedRef, inject, PropType, ref, watch } from "vue";
+import { computed, ComputedRef, inject, ref, watch } from "vue";
 import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
 import { AppAgentClient } from "@holochain/client";
 import CreateProfileIfNotFoundDialog from "./CreateProfileIfNotFoundDialog.vue";
@@ -46,8 +46,8 @@ const { showMessage, showError } = useToasts();
 
 const showCreateProfileDialog = ref(false);
 
-const fetchIsFollowing = async () => {
-  const currentMyFollowing: AgentPubKey[] = await client.callZome({
+const fetchMyFollowing = async (): Promise<AgentPubKey[]> =>
+  client.callZome({
     role_name: "mewsfeed",
     zome_name: "follows",
     fn_name: "get_creators_for_follower",
@@ -56,13 +56,18 @@ const fetchIsFollowing = async () => {
     },
   });
 
-  return currentMyFollowing.some((agent) => isEqual(agent, props.agentPubKey));
-};
+const isFollowing = computed(() => {
+  if (!currentMyFollowing.value) return false;
+
+  return currentMyFollowing.value.some((agent: AgentPubKey) =>
+    isEqual(agent, props.agentPubKey)
+  );
+});
 
 const {
-  data: isFollowing,
-  error: errorIsFollowing,
-  refetch: refetchIsFollowing,
+  data: currentMyFollowing,
+  error: errorMyFollowing,
+  refetch: refetchMyFollowing,
 } = useQuery({
   queryKey: [
     "follows",
@@ -70,9 +75,12 @@ const {
     encodeHashToBase64(client.myPubKey),
     "isFollowing",
   ],
-  queryFn: fetchIsFollowing,
+  queryFn: fetchMyFollowing,
 });
-watch(errorIsFollowing, showError);
+watch(errorMyFollowing, showError);
+watch(props, () => {
+  refetchMyFollowing();
+});
 
 const toggleFollow = async () => {
   if (!myProfile.value) {
@@ -98,7 +106,7 @@ const toggleFollow = async () => {
             payload: props.agentPubKey,
           }),
     ]);
-    await refetchIsFollowing();
+    await refetchMyFollowing();
     if (isFollowing.value) {
       setHomeRedirect(false);
     }
