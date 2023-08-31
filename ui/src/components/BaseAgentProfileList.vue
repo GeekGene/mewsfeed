@@ -21,7 +21,7 @@
     <BaseAgentProfileListItem
       :agent-profile="item"
       :enable-popup="enablePopups"
-      class="cursor-pointer"
+      class="cursor-pointer py-3"
       @click="
         router.push({
           name: ROUTES.profile,
