@@ -1,5 +1,8 @@
 <template>
-  <div class="toast toast-bottom toast-right">
+  <div
+    style="word-break: break-all"
+    class="toast toast-bottom toast-start max-w-full break-words whitespace-pre-line text-xs"
+  >
     <div
       v-for="message in messages"
       :key="message.id"
