@@ -2,7 +2,7 @@
 <template>
   <div>
     <RouterLink
-      v-tooltip.bottom="{
+      v-tooltip.left="{
         content: 'Feed',
         popperClass: 'text-xs',
         triggers: ['hover'],
@@ -15,7 +15,7 @@
       <IconHome class="w-6 h-6" />
     </RouterLink>
     <RouterLink
-      v-tooltip.bottom="{
+      v-tooltip.left="{
         content: 'Explore',
         popperClass: 'text-xs',
         triggers: ['hover'],
@@ -29,7 +29,7 @@
     </RouterLink>
     <div class="indicator">
       <RouterLink
-        v-tooltip.bottom="{
+        v-tooltip.left="{
           content: 'Notifications',
           popperClass: 'text-xs',
           triggers: ['hover'],
@@ -49,7 +49,7 @@
     </div>
 
     <a
-      v-tooltip.bottom="{
+      v-tooltip.left="{
         content: 'Search',
         popperClass: 'text-xs',
         triggers: ['hover'],
@@ -63,7 +63,7 @@
     </a>
     <RouterLink
       v-if="myProfile"
-      v-tooltip.bottom="{
+      v-tooltip.left="{
         content: 'My Profie',
         popperClass: 'text-xs',
         triggers: ['hover'],
