@@ -5,8 +5,8 @@
         :profile="profileWithContext?.profile"
         :joined-timestamp="profileWithContext?.joinedTimestamp"
         :agentPubKey="agentPubKey"
-        :creators-count="creatorsCount ? creatorsCount : 0"
-        :followers-count="followersCount ? followersCount : 0"
+        :creators-count="creatorsCount || 0"
+        :followers-count="followersCount || 0"
         class="bg-base-200/75 rounded-3xl"
         style="-webkit-backdrop-filter: blur(10px)"
         enable-copy-agent-pub-key
