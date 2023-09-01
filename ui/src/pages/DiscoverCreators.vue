@@ -141,7 +141,6 @@ import BaseListSkeleton from "@/components/BaseListSkeleton.vue";
 import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
-const { showError } = useToasts();
 
 const fetchRandomMewHashes = (): Promise<ActionHash[]> =>
   client.callZome({
@@ -171,7 +170,7 @@ const {
   refetchOnMount: false,
   refetchOnReconnect: false,
 });
-watch(errorRandomMewHashes, showError);
+watch(errorRandomMewHashes, console.error);
 
 const hasRandomMewHashes = computed(
   () => randomMewHashes.value !== undefined && randomMewHashes.value.length > 0
@@ -191,7 +190,7 @@ const {
   refetchOnMount: false,
   refetchOnReconnect: false,
 });
-watch(errorRandomMews, showError);
+watch(errorRandomMews, console.error);
 
 const fetchRandomTags = (): Promise<string[]> => {
   return client.callZome({
@@ -214,7 +213,7 @@ const {
   refetchOnMount: false,
   refetchOnReconnect: false,
 });
-watch(errorRandomTags, showError);
+watch(errorRandomTags, console.error);
 
 onMounted(async () => {
   if (randomMews.value === undefined || randomMews.value.length === 0) {
@@ -270,7 +269,7 @@ const {
   refetchOnMount: false,
   refetchOnReconnect: false,
 });
-watch(errorRandomMewHashesWithTag1, showError);
+watch(errorRandomMewHashesWithTag1, console.error);
 const hasRandomMewHashesWithTag1 = computed(
   () =>
     tag1Enabled.value &&
@@ -298,7 +297,7 @@ const {
   refetchOnMount: false,
   refetchOnReconnect: false,
 });
-watch(errorRandomMewsWithTag1, showError);
+watch(errorRandomMewsWithTag1, console.error);
 
 // Random Mews with Tag 2
 
@@ -315,7 +314,7 @@ const {
   refetchOnMount: false,
   refetchOnReconnect: false,
 });
-watch(errorRandomMewHashesWithTag2, showError);
+watch(errorRandomMewHashesWithTag2, console.error);
 const hasRandomMewHashesWithTag2 = computed(
   () =>
     tag2Enabled.value &&
@@ -343,7 +342,7 @@ const {
   refetchOnMount: false,
   refetchOnReconnect: false,
 });
-watch(errorRandomMewsWithTag2, showError);
+watch(errorRandomMewsWithTag2, console.error);
 
 // Random Mews with Tag 3
 
@@ -360,7 +359,7 @@ const {
   refetchOnMount: false,
   refetchOnReconnect: false,
 });
-watch(errorRandomMewHashesWithTag3, showError);
+watch(errorRandomMewHashesWithTag3, console.error);
 const hasRandomMewHashesWithTag3 = computed(
   () =>
     tag3Enabled.value &&
@@ -388,7 +387,7 @@ const {
   refetchOnMount: false,
   refetchOnReconnect: false,
 });
-watch(errorRandomMewsWithTag3, showError);
+watch(errorRandomMewsWithTag3, console.error);
 
 const shuffle = async () => {
   await refetchMews();
