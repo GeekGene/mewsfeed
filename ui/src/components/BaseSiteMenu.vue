@@ -2,23 +2,38 @@
 <template>
   <div>
     <RouterLink
+      v-tooltip.left="{
+        content: 'Feed',
+        popperClass: 'text-xs',
+        triggers: ['hover'],
+      }"
       class="btn btn-circle btn-md"
       active-class="btn-neutral"
-      alt="Home Page"
+      alt="Feed Page"
       :to="{ name: ROUTES.feed }"
     >
       <IconHome class="w-6 h-6" />
     </RouterLink>
     <RouterLink
+      v-tooltip.left="{
+        content: 'Explore',
+        popperClass: 'text-xs',
+        triggers: ['hover'],
+      }"
       class="btn btn-circle btn-md"
       active-class="btn-neutral"
-      alt="Discover Creators Page"
+      alt="Explore Page"
       :to="{ name: ROUTES.discover }"
     >
       <IconGlobeOutline class="w-6 h-6" />
     </RouterLink>
     <div class="indicator">
       <RouterLink
+        v-tooltip.left="{
+          content: 'Notifications',
+          popperClass: 'text-xs',
+          triggers: ['hover'],
+        }"
         class="btn btn-circle btn-md"
         active-class="btn-neutral"
         alt="Notifications Page"
@@ -34,6 +49,11 @@
     </div>
 
     <a
+      v-tooltip.left="{
+        content: 'Search',
+        popperClass: 'text-xs',
+        triggers: ['hover'],
+      }"
       class="btn btn-circle btn-md"
       active-class="btn-neutral"
       alt="Search Button"
@@ -43,6 +63,11 @@
     </a>
     <RouterLink
       v-if="myProfile"
+      v-tooltip.left="{
+        content: 'My Profie',
+        popperClass: 'text-xs',
+        triggers: ['hover'],
+      }"
       class="btn btn-circle btn-md"
       active-class="btn-neutral ring-inset ring-8 ring-neutral"
       alt="My Profile Page"
