@@ -62,7 +62,6 @@ import { decodeHashFromBase64 } from "@holochain/client";
 import { ComputedRef, computed, inject, watch } from "vue";
 import { useRoute, onBeforeRouteLeave } from "vue-router";
 import { AppAgentClient } from "@holochain/client";
-import { useToasts } from "@/stores/toasts";
 import {
   useInfiniteQuery,
   useQuery,
@@ -162,7 +161,6 @@ const refetchRepliesPage = async (pageIndex: number) => {
     refetchPage: (page: any, index: number) => index === pageIndex,
   });
 };
-
 
 onBeforeRouteLeave(() => {
   if (replies.value && replies.value.pages.length > 1) {

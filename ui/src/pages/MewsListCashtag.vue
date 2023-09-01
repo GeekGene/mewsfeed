@@ -61,7 +61,6 @@ import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
 import BaseEmptyList from "@/components/BaseEmptyList.vue";
 import BaseMewListItem from "@/components/BaseMewListItem.vue";
 import { watch } from "vue";
-import { useToasts } from "@/stores/toasts";
 import BaseButtonBack from "@/components/BaseButtonBack.vue";
 import BaseInfiniteScroll from "@/components/BaseInfiniteScroll.vue";
 import BaseListSkeleton from "@/components/BaseListSkeleton.vue";

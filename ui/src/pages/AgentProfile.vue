@@ -133,7 +133,6 @@
 
 <script setup lang="ts">
 import { AgentProfile } from "@/types/types";
-import { useToasts } from "@/stores/toasts";
 import {
   AgentPubKey,
   decodeHashFromBase64,

@@ -134,7 +134,6 @@ import { AppAgentClient } from "@holochain/client";
 import BaseList from "@/components/BaseList.vue";
 import { FeedMew } from "@/types/types";
 import { useQuery } from "@tanstack/vue-query";
-import { useToasts } from "@/stores/toasts";
 import IconDiceOutline from "~icons/ion/dice-outline";
 import { ActionHash } from "@holochain/client";
 import BaseListSkeleton from "@/components/BaseListSkeleton.vue";

@@ -58,7 +58,6 @@ import { AppAgentClient, encodeHashToBase64 } from "@holochain/client";
 import { ComputedRef, inject, watch } from "vue";
 import { FeedMew, PaginationDirectionName } from "@/types/types";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
-import { useToasts } from "@/stores/toasts";
 import BaseMewListItem from "@/components/BaseMewListItem.vue";
 import BaseEmptyList from "@/components/BaseEmptyList.vue";
 import BaseListSkeleton from "@/components/BaseListSkeleton.vue";
