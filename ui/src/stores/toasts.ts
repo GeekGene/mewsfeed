@@ -3,7 +3,7 @@ import { uniqueId } from "lodash";
 import { defineStore } from "pinia";
 import { ref } from "vue";
 
-const DEFAULT_TIMEOUT = 2000; // Time to display toasts by default (ms)
+const DEFAULT_TIMEOUT = 3000; // Time to display toasts by default (ms)
 
 export const useToasts = defineStore("toasts", () => {
   const messages = ref<ToastMessage[]>([]);

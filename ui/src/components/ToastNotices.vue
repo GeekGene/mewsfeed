@@ -1,5 +1,8 @@
 <template>
-  <div class="toast toast-bottom toast-right">
+  <div
+    style="word-break: break-all"
+    class="toast toast-bottom toast-start max-w-full break-words whitespace-pre-line"
+  >
     <div
       v-for="message in messages"
       :key="message.id"
@@ -15,7 +18,7 @@
       <IconCheckmarkCircleOutline v-if="message.type === 'success'" />
       <IconAlertCircleOutline v-if="message.type === 'error'" />
       <IconWarningOutline v-if="message.type === 'warning'" />
-      <div>{{ message.text }}</div>
+      <div class="text-xs">{{ message.text }}</div>
     </div>
   </div>
 </template>
