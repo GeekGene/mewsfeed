@@ -95,6 +95,7 @@
             v-if="!isMyProfile"
             :agentPubKey="agentPubKey"
             :big="bigFollowButton"
+            @toggle-follow="(val) => emit('toggle-follow', val)"
           />
           <div v-else-if="!hideEditButton" class="flex flex-col space-y-2">
             <button
@@ -222,6 +223,7 @@ const emit = defineEmits([
   "click-edit-profile",
   "click-creators",
   "click-followers",
+  "toggle-follow",
 ]);
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;

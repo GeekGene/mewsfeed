@@ -5,8 +5,8 @@
         :profile="profileWithContext?.profile"
         :joined-timestamp="profileWithContext?.joinedTimestamp"
         :agentPubKey="agentPubKey"
-        :creators-count="creators ? creators.length : 0"
-        :followers-count="followers ? followers.length : 0"
+        :creators-count="creatorsCount || 0"
+        :followers-count="followersCount || 0"
         class="bg-base-200/75 rounded-3xl"
         style="-webkit-backdrop-filter: blur(10px)"
         enable-copy-agent-pub-key
@@ -22,6 +22,7 @@
             if (creators && creators.length > 0) showCreatorsListDialog = true;
           }
         "
+        @toggle-follow="refetchFollowersCount"
       />
       <EditAgentProfileDialog
         v-if="profileWithContext"
@@ -252,7 +253,7 @@ const {
 watch(errorProfile, showError);
 
 const fetchFollowers = async () => {
-  const agents: AgentPubKey[] = await await client.callZome({
+  const agents: AgentPubKey[] = await client.callZome({
     role_name: "mewsfeed",
     zome_name: "follows",
     fn_name: "get_followers_for_creator",
@@ -290,7 +291,7 @@ const { data: followers, error: errorFollowers } = useQuery({
 watch(errorFollowers, showError);
 
 const fetchCreators = async () => {
-  const agents: AgentPubKey[] = await await client.callZome({
+  const agents: AgentPubKey[] = await client.callZome({
     role_name: "mewsfeed",
     zome_name: "follows",
     fn_name: "get_creators_for_follower",
@@ -326,4 +327,44 @@ const { data: creators, error: errorCreators } = useQuery({
   queryFn: fetchCreators,
 });
 watch(errorCreators, showError);
+
+const fetchCreatorsCount = async (): Promise<number> =>
+  client.callZome({
+    role_name: "mewsfeed",
+    zome_name: "follows",
+    fn_name: "count_creators_for_follower",
+    payload: decodeHashFromBase64(route.params.agentPubKey as string),
+  });
+
+const { data: creatorsCount, error: errorCreatorsCount } = useQuery({
+  queryKey: [
+    "follows",
+    "count_creators_for_follower",
+    route.params.agentPubKey as string,
+  ],
+  queryFn: fetchCreatorsCount,
+});
+watch(errorCreatorsCount, showError);
+
+const fetchFollowersCount = async (): Promise<number> =>
+  client.callZome({
+    role_name: "mewsfeed",
+    zome_name: "follows",
+    fn_name: "count_followers_for_creator",
+    payload: decodeHashFromBase64(route.params.agentPubKey as string),
+  });
+
+const {
+  data: followersCount,
+  error: errorFollowersCount,
+  refetch: refetchFollowersCount,
+} = useQuery({
+  queryKey: [
+    "follows",
+    "count_followers_for_creator",
+    route.params.agentPubKey as string,
+  ],
+  queryFn: fetchFollowersCount,
+});
+watch(errorFollowersCount, showError);
 </script>
