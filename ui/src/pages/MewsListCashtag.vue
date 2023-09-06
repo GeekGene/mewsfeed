@@ -61,7 +61,6 @@ import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
 import BaseEmptyList from "@/components/BaseEmptyList.vue";
 import BaseMewListItem from "@/components/BaseMewListItem.vue";
 import { watch } from "vue";
-import { useToasts } from "@/stores/toasts";
 import BaseButtonBack from "@/components/BaseButtonBack.vue";
 import BaseInfiniteScroll from "@/components/BaseInfiniteScroll.vue";
 import BaseListSkeleton from "@/components/BaseListSkeleton.vue";
@@ -70,7 +69,6 @@ import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
 const route = useRoute();
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const queryClient = useQueryClient();
-const { showError } = useToasts();
 const pageLimit = 5;
 
 const fetchCashtagMews = async (params: any) =>
@@ -104,7 +102,7 @@ const { data, error, fetchNextPage, hasNextPage, isInitialLoading, refetch } =
     refetchInterval: 1000 * 60 * 2, // 2 minutes
     refetchOnMount: true,
   });
-watch(error, showError);
+watch(error, console.error);
 
 const fetchNextPageInfiniteScroll = async (
   done: (hasMore?: boolean) => void

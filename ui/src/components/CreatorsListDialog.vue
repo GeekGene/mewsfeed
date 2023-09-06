@@ -44,7 +44,6 @@ import BaseAgentProfileListItemSkeleton from "@/components/BaseAgentProfileListI
 import BaseEmptyList from "@/components/BaseEmptyList.vue";
 import BaseAgentProfileList from "@/components/BaseAgentProfileList.vue";
 import { watch } from "vue";
-import { useToasts } from "@/stores/toasts";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { encodeHashToBase64 } from "@holochain/client";
 import { AgentProfile } from "@/types/types";
@@ -61,7 +60,6 @@ const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const queryClient = useQueryClient();
-const { showError } = useToasts();
 
 const pageLimit = 10;
 
@@ -119,7 +117,7 @@ const fetchNextPageInfiniteScroll = async (
   done(hasNextPage?.value);
 };
 
-watch(error, showError);
+watch(error, console.error);
 
 onBeforeRouteLeave(() => {
   if (data.value && data.value.pages.length > 1) {

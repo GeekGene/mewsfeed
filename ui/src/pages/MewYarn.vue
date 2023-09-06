@@ -62,7 +62,6 @@ import { decodeHashFromBase64 } from "@holochain/client";
 import { ComputedRef, computed, inject, watch } from "vue";
 import { useRoute, onBeforeRouteLeave } from "vue-router";
 import { AppAgentClient } from "@holochain/client";
-import { useToasts } from "@/stores/toasts";
 import {
   useInfiniteQuery,
   useQuery,
@@ -75,7 +74,6 @@ import BaseInfiniteScroll from "@/components/BaseInfiniteScroll.vue";
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const route = useRoute();
 const queryClient = useQueryClient();
-const { showError } = useToasts();
 
 const pageLimit = 10;
 
@@ -103,7 +101,7 @@ const {
   enabled: hasActionHash,
   refetchInterval: 1000 * 60 * 2, // 2 minutes
 });
-watch(mewError, showError);
+watch(mewError, console.error);
 
 const fetchReplies = (params: any) =>
   client.callZome({
@@ -146,7 +144,7 @@ const {
   refetchInterval: 1000 * 60 * 2, // 2 minutes
   refetchOnMount: true,
 });
-watch(errorReplies, showError);
+watch(errorReplies, console.error);
 
 const fetchNextPageReplies = async (done: (hasMore?: boolean) => void) => {
   await fetchNextPage();
@@ -163,7 +161,6 @@ const refetchRepliesPage = async (pageIndex: number) => {
     refetchPage: (page: any, index: number) => index === pageIndex,
   });
 };
-
 
 onBeforeRouteLeave(() => {
   if (replies.value && replies.value.pages.length > 1) {

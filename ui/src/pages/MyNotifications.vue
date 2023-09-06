@@ -57,7 +57,6 @@ import { onBeforeRouteLeave } from "vue-router";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import BaseNotification from "@/components/BaseNotification.vue";
 import BaseEmptyList from "@/components/BaseEmptyList.vue";
-import { useToasts } from "@/stores/toasts";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
 import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";
 import { PaginationDirectionName, Notification } from "@/types/types";
@@ -69,7 +68,6 @@ const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const useNotificationsReadStore = makeUseNotificationsReadStore(client);
 const { markRead, addNotificationStatus } = useNotificationsReadStore();
 const queryClient = useQueryClient();
-const { showError } = useToasts();
 
 const pageLimit = 10;
 
@@ -104,7 +102,7 @@ const { data, error, fetchNextPage, hasNextPage, refetch, isInitialLoading } =
     refetchInterval: 1000 * 60 * 2, // 2 minutes
     refetchOnMount: true,
   });
-watch(error, showError);
+watch(error, console.error);
 
 const fetchNextPageInfiniteScroll = async (
   done: (hasMore?: boolean) => void

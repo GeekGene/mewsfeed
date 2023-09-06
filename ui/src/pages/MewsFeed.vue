@@ -58,7 +58,6 @@ import { AppAgentClient, encodeHashToBase64 } from "@holochain/client";
 import { ComputedRef, inject, watch } from "vue";
 import { FeedMew, PaginationDirectionName } from "@/types/types";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
-import { useToasts } from "@/stores/toasts";
 import BaseMewListItem from "@/components/BaseMewListItem.vue";
 import BaseEmptyList from "@/components/BaseEmptyList.vue";
 import BaseListSkeleton from "@/components/BaseListSkeleton.vue";
@@ -68,7 +67,6 @@ import { onBeforeRouteLeave } from "vue-router";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const queryClient = useQueryClient();
-const { showError } = useToasts();
 const pageLimit = 10;
 
 const fetchMewsFeed = (params: any): Promise<FeedMew[]> =>
@@ -103,7 +101,7 @@ const { data, error, fetchNextPage, hasNextPage, isInitialLoading, refetch } =
     refetchInterval: 1000 * 60 * 2, // 2 minutes
     refetchOnMount: true,
   });
-watch(error, showError);
+watch(error, console.error);
 
 const fetchNextPageInfiniteScroll = async (
   done: (hasMore?: boolean) => void

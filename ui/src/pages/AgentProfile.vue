@@ -133,7 +133,6 @@
 
 <script setup lang="ts">
 import { AgentProfile } from "@/types/types";
-import { useToasts } from "@/stores/toasts";
 import {
   AgentPubKey,
   decodeHashFromBase64,
@@ -156,7 +155,6 @@ const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const route = useRoute();
 const router = useRouter();
 const queryClient = useQueryClient();
-const { showError } = useToasts();
 
 const agentPubKey = computed(() =>
   decodeHashFromBase64(route.params.agentPubKey as string)
@@ -193,7 +191,7 @@ const {
   ],
   queryFn: fetchAuthoredMews,
 });
-watch(errorAuthoredMews, showError);
+watch(errorAuthoredMews, console.error);
 
 const fetchPinnedMews = () =>
   client.callZome({
@@ -216,7 +214,7 @@ const {
   ],
   queryFn: fetchPinnedMews,
 });
-watch(errorPinnedMews, showError);
+watch(errorPinnedMews, console.error);
 
 const fetchProfileWithContext = async () => {
   const profile = await profilesStore.client.getAgentProfile(agentPubKey.value);
@@ -250,7 +248,7 @@ const {
   ],
   queryFn: fetchProfileWithContext,
 });
-watch(errorProfile, showError);
+watch(errorProfile, console.error);
 
 const fetchFollowers = async () => {
   const agents: AgentPubKey[] = await client.callZome({
@@ -288,7 +286,7 @@ const { data: followers, error: errorFollowers } = useQuery({
   ],
   queryFn: fetchFollowers,
 });
-watch(errorFollowers, showError);
+watch(errorFollowers, console.error);
 
 const fetchCreators = async () => {
   const agents: AgentPubKey[] = await client.callZome({
@@ -326,7 +324,7 @@ const { data: creators, error: errorCreators } = useQuery({
   ],
   queryFn: fetchCreators,
 });
-watch(errorCreators, showError);
+watch(errorCreators, console.error);
 
 const fetchCreatorsCount = async (): Promise<number> =>
   client.callZome({
@@ -344,7 +342,7 @@ const { data: creatorsCount, error: errorCreatorsCount } = useQuery({
   ],
   queryFn: fetchCreatorsCount,
 });
-watch(errorCreatorsCount, showError);
+watch(errorCreatorsCount, console.error);
 
 const fetchFollowersCount = async (): Promise<number> =>
   client.callZome({
@@ -366,5 +364,5 @@ const {
   ],
   queryFn: fetchFollowersCount,
 });
-watch(errorFollowersCount, showError);
+watch(errorFollowersCount, console.error);
 </script>

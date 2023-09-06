@@ -73,7 +73,6 @@ import BaseEmptyList from "@/components/BaseEmptyList.vue";
 import BaseMewListItem from "@/components/BaseMewListItem.vue";
 import BaseAgentProfileLinkName from "@/components/BaseAgentProfileLinkName.vue";
 import { watch } from "vue";
-import { useToasts } from "@/stores/toasts";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { decodeHashFromBase64 } from "@holochain/client";
 import BaseButtonBack from "@/components/BaseButtonBack.vue";
@@ -86,7 +85,6 @@ const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const queryClient = useQueryClient();
-const { showError } = useToasts();
 
 const pageLimit = 10;
 
@@ -144,8 +142,8 @@ const fetchNextPageInfiniteScroll = async (
   done(hasNextPage?.value);
 };
 
-watch(error, showError);
-watch(errorProfile, showError);
+watch(error, console.error);
+watch(errorProfile, console.error);
 
 onBeforeRouteLeave(() => {
   if (data.value && data.value.pages.length > 1) {
