@@ -24,7 +24,9 @@
       <div
         v-if="
           mewType !== undefined &&
-          (MewTypeName.Reply in mewType || MewTypeName.Quote in mewType) &&
+          (MewTypeName.Reply in mewType ||
+            MewTypeName.Quote in mewType ||
+            MewTypeName.Mewmew in mewType) &&
           originalMew
         "
         class="bg-base-200 rounded-3xl mb-4 mx-4"
