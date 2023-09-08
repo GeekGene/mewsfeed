@@ -79,12 +79,16 @@ const fetchCreators = async (params: any) => {
 
   const agentProfiles = await Promise.all(
     agents.map(async (agentPubKey) => {
-      const profile = await profilesStore.client.getAgentProfile(agentPubKey);
-      if (!profile) return null;
+      let profile;
+      try {
+        profile = await profilesStore.client.getAgentProfile(agentPubKey);
+      } catch (error) {
+        console.error(error);
+      }
 
       return {
         agentPubKey,
-        profile: profile,
+        profile,
       };
     })
   );
