@@ -73,7 +73,7 @@ import CreateMewInput from "@/components/CreateMewInput.vue";
 import BaseSiteMenu from "@/components/BaseSiteMenu.vue";
 import SearchEverythingDialog from "@/components/SearchEverythingDialog.vue";
 import { ROUTES } from "@/router";
-import { FeedMew, MewTypeName, PaginationDirectionName } from "@/types/types";
+import { FeedMew, MewTypeName } from "@/types/types";
 import { AppAgentClient, encodeHashToBase64 } from "@holochain/client";
 import { ComputedRef, inject, ref, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";

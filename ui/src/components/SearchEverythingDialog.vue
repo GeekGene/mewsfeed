@@ -4,6 +4,7 @@
       as="div"
       class="relative z-20"
       :open="modelValue"
+      :initial-focus="searchEverythingDialogInputRef?.$refs.inputFieldRef"
       @close="emit('update:model-value', false)"
     >
       <TransitionChild
@@ -36,6 +37,7 @@
           >
             <DialogPanel class="w-full sm:max-w-screen-sm">
               <SearchEverythingDialogInput
+                ref="searchEverythingDialogInputRef"
                 @selected="
                   (val) => {
                     router.push(val);
@@ -59,10 +61,13 @@ import {
 } from "@headlessui/vue";
 import SearchEverythingDialogInput from "@/components/SearchEverythingDialogInput.vue";
 import { useRouter } from "vue-router";
+import { ref } from "vue";
 
 defineProps<{
   modelValue: boolean;
 }>();
 const emit = defineEmits(["update:model-value"]);
 const router = useRouter();
+
+const searchEverythingDialogInputRef = ref();
 </script>
