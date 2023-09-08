@@ -60,7 +60,7 @@ const {
   queryFn: fetchProfileWithContext,
   refetchOnMount: true,
 });
-watch(errorProfile, showError);
+watch(errorProfile, console.error);
 watch(props, () => {
   refetch();
 });

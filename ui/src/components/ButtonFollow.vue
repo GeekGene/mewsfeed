@@ -77,7 +77,7 @@ const {
   ],
   queryFn: fetchMyFollowing,
 });
-watch(errorMyFollowing, showError);
+watch(errorMyFollowing, console.error);
 watch(props, () => {
   refetchMyFollowing();
 });
