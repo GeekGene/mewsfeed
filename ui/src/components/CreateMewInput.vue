@@ -147,6 +147,7 @@
     </div>
 
     <button
+      ref="createButtonInput"
       class="btn btn-neutral btn-sm sm:btn-md rounded-full"
       :class="{
         'btn-disabled':
@@ -240,6 +241,7 @@ const currentAgentSearch = ref("");
 const agentAutocompletions = ref<Array<[AgentPubKey, Profile]>>([]);
 const autocompleterLoading = ref(false);
 const showCreateProfileDialog = ref(false);
+const createButtonInput = ref();
 
 const isMewEmpty = computed(() => mewContentLength.value === 0);
 const isMewFull = computed(

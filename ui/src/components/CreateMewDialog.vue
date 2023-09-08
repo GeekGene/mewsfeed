@@ -1,7 +1,11 @@
 <template>
   <BaseDialog
     :model-value="modelValue"
-    :initial-focus-ref="createMewInputRef?.$refs.mewContainerInput"
+    :initial-focus-ref="
+      MewTypeName.Mewmew in mewType
+        ? createMewInputRef?.$refs.createButtonInput
+        : createMewInputRef?.$refs.mewContainerInput
+    "
     @update:model-value="(val: boolean) => emit('update:model-value', val)"
   >
     <profiles-context :store="profilesStore">
