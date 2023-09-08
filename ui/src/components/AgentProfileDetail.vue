@@ -1,21 +1,20 @@
 <template>
   <BaseAgentProfileDetail
-    v-if="profileWithContext"
-    :profile="profileWithContext.profile"
+    :profile="profile"
     :agentPubKey="props.agentPubKey"
-    :joined-timestamp="profileWithContext.joinedTimestamp"
+    :joined-timestamp="joinedTimestamp"
     :hide-edit-button="hideEditButton"
     v-bind="$attrs"
   />
 </template>
 
 <script setup lang="ts">
-import { useToasts } from "@/stores/toasts";
 import { AgentPubKey, AppAgentClient } from "@holochain/client";
 import { ComputedRef, inject, watch } from "vue";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
 import BaseAgentProfileDetail from "@/components/BaseAgentProfileDetail.vue";
 import { useQuery } from "@tanstack/vue-query";
+import { encodeHashToBase64 } from "@holochain/client";
 
 const props = withDefaults(
   defineProps<{
@@ -30,38 +29,56 @@ const props = withDefaults(
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
-const { showError } = useToasts();
 
-const fetchProfileWithContext = async () => {
+const fetchProfile = async () => {
   const profile = await profilesStore.client.getAgentProfile(props.agentPubKey);
-  const joinedTimestamp = await client.callZome({
-    role_name: "mewsfeed",
-    zome_name: "profiles",
-    fn_name: "get_joining_timestamp_for_agent",
-    payload: props.agentPubKey,
-  });
-
   if (profile) {
-    return {
-      profile,
-      joinedTimestamp,
-    };
+    return profile;
   } else {
     throw new Error("No profile found");
   }
 };
 
 const {
-  data: profileWithContext,
+  data: profile,
   error: errorProfile,
-  refetch,
+  refetch: refetchProfile,
 } = useQuery({
-  queryKey: ["profiles", "getAgentProfile", props.agentPubKey],
-  queryFn: fetchProfileWithContext,
+  queryKey: [
+    "profiles",
+    "getAgentProfile",
+    encodeHashToBase64(props.agentPubKey),
+  ],
+  queryFn: fetchProfile,
   refetchOnMount: true,
 });
 watch(errorProfile, console.error);
+
+const fetchJoinedTimestamp = async () =>
+  client.callZome({
+    role_name: "mewsfeed",
+    zome_name: "profiles",
+    fn_name: "get_joining_timestamp_for_agent",
+    payload: props.agentPubKey,
+  });
+
+const {
+  data: joinedTimestamp,
+  error: errorJoinedTimestamp,
+  refetch: refetchJoinedTimestamp,
+} = useQuery({
+  queryKey: [
+    "profiles",
+    "getAgentProfile",
+    encodeHashToBase64(props.agentPubKey),
+  ],
+  queryFn: fetchJoinedTimestamp,
+  refetchOnMount: true,
+});
+watch(errorJoinedTimestamp, console.error);
+
 watch(props, () => {
-  refetch();
+  refetchProfile();
+  refetchJoinedTimestamp();
 });
 </script>
