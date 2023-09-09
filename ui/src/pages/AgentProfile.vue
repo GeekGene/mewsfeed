@@ -222,6 +222,7 @@ const {
 } = useQuery({
   queryKey: ["profiles", "getAgentProfile", agentPubKeyB64],
   queryFn: fetchProfile,
+  refetchOnMount: true,
 });
 watch(errorProfile, console.error);
 
@@ -230,7 +231,7 @@ const fetchJoinedTimestamp = () =>
     role_name: "mewsfeed",
     zome_name: "profiles",
     fn_name: "get_joining_timestamp_for_agent",
-    payload: agentPubKeyB64,
+    payload: agentPubKey.value,
   });
 
 const { data: joinedTimestamp, error: errorJoinedTimestamp } = useQuery({
