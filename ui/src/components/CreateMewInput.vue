@@ -20,6 +20,7 @@
 
     <div class="flex-1 px-4 sm:px-8 h-full">
       <div
+        v-if="isMewTypeWithText"
         ref="mewContainer"
         class="h-full w-full flex flex-col justify-between items-start relative"
       >
@@ -146,8 +147,12 @@
     </div>
 
     <button
+      ref="createButtonInput"
       class="btn btn-neutral btn-sm sm:btn-md rounded-full"
-      :class="{ 'btn-disabled': isMewEmpty || isMewOverfull || isMewUnderfull }"
+      :class="{
+        'btn-disabled':
+          (isMewEmpty || isMewOverfull || isMewUnderfull) && isMewTypeWithText,
+      }"
       :loading="saving"
       tabindex="0"
       @click="publishMew()"
@@ -155,7 +160,12 @@
     >
       <div class="flex justify-start items-center space-x-1 sm:space-x-2">
         <IconArrowForwardOutline class="text-xl" />
-        <div>Send <br class="inline-block sm:hidden" />Mew</div>
+        <div>
+          <template v-if="MewTypeName.Mewmew in props.mewType">Mewmew</template>
+          <template v-else>
+            Send <br class="inline-block sm:hidden" />Mew
+          </template>
+        </div>
       </div>
     </button>
   </div>
@@ -231,6 +241,7 @@ const currentAgentSearch = ref("");
 const agentAutocompletions = ref<Array<[AgentPubKey, Profile]>>([]);
 const autocompleterLoading = ref(false);
 const showCreateProfileDialog = ref(false);
+const createButtonInput = ref();
 
 const isMewEmpty = computed(() => mewContentLength.value === 0);
 const isMewFull = computed(
@@ -262,6 +273,13 @@ const linkTargetValid = computed(() => {
   if (!linkTarget.value) return true;
 
   return isRawUrl(linkTarget.value);
+});
+const isMewTypeWithText = computed(() => {
+  return (
+    MewTypeName.Original in props.mewType ||
+    MewTypeName.Reply in props.mewType ||
+    MewTypeName.Quote in props.mewType
+  );
 });
 
 onMounted(async () => {
@@ -313,16 +331,20 @@ const publishMew = async (profile: undefined | Profile = undefined) => {
   }
   showCreateProfileDialog.value = false;
 
-  if (!mewContainerInput.value) return;
-
-  // build link array
-  const links = collectLinksWithinElement(mewContainerInput.value);
-
   const mew: Mew = {
-    text: getTrimmedText(),
-    links,
+    text: "",
+    links: [],
     mew_type: props.mewType,
   };
+
+  if (isMewTypeWithText.value && mewContainerInput.value) {
+    // build link array
+    const links = collectLinksWithinElement(mewContainerInput.value);
+    mew.text = getTrimmedText();
+    mew.links = links;
+
+    if (!mewContainerInput.value) return;
+  }
 
   try {
     saving.value = true;
@@ -341,11 +363,14 @@ const publishMew = async (profile: undefined | Profile = undefined) => {
   } finally {
     saving.value = false;
   }
-  mewContainerInput.value.textContent = "";
-  mewContentLength.value = 0;
-  hideAutocompleter();
-  resetLinkTargetInput();
-  focusInputField();
+
+  if (isMewTypeWithText.value && mewContainerInput.value) {
+    mewContainerInput.value.textContent = "";
+    mewContentLength.value = 0;
+    hideAutocompleter();
+    resetLinkTargetInput();
+    focusInputField();
+  }
 };
 
 /**
@@ -579,7 +604,6 @@ const onCaretPositionChange = () => {
       }
       // current word is a URL
     } else if (isLinkTag(currentWord)) {
-
       // find start of tag that the caret is positioned at
       const behind = content.substring(0, selection.anchorOffset - 1);
       let lastCaretIndex = -1;

@@ -1,7 +1,11 @@
 <template>
   <BaseDialog
     :model-value="modelValue"
-    :initial-focus-ref="createMewInputRef?.$refs.mewContainerInput"
+    :initial-focus-ref="
+      MewTypeName.Mewmew in mewType
+        ? createMewInputRef?.$refs.createButtonInput
+        : createMewInputRef?.$refs.mewContainerInput
+    "
     @update:model-value="(val: boolean) => emit('update:model-value', val)"
   >
     <profiles-context :store="profilesStore">
@@ -25,7 +29,9 @@
       <div
         v-if="
           mewType !== undefined &&
-          (MewTypeName.Reply in mewType || MewTypeName.Quote in mewType) &&
+          (MewTypeName.Reply in mewType ||
+            MewTypeName.Quote in mewType ||
+            MewTypeName.Mewmew in mewType) &&
           originalMew
         "
         class="bg-base-200 rounded-3xl mb-4 mx-4"

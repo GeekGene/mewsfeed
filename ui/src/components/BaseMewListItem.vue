@@ -189,11 +189,7 @@
                   'text-green-400 cursor-default': feedMew.is_mewmewed,
                   'text-base-300 hover:text-neutral': !feedMew.is_mewmewed,
                 }"
-                @click.stop.prevent="
-                  if (!feedMew.is_mewmewed) {
-                    createMewmew();
-                  }
-                "
+                @click.stop.prevent="showCreateMewmewDialog = true"
               >
                 <IconRepeatBold class="w-4 h-4" />
                 <div v-if="feedMew.mewmews_count > 0" class="text-xs">
@@ -293,10 +289,15 @@
       v-model="showToggleLickMewDialog"
       @profile-created="toggleLickMew"
     />
-    <CreateProfileIfNotFoundDialog
-      v-model="showCreateMewmewDialog"
-      @profile-created="createMewmew"
-    />
+    <CreateProfileIfNotFoundDialog v-model="showCreateMewmewDialog">
+      <CreateMewDialog
+        v-model="showCreateMewmewDialog"
+        :mew-type="{ [MewTypeName.Mewmew]: feedMew.action_hash }"
+        :original-mew="feedMew"
+        :original-author="feedMew.original_mew?.author_profile"
+        @mew-created="onCreateMewmew"
+      />
+    </CreateProfileIfNotFoundDialog>
     <BaseConfirmDialog
       v-model="showConfirmDeleteDialog"
       title="Delete Mew"
@@ -495,36 +496,10 @@ const togglePinMew = async () => {
   isUpdatingPin.value = false;
 };
 
-const createMewmew = async () => {
-  if (!myProfile.value) {
-    showCreateMewmewDialog.value = true;
-    return;
-  }
+const onCreateMewmew = async (feedMew: FeedMew) => {
   showCreateMewmewDialog.value = false;
-
-  const originalActionHash =
-    MewTypeName.Mewmew in props.feedMew.mew.mew_type
-      ? props.feedMew.mew.mew_type[MewTypeName.Mewmew]
-      : props.feedMew.action_hash;
-
-  const mew: Mew = {
-    mew_type: { [MewTypeName.Mewmew]: originalActionHash },
-    text: "",
-    links: [],
-  };
-
-  try {
-    const feedMew: FeedMew = await client.callZome({
-      role_name: "mewsfeed",
-      zome_name: "mews",
-      fn_name: "create_mew_with_context",
-      payload: mew,
-    });
-    emit("mewmew-created", feedMew);
-    showMessage("Mewmewed");
-  } catch (e) {
-    showError(e);
-  }
+  emit("mewmew-created", feedMew);
+  showMessage("Mewmewed");
 };
 
 const onCreateQuote = async (feedMew: FeedMew) => {
