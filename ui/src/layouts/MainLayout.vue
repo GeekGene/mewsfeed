@@ -32,7 +32,13 @@
         <div v-else class="flex-1 w-full flex justify-end">
           <button
             class="z-10 btn btn-md btn-neutral rounded-full py-3 flex justify-start items-center"
-            @click="showCreateMewDialog = true"
+            @click="
+              openCreateMewDialog(
+                { [MewTypeName.Original]: null },
+                undefined,
+                onCreateMew
+              )
+            "
           >
             <IconAdd class="w-6 h-6" />
             <div>Mew</div>
@@ -44,7 +50,13 @@
 
   <button
     class="block sm:hidden z-10 fixed bottom-32 right-3 btn btn-md btn-neutral rounded-full py-3 flex justify-start items-center"
-    @click="showCreateMewDialog = true"
+    @click="
+      openCreateMewDialog(
+        { [MewTypeName.Original]: null },
+        undefined,
+        onCreateMew
+      )
+    "
   >
     <IconAdd class="w-6 h-6" />
     <div>Mew</div>
@@ -62,10 +74,29 @@
   <ToastNotices class="z-30" />
 
   <SearchEverythingDialog v-model="showSearchDialog" />
+
   <CreateMewDialog
     v-model="showCreateMewDialog"
-    :mew-type="{ [MewTypeName.Original]: null }"
+    :mew-type="createMewDialogType"
+    v-bind="createMewDialogProps"
+    @mew-created="createMewCompleteCallback"
   />
+
+  <CreateProfileIfNotFoundDialog
+    v-if="showCreateProfileDialog"
+    v-model="showCreateProfileDialog"
+    @profile-created="createProfileCompleteCallback"
+  />
+
+  <BaseConfirmDialog
+    v-if="showConfirmDialog"
+    v-model="showConfirmDialog"
+    v-bind="confirmDialogProps"
+    @confirm="confirmCallback"
+  >
+    <!-- eslint-disable-next-line vue/no-v-html -->
+    <div v-html="confirmDialogHtml"></div>
+  </BaseConfirmDialog>
 </template>
 
 <script setup lang="ts">
@@ -73,7 +104,7 @@ import CreateMewInput from "@/components/CreateMewInput.vue";
 import BaseSiteMenu from "@/components/BaseSiteMenu.vue";
 import SearchEverythingDialog from "@/components/SearchEverythingDialog.vue";
 import { ROUTES } from "@/router";
-import { FeedMew, MewTypeName, PaginationDirectionName } from "@/types/types";
+import { FeedMew, MewTypeName } from "@/types/types";
 import { AppAgentClient, encodeHashToBase64 } from "@holochain/client";
 import { ComputedRef, inject, ref, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
@@ -81,21 +112,42 @@ import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";
 import { setHomeRedirect } from "@/utils/homeRedirect";
 import { useInfiniteQuery, useQuery } from "@tanstack/vue-query";
 import IconAdd from "~icons/ion/add";
-import CreateMewDialog from "@/components/CreateMewDialog.vue";
 import ToastNotices from "@/components/ToastNotices.vue";
+import { useCreateMewDialogStore } from "@/stores/createMewDialog";
+import CreateMewDialog from "@/components/CreateMewDialog.vue";
+import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
+import BaseConfirmDialog from "@/components/BaseConfirmDialog.vue";
+import { useCreateProfileDialogStore } from "../stores/createProfileDialog";
+import { useConfirmDialogStore } from "../stores/confirmDialog";
+import { storeToRefs } from "pinia";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const router = useRouter();
 const route = useRoute();
 const useNotificationsReadStore = makeUseNotificationsReadStore(client);
 const { setNotificationsCount } = useNotificationsReadStore();
+const { openCreateMewDialog, closeCreateMewDialog } = useCreateMewDialogStore();
+const {
+  createMewDialogType,
+  createMewDialogProps,
+  showCreateMewDialog,
+  createMewCompleteCallback,
+} = storeToRefs(useCreateMewDialogStore());
+const { createProfileCompleteCallback, showCreateProfileDialog } = storeToRefs(
+  useCreateProfileDialogStore()
+);
+const {
+  confirmDialogProps,
+  confirmDialogHtml,
+  showConfirmDialog,
+  confirmCallback,
+} = storeToRefs(useConfirmDialogStore());
 
 const showSearchDialog = ref(false);
-const showCreateMewDialog = ref(false);
 const forceReloadRouterViewKey = ref(0);
 
 const onCreateMew = () => {
-  showCreateMewDialog.value = false;
+  closeCreateMewDialog();
   setHomeRedirect(false);
 
   if (

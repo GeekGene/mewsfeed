@@ -33,13 +33,6 @@
 </template>
 
 <script setup lang="ts">
-import {
-  Dialog,
-  DialogPanel,
-  TransitionChild,
-  TransitionRoot,
-} from "@headlessui/vue";
-
 const emit = defineEmits(["confirm", "update:model-value"]);
 withDefaults(
   defineProps<{
