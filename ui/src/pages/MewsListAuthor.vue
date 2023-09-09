@@ -62,7 +62,7 @@
 
 <script setup lang="ts">
 import { AppAgentClient } from "@holochain/client";
-import { ComputedRef, inject } from "vue";
+import { ComputedRef, computed, inject } from "vue";
 import { useRoute, onBeforeRouteLeave } from "vue-router";
 import {
   useInfiniteQuery,
@@ -85,6 +85,7 @@ const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const queryClient = useQueryClient();
+const agentPubKey = computed(() => route.params.agentPubKey);
 
 const pageLimit = 10;
 
@@ -106,7 +107,7 @@ const fetchAuthoredMews = async (params: any) => {
 
 const { data, error, fetchNextPage, hasNextPage, isInitialLoading, refetch } =
   useInfiniteQuery({
-    queryKey: ["mews", "get_agent_mews_with_context", route.params.agentPubKey],
+    queryKey: ["mews", "get_agent_mews_with_context", agentPubKey],
     queryFn: fetchAuthoredMews,
     getNextPageParam: (lastPage) => {
       if (lastPage.length === 0) return;
@@ -131,7 +132,7 @@ const fetchProfile = async () => {
 };
 
 const { data: profile, error: errorProfile } = useQuery({
-  queryKey: ["profiles", "getAgentProfile", route.params.agentPubKey],
+  queryKey: ["profiles", "getAgentProfile", agentPubKey],
   queryFn: fetchProfile,
 });
 

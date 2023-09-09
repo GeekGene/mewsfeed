@@ -80,6 +80,7 @@ const pageLimit = 10;
 const actionHash = computed(() =>
   decodeHashFromBase64(route.params.actionHash as string)
 );
+const actionHashB64 = computed(() => route.params.actionHash);
 const hasActionHash = computed(() => actionHash.value !== undefined);
 
 const fetchMew = () =>
@@ -96,7 +97,7 @@ const {
   isInitialLoading: isInitialLoadingMew,
   refetch: refetchMew,
 } = useQuery({
-  queryKey: ["mews", "get_mew_with_context", route.params.actionHash],
+  queryKey: ["mews", "get_mew_with_context", actionHashB64],
   queryFn: fetchMew,
   enabled: hasActionHash,
   refetchInterval: 1000 * 60 * 2, // 2 minutes
@@ -128,11 +129,7 @@ const {
   isInitialLoading: isInitialLoadingReplies,
   refetch: refetchReplies,
 } = useInfiniteQuery({
-  queryKey: [
-    "mews",
-    "get_responses_for_mew_with_context",
-    route.params.actionHash,
-  ],
+  queryKey: ["mews", "get_responses_for_mew_with_context", actionHashB64],
   queryFn: fetchReplies,
   enabled: hasMew,
   getNextPageParam: (lastPage) => {

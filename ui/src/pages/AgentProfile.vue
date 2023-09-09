@@ -123,11 +123,11 @@
   </div>
   <FollowersListDialog
     v-model="showFollowersListDialog"
-    :agent-pub-key="decodeHashFromBase64(route.params.agentPubKey as string)"
+    :agent-pub-key="agentPubKey"
   />
   <CreatorsListDialog
     v-model="showCreatorsListDialog"
-    :agent-pub-key="decodeHashFromBase64(route.params.agentPubKey as string)"
+    :agent-pub-key="agentPubKey"
   />
 </template>
 
@@ -162,7 +162,7 @@ const agentPubKey = computed(() =>
 const showEditProfileDialog = ref(false);
 const showFollowersListDialog = ref(false);
 const showCreatorsListDialog = ref(false);
-
+const agentPubKeyRef = computed(() => route.params.agentPubKey);
 const pageLimit = 5;
 
 const fetchAuthoredMews = () =>
@@ -184,11 +184,7 @@ const {
   error: errorAuthoredMews,
   refetch: refetchAuthoredMews,
 } = useQuery({
-  queryKey: [
-    "profiles",
-    "get_agent_mews_with_context",
-    route.params.agentPubKey,
-  ],
+  queryKey: ["profiles", "get_agent_mews_with_context", agentPubKeyRef],
   queryFn: fetchAuthoredMews,
 });
 watch(errorAuthoredMews, console.error);
@@ -207,11 +203,7 @@ const {
   error: errorPinnedMews,
   refetch: refetchPinnedMews,
 } = useQuery({
-  queryKey: [
-    "profiles",
-    "get_mews_for_pinner_with_context",
-    route.params.agentPubKey,
-  ],
+  queryKey: ["profiles", "get_mews_for_pinner_with_context", agentPubKeyRef],
   queryFn: fetchPinnedMews,
 });
 watch(errorPinnedMews, console.error);
@@ -241,7 +233,7 @@ const {
   error: errorProfile,
   refetch: refetchProfile,
 } = useQuery({
-  queryKey: ["profiles", "getAgentProfile", route.params.agentPubKey],
+  queryKey: ["profiles", "getAgentProfile", agentPubKeyRef],
   queryFn: fetchProfileWithContext,
 });
 watch(errorProfile, console.error);
@@ -252,7 +244,7 @@ const fetchFollowers = async () => {
     zome_name: "follows",
     fn_name: "get_followers_for_creator",
     payload: {
-      creator: decodeHashFromBase64(route.params.agentPubKey as string),
+      creator: agentPubKey.value,
       page: {
         limit: pageLimit,
       },
@@ -260,12 +252,12 @@ const fetchFollowers = async () => {
   });
 
   const agentProfiles = await Promise.all(
-    agents.map(async (agentPubKey) => {
-      const profile = await profilesStore.client.getAgentProfile(agentPubKey);
+    agents.map(async (key) => {
+      const profile = await profilesStore.client.getAgentProfile(key);
       if (!profile) return null;
 
       return {
-        agentPubKey,
+        agentPubKey: key,
         profile: profile,
       };
     })
@@ -275,7 +267,7 @@ const fetchFollowers = async () => {
 };
 
 const { data: followers, error: errorFollowers } = useQuery({
-  queryKey: ["follows", "get_followers_for_creator", route.params.agentPubKey],
+  queryKey: ["follows", "get_followers_for_creator", agentPubKeyRef],
   queryFn: fetchFollowers,
 });
 watch(errorFollowers, console.error);
@@ -286,7 +278,7 @@ const fetchCreators = async () => {
     zome_name: "follows",
     fn_name: "get_creators_for_follower",
     payload: {
-      follower: decodeHashFromBase64(route.params.agentPubKey as string),
+      follower: agentPubKey.value,
       page: {
         limit: pageLimit,
       },
@@ -309,7 +301,7 @@ const fetchCreators = async () => {
 };
 
 const { data: creators, error: errorCreators } = useQuery({
-  queryKey: ["follows", "get_creators_for_follower", route.params.agentPubKey],
+  queryKey: ["follows", "get_creators_for_follower", agentPubKeyRef],
   queryFn: fetchCreators,
 });
 watch(errorCreators, console.error);
@@ -319,15 +311,11 @@ const fetchCreatorsCount = async (): Promise<number> =>
     role_name: "mewsfeed",
     zome_name: "follows",
     fn_name: "count_creators_for_follower",
-    payload: decodeHashFromBase64(route.params.agentPubKey as string),
+    payload: agentPubKey.value,
   });
 
 const { data: creatorsCount, error: errorCreatorsCount } = useQuery({
-  queryKey: [
-    "follows",
-    "count_creators_for_follower",
-    route.params.agentPubKey,
-  ],
+  queryKey: ["follows", "count_creators_for_follower", agentPubKeyRef],
   queryFn: fetchCreatorsCount,
 });
 watch(errorCreatorsCount, console.error);
@@ -337,7 +325,7 @@ const fetchFollowersCount = async (): Promise<number> =>
     role_name: "mewsfeed",
     zome_name: "follows",
     fn_name: "count_followers_for_creator",
-    payload: decodeHashFromBase64(route.params.agentPubKey as string),
+    payload: agentPubKey.value,
   });
 
 const {
@@ -345,11 +333,7 @@ const {
   error: errorFollowersCount,
   refetch: refetchFollowersCount,
 } = useQuery({
-  queryKey: [
-    "follows",
-    "count_followers_for_creator",
-    route.params.agentPubKey,
-  ],
+  queryKey: ["follows", "count_followers_for_creator", agentPubKeyRef],
   queryFn: fetchFollowersCount,
 });
 watch(errorFollowersCount, console.error);

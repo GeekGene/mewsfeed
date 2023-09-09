@@ -40,9 +40,8 @@ const props = defineProps<{
 
 const tagRef = computed(() => props.tag);
 
-const fetchRandomMewHashesWithTag = (): Promise<ActionHash[]> => {
-  console.log("fetchRandomMewHashesWithTag", props.tag);
-  return client.callZome({
+const fetchRandomMewHashesWithTag = (): Promise<ActionHash[]> =>
+  client.callZome({
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_random_mew_hashes_for_tag",
@@ -51,7 +50,6 @@ const fetchRandomMewHashesWithTag = (): Promise<ActionHash[]> => {
       count: 3,
     },
   });
-};
 
 const {
   data: randomMewHashesWithTag,
