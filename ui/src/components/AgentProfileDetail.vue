@@ -12,10 +12,11 @@
 <script setup lang="ts">
 import { useToasts } from "@/stores/toasts";
 import { AgentPubKey, AppAgentClient } from "@holochain/client";
-import { ComputedRef, inject, watch } from "vue";
+import { ComputedRef, computed, inject, watch } from "vue";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
 import BaseAgentProfileDetail from "@/components/BaseAgentProfileDetail.vue";
 import { useQuery } from "@tanstack/vue-query";
+import { encodeHashToBase64 } from "@holochain/client";
 
 const props = withDefaults(
   defineProps<{
@@ -31,6 +32,7 @@ const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const { showError } = useToasts();
+const agentPubKeyB64 = computed(() => encodeHashToBase64(props.agentPubKey));
 
 const fetchProfileWithContext = async () => {
   const profile = await profilesStore.client.getAgentProfile(props.agentPubKey);
@@ -56,7 +58,7 @@ const {
   error: errorProfile,
   refetch,
 } = useQuery({
-  queryKey: ["profiles", "getAgentProfile", props.agentPubKey],
+  queryKey: ["profiles", "getAgentProfile", agentPubKeyB64],
   queryFn: fetchProfileWithContext,
   refetchOnMount: true,
 });

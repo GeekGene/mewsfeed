@@ -55,7 +55,7 @@
 
 <script setup lang="ts">
 import { AppAgentClient, encodeHashToBase64 } from "@holochain/client";
-import { ComputedRef, inject, watch } from "vue";
+import { ComputedRef, computed, inject, watch } from "vue";
 import { FeedMew, PaginationDirectionName } from "@/types/types";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
 import BaseMewListItem from "@/components/BaseMewListItem.vue";
@@ -67,6 +67,7 @@ import { onBeforeRouteLeave } from "vue-router";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const queryClient = useQueryClient();
+const myPubKeyB64 = computed(() => encodeHashToBase64(client.myPubKey));
 const pageLimit = 10;
 
 const fetchMewsFeed = (params: any): Promise<FeedMew[]> =>
@@ -86,11 +87,7 @@ const fetchMewsFeed = (params: any): Promise<FeedMew[]> =>
 
 const { data, error, fetchNextPage, hasNextPage, isInitialLoading, refetch } =
   useInfiniteQuery<FeedMew[]>({
-    queryKey: [
-      "mews",
-      "get_followed_creators_mews_with_context",
-      encodeHashToBase64(client.myPubKey),
-    ],
+    queryKey: ["mews", "get_followed_creators_mews_with_context", myPubKeyB64],
     queryFn: fetchMewsFeed,
     getNextPageParam: (lastPage) => {
       if (lastPage.length === 0) return;
@@ -113,11 +110,7 @@ const fetchNextPageInfiniteScroll = async (
 onBeforeRouteLeave(() => {
   if (data.value && data.value.pages.length > 1) {
     queryClient.setQueryData(
-      [
-        "mews",
-        "get_followed_creators_mews_with_context",
-        encodeHashToBase64(client.myPubKey),
-      ],
+      ["mews", "get_followed_creators_mews_with_context", myPubKeyB64],
       (d: any) => ({
         pages: [d.pages[0]],
         pageParams: [d.pageParams[0]],

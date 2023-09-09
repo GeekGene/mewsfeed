@@ -187,7 +187,7 @@ const {
   queryKey: [
     "profiles",
     "get_agent_mews_with_context",
-    encodeHashToBase64(agentPubKey.value),
+    route.params.agentPubKey,
   ],
   queryFn: fetchAuthoredMews,
 });
@@ -210,7 +210,7 @@ const {
   queryKey: [
     "profiles",
     "get_mews_for_pinner_with_context",
-    encodeHashToBase64(agentPubKey.value),
+    route.params.agentPubKey,
   ],
   queryFn: fetchPinnedMews,
 });
@@ -241,11 +241,7 @@ const {
   error: errorProfile,
   refetch: refetchProfile,
 } = useQuery({
-  queryKey: [
-    "profiles",
-    "getAgentProfile",
-    encodeHashToBase64(agentPubKey.value),
-  ],
+  queryKey: ["profiles", "getAgentProfile", route.params.agentPubKey],
   queryFn: fetchProfileWithContext,
 });
 watch(errorProfile, console.error);
@@ -279,11 +275,7 @@ const fetchFollowers = async () => {
 };
 
 const { data: followers, error: errorFollowers } = useQuery({
-  queryKey: [
-    "follows",
-    "get_followers_for_creator",
-    route.params.agentPubKey as string,
-  ],
+  queryKey: ["follows", "get_followers_for_creator", route.params.agentPubKey],
   queryFn: fetchFollowers,
 });
 watch(errorFollowers, console.error);
@@ -317,11 +309,7 @@ const fetchCreators = async () => {
 };
 
 const { data: creators, error: errorCreators } = useQuery({
-  queryKey: [
-    "follows",
-    "get_creators_for_follower",
-    route.params.agentPubKey as string,
-  ],
+  queryKey: ["follows", "get_creators_for_follower", route.params.agentPubKey],
   queryFn: fetchCreators,
 });
 watch(errorCreators, console.error);
@@ -338,7 +326,7 @@ const { data: creatorsCount, error: errorCreatorsCount } = useQuery({
   queryKey: [
     "follows",
     "count_creators_for_follower",
-    route.params.agentPubKey as string,
+    route.params.agentPubKey,
   ],
   queryFn: fetchCreatorsCount,
 });
@@ -360,7 +348,7 @@ const {
   queryKey: [
     "follows",
     "count_followers_for_creator",
-    route.params.agentPubKey as string,
+    route.params.agentPubKey,
   ],
   queryFn: fetchFollowersCount,
 });

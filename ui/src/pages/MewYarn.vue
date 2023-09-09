@@ -96,7 +96,7 @@ const {
   isInitialLoading: isInitialLoadingMew,
   refetch: refetchMew,
 } = useQuery({
-  queryKey: ["mews", "get_mew_with_context", route.params.actionHash as string],
+  queryKey: ["mews", "get_mew_with_context", route.params.actionHash],
   queryFn: fetchMew,
   enabled: hasActionHash,
   refetchInterval: 1000 * 60 * 2, // 2 minutes
@@ -131,7 +131,7 @@ const {
   queryKey: [
     "mews",
     "get_responses_for_mew_with_context",
-    route.params.actionHash as string,
+    route.params.actionHash,
   ],
   queryFn: fetchReplies,
   enabled: hasMew,
