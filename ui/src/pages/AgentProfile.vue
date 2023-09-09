@@ -2,8 +2,8 @@
   <div class="mt-4">
     <div v-if="!isInitialLoadingProfile && agentPubKey">
       <BaseAgentProfileDetail
-        :profile="profileWithContext?.profile"
-        :joined-timestamp="profileWithContext?.joinedTimestamp"
+        :profile="profile"
+        :joined-timestamp="joinedTimestamp"
         :agentPubKey="agentPubKey"
         :creators-count="creatorsCount || 0"
         :followers-count="followersCount || 0"
@@ -26,9 +26,9 @@
         @toggle-follow="refetchFollowersCount"
       />
       <EditAgentProfileDialog
-        v-if="profileWithContext"
+        v-if="profile"
         v-model="showEditProfileDialog"
-        :profile="profileWithContext.profile"
+        :profile="profile"
         @profile-updated="(profile: any) => {
           refetchProfile();
           queryClient.setQueryData([
@@ -212,27 +212,18 @@ const {
 });
 watch(errorPinnedMews, console.error);
 
-const fetchProfileWithContext = async () => {
+const fetchProfile = async () => {
   const profile = await profilesStore.client.getAgentProfile(agentPubKey.value);
-  const joinedTimestamp = await client.callZome({
-    role_name: "mewsfeed",
-    zome_name: "profiles",
-    fn_name: "get_joining_timestamp_for_agent",
-    payload: agentPubKey.value,
-  });
 
   if (profile) {
-    return {
-      profile,
-      joinedTimestamp,
-    };
+    return profile;
   } else {
     throw new Error("No profile found");
   }
 };
 
 const {
-  data: profileWithContext,
+  data: profile,
   isInitialLoading: isInitialLoadingProfile,
   error: errorProfile,
   refetch: refetchProfile,
@@ -242,9 +233,27 @@ const {
     "getAgentProfile",
     encodeHashToBase64(agentPubKey.value),
   ],
-  queryFn: fetchProfileWithContext,
+  queryFn: fetchProfile,
 });
 watch(errorProfile, console.error);
+
+const fetchJoinedTimestamp = () =>
+  client.callZome({
+    role_name: "mewsfeed",
+    zome_name: "profiles",
+    fn_name: "get_joining_timestamp_for_agent",
+    payload: agentPubKey.value,
+  });
+
+const { data: joinedTimestamp, error: errorJoinedTimestamp } = useQuery({
+  queryKey: [
+    "profiles",
+    "get_joining_timestamp_for_agent",
+    encodeHashToBase64(agentPubKey.value),
+  ],
+  queryFn: fetchJoinedTimestamp,
+});
+watch(errorJoinedTimestamp, console.error);
 
 const fetchCreatorsCount = async (): Promise<number> =>
   client.callZome({

@@ -69,7 +69,7 @@ const {
 } = useQuery({
   queryKey: [
     "profiles",
-    "getAgentProfile",
+    "get_joining_timestamp_for_agent",
     encodeHashToBase64(props.agentPubKey),
   ],
   queryFn: fetchJoinedTimestamp,
