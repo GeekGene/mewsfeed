@@ -15,7 +15,6 @@ import App from "./App.vue";
 import { router } from "./router";
 import piniaPluginPersistedState from "pinia-plugin-persistedstate";
 import {
-  QueryClient,
   VueQueryPlugin,
   type VueQueryPluginOptions,
 } from "@tanstack/vue-query";
@@ -52,8 +51,10 @@ const vueQueryOptions: VueQueryPluginOptions = {
       },
     },
   },
-  clientPersister: (queryClient: QueryClient) => {
+  clientPersister: (queryClient) => {
     return persistQueryClient({
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       queryClient,
       persister: createSyncStoragePersister({
         storage: localStorage,
