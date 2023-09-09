@@ -53,9 +53,7 @@ pub fn get_followers_for_creator(
 }
 
 #[hdk_extern]
-pub fn count_creators_for_follower(
-    follower: AgentPubKey,
-) -> ExternResult<usize> {
+pub fn count_creators_for_follower(follower: AgentPubKey) -> ExternResult<usize> {
     let query = LinkQuery::new(
         follower,
         LinkTypeFilter::single_type(
@@ -67,9 +65,7 @@ pub fn count_creators_for_follower(
 }
 
 #[hdk_extern]
-pub fn count_followers_for_creator(
-    creator: AgentPubKey,
-) -> ExternResult<usize> {
+pub fn count_followers_for_creator(creator: AgentPubKey) -> ExternResult<usize> {
     let query = LinkQuery::new(
         creator,
         LinkTypeFilter::single_type(
