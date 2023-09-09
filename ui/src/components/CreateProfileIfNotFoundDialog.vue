@@ -32,7 +32,6 @@ defineProps<{
 }>();
 
 const createProfile = async (profile: Profile) => {
-  console.log("createPRofile", profile);
   await profilesStore.client.createProfile(profile);
   await profilesStore.myProfile.reload();
 
