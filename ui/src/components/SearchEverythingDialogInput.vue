@@ -8,6 +8,7 @@
           <IconSearch class="text-3xl mr-4" />
           <ComboboxInput
             id="searcheverythinginput"
+            ref="inputFieldRef"
             class="font-title uppercase bg-transparent border-0 outline-none w-full"
             aria-placeholder="Sniff Around"
             placeholder="sniff around"
@@ -112,6 +113,7 @@ const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const { showError } = useToasts();
 
+const inputFieldRef = ref();
 const searching = ref(false);
 const results = ref<SearchResultOption[]>([]);
 const selection = ref<SearchResultOption>();

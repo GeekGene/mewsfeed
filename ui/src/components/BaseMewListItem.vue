@@ -206,9 +206,13 @@
                   'text-base-300 hover:text-neutral': !feedMew.is_mewmewed,
                 }"
                 @click.stop.prevent="
-                  if (!feedMew.is_mewmewed) {
-                    createMewmew();
-                  }
+                  openCreateMewDialog(
+                    { [MewTypeName.Mewmew]: feedMew.action_hash },
+                    feedMew,
+                    () => {
+                      onCreateMewmew(feedMew);
+                    }
+                  )
                 "
               >
                 <IconRepeatBold class="w-4 h-4" />
@@ -479,35 +483,10 @@ const togglePinMew = async () => {
   isUpdatingPin.value = false;
 };
 
-const createMewmew = async () => {
-  if (!myProfile.value) {
-    openCreateProfileDialog(createMewmew);
-    return;
-  }
-
-  const originalActionHash =
-    MewTypeName.Mewmew in props.feedMew.mew.mew_type
-      ? props.feedMew.mew.mew_type[MewTypeName.Mewmew]
-      : props.feedMew.action_hash;
-
-  const mew: Mew = {
-    mew_type: { [MewTypeName.Mewmew]: originalActionHash },
-    text: "",
-    links: [],
-  };
-
-  try {
-    const feedMew: FeedMew = await client.callZome({
-      role_name: "mewsfeed",
-      zome_name: "mews",
-      fn_name: "create_mew_with_context",
-      payload: mew,
-    });
-    emit("mewmew-created", feedMew);
-    showMessage("Mewmewed");
-  } catch (e) {
-    showError(e);
-  }
+const onCreateMewmew = async (feedMew: FeedMew) => {
+  closeCreateMewDialog();
+  emit("mewmew-created", feedMew);
+  showMessage("Mewmewed");
 };
 
 const onCreateQuote = async (feedMew: FeedMew) => {

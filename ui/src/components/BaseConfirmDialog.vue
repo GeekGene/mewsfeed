@@ -2,6 +2,7 @@
   <BaseDialog
     :model-value="modelValue"
     dialog-panel-class="md:w-auto"
+    :initial-focus-ref="confirmButtonRef"
     @update:model-value="(val: boolean) => emit('update:model-value', val)"
   >
     <div class="font-title text-xl flex justify-start items-center px-4 mr-2">
@@ -18,6 +19,7 @@
         Cancel
       </button>
       <button
+        ref="confirmButtonRef"
         class="btn btn-md btn-success"
         @click="
           () => {
@@ -33,6 +35,9 @@
 </template>
 
 <script setup lang="ts">
+import BaseDialog from "./BaseDialog.vue";
+import { ref } from "vue";
+
 const emit = defineEmits(["confirm", "update:model-value"]);
 withDefaults(
   defineProps<{
@@ -47,4 +52,6 @@ withDefaults(
     title: undefined,
   }
 );
+
+const confirmButtonRef = ref();
 </script>

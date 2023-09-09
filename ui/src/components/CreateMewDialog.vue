@@ -1,6 +1,11 @@
 <template>
   <BaseDialog
     :model-value="modelValue"
+    :initial-focus-ref="
+      MewTypeName.Mewmew in mewType
+        ? createMewInputRef?.$refs.createButtonInput
+        : createMewInputRef?.$refs.mewContainerInput
+    "
     @update:model-value="(val: boolean) => emit('update:model-value', val)"
   >
     <profiles-context :store="profilesStore">
@@ -24,7 +29,9 @@
       <div
         v-if="
           mewType !== undefined &&
-          (MewTypeName.Reply in mewType || MewTypeName.Quote in mewType) &&
+          (MewTypeName.Reply in mewType ||
+            MewTypeName.Quote in mewType ||
+            MewTypeName.Mewmew in mewType) &&
           originalMew
         "
         class="bg-base-200 rounded-3xl mb-4 mx-4"
@@ -36,7 +43,11 @@
         />
       </div>
 
-      <CreateMewInput :mew-type="mewType" @mew-created="onCreateMew" />
+      <CreateMewInput
+        ref="createMewInputRef"
+        :mew-type="mewType"
+        @mew-created="onCreateMew"
+      />
     </profiles-context>
   </BaseDialog>
 </template>
@@ -47,7 +58,7 @@ import CreateMewInput from "@/components/CreateMewInput.vue";
 import BaseAgentProfileName from "@/components/BaseAgentProfileName.vue";
 import BaseDialog from "@/components/BaseDialog.vue";
 import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
-import { ComputedRef, inject } from "vue";
+import { ComputedRef, inject, ref } from "vue";
 import { ROUTES } from "@/router";
 import { useRouter } from "vue-router";
 import { setHomeRedirect } from "@/utils/homeRedirect";
@@ -69,6 +80,8 @@ const emit = defineEmits(["mew-created", "update:model-value"]);
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const router = useRouter();
+
+const createMewInputRef = ref();
 
 const onCreateMew = (val: FeedMew) => {
   setHomeRedirect(false);

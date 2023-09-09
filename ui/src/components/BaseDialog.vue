@@ -4,6 +4,7 @@
       as="div"
       class="relative z-20 w-full"
       :open="modelValue"
+      :initial-focus="initialFocusRef"
       @close="emit('update:model-value', false)"
     >
       <TransitionChild
@@ -35,6 +36,7 @@
             leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
           >
             <DialogPanel
+              ref="dialogPanelRef"
               class="relative transform overflow-visible bg-base-100 rounded-3xl transition-all w-full p-2 md:p-8 md:w-2/3"
               :class="dialogPanelClass"
             >
@@ -54,15 +56,16 @@ import {
   TransitionChild,
   TransitionRoot,
 } from "@headlessui/vue";
-
 const emit = defineEmits(["update:model-value"]);
 withDefaults(
   defineProps<{
     modelValue: boolean;
     dialogPanelClass?: string;
+    initialFocusRef?: HTMLElement;
   }>(),
   {
     dialogPanelClass: "",
+    initialFocusRef: undefined,
   }
 );
 </script>
