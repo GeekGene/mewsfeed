@@ -297,6 +297,10 @@
       v-model="showCreateMewmewDialog"
       @profile-created="createMewmew"
     />
+    <CreateProfileIfNotFoundDialog
+      v-model="showTogglePinMewDialog"
+      @profile-created="togglePinMew"
+    />
     <BaseConfirmDialog
       v-model="showConfirmDeleteDialog"
       title="Delete Mew"
