@@ -108,21 +108,11 @@
           </div>
         </div>
 
-        <template v-if="profile">
-          <div
-            v-if="profile.fields[PROFILE_FIELDS.BIO]"
-            class="flex justify-start space-x-2 text-md mb-5"
-          >
-            {{ profile.fields[PROFILE_FIELDS.BIO] }}
-          </div>
-        </template>
-        <div v-else>
-          <div class="flex flex-col w-full space-y-2 my-4">
-            <div class="h-1.5 bg-base-200 rounded-full w-5/6"></div>
-            <div class="h-1.5 bg-base-200 rounded-full w-3/4"></div>
-            <div class="h-1.5 bg-base-200 rounded-full w-5/6"></div>
-            <div class="h-1.5 bg-base-200 rounded-full w-3/4"></div>
-          </div>
+        <div
+          v-if="profile?.fields[PROFILE_FIELDS.BIO]"
+          class="flex justify-start space-x-2 text-md mb-5"
+        >
+          {{ profile.fields[PROFILE_FIELDS.BIO] }}
         </div>
 
         <div>
@@ -165,20 +155,12 @@
           <div
             class="flex justify-start items-center space-x-2 sm:space-x-16 text-xs mt-3"
           >
-            <template v-if="profile">
-              <div
-                v-if="profile.fields[PROFILE_FIELDS.LOCATION]"
-                class="flex justify-start items-center space-x-2 text-xs font-mono px-2"
-              >
-                <IconNavigateCircleOutline />
-                <div>{{ profile.fields[PROFILE_FIELDS.LOCATION] }}</div>
-              </div>
-            </template>
-            <div v-else>
+            <div
+              v-if="profile?.fields[PROFILE_FIELDS.LOCATION]"
+              class="flex justify-start items-center space-x-2 text-xs font-mono px-2"
+            >
               <IconNavigateCircleOutline />
-              <div
-                class="h-1.5 bg-base-200 rounded-full w-1/3 animate-pulse"
-              ></div>
+              <div>{{ profile.fields[PROFILE_FIELDS.LOCATION] }}</div>
             </div>
 
             <div
@@ -187,12 +169,6 @@
             >
               <IconCalendarOutline />
               <div>Joined <BaseTimestamp :timestamp="joinedTimestamp" /></div>
-            </div>
-            <div v-else>
-              <IconCalendarOutline />
-              <div
-                class="h-1.5 bg-base-200 rounded-full w-1/3 animate-pulse"
-              ></div>
             </div>
           </div>
         </div>
