@@ -1,6 +1,5 @@
 <template>
   <div
-    v-if="profile"
     class="h-full w-full text-base-content font-content font-normal"
     v-bind="$attrs"
   >
@@ -8,7 +7,7 @@
       <div class="flex flex-col justify-between">
         <div
           v-tooltip.bottom="{
-            disabled: !!profile.fields.avatar,
+            disabled: profile && !!profile.fields.avatar,
             content: encodeHashToBase64(agentPubKey),
             popperClass: 'text-xs',
             triggers: ['hover'],
@@ -59,7 +58,7 @@
         </div>
 
         <div
-          v-if="profile.fields.avatar"
+          v-if="profile?.fields.avatar"
           v-tooltip.bottom="{
             content: encodeHashToBase64(agentPubKey),
             popperClass: 'text-xs',
@@ -110,7 +109,7 @@
         </div>
 
         <div
-          v-if="profile.fields[PROFILE_FIELDS.BIO]"
+          v-if="profile?.fields[PROFILE_FIELDS.BIO]"
           class="flex justify-start space-x-2 text-md mb-5"
         >
           {{ profile.fields[PROFILE_FIELDS.BIO] }}
@@ -157,7 +156,7 @@
             class="flex justify-start items-center space-x-2 sm:space-x-16 text-xs mt-3"
           >
             <div
-              v-if="profile.fields[PROFILE_FIELDS.LOCATION]"
+              v-if="profile?.fields[PROFILE_FIELDS.LOCATION]"
               class="flex justify-start items-center space-x-2 text-xs font-mono px-2"
             >
               <IconNavigateCircleOutline />
@@ -176,7 +175,6 @@
       </div>
     </div>
   </div>
-  <BaseAgentProfileDetailSkeleton v-else />
 </template>
 
 <script setup lang="ts">
@@ -195,7 +193,6 @@ import IconNavigateCircleOutline from "~icons/ion/navigate-circle-outline";
 import IconCalendarOutline from "~icons/ion/calendar-outline";
 import IconPencilSharp from "~icons/ion/pencil-sharp";
 import { Timestamp } from "@holochain/client";
-import BaseAgentProfileDetailSkeleton from "@/components/BaseAgentProfileDetailSkeleton.vue";
 import BaseCopyOnClick from "@/components/BaseCopyOnClick.vue";
 
 const props = withDefaults(

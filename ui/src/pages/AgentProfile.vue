@@ -2,8 +2,8 @@
   <div class="mt-4">
     <div v-if="!isInitialLoadingProfile && agentPubKey">
       <BaseAgentProfileDetail
-        :profile="profileWithContext?.profile"
-        :joined-timestamp="profileWithContext?.joinedTimestamp"
+        :profile="profile"
+        :joined-timestamp="joinedTimestamp"
         :agentPubKey="agentPubKey"
         :creators-count="creatorsCount || 0"
         :followers-count="followersCount || 0"
@@ -13,21 +13,22 @@
         @click-edit-profile="showEditProfileDialog = true"
         @click-followers="
           () => {
-            if (followers && followers.length > 0)
+            if (followersCount && followersCount > 0)
               showFollowersListDialog = true;
           }
         "
         @click-creators="
           () => {
-            if (creators && creators.length > 0) showCreatorsListDialog = true;
+            if (creatorsCount && creatorsCount > 0)
+              showCreatorsListDialog = true;
           }
         "
         @toggle-follow="refetchFollowersCount"
       />
       <EditAgentProfileDialog
-        v-if="profileWithContext"
+        v-if="profile"
         v-model="showEditProfileDialog"
-        :profile="profileWithContext.profile"
+        :profile="profile"
         @profile-updated="(profile: any) => {
           refetchProfile();
           queryClient.setQueryData([
@@ -132,12 +133,7 @@
 </template>
 
 <script setup lang="ts">
-import { AgentProfile } from "@/types/types";
-import {
-  AgentPubKey,
-  decodeHashFromBase64,
-  encodeHashToBase64,
-} from "@holochain/client";
+import { decodeHashFromBase64, encodeHashToBase64 } from "@holochain/client";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { ComputedRef, computed, inject, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -208,103 +204,40 @@ const {
 });
 watch(errorPinnedMews, console.error);
 
-const fetchProfileWithContext = async () => {
+const fetchProfile = async () => {
   const profile = await profilesStore.client.getAgentProfile(agentPubKey.value);
-  const joinedTimestamp = await client.callZome({
-    role_name: "mewsfeed",
-    zome_name: "profiles",
-    fn_name: "get_joining_timestamp_for_agent",
-    payload: agentPubKey.value,
-  });
 
   if (profile) {
-    return {
-      profile,
-      joinedTimestamp,
-    };
+    return profile;
   } else {
     throw new Error("No profile found");
   }
 };
 
 const {
-  data: profileWithContext,
+  data: profile,
   isInitialLoading: isInitialLoadingProfile,
   error: errorProfile,
   refetch: refetchProfile,
 } = useQuery({
   queryKey: ["profiles", "getAgentProfile", agentPubKeyB64],
-  queryFn: fetchProfileWithContext,
+  queryFn: fetchProfile,
 });
 watch(errorProfile, console.error);
 
-const fetchFollowers = async () => {
-  const agents: AgentPubKey[] = await client.callZome({
+const fetchJoinedTimestamp = () =>
+  client.callZome({
     role_name: "mewsfeed",
-    zome_name: "follows",
-    fn_name: "get_followers_for_creator",
-    payload: {
-      creator: agentPubKey.value,
-      page: {
-        limit: pageLimit,
-      },
-    },
+    zome_name: "profiles",
+    fn_name: "get_joining_timestamp_for_agent",
+    payload: agentPubKeyB64,
   });
 
-  const agentProfiles = await Promise.all(
-    agents.map(async (key) => {
-      const profile = await profilesStore.client.getAgentProfile(key);
-      if (!profile) return null;
-
-      return {
-        agentPubKey: key,
-        profile: profile,
-      };
-    })
-  );
-
-  return agentProfiles.filter(Boolean) as AgentProfile[];
-};
-
-const { data: followers, error: errorFollowers } = useQuery({
-  queryKey: ["follows", "get_followers_for_creator", agentPubKeyB64],
-  queryFn: fetchFollowers,
+const { data: joinedTimestamp, error: errorJoinedTimestamp } = useQuery({
+  queryKey: ["profiles", "get_joining_timestamp_for_agent", agentPubKeyB64],
+  queryFn: fetchJoinedTimestamp,
 });
-watch(errorFollowers, console.error);
-
-const fetchCreators = async () => {
-  const agents: AgentPubKey[] = await client.callZome({
-    role_name: "mewsfeed",
-    zome_name: "follows",
-    fn_name: "get_creators_for_follower",
-    payload: {
-      follower: agentPubKey.value,
-      page: {
-        limit: pageLimit,
-      },
-    },
-  });
-
-  const agentProfiles = await Promise.all(
-    agents.map(async (agentPubKey) => {
-      const profile = await profilesStore.client.getAgentProfile(agentPubKey);
-      if (!profile) return null;
-
-      return {
-        agentPubKey,
-        profile: profile,
-      };
-    })
-  );
-
-  return agentProfiles.filter(Boolean) as AgentProfile[];
-};
-
-const { data: creators, error: errorCreators } = useQuery({
-  queryKey: ["follows", "get_creators_for_follower", agentPubKeyB64],
-  queryFn: fetchCreators,
-});
-watch(errorCreators, console.error);
+watch(errorJoinedTimestamp, console.error);
 
 const fetchCreatorsCount = async (): Promise<number> =>
   client.callZome({

@@ -1,7 +1,6 @@
 <template>
   <div class="flex justify-start items-center space-x-2">
     <agent-avatar
-      v-if="profile"
       :agentPubKey="agentPubKey"
       size="20"
       disable-tooltip

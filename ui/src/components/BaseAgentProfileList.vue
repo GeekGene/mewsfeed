@@ -19,7 +19,8 @@
     :is-loading="loading"
   >
     <BaseAgentProfileListItem
-      :agent-profile="item"
+      :agent-pub-key="item.agentPubKey"
+      :profile="item.profile"
       :enable-popup="enablePopups"
       class="cursor-pointer py-3"
       @click="
