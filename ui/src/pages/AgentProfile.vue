@@ -162,7 +162,7 @@ const agentPubKey = computed(() =>
 const showEditProfileDialog = ref(false);
 const showFollowersListDialog = ref(false);
 const showCreatorsListDialog = ref(false);
-const agentPubKeyRef = computed(() => route.params.agentPubKey);
+const agentPubKeyB64 = computed(() => route.params.agentPubKey);
 const pageLimit = 5;
 
 const fetchAuthoredMews = () =>
@@ -184,7 +184,7 @@ const {
   error: errorAuthoredMews,
   refetch: refetchAuthoredMews,
 } = useQuery({
-  queryKey: ["profiles", "get_agent_mews_with_context", agentPubKeyRef],
+  queryKey: ["profiles", "get_agent_mews_with_context", agentPubKeyB64],
   queryFn: fetchAuthoredMews,
 });
 watch(errorAuthoredMews, console.error);
@@ -203,7 +203,7 @@ const {
   error: errorPinnedMews,
   refetch: refetchPinnedMews,
 } = useQuery({
-  queryKey: ["profiles", "get_mews_for_pinner_with_context", agentPubKeyRef],
+  queryKey: ["profiles", "get_mews_for_pinner_with_context", agentPubKeyB64],
   queryFn: fetchPinnedMews,
 });
 watch(errorPinnedMews, console.error);
@@ -233,7 +233,7 @@ const {
   error: errorProfile,
   refetch: refetchProfile,
 } = useQuery({
-  queryKey: ["profiles", "getAgentProfile", agentPubKeyRef],
+  queryKey: ["profiles", "getAgentProfile", agentPubKeyB64],
   queryFn: fetchProfileWithContext,
 });
 watch(errorProfile, console.error);
@@ -267,7 +267,7 @@ const fetchFollowers = async () => {
 };
 
 const { data: followers, error: errorFollowers } = useQuery({
-  queryKey: ["follows", "get_followers_for_creator", agentPubKeyRef],
+  queryKey: ["follows", "get_followers_for_creator", agentPubKeyB64],
   queryFn: fetchFollowers,
 });
 watch(errorFollowers, console.error);
@@ -301,7 +301,7 @@ const fetchCreators = async () => {
 };
 
 const { data: creators, error: errorCreators } = useQuery({
-  queryKey: ["follows", "get_creators_for_follower", agentPubKeyRef],
+  queryKey: ["follows", "get_creators_for_follower", agentPubKeyB64],
   queryFn: fetchCreators,
 });
 watch(errorCreators, console.error);
@@ -315,7 +315,7 @@ const fetchCreatorsCount = async (): Promise<number> =>
   });
 
 const { data: creatorsCount, error: errorCreatorsCount } = useQuery({
-  queryKey: ["follows", "count_creators_for_follower", agentPubKeyRef],
+  queryKey: ["follows", "count_creators_for_follower", agentPubKeyB64],
   queryFn: fetchCreatorsCount,
 });
 watch(errorCreatorsCount, console.error);
@@ -333,7 +333,7 @@ const {
   error: errorFollowersCount,
   refetch: refetchFollowersCount,
 } = useQuery({
-  queryKey: ["follows", "count_followers_for_creator", agentPubKeyRef],
+  queryKey: ["follows", "count_followers_for_creator", agentPubKeyB64],
   queryFn: fetchFollowersCount,
 });
 watch(errorFollowersCount, console.error);

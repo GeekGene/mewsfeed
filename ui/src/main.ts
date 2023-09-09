@@ -43,7 +43,7 @@ const vueQueryOptions: VueQueryPluginOptions = {
     defaultOptions: {
       queries: {
         cacheTime: 1000 * 60 * 15, // 15 minutes
-        staleTime: 0,
+        staleTime: 100,
         refetchOnMount: "always",
         refetchOnWindowFocus: "always",
         refetchOnReconnect: "always",

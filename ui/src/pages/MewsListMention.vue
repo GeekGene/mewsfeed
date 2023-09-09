@@ -55,12 +55,11 @@
 
 <script setup lang="ts">
 import { AppAgentClient, decodeHashFromBase64 } from "@holochain/client";
-import { ComputedRef, computed, inject } from "vue";
+import { ComputedRef, computed, inject, ref, watch, onMounted } from "vue";
 import { useRoute, onBeforeRouteLeave } from "vue-router";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
 import BaseEmptyList from "@/components/BaseEmptyList.vue";
 import BaseMewListItem from "@/components/BaseMewListItem.vue";
-import { watch } from "vue";
 import BaseButtonBack from "@/components/BaseButtonBack.vue";
 import BaseListSkeleton from "@/components/BaseListSkeleton.vue";
 import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
@@ -69,7 +68,14 @@ import BaseInfiniteScroll from "@/components/BaseInfiniteScroll.vue";
 const route = useRoute();
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const queryClient = useQueryClient();
-const tag = computed(() => `${route.meta.tag}${route.params.tag}`);
+const agentPubKeyB64 = computed(() => route.params.agentPubKey);
+const agentPubKey = computed(() =>
+  decodeHashFromBase64(route.params.agentPubKey as string)
+);
+const isMounted = ref(false);
+onMounted(() => {
+  isMounted.value = true;
+});
 
 const pageLimit = 10;
 
@@ -79,7 +85,7 @@ const fetchMentionMews = async (params: any) => {
     zome_name: "mews",
     fn_name: "get_mews_for_mention_with_context",
     payload: {
-      mention: decodeHashFromBase64(route.params.agentPubKey as string),
+      mention: agentPubKey.value,
       page: {
         limit: pageLimit,
         ...params.pageParam,
@@ -91,7 +97,7 @@ const fetchMentionMews = async (params: any) => {
 
 const { data, error, fetchNextPage, hasNextPage, isInitialLoading, refetch } =
   useInfiniteQuery({
-    queryKey: ["mews", "get_mews_for_mention_with_context", tag],
+    queryKey: ["mews", "get_mews_for_mention_with_context", agentPubKeyB64],
     queryFn: fetchMentionMews,
     getNextPageParam: (lastPage) => {
       if (lastPage.length === 0) return;
@@ -101,6 +107,7 @@ const { data, error, fetchNextPage, hasNextPage, isInitialLoading, refetch } =
     },
     refetchInterval: 1000 * 60 * 2, // 2 minutes
     refetchOnMount: true,
+    enabled: isMounted,
   });
 watch(error, console.error);
 
@@ -114,7 +121,7 @@ const fetchNextPageInfiniteScroll = async (
 onBeforeRouteLeave(() => {
   if (data.value && data.value.pages.length > 1) {
     queryClient.setQueryData(
-      ["mews", "get_mews_for_mention_with_context", tag.value],
+      ["mews", "get_mews_for_mention_with_context", agentPubKeyB64.value],
       (d: any) => ({
         pages: [d.pages[0]],
         pageParams: [d.pageParams[0]],
