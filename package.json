@@ -10,7 +10,7 @@
     "start": "npm run network",
     "local-services": "hc run-local-services -b 54000 -s 55000",
     "network": "npm run build:happ && UI_PORT=8888 concurrently \"npm run playground\" \"npm run local-services\" \"npm run start:agent\" \"npm run start:agent\"",
-    "start:agent": "HC_PORT=$(port) HC_ADMIN_PORT=$(port) concurrently \"npm run launch:happ\" \"npm run start:browser -w ui\"",
+    "start:agent": "HC_PORT=$(get-port) HC_ADMIN_PORT=$(get-port) concurrently \"npm run launch:happ\" \"npm run start:browser -w ui\"",
     "launch:happ": "hc s clean && echo pass | RUST_LOG=warn hc s --piped -f=$HC_ADMIN_PORT generate ./workdir/mewsfeed.happ --run=$HC_PORT -a mewsfeed network -b http://127.0.0.1:54000 webrtc ws://127.0.0.1:55000",
     "start:launcher": "VITE_IS_LAUNCHER=true AGENTS=2 npm run network:launcher",
     "network:launcher": "hc s clean && npm run build:happ && UI_PORT=8888 concurrently \"npm run local-services\" \"npm start -w ui\" \"npm run launch:happ:launcher\" \"holochain-playground\"",
@@ -43,7 +43,7 @@
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-vue": "^8.7.1",
-    "new-port-cli": "^1.0.0",
+    "get-port-cli": "github:mattyg/get-port-cli#main",
     "prettier": "^2.8.8",
     "rimraf": "^3.0.2",
     "run-singleton-cli": "^0.0.7"
