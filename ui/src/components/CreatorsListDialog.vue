@@ -65,7 +65,7 @@ const queryClient = useQueryClient();
 const pageLimit = 10;
 
 const fetchCreators = async (params: any) => {
-  const agents: AgentPubKey[] = await await client.callZome({
+  const agents: AgentPubKey[] = await client.callZome({
     role_name: "mewsfeed",
     zome_name: "follows",
     fn_name: "get_creators_for_follower",
