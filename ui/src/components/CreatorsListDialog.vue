@@ -17,13 +17,14 @@
         "
         @load-next="fetchNextPageInfiniteScroll"
       >
-        <BaseAgentProfileList
-          v-for="(page, i) in data.pages"
-          :key="i"
-          :agent-profiles="page"
-          :loading="isInitialLoading"
-          :enable-popups="false"
-        />
+        <template v-for="(page, i) in data.pages" :key="i">
+          <BaseAgentProfileList
+            :agent-profiles="page"
+            :loading="isInitialLoading"
+            :enable-popups="false"
+          />
+          <hr v-if="i !== data.pages.length - 1" class="border-base-300" />
+        </template>
       </BaseInfiniteScroll>
       <BaseAgentProfileListItemSkeleton
         v-for="x in [0, 1, 2, 3]"
@@ -64,7 +65,7 @@ const queryClient = useQueryClient();
 const pageLimit = 10;
 
 const fetchCreators = async (params: any) => {
-  const agents: AgentPubKey[] = await await client.callZome({
+  const agents: AgentPubKey[] = await client.callZome({
     role_name: "mewsfeed",
     zome_name: "follows",
     fn_name: "get_creators_for_follower",
@@ -104,7 +105,7 @@ const { data, error, fetchNextPage, hasNextPage, isInitialLoading } =
       if (lastPage.length === 0) return;
       if (lastPage.length < pageLimit) return;
 
-      return { after_agentpubkey: lastPage[lastPage.length - 1] };
+      return { after_agentpubkey: lastPage[lastPage.length - 1].agentPubKey };
     },
     refetchInterval: 1000 * 60 * 2, // 2 minutes
     refetchOnMount: true,
