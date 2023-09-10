@@ -23,6 +23,7 @@
           }
         "
         @toggle-follow="refetchFollowersCount"
+        @click-avatar="showAvatarLightbox = true"
       />
       <EditAgentProfileDialog
         v-if="profileWithContext"
@@ -129,6 +130,19 @@
     v-model="showCreatorsListDialog"
     :agent-pub-key="decodeHashFromBase64(route.params.agentPubKey as string)"
   />
+
+  <VueEasyLightbox
+    :visible="showAvatarLightbox"
+    :imgs="profileWithContext?.profile.fields.avatar"
+    move-disabled
+    scroll-disabled
+    rotate-disabled
+    zoom-disabled
+    pinch-disabled
+    @hide="showAvatarLightbox = false"
+  >
+    <template #toolbar></template>
+  </VueEasyLightbox>
 </template>
 
 <script setup lang="ts">
@@ -148,6 +162,7 @@ import BaseAgentProfileDetail from "@/components/BaseAgentProfileDetail.vue";
 import EditAgentProfileDialog from "@/components/EditAgentProfileDialog.vue";
 import FollowersListDialog from "@/components/FollowersListDialog.vue";
 import CreatorsListDialog from "@/components/CreatorsListDialog.vue";
+import VueEasyLightbox from "vue-easy-lightbox";
 
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
@@ -162,6 +177,7 @@ const agentPubKey = computed(() =>
 const showEditProfileDialog = ref(false);
 const showFollowersListDialog = ref(false);
 const showCreatorsListDialog = ref(false);
+const showAvatarLightbox = ref(false);
 
 const pageLimit = 5;
 

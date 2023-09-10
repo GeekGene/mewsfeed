@@ -13,6 +13,13 @@
             popperClass: 'text-xs',
             triggers: ['hover'],
           }"
+          @click="
+            () => {
+              if (profile?.fields.avatar) {
+                emit('click-avatar');
+              }
+            }
+          "
         >
           <agent-avatar
             v-if="!enableCopyAgentPubKey"
@@ -223,6 +230,7 @@ const emit = defineEmits([
   "click-edit-profile",
   "click-creators",
   "click-followers",
+  "click-avatar",
   "toggle-follow",
 ]);
 
