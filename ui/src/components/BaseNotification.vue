@@ -24,7 +24,7 @@
       "
       class="flex justify-between items-center py-2 w-full space-x-2"
     >
-      <div class="flex justify-start items-start">
+      <div class="flex justify-start items-start space-x-2">
         <BaseAgentProfileLinkName
           :agentPubKey="notification.agent"
           :profile="notification.agent_profile"
