@@ -13,6 +13,10 @@
             popperClass: 'text-xs',
             triggers: ['hover'],
           }"
+          :class="{
+            'cursor-pointer':
+              profile?.fields.avatar && enableLightboxOnAvatarClick,
+          }"
           @click="
             () => {
               if (profile?.fields.avatar && enableLightboxOnAvatarClick) {
