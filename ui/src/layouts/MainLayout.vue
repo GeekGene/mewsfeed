@@ -97,6 +97,19 @@
     <!-- eslint-disable-next-line vue/no-v-html -->
     <div v-html="confirmDialogHtml"></div>
   </BaseConfirmDialog>
+
+  <VueEasyLightbox
+    :visible="showLightbox"
+    :imgs="lightboxImgSrc"
+    move-disabled
+    scroll-disabled
+    rotate-disabled
+    zoom-disabled
+    pinch-disabled
+    @hide="closeLightbox"
+  >
+    <template #toolbar></template>
+  </VueEasyLightbox>
 </template>
 
 <script setup lang="ts">
@@ -120,6 +133,8 @@ import BaseConfirmDialog from "@/components/BaseConfirmDialog.vue";
 import { useCreateProfileDialogStore } from "../stores/createProfileDialog";
 import { useConfirmDialogStore } from "../stores/confirmDialog";
 import { storeToRefs } from "pinia";
+import { useLightboxStore } from "@/stores/lightbox";
+import VueEasyLightbox from "vue-easy-lightbox";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const router = useRouter();
@@ -142,6 +157,9 @@ const {
   showConfirmDialog,
   confirmCallback,
 } = storeToRefs(useConfirmDialogStore());
+
+const { lightboxImgSrc, showLightbox } = storeToRefs(useLightboxStore());
+const { closeLightbox } = useLightboxStore();
 
 const showSearchDialog = ref(false);
 const forceReloadRouterViewKey = ref(0);
