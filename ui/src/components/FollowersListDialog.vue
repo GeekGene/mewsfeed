@@ -98,7 +98,7 @@ const fetchFollowers = async (params: any) => {
   return agentProfiles.filter(Boolean) as AgentProfile[];
 };
 
-const { data, error, fetchNextPage, hasNextPage, isInitialLoading } =
+const { data, error, fetchNextPage, hasNextPage, isInitialLoading, refetch } =
   useInfiniteQuery({
     queryKey: ["mews", "get_followers_for_creator", agentPubKeyB64],
     queryFn: fetchFollowers,
@@ -134,6 +134,12 @@ onBeforeRouteLeave(() => {
         pageParams: [d.pageParams[0]],
       })
     );
+  }
+});
+
+watch(props, (newProps) => {
+  if (newProps.modelValue) {
+    refetch();
   }
 });
 </script>
