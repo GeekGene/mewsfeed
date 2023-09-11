@@ -95,7 +95,7 @@ const fetchCreators = async (params: any) => {
     })
   );
 
-  return agentProfiles.filter(Boolean) as AgentProfile[];
+  return agentProfiles;
 };
 
 const { data, error, fetchNextPage, hasNextPage, isInitialLoading, refetch } =
