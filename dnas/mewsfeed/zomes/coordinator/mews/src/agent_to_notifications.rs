@@ -91,30 +91,65 @@ pub fn get_notifications_for_agent(
         .collect();
 
     // Responses to Mews I have responded to
-    let mew_hashes_i_responded_to: Vec<ActionHash> = agent_mews
+    let mut mew_hashes_i_responded_to: Vec<(Record, ActionHash)> = agent_mews
         .iter()
-        .filter_map(|record| match record.entry().to_app_option::<Mew>().ok() {
-            Some(Some(mew)) => match mew.mew_type {
-                MewType::Reply(ah) | MewType::Quote(ah) | MewType::Mewmew(ah) => Some(ah),
+        // Filter only mew types that are responses
+        .filter_map(
+            |response_record| match response_record.entry().to_app_option::<Mew>().ok() {
+                Some(Some(mew)) => match mew.mew_type {
+                    MewType::Reply(original_ah)
+                    | MewType::Quote(original_ah)
+                    | MewType::Mewmew(original_ah) => Some((response_record.clone(), original_ah)),
+                    _ => None,
+                },
                 _ => None,
             },
-            _ => None,
+        )
+        // Exclude responses to agent's mews to avoid duplicate notifications for both "responded to your mew" and "responded to a yarn you participated in"
+        .filter(|(_, original_ah)| {
+            agent_mews
+                .iter()
+                .filter(|authored_record| {
+                    authored_record.action_hashed().hash == original_ah.clone()
+                })
+                .count()
+                == 0
         })
         .collect();
-    let mews_responding_to_mews_i_responded_to: Vec<Record> = mew_hashes_i_responded_to
-        .iter()
-        .map(|ah| {
-            get_responses_for_mew(GetResponsesForMewInput {
-                original_mew_hash: ah.clone(),
-                response_type: None,
-                page: None,
+    mew_hashes_i_responded_to
+        .sort_by_key(|(response_record, _)| response_record.action().timestamp());
+    mew_hashes_i_responded_to.dedup_by_key(|(_, original_ah)| original_ah.clone());
+
+    let mews_responding_to_mews_i_responded_to: Vec<(Record, Vec<Record>)> =
+        mew_hashes_i_responded_to
+            .iter()
+            .map(|(my_response, original_ah)| {
+                // Still have to use a get_links here because we cannot filter count_links by excluding an author
+                let responses_result = get_responses_for_mew(GetResponsesForMewInput {
+                    original_mew_hash: original_ah.clone(),
+                    response_type: None,
+                    page: None,
+                });
+
+                match responses_result {
+                    Ok(all_responses) => Ok((my_response.clone(), all_responses)),
+                    Err(e) => Err(e),
+                }
             })
-        })
-        .collect::<ExternResult<Vec<Vec<Record>>>>()?
+            .collect::<ExternResult<Vec<(Record, Vec<Record>)>>>()?;
+
+    let mews_responding_to_mews_i_responded_to = mews_responding_to_mews_i_responded_to
         .iter()
-        .flatten()
-        .cloned()
-        .filter(|r| r.action().author().clone() != input.agent.clone())
+        .flat_map(|(my_response, all_responses)| -> Vec<Record> {
+            all_responses
+                .iter()
+                .filter(|other_response| {
+                    other_response.action().author().clone() != input.agent.clone()
+                        && other_response.action().timestamp() >= my_response.action().timestamp()
+                })
+                .cloned()
+                .collect()
+        })
         .collect();
 
     let mut n = make_notifications_for_records(
@@ -223,32 +258,63 @@ pub fn count_notifications_for_agent(agent: AgentPubKey) -> ExternResult<usize> 
         .sum();
 
     // Responses to Mews I have responded to
-    let mew_hashes_i_responded_to: Vec<ActionHash> = agent_mews
+    let mut mew_hashes_i_responded_to: Vec<(Record, ActionHash)> = agent_mews
         .iter()
-        .filter_map(|record| match record.entry().to_app_option::<Mew>().ok() {
-            Some(Some(mew)) => match mew.mew_type {
-                MewType::Reply(ah) | MewType::Quote(ah) | MewType::Mewmew(ah) => Some(ah),
+        .filter_map(
+            |response_record| match response_record.entry().to_app_option::<Mew>().ok() {
+                Some(Some(mew)) => match mew.mew_type {
+                    MewType::Reply(original_ah)
+                    | MewType::Quote(original_ah)
+                    | MewType::Mewmew(original_ah) => Some((response_record.clone(), original_ah)),
+                    _ => None,
+                },
                 _ => None,
             },
-            _ => None,
+        )
+        .filter(|(_, original_ah)| {
+            agent_mews
+                .iter()
+                .filter(|authored_record| {
+                    authored_record.action_hashed().hash == original_ah.clone()
+                })
+                .count()
+                == 0
         })
         .collect();
+    mew_hashes_i_responded_to
+        .sort_by_key(|(response_record, _)| response_record.action().timestamp());
+    mew_hashes_i_responded_to.dedup_by_key(|(_, original_ah)| original_ah.clone());
 
-    let mews_responding_to_mews_i_responded_to_count: usize = mew_hashes_i_responded_to
-        .iter()
-        .map(|ah| {
-            // Still have to use a get_links here because we cannot filter count_links by excluding an author
-            get_responses_for_mew(GetResponsesForMewInput {
-                original_mew_hash: ah.clone(),
-                response_type: None,
-                page: None,
+    let mews_responding_to_mews_i_responded_to: Vec<(Record, Vec<Record>)> =
+        mew_hashes_i_responded_to
+            .iter()
+            .map(|(my_response, original_ah)| {
+                // Still have to use a get_links here because we cannot filter count_links by excluding an author
+                let responses_result = get_responses_for_mew(GetResponsesForMewInput {
+                    original_mew_hash: original_ah.clone(),
+                    response_type: None,
+                    page: None,
+                });
+
+                match responses_result {
+                    Ok(all_responses) => Ok((my_response.clone(), all_responses)),
+                    Err(e) => Err(e),
+                }
             })
-        })
-        .collect::<ExternResult<Vec<Vec<Record>>>>()?
+            .collect::<ExternResult<Vec<(Record, Vec<Record>)>>>()?;
+
+    let mews_responding_to_mews_i_responded_to_count = mews_responding_to_mews_i_responded_to
         .iter()
-        .flatten()
-        .cloned()
-        .filter(|r| r.action().author().clone() != agent.clone())
+        .flat_map(|(my_response, all_responses)| -> Vec<Record> {
+            all_responses
+                .iter()
+                .filter(|other_response| {
+                    other_response.action().author().clone() != agent.clone()
+                        && other_response.action().timestamp() >= my_response.action().timestamp()
+                })
+                .cloned()
+                .collect()
+        })
         .count();
 
     Ok(notifications_count + mews_responding_to_mews_i_responded_to_count)
