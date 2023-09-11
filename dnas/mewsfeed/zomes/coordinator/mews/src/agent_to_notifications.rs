@@ -93,17 +93,31 @@ pub fn get_notifications_for_agent(
     // Responses to Mews I have responded to
     let mut mew_hashes_i_responded_to: Vec<(Record, ActionHash)> = agent_mews
         .iter()
-        .filter_map(|response_record| match response_record.entry().to_app_option::<Mew>().ok() {
-            Some(Some(mew)) => match mew.mew_type {
-                MewType::Reply(original_ah) | MewType::Quote(original_ah) | MewType::Mewmew(original_ah) => {
-                    Some((response_record.clone(), original_ah))
-                }
+        // Filter only mew types that are responses
+        .filter_map(
+            |response_record| match response_record.entry().to_app_option::<Mew>().ok() {
+                Some(Some(mew)) => match mew.mew_type {
+                    MewType::Reply(original_ah)
+                    | MewType::Quote(original_ah)
+                    | MewType::Mewmew(original_ah) => Some((response_record.clone(), original_ah)),
+                    _ => None,
+                },
                 _ => None,
             },
-            _ => None,
+        )
+        // Exclude responses to agent's mews to avoid duplicate notifications for both "responded to your mew" and "responded to a yarn you participated in"
+        .filter(|(_, original_ah)| {
+            agent_mews
+                .iter()
+                .filter(|authored_record| {
+                    authored_record.action_hashed().hash == original_ah.clone()
+                })
+                .count()
+                == 0
         })
         .collect();
-    mew_hashes_i_responded_to.sort_by_key(|(response_record, _)| response_record.action().timestamp());
+    mew_hashes_i_responded_to
+        .sort_by_key(|(response_record, _)| response_record.action().timestamp());
     mew_hashes_i_responded_to.dedup_by_key(|(_, original_ah)| original_ah.clone());
 
     let mews_responding_to_mews_i_responded_to: Vec<(Record, Vec<Record>)> =
@@ -246,17 +260,29 @@ pub fn count_notifications_for_agent(agent: AgentPubKey) -> ExternResult<usize> 
     // Responses to Mews I have responded to
     let mut mew_hashes_i_responded_to: Vec<(Record, ActionHash)> = agent_mews
         .iter()
-        .filter_map(|response_record| match response_record.entry().to_app_option::<Mew>().ok() {
-            Some(Some(mew)) => match mew.mew_type {
-                MewType::Reply(original_ah) | MewType::Quote(original_ah) | MewType::Mewmew(original_ah) => {
-                    Some((response_record.clone(), original_ah))
-                }
+        .filter_map(
+            |response_record| match response_record.entry().to_app_option::<Mew>().ok() {
+                Some(Some(mew)) => match mew.mew_type {
+                    MewType::Reply(original_ah)
+                    | MewType::Quote(original_ah)
+                    | MewType::Mewmew(original_ah) => Some((response_record.clone(), original_ah)),
+                    _ => None,
+                },
                 _ => None,
             },
-            _ => None,
+        )
+        .filter(|(_, original_ah)| {
+            agent_mews
+                .iter()
+                .filter(|authored_record| {
+                    authored_record.action_hashed().hash == original_ah.clone()
+                })
+                .count()
+                == 0
         })
         .collect();
-    mew_hashes_i_responded_to.sort_by_key(|(response_record, _)| response_record.action().timestamp());
+    mew_hashes_i_responded_to
+        .sort_by_key(|(response_record, _)| response_record.action().timestamp());
     mew_hashes_i_responded_to.dedup_by_key(|(_, original_ah)| original_ah.clone());
 
     let mews_responding_to_mews_i_responded_to: Vec<(Record, Vec<Record>)> =
