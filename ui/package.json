@@ -33,6 +33,7 @@
     "pinia-plugin-persistedstate": "^3.1.0",
     "rollup-plugin-node-polyfills": "^0.2.1",
     "vue": "^3.2.40",
+    "vue-easy-lightbox": "^1.16.0",
     "vue-observe-visibility": "^2.0.0-alpha.1",
     "vue-router": "^4.2.0"
   },

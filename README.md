@@ -5,6 +5,19 @@ We are currently working towards the first major release of mewsfeed.
 
 [Collaborate on GitHub](https://github.com/orgs/GeekGene/projects/1) and [join our Discord](https://discord.gg/D3BykUZumM)!
 
+## Chat With Us
+
+Come join us on mewsfeed. We're talking at the hashtags #mewsfeed and #holochain. Share your feedback by tagging #mewsfeedback!
+
+## Follow Us
+
+You can follow the team on mewsfeed at:
+
+@artbrock
+@bierlingm
+@mattyg
+@jost
+
 ## Environment Setup
 
 1. Install the holochain dev environment (only nix-shell is required): https://developer.holochain.org/docs/install/

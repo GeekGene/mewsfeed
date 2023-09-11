@@ -14,7 +14,6 @@
     v-else
     v-slot="{ item }"
     v-bind="$attrs"
-    class="my-8"
     :items="agentProfiles"
     :is-loading="loading"
   >

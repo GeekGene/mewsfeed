@@ -2,6 +2,7 @@
   <BaseDialog
     :model-value="modelValue"
     dialog-panel-class="md:w-auto bg-base-100"
+    :initial-focus-ref="baseEditAgentProfileFormRef?.$refs.usernameInputRef"
     @update:model-value="(val: boolean) => emit('update:model-value', val)"
   >
     <profiles-context :store="profilesStore">
@@ -11,7 +12,10 @@
         >
           create profile
         </h2>
-        <BaseEditAgentProfileForm @update:model-value="createProfile" />
+        <BaseEditAgentProfileForm
+          ref="baseEditAgentProfileFormRef"
+          @update:model-value="createProfile"
+        />
       </div>
       <slot v-else></slot>
     </profiles-context>
@@ -19,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { ComputedRef, inject } from "vue";
+import { ComputedRef, inject, ref } from "vue";
 import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
 import BaseEditAgentProfileForm from "@/components/BaseEditAgentProfileForm.vue";
 
@@ -30,6 +34,8 @@ const emit = defineEmits(["update:model-value", "profile-created"]);
 defineProps<{
   modelValue: boolean;
 }>();
+
+const baseEditAgentProfileFormRef = ref();
 
 const createProfile = async (profile: Profile) => {
   await profilesStore.client.createProfile(profile);

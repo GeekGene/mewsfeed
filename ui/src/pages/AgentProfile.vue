@@ -10,6 +10,7 @@
         class="bg-base-200/75 rounded-3xl"
         style="-webkit-backdrop-filter: blur(10px)"
         enable-copy-agent-pub-key
+        enable-lightbox-on-avatar-click
         @click-edit-profile="showEditProfileDialog = true"
         @click-followers="
           () => {

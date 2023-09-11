@@ -13,6 +13,7 @@
           <span class="label-text">Nickname *</span>
         </label>
         <input
+          ref="usernameInputRef"
           v-model="nickname"
           type="text"
           class="input input-bordered w-full input-lg"
@@ -68,6 +69,7 @@ const props = defineProps<{
 }>();
 const { showMessage } = useToasts();
 
+const usernameInputRef = ref();
 const avatar = ref(props.modelValue?.fields.avatar || "");
 const nickname = ref(props.modelValue?.nickname || "");
 const displayName = ref(

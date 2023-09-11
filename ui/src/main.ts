@@ -37,6 +37,9 @@ import { decodeHashFromBase64, encodeHashToBase64 } from "@holochain/client";
 import { setupHomeRedirect } from "./utils/homeRedirect";
 setBasePath("shoelace");
 
+// Lightbox
+import "vue-easy-lightbox/dist/external-css/vue-easy-lightbox.css";
+
 // Setup @tanstack/query
 const vueQueryOptions: VueQueryPluginOptions = {
   queryClientConfig: {
