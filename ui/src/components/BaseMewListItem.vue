@@ -147,7 +147,15 @@
                   'text-green-400 hover:text-green-600': feedMew.is_replied,
                   'text-base-300 hover:text-neutral': !feedMew.is_replied,
                 }"
-                @click.stop.prevent="showReplyToMewDialog = true"
+                @click.stop.prevent="
+                  openCreateMewDialog(
+                    { [MewTypeName.Reply]: feedMew.action_hash },
+                    feedMew,
+                    () => {
+                      onCreateReply(feedMew);
+                    }
+                  )
+                "
               >
                 <IconArrowUndoSharp class="w-4 h-4" />
                 <span v-if="feedMew.replies_count > 0">
@@ -168,7 +176,15 @@
                   'text-green-400 hover:text-green-600': feedMew.is_quoted,
                   'text-base-300 hover:text-neutral': !feedMew.is_quoted,
                 }"
-                @click.stop.prevent="showQuoteMewDialog = true"
+                @click.stop.prevent="
+                  openCreateMewDialog(
+                    { [MewTypeName.Quote]: feedMew.action_hash },
+                    feedMew,
+                    () => {
+                      onCreateQuote(feedMew);
+                    }
+                  )
+                "
               >
                 <IconFormatQuote class="w-4 h-4" />
                 <span v-if="feedMew.quotes_count > 0">
@@ -189,7 +205,15 @@
                   'text-green-400 cursor-default': feedMew.is_mewmewed,
                   'text-base-300 hover:text-neutral': !feedMew.is_mewmewed,
                 }"
-                @click.stop.prevent="showCreateMewmewDialog = true"
+                @click.stop.prevent="
+                  openCreateMewDialog(
+                    { [MewTypeName.Mewmew]: feedMew.action_hash },
+                    feedMew,
+                    () => {
+                      onCreateMewmew(feedMew);
+                    }
+                  )
+                "
               >
                 <IconRepeatBold class="w-4 h-4" />
                 <div v-if="feedMew.mewmews_count > 0" class="text-xs">
@@ -251,7 +275,20 @@
                 }"
                 :disable="isDeleted"
                 class="flex justify-start items-center space-x-1 text-base-300 hover:text-neutral p-2"
-                @click.stop.prevent="showConfirmDeleteDialog = true"
+                @click.stop.prevent="
+                  openConfirmDialog(
+                    `<div class='prose'>
+                      <b>Are you sure you want to delete this mew?</b>
+                      <p>
+                        Note that other peers may still have copies of the data,
+                        and you can't force them to delete it.
+                      </p>
+                    </div>`,
+                    'Delete Mew',
+                    'Delete',
+                    deleteMew
+                  )
+                "
               >
                 <IconTrashSharp class="w-4 h-4" />
               </button>
@@ -267,51 +304,6 @@
         </div>
       </div>
     </div>
-    <CreateProfileIfNotFoundDialog v-model="showReplyToMewDialog">
-      <CreateMewDialog
-        v-model="showReplyToMewDialog"
-        :mew-type="{ [MewTypeName.Reply]: feedMew.action_hash }"
-        :original-mew="feedMew"
-        :original-author="feedMew.original_mew?.author_profile"
-        @mew-created="onCreateReply"
-      />
-    </CreateProfileIfNotFoundDialog>
-    <CreateProfileIfNotFoundDialog v-model="showQuoteMewDialog">
-      <CreateMewDialog
-        v-model="showQuoteMewDialog"
-        :mew-type="{ [MewTypeName.Quote]: feedMew.action_hash }"
-        :original-mew="feedMew"
-        :original-author="feedMew.original_mew?.author_profile"
-        @mew-created="onCreateQuote"
-      />
-    </CreateProfileIfNotFoundDialog>
-    <CreateProfileIfNotFoundDialog
-      v-model="showToggleLickMewDialog"
-      @profile-created="toggleLickMew"
-    />
-    <CreateProfileIfNotFoundDialog v-model="showCreateMewmewDialog">
-      <CreateMewDialog
-        v-model="showCreateMewmewDialog"
-        :mew-type="{ [MewTypeName.Mewmew]: feedMew.action_hash }"
-        :original-mew="feedMew"
-        :original-author="feedMew.original_mew?.author_profile"
-        @mew-created="onCreateMewmew"
-      />
-    </CreateProfileIfNotFoundDialog>
-    <BaseConfirmDialog
-      v-model="showConfirmDeleteDialog"
-      title="Delete Mew"
-      confirm-text="Delete"
-      @confirm="deleteMew"
-    >
-      <div class="prose">
-        <b>Are you sure you want to delete this mew?</b>
-        <p>
-          Note that other peers may still have copies of the data, and you can't
-          force them to delete it.
-        </p>
-      </div>
-    </BaseConfirmDialog>
   </div>
 </template>
 
@@ -322,14 +314,11 @@ import { Profile } from "@holochain-open-dev/profiles";
 import { ActionHash, encodeHashToBase64 } from "@holochain/client";
 import { computed, ComputedRef, inject, ref } from "vue";
 import BaseAgentProfileLinkAvatar from "@/components/BaseAgentProfileLinkAvatar.vue";
-import CreateMewDialog from "@/components/CreateMewDialog.vue";
 import BaseMewContent from "@/components/BaseMewContent.vue";
 import isEqual from "lodash/isEqual";
 import { useRouter } from "vue-router";
 import { AppAgentClient } from "@holochain/client";
 import BaseTimestamp from "@/components/BaseTimestamp.vue";
-import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
-import BaseConfirmDialog from "@/components/BaseConfirmDialog.vue";
 import dayjs from "dayjs";
 import BaseEmbedMew from "@/components/BaseEmbedMew.vue";
 import IconFormatQuoteOpen from "~icons/mdi/format-quote-open";
@@ -343,6 +332,9 @@ import IconSharpPushPin from "~icons/ic/sharp-push-pin";
 import BaseIconTongue from "@/components/BaseIconTongue.vue";
 import BaseAgentProfileName from "@/components/BaseAgentProfileName.vue";
 import { useToasts } from "@/stores/toasts";
+import { useCreateMewDialogStore } from "@/stores/createMewDialog";
+import { useCreateProfileDialogStore } from "@/stores/createProfileDialog";
+import { useConfirmDialogStore } from "@/stores/confirmDialog";
 
 const props = withDefaults(
   defineProps<{
@@ -375,14 +367,11 @@ const router = useRouter();
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const myProfile = inject("myProfile") as ComputedRef<Profile>;
 const { showMessage, showError } = useToasts();
+const { openCreateMewDialog, closeCreateMewDialog } = useCreateMewDialogStore();
+const { openCreateProfileDialog } = useCreateProfileDialogStore();
+const { openConfirmDialog } = useConfirmDialogStore();
 
-const showReplyToMewDialog = ref(false);
-const showQuoteMewDialog = ref(false);
-const showToggleLickMewDialog = ref(false);
-const showCreateMewmewDialog = ref(false);
-const showConfirmDeleteDialog = ref(false);
 const showIfDeleted = ref(props.showIfDeletedDefault);
-const showTogglePinMewDialog = ref(false);
 const isUpdatingPin = ref(false);
 const isUpdatingLick = ref(false);
 
@@ -408,10 +397,9 @@ const navigateToYarn = (actionHash: ActionHash) => {
 
 const toggleLickMew = async () => {
   if (!myProfile.value) {
-    showToggleLickMewDialog.value = true;
+    openCreateProfileDialog(toggleLickMew);
     return;
   }
-  showToggleLickMewDialog.value = false;
 
   isUpdatingLick.value = true;
   if (props.feedMew.is_licked) {
@@ -453,10 +441,9 @@ const toggleLickMew = async () => {
 
 const togglePinMew = async () => {
   if (!myProfile.value) {
-    showTogglePinMewDialog.value = true;
+    openCreateProfileDialog(togglePinMew);
     return;
   }
-  showTogglePinMewDialog.value = false;
 
   isUpdatingPin.value = true;
   if (props.feedMew.is_pinned) {
@@ -497,19 +484,19 @@ const togglePinMew = async () => {
 };
 
 const onCreateMewmew = async (feedMew: FeedMew) => {
-  showCreateMewmewDialog.value = false;
+  closeCreateMewDialog();
   emit("mewmew-created", feedMew);
   showMessage("Mewmewed");
 };
 
 const onCreateQuote = async (feedMew: FeedMew) => {
-  showQuoteMewDialog.value = false;
+  closeCreateMewDialog();
   emit("quote-created", feedMew);
   showMessage("Quoted mew");
 };
 
 const onCreateReply = async (feedMew: FeedMew) => {
-  showReplyToMewDialog.value = false;
+  closeCreateMewDialog();
   emit("reply-created", feedMew);
   showMessage("Replied to mew");
 };
