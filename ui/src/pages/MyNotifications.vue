@@ -51,8 +51,8 @@
 </template>
 
 <script setup lang="ts">
-import { AppAgentClient } from "@holochain/client";
-import { inject, ComputedRef, watch, toRaw } from "vue";
+import { AppAgentClient, encodeHashToBase64 } from "@holochain/client";
+import { inject, ComputedRef, watch, toRaw, computed } from "vue";
 import { onBeforeRouteLeave } from "vue-router";
 import { pageHeightCorrection } from "@/utils/page-layout";
 import BaseNotification from "@/components/BaseNotification.vue";
@@ -68,6 +68,7 @@ const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const useNotificationsReadStore = makeUseNotificationsReadStore(client);
 const { markRead, addNotificationStatus } = useNotificationsReadStore();
 const queryClient = useQueryClient();
+const myPubKeyB64 = computed(() => encodeHashToBase64(client.myPubKey));
 
 const pageLimit = 10;
 
@@ -91,7 +92,7 @@ const fetchNotifications = async (params: any) => {
 
 const { data, error, fetchNextPage, hasNextPage, refetch, isInitialLoading } =
   useInfiniteQuery({
-    queryKey: ["mews", "get_notifications_for_agent", client.myPubKey],
+    queryKey: ["mews", "get_notifications_for_agent", myPubKeyB64],
     queryFn: fetchNotifications,
     getNextPageParam: (lastPage) => {
       if (lastPage.length === 0) return;
@@ -114,7 +115,7 @@ const fetchNextPageInfiniteScroll = async (
 onBeforeRouteLeave(() => {
   if (data.value && data.value.pages.length > 1) {
     queryClient.setQueryData(
-      ["mews", "get_notifications_for_agent", client.myPubKey],
+      ["mews", "get_notifications_for_agent", myPubKeyB64],
       (d: any) => ({
         pages: [d.pages[0]],
         pageParams: [d.pageParams[0]],

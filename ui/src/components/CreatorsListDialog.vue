@@ -37,7 +37,7 @@
 
 <script setup lang="ts">
 import { AppAgentClient } from "@holochain/client";
-import { ComputedRef, inject } from "vue";
+import { ComputedRef, computed, inject } from "vue";
 import { onBeforeRouteLeave } from "vue-router";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
 import BaseAgentProfileListItemSkeleton from "@/components/BaseAgentProfileListItemSkeleton.vue";
@@ -60,6 +60,7 @@ const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const queryClient = useQueryClient();
+const agentPubKeyB64 = computed(() => encodeHashToBase64(props.agentPubKey));
 
 const pageLimit = 10;
 
@@ -98,11 +99,7 @@ const fetchCreators = async (params: any) => {
 
 const { data, error, fetchNextPage, hasNextPage, isInitialLoading } =
   useInfiniteQuery({
-    queryKey: [
-      "mews",
-      "get_creators_for_follower",
-      encodeHashToBase64(props.agentPubKey),
-    ],
+    queryKey: ["mews", "get_creators_for_follower", agentPubKeyB64],
     queryFn: fetchCreators,
     getNextPageParam: (lastPage) => {
       if (lastPage.length === 0) return;

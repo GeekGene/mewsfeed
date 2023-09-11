@@ -55,7 +55,7 @@
 
 <script setup lang="ts">
 import { AppAgentClient } from "@holochain/client";
-import { ComputedRef, inject } from "vue";
+import { ComputedRef, computed, inject } from "vue";
 import { useRoute, onBeforeRouteLeave } from "vue-router";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
 import BaseEmptyList from "@/components/BaseEmptyList.vue";
@@ -69,6 +69,8 @@ import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
 const route = useRoute();
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const queryClient = useQueryClient();
+const tag = computed(() => `${route.meta.tag}${route.params.tag}`);
+
 const pageLimit = 5;
 
 const fetchCashtagMews = async (params: any) =>
@@ -77,7 +79,7 @@ const fetchCashtagMews = async (params: any) =>
     zome_name: "mews",
     fn_name: "get_mews_for_cashtag_with_context",
     payload: {
-      cashtag: `${route.meta.tag}${route.params.tag}`,
+      cashtag: tag.value,
       page: {
         limit: pageLimit,
         ...params.pageParam,
@@ -87,11 +89,7 @@ const fetchCashtagMews = async (params: any) =>
 
 const { data, error, fetchNextPage, hasNextPage, isInitialLoading, refetch } =
   useInfiniteQuery({
-    queryKey: [
-      "mews",
-      "get_mews_for_cashtag_with_context",
-      `${route.meta.tag}${route.params.tag}`,
-    ],
+    queryKey: ["mews", "get_mews_for_cashtag_with_context", tag],
     queryFn: fetchCashtagMews,
     getNextPageParam: (lastPage) => {
       if (lastPage.length === 0) return;
@@ -114,11 +112,7 @@ const fetchNextPageInfiniteScroll = async (
 onBeforeRouteLeave(() => {
   if (data.value && data.value.pages.length > 1) {
     queryClient.setQueryData(
-      [
-        "mews",
-        "get_mews_for_cashtag_with_context",
-        `${route.meta.tag}${route.params.tag}`,
-      ],
+      ["mews", "get_mews_for_cashtag_with_context", tag.value],
       (d: any) => ({
         pages: [d.pages[0]],
         pageParams: [d.pageParams[0]],

@@ -10,7 +10,7 @@
 
 <script setup lang="ts">
 import { AgentPubKey, AppAgentClient } from "@holochain/client";
-import { ComputedRef, inject, watch } from "vue";
+import { ComputedRef, computed, inject, watch } from "vue";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
 import BaseAgentProfileDetail from "@/components/BaseAgentProfileDetail.vue";
 import { useQuery } from "@tanstack/vue-query";
@@ -29,6 +29,7 @@ const props = withDefaults(
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+const agentPubKeyB64 = computed(() => encodeHashToBase64(props.agentPubKey));
 
 const fetchProfile = async () => {
   const profile = await profilesStore.client.getAgentProfile(props.agentPubKey);
@@ -44,11 +45,7 @@ const {
   error: errorProfile,
   refetch: refetchProfile,
 } = useQuery({
-  queryKey: [
-    "profiles",
-    "getAgentProfile",
-    encodeHashToBase64(props.agentPubKey),
-  ],
+  queryKey: ["profiles", "getAgentProfile", agentPubKeyB64],
   queryFn: fetchProfile,
   refetchOnMount: true,
 });
@@ -67,11 +64,7 @@ const {
   error: errorJoinedTimestamp,
   refetch: refetchJoinedTimestamp,
 } = useQuery({
-  queryKey: [
-    "profiles",
-    "get_joining_timestamp_for_agent",
-    encodeHashToBase64(props.agentPubKey),
-  ],
+  queryKey: ["profiles", "get_joining_timestamp_for_agent", agentPubKeyB64],
   queryFn: fetchJoinedTimestamp,
   refetchOnMount: true,
 });

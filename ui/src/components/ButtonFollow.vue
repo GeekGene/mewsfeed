@@ -45,6 +45,7 @@ const myProfile = inject("myProfile") as ComputedRef<Profile>;
 const { showMessage, showError } = useToasts();
 
 const showCreateProfileDialog = ref(false);
+const agentPubKeyB64 = computed(() => encodeHashToBase64(client.myPubKey));
 
 const fetchMyFollowing = async (): Promise<AgentPubKey[]> =>
   client.callZome({
@@ -72,7 +73,7 @@ const {
   queryKey: [
     "follows",
     "get_creators_for_follower",
-    encodeHashToBase64(client.myPubKey),
+    agentPubKeyB64,
     "isFollowing",
   ],
   queryFn: fetchMyFollowing,

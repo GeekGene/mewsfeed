@@ -83,7 +83,7 @@
         title="mews"
         :items="authoredMews"
         :is-loading="isLoadingAuthoredMews"
-        :enable-more-button="authoredMews.length >= pageLimit"
+        :enable-more-button="authoredMews && authoredMews.length >= pageLimit"
         @click-more="
           router.push({
             name: 'authoredMews',
@@ -124,11 +124,11 @@
   </div>
   <FollowersListDialog
     v-model="showFollowersListDialog"
-    :agent-pub-key="decodeHashFromBase64(route.params.agentPubKey as string)"
+    :agent-pub-key="agentPubKey"
   />
   <CreatorsListDialog
     v-model="showCreatorsListDialog"
-    :agent-pub-key="decodeHashFromBase64(route.params.agentPubKey as string)"
+    :agent-pub-key="agentPubKey"
   />
 </template>
 
@@ -158,7 +158,7 @@ const agentPubKey = computed(() =>
 const showEditProfileDialog = ref(false);
 const showFollowersListDialog = ref(false);
 const showCreatorsListDialog = ref(false);
-
+const agentPubKeyB64 = computed(() => route.params.agentPubKey);
 const pageLimit = 5;
 
 const fetchAuthoredMews = () =>
@@ -180,11 +180,7 @@ const {
   error: errorAuthoredMews,
   refetch: refetchAuthoredMews,
 } = useQuery({
-  queryKey: [
-    "profiles",
-    "get_agent_mews_with_context",
-    encodeHashToBase64(agentPubKey.value),
-  ],
+  queryKey: ["profiles", "get_agent_mews_with_context", agentPubKeyB64],
   queryFn: fetchAuthoredMews,
 });
 watch(errorAuthoredMews, console.error);
@@ -203,11 +199,7 @@ const {
   error: errorPinnedMews,
   refetch: refetchPinnedMews,
 } = useQuery({
-  queryKey: [
-    "profiles",
-    "get_mews_for_pinner_with_context",
-    encodeHashToBase64(agentPubKey.value),
-  ],
+  queryKey: ["profiles", "get_mews_for_pinner_with_context", agentPubKeyB64],
   queryFn: fetchPinnedMews,
 });
 watch(errorPinnedMews, console.error);
@@ -228,12 +220,9 @@ const {
   error: errorProfile,
   refetch: refetchProfile,
 } = useQuery({
-  queryKey: [
-    "profiles",
-    "getAgentProfile",
-    encodeHashToBase64(agentPubKey.value),
-  ],
+  queryKey: ["profiles", "getAgentProfile", agentPubKeyB64],
   queryFn: fetchProfile,
+  refetchOnMount: true,
 });
 watch(errorProfile, console.error);
 
@@ -246,11 +235,7 @@ const fetchJoinedTimestamp = () =>
   });
 
 const { data: joinedTimestamp, error: errorJoinedTimestamp } = useQuery({
-  queryKey: [
-    "profiles",
-    "get_joining_timestamp_for_agent",
-    encodeHashToBase64(agentPubKey.value),
-  ],
+  queryKey: ["profiles", "get_joining_timestamp_for_agent", agentPubKeyB64],
   queryFn: fetchJoinedTimestamp,
 });
 watch(errorJoinedTimestamp, console.error);
@@ -260,15 +245,11 @@ const fetchCreatorsCount = async (): Promise<number> =>
     role_name: "mewsfeed",
     zome_name: "follows",
     fn_name: "count_creators_for_follower",
-    payload: decodeHashFromBase64(route.params.agentPubKey as string),
+    payload: agentPubKey.value,
   });
 
 const { data: creatorsCount, error: errorCreatorsCount } = useQuery({
-  queryKey: [
-    "follows",
-    "count_creators_for_follower",
-    route.params.agentPubKey as string,
-  ],
+  queryKey: ["follows", "count_creators_for_follower", agentPubKeyB64],
   queryFn: fetchCreatorsCount,
 });
 watch(errorCreatorsCount, console.error);
@@ -278,7 +259,7 @@ const fetchFollowersCount = async (): Promise<number> =>
     role_name: "mewsfeed",
     zome_name: "follows",
     fn_name: "count_followers_for_creator",
-    payload: decodeHashFromBase64(route.params.agentPubKey as string),
+    payload: agentPubKey.value,
   });
 
 const {
@@ -286,11 +267,7 @@ const {
   error: errorFollowersCount,
   refetch: refetchFollowersCount,
 } = useQuery({
-  queryKey: [
-    "follows",
-    "count_followers_for_creator",
-    route.params.agentPubKey as string,
-  ],
+  queryKey: ["follows", "count_followers_for_creator", agentPubKeyB64],
   queryFn: fetchFollowersCount,
 });
 watch(errorFollowersCount, console.error);
