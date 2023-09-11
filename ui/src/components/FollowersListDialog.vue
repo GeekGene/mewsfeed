@@ -91,7 +91,7 @@ const fetchFollowers = async (params: any) => {
       return {
         agentPubKey,
         profile,
-      };
+      } as AgentProfile;
     })
   );
 
