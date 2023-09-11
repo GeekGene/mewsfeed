@@ -5,7 +5,7 @@
       :size="50"
       :enable-popup="enablePopup"
     />
-    <BaseAgentProfileName
+    <BaseAgentProfileNameLarge
       class="text-lg"
       :profile="profile"
       :agentPubKey="agentPubKey"
@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 import BaseAgentProfileLinkAvatar from "@/components/BaseAgentProfileLinkAvatar.vue";
-import BaseAgentProfileName from "@/components/BaseAgentProfileName.vue";
+import BaseAgentProfileNameLarge from "@/components/BaseAgentProfileNameLarge.vue";
 import { AgentPubKey } from "@holochain/client";
 import { Profile } from "@holochain-open-dev/profiles";
 

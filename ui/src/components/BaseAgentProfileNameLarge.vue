@@ -10,7 +10,7 @@
       <div class="font-mono text-sm">@{{ profile.nickname }}</div>
     </div>
     <div v-else class="font-mono">
-      {{ encodeHashToBase64(agentPubKey).slice(0, 8) }}
+      {{ encodeHashToBase64(agentPubKey) }}
     </div>
   </div>
 </template>
