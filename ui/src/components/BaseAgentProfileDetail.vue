@@ -15,8 +15,8 @@
           }"
           @click="
             () => {
-              if (profile?.fields.avatar) {
-                emit('click-avatar');
+              if (profile?.fields.avatar && enableLightboxOnAvatarClick) {
+                openLightbox(profile.fields.avatar);
               }
             }
           "
@@ -193,7 +193,7 @@ import {
   AppAgentClient,
   encodeHashToBase64,
 } from "@holochain/client";
-import { computed, ComputedRef, inject } from "vue";
+import { computed, ComputedRef, inject, ref } from "vue";
 import ButtonFollow from "@/components/ButtonFollow.vue";
 import { Profile } from "@holochain-open-dev/profiles";
 import BaseAgentProfileNameLarge from "@/components/BaseAgentProfileNameLarge.vue";
@@ -204,6 +204,7 @@ import IconPencilSharp from "~icons/ion/pencil-sharp";
 import { Timestamp } from "@holochain/client";
 import BaseAgentProfileDetailSkeleton from "@/components/BaseAgentProfileDetailSkeleton.vue";
 import BaseCopyOnClick from "@/components/BaseCopyOnClick.vue";
+import { useLightboxStore } from "@/stores/lightbox";
 
 const props = withDefaults(
   defineProps<{
@@ -215,6 +216,7 @@ const props = withDefaults(
     hideEditButton?: boolean;
     enableCopyAgentPubKey?: boolean;
     bigFollowButton?: boolean;
+    enableLightboxOnAvatarClick?: boolean;
   }>(),
   {
     profile: undefined,
@@ -224,16 +226,17 @@ const props = withDefaults(
     followersCount: undefined,
     enableCopyAgentPubKey: false,
     bigFollowButton: true,
+    enableLightboxOnAvatarClick: false,
   }
 );
 const emit = defineEmits([
   "click-edit-profile",
   "click-creators",
   "click-followers",
-  "click-avatar",
   "toggle-follow",
 ]);
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const isMyProfile = computed(() => isEqual(props.agentPubKey, client.myPubKey));
+const { openLightbox } = useLightboxStore();
 </script>
