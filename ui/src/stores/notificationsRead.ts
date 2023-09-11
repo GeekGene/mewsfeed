@@ -7,7 +7,6 @@ import { StateTree, defineStore } from "pinia";
 import { computed, ref } from "vue";
 import { Notification } from "@/types/types";
 import { encode, decode } from "@msgpack/msgpack";
-import { PersistedStateOptions } from "pinia-plugin-persistedstate";
 
 const notificationToKey = (notification: Notification) => {
   const keyObj = {
@@ -53,7 +52,9 @@ export const makeUseNotificationsReadStore = (client: AppAgentClient) =>
       }
 
       function setNotificationsCount(count: number) {
-        notificationsCount.value = count;
+        if (count > notificationsCount.value) {
+          notificationsCount.value = count;
+        }
       }
 
       return {
