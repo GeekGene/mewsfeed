@@ -1,30 +1,33 @@
 <template>
   <div class="flex justify-start items-center space-x-4">
     <BaseAgentProfileLinkAvatar
-      :agentPubKey="agentProfile.agentPubKey"
+      :agentPubKey="agentPubKey"
       :size="50"
       :enable-popup="enablePopup"
     />
-    <BaseAgentProfileName
+    <BaseAgentProfileNameLarge
       class="text-lg"
-      :profile="agentProfile.profile"
-      :agentPubKey="agentProfile.agentPubKey"
+      :profile="profile"
+      :agentPubKey="agentPubKey"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { AgentProfile } from "@/types/types";
 import BaseAgentProfileLinkAvatar from "@/components/BaseAgentProfileLinkAvatar.vue";
-import BaseAgentProfileName from "@/components/BaseAgentProfileName.vue";
+import BaseAgentProfileNameLarge from "@/components/BaseAgentProfileNameLarge.vue";
+import { AgentPubKey } from "@holochain/client";
+import { Profile } from "@holochain-open-dev/profiles";
 
 withDefaults(
   defineProps<{
-    agentProfile: AgentProfile;
+    agentPubKey: AgentPubKey;
+    profile?: Profile;
     enablePopup?: boolean;
   }>(),
   {
     enablePopup: true,
+    profile: undefined,
   }
 );
 </script>

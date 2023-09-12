@@ -119,7 +119,7 @@ import SearchEverythingDialog from "@/components/SearchEverythingDialog.vue";
 import { ROUTES } from "@/router";
 import { FeedMew, MewTypeName } from "@/types/types";
 import { AppAgentClient, encodeHashToBase64 } from "@holochain/client";
-import { ComputedRef, inject, ref, watch } from "vue";
+import { ComputedRef, computed, inject, ref, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";
 import { setHomeRedirect } from "@/utils/homeRedirect";
@@ -163,6 +163,7 @@ const { closeLightbox } = useLightboxStore();
 
 const showSearchDialog = ref(false);
 const forceReloadRouterViewKey = ref(0);
+const myPubKeyB64 = computed(() => encodeHashToBase64(client.myPubKey));
 
 const onCreateMew = () => {
   closeCreateMewDialog();
@@ -196,7 +197,7 @@ const { data: mostRecentMew } = useQuery({
   queryKey: [
     "mews",
     "get_followed_creators_mews_with_context",
-    encodeHashToBase64(client.myPubKey),
+    myPubKeyB64,
     { page: { limit: 1 } },
   ],
   queryFn: fetchMostRecentMew,
@@ -220,7 +221,7 @@ const fetchNotifications = async () => {
 };
 
 useInfiniteQuery({
-  queryKey: ["mews", "count_notifications_for_agent", client.myPubKey],
+  queryKey: ["mews", "count_notifications_for_agent", myPubKeyB64],
   queryFn: fetchNotifications,
   refetchInterval: 1000 * 30, // 30 seconds
   refetchIntervalInBackground: true,

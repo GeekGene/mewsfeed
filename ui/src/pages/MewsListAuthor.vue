@@ -62,7 +62,7 @@
 
 <script setup lang="ts">
 import { AppAgentClient } from "@holochain/client";
-import { ComputedRef, inject } from "vue";
+import { ComputedRef, computed, inject } from "vue";
 import { useRoute, onBeforeRouteLeave } from "vue-router";
 import {
   useInfiniteQuery,
@@ -85,6 +85,10 @@ const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const queryClient = useQueryClient();
+const agentPubKeyB64 = computed(() => route.params.agentPubKey);
+const agentPubKey = computed(() =>
+  decodeHashFromBase64(route.params.agentPubKey as string)
+);
 
 const pageLimit = 10;
 
@@ -94,7 +98,7 @@ const fetchAuthoredMews = async (params: any) => {
     zome_name: "mews",
     fn_name: "get_agent_mews_with_context",
     payload: {
-      agent: decodeHashFromBase64(route.params.agentPubKey as string),
+      agent: agentPubKey.value,
       page: {
         limit: pageLimit,
         ...params.pageParam,
@@ -106,7 +110,7 @@ const fetchAuthoredMews = async (params: any) => {
 
 const { data, error, fetchNextPage, hasNextPage, isInitialLoading, refetch } =
   useInfiniteQuery({
-    queryKey: ["mews", "get_agent_mews_with_context", route.params.agentPubKey],
+    queryKey: ["mews", "get_agent_mews_with_context", agentPubKeyB64],
     queryFn: fetchAuthoredMews,
     getNextPageParam: (lastPage) => {
       if (lastPage.length === 0) return;
@@ -119,9 +123,7 @@ const { data, error, fetchNextPage, hasNextPage, isInitialLoading, refetch } =
   });
 
 const fetchProfile = async () => {
-  const profile = await profilesStore.client.getAgentProfile(
-    decodeHashFromBase64(route.params.agentPubKey as string)
-  );
+  const profile = await profilesStore.client.getAgentProfile(agentPubKey.value);
 
   if (profile) {
     return profile;
@@ -131,7 +133,7 @@ const fetchProfile = async () => {
 };
 
 const { data: profile, error: errorProfile } = useQuery({
-  queryKey: ["profiles", "getAgentProfile", route.params.agentPubKey],
+  queryKey: ["profiles", "getAgentProfile", agentPubKeyB64],
   queryFn: fetchProfile,
 });
 
@@ -148,7 +150,7 @@ watch(errorProfile, console.error);
 onBeforeRouteLeave(() => {
   if (data.value && data.value.pages.length > 1) {
     queryClient.setQueryData(
-      ["mews", "get_agent_mews_with_context", route.params.agentPubKey],
+      ["mews", "get_agent_mews_with_context", agentPubKeyB64.value],
       (d: any) => ({
         pages: [d.pages[0]],
         pageParams: [d.pageParams[0]],

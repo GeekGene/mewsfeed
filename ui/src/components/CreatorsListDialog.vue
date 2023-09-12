@@ -38,7 +38,7 @@
 
 <script setup lang="ts">
 import { AppAgentClient } from "@holochain/client";
-import { ComputedRef, inject } from "vue";
+import { ComputedRef, computed, inject } from "vue";
 import { onBeforeRouteLeave } from "vue-router";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
 import BaseAgentProfileListItemSkeleton from "@/components/BaseAgentProfileListItemSkeleton.vue";
@@ -61,6 +61,7 @@ const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const queryClient = useQueryClient();
+const agentPubKeyB64 = computed(() => encodeHashToBase64(props.agentPubKey));
 
 const pageLimit = 10;
 
@@ -80,26 +81,26 @@ const fetchCreators = async (params: any) => {
 
   const agentProfiles = await Promise.all(
     agents.map(async (agentPubKey) => {
-      const profile = await profilesStore.client.getAgentProfile(agentPubKey);
-      if (!profile) return null;
+      let profile;
+      try {
+        profile = await profilesStore.client.getAgentProfile(agentPubKey);
+      } catch (error) {
+        console.error(error);
+      }
 
       return {
         agentPubKey,
-        profile: profile,
-      };
+        profile,
+      } as AgentProfile;
     })
   );
 
-  return agentProfiles.filter(Boolean) as AgentProfile[];
+  return agentProfiles;
 };
 
-const { data, error, fetchNextPage, hasNextPage, isInitialLoading } =
+const { data, error, fetchNextPage, hasNextPage, isInitialLoading, refetch } =
   useInfiniteQuery({
-    queryKey: [
-      "mews",
-      "get_creators_for_follower",
-      encodeHashToBase64(props.agentPubKey),
-    ],
+    queryKey: ["mews", "get_creators_for_follower", agentPubKeyB64],
     queryFn: fetchCreators,
     getNextPageParam: (lastPage) => {
       if (lastPage.length === 0) return;
@@ -133,6 +134,12 @@ onBeforeRouteLeave(() => {
         pageParams: [d.pageParams[0]],
       })
     );
+  }
+});
+
+watch(props, (newProps) => {
+  if (newProps.modelValue) {
+    refetch();
   }
 });
 </script>

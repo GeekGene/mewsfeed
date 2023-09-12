@@ -45,6 +45,7 @@ const myProfile = inject("myProfile") as ComputedRef<Profile>;
 const { showMessage, showError } = useToasts();
 
 const showCreateProfileDialog = ref(false);
+const agentPubKeyB64 = computed(() => encodeHashToBase64(client.myPubKey));
 
 const fetchMyFollowing = async (): Promise<AgentPubKey[]> =>
   client.callZome({
@@ -72,12 +73,12 @@ const {
   queryKey: [
     "follows",
     "get_creators_for_follower",
-    encodeHashToBase64(client.myPubKey),
+    agentPubKeyB64,
     "isFollowing",
   ],
   queryFn: fetchMyFollowing,
 });
-watch(errorMyFollowing, showError);
+watch(errorMyFollowing, console.error);
 watch(props, () => {
   refetchMyFollowing();
 });
@@ -90,37 +91,45 @@ const toggleFollow = async () => {
   showCreateProfileDialog.value = false;
 
   try {
-    const [profile] = await Promise.all([
-      profilesStore.client.getAgentProfile(props.agentPubKey),
-      isFollowing.value
-        ? await client.callZome({
-            role_name: "mewsfeed",
-            zome_name: "follows",
-            fn_name: "unfollow",
-            payload: props.agentPubKey,
-          })
-        : await client.callZome({
-            role_name: "mewsfeed",
-            zome_name: "follows",
-            fn_name: "follow",
-            payload: props.agentPubKey,
-          }),
-    ]);
+    isFollowing.value
+      ? await client.callZome({
+          role_name: "mewsfeed",
+          zome_name: "follows",
+          fn_name: "unfollow",
+          payload: props.agentPubKey,
+        })
+      : await client.callZome({
+          role_name: "mewsfeed",
+          zome_name: "follows",
+          fn_name: "follow",
+          payload: props.agentPubKey,
+        });
     await refetchMyFollowing();
     if (isFollowing.value) {
       setHomeRedirect(false);
     }
-
-    const name = `${profile?.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
-      profile?.nickname
-    })`;
-    const message = isFollowing.value
-      ? `Followed ${name}`
-      : `Unfollowed ${name}`;
-    showMessage(message);
     emit("toggle-follow", isFollowing.value);
+    showSuccessMessage();
   } catch (error) {
     showError(error);
   }
+};
+
+const showSuccessMessage = async () => {
+  let name;
+  try {
+    const profile = await profilesStore.client.getAgentProfile(
+      props.agentPubKey
+    );
+    name = `${profile?.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
+      profile?.nickname
+    })`;
+  } catch (error) {
+    console.error(error);
+    name = encodeHashToBase64(props.agentPubKey);
+  }
+
+  const message = isFollowing.value ? `Followed ${name}` : `Unfollowed ${name}`;
+  showMessage(message);
 };
 </script>

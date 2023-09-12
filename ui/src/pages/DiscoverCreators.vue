@@ -38,93 +38,9 @@
       </template>
     </BaseList>
 
-    <BaseList
-      v-if="tag1Enabled"
-      class="mb-8"
-      :title="`mews about ${randomTags[0]}`"
-      :items="randomMewsWithTag1"
-      :is-loading="
-        isLoadingRandomMewHashesWithTag1 || isFetchingRandomMewsWithTag1
-      "
-    >
-      <template #default="{ item }">
-        <BaseMewListItem
-          :feed-mew="item"
-          @mew-deleted="refetchRandomMewsWithTag1()"
-          @mew-licked="refetchRandomMewsWithTag1()"
-          @mew-unlicked="refetchRandomMewsWithTag1()"
-          @mew-pinned="refetchRandomMewsWithTag1()"
-          @mew-unpinned="refetchRandomMewsWithTag1()"
-          @mewmew-created="refetchRandomMewsWithTag1()"
-          @reply-created="refetchRandomMewsWithTag1()"
-          @quote-created="refetchRandomMewsWithTag1()"
-        />
-      </template>
-      <template #loading>
-        <BaseListSkeleton :count="4">
-          <BaseMewListItemSkeleton />
-        </BaseListSkeleton>
-      </template>
-    </BaseList>
-
-    <BaseList
-      v-if="tag2Enabled"
-      class="mb-8"
-      :title="`mews about ${randomTags[1]}`"
-      :items="randomMewsWithTag2"
-      :is-loading="
-        isLoadingRandomMewHashesWithTag2 || isFetchingRandomMewsWithTag2
-      "
-    >
-      <template #default="{ item }">
-        <BaseMewListItem
-          :feed-mew="item"
-          @mew-deleted="refetchRandomMewsWithTag2()"
-          @mew-licked="refetchRandomMewsWithTag2()"
-          @mew-unlicked="refetchRandomMewsWithTag2()"
-          @mew-pinned="refetchRandomMewsWithTag2()"
-          @mew-unpinned="refetchRandomMewsWithTag2()"
-          @mewmew-created="refetchRandomMewsWithTag2()"
-          @reply-created="refetchRandomMewsWithTag2()"
-          @quote-created="refetchRandomMewsWithTag2()"
-        />
-      </template>
-      <template #loading>
-        <BaseListSkeleton :count="4">
-          <BaseMewListItemSkeleton />
-        </BaseListSkeleton>
-      </template>
-    </BaseList>
-
-    <BaseList
-      v-if="tag3Enabled"
-      class="mb-8"
-      :title="`mews about ${randomTags[2]}`"
-      :items="randomMewsWithTag3"
-      :is-loading="
-        isLoadingRandomMewHashesWithTag3 || isFetchingRandomMewsWithTag3
-      "
-    >
-      <template #default="{ item }">
-        <BaseMewListItem
-          :feed-mew="item"
-          @mew-deleted="refetchRandomMewsWithTag3()"
-          @mew-licked="refetchRandomMewsWithTag3()"
-          @mew-unlicked="refetchRandomMewsWithTag3()"
-          @mew-pinned="refetchRandomMewsWithTag3()"
-          @mew-unpinned="refetchRandomMewsWithTag3()"
-          @mewmew-created="refetchRandomMewsWithTag3()"
-          @reply-created="refetchRandomMewsWithTag3()"
-          @quote-created="refetchRandomMewsWithTag3()"
-        />
-      </template>
-
-      <template #loading>
-        <BaseListSkeleton :count="4">
-          <BaseMewListItemSkeleton />
-        </BaseListSkeleton>
-      </template>
-    </BaseList>
+    <RandomMewWithTagList v-if="tag1 !== undefined" :tag="tag1" />
+    <RandomMewWithTagList v-if="tag2 !== undefined" :tag="tag2" />
+    <RandomMewWithTagList v-if="tag3 !== undefined" :tag="tag3" />
   </div>
 </template>
 
@@ -219,199 +135,27 @@ onMounted(async () => {
     await refetchMews();
   }
   if (randomTags.value === undefined || randomTags.value.length === 0) {
-    refetchTags();
+    refetchRandomTags();
   }
 });
 
-const fetchRandomMewHashesWithTag = (tag: string): Promise<ActionHash[]> =>
-  client.callZome({
-    role_name: "mewsfeed",
-    zome_name: "mews",
-    fn_name: "get_random_mew_hashes_for_tag",
-    payload: {
-      tag: tag,
-      count: 3,
-    },
-  });
-
-const tag1Enabled = computed<boolean>(
-  () =>
-    randomTags.value !== undefined &&
-    randomTags.value.length > 0 &&
-    randomTags.value[0] !== undefined
+const tag1 = computed(() =>
+  randomTags.value ? randomTags.value[0] : undefined
 );
-const tag2Enabled = computed<boolean>(
-  () =>
-    randomTags.value !== undefined &&
-    randomTags.value.length > 1 &&
-    randomTags.value[1] !== undefined
+const tag2 = computed(() =>
+  randomTags.value ? randomTags.value[1] : undefined
 );
-const tag3Enabled = computed<boolean>(
-  () =>
-    randomTags.value !== undefined &&
-    randomTags.value.length > 2 &&
-    randomTags.value[2] !== undefined
+const tag3 = computed(() =>
+  randomTags.value ? randomTags.value[2] : undefined
 );
-
-// Random Mews with Tag 1
-
-const {
-  data: randomMewHashesWithTag1,
-  error: errorRandomMewHashesWithTag1,
-  isLoading: isLoadingRandomMewHashesWithTag1,
-  refetch: refetchRandomMewHashesWithTag1,
-} = useQuery({
-  queryKey: ["mews", "get_random_mew_hashes_for_tag", randomTags.value[0]],
-  enabled: tag1Enabled,
-  queryFn: () => fetchRandomMewHashesWithTag(randomTags.value[0]),
-  refetchOnWindowFocus: false,
-  refetchOnMount: false,
-  refetchOnReconnect: false,
-});
-watch(errorRandomMewHashesWithTag1, console.error);
-const hasRandomMewHashesWithTag1 = computed(
-  () =>
-    tag1Enabled.value &&
-    randomMewHashesWithTag1.value &&
-    randomMewHashesWithTag1.value.length > 0
-);
-
-const {
-  data: randomMewsWithTag1,
-  error: errorRandomMewsWithTag1,
-  isFetching: isFetchingRandomMewsWithTag1,
-  refetch: refetchRandomMewsWithTag1,
-} = useQuery({
-  queryKey: [
-    "mews",
-    "get_random_mew_hashes_for_tag",
-    randomTags.value[0],
-    "get_batch_mews_with_context",
-  ],
-
-  queryFn: () =>
-    fetchMewsWithContext(toRaw(randomMewHashesWithTag1.value as ActionHash[])),
-  enabled: hasRandomMewHashesWithTag1,
-  refetchOnWindowFocus: false,
-  refetchOnMount: false,
-  refetchOnReconnect: false,
-});
-watch(errorRandomMewsWithTag1, console.error);
-
-// Random Mews with Tag 2
-
-const {
-  data: randomMewHashesWithTag2,
-  error: errorRandomMewHashesWithTag2,
-  isLoading: isLoadingRandomMewHashesWithTag2,
-  refetch: refetchRandomMewHashesWithTag2,
-} = useQuery({
-  queryKey: ["mews", "get_random_mew_hashes_for_tag", randomTags.value[1]],
-  enabled: tag2Enabled,
-  queryFn: () => fetchRandomMewHashesWithTag(randomTags.value[1]),
-  refetchOnWindowFocus: false,
-  refetchOnMount: false,
-  refetchOnReconnect: false,
-});
-watch(errorRandomMewHashesWithTag2, console.error);
-const hasRandomMewHashesWithTag2 = computed(
-  () =>
-    tag2Enabled.value &&
-    randomMewHashesWithTag2.value &&
-    randomMewHashesWithTag2.value.length > 0
-);
-
-const {
-  data: randomMewsWithTag2,
-  error: errorRandomMewsWithTag2,
-  isFetching: isFetchingRandomMewsWithTag2,
-  refetch: refetchRandomMewsWithTag2,
-} = useQuery({
-  queryKey: [
-    "mews",
-    "get_random_mew_hashes_for_tag",
-    randomTags.value[1],
-    "get_batch_mews_with_context",
-  ],
-
-  queryFn: () =>
-    fetchMewsWithContext(toRaw(randomMewHashesWithTag2.value as ActionHash[])),
-  enabled: hasRandomMewHashesWithTag2,
-  refetchOnWindowFocus: false,
-  refetchOnMount: false,
-  refetchOnReconnect: false,
-});
-watch(errorRandomMewsWithTag2, console.error);
-
-// Random Mews with Tag 3
-
-const {
-  data: randomMewHashesWithTag3,
-  error: errorRandomMewHashesWithTag3,
-  isLoading: isLoadingRandomMewHashesWithTag3,
-  refetch: refetchRandomMewHashesWithTag3,
-} = useQuery({
-  queryKey: ["mews", "get_random_mew_hashes_for_tag", randomTags.value[2]],
-  enabled: tag1Enabled,
-  queryFn: () => fetchRandomMewHashesWithTag(randomTags.value[2]),
-  refetchOnWindowFocus: false,
-  refetchOnMount: false,
-  refetchOnReconnect: false,
-});
-watch(errorRandomMewHashesWithTag3, console.error);
-const hasRandomMewHashesWithTag3 = computed(
-  () =>
-    tag3Enabled.value &&
-    randomMewHashesWithTag3.value &&
-    randomMewHashesWithTag3.value.length > 0
-);
-
-const {
-  data: randomMewsWithTag3,
-  error: errorRandomMewsWithTag3,
-  isFetching: isFetchingRandomMewsWithTag3,
-  refetch: refetchRandomMewsWithTag3,
-} = useQuery({
-  queryKey: [
-    "mews",
-    "get_random_mew_hashes_for_tag",
-    randomTags.value[2],
-    "get_batch_mews_with_context",
-  ],
-
-  queryFn: () =>
-    fetchMewsWithContext(toRaw(randomMewHashesWithTag3.value as ActionHash[])),
-  enabled: hasRandomMewHashesWithTag3,
-  refetchOnWindowFocus: false,
-  refetchOnMount: false,
-  refetchOnReconnect: false,
-});
-watch(errorRandomMewsWithTag3, console.error);
 
 const shuffle = async () => {
   await refetchMews();
-  await refetchTags();
+  await refetchRandomTags();
 };
 
 const refetchMews = async () => {
   await refetchRandomMewHashes();
   refetchRandomMews();
-};
-
-const refetchTags = async () => {
-  await refetchRandomTags();
-
-  if (tag1Enabled.value) {
-    await refetchRandomMewHashesWithTag1();
-    refetchRandomMewsWithTag1();
-  }
-  if (tag2Enabled.value) {
-    await refetchRandomMewHashesWithTag2();
-    refetchRandomMewsWithTag2();
-  }
-  if (tag3Enabled.value) {
-    await refetchRandomMewHashesWithTag3();
-    refetchRandomMewsWithTag3();
-  }
 };
 </script>
