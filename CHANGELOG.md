@@ -5,6 +5,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## Unreleased
 
 
+## 2023-09-12 v0.11.0
+- feat: show avatar in lightbox upon clicking profile (#233)
+- refactor: manage dialogs via stores, reduce duplicate components (#232)
+- fix: ensure notifications count only grows over time (#231)
+- fix: reactivity of profile popup data (#230)
+- fix: show create profile form upon clicking 'pin mew' button without a profile (#228)
+- fix: avoid excessive "profile not found" errors (#225)
+- build: replace new-port-cli with fork avoiding rust clap validation issue (#224)
+- feat: only notify agent of responses to mews they responded to if those responses are created after their own (#221)
+- feat: avoid duplicate notifications for both 'responded to your mew' and 'responded to a mew you responded to' when agent both created the mew & responded to it (#221)
+- fix: infinite scroll of followers / creators lists (#220)
+- feat: display confirmation dialog before creating a mewmew (#219)
+- feat: focus on input fields upon opening dialogs (#216)
+- fix: reduce noise of toast errors from failed zome calls when fetching data, only display toast errors when active user actions fail (#204)
+- fix: remove typo dot (#203)
+- feat: add tooltips to site menu (#202)
+- chore: delete unused signals code (#201, #200)
+- fix: reactively update pinned mews & authored mews upon mew deletion (#199)
+- style: add padding around agent profiles in followers / creators lists (#198)
+- fix: use count_links for followers /creators counts (#197)
+- style: wrap toast message text, shrink font size, increase display time (#196)
+- fix: explore shuffle profiles reactivity (#175)
+- fix: explore page mis-matched tags (#175)
+
 ## 2023-02-26 v0.10.0-rc.1
 
 ### Added

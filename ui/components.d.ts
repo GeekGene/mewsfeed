@@ -45,7 +45,6 @@ declare module 'vue' {
     CreateMewInput: typeof import('./src/components/CreateMewInput.vue')['default']
     CreateProfileIfNotFoundDialog: typeof import('./src/components/CreateProfileIfNotFoundDialog.vue')['default']
     CreatorsListDialog: typeof import('./src/components/CreatorsListDialog.vue')['default']
-    Dialogs: typeof import('./src/components/Dialogs.vue')['default']
     EditAgentProfileDialog: typeof import('./src/components/EditAgentProfileDialog.vue')['default']
     FollowersListDialog: typeof import('./src/components/FollowersListDialog.vue')['default']
     RandomMewWithTagList: typeof import('./src/components/RandomMewWithTagList.vue')['default']
