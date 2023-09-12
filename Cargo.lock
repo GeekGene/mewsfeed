@@ -1426,7 +1426,7 @@ dependencies = [
 
 [[package]]
 name = "mews"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "follows_types",
  "hc_call_utils",
