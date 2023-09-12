@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
 ## 2023-09-12 v0.11.0
-- feat:how avatar in lightbox upon clicking profile (#233)
+- feat: show avatar in lightbox upon clicking profile (#233)
 - refactor: manage dialogs via stores, reduce duplicate components (#232)
 - fix: ensure notifications count only grows over time (#231)
 - fix: reactivity of profile popup data (#230)
