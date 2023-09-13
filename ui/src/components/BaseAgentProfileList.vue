@@ -21,6 +21,7 @@
       :agent-pub-key="item.agentPubKey"
       :profile="item.profile"
       :enable-popup="enablePopups"
+      :trim-agent-pub-key="trimAgentPubKey"
       class="cursor-pointer py-3"
       @click="
         router.push({
@@ -51,11 +52,13 @@ withDefaults(
     loading: boolean;
     emptyText?: string;
     enablePopups?: boolean;
+    trimAgentPubKey?: boolean;
   }>(),
   {
     agentProfiles: undefined,
     emptyText: undefined,
     enablePopups: true,
+    trimAgentPubKey: true,
   }
 );
 const router = useRouter();
