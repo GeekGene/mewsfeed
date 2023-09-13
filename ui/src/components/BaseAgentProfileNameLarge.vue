@@ -12,7 +12,7 @@
     <div v-else class="font-mono">
       {{
         trimAgentPubKey
-          ? encodeHashToBase64(agentPubKey).slice(0, 15)
+          ? `${encodeHashToBase64(agentPubKey).slice(0, 15)}...`
           : encodeHashToBase64(agentPubKey)
       }}
     </div>
