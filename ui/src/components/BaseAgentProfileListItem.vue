@@ -9,6 +9,7 @@
       class="text-lg"
       :profile="profile"
       :agentPubKey="agentPubKey"
+      :trim-agent-pub-key="trimAgentPubKey"
     />
   </div>
 </template>
@@ -24,10 +25,12 @@ withDefaults(
     agentPubKey: AgentPubKey;
     profile?: Profile;
     enablePopup?: boolean;
+    trimAgentPubKey?: boolean;
   }>(),
   {
     enablePopup: true,
     profile: undefined,
+    trimAgentPubKey: true,
   }
 );
 </script>

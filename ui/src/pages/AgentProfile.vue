@@ -232,7 +232,7 @@ const fetchJoinedTimestamp = () =>
     role_name: "mewsfeed",
     zome_name: "profiles",
     fn_name: "get_joining_timestamp_for_agent",
-    payload: agentPubKey.value,
+    payload: route.params.agentPubKey,
   });
 
 const { data: joinedTimestamp, error: errorJoinedTimestamp } = useQuery({
@@ -246,7 +246,7 @@ const fetchCreatorsCount = async (): Promise<number> =>
     role_name: "mewsfeed",
     zome_name: "follows",
     fn_name: "count_creators_for_follower",
-    payload: agentPubKey.value,
+    payload: route.params.agentPubKey,
   });
 
 const { data: creatorsCount, error: errorCreatorsCount } = useQuery({
@@ -260,7 +260,7 @@ const fetchFollowersCount = async (): Promise<number> =>
     role_name: "mewsfeed",
     zome_name: "follows",
     fn_name: "count_followers_for_creator",
-    payload: agentPubKey.value,
+    payload: route.params.agentPubKey,
   });
 
 const {

@@ -22,6 +22,7 @@
             :agent-profiles="page"
             :loading="isInitialLoading"
             :enable-popups="false"
+            :trim-agent-pub-key="false"
           />
           <hr v-if="i !== data.pages.length - 1" class="border-base-300" />
         </template>
