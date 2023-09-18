@@ -23,7 +23,6 @@ version = "0.0.1"
 dependencies = [
  "agent_pins_integrity",
  "hdk",
- "holochain_integrity_types",
  "serde",
 ]
 
@@ -32,7 +31,6 @@ name = "agent_pins_integrity"
 version = "0.0.1"
 dependencies = [
  "hdi",
- "holochain_integrity_types",
  "serde",
 ]
 
@@ -668,7 +666,6 @@ dependencies = [
  "follows_types",
  "hc_link_pagination",
  "hdk",
- "holochain_integrity_types",
  "serde",
 ]
 
@@ -677,7 +674,6 @@ name = "follows_integrity"
 version = "0.0.1"
 dependencies = [
  "hdi",
- "holochain_integrity_types",
  "serde",
 ]
 
@@ -878,7 +874,7 @@ dependencies = [
 [[package]]
 name = "hc_zome_profiles_coordinator"
 version = "0.2.0"
-source = "git+https://github.com/holochain-open-dev/profiles?branch=build/holochain-0.3.x#56122688c500d53fc8a0f4da8c728730e6222f28"
+source = "git+https://github.com/holochain-open-dev/profiles?branch=build/holochain-0.3.x#8aef8857a8a5943422b4b5928d9e60f64e5b49f4"
 dependencies = [
  "derive_more",
  "hc_zome_profiles_integrity",
@@ -889,7 +885,7 @@ dependencies = [
 [[package]]
 name = "hc_zome_profiles_integrity"
 version = "0.2.0"
-source = "git+https://github.com/holochain-open-dev/profiles?branch=build/holochain-0.3.x#56122688c500d53fc8a0f4da8c728730e6222f28"
+source = "git+https://github.com/holochain-open-dev/profiles?branch=build/holochain-0.3.x#8aef8857a8a5943422b4b5928d9e60f64e5b49f4"
 dependencies = [
  "derive_more",
  "hdi",
@@ -898,9 +894,9 @@ dependencies = [
 
 [[package]]
 name = "hdi"
-version = "0.4.0-beta-dev.10"
+version = "0.4.0-beta-dev.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9a215a1b6ebbaddae07bea13e4f0ac0315a7683f00a6121615d10fd68367e815"
+checksum = "8e81b8b2201397608cf01da1dabef6932294f416eba3a08c7f7f0d507b45e7a9"
 dependencies = [
  "hdk_derive",
  "holo_hash",
@@ -915,9 +911,9 @@ dependencies = [
 
 [[package]]
 name = "hdk"
-version = "0.3.0-beta-dev.14"
+version = "0.3.0-beta-dev.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "25f759df42192772473002b10109e1a2caf7fb69bfa7858571d016de1ccb1232"
+checksum = "ad4c6aae946b2dcc12ead68d6c0f8ff7e7c8752f0bf10f1594caeef88f97050d"
 dependencies = [
  "getrandom",
  "hdi",
@@ -935,9 +931,9 @@ dependencies = [
 
 [[package]]
 name = "hdk_derive"
-version = "0.3.0-beta-dev.10"
+version = "0.3.0-beta-dev.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e332ec35870556cdeb9238c8474c7985cb80bd51076d49bbc21be343a04ad380"
+checksum = "9efc17540bb109628ec08cc541eeb402692c852573f7bb541166dd301cbe7e5d"
 dependencies = [
  "darling 0.14.4",
  "heck",
@@ -987,13 +983,12 @@ dependencies = [
 
 [[package]]
 name = "holochain_integrity_types"
-version = "0.3.0-beta-dev.10"
+version = "0.3.0-beta-dev.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "90ce6f2a076ab11f815c3573e376e6438a797ee5cc5e53f9627add6a9f208231"
+checksum = "c332e0ab6d442ddb0aa408847b0122ef702f5a77233ebd4b6ef6b7b421601d92"
 dependencies = [
  "holo_hash",
  "holochain_serialized_bytes",
- "holochain_util",
  "kitsune_p2p_timestamp",
  "paste",
  "serde",
@@ -1072,9 +1067,9 @@ dependencies = [
 
 [[package]]
 name = "holochain_zome_types"
-version = "0.3.0-beta-dev.11"
+version = "0.3.0-beta-dev.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5426783fc2b8a626784e4e74f8b5c76ca722f1024534b935070233c64bfdbea4"
+checksum = "abb603fa89bd3f58d20366b368f36adbdfcdddae5e844c1a8da6991c0758c1e3"
 dependencies = [
  "holo_hash",
  "holochain_integrity_types",
@@ -1319,7 +1314,6 @@ name = "likes"
 version = "0.0.1"
 dependencies = [
  "hdk",
- "holochain_integrity_types",
  "likes_integrity",
  "serde",
 ]
@@ -1329,7 +1323,6 @@ name = "likes_integrity"
 version = "0.0.1"
 dependencies = [
  "hdi",
- "holochain_integrity_types",
  "serde",
 ]
 
@@ -1665,7 +1658,7 @@ checksum = "5b40af805b3121feab8a3c29f04d8ad262fa8e0561883e7653e024ae4479e6de"
 [[package]]
 name = "prefix_index"
 version = "0.5.0"
-source = "git+https://github.com/holochain-open-dev/holochain-prefix-index?branch=build/holochain-0.3.x#65bb9634a9f8905f9ed7366d537e91756add0b2b"
+source = "git+https://github.com/holochain-open-dev/holochain-prefix-index?branch=build/holochain-0.3.x#22761505897dc4d2bbb024938fc305f95a4a7d17"
 dependencies = [
  "hdk",
  "holochain_integrity_types",

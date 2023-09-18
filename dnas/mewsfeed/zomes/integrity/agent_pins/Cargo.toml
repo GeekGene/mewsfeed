@@ -9,6 +9,5 @@ name = "agent_pins_integrity"
 
 [dependencies]
 hdi = { workspace = true }
-holochain_integrity_types = { workspace = true }
 
 serde = { workspace = true }
