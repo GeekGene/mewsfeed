@@ -53,7 +53,7 @@ fn get_followed_creators_mew_hashes(
         .filter_map(|agent| {
             get_links(GetLinksInput {
                 base_address: agent.into(),
-                link_type: LinkTypes::AgentMews.try_into_filter()?,
+                link_type: LinkTypes::AgentMews.try_into_filter().ok().unwrap(),
                 tag_prefix: None,
                 after: None,
                 before: None,

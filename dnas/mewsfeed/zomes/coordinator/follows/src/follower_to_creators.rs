@@ -62,7 +62,6 @@ pub fn get_followers_for_creator(
 
 #[hdk_extern]
 pub fn count_creators_for_follower(follower: AgentPubKey) -> ExternResult<usize> {
-    let query = ;
     count_links(LinkQuery::new(
         follower,
         LinkTypes::FollowerToCreators.try_into_filter()?,
