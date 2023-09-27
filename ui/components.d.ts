@@ -47,6 +47,7 @@ declare module 'vue' {
     CreatorsListDialog: typeof import('./src/components/CreatorsListDialog.vue')['default']
     EditAgentProfileDialog: typeof import('./src/components/EditAgentProfileDialog.vue')['default']
     FollowersListDialog: typeof import('./src/components/FollowersListDialog.vue')['default']
+    NetworkInfo: typeof import('./src/components/NetworkInfo.vue')['default']
     RandomMewWithTagList: typeof import('./src/components/RandomMewWithTagList.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
