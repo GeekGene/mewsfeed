@@ -21,6 +21,10 @@
         <sl-spinner style="font-size: 1rem" class="mr-2"></sl-spinner>
         <div>Cells loading...</div>
       </div>
+
+      <NetworkInfo
+        class="flex justify-start items-center fixed right-5 bottom-5 my-8 mx-4 z-50"
+      />
     </profiles-context>
   </div>
 </template>
@@ -45,6 +49,7 @@ import { CellType } from "@holochain/client";
 import { setHomeRedirect } from "@/utils/homeRedirect";
 import { useThemeStore } from "@/stores/theme";
 import { useQueryClient } from "@tanstack/vue-query";
+import NetworkInfo from "./components/NetworkInfo.vue";
 
 const client = ref<AppAgentClient | WebSdkApi>();
 const appInfo = ref<AppInfo>();
@@ -89,6 +94,8 @@ const setup = async () => {
 const setupApp = async () => {
   if (!client.value) throw Error("Holo / Holochain client not ready");
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  //@ts-ignore
   appInfo.value = await client.value.appInfo();
 
   // Setup profiles
