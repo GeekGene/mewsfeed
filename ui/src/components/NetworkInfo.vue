@@ -2,38 +2,47 @@
   <div>
     <div v-if="showExpanded && !data">Network data unavailable</div>
     <div
-      v-if="showExpanded && data"
+      v-if="showExpanded"
       class="w-96 z-10 bg-warning rounded-lg p-4"
       @click="showExpanded = false"
     >
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg">Network Info</h3>
-        <div class="text-xs">Updated {{ lastUpdatedSeconds }}s ago</div>
-      </div>
-      <div class="flex justify-start items-center space-x-2 text-xs">
-        <div class="font-bold">Op Bytes to Fetch</div>
-        <div>{{ data[0]?.fetch_pool_info.op_bytes_to_fetch }}</div>
-      </div>
-      <div class="flex justify-start items-center space-x-2 text-xs mb-2">
-        <div class="font-bold">Num Ops to Fetch</div>
-        <div>{{ data[0]?.fetch_pool_info.num_ops_to_fetch }}</div>
-      </div>
-      <div class="flex justify-start items-center space-x-2 text-xs">
-        <div class="font-bold">Current Peers</div>
-        <div>{{ data[0]?.current_number_of_peers }}</div>
-      </div>
-      <div class="flex justify-start items-center space-x-2 text-xs mb-2">
-        <div class="font-bold">Total Network Peers</div>
-        <div>{{ data[0]?.total_network_peers }}</div>
-      </div>
-      <div class="flex justify-start items-center space-x-2 text-xs">
-        <div class="font-bold">Bytes Since Last Queried</div>
-        <div>{{ data[0]?.bytes_since_last_time_queried }} bytes</div>
-      </div>
-      <div class="flex justify-start items-center space-x-2 text-xs">
-        <div class="font-bold">Completed Rounds Since Last Queried</div>
-        <div>{{ data[0]?.completed_rounds_since_last_time_queried }}</div>
-      </div>
+      <template v-if="data">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg">Network Info</h3>
+          <div class="text-xs">Updated {{ lastUpdatedSeconds }}s ago</div>
+        </div>
+        <div class="flex justify-start items-center space-x-2 text-xs">
+          <div class="font-bold">Op Bytes to Fetch</div>
+          <div>
+            {{
+              data[0] && prettyBytes(data[0].fetch_pool_info.op_bytes_to_fetch)
+            }}
+          </div>
+        </div>
+        <div class="flex justify-start items-center space-x-2 text-xs mb-2">
+          <div class="font-bold">Num Ops to Fetch</div>
+          <div>{{ data[0]?.fetch_pool_info.num_ops_to_fetch }}</div>
+        </div>
+        <div class="flex justify-start items-center space-x-2 text-xs">
+          <div class="font-bold">Current Peers</div>
+          <div>{{ data[0]?.current_number_of_peers }}</div>
+        </div>
+        <div class="flex justify-start items-center space-x-2 text-xs mb-2">
+          <div class="font-bold">Total Network Peers</div>
+          <div>{{ data[0]?.total_network_peers }}</div>
+        </div>
+        <div class="flex justify-start items-center space-x-2 text-xs">
+          <div class="font-bold">Bytes Since Last Queried</div>
+          <div>
+            {{ data[0] && prettyBytes(data[0].bytes_since_last_time_queried) }}
+          </div>
+        </div>
+        <div class="flex justify-start items-center space-x-2 text-xs">
+          <div class="font-bold">Completed Rounds Since Last Queried</div>
+          <div>{{ data[0]?.completed_rounds_since_last_time_queried }}</div>
+        </div>
+      </template>
+      <template v-else> Network Data Unavailable </template>
       <IconCloseCircleOutline class="absolute bottom-2 right-2" />
     </div>
     <div
@@ -59,16 +68,15 @@ import { computed, ref } from "vue";
 import { ComputedRef, inject, watch } from "vue";
 import IconStatsChart from "~icons/ion/stats-chart";
 import IconCloseCircleOutline from "~icons/ion/close-circle-outline";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-dayjs.extend(relativeTime);
+import prettyBytes from "pretty-bytes";
 
 const client = (inject("client") as ComputedRef<AppAgentClient>).value;
 const appInfo = (inject("appInfo") as ComputedRef<AppInfo>).value;
 
 const showExpanded = ref(false);
-const lastUpdated = computed(() => dataUpdatedAt.value);
+const refetchInterval = ref(1000 * 30); // 30 seconds
 const lastUpdatedSeconds = ref(0);
+const lastUpdated = computed(() => dataUpdatedAt.value);
 
 const fetchNetworkInfo = (): Promise<NetworkInfoResponse> =>
   client.networkInfo({
@@ -81,8 +89,7 @@ const fetchNetworkInfo = (): Promise<NetworkInfoResponse> =>
 const { data, error, dataUpdatedAt } = useQuery({
   queryKey: ["networkInfo"],
   queryFn: fetchNetworkInfo,
-  refetchInterval: 1000 * 15, // 15 seconds
-  refetchIntervalInBackground: true,
+  refetchInterval: refetchInterval.value,
   refetchOnMount: false,
   refetchOnWindowFocus: false,
   cacheTime: 0,
@@ -96,4 +103,12 @@ setInterval(() => {
     );
   }
 }, 1000);
+
+watch(showExpanded, (val) => {
+  if (val) {
+    refetchInterval.value = 1000 * 3;
+  } else {
+    refetchInterval.value = 1000 * 30;
+  }
+});
 </script>
