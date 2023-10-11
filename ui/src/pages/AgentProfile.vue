@@ -136,7 +136,7 @@
 <script setup lang="ts">
 import { decodeHashFromBase64, encodeHashToBase64 } from "@holochain/client";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
-import { ComputedRef, computed, inject, ref, watch } from "vue";
+import { ComputedRef, computed, inject, nextTick, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import BaseList from "@/components/BaseList.vue";
 import { AppAgentClient } from "@holochain/client";
@@ -235,7 +235,11 @@ const fetchJoinedTimestamp = () =>
     payload: route.params.agentPubKey,
   });
 
-const { data: joinedTimestamp, error: errorJoinedTimestamp } = useQuery({
+const {
+  data: joinedTimestamp,
+  error: errorJoinedTimestamp,
+  refetch: refetchJoinedTimestamp,
+} = useQuery({
   queryKey: ["profiles", "get_joining_timestamp_for_agent", agentPubKeyB64],
   queryFn: fetchJoinedTimestamp,
 });
@@ -249,7 +253,11 @@ const fetchCreatorsCount = async (): Promise<number> =>
     payload: route.params.agentPubKey,
   });
 
-const { data: creatorsCount, error: errorCreatorsCount } = useQuery({
+const {
+  data: creatorsCount,
+  error: errorCreatorsCount,
+  refetch: refetchCreatorsCount,
+} = useQuery({
   queryKey: ["follows", "count_creators_for_follower", agentPubKeyB64],
   queryFn: fetchCreatorsCount,
 });
@@ -272,4 +280,16 @@ const {
   queryFn: fetchFollowersCount,
 });
 watch(errorFollowersCount, console.error);
+
+watch(route, (newVal) => {
+  console.log("new route is ", newVal);
+  nextTick(() => {
+    refetchProfile();
+    refetchAuthoredMews();
+    refetchPinnedMews();
+    refetchJoinedTimestamp();
+    refetchFollowersCount();
+    refetchCreatorsCount();
+  });
+});
 </script>
