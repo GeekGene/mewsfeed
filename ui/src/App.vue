@@ -23,6 +23,7 @@
       </div>
 
       <NetworkInfo
+        v-else
         class="flex justify-start items-center fixed right-5 bottom-5 my-8 mx-4 z-50"
       />
     </profiles-context>
