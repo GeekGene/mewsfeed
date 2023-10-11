@@ -26,14 +26,7 @@ pub fn add_hash_for_liker(input: AddHashForLikerInput) -> ExternResult<()> {
 
 #[hdk_extern]
 pub fn get_hashes_for_liker(liker: AgentPubKey) -> ExternResult<Vec<AnyLinkableHash>> {
-    let links = get_links(GetLinksInput {
-        base_address: liker.into(),
-        link_type: LinkTypes::LikerToHashes.try_into_filter()?,
-        tag_prefix: None,
-        after: None,
-        before: None,
-        author: None,
-    })?;
+    let links = get_links(liker, LinkTypes::LikerToHashes, None)?;
 
     let hashes: Vec<AnyLinkableHash> = links.into_iter().map(|link| link.target).collect();
 
@@ -56,7 +49,10 @@ pub fn get_likers_for_hash(hash: AnyLinkableHash) -> ExternResult<Vec<AgentPubKe
 pub fn count_likers_for_hash(hash: AnyLinkableHash) -> ExternResult<usize> {
     let query = LinkQuery::new(
         hash,
-        LinkTypes::HashToLikers.try_into_filter()?,
+        LinkTypeFilter::single_type(
+            ZomeIndex(3),
+            LinkType(1), // LinkTypes::HashToLikers
+        ),
     );
 
     count_links(query)
@@ -71,7 +67,10 @@ pub struct IsLikerForHashInput {
 pub fn is_liker_for_hash(input: IsLikerForHashInput) -> ExternResult<bool> {
     let query = LinkQuery::new(
         input.hash,
-        LinkTypes::HashToLikers.try_into_filter()?,
+        LinkTypeFilter::single_type(
+            ZomeIndex(3),
+            LinkType(1), // LinkTypes::HashToLikers
+        ),
     )
     .author(input.liker);
 
@@ -82,14 +81,7 @@ pub fn is_liker_for_hash(input: IsLikerForHashInput) -> ExternResult<bool> {
 
 #[hdk_extern]
 pub fn get_liker_links_for_hash(hash: AnyLinkableHash) -> ExternResult<Vec<Link>> {
-    let mut links = get_links(GetLinksInput {
-        base_address: hash,
-        link_type: LinkTypes::HashToLikers.try_into_filter()?,
-        tag_prefix: None,
-        after: None,
-        before: None,
-        author: None,
-    })?;
+    let mut links = get_links(hash, LinkTypes::HashToLikers, None)?;
     links.dedup_by_key(|l| l.target.clone());
 
     Ok(links)
@@ -107,14 +99,7 @@ pub struct RemoveHashForLikerInput {
 }
 #[hdk_extern]
 pub fn remove_hash_for_liker(input: RemoveHashForLikerInput) -> ExternResult<()> {
-    let links = get_links(GetLinksInput {
-        base_address: input.base_liker.clone().into(),
-        link_type: LinkTypes::LikerToHashes.try_into_filter()?,
-        tag_prefix: None,
-        after: None,
-        before: None,
-        author: None,
-    })?;
+    let links = get_links(input.base_liker.clone(), LinkTypes::LikerToHashes, None)?;
 
     for link in links {
         if link.target.clone().eq(&input.target_hash) {
@@ -122,14 +107,7 @@ pub fn remove_hash_for_liker(input: RemoveHashForLikerInput) -> ExternResult<()>
         }
     }
 
-    let links = get_links(GetLinksInput {
-        base_address: input.target_hash.clone(),
-        link_type: LinkTypes::HashToLikers.try_into_filter()?,
-        tag_prefix: None,
-        after: None,
-        before: None,
-        author: None,
-    })?;
+    let links = get_links(input.target_hash.clone(), LinkTypes::HashToLikers, None)?;
 
     for link in links {
         let entry_hash =

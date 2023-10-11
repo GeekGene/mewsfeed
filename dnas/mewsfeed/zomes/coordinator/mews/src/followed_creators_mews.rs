@@ -51,15 +51,7 @@ fn get_followed_creators_mew_hashes(
     let links: Vec<Link> = creators
         .into_iter()
         .filter_map(|agent| {
-            get_links(GetLinksInput {
-                base_address: agent.into(),
-                link_type: LinkTypes::AgentMews.try_into_filter().ok().unwrap(),
-                tag_prefix: None,
-                after: None,
-                before: None,
-                author: None,
-            })
-            .ok()
+            get_links(AnyLinkableHash::from(agent), LinkTypes::AgentMews, None).ok()
         })
         .flatten()
         .collect();

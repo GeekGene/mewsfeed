@@ -26,14 +26,7 @@ pub fn add_hash_for_pinner(input: AddHashForPinnerInput) -> ExternResult<()> {
 
 #[hdk_extern]
 pub fn get_hashes_for_pinner(pinner: AgentPubKey) -> ExternResult<Vec<AnyLinkableHash>> {
-    let links = get_links(GetLinksInput {
-        base_address: pinner.into(),
-        link_type: LinkTypes::PinnerToHashes.try_into_filter()?,
-        tag_prefix: None,
-        after: None,
-        before: None,
-        author: None,
-    })?;
+    let links = get_links(pinner, LinkTypes::PinnerToHashes, None)?;
 
     let hashes: Vec<AnyLinkableHash> = links.into_iter().map(|link| link.target).collect();
 
@@ -55,15 +48,7 @@ pub fn get_pinners_for_hash(hash: AnyLinkableHash) -> ExternResult<Vec<AgentPubK
 
 #[hdk_extern]
 pub fn get_pinner_links_for_hash(hash: AnyLinkableHash) -> ExternResult<Vec<Link>> {
-    let mut links = get_links(GetLinksInput {
-        base_address: hash,
-        link_type: LinkTypes::HashToPinners.try_into_filter()?,
-        tag_prefix: None,
-        after: None,
-        before: None,
-        author: None,
-    })?;
-
+    let mut links = get_links(hash, LinkTypes::HashToPinners, None)?;
     links.dedup_by_key(|l| l.target.clone());
 
     Ok(links)
@@ -81,14 +66,7 @@ pub struct RemoveHashForPinnerInput {
 }
 #[hdk_extern]
 pub fn remove_hash_for_pinner(input: RemoveHashForPinnerInput) -> ExternResult<()> {
-    let links = get_links(GetLinksInput {
-        base_address: input.base_pinner.clone().into(),
-        link_type: LinkTypes::PinnerToHashes.try_into_filter()?,
-        tag_prefix: None,
-        after: None,
-        before: None,
-        author: None,
-    })?;
+    let links = get_links(input.base_pinner.clone(), LinkTypes::PinnerToHashes, None)?;
 
     for link in links {
         if link.target.eq(&input.target_hash) {
@@ -96,14 +74,7 @@ pub fn remove_hash_for_pinner(input: RemoveHashForPinnerInput) -> ExternResult<(
         }
     }
 
-    let links = get_links(GetLinksInput {
-        base_address: input.target_hash.clone(),
-        link_type: LinkTypes::HashToPinners.try_into_filter()?,
-        tag_prefix: None,
-        after: None,
-        before: None,
-        author: None,
-    })?;
+    let links = get_links(input.target_hash.clone(), LinkTypes::HashToPinners, None)?;
 
     for link in links {
         if link.target.eq(&AnyLinkableHash::from(EntryHash::from(

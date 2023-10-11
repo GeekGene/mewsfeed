@@ -75,14 +75,7 @@ pub fn delete_mew(original_mew_hash: ActionHash) -> ExternResult<ActionHash> {
     }
 
     let path_hash = Path::from("all_mews").path_entry_hash()?;
-    let links = get_links(GetLinksInput {
-        base_address: path_hash.into(),
-        link_type: LinkTypes::AllMews.try_into_filter()?,
-        tag_prefix: None,
-        after: None,
-        before: None,
-        author: None,
-    })?;
+    let links = get_links(path_hash, LinkTypes::AllMews, None)?;
     for link in links {
         let action_hash =
             ActionHash::try_from(link.target.clone()).map_err(|err| wasm_error!(err))?;
@@ -92,14 +85,7 @@ pub fn delete_mew(original_mew_hash: ActionHash) -> ExternResult<ActionHash> {
     }
 
     let my_agent_pub_key = agent_info()?.agent_latest_pubkey;
-    let links = get_links(GetLinksInput {
-        base_address: my_agent_pub_key.into(),
-        link_type: LinkTypes::AgentMews.try_into_filter()?,
-        tag_prefix: None,
-        after: None,
-        before: None,
-        author: None,
-    })?;
+    let links = get_links(my_agent_pub_key, LinkTypes::AgentMews, None)?;
     for link in links {
         let action_hash =
             ActionHash::try_from(link.target.clone()).map_err(|err| wasm_error!(err))?;
@@ -108,15 +94,7 @@ pub fn delete_mew(original_mew_hash: ActionHash) -> ExternResult<ActionHash> {
         }
     }
 
-    let links = get_links(GetLinksInput {
-        base_address: original_mew_hash.clone().into(),
-        link_type: LinkTypes::MewToResponses.try_into_filter()?, 
-
-        tag_prefix: None,
-        after: None,
-        before: None,
-        author: None,
-    })?;
+    let links = get_links(original_mew_hash.clone(), LinkTypes::MewToResponses, None)?;
     for link in links {
         let action_hash =
             ActionHash::try_from(link.target.clone()).map_err(|err| wasm_error!(err))?;
