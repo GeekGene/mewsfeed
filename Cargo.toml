@@ -3,9 +3,9 @@ members = ["dnas/*/zomes/coordinator/*", "dnas/*/zomes/integrity/*", "crates/*"]
 resolver = "2"
 
 [workspace.dependencies]
-hdi = "=0.3.2"
-hdk = "=0.2.2"
-serde = "1"
+hdi = "=0.4.0-beta-dev.12"
+hdk = "=0.3.0-beta-dev.16"
+serde = "=1.0.166"
 paste = "1.0"
 
 [workspace.dependencies.agent_pins]

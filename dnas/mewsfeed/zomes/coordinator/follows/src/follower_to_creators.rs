@@ -25,7 +25,15 @@ pub fn add_creator_for_follower(input: AddCreatorForFollowerInput) -> ExternResu
 pub fn get_creators_for_follower(
     input: GetCreatorsForFollowerInput,
 ) -> ExternResult<Vec<AgentPubKey>> {
-    let links = get_links(input.follower, LinkTypes::FollowerToCreators, None)?;
+    let links = get_links(GetLinksInput {
+        base_address: input.follower.clone().into(),
+        link_type: LinkTypes::FollowerToCreators.try_into_filter()?,
+        tag_prefix: None,
+        after: None,
+        before: None,
+        author: None,
+    })?;
+
     let links_page = paginate_by_agentpubkey(links, input.page)?;
 
     let agents: Vec<AgentPubKey> = links_page
@@ -54,33 +62,33 @@ pub fn get_followers_for_creator(
 
 #[hdk_extern]
 pub fn count_creators_for_follower(follower: AgentPubKey) -> ExternResult<usize> {
-    let query = LinkQuery::new(
+    count_links(LinkQuery::new(
         follower,
-        LinkTypeFilter::single_type(
-            ZomeIndex(2),
-            LinkType(0), // LinkTypes::FollowerToCreators
-        ),
-    );
-    count_links(query)
+        LinkTypes::FollowerToCreators.try_into_filter()?,
+    ))
 }
 
 #[hdk_extern]
 pub fn count_followers_for_creator(creator: AgentPubKey) -> ExternResult<usize> {
-    let query = LinkQuery::new(
+    count_links(LinkQuery::new(
         creator,
-        LinkTypeFilter::single_type(
-            ZomeIndex(2),
-            LinkType(1), // LinkTypes::CreatorToFollowers
-        ),
-    );
-    count_links(query)
+        LinkTypes::CreatorToFollowers.try_into_filter()?
+    ))
 }
 
 #[hdk_extern]
 pub fn get_follower_links_for_creator(
     input: GetFollowersForCreatorInput,
 ) -> ExternResult<Vec<Link>> {
-    let mut links = get_links(input.creator, LinkTypes::CreatorToFollowers, None)?;
+    let mut links = get_links(GetLinksInput {
+        base_address: input.creator.into(),
+        link_type: LinkTypes::CreatorToFollowers.try_into_filter()?,
+        tag_prefix: None,
+        after: None,
+        before: None,
+        author: None,
+    })?;
+
     links.dedup_by_key(|l| l.target.clone());
     let links_page = paginate_by_agentpubkey(links, input.page)?;
 
@@ -96,11 +104,14 @@ pub fn get_follower_link_details_for_creator(creator: AgentPubKey) -> ExternResu
 
 #[hdk_extern]
 pub fn remove_creator_for_follower(input: RemoveCreatorForFollowerInput) -> ExternResult<()> {
-    let links = get_links(
-        input.base_follower.clone(),
-        LinkTypes::FollowerToCreators,
-        None,
-    )?;
+    let links = get_links(GetLinksInput {
+        base_address: input.base_follower.clone().into(),
+        link_type: LinkTypes::FollowerToCreators.try_into_filter()?,
+        tag_prefix: None,
+        after: None,
+        before: None,
+        author: None,
+    })?;
 
     for link in links {
         let entry_hash =
@@ -110,11 +121,14 @@ pub fn remove_creator_for_follower(input: RemoveCreatorForFollowerInput) -> Exte
         }
     }
 
-    let links = get_links(
-        input.target_creator.clone(),
-        LinkTypes::CreatorToFollowers,
-        None,
-    )?;
+    let links = get_links(GetLinksInput {
+        base_address: input.target_creator.clone().into(),
+        link_type: LinkTypes::CreatorToFollowers.try_into_filter()?,
+        tag_prefix: None,
+        after: None,
+        before: None,
+        author: None,
+    })?;
 
     for link in links {
         let entry_hash =

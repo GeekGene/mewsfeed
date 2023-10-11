@@ -12,7 +12,14 @@ pub fn get_mew_hashes_for_tag(
     let prefix_index = make_tag_prefix_index()?;
     let result_path: Path = prefix_index.make_result_path(tag_text, Some(tag))?;
 
-    let links = get_links(result_path.path_entry_hash()?, link_type, None)?;
+    let links = get_links(GetLinksInput {
+        base_address: result_path.path_entry_hash()?.into(),
+        link_type: link_type.try_into_filter()?,
+        tag_prefix: None,
+        after: None,
+        before: None,
+        author: None,
+    })?;
     let links_page = paginate_by_hash(links, page)?;
     let hashes: Vec<ActionHash> = links_page
         .iter()
