@@ -1,8 +1,8 @@
 {
   "name": "mewsfeed-ui-vue",
   "description": "A UI for MewsFeed based on Vue",
-  "author": "Jost Schulte",
-  "version": "0.11.1",
+  "author": "Jost Schulte, Matt Gabrenya",
+  "version": "0.12.0",
   "type": "module",
   "scripts": {
     "start": "vite --port $UI_PORT --clearScreen false",
