@@ -1,21 +1,37 @@
-use follows_integrity::*;
+// use follows_integrity::*;
 use follows_types::*;
-use hc_link_pagination::paginate_by_agentpubkey;
+use hc_call_utils::call_local_zome;
+// use hc_link_pagination::paginate_by_agentpubkey;
 use hdk::prelude::*;
+
+use mews_types::FOLLOW_TOPIC;
+use trust_atom_types::{DeleteReport, QueryInput, TrustAtom, TrustAtomInput};
+
+#[derive(Debug, Serialize, Deserialize, SerializedBytes)]
+#[serde(rename_all = "camelCase")]
+pub struct FollowInput {
+    pub agent: AgentPubKey,
+    pub follow_topics: Vec<FollowTopicInput>,
+}
+
+#[derive(Debug, Serialize, Deserialize, SerializedBytes)]
+#[serde(rename_all = "camelCase")]
+pub struct FollowTopicInput {
+    pub topic: String,
+    pub weight: Option<String>,
+}
 
 #[hdk_extern]
 pub fn add_creator_for_follower(input: AddCreatorForFollowerInput) -> ExternResult<()> {
-    create_link(
-        input.base_follower.clone(),
-        input.target_creator.clone(),
-        LinkTypes::FollowerToCreators,
-        (),
-    )?;
-    create_link(
-        input.target_creator,
-        input.base_follower,
-        LinkTypes::CreatorToFollowers,
-        (),
+    let _: TrustAtom = call_local_zome(
+        "trust_atom",
+        "create_trust_atom",
+        TrustAtomInput {
+            target: AnyLinkableHash::from(input.target_creator),
+            content: Some(String::from(FOLLOW_TOPIC)),
+            value: None,
+            extra: None,
+        },
     )?;
 
     Ok(())
@@ -25,31 +41,48 @@ pub fn add_creator_for_follower(input: AddCreatorForFollowerInput) -> ExternResu
 pub fn get_creators_for_follower(
     input: GetCreatorsForFollowerInput,
 ) -> ExternResult<Vec<AgentPubKey>> {
-    let links = get_links(input.follower, LinkTypes::FollowerToCreators, None)?;
-    let links_page = paginate_by_agentpubkey(links, input.page)?;
+    let links_from_follower_to_creators: Vec<TrustAtom> = call_local_zome(
+        "trust_atom",
+        "query",
+        QueryInput {
+            source: Some(AnyLinkableHash::from(input.follower)),
+            target: None,
+            content_full: Some(String::from(FOLLOW_TOPIC)),
+            content_starts_with: None,
+            value_starts_with: None,
+        },
+    )?;
 
-    let agents: Vec<AgentPubKey> = links_page
+    let creators: Vec<AgentPubKey> = links_from_follower_to_creators
         .into_iter()
-        .filter_map(|link| EntryHash::try_from(link.target).ok())
+        .filter_map(|link| link.target_hash.into_entry_hash())
         .map(AgentPubKey::from)
         .collect();
 
-    Ok(agents)
+    Ok(creators)
 }
 
 #[hdk_extern]
-pub fn get_followers_for_creator(
-    input: GetFollowersForCreatorInput,
-) -> ExternResult<Vec<AgentPubKey>> {
-    let links = get_follower_links_for_creator(input)?;
+pub fn get_followers_for_creator(creator: AgentPubKey) -> ExternResult<Vec<AgentPubKey>> {
+    let links_from_followers_to_creator: Vec<TrustAtom> = call_local_zome(
+        "trust_atom",
+        "query",
+        QueryInput {
+            source: None,
+            target: Some(AnyLinkableHash::from(creator)),
+            content_full: Some(String::from(FOLLOW_TOPIC)),
+            content_starts_with: None,
+            value_starts_with: None,
+        },
+    )?;
 
-    let agents: Vec<AgentPubKey> = links
+    let followers: Vec<AgentPubKey> = links_from_followers_to_creator
         .into_iter()
-        .filter_map(|link| EntryHash::try_from(link.target).ok())
+        .filter_map(|link| link.source_hash.into_entry_hash())
         .map(AgentPubKey::from)
         .collect();
 
-    Ok(agents)
+    Ok(followers)
 }
 
 #[hdk_extern]
@@ -77,62 +110,66 @@ pub fn count_followers_for_creator(creator: AgentPubKey) -> ExternResult<usize> 
 }
 
 #[hdk_extern]
-pub fn get_follower_links_for_creator(
-    input: GetFollowersForCreatorInput,
-) -> ExternResult<Vec<Link>> {
-    let mut links = get_links(input.creator, LinkTypes::CreatorToFollowers, None)?;
-    links.dedup_by_key(|l| l.target.clone());
-    let links_page = paginate_by_agentpubkey(links, input.page)?;
-
-    Ok(links_page)
-}
-
-#[hdk_extern]
-pub fn get_follower_link_details_for_creator(creator: AgentPubKey) -> ExternResult<LinkDetails> {
-    let links = get_link_details(creator, LinkTypes::CreatorToFollowers, None)?;
-
-    Ok(links)
-}
-
-#[hdk_extern]
 pub fn remove_creator_for_follower(input: RemoveCreatorForFollowerInput) -> ExternResult<()> {
-    let links = get_links(
-        input.base_follower.clone(),
-        LinkTypes::FollowerToCreators,
-        None,
+    let _deleted_link_count: DeleteReport = call_local_zome(
+        "trust_atom",
+        "delete_trust_atoms",
+        AnyLinkableHash::from(input.target_creator),
     )?;
 
-    for link in links {
-        let entry_hash =
-            EntryHash::try_from(link.target.clone()).map_err(|err| wasm_error!(err))?;
-        if AgentPubKey::from(entry_hash).eq(&input.target_creator) {
-            delete_link(link.create_link_hash)?;
-        }
-    }
+    // let links = get_links(
+    //     input.base_follower.clone(),
+    //     LinkTypes::FollowerToCreators,
+    //     None,
+    // )?;
 
-    let links = get_links(
-        input.target_creator.clone(),
-        LinkTypes::CreatorToFollowers,
-        None,
-    )?;
+    // for link in links {
+    //     if AgentPubKey::from(EntryHash::from(link.target.clone())).eq(&input.target_creator) {
+    //         delete_link(link.create_link_hash)?;
+    //     }
+    // }
 
-    for link in links {
-        let entry_hash =
-            EntryHash::try_from(link.target.clone()).map_err(|err| wasm_error!(err))?;
-        if AgentPubKey::from(entry_hash).eq(&input.base_follower) {
-            delete_link(link.create_link_hash)?;
-        }
-    }
+    // let links = get_links(
+    //     input.target_creator.clone(),
+    //     // TODO trust atoms instead
+    //     // LinkTypes::TrustAtom,
+    //     None,
+    // )?;
+
+    // for link in links {
+    //     if AgentPubKey::from(EntryHash::from(link.target.clone())).eq(&input.base_follower) {
+    //         delete_link(link.create_link_hash)?;
+    //     }
+    // }
 
     Ok(())
 }
 
 #[hdk_extern]
-pub fn follow(agent: AgentPubKey) -> ExternResult<()> {
+pub fn follow(input: FollowInput) -> ExternResult<()> {
+    let agent_pubkey = agent_info()?.agent_initial_pubkey;
+    if input.agent == agent_pubkey {
+        return Err(wasm_error!("You cannot follow yourself"));
+    }
+
     add_creator_for_follower(AddCreatorForFollowerInput {
-        base_follower: agent_info()?.agent_initial_pubkey,
-        target_creator: agent,
-    })
+        base_follower: agent_pubkey,
+        target_creator: input.agent.clone(),
+    })?;
+
+    for follow_topic in input.follow_topics {
+        let _: TrustAtom = call_local_zome(
+            "trust_atom",
+            "create_trust_atom",
+            TrustAtomInput {
+                target: AnyLinkableHash::from(input.agent.clone()),
+                content: Some(follow_topic.topic),
+                value: follow_topic.weight,
+                extra: None,
+            },
+        )?;
+    }
+    Ok(())
 }
 
 #[hdk_extern]

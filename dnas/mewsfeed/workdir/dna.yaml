@@ -28,6 +28,10 @@ integrity:
       hash: ~
       bundled: "../../../target/wasm32-unknown-unknown/release/agent_pins_integrity.wasm"
       dependencies: ~
+    - name: trust_atom_integrity
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/trust_atom_integrity_zome.wasm"
+      dependencies: ~
 coordinator:
   zomes:
     - name: profiles
@@ -60,3 +64,8 @@ coordinator:
       hash: ~
       bundled: "../../../target/wasm32-unknown-unknown/release/ping.wasm"
       dependencies: []
+    - name: trust_atom
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/trust_atom_zome.wasm"
+      dependencies:
+        - name: trust_atom_integrity

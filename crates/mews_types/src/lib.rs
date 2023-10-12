@@ -2,6 +2,8 @@ use hc_link_pagination::Timestamped;
 use hdk::prelude::*;
 use std::collections::BTreeMap;
 
+pub const FOLLOW_TOPIC: &str = "__FOLLOW__";
+
 #[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone, PartialEq, Eq)]
 pub enum LinkTarget {
     Mention(AgentPubKey),
@@ -41,6 +43,7 @@ pub struct Profile {
 
 #[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
 pub struct FeedMew {
+    // Mew with context
     pub mew: Mew,
     pub action: Action,
     pub action_hash: ActionHash,
@@ -56,6 +59,8 @@ pub struct FeedMew {
     pub is_replied: bool,
     pub is_quoted: bool,
     pub original_mew: Option<EmbedMew>,
+    pub weight: Option<f32>,   // introduced with TrustAtoms
+    pub topic: Option<String>, // introduced with TrustAtoms
 }
 
 #[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]

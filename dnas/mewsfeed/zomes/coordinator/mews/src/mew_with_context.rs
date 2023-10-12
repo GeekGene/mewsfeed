@@ -5,6 +5,7 @@ use hc_call_utils::call_local_zome;
 use hdk::prelude::*;
 use mews_integrity::*;
 use mews_types::Profile;
+use trust_atom_types::{QueryInput, TrustAtom};
 
 #[hdk_extern]
 pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedMew> {
@@ -24,6 +25,7 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                     "Malformed mew"
                 ))))?;
             let my_pubkey = agent_info()?.agent_initial_pubkey;
+            let creator = record.action().author();
 
             let replies_count = count_responses_for_mew(CountResponsesForMewInput {
                 original_mew_hash: original_mew_hash.clone(),
@@ -67,6 +69,18 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
             let author_profile = get_agent_profile(record.action().author().clone())?;
             let is_pinned = get_is_hash_pinned(record.action_hashed().hash.clone())?;
 
+            let trust_atoms: Vec<TrustAtom> = call_local_zome(
+                "trust_atom",
+                "query",
+                QueryInput {
+                    source: None,
+                    target: Some(AnyLinkableHash::from(creator.clone())),
+                    content_full: Some(String::from(FOLLOW_TOPIC)),
+                    content_starts_with: None,
+                    value_starts_with: None,
+                },
+            )?;
+
             match mew.clone().mew_type {
                 MewType::Original => Ok(FeedMew {
                     mew,
@@ -84,6 +98,8 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                     is_replied,
                     is_quoted,
                     original_mew: None,
+                    weight: None, // TODO: Change //
+                    topic: None,
                 }),
                 MewType::Reply(response_to_hash)
                 | MewType::Quote(response_to_hash)
@@ -132,6 +148,8 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                                     author_profile: original_mew_author_profile,
                                     deleted_timestamp: original_mew_deleted_timestamp,
                                 }),
+                                weight: None,
+                                topic: None,
                             })
                         }
                         _ => Err(wasm_error!(WasmErrorInner::Guest(String::from(

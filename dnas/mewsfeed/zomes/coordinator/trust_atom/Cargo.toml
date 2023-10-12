@@ -1,0 +1,22 @@
+[package]
+edition = "2021"
+name = "trust_atom_zome"
+version = "0.0.1"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+name = "trust_atom_zome"
+
+[dependencies]
+trust_atom = { git = "https://github.com/trustgraph/trustgraph-holochain.git", package = "trust_atom", branch = "mewsfeed-hackathon-10-17-23" }
+
+hdk = { workspace = true }
+serde = { workspace = true }
+rust_decimal = "1"
+
+[dev-dependencies]
+holochain = { version = "=0.2.2", default-features = false, features = [
+    "test_utils",
+] }
+tokio = { version = "1.3", features = ["full"] }
+futures = { version = "0.3.1", default-features = false }
