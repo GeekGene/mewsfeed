@@ -1,11 +1,13 @@
+use crate::hashtag_to_mews::get_mews_for_hashtag_by_author_with_context;
 use crate::licker_to_mews::*;
 use crate::mew_to_responses::*;
 use crate::pinner_to_mews::get_is_hash_pinned;
+use follows::follower_to_creators::FollowTopicInput;
 use hc_call_utils::call_local_zome;
 use hdk::prelude::*;
 use mews_integrity::*;
 use mews_types::Profile;
-use trust_atom_types::{QueryInput, TrustAtom};
+use trust_atom_types::{QueryMineInput, TrustAtom};
 
 #[hdk_extern]
 pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedMew> {
@@ -25,7 +27,7 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                     "Malformed mew"
                 ))))?;
             let my_pubkey = agent_info()?.agent_initial_pubkey;
-            let creator = record.action().author();
+            // let creator = record.action().author();
 
             let replies_count = count_responses_for_mew(CountResponsesForMewInput {
                 original_mew_hash: original_mew_hash.clone(),
@@ -69,18 +71,6 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
             let author_profile = get_agent_profile(record.action().author().clone())?;
             let is_pinned = get_is_hash_pinned(record.action_hashed().hash.clone())?;
 
-            let trust_atoms: Vec<TrustAtom> = call_local_zome(
-                "trust_atom",
-                "query",
-                QueryInput {
-                    source: None,
-                    target: Some(AnyLinkableHash::from(creator.clone())),
-                    content_full: Some(String::from(FOLLOW_TOPIC)),
-                    content_starts_with: None,
-                    value_starts_with: None,
-                },
-            )?;
-
             match mew.clone().mew_type {
                 MewType::Original => Ok(FeedMew {
                     mew,
@@ -98,7 +88,7 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                     is_replied,
                     is_quoted,
                     original_mew: None,
-                    weight: None, // TODO: Change //
+                    weight: None, // default is None
                     topic: None,
                 }),
                 MewType::Reply(response_to_hash)
@@ -163,6 +153,58 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
             "Expecting get_details to return record, got entry".into()
         ))),
     }
+}
+
+#[hdk_extern]
+pub fn get_batch_mews_with_context_based_on_topic_and_weight_threshold(
+    input: FollowTopicInput,
+) -> ExternResult<Vec<FeedMew>> {
+    let topic = input.topic;
+    let weight = input.weight;
+
+    let trust_atoms_by_topic: Vec<TrustAtom> = call_local_zome(
+        "trust_atom",
+        "query_mine",
+        QueryMineInput {
+            target: None,
+            content_full: Some(topic.clone()), // query by agent rated in a certain topic
+            content_starts_with: None,
+            value_starts_with: Some(weight.clone()), // filter by threshold
+        },
+    )?;
+
+    let mut weighted_trust_feed_mews: Vec<FeedMew> = Vec::new();
+
+    for atom in trust_atoms_by_topic {
+        let agent = atom.target_hash.into_agent_pub_key();
+        if let Some(pubkey) = agent {
+            let mut mews = get_mews_for_hashtag_by_author_with_context(topic.clone(), pubkey)?;
+            for mew in &mut mews {
+                mew.topic = Some(topic.clone());
+                mew.weight = atom.value.clone();
+            }
+            weighted_trust_feed_mews.append(&mut mews);
+        } else {
+            return Err(wasm_error!(
+                "error converting target hash, should be an agent pubkey"
+            ));
+        }
+    }
+
+    weighted_trust_feed_mews.sort_by(|a, b| a.weight.cmp(&b.weight));
+
+    println!("weighted feed: {:#?}", weighted_trust_feed_mews.clone());
+
+    // debug!(
+    //     "trust_feed_mews: {:#?}",
+    //     weighted_trust_feed_mews
+    //         .clone()
+    //         .into_iter()
+    //         .map(|feed_mew| feed_mew.clone().mew.text)
+    //         .collect::<Vec<String>>()
+    // );
+
+    Ok(weighted_trust_feed_mews)
 }
 
 #[hdk_extern]

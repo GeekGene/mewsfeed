@@ -59,7 +59,7 @@ pub struct FeedMew {
     pub is_replied: bool,
     pub is_quoted: bool,
     pub original_mew: Option<EmbedMew>,
-    pub weight: Option<f32>,   // introduced with TrustAtoms
+    pub weight: Option<String>,   // introduced with TrustAtoms
     pub topic: Option<String>, // introduced with TrustAtoms
 }
 

@@ -18,7 +18,7 @@ pub struct FollowInput {
 #[serde(rename_all = "camelCase")]
 pub struct FollowTopicInput {
     pub topic: String,
-    pub weight: Option<String>,
+    pub weight: String,
 }
 
 #[hdk_extern]
@@ -164,7 +164,7 @@ pub fn follow(input: FollowInput) -> ExternResult<()> {
             TrustAtomInput {
                 target: AnyLinkableHash::from(input.agent.clone()),
                 content: Some(follow_topic.topic),
-                value: follow_topic.weight,
+                value: Some(follow_topic.weight),
                 extra: None,
             },
         )?;

@@ -36,7 +36,7 @@ pub fn add_hashtag_by_author_for_mew(input: AddHashtagForMewInput) -> ExternResu
 
     let me = agent_info()?.agent_latest_pubkey;
     let path_text = format!("{}.{}", tag_text, me);
-    debug!("path_text on create --- {}", path_text);
+    // debug!("path_text on create --- {}", path_text);
 
     let path = prefix_index.add_result(path_text)?;
 
@@ -117,7 +117,7 @@ pub fn get_mews_for_hashtag_by_author_with_context(
     let prefix_index = make_tag_prefix_index()?;
 
     let path_text = format!("{}.{}", tag, agent);
-    debug!("path_text --- {}", path_text);
+    // debug!("path_text --- {}", path_text);
 
     let result_path: Path = prefix_index.make_result_path(path_text, None)?;
 

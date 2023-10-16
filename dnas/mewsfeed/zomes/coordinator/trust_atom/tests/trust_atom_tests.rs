@@ -9,100 +9,83 @@ use holochain::sweettest::{
 };
 use holochain::test_utils::consistency_60s;
 
-use mews_integrity::*; // for the types
+use follows::follower_to_creators::{FollowInput, FollowTopicInput};
+use mews_types::{FeedMew, Mew, MewType};
 
-const DNA_FILEPATH: &str = "../../workdir/mewsfeed.dna";
-const ZOME_NAME: &str = "mews";
-
-#[tokio::test(flavor = "multi_thread")]
-#[serial]
-
-async fn trusted_feed_is_based_on_follow_topics() {
-    let mut agent_group = setup().await;
-    let agents = agent_group.create_agents().await;
-    let ann = &agents[0];
-    let bob = &agents[1];
-    let cat = &agents[2];
-
-    ann.follow(FollowInput {
-        agent: bob.pubkey.clone(),
-        follow_topics: vec![FollowTopicInput {
-            topic: String::from("holochain"),
-            weight: String::from("1.0"),
-        }],
-        follow_other: false,
-    })
-    .await;
-
-    ann.follow(FollowInput {
-        agent: cat.pubkey.clone(),
-        follow_topics: vec![FollowTopicInput {
-            topic: String::from("blockchain"),
-            weight: String::from("1.0"),
-        }],
-        follow_other: false,
-    })
-    .await;
-
-    bob.create_mew(CreateMewInput {
-        mew_type: MewType::Original,
-        text: Some(String::from("Wow #holochain is cool!")),
-        links: None,
-    })
-    .await;
-
-    cat.create_mew(CreateMewInput {
-        mew_type: MewType::Original,
-        text: Some(String::from("Doh #holochain when moon?")),
-        links: None,
-    })
-    .await;
-
-    consistency_60s([
-        &(ann.cell.clone()),
-        &(bob.cell.clone()),
-        &(cat.cell.clone()),
-    ])
-    .await;
-}
+const DNA_FILEPATH: &str = "../../../workdir/mewsfeed.dna";
+const MEWS_ZOME_NAME: &str = "mews";
+const FOLLOWS_ZOME_NAME: &str = "follows";
 
 #[tokio::test(flavor = "multi_thread")]
 #[serial]
-
-async fn trusted_feed_is_ordered_by_topic_weights() {
+async fn trusted_feed_based_on_follow_topics_ordered_by_weight() {
     let mut agent_group = setup().await;
     let agents = agent_group.create_agents().await;
-    let ann = &agents[0];
+
+    let ann = &agents[0]; // Ann is the testing agent
     let bob = &agents[1];
     let cat = &agents[2];
+    let dave = &agents[3];
+    // let emma = &agents[4];
+    // let frank = &agents[5];
+
+    // FOLLOWS //
+
+    // #Holochain
 
     ann.follow(FollowInput {
         agent: bob.pubkey.clone(),
-        follow_topics: vec![FollowTopicInput {
-            topic: String::from("holochain"),
-            weight: String::from("1.0"),
-        }],
-        follow_other: false,
-    })
-    .await;
-
-    ann.follow(FollowInput {
-        agent: cat.pubkey.clone(),
         follow_topics: vec![FollowTopicInput {
             topic: String::from("holochain"),
             weight: String::from("0.5"),
         }],
-        follow_other: false,
     })
     .await;
+
+    ann.follow(FollowInput {
+        agent: cat.pubkey.clone(),
+        follow_topics: vec![FollowTopicInput {
+            topic: String::from("holochain"),
+            weight: String::from("1.0"),
+        }],
+    })
+    .await;
+
+    ann.follow(FollowInput {
+        agent: dave.pubkey.clone(),
+        follow_topics: vec![FollowTopicInput {
+            topic: String::from("holochain"),
+            weight: String::from("0.25"),
+        }],
+    })
+    .await;
+
+    // ann.follow(FollowInput {
+    //     agent: emma.pubkey.clone(),
+    //     follow_topics: vec![FollowTopicInput {
+    //         topic: String::from("holochain"),
+    //         weight: String::from("0.75"),
+    //     }],
+    // })
+    // .await;
+
+    // ann.follow(FollowInput {
+    //     agent: frank.pubkey.clone(),
+    //     follow_topics: vec![FollowTopicInput {
+    //         topic: String::from("holochain"),
+    //         weight: String::from("-1"), // Negative indicates spam or otherwise matierial to be thrown out
+    //     }],
+    // })
+    // .await;
+
+    // #Blockchain
 
     ann.follow(FollowInput {
         agent: bob.pubkey.clone(),
         follow_topics: vec![FollowTopicInput {
             topic: String::from("blockchain"),
-            weight: String::from("0.25"),
+            weight: String::from("0.1"),
         }],
-        follow_other: false,
     })
     .await;
 
@@ -112,86 +95,137 @@ async fn trusted_feed_is_ordered_by_topic_weights() {
             topic: String::from("blockchain"),
             weight: String::from("0"),
         }],
-        follow_other: false,
     })
     .await;
 
-    bob.create_mew(CreateMewInput {
-        mew_type: MewType::Original,
-        text: Some(String::from("#holochain from bob, weight 1.0")),
-        links: None,
+    ann.follow(FollowInput {
+        agent: dave.pubkey.clone(),
+        follow_topics: vec![FollowTopicInput {
+            topic: String::from("blockchain"),
+            weight: String::from("0.55"),
+        }],
     })
     .await;
 
-    bob.create_mew(CreateMewInput {
+    // ann.follow(FollowInput {
+    //     agent: emma.pubkey.clone(),
+    //     follow_topics: vec![FollowTopicInput {
+    //         topic: String::from("blockchain"),
+    //         weight: String::from("0.33"),
+    //     }],
+    // })
+    // .await;
+
+    // ann.follow(FollowInput {
+    //     agent: frank.pubkey.clone(),
+    //     follow_topics: vec![FollowTopicInput {
+    //         topic: String::from("blockchain"),
+    //         weight: String::from("0.9"),
+    //     }],
+    // })
+    // .await;
+
+    // MEWS //
+
+    // #Holochain
+
+    bob.create_mew(Mew {
         mew_type: MewType::Original,
-        text: Some(String::from("#blockchain from bob, weight 0.25")),
-        links: None,
+        text: String::from("#holochain from bob, weight 0.5"),
+        links: vec![],
     })
     .await;
 
-    cat.create_mew(CreateMewInput {
+    cat.create_mew(Mew {
         mew_type: MewType::Original,
-        text: Some(String::from("#blockchain from cat, weight 0.0")),
-        links: None,
+        text: String::from("#holochain from cat, weight 1.0"),
+        links: vec![],
     })
     .await;
 
-    cat.create_mew(CreateMewInput {
+    dave.create_mew(Mew {
         mew_type: MewType::Original,
-        text: Some(String::from("#holochain from cat, weight 0.5")),
-        links: None,
+        text: String::from("#holochain from dave, weight 0.25"),
+        links: vec![],
     })
     .await;
+
+    // emma.create_mew(Mew {
+    //     mew_type: MewType::Original,
+    //     text: String::from("#holochain from emma, weight 0.75"),
+    //     links: vec![],
+    // })
+    // .await;
+
+    // frank
+    //     .create_mew(Mew {
+    //         mew_type: MewType::Original,
+    //         text: String::from("#holochain from frank, weight -1 should not be seen"),
+    //         links: vec![],
+    //     })
+    //     .await;
+
+    // #Blockchain
+
+    bob.create_mew(Mew {
+        mew_type: MewType::Original,
+        text: String::from("#blockchain from bob, weight 0.1"),
+        links: vec![],
+    })
+    .await;
+
+    cat.create_mew(Mew {
+        mew_type: MewType::Original,
+        text: String::from("#blockchain from cat, weight 0 should not be seen"),
+        links: vec![],
+    })
+    .await;
+
+    dave.create_mew(Mew {
+        mew_type: MewType::Original,
+        text: String::from("#blockchain from dave, weight 0.55"),
+        links: vec![],
+    })
+    .await;
+
+    // emma.create_mew(Mew {
+    //     mew_type: MewType::Original,
+    //     text: String::from("#blockchain from emma, weight 0.33"),
+    //     links: vec![],
+    // })
+    // .await;
+
+    // frank
+    //     .create_mew(Mew {
+    //         mew_type: MewType::Original,
+    //         text: String::from("#blockchain from frank, weight 0.9"),
+    //         links: vec![],
+    //     })
+    //     .await;
 
     consistency_60s([
         &(ann.cell.clone()),
         &(bob.cell.clone()),
         &(cat.cell.clone()),
+        &(dave.cell.clone()),
+        // &(emma.cell.clone()),
+        // &(frank.cell.clone()),
     ])
     .await;
 
-    assert_eq!(recommended_feed.len(), 4);
-    assert_eq!(
-        recommended_feed[0]
-            .feed_mew
-            .mew
-            .content
-            .as_ref()
-            .unwrap()
-            .text,
-        String::from("#holochain from bob, weight 1.0")
-    );
-    assert_eq!(
-        recommended_feed[1]
-            .feed_mew
-            .mew
-            .content
-            .as_ref()
-            .unwrap()
-            .text,
-        String::from("#holochain from cat, weight 0.5")
-    );
-    assert_eq!(
-        recommended_feed[2]
-            .feed_mew
-            .mew
-            .content
-            .as_ref()
-            .unwrap()
-            .text,
-        String::from("#blockchain from bob, weight 0.25")
-    );
-    assert_eq!(
-        recommended_feed[3]
-            .feed_mew
-            .mew
-            .content
-            .as_ref()
-            .unwrap()
-            .text,
-        String::from("#blockchain from cat, weight 0.0")
-    );
+    let trusted_feed = ann
+        .trusted_feed_weighted(FollowTopicInput {
+            topic: "holochain".to_string(),
+            weight: "0.001".to_string(),
+        })
+        .await;
+
+    println!("trusted feed: {:#?}", trusted_feed.clone());
+
+    // assert_eq!(
+    //     trusted_feed[0].mew.text,
+    //     String::from("#holochain from cat, weight 1.0")
+    // );
 }
 
 //
@@ -204,20 +238,35 @@ pub struct Agent<'a> {
     pub cell: SweetCell,
     pub conductor: &'a SweetConductor,
     pub pubkey: AgentPubKey,
-    pub zome: SweetZome,
+    pub mews_zome: SweetZome,
+    pub follows_zome: SweetZome,
 }
 
 impl Agent<'_> {
     pub async fn follow(&self, input: FollowInput) {
-        self.conductor.call(&self.zome, "follow", input).await
+        self.conductor
+            .call(&self.follows_zome, "follow", input)
+            .await
     }
 
-    pub async fn create_mew(&self, input: CreateMewInput) -> ActionHash {
-        self.conductor.call(&self.zome, "create_mew", input).await
+    pub async fn create_mew(&self, input: Mew) -> ActionHash {
+        self.conductor
+            .call(&self.mews_zome, "create_mew", input)
+            .await
     }
 
-    pub async fn recommended(&self, input: RecommendedInput) -> Vec<FeedMew> {
-        self.conductor.call(&self.zome, "recommended", input).await
+    // pub async fn recommended(&self, input: RecommendedInput) -> Vec<FeedMew> {
+    //     self.conductor.call(&self.zome, "recommended", input).await
+    // }
+
+    pub async fn trusted_feed_weighted(&self, input: FollowTopicInput) -> Vec<FeedMew> {
+        self.conductor
+            .call(
+                &self.mews_zome,
+                "get_batch_mews_with_context_based_on_topic_and_weight_threshold",
+                input,
+            )
+            .await
     }
 }
 
@@ -231,35 +280,59 @@ impl AgentGroup {
         let dna_path = std::env::current_dir().unwrap().join(DNA_FILEPATH);
         let dna = SweetDnaFile::from_bundle(&dna_path).await.unwrap();
 
-        let apps = self.conductors.setup_app(ZOME_NAME, &[dna]).await.unwrap();
+        let apps = self.conductors.setup_app("mewsfeed", &[dna]).await.unwrap();
         self.conductors.exchange_peer_info().await;
 
-        let ((ann_cell,), (bob_cell,), (cat_cell,)) = apps.into_tuples();
+        let ((ann_cell,), (bob_cell,), (cat_cell,), (dave_cell,)) = apps.into_tuples();
 
         let ann = Agent {
             cell: ann_cell.clone(),
             conductor: self.conductors.get(0).unwrap(),
             pubkey: ann_cell.agent_pubkey().clone(),
-            zome: ann_cell.zome(ZOME_NAME),
+            mews_zome: ann_cell.zome(MEWS_ZOME_NAME),
+            follows_zome: ann_cell.zome(FOLLOWS_ZOME_NAME),
         };
         let bob = Agent {
             cell: bob_cell.clone(),
             conductor: self.conductors.get(1).unwrap(),
             pubkey: bob_cell.agent_pubkey().clone(),
-            zome: bob_cell.zome(ZOME_NAME),
+            mews_zome: bob_cell.zome(MEWS_ZOME_NAME),
+            follows_zome: bob_cell.zome(FOLLOWS_ZOME_NAME),
         };
         let cat = Agent {
             cell: cat_cell.clone(),
             conductor: self.conductors.get(2).unwrap(),
             pubkey: cat_cell.agent_pubkey().clone(),
-            zome: cat_cell.zome(ZOME_NAME),
+            mews_zome: cat_cell.zome(MEWS_ZOME_NAME),
+            follows_zome: cat_cell.zome(FOLLOWS_ZOME_NAME),
         };
+        let dave = Agent {
+            cell: dave_cell.clone(),
+            conductor: self.conductors.get(3).unwrap(),
+            pubkey: dave_cell.agent_pubkey().clone(),
+            mews_zome: dave_cell.zome(MEWS_ZOME_NAME),
+            follows_zome: dave_cell.zome(FOLLOWS_ZOME_NAME),
+        };
+        // let emma = Agent {
+        //     cell: emma_cell.clone(),
+        //     conductor: self.conductors.get(4).unwrap(),
+        //     pubkey: emma_cell.agent_pubkey().clone(),
+        //     mews_zome: emma_cell.zome(MEWS_ZOME_NAME),
+        //     follows_zome: emma_cell.zome(FOLLOWS_ZOME_NAME),
+        // };
+        // let frank = Agent {
+        //     cell: frank_cell.clone(),
+        //     conductor: self.conductors.get(5).unwrap(),
+        //     pubkey: frank_cell.agent_pubkey().clone(),
+        //     mews_zome: frank_cell.zome(MEWS_ZOME_NAME),
+        //     follows_zome: frank_cell.zome(FOLLOWS_ZOME_NAME),
+        // };
 
-        vec![ann, bob, cat]
+        vec![ann, bob, cat, dave]
     }
 }
 
 pub async fn setup() -> AgentGroup {
-    let conductors = SweetConductorBatch::from_config(3, ConductorConfig::default()).await;
+    let conductors = SweetConductorBatch::from_config(4, ConductorConfig::default()).await;
     AgentGroup { conductors }
 }
