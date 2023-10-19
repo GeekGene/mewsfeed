@@ -160,51 +160,76 @@ pub fn get_batch_mews_with_context_based_on_topic_and_weight_threshold(
     input: FollowTopicInput,
 ) -> ExternResult<Vec<FeedMew>> {
     let topic = input.topic;
-    let weight = input.weight;
+    let min_weight = input.weight.parse::<f32>();
 
-    let trust_atoms_by_topic: Vec<TrustAtom> = call_local_zome(
-        "trust_atom",
-        "query_mine",
-        QueryMineInput {
-            target: None,
-            content_full: Some(topic.clone()), // query by agent rated in a certain topic
-            content_starts_with: None,
-            value_starts_with: Some(weight.clone()), // filter by threshold
-        },
-    )?;
+    if let Ok(weight) = min_weight {
+        let trust_atoms_by_topic: Vec<TrustAtom> = call_local_zome(
+            "trust_atom",
+            "query_mine",
+            QueryMineInput {
+                target: None,
+                content_full: Some(topic.clone()), // query by agent rated in a certain topic
+                content_starts_with: None,
+                value_starts_with: None,
+            },
+        )?;
 
-    let mut weighted_trust_feed_mews: Vec<FeedMew> = Vec::new();
+        let weighted_filter = // CAUTION: this may be broken
+            trust_atoms_by_topic
+                .into_iter()
+                .filter_map(|atom| match atom.value.clone() {
+                    Some(value_string) => {
+                        let value_float: Result<f32, _> = value_string.parse::<f32>(); // TODO: find way to escape iterator with an error
+                        if let Ok(value) = value_float {
+                            if value >= weight {
+                                Some(atom)
+                            } else {
+                                None
+                            }
+                        } else {
+                            None
+                        }
+                    }
+                    None => None,
+                });
 
-    for atom in trust_atoms_by_topic {
-        let agent = atom.target_hash.into_agent_pub_key();
-        if let Some(pubkey) = agent {
-            let mut mews = get_mews_for_hashtag_by_author_with_context(topic.clone(), pubkey)?;
-            for mew in &mut mews {
-                mew.topic = Some(topic.clone());
-                mew.weight = atom.value.clone();
+        debug!("trust_atoms: {:#?}", weighted_filter.clone());
+
+        let mut weighted_trust_feed_mews: Vec<FeedMew> = Vec::new();
+
+        for atom in weighted_filter {
+            let agent = atom.target_hash.into_agent_pub_key();
+            if let Some(pubkey) = agent {
+                let mut mews = get_mews_for_hashtag_by_author_with_context(topic.clone(), pubkey)?;
+                for mew in &mut mews {
+                    mew.topic = Some(topic.clone());
+                    mew.weight = atom.value.clone();
+                }
+                weighted_trust_feed_mews.append(&mut mews);
+            } else {
+                return Err(wasm_error!(
+                    "error converting target hash, should be an agent pubkey"
+                ));
             }
-            weighted_trust_feed_mews.append(&mut mews);
-        } else {
-            return Err(wasm_error!(
-                "error converting target hash, should be an agent pubkey"
-            ));
         }
+
+        weighted_trust_feed_mews.sort_by(|a, b| a.weight.cmp(&b.weight));
+
+        println!("weighted feed: {:#?}", weighted_trust_feed_mews.clone());
+
+        // debug!(
+        //     "trust_feed_mews: {:#?}",
+        //     weighted_trust_feed_mews
+        //         .clone()
+        //         .into_iter()
+        //         .map(|feed_mew| feed_mew.clone().mew.text)
+        //         .collect::<Vec<String>>()
+        // );
+
+        Ok(weighted_trust_feed_mews)
+    } else {
+        Err(wasm_error!("could not parse weight"))
     }
-
-    weighted_trust_feed_mews.sort_by(|a, b| a.weight.cmp(&b.weight));
-
-    println!("weighted feed: {:#?}", weighted_trust_feed_mews.clone());
-
-    // debug!(
-    //     "trust_feed_mews: {:#?}",
-    //     weighted_trust_feed_mews
-    //         .clone()
-    //         .into_iter()
-    //         .map(|feed_mew| feed_mew.clone().mew.text)
-    //         .collect::<Vec<String>>()
-    // );
-
-    Ok(weighted_trust_feed_mews)
 }
 
 #[hdk_extern]
