@@ -137,7 +137,7 @@ test("Agent can mewmew a mew, only once", async () => {
       assert.ok(originalMew.mewmews_count === 1, "original mew has 1 mewmew");
       assert.isTrue(
         originalMew.is_mewmewed,
-          "original mew's mewmew is alice's mewmew"
+        "original mew's mewmew is alice's mewmew"
       );
 
       // Mewmew the same mew again
@@ -146,10 +146,7 @@ test("Agent can mewmew a mew, only once", async () => {
         fn_name: "create_mew",
         payload: aliceMewmewInput,
       });
-      await expect(response).rejects.toHaveProperty(
-        "data.data",
-        expect.stringContaining("InvalidCommit")
-      );
+      await expect(response).rejects.toThrowError(/InvalidCommit/);
     },
     true,
     { timeout: 500000 }

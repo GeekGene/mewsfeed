@@ -13,21 +13,27 @@ test("create a Mew and get followed creators mews", async () => {
 
       // Add 2 players with the test app to the Scenario. The returned players
       // can be destructured.
+      console.log("adding");
       const [alice, bob] = await scenario.addPlayersWithApps([
         appSource,
         appSource,
       ]);
+      console.log("added");
 
       // Shortcut peer discovery through gossip and register all agents in every
       // conductor of the scenario.
+      console.log("sharing all agents");
       await scenario.shareAllAgents();
+      console.log("shared");
 
       // Bob follows alice
+      console.log("calling zome follow");
       await bob.cells[0].callZome({
         zome_name: "follows",
         fn_name: "follow",
         payload: alice.agentPubKey,
       });
+      console.log("called");
 
       // Bob gets followed creators mews
       let collectionOutput: FeedMew[] = await bob.cells[0].callZome({

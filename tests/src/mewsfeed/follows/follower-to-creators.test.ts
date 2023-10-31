@@ -121,10 +121,7 @@ test("Agent cannot follow themselves", async () => {
         fn_name: "follow",
         payload: alice.agentPubKey,
       });
-      await expect(response).rejects.toHaveProperty(
-        "data.data",
-        expect.stringContaining("InvalidCommit")
-      );
+      await expect(response).rejects.toThrowError(/InvalidCommit/);
     },
     true,
     { timeout: 500000 }
@@ -169,10 +166,7 @@ test("Agent can only change their own follows", async () => {
           target_creator: targetAddress,
         },
       });
-      await expect(response).rejects.toHaveProperty(
-        "data.data",
-        expect.stringContaining("InvalidCommit")
-      );
+      await expect(response).rejects.toThrowError(/InvalidCommit/);
 
       // Alice removes her own follow
       await alice.cells[0].callZome({
@@ -192,10 +186,7 @@ test("Agent can only change their own follows", async () => {
           target_creator: targetAddress,
         },
       });
-      await expect(response2).rejects.toHaveProperty(
-        "data.data",
-        expect.stringContaining("InvalidCommit")
-      );
+      await expect(response2).rejects.toThrowError(/InvalidCommit/);
     },
     true,
     { timeout: 500000 }

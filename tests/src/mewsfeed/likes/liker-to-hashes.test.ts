@@ -128,10 +128,7 @@ test("Agent can only change their own likes", async () => {
           target_hash: targetAddress,
         },
       });
-      await expect(response).rejects.toHaveProperty(
-        "data.data",
-        expect.stringContaining("InvalidCommit")
-      );
+      await expect(response).rejects.toThrowError(/InvalidCommit/);
 
       // Alice removes her own like
       await alice.cells[0].callZome({
@@ -151,10 +148,7 @@ test("Agent can only change their own likes", async () => {
           target_hash: targetAddress,
         },
       });
-      await expect(response2).rejects.toHaveProperty(
-        "data.data",
-        expect.stringContaining("InvalidCommit")
-      );
+      await expect(response2).rejects.toThrowError(/InvalidCommit/);
     },
     true,
     { timeout: 500000 }
