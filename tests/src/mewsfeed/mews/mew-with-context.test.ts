@@ -5,7 +5,6 @@ import { FeedMew, Mew, MewTypeName } from "../../../../ui/src/types/types";
 import { mewsfeedAppBundleSource } from "../../common";
 import { createMew } from "./common";
 
-
 test("Mew with context contains licks count and is_licked", async () => {
   await runScenario(
     async (scenario) => {
