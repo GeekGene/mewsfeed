@@ -6,7 +6,7 @@
   },
   "dependencies": {
     "@holochain/client": "^0.16.3",
-    "@holochain/tryorama": "0.15.1",
+    "@holochain/tryorama": "0.15.2",
     "@msgpack/msgpack": "^2.8.0",
     "typescript": "^4.9.4",
     "vitest": "^0.28.5"
