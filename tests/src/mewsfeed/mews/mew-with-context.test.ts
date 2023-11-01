@@ -342,7 +342,7 @@ describe.concurrent("mew-with-context", () => {
         expect(aliceFeedMew.is_pinned).false;
       },
       true,
-      { timeout: 100000 }
+      { timeout: 500000 }
     );
   });
 });

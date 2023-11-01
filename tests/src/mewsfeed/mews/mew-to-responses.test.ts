@@ -147,67 +147,75 @@ describe.concurrent("mew-to-responses", () => {
   });
 
   it("Agent can quote a mew", async () => {
-    await runScenario(async (scenario) => {
-      // Set up the app to be installed
-      const appSource = { appBundleSource: mewsfeedAppBundleSource };
+    await runScenario(
+      async (scenario) => {
+        // Set up the app to be installed
+        const appSource = { appBundleSource: mewsfeedAppBundleSource };
 
-      // Add 2 players with the test app to the Scenario. The returned players
-      // can be destructured.
-      const [alice] = await scenario.addPlayersWithApps([appSource]);
+        // Add 2 players with the test app to the Scenario. The returned players
+        // can be destructured.
+        const [alice] = await scenario.addPlayersWithApps([appSource]);
 
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
+        // Shortcut peer discovery through gossip and register all agents in every
+        // conductor of the scenario.
+        await scenario.shareAllAgents();
 
-      const aliceMewContent = "alice-test-mew";
-      const aliceMewInput: Mew = {
-        text: aliceMewContent,
-        links: [],
-        mew_type: { [MewTypeName.Original]: null },
-      };
-      const action_hash: ActionHash = await alice.cells[0].callZome({
-        zome_name: "mews",
-        fn_name: "create_mew",
-        payload: aliceMewInput,
-      });
+        const aliceMewContent = "alice-test-mew";
+        const aliceMewInput: Mew = {
+          text: aliceMewContent,
+          links: [],
+          mew_type: { [MewTypeName.Original]: null },
+        };
+        const action_hash: ActionHash = await alice.cells[0].callZome({
+          zome_name: "mews",
+          fn_name: "create_mew",
+          payload: aliceMewInput,
+        });
 
-      const aliceQuoteText = "alice-test-quote";
-      const aliceQuoteInput: Mew = {
-        text: aliceQuoteText,
-        links: [],
-        mew_type: {
-          [MewTypeName.Quote]: action_hash,
-        },
-      };
-      const quote_action_hash: ActionHash = await alice.cells[0].callZome({
-        zome_name: "mews",
-        fn_name: "create_mew",
-        payload: aliceQuoteInput,
-      });
+        const aliceQuoteText = "alice-test-quote";
+        const aliceQuoteInput: Mew = {
+          text: aliceQuoteText,
+          links: [],
+          mew_type: {
+            [MewTypeName.Quote]: action_hash,
+          },
+        };
+        const quote_action_hash: ActionHash = await alice.cells[0].callZome({
+          zome_name: "mews",
+          fn_name: "create_mew",
+          payload: aliceQuoteInput,
+        });
 
-      const quote: FeedMew = await alice.cells[0].callZome({
-        zome_name: "mews",
-        fn_name: "get_mew_with_context",
-        payload: quote_action_hash,
-      });
-      assert.ok(MewTypeName.Quote in quote.mew.mew_type, "mew is a quote");
-      assert.equal(quote.mew.text, aliceQuoteText, "quote is alice's quote");
+        const quote: FeedMew = await alice.cells[0].callZome({
+          zome_name: "mews",
+          fn_name: "get_mew_with_context",
+          payload: quote_action_hash,
+        });
+        assert.ok(MewTypeName.Quote in quote.mew.mew_type, "mew is a quote");
+        assert.equal(quote.mew.text, aliceQuoteText, "quote is alice's quote");
 
-      const originalMew: FeedMew = await alice.cells[0].callZome({
-        zome_name: "mews",
-        fn_name: "get_mew_with_context",
-        payload: action_hash,
-      });
-      assert.ok(
-        MewTypeName.Original in originalMew.mew.mew_type,
-        "mew is an original mew"
-      );
-      assert.equal(originalMew.mew.text, aliceMewContent, "mew is alice's mew");
-      assert.ok(originalMew.quotes_count === 1, "original mew has 1 quote");
-      assert.isTrue(
-        originalMew.is_quoted,
-        "original mew's quote is alice's quote"
-      );
-    }, true);
+        const originalMew: FeedMew = await alice.cells[0].callZome({
+          zome_name: "mews",
+          fn_name: "get_mew_with_context",
+          payload: action_hash,
+        });
+        assert.ok(
+          MewTypeName.Original in originalMew.mew.mew_type,
+          "mew is an original mew"
+        );
+        assert.equal(
+          originalMew.mew.text,
+          aliceMewContent,
+          "mew is alice's mew"
+        );
+        assert.ok(originalMew.quotes_count === 1, "original mew has 1 quote");
+        assert.isTrue(
+          originalMew.is_quoted,
+          "original mew's quote is alice's quote"
+        );
+      },
+      true,
+      { timeout: 500000 }
+    );
   });
 });

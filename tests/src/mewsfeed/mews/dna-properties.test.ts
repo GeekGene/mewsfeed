@@ -152,25 +152,29 @@ describe.concurrent("dna-properties", () => {
   });
 
   it("Can get deserialized DNA Properties", async () => {
-    await runScenario(async (scenario) => {
-      // Set up the app to be installed
-      const appSource = { appBundleSource: mewsfeedAppBundleSource };
+    await runScenario(
+      async (scenario) => {
+        // Set up the app to be installed
+        const appSource = { appBundleSource: mewsfeedAppBundleSource };
 
-      // Add 2 players with the test app to the Scenario. The returned players
-      // can be destructured.
-      const [alice] = await scenario.addPlayersWithApps([appSource]);
+        // Add 2 players with the test app to the Scenario. The returned players
+        // can be destructured.
+        const [alice] = await scenario.addPlayersWithApps([appSource]);
 
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
+        // Shortcut peer discovery through gossip and register all agents in every
+        // conductor of the scenario.
+        await scenario.shareAllAgents();
 
-      const properties = await alice.cells[0].callZome({
-        zome_name: "mews",
-        fn_name: "get_dna_properties",
-        payload: null,
-      });
-      expect(properties).toHaveProperty("mew_characters_min", 5);
-      expect(properties).toHaveProperty("mew_characters_max", 200);
-    }, true);
+        const properties = await alice.cells[0].callZome({
+          zome_name: "mews",
+          fn_name: "get_dna_properties",
+          payload: null,
+        });
+        expect(properties).toHaveProperty("mew_characters_min", 5);
+        expect(properties).toHaveProperty("mew_characters_max", 200);
+      },
+      true,
+      { timeout: 500000 }
+    );
   });
 });

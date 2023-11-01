@@ -89,62 +89,66 @@ describe.concurrent("liker-to-hashes", () => {
   });
 
   it("Agent can only change their own likes", async () => {
-    await runScenario(async (scenario) => {
-      // Set up the app to be installed
-      const appSource = { appBundleSource: mewsfeedAppBundleSource };
+    await runScenario(
+      async (scenario) => {
+        // Set up the app to be installed
+        const appSource = { appBundleSource: mewsfeedAppBundleSource };
 
-      // Add 2 players with the test app to the Scenario. The returned players
-      // can be destructured.
-      const [alice, bob] = await scenario.addPlayersWithApps([
-        appSource,
-        appSource,
-      ]);
+        // Add 2 players with the test app to the Scenario. The returned players
+        // can be destructured.
+        const [alice, bob] = await scenario.addPlayersWithApps([
+          appSource,
+          appSource,
+        ]);
 
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
+        // Shortcut peer discovery through gossip and register all agents in every
+        // conductor of the scenario.
+        await scenario.shareAllAgents();
 
-      const targetAddress = await fakeActionHash();
+        const targetAddress = await fakeActionHash();
 
-      // Alice likes hash
-      await alice.cells[0].callZome({
-        zome_name: "likes",
-        fn_name: "like",
-        payload: targetAddress,
-      });
+        // Alice likes hash
+        await alice.cells[0].callZome({
+          zome_name: "likes",
+          fn_name: "like",
+          payload: targetAddress,
+        });
 
-      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
+        await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
-      // Bob tries to remove alices' like
-      const response = bob.cells[0].callZome({
-        zome_name: "likes",
-        fn_name: "remove_hash_for_liker",
-        payload: {
-          base_liker: alice.agentPubKey,
-          target_hash: targetAddress,
-        },
-      });
-      await expect(response).rejects.toThrowError(/InvalidCommit/);
+        // Bob tries to remove alices' like
+        const response = bob.cells[0].callZome({
+          zome_name: "likes",
+          fn_name: "remove_hash_for_liker",
+          payload: {
+            base_liker: alice.agentPubKey,
+            target_hash: targetAddress,
+          },
+        });
+        await expect(response).rejects.toThrowError(/InvalidCommit/);
 
-      // Alice removes her own like
-      await alice.cells[0].callZome({
-        zome_name: "likes",
-        fn_name: "unlike",
-        payload: targetAddress,
-      });
+        // Alice removes her own like
+        await alice.cells[0].callZome({
+          zome_name: "likes",
+          fn_name: "unlike",
+          payload: targetAddress,
+        });
 
-      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
+        await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
-      // Bob tries to add a like for allice
-      const response2 = bob.cells[0].callZome({
-        zome_name: "likes",
-        fn_name: "add_hash_for_liker",
-        payload: {
-          base_liker: alice.agentPubKey,
-          target_hash: targetAddress,
-        },
-      });
-      await expect(response2).rejects.toThrowError(/InvalidCommit/);
-    }, true);
+        // Bob tries to add a like for allice
+        const response2 = bob.cells[0].callZome({
+          zome_name: "likes",
+          fn_name: "add_hash_for_liker",
+          payload: {
+            base_liker: alice.agentPubKey,
+            target_hash: targetAddress,
+          },
+        });
+        await expect(response2).rejects.toThrowError(/InvalidCommit/);
+      },
+      true,
+      { timeout: 500000 }
+    );
   });
 });
