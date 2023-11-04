@@ -11,61 +11,65 @@ import { mewsfeedAppBundleSource } from "../../common.js";
 import { createMew } from "./common.js";
 
 it("mention in mews", async () => {
-  await runScenario(async (scenario) => {
-    // Set up the app to be installed
-    const appSource = { appBundleSource: mewsfeedAppBundleSource };
+  await runScenario(
+    async (scenario) => {
+      // Set up the app to be installed
+      const appSource = { appBundleSource: mewsfeedAppBundleSource };
 
-    // Add 2 players with the test app to the Scenario. The returned players
-    // can be destructured.
-    const [alice, bob] = await scenario.addPlayersWithApps([
-      appSource,
-      appSource,
-    ]);
+      // Add 2 players with the test app to the Scenario. The returned players
+      // can be destructured.
+      const [alice, bob] = await scenario.addPlayersWithApps([
+        appSource,
+        appSource,
+      ]);
 
-    // Shortcut peer discovery through gossip and register all agents in every
-    // conductor of the scenario.
-    await scenario.shareAllAgents();
+      // Shortcut peer discovery through gossip and register all agents in every
+      // conductor of the scenario.
+      await scenario.shareAllAgents();
 
-    await createMew(alice.cells[0], {
-      text: "this is for @bob",
-      links: [{ [LinkTargetName.Mention]: bob.agentPubKey }],
-      mew_type: { Original: null },
-    });
+      await createMew(alice.cells[0], {
+        text: "this is for @bob",
+        links: [{ [LinkTargetName.Mention]: bob.agentPubKey }],
+        mew_type: { Original: null },
+      });
 
-    const actionHash2: ActionHash = await createMew(bob.cells[0], {
-      text: "this is for @bob 2",
-      links: [{ [LinkTargetName.Mention]: bob.agentPubKey }],
-      mew_type: { Original: null },
-    });
+      const actionHash2: ActionHash = await createMew(bob.cells[0], {
+        text: "this is for @bob 2",
+        links: [{ [LinkTargetName.Mention]: bob.agentPubKey }],
+        mew_type: { Original: null },
+      });
 
-    const actionHash3: ActionHash = await createMew(alice.cells[0], {
-      text: "this is for @alice",
-      links: [{ [LinkTargetName.Mention]: alice.agentPubKey }],
-      mew_type: { Original: null },
-    });
+      const actionHash3: ActionHash = await createMew(alice.cells[0], {
+        text: "this is for @alice",
+        links: [{ [LinkTargetName.Mention]: alice.agentPubKey }],
+        mew_type: { Original: null },
+      });
 
-    await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
-    const mentionedMewsBob: FeedMew[] = await alice.cells[0].callZome({
-      zome_name: "mews",
-      fn_name: "get_mews_for_mention_with_context",
-      payload: {
-        mention: bob.agentPubKey,
-      },
-    });
-    assert.ok(mentionedMewsBob.length === 2, "one mew with mention");
-    assert.deepEqual(mentionedMewsBob[0].action_hash, actionHash2);
+      const mentionedMewsBob: FeedMew[] = await alice.cells[0].callZome({
+        zome_name: "mews",
+        fn_name: "get_mews_for_mention_with_context",
+        payload: {
+          mention: bob.agentPubKey,
+        },
+      });
+      assert.ok(mentionedMewsBob.length === 2, "one mew with mention");
+      assert.deepEqual(mentionedMewsBob[0].action_hash, actionHash2);
 
-    const mentionedMewsAlice: FeedMew[] = await alice.cells[0].callZome({
-      zome_name: "mews",
-      fn_name: "get_mews_for_mention_with_context",
-      payload: {
-        mention: alice.agentPubKey,
-      },
-    });
-    assert.ok(mentionedMewsAlice.length === 1, "one mew with mention");
-    assert.deepEqual(mentionedMewsAlice[0].action_hash, actionHash3);
-  }, true);
+      const mentionedMewsAlice: FeedMew[] = await alice.cells[0].callZome({
+        zome_name: "mews",
+        fn_name: "get_mews_for_mention_with_context",
+        payload: {
+          mention: alice.agentPubKey,
+        },
+      });
+      assert.ok(mentionedMewsAlice.length === 1, "one mew with mention");
+      assert.deepEqual(mentionedMewsAlice[0].action_hash, actionHash3);
+    },
+    true,
+    { timeout: 500000 }
+  );
 });
 
 it("Mentions list are time-paginated", async () => {

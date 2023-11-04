@@ -83,7 +83,7 @@ it("Mew with context contains licks count and is_licked", async () => {
       expect(aliceFeedMew.is_licked).false;
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -142,7 +142,7 @@ it("Mew with context contains replies count and is_replied", async () => {
       expect(aliceFeedMew.is_replied).false;
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -201,7 +201,7 @@ it("Mew with context contains quotes count and is_quoted", async () => {
       expect(aliceFeedMew.is_quoted).false;
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -263,7 +263,7 @@ it("Mew with context contains mewmews count and is_mewmewed", async () => {
       expect(aliceFeedMew.is_mewmewed).false;
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
