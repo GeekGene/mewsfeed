@@ -2,7 +2,7 @@
   "name": "tests",
   "private": true,
   "scripts": {
-    "test": "vitest run src/mewsfeed/mews/followed-creators-mews.test.ts"
+    "test": "vitest run src/mewsfeed/mews/pinner-to-mews.test.ts"
   },
   "dependencies": {
     "@holochain/client": "^0.16.3",
