@@ -64,8 +64,5 @@ jobs:
             target
           key: ${{ runner.os }}-build-${{ hashFiles('Cargo.lock') }}
 
-      # - name: tmate session
-      #   uses: mxschmitt/action-tmate@v3
-
       - name: Test with tryorama
         run: nix develop -c $SHELL -c "npm run test"
