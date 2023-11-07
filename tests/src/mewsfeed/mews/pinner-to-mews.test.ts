@@ -1,10 +1,10 @@
 import { ActionHash } from "@holochain/client";
 import { dhtSync, runScenario } from "@holochain/tryorama";
-import { assert, test } from "vitest";
+import { assert, it } from "vitest";
 import { FeedMew } from "../../../../ui/src/types/types.js";
 import { createMew } from "./common.js";
 
-test("link a Pinner to a Mew", async () => {
+it("link a Pinner to a Mew", async () => {
   await runScenario(
     async (scenario) => {
       // Construct proper paths for your app.

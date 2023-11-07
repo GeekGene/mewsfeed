@@ -1,60 +1,56 @@
 import { ActionHash } from "@holochain/client";
 import { dhtSync, runScenario } from "@holochain/tryorama";
-import { assert, expect, test } from "vitest";
+import { assert, expect, it } from "vitest";
 import { FeedMew, Mew, MewTypeName } from "../../../../ui/src/types/types";
 import { mewsfeedAppBundleSource } from "../../common";
 import { createMew } from "./common";
 
-test("create a Mew and get agent mews", async () => {
-  await runScenario(
-    async (scenario) => {
-      // Set up the app to be installed
-      const appSource = { appBundleSource: mewsfeedAppBundleSource };
+it("create a Mew and get agent mews", async () => {
+  await runScenario(async (scenario) => {
+    // Set up the app to be installed
+    const appSource = { appBundleSource: mewsfeedAppBundleSource };
 
-      // Add 2 players with the test app to the Scenario. The returned players
-      // can be destructured.
-      const [alice, bob] = await scenario.addPlayersWithApps([
-        appSource,
-        appSource,
-      ]);
+    // Add 2 players with the test app to the Scenario. The returned players
+    // can be destructured.
+    const [alice, bob] = await scenario.addPlayersWithApps([
+      appSource,
+      appSource,
+    ]);
 
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
+    // Shortcut peer discovery through gossip and register all agents in every
+    // conductor of the scenario.
+    await scenario.shareAllAgents();
 
-      // Bob gets agent mews
-      let collectionOutput: FeedMew[] = await bob.cells[0].callZome({
-        zome_name: "mews",
-        fn_name: "get_agent_mews_with_context",
-        payload: {
-          agent: alice.agentPubKey,
-        },
-      });
-      assert.equal(collectionOutput.length, 0);
+    // Bob gets agent mews
+    let collectionOutput: FeedMew[] = await bob.cells[0].callZome({
+      zome_name: "mews",
+      fn_name: "get_agent_mews_with_context",
+      payload: {
+        agent: alice.agentPubKey,
+      },
+    });
+    assert.equal(collectionOutput.length, 0);
 
-      // Alice creates a Mew
-      const actionHash: ActionHash = await createMew(alice.cells[0]);
-      assert.ok(actionHash);
+    // Alice creates a Mew
+    const actionHash: ActionHash = await createMew(alice.cells[0]);
+    assert.ok(actionHash);
 
-      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
+    await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
-      // Bob gets agent mews again
-      collectionOutput = await bob.cells[0].callZome({
-        zome_name: "mews",
-        fn_name: "get_agent_mews_with_context",
-        payload: {
-          agent: alice.agentPubKey,
-        },
-      });
-      assert.equal(collectionOutput.length, 1);
-      assert.deepEqual(actionHash, collectionOutput[0].action_hash);
-    },
-    true,
-    { timeout: 500000 }
-  );
+    // Bob gets agent mews again
+    collectionOutput = await bob.cells[0].callZome({
+      zome_name: "mews",
+      fn_name: "get_agent_mews_with_context",
+      payload: {
+        agent: alice.agentPubKey,
+      },
+    });
+    assert.equal(collectionOutput.length, 1);
+    assert.deepEqual(actionHash, collectionOutput[0].action_hash);
+  }, true);
 });
 
-test("Agent mews list are time-paginated", async () => {
+it("Agent mews lists are time-paginated", async () => {
   await runScenario(
     async (scenario) => {
       // Set up the app to be installed

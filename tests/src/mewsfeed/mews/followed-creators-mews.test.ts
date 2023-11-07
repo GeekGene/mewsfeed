@@ -1,11 +1,11 @@
-import { assert, expect, test } from "vitest";
-import { runScenario, dhtSync } from "@holochain/tryorama";
 import { ActionHash } from "@holochain/client";
-import { createMew } from "./common";
+import { dhtSync, runScenario } from "@holochain/tryorama";
+import { assert, expect, it } from "vitest";
 import { FeedMew, Mew, MewTypeName } from "../../../../ui/src/types/types";
 import { mewsfeedAppBundleSource } from "../../common";
+import { createMew } from "./common";
 
-test("create a Mew and get followed creators mews", async () => {
+it("create a Mew and get followed creators mews", async () => {
   await runScenario(
     async (scenario) => {
       // Set up the app to be installed
@@ -58,7 +58,7 @@ test("create a Mew and get followed creators mews", async () => {
   );
 });
 
-test("Followed creators mews should include mews of followed creator", async () => {
+it("Followed creators mews should include mews of followed creator", async () => {
   await runScenario(
     async (scenario) => {
       // Set up the app to be installed
@@ -92,8 +92,9 @@ test("Followed creators mews should include mews of followed creator", async () 
         fn_name: "get_my_followed_creators_mews_with_context",
         payload: null,
       });
-      assert.ok(
-        bobMewsFeedInitial.length === 0,
+      assert.equal(
+        bobMewsFeedInitial.length,
+        0,
         "bob's mews feed is initially empty"
       );
 
@@ -108,7 +109,7 @@ test("Followed creators mews should include mews of followed creator", async () 
         fn_name: "get_my_followed_creators_mews_with_context",
         payload: null,
       });
-      assert.ok(bobMewsFeed.length === 1, "bob's mews feed includes 1 mew");
+      assert.equal(bobMewsFeed.length, 1, "bob's mews feed includes 1 mew");
       assert.equal(
         bobMewsFeed[0].mew.text,
         mewContent,
@@ -120,7 +121,7 @@ test("Followed creators mews should include mews of followed creator", async () 
   );
 });
 
-test("Followed creators mews should include own mews", async () => {
+it("Followed creators mews should include own mews", async () => {
   await runScenario(
     async (scenario) => {
       // Set up the app to be installed
@@ -139,8 +140,9 @@ test("Followed creators mews should include own mews", async () => {
         fn_name: "get_my_followed_creators_mews_with_context",
         payload: null,
       });
-      assert.ok(
-        aliceMewsFeedInitial.length === 0,
+      assert.equal(
+        aliceMewsFeedInitial.length,
+        0,
         "alice's mews feed is initially empty"
       );
 
@@ -161,8 +163,9 @@ test("Followed creators mews should include own mews", async () => {
         fn_name: "get_my_followed_creators_mews_with_context",
         payload: null,
       });
-      assert.ok(
-        aliceMewsFeed.length === 1,
+      assert.equal(
+        aliceMewsFeed.length,
+        1,
         "alice's mews feed includes her mew"
       );
       assert.equal(
@@ -176,7 +179,7 @@ test("Followed creators mews should include own mews", async () => {
   );
 });
 
-test("Followed creators mews should not include mews of non-followed creator", async () => {
+it("Followed creators mews should not include mews of non-followed creator", async () => {
   await runScenario(
     async (scenario) => {
       // Set up the app to be installed
@@ -230,7 +233,7 @@ test("Followed creators mews should not include mews of non-followed creator", a
         fn_name: "get_my_followed_creators_mews_with_context",
         payload: null,
       });
-      assert.ok(bobMewsFeed.length === 1, "bob's mews feed includes 1 mew");
+      assert.equal(bobMewsFeed.length, 1, "bob's mews feed includes 1 mew");
       assert.equal(
         bobMewsFeed[0].mew.text,
         aliceMewContent,
@@ -242,7 +245,7 @@ test("Followed creators mews should not include mews of non-followed creator", a
   );
 });
 
-test("Unfollowing should exclude creators mews from feed", async () => {
+it("Unfollowing should exclude creators mews from feed", async () => {
   await runScenario(
     async (scenario) => {
       // Set up the app to be installed
@@ -283,8 +286,9 @@ test("Unfollowing should exclude creators mews from feed", async () => {
         fn_name: "get_my_followed_creators_mews_with_context",
         payload: null,
       });
-      assert.ok(
-        bobMewsFeedWhenFollowing.length === 1,
+      assert.equal(
+        bobMewsFeedWhenFollowing.length,
+        1,
         "bob's mews feed includes 1 mew"
       );
       assert.equal(
@@ -304,14 +308,14 @@ test("Unfollowing should exclude creators mews from feed", async () => {
         fn_name: "get_my_followed_creators_mews_with_context",
         payload: null,
       });
-      assert.ok(bobMewsFeed.length === 0, "bob's mews feed is empty");
+      assert.equal(bobMewsFeed.length, 0, "bob's mews feed is empty");
     },
     true,
     { timeout: 500000 }
   );
 });
 
-test("Followed creators mews should be ordered by timestamp in descending order", async () => {
+it("Followed creators mews should be ordered by timestamp in descending order", async () => {
   await runScenario(
     async (scenario) => {
       // Set up the app to be installed
@@ -395,8 +399,9 @@ test("Followed creators mews should be ordered by timestamp in descending order"
         fn_name: "get_my_followed_creators_mews_with_context",
         payload: null,
       });
-      assert.ok(
-        aliceMewsFeed.length === 4,
+      assert.equal(
+        aliceMewsFeed.length,
+        4,
         "alice's mews feed includes all 4 mews"
       );
       assert.equal(
@@ -425,7 +430,7 @@ test("Followed creators mews should be ordered by timestamp in descending order"
   );
 });
 
-test("Followed creators mews list are time-paginated", async () => {
+it("Followed creators mews list are time-paginated", async () => {
   await runScenario(
     async (scenario) => {
       // Set up the app to be installed

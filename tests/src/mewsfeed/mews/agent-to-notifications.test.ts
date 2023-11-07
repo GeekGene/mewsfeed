@@ -1,6 +1,6 @@
 import { ActionHash } from "@holochain/client";
 import { dhtSync, runScenario } from "@holochain/tryorama";
-import { assert, expect, test } from "vitest";
+import { assert, expect, it } from "vitest";
 import {
   FeedMew,
   Mew,
@@ -11,7 +11,7 @@ import {
 import { mewsfeedAppBundleSource } from "../../common";
 import { createMew } from "./common";
 
-test("notifications include my agent follows & unfollows", async () => {
+it("notifications include my agent follows & unfollows", async () => {
   await runScenario(
     async (scenario) => {
       // Set up the app to be installed
@@ -80,7 +80,7 @@ test("notifications include my agent follows & unfollows", async () => {
   );
 });
 
-test("notifications include my mews' likes & unlikes", async () => {
+it("notifications include my mews' likes & unlikes", async () => {
   await runScenario(
     async (scenario) => {
       // Set up the app to be installed
@@ -161,7 +161,7 @@ test("notifications include my mews' likes & unlikes", async () => {
   );
 });
 
-test("notifications include my mews' pins & unpins", async () => {
+it("notifications include my mews' pins & unpins", async () => {
   await runScenario(
     async (scenario) => {
       // Set up the app to be installed
@@ -242,7 +242,7 @@ test("notifications include my mews' pins & unpins", async () => {
   );
 });
 
-test("notifications include my mews' replies, quotes, mewmews", async () => {
+it("notifications include my mews' replies, quotes, mewmews", async () => {
   await runScenario(
     async (scenario) => {
       // Set up the app to be installed
@@ -354,7 +354,7 @@ test("notifications include my mews' replies, quotes, mewmews", async () => {
   );
 });
 
-test("notifications include replies, quotes, mewmews to mews that I also responded to", async () => {
+it("notifications include replies, quotes, mewmews to mews that I also responded to", async () => {
   await runScenario(
     async (scenario) => {
       // Set up the app to be installed
@@ -484,7 +484,7 @@ test("notifications include replies, quotes, mewmews to mews that I also respond
   );
 });
 
-test("notifications list is time-paginated", async () => {
+it("notifications list is time-paginated", async () => {
   await runScenario(
     async (scenario) => {
       // Set up the app to be installed

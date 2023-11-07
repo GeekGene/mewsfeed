@@ -1,13 +1,13 @@
 import { ActionHash } from "@holochain/client";
 import { runScenario } from "@holochain/tryorama";
-import { assert, expect, test } from "vitest";
+import { assert, expect, it } from "vitest";
 import { Mew, MewTypeName } from "../../../../ui/src/types/types.js";
 import {
   mewsfeedAppBundleSource,
   mewsfeedAppBundleSourceNoLengthLimits,
 } from "../../common.js";
 
-test("Mew must not be longer than DNA property mew_characters_max chars", async () => {
+it("Mew must not be longer than DNA property mew_characters_max chars", async () => {
   await runScenario(
     async (scenario) => {
       // Set up the app to be installed
@@ -57,7 +57,7 @@ test("Mew must not be longer than DNA property mew_characters_max chars", async 
   );
 });
 
-test("Mew must not be shorter than DNA property mew_characters_min chars", async () => {
+it("Mew must not be shorter than DNA property mew_characters_min chars", async () => {
   await runScenario(
     async (scenario) => {
       // Set up the app to be installed
@@ -107,7 +107,7 @@ test("Mew must not be shorter than DNA property mew_characters_min chars", async
   );
 });
 
-test("Mew can be any length if DNA property mew_characters_min and mew_characters_max not set", async () => {
+it("Mew can be any length if DNA property mew_characters_min and mew_characters_max not set", async () => {
   await runScenario(
     async (scenario) => {
       // Set up the app to be installed
@@ -162,7 +162,7 @@ test("Mew can be any length if DNA property mew_characters_min and mew_character
   );
 });
 
-test("Can get deserialized DNA Properties", async () => {
+it("Can get deserialized DNA Properties", async () => {
   await runScenario(
     async (scenario) => {
       // Set up the app to be installed
