@@ -50,7 +50,7 @@ it("Hashtag, cashtag and mention", async () => {
           hashtag: "#hashtag",
         },
       });
-      assert.ok(hashtaggedMews.length === 1, "one mew with hashtag");
+      assert.equal(hashtaggedMews.length, 1, "one mew with hashtag");
       assert.equal(
         hashtaggedMews[0].mew.text,
         mewContent,
@@ -82,7 +82,7 @@ it("Hashtag, cashtag and mention", async () => {
           hashtag: "#😃😃😃",
         },
       });
-      assert.ok(emojiHashtaggedMews.length === 0, "no mew with emoji hashtag");
+      assert.equal(emojiHashtaggedMews.length, 0, "no mew with emoji hashtag");
 
       const cashtaggedMews: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -91,7 +91,7 @@ it("Hashtag, cashtag and mention", async () => {
           cashtag: "$cashtag",
         },
       });
-      assert.ok(cashtaggedMews.length === 1, "one mew with cashtag");
+      assert.equal(cashtaggedMews.length, 1, "one mew with cashtag");
 
       const mentionedMews: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -100,7 +100,7 @@ it("Hashtag, cashtag and mention", async () => {
           mention: alice.agentPubKey,
         },
       });
-      assert.ok(mentionedMews.length === 1, "one mew with mention");
+      assert.equal(mentionedMews.length, 1, "one mew with mention");
     },
     true,
     { timeout: 500000 }
@@ -148,7 +148,7 @@ it("Prefix index should return hashtags and cashtags", async () => {
           limit: 10,
         },
       });
-      assert.ok(hashtags.length === 1, "one hashtag");
+      assert.equal(hashtags.length, 1, "one hashtag");
       assert.equal(hashtags[0], "#hashtag", "hashtag search result matches");
 
       const arabicHashtags: string[] = await alice.cells[0].callZome({
@@ -159,7 +159,7 @@ it("Prefix index should return hashtags and cashtags", async () => {
           limit: 10,
         },
       });
-      assert.ok(arabicHashtags.length === 1, "one arabic hashtag");
+      assert.equal(arabicHashtags.length, 1, "one arabic hashtag");
       assert.equal(
         arabicHashtags[0],
         "#سعيدة",
@@ -175,7 +175,7 @@ it("Prefix index should return hashtags and cashtags", async () => {
           limit: 10,
         },
       });
-      assert.ok(emojiHashtags.length === 0, "no emoji hashtags");
+      assert.equal(emojiHashtags.length, 0, "no emoji hashtags");
 
       const cashtags: string[] = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -185,7 +185,7 @@ it("Prefix index should return hashtags and cashtags", async () => {
           limit: 10,
         },
       });
-      assert.ok(cashtags.length === 1, "one cashtag");
+      assert.equal(cashtags.length, 1, "one cashtag");
       assert.equal(cashtags[0], "$cashtag", "hashtag search result matches");
     },
     true,

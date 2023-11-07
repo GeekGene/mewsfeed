@@ -63,7 +63,7 @@ it("Agent can reply to a mew", async () => {
       "mew is an original mew"
     );
     assert.equal(originalMew.mew.text, aliceMewContent, "mew is alice's mew");
-    assert.ok(originalMew.replies_count === 1, "original mew has 1 reply");
+    assert.equal(originalMew.replies_count, 1, "original mew has 1 reply");
     assert.isTrue(
       originalMew.is_replied,
       "original mew's reply is alice's reply"
@@ -130,7 +130,7 @@ it("Agent can mewmew a mew, only once", async () => {
         "mew is an original mew"
       );
       assert.equal(originalMew.mew.text, aliceMewContent, "mew is alice's mew");
-      assert.ok(originalMew.mewmews_count === 1, "original mew has 1 mewmew");
+      assert.equal(originalMew.mewmews_count, 1, "original mew has 1 mewmew");
       assert.isTrue(
         originalMew.is_mewmewed,
         "original mew's mewmew is alice's mewmew"
@@ -207,7 +207,7 @@ it("Agent can quote a mew", async () => {
         "mew is an original mew"
       );
       assert.equal(originalMew.mew.text, aliceMewContent, "mew is alice's mew");
-      assert.ok(originalMew.quotes_count === 1, "original mew has 1 quote");
+      assert.equal(originalMew.quotes_count, 1, "original mew has 1 quote");
       assert.isTrue(
         originalMew.is_quoted,
         "original mew's quote is alice's quote"

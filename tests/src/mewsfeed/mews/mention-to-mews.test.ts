@@ -54,7 +54,7 @@ it("mention in mews", async () => {
           mention: bob.agentPubKey,
         },
       });
-      assert.ok(mentionedMewsBob.length === 2, "one mew with mention");
+      assert.equal(mentionedMewsBob.length, 2, "one mew with mention");
       assert.deepEqual(mentionedMewsBob[0].action_hash, actionHash2);
 
       const mentionedMewsAlice: FeedMew[] = await alice.cells[0].callZome({
@@ -64,7 +64,7 @@ it("mention in mews", async () => {
           mention: alice.agentPubKey,
         },
       });
-      assert.ok(mentionedMewsAlice.length === 1, "one mew with mention");
+      assert.equal(mentionedMewsAlice.length, 1, "one mew with mention");
       assert.deepEqual(mentionedMewsAlice[0].action_hash, actionHash3);
     },
     true,
