@@ -9,6 +9,8 @@
   "scripts": {
     "start": "npm run network",
     "local-services": "hc run-local-services -b 54000 -s 55000",
+    "wasmer-test": "npm run build:happ && UI_PORT=8888 npm run wasmer-start:agent",
+    "wasmer-start:agent": "HC_PORT=$(get-port) HC_ADMIN_PORT=65000 npm run start:browser -w ui",
     "network": "npm run build:happ && UI_PORT=8888 concurrently \"npm run playground\" \"npm run local-services\" \"npm run start:agent\" \"npm run start:agent\"",
     "start:agent": "HC_PORT=$(get-port) HC_ADMIN_PORT=$(get-port) concurrently \"npm run launch:happ\" \"npm run start:browser -w ui\"",
     "launch:happ": "hc s clean && echo pass | RUST_LOG=warn hc s --piped -f=$HC_ADMIN_PORT generate ./workdir/mewsfeed.happ --run=$HC_PORT -a mewsfeed network -b http://127.0.0.1:54000 webrtc ws://127.0.0.1:55000",

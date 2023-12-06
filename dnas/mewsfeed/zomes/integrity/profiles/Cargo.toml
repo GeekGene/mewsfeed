@@ -8,7 +8,9 @@ crate-type = ["cdylib", "rlib"]
 name = "profiles_integrity"
 
 [dependencies]
-hc_zome_profiles_integrity = { git = "https://github.com/holochain-open-dev/profiles", branch = "build/holochain-0.3.x", module = "crates/integrity" }
+hc_zome_profiles_integrity = {path = "../../../../../../profiles/crates/integrity"}
+# hc_zome_profiles_integrity = {git = "https://github.com/holochain-open-dev/profiles.git", branch = "build/holochain-0.3.x"}
+# hc_zome_profiles_integrity = "0.2.0"
 
 hdi = { workspace = true }
 

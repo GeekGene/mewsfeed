@@ -79,13 +79,14 @@ onMounted(() => {
 
 const setup = async () => {
   // Setup client
-  if (IS_HOLO_HOSTED) {
-    client.value = await setupHolo();
-  } else {
-    client.value = await asyncRetry(setupHolochain, {
-      factor: 1.3,
-    });
-  }
+  // if (IS_HOLO_HOSTED) {
+  //   client.value = await setupHolo();
+  // } else {
+  client.value = await setupHolochain();
+  // client.value = await asyncRetry(setupHolochain, {
+  //   factor: 1.3,
+  // });
+  // }
 
   await asyncRetry(setupApp, {
     factor: 1.3,
