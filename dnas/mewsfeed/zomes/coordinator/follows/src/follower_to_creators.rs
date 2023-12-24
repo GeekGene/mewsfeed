@@ -21,6 +21,14 @@ pub struct FollowTopicInput {
     pub weight: String,
 }
 
+#[derive(Debug, Serialize, Deserialize, SerializedBytes)]
+#[serde(rename_all = "camelCase")]
+pub struct TrustedFeedInput {
+    pub agent: AgentPubKey,
+    pub topic: String,
+    pub weight: String,
+}
+
 #[hdk_extern]
 pub fn add_creator_for_follower(input: AddCreatorForFollowerInput) -> ExternResult<()> {
     let _: TrustAtom = call_local_zome(

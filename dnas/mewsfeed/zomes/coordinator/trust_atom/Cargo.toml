@@ -9,7 +9,7 @@ name = "trust_atom_zome"
 
 [dependencies]
 trust_atom = { git = "https://github.com/trustgraph/trustgraph-holochain.git", package = "trust_atom", branch = "mewsfeed-hackathon-10-17-23" }
-
+trust_atom_types = { workspace = true }
 follows = { workspace = true }
 mews_types = { workspace = true }
 

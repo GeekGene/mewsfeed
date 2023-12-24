@@ -1,20 +1,39 @@
 #![warn(warnings)]
 
+use futures::future::join_all;
 use serial_test::serial;
 
 use hdk::prelude::*;
 use holochain::conductor::config::ConductorConfig;
 use holochain::sweettest::{
-    SweetCell, SweetConductor, SweetConductorBatch, SweetDnaFile, SweetZome,
+    SweetAgents, SweetAppBatch, SweetCell, SweetConductor, SweetConductorBatch, SweetDnaFile,
+    SweetZome,
 };
-use holochain::test_utils::consistency_60s;
+use holochain::test_utils::consistency_10s;
 
-use follows::follower_to_creators::{FollowInput, FollowTopicInput};
+use trust_atom_types::{QueryInput, TrustAtom};
+
+use follows::follower_to_creators::{FollowInput, FollowTopicInput, TrustedFeedInput};
 use mews_types::{FeedMew, Mew, MewType};
 
 const DNA_FILEPATH: &str = "../../../workdir/mewsfeed.dna";
 const MEWS_ZOME_NAME: &str = "mews";
 const FOLLOWS_ZOME_NAME: &str = "follows";
+const TRUST_ATOM_ZOME_NAME: &str = "trust_atom";
+
+// Map of Follows for convenience calculations:
+// Ann -> Bob in HC 0.5
+// Ann -> Cat in HC 1.0
+// Ann -> Dave in HC 0.25
+// Ann -> Bob in BC 0.1
+// Ann -> Cat in BC 0
+// Ann -> Dave in BC 0.55
+//
+// Feed order should be:
+// HC
+// Cat,Bob,Dave
+// BC
+// Dave,Bob (Cat excluded because of 0 value)
 
 #[tokio::test(flavor = "multi_thread")]
 #[serial]
@@ -203,7 +222,7 @@ async fn trusted_feed_based_on_follow_topics_ordered_by_weight() {
     //     })
     //     .await;
 
-    consistency_60s([
+    consistency_10s([
         &(ann.cell.clone()),
         &(bob.cell.clone()),
         &(cat.cell.clone()),
@@ -213,20 +232,57 @@ async fn trusted_feed_based_on_follow_topics_ordered_by_weight() {
     ])
     .await;
 
-    // WIP //
-    let trusted_feed = ann
-        .trusted_feed_weighted(FollowTopicInput {
+    // Show all mews on holochain topic above 0 threshold
+    let trusted_feed_holochain_topic_positive = ann
+        .trusted_feed_weighted(TrustedFeedInput {
+            agent: ann.pubkey.clone(),
             topic: "holochain".to_string(),
-            weight: "0.001".to_string(),
+            weight: "0.000001".to_string(),
         })
         .await;
 
-    println!("trusted feed: {:#?}", trusted_feed.clone());
+    println!(
+        "trusted feed: {:#?}",
+        trusted_feed_holochain_topic_positive.clone()
+    );
 
-    // assert_eq!(
-    //     trusted_feed[0].mew.text,
-    //     String::from("#holochain from cat, weight 1.0")
-    // );
+    assert!(trusted_feed_holochain_topic_positive.len() == 3);
+    assert_eq!(
+        trusted_feed_holochain_topic_positive[0].mew.text,
+        String::from("#holochain from cat, weight 1.0")
+    );
+    assert_eq!(
+        trusted_feed_holochain_topic_positive[1].mew.text,
+        String::from("#holochain from bob, weight 0.5")
+    );
+    assert_eq!(
+        trusted_feed_holochain_topic_positive[2].mew.text,
+        String::from("#holochain from dave, weight 0.25")
+    );
+
+    // Show all mews on blockchain topic above 0 threshold
+    let trusted_feed_blockchain_topic_positive = ann
+        .trusted_feed_weighted(TrustedFeedInput {
+            agent: ann.pubkey.clone(),
+            topic: "blockchain".to_string(),
+            weight: "0.000001".to_string(),
+        })
+        .await;
+
+    println!(
+        "trusted feed: {:#?}",
+        trusted_feed_blockchain_topic_positive.clone()
+    );
+
+    assert!(trusted_feed_blockchain_topic_positive.len() == 2);
+    assert_eq!(
+        trusted_feed_blockchain_topic_positive[0].mew.text,
+        String::from("#blockchain from dave, weight 0.55")
+    );
+    assert_eq!(
+        trusted_feed_blockchain_topic_positive[1].mew.text,
+        String::from("#blockchain from bob, weight 0.1")
+    );
 }
 
 //
@@ -241,6 +297,7 @@ pub struct Agent<'a> {
     pub pubkey: AgentPubKey,
     pub mews_zome: SweetZome,
     pub follows_zome: SweetZome,
+    pub trust_atom_zome: SweetZome,
 }
 
 impl Agent<'_> {
@@ -260,8 +317,7 @@ impl Agent<'_> {
     //     self.conductor.call(&self.zome, "recommended", input).await
     // }
 
-    pub async fn trusted_feed_weighted(&self, input: FollowTopicInput) -> Vec<FeedMew> {
-        // BROKEN?
+    pub async fn trusted_feed_weighted(&self, input: TrustedFeedInput) -> Vec<FeedMew> {
         self.conductor
             .call(
                 &self.mews_zome,
@@ -293,6 +349,7 @@ impl AgentGroup {
             pubkey: ann_cell.agent_pubkey().clone(),
             mews_zome: ann_cell.zome(MEWS_ZOME_NAME),
             follows_zome: ann_cell.zome(FOLLOWS_ZOME_NAME),
+            trust_atom_zome: ann_cell.zome(TRUST_ATOM_ZOME_NAME),
         };
         let bob = Agent {
             cell: bob_cell.clone(),
@@ -300,6 +357,7 @@ impl AgentGroup {
             pubkey: bob_cell.agent_pubkey().clone(),
             mews_zome: bob_cell.zome(MEWS_ZOME_NAME),
             follows_zome: bob_cell.zome(FOLLOWS_ZOME_NAME),
+            trust_atom_zome: bob_cell.zome(TRUST_ATOM_ZOME_NAME),
         };
         let cat = Agent {
             cell: cat_cell.clone(),
@@ -307,6 +365,7 @@ impl AgentGroup {
             pubkey: cat_cell.agent_pubkey().clone(),
             mews_zome: cat_cell.zome(MEWS_ZOME_NAME),
             follows_zome: cat_cell.zome(FOLLOWS_ZOME_NAME),
+            trust_atom_zome: cat_cell.zome(TRUST_ATOM_ZOME_NAME),
         };
         let dave = Agent {
             cell: dave_cell.clone(),
@@ -314,6 +373,7 @@ impl AgentGroup {
             pubkey: dave_cell.agent_pubkey().clone(),
             mews_zome: dave_cell.zome(MEWS_ZOME_NAME),
             follows_zome: dave_cell.zome(FOLLOWS_ZOME_NAME),
+            trust_atom_zome: dave_cell.zome(TRUST_ATOM_ZOME_NAME),
         };
         // let emma = Agent {
         //     cell: emma_cell.clone(),

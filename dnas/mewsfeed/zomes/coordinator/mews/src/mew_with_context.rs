@@ -2,12 +2,12 @@ use crate::hashtag_to_mews::get_mews_for_hashtag_by_author_with_context;
 use crate::licker_to_mews::*;
 use crate::mew_to_responses::*;
 use crate::pinner_to_mews::get_is_hash_pinned;
-use follows::follower_to_creators::FollowTopicInput;
+use follows::follower_to_creators::TrustedFeedInput;
 use hc_call_utils::call_local_zome;
 use hdk::prelude::*;
 use mews_integrity::*;
 use mews_types::Profile;
-use trust_atom_types::{QueryMineInput, TrustAtom};
+use trust_atom_types::{QueryInput, TrustAtom};
 
 #[hdk_extern]
 pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedMew> {
@@ -157,7 +157,7 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
 
 #[hdk_extern]
 pub fn get_batch_mews_with_context_based_on_topic_and_weight_threshold(
-    input: FollowTopicInput,
+    input: TrustedFeedInput,
 ) -> ExternResult<Vec<FeedMew>> {
     let topic = input.topic;
     let min_weight = input.weight.parse::<f32>();
@@ -165,47 +165,52 @@ pub fn get_batch_mews_with_context_based_on_topic_and_weight_threshold(
     if let Ok(weight) = min_weight {
         let trust_atoms_by_topic: Vec<TrustAtom> = call_local_zome(
             "trust_atom",
-            "query_mine",
-            QueryMineInput {
+            "query",
+            QueryInput {
+                source: Some(AnyLinkableHash::from(input.agent)), // ?TODO: handle potential conversion error
                 target: None,
-                content_full: Some(topic.clone()), // query by agent rated in a certain topic
+                content_full: Some(topic.clone()), // query by topic
                 content_starts_with: None,
                 value_starts_with: None,
             },
         )?;
 
-        let weighted_filter = // CAUTION: this may be broken
-            trust_atoms_by_topic
-                .into_iter()
-                .filter_map(|atom| match atom.value.clone() {
-                    Some(value_string) => {
-                        let value_float: Result<f32, _> = value_string.parse::<f32>(); // TODO: find way to escape iterator with an error
-                        if let Ok(value) = value_float {
-                            if value >= weight {
-                                Some(atom)
-                            } else {
-                                None
-                            }
+        // debug!("trust_atoms: {:#?}", trust_atoms_by_topic.clone());
+
+        let weighted_filter: Vec<TrustAtom> = trust_atoms_by_topic
+            .clone()
+            .into_iter()
+            .filter_map(|atom| match atom.value.clone() {
+                Some(value_string) => {
+                    let value_float: Result<f32, _> = value_string.parse::<f32>(); // TODO: find way to escape iterator with an error
+                    if let Ok(value) = value_float {
+                        if value >= weight {
+                            Some(atom)
                         } else {
                             None
                         }
+                    } else {
+                        None
                     }
-                    None => None,
-                });
+                }
+                None => None,
+            })
+            .collect();
 
-        debug!("trust_atoms: {:#?}", weighted_filter.clone());
+        // debug!("weighted_filter: {:#?}", weighted_filter.clone());
 
         let mut weighted_trust_feed_mews: Vec<FeedMew> = Vec::new();
 
-        for atom in weighted_filter {
+        for atom in weighted_filter.clone() {
             let agent = atom.target_hash.into_agent_pub_key();
             if let Some(pubkey) = agent {
-                let mut mews = get_mews_for_hashtag_by_author_with_context(topic.clone(), pubkey)?;
-                for mew in &mut mews {
-                    mew.topic = Some(topic.clone());
-                    mew.weight = atom.value.clone();
+                let mut feed_mews =
+                    get_mews_for_hashtag_by_author_with_context(topic.clone(), pubkey)?;
+                for feed_mew in &mut feed_mews {
+                    feed_mew.topic = atom.content.clone();
+                    feed_mew.weight = atom.value.clone();
                 }
-                weighted_trust_feed_mews.append(&mut mews);
+                weighted_trust_feed_mews.append(&mut feed_mews);
             } else {
                 return Err(wasm_error!(
                     "error converting target hash, should be an agent pubkey"
@@ -213,20 +218,20 @@ pub fn get_batch_mews_with_context_based_on_topic_and_weight_threshold(
             }
         }
 
-        weighted_trust_feed_mews.sort_by(|a, b| a.weight.cmp(&b.weight));
+        weighted_trust_feed_mews.sort_by(|a, b| b.weight.cmp(&a.weight));
 
-        println!("weighted feed: {:#?}", weighted_trust_feed_mews.clone());
+        // debug!("weighted feed: {:#?}", weighted_trust_feed_mews.clone());
 
-        // debug!(
-        //     "trust_feed_mews: {:#?}",
-        //     weighted_trust_feed_mews
-        //         .clone()
-        //         .into_iter()
-        //         .map(|feed_mew| feed_mew.clone().mew.text)
-        //         .collect::<Vec<String>>()
-        // );
+        debug!(
+            "trust_feed_mews: {:#?}",
+            weighted_trust_feed_mews
+                .clone()
+                .into_iter()
+                .map(|feed_mew| feed_mew.clone().mew.text)
+                .collect::<Vec<String>>()
+        );
 
-        Ok(weighted_trust_feed_mews)
+        Ok(weighted_trust_feed_mews.clone())
     } else {
         Err(wasm_error!("could not parse weight"))
     }

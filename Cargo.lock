@@ -6895,6 +6895,7 @@ dependencies = [
  "serial_test",
  "tokio",
  "trust_atom",
+ "trust_atom_types",
 ]
 
 [[package]]
