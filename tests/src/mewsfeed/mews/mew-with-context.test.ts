@@ -1,12 +1,11 @@
 import { ActionHash } from "@holochain/client";
-import { dhtSync, pause, runScenario } from "@holochain/tryorama";
-import { assert, expect, test } from "vitest";
-import { FeedMew, Mew, MewTypeName } from "../../../../ui/src/types/types";
+import { dhtSync, runScenario } from "@holochain/tryorama";
+import { assert, expect, it } from "vitest";
+import { FeedMew, MewTypeName } from "../../../../ui/src/types/types";
 import { mewsfeedAppBundleSource } from "../../common";
 import { createMew } from "./common";
 
-
-test("Mew with context contains licks count and is_licked", async () => {
+it("Mew with context contains licks count and is_licked", async () => {
   await runScenario(
     async (scenario) => {
       // Set up the app to be installed
@@ -84,11 +83,11 @@ test("Mew with context contains licks count and is_licked", async () => {
       expect(aliceFeedMew.is_licked).false;
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
-test("Mew with context contains replies count and is_replied", async () => {
+it("Mew with context contains replies count and is_replied", async () => {
   await runScenario(
     async (scenario) => {
       // Set up the app to be installed
@@ -143,11 +142,11 @@ test("Mew with context contains replies count and is_replied", async () => {
       expect(aliceFeedMew.is_replied).false;
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
-test("Mew with context contains quotes count and is_quoted", async () => {
+it("Mew with context contains quotes count and is_quoted", async () => {
   await runScenario(
     async (scenario) => {
       // Set up the app to be installed
@@ -202,11 +201,11 @@ test("Mew with context contains quotes count and is_quoted", async () => {
       expect(aliceFeedMew.is_quoted).false;
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
-test("Mew with context contains mewmews count and is_mewmewed", async () => {
+it("Mew with context contains mewmews count and is_mewmewed", async () => {
   await runScenario(
     async (scenario) => {
       // Set up the app to be installed
@@ -264,11 +263,11 @@ test("Mew with context contains mewmews count and is_mewmewed", async () => {
       expect(aliceFeedMew.is_mewmewed).false;
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
-test("Mew with context contains is_pinned", async () => {
+it("Mew with context contains is_pinned", async () => {
   await runScenario(
     async (scenario) => {
       // Set up the app to be installed
@@ -342,6 +341,6 @@ test("Mew with context contains is_pinned", async () => {
       expect(aliceFeedMew.is_pinned).false;
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });

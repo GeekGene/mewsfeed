@@ -1,9 +1,9 @@
-import { assert, test } from "vitest";
+import { assert, it } from "vitest";
 
-import { runScenario, dhtSync } from "@holochain/tryorama";
 import { AgentPubKey, HoloHash, fakeActionHash } from "@holochain/client";
+import { dhtSync, runScenario } from "@holochain/tryorama";
 
-test("link a Pinner to a Hash", async () => {
+it("link a Pinner to a Hash", async () => {
   await runScenario(
     async (scenario) => {
       // Construct proper paths for your app.

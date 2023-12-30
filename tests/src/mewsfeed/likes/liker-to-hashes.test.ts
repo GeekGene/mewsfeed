@@ -1,9 +1,9 @@
-import { assert, expect, test } from "vitest";
-import { runScenario, dhtSync } from "@holochain/tryorama";
 import { Record, fakeActionHash } from "@holochain/client";
+import { dhtSync, runScenario } from "@holochain/tryorama";
+import { assert, expect, it } from "vitest";
 import { mewsfeedAppBundleSource } from "../../common";
 
-test("link a Liker to a Hash", async () => {
+it("link a Liker to a Hash", async () => {
   await runScenario(
     async (scenario) => {
       // Set up the app to be installed
@@ -91,7 +91,7 @@ test("link a Liker to a Hash", async () => {
   );
 });
 
-test("Agent can only change their own likes", async () => {
+it("Agent can only change their own likes", async () => {
   await runScenario(
     async (scenario) => {
       // Set up the app to be installed
@@ -128,10 +128,7 @@ test("Agent can only change their own likes", async () => {
           target_hash: targetAddress,
         },
       });
-      await expect(response).rejects.toHaveProperty(
-        "data.data",
-        expect.stringContaining("InvalidCommit")
-      );
+      await expect(response).rejects.toThrowError(/InvalidCommit/);
 
       // Alice removes her own like
       await alice.cells[0].callZome({
@@ -151,10 +148,7 @@ test("Agent can only change their own likes", async () => {
           target_hash: targetAddress,
         },
       });
-      await expect(response2).rejects.toHaveProperty(
-        "data.data",
-        expect.stringContaining("InvalidCommit")
-      );
+      await expect(response2).rejects.toThrowError(/InvalidCommit/);
     },
     true,
     { timeout: 500000 }
