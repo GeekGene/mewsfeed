@@ -8,21 +8,18 @@ use mews_types::FOLLOW_TOPIC;
 use trust_atom_types::{DeleteReport, QueryInput, TrustAtom, TrustAtomInput};
 
 #[derive(Debug, Serialize, Deserialize, SerializedBytes)]
-#[serde(rename_all = "camelCase")]
 pub struct FollowInput {
     pub agent: AgentPubKey,
     pub follow_topics: Vec<FollowTopicInput>,
 }
 
 #[derive(Debug, Serialize, Deserialize, SerializedBytes)]
-#[serde(rename_all = "camelCase")]
 pub struct FollowTopicInput {
     pub topic: String,
     pub weight: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, SerializedBytes)]
-#[serde(rename_all = "camelCase")]
 pub struct TrustedFeedInput {
     pub agent: AgentPubKey,
     pub topic: String,
