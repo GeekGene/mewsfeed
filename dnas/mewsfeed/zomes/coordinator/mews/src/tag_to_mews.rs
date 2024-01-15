@@ -16,7 +16,7 @@ pub fn get_mew_hashes_for_tag(
     let links_page = paginate_by_hash(links, page)?;
     let hashes: Vec<ActionHash> = links_page
         .iter()
-        .filter_map(|l| ActionHash::try_from(l.target.clone()).ok())
+        .filter_map(|l| l.target.clone().into_action_hash())
         .collect();
 
     Ok(hashes)

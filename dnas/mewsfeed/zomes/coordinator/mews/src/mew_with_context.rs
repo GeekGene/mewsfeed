@@ -1,10 +1,13 @@
+use crate::hashtag_to_mews::get_mews_for_hashtag_by_author_with_context;
 use crate::licker_to_mews::*;
 use crate::mew_to_responses::*;
 use crate::pinner_to_mews::get_is_hash_pinned;
+use follows::follower_to_creators::TrustedFeedInput;
 use hc_call_utils::call_local_zome;
 use hdk::prelude::*;
 use mews_integrity::*;
 use mews_types::Profile;
+use trust_atom_types::{QueryInput, TrustAtom};
 
 #[hdk_extern]
 pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedMew> {
@@ -84,6 +87,8 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                     is_replied,
                     is_quoted,
                     original_mew: None,
+                    weight: None, // default is None
+                    topic: None,
                 }),
                 MewType::Reply(response_to_hash)
                 | MewType::Quote(response_to_hash)
@@ -132,6 +137,8 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                                     author_profile: original_mew_author_profile,
                                     deleted_timestamp: original_mew_deleted_timestamp,
                                 }),
+                                weight: None,
+                                topic: None,
                             })
                         }
                         _ => Err(wasm_error!(WasmErrorInner::Guest(String::from(
@@ -144,6 +151,87 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
         _ => Err(wasm_error!(WasmErrorInner::Guest(
             "Expecting get_details to return record, got entry".into()
         ))),
+    }
+}
+
+#[hdk_extern]
+pub fn get_batch_mews_with_context_based_on_topic_and_weight_threshold(
+    input: TrustedFeedInput,
+) -> ExternResult<Vec<FeedMew>> {
+    let topic = input.topic;
+    let min_weight = input.weight.parse::<f32>();
+
+    if let Ok(weight) = min_weight {
+        let trust_atoms_by_topic: Vec<TrustAtom> = call_local_zome(
+            "trust_atom",
+            "query",
+            QueryInput {
+                source: Some(AnyLinkableHash::from(input.agent)),
+                target: None,
+                content_full: Some(topic.clone()), // query by topic
+                content_starts_with: None,
+                value_starts_with: None,
+            },
+        )?;
+
+        let weighted_filter_options: Vec<Option<TrustAtom>> = trust_atoms_by_topic
+            .clone()
+            .into_iter()
+            .map(|atom| -> ExternResult<Option<TrustAtom>> {
+                match atom.value.clone() {
+                    Some(value_string) => {
+                        let value_float = value_string.parse::<f32>().map_err(|_| {
+                            wasm_error!(WasmErrorInner::Guest(
+                                "Failed to parse TrustAtom weight to f32".into()
+                            ))
+                        })?;
+                        if value_float >= weight {
+                            Ok(Some(atom))
+                        } else {
+                            Ok(None)
+                        }
+                    }
+                    None => Ok(None),
+                }
+            })
+            .map(|x| x)
+            .collect::<ExternResult<Vec<Option<TrustAtom>>>>()?;
+        let weighted_filter: Vec<TrustAtom> =
+            weighted_filter_options.into_iter().flatten().collect();
+
+        let mut weighted_trust_feed_mews: Vec<FeedMew> = Vec::new();
+
+        for atom in weighted_filter.clone() {
+            let agent = atom.target_hash.into_agent_pub_key();
+            if let Some(pubkey) = agent {
+                let mut feed_mews =
+                    get_mews_for_hashtag_by_author_with_context(topic.clone(), pubkey)?;
+                for feed_mew in &mut feed_mews {
+                    feed_mew.topic = atom.content.clone();
+                    feed_mew.weight = atom.value.clone();
+                }
+                weighted_trust_feed_mews.append(&mut feed_mews);
+            } else {
+                return Err(wasm_error!(
+                    "error converting target hash, should be an agent pubkey"
+                ));
+            }
+        }
+
+        weighted_trust_feed_mews.sort_by(|a, b| b.weight.cmp(&a.weight));
+
+        debug!(
+            "trust_feed_mews: {:#?}",
+            weighted_trust_feed_mews
+                .clone()
+                .into_iter()
+                .map(|feed_mew| feed_mew.clone().mew.text)
+                .collect::<Vec<String>>()
+        );
+
+        Ok(weighted_trust_feed_mews.clone())
+    } else {
+        Err(wasm_error!("could not parse weight"))
     }
 }
 

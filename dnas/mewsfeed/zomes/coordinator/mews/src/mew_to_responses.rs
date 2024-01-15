@@ -52,7 +52,7 @@ pub fn get_response_hashes_for_mew(
     let links_page = paginate_by_hash(links, input.page)?;
     let hashes: Vec<ActionHash> = links_page
         .into_iter()
-        .filter_map(|link| ActionHash::try_from(link.target).ok())
+        .filter_map(|link| link.target.into_action_hash())
         .collect();
 
     Ok(hashes)
