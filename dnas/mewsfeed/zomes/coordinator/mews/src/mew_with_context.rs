@@ -177,25 +177,30 @@ pub fn get_batch_mews_with_context_based_on_topic_and_weight_threshold(
 
         // debug!("trust_atoms: {:#?}", trust_atoms_by_topic.clone());
 
-        let weighted_filter: Vec<TrustAtom> = trust_atoms_by_topic
+        let weighted_filter_options: Vec<Option<TrustAtom>> = trust_atoms_by_topic
             .clone()
             .into_iter()
-            .filter_map(|atom| match atom.value.clone() {
-                Some(value_string) => {
-                    let value_float: Result<f32, _> = value_string.parse::<f32>(); // TODO: find way to escape iterator with an error
-                    if let Ok(value) = value_float {
-                        if value >= weight {
-                            Some(atom)
+            .map(|atom| -> ExternResult<Option<TrustAtom>> {
+                match atom.value.clone() {
+                    Some(value_string) => {
+                        let value_float = value_string.parse::<f32>().map_err(|_| {
+                            wasm_error!(WasmErrorInner::Guest(
+                                "Failed to parse TrustAtom weight to f32".into()
+                            ))
+                        })?;
+                        if value_float >= weight {
+                            Ok(Some(atom))
                         } else {
-                            None
+                            Ok(None)
                         }
-                    } else {
-                        None
                     }
+                    None => Ok(None),
                 }
-                None => None,
             })
-            .collect();
+            .map(|x| x)
+            .collect::<ExternResult<Vec<Option<TrustAtom>>>>()?;
+        let weighted_filter: Vec<TrustAtom> =
+            weighted_filter_options.into_iter().flatten().collect();
 
         // debug!("weighted_filter: {:#?}", weighted_filter.clone());
 
