@@ -27,7 +27,6 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                     "Malformed mew"
                 ))))?;
             let my_pubkey = agent_info()?.agent_initial_pubkey;
-            // let creator = record.action().author();
 
             let replies_count = count_responses_for_mew(CountResponsesForMewInput {
                 original_mew_hash: original_mew_hash.clone(),
@@ -167,15 +166,13 @@ pub fn get_batch_mews_with_context_based_on_topic_and_weight_threshold(
             "trust_atom",
             "query",
             QueryInput {
-                source: Some(AnyLinkableHash::from(input.agent)), // ?TODO: handle potential conversion error
+                source: Some(AnyLinkableHash::from(input.agent)),
                 target: None,
                 content_full: Some(topic.clone()), // query by topic
                 content_starts_with: None,
                 value_starts_with: None,
             },
         )?;
-
-        // debug!("trust_atoms: {:#?}", trust_atoms_by_topic.clone());
 
         let weighted_filter_options: Vec<Option<TrustAtom>> = trust_atoms_by_topic
             .clone()
@@ -202,8 +199,6 @@ pub fn get_batch_mews_with_context_based_on_topic_and_weight_threshold(
         let weighted_filter: Vec<TrustAtom> =
             weighted_filter_options.into_iter().flatten().collect();
 
-        // debug!("weighted_filter: {:#?}", weighted_filter.clone());
-
         let mut weighted_trust_feed_mews: Vec<FeedMew> = Vec::new();
 
         for atom in weighted_filter.clone() {
@@ -224,8 +219,6 @@ pub fn get_batch_mews_with_context_based_on_topic_and_weight_threshold(
         }
 
         weighted_trust_feed_mews.sort_by(|a, b| b.weight.cmp(&a.weight));
-
-        // debug!("weighted feed: {:#?}", weighted_trust_feed_mews.clone());
 
         debug!(
             "trust_feed_mews: {:#?}",

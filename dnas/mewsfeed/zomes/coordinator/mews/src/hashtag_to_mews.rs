@@ -36,7 +36,6 @@ pub fn add_hashtag_by_author_for_mew(input: AddHashtagForMewInput) -> ExternResu
 
     let me = agent_info()?.agent_latest_pubkey;
     let path_text = format!("{}.{}", tag_text, me);
-    // debug!("path_text on create --- {}", path_text);
 
     let path = prefix_index.add_result(path_text)?;
 

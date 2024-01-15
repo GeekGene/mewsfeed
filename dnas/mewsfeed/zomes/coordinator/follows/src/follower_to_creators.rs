@@ -125,31 +125,6 @@ pub fn remove_creator_for_follower(input: RemoveCreatorForFollowerInput) -> Exte
         AnyLinkableHash::from(input.target_creator),
     )?;
 
-    // let links = get_links(
-    //     input.base_follower.clone(),
-    //     LinkTypes::FollowerToCreators,
-    //     None,
-    // )?;
-
-    // for link in links {
-    //     if AgentPubKey::from(EntryHash::from(link.target.clone())).eq(&input.target_creator) {
-    //         delete_link(link.create_link_hash)?;
-    //     }
-    // }
-
-    // let links = get_links(
-    //     input.target_creator.clone(),
-    //     // TODO trust atoms instead
-    //     // LinkTypes::TrustAtom,
-    //     None,
-    // )?;
-
-    // for link in links {
-    //     if AgentPubKey::from(EntryHash::from(link.target.clone())).eq(&input.base_follower) {
-    //         delete_link(link.create_link_hash)?;
-    //     }
-    // }
-
     Ok(())
 }
 

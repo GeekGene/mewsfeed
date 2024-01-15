@@ -79,24 +79,6 @@ async fn trusted_feed_based_on_follow_topics_ordered_by_weight() {
     })
     .await;
 
-    // ann.follow(FollowInput {
-    //     agent: emma.pubkey.clone(),
-    //     follow_topics: vec![FollowTopicInput {
-    //         topic: String::from("holochain"),
-    //         weight: String::from("0.75"),
-    //     }],
-    // })
-    // .await;
-
-    // ann.follow(FollowInput {
-    //     agent: frank.pubkey.clone(),
-    //     follow_topics: vec![FollowTopicInput {
-    //         topic: String::from("holochain"),
-    //         weight: String::from("-1"), // Negative indicates spam or otherwise matierial to be thrown out
-    //     }],
-    // })
-    // .await;
-
     // #Blockchain
 
     ann.follow(FollowInput {
@@ -126,24 +108,6 @@ async fn trusted_feed_based_on_follow_topics_ordered_by_weight() {
     })
     .await;
 
-    // ann.follow(FollowInput {
-    //     agent: emma.pubkey.clone(),
-    //     follow_topics: vec![FollowTopicInput {
-    //         topic: String::from("blockchain"),
-    //         weight: String::from("0.33"),
-    //     }],
-    // })
-    // .await;
-
-    // ann.follow(FollowInput {
-    //     agent: frank.pubkey.clone(),
-    //     follow_topics: vec![FollowTopicInput {
-    //         topic: String::from("blockchain"),
-    //         weight: String::from("0.9"),
-    //     }],
-    // })
-    // .await;
-
     // MEWS //
 
     // #Holochain
@@ -169,21 +133,6 @@ async fn trusted_feed_based_on_follow_topics_ordered_by_weight() {
     })
     .await;
 
-    // emma.create_mew(Mew {
-    //     mew_type: MewType::Original,
-    //     text: String::from("#holochain from emma, weight 0.75"),
-    //     links: vec![],
-    // })
-    // .await;
-
-    // frank
-    //     .create_mew(Mew {
-    //         mew_type: MewType::Original,
-    //         text: String::from("#holochain from frank, weight -1 should not be seen"),
-    //         links: vec![],
-    //     })
-    //     .await;
-
     // #Blockchain
 
     bob.create_mew(Mew {
@@ -207,28 +156,11 @@ async fn trusted_feed_based_on_follow_topics_ordered_by_weight() {
     })
     .await;
 
-    // emma.create_mew(Mew {
-    //     mew_type: MewType::Original,
-    //     text: String::from("#blockchain from emma, weight 0.33"),
-    //     links: vec![],
-    // })
-    // .await;
-
-    // frank
-    //     .create_mew(Mew {
-    //         mew_type: MewType::Original,
-    //         text: String::from("#blockchain from frank, weight 0.9"),
-    //         links: vec![],
-    //     })
-    //     .await;
-
     consistency_10s([
         &(ann.cell.clone()),
         &(bob.cell.clone()),
         &(cat.cell.clone()),
         &(dave.cell.clone()),
-        // &(emma.cell.clone()),
-        // &(frank.cell.clone()),
     ])
     .await;
 
@@ -313,10 +245,6 @@ impl Agent<'_> {
             .await
     }
 
-    // pub async fn recommended(&self, input: RecommendedInput) -> Vec<FeedMew> {
-    //     self.conductor.call(&self.zome, "recommended", input).await
-    // }
-
     pub async fn trusted_feed_weighted(&self, input: TrustedFeedInput) -> Vec<FeedMew> {
         self.conductor
             .call(
@@ -375,20 +303,6 @@ impl AgentGroup {
             follows_zome: dave_cell.zome(FOLLOWS_ZOME_NAME),
             trust_atom_zome: dave_cell.zome(TRUST_ATOM_ZOME_NAME),
         };
-        // let emma = Agent {
-        //     cell: emma_cell.clone(),
-        //     conductor: self.conductors.get(4).unwrap(),
-        //     pubkey: emma_cell.agent_pubkey().clone(),
-        //     mews_zome: emma_cell.zome(MEWS_ZOME_NAME),
-        //     follows_zome: emma_cell.zome(FOLLOWS_ZOME_NAME),
-        // };
-        // let frank = Agent {
-        //     cell: frank_cell.clone(),
-        //     conductor: self.conductors.get(5).unwrap(),
-        //     pubkey: frank_cell.agent_pubkey().clone(),
-        //     mews_zome: frank_cell.zome(MEWS_ZOME_NAME),
-        //     follows_zome: frank_cell.zome(FOLLOWS_ZOME_NAME),
-        // };
 
         vec![ann, bob, cat, dave]
     }
