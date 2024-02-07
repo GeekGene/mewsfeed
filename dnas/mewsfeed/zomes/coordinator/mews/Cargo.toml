@@ -10,12 +10,12 @@ name = "mews"
 [dependencies]
 hdk = { workspace = true }
 serde = { workspace = true }
-regex = "1"
+regex = { workspace = true }
 mews_integrity = { workspace = true } 
-prefix_index = { git = "https://github.com/holochain-open-dev/holochain-prefix-index", tag = "0.7.0", module = "lib/prefix_index" }
+hc_prefix_index = { workspace = true }
 profiles_integrity = { workspace = true }
 mews_types = { workspace = true }
-rand = "0.8.5"
+rand = { workspace = true }
 hc_call_utils = { workspace = true }
 hc_link_pagination = { workspace = true }
 follows_types = { workspace = true }

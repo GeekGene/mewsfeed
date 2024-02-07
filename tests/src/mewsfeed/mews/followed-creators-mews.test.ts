@@ -104,6 +104,8 @@ it("Followed creators mews should include mews of followed creator", async () =>
         payload: alice.agentPubKey,
       });
 
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
+
       const bobMewsFeed: FeedMew[] = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_my_followed_creators_mews_with_context",

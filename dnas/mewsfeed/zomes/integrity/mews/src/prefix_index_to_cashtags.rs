@@ -1,5 +1,5 @@
 use hdi::prelude::*;
-use prefix_index::PrefixIndex;
+use hc_prefix_index::PrefixIndex;
 
 pub fn validate_create_link_prefix_index_to_cashtags(
     _action: CreateLink,
