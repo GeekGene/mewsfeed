@@ -30,6 +30,7 @@ pub fn get_notifications_for_agent(
             (ZomeIndex(2), vec![LinkType(1)]),
         ]),
         None,
+        GetOptions::default(),
     )?;
 
     let mut all_link_details = agent_mews
@@ -46,6 +47,7 @@ pub fn get_notifications_for_agent(
                     (ZomeIndex(4), vec![LinkType(1)]),
                 ]),
                 None,
+                GetOptions::default(),
             )
         })
         .collect::<ExternResult<Vec<LinkDetails>>>()?;
@@ -189,6 +191,7 @@ pub fn count_notifications_for_agent(agent: AgentPubKey) -> ExternResult<usize> 
             (ZomeIndex(2), vec![LinkType(1)]),
         ]),
         None,
+        GetOptions::default(),
     )?;
 
     let mut all_link_details = agent_mews
@@ -205,6 +208,7 @@ pub fn count_notifications_for_agent(agent: AgentPubKey) -> ExternResult<usize> 
                     (ZomeIndex(4), vec![LinkType(1)]),
                 ]),
                 None,
+                GetOptions::default(),
             )
         })
         .collect::<ExternResult<Vec<LinkDetails>>>()?;

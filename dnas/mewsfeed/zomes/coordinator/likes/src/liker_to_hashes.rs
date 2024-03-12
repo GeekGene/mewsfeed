@@ -33,6 +33,7 @@ pub fn get_hashes_for_liker(liker: AgentPubKey) -> ExternResult<Vec<AnyLinkableH
         after: None,
         before: None,
         author: None,
+        get_options: GetOptions::default(),
     })?;
 
     let hashes: Vec<AnyLinkableHash> = links.into_iter().map(|link| link.target).collect();
@@ -54,10 +55,7 @@ pub fn get_likers_for_hash(hash: AnyLinkableHash) -> ExternResult<Vec<AgentPubKe
 
 #[hdk_extern]
 pub fn count_likers_for_hash(hash: AnyLinkableHash) -> ExternResult<usize> {
-    let query = LinkQuery::new(
-        hash,
-        LinkTypes::HashToLikers.try_into_filter()?,
-    );
+    let query = LinkQuery::new(hash, LinkTypes::HashToLikers.try_into_filter()?);
 
     count_links(query)
 }
@@ -69,11 +67,8 @@ pub struct IsLikerForHashInput {
 }
 #[hdk_extern]
 pub fn is_liker_for_hash(input: IsLikerForHashInput) -> ExternResult<bool> {
-    let query = LinkQuery::new(
-        input.hash,
-        LinkTypes::HashToLikers.try_into_filter()?,
-    )
-    .author(input.liker);
+    let query =
+        LinkQuery::new(input.hash, LinkTypes::HashToLikers.try_into_filter()?).author(input.liker);
 
     let count = count_links(query)?;
 
@@ -89,6 +84,7 @@ pub fn get_liker_links_for_hash(hash: AnyLinkableHash) -> ExternResult<Vec<Link>
         after: None,
         before: None,
         author: None,
+        get_options: GetOptions::default(),
     })?;
     links.dedup_by_key(|l| l.target.clone());
 
@@ -97,7 +93,7 @@ pub fn get_liker_links_for_hash(hash: AnyLinkableHash) -> ExternResult<Vec<Link>
 
 #[hdk_extern]
 pub fn get_liker_link_details_for_hash(hash: AnyLinkableHash) -> ExternResult<LinkDetails> {
-    get_link_details(hash, LinkTypes::HashToLikers, None)
+    get_link_details(hash, LinkTypes::HashToLikers, None, GetOptions::default())
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -114,6 +110,7 @@ pub fn remove_hash_for_liker(input: RemoveHashForLikerInput) -> ExternResult<()>
         after: None,
         before: None,
         author: None,
+        get_options: GetOptions::default(),
     })?;
 
     for link in links {
@@ -129,6 +126,7 @@ pub fn remove_hash_for_liker(input: RemoveHashForLikerInput) -> ExternResult<()>
         after: None,
         before: None,
         author: None,
+        get_options: GetOptions::default(),
     })?;
 
     for link in links {

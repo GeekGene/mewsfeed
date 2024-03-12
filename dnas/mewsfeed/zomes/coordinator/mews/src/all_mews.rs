@@ -10,6 +10,7 @@ pub fn get_all_mew_hashes() -> ExternResult<Vec<ActionHash>> {
         after: None,
         before: None,
         author: None,
+        get_options: GetOptions::default(),
     })?;
     links.sort_by_key(|a| a.timestamp);
     let hashes: Vec<ActionHash> = links

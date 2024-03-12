@@ -43,6 +43,7 @@ pub fn remove_hashtag_for_mew(input: RemoveHashtagForMewInput) -> ExternResult<(
         after: None,
         before: None,
         author: None,
+        get_options: GetOptions::default(),
     })?;
     for link in links {
         let action_hash =

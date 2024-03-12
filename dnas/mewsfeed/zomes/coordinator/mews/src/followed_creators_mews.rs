@@ -58,6 +58,7 @@ fn get_followed_creators_mew_hashes(
                 after: None,
                 before: None,
                 author: None,
+                get_options: GetOptions::default(),
             })
             .ok()
         })

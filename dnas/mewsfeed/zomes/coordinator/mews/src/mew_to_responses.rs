@@ -55,6 +55,7 @@ pub fn get_response_hashes_for_mew(
         after: None,
         before: None,
         author: None,
+        get_options: GetOptions::default(),
     })?;
     let links_page = paginate_by_hash(links, input.page)?;
     let hashes: Vec<ActionHash> = links_page
@@ -162,6 +163,7 @@ pub fn remove_response_for_mew(input: RemoveResponseForMewInput) -> ExternResult
         after: None,
         before: None,
         author: None,
+        get_options: GetOptions::default(),
     })?;
     for link in links {
         let action_hash =

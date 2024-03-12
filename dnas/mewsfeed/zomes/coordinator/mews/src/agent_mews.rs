@@ -35,6 +35,7 @@ fn get_agent_mew_hashes(input: GetAgentMewsInput) -> ExternResult<Vec<ActionHash
         after: None,
         before: None,
         author: None,
+        get_options: GetOptions::default(),
     })?;
 
     let links_slice = paginate_by_hash(links, input.page)?;

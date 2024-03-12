@@ -82,6 +82,7 @@ pub fn delete_mew(original_mew_hash: ActionHash) -> ExternResult<ActionHash> {
         after: None,
         before: None,
         author: None,
+        get_options: GetOptions::default(),
     })?;
     for link in links {
         let action_hash =
@@ -99,6 +100,7 @@ pub fn delete_mew(original_mew_hash: ActionHash) -> ExternResult<ActionHash> {
         after: None,
         before: None,
         author: None,
+        get_options: GetOptions::default(),
     })?;
     for link in links {
         let action_hash =
@@ -110,12 +112,12 @@ pub fn delete_mew(original_mew_hash: ActionHash) -> ExternResult<ActionHash> {
 
     let links = get_links(GetLinksInput {
         base_address: original_mew_hash.clone().into(),
-        link_type: LinkTypes::MewToResponses.try_into_filter()?, 
-
+        link_type: LinkTypes::MewToResponses.try_into_filter()?,
         tag_prefix: None,
         after: None,
         before: None,
         author: None,
+        get_options: GetOptions::default(),
     })?;
     for link in links {
         let action_hash =

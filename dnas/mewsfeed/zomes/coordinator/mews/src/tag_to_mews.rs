@@ -19,6 +19,7 @@ pub fn get_mew_hashes_for_tag(
         after: None,
         before: None,
         author: None,
+        get_options: GetOptions::default(),
     })?;
     let links_page = paginate_by_hash(links, page)?;
     let hashes: Vec<ActionHash> = links_page

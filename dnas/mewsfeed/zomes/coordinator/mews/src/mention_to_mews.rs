@@ -68,6 +68,7 @@ fn get_mew_hashes_for_mention(
         after: None,
         before: None,
         author: None,
+        get_options: GetOptions::default(),
     })?;
     let links_page = paginate_by_hash(links, page)?;
 
@@ -93,6 +94,7 @@ pub fn remove_mention_for_mew(input: RemoveMentionForMewInput) -> ExternResult<(
         after: None,
         before: None,
         author: None,
+        get_options: GetOptions::default(),
     })?;
 
     for link in links {

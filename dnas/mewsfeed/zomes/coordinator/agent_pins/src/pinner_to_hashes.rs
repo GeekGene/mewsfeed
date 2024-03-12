@@ -33,6 +33,7 @@ pub fn get_hashes_for_pinner(pinner: AgentPubKey) -> ExternResult<Vec<AnyLinkabl
         after: None,
         before: None,
         author: None,
+        get_options: GetOptions::default(),
     })?;
 
     let hashes: Vec<AnyLinkableHash> = links.into_iter().map(|link| link.target).collect();
@@ -62,6 +63,7 @@ pub fn get_pinner_links_for_hash(hash: AnyLinkableHash) -> ExternResult<Vec<Link
         after: None,
         before: None,
         author: None,
+        get_options: GetOptions::default(),
     })?;
 
     links.dedup_by_key(|l| l.target.clone());
@@ -71,7 +73,7 @@ pub fn get_pinner_links_for_hash(hash: AnyLinkableHash) -> ExternResult<Vec<Link
 
 #[hdk_extern]
 pub fn get_pinner_link_details_for_hash(hash: AnyLinkableHash) -> ExternResult<LinkDetails> {
-    get_link_details(hash, LinkTypes::HashToPinners, None)
+    get_link_details(hash, LinkTypes::HashToPinners, None, GetOptions::default())
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -88,6 +90,7 @@ pub fn remove_hash_for_pinner(input: RemoveHashForPinnerInput) -> ExternResult<(
         after: None,
         before: None,
         author: None,
+        get_options: GetOptions::default(),
     })?;
 
     for link in links {
@@ -103,6 +106,7 @@ pub fn remove_hash_for_pinner(input: RemoveHashForPinnerInput) -> ExternResult<(
         after: None,
         before: None,
         author: None,
+        get_options: GetOptions::default(),
     })?;
 
     for link in links {

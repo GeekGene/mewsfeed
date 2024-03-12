@@ -32,6 +32,7 @@ pub fn get_creators_for_follower(
         after: None,
         before: None,
         author: None,
+        get_options: GetOptions::default(),
     })?;
 
     let links_page = paginate_by_agentpubkey(links, input.page)?;
@@ -72,7 +73,7 @@ pub fn count_creators_for_follower(follower: AgentPubKey) -> ExternResult<usize>
 pub fn count_followers_for_creator(creator: AgentPubKey) -> ExternResult<usize> {
     count_links(LinkQuery::new(
         creator,
-        LinkTypes::CreatorToFollowers.try_into_filter()?
+        LinkTypes::CreatorToFollowers.try_into_filter()?,
     ))
 }
 
@@ -87,6 +88,7 @@ pub fn get_follower_links_for_creator(
         after: None,
         before: None,
         author: None,
+        get_options: GetOptions::default(),
     })?;
 
     links.dedup_by_key(|l| l.target.clone());
@@ -97,7 +99,12 @@ pub fn get_follower_links_for_creator(
 
 #[hdk_extern]
 pub fn get_follower_link_details_for_creator(creator: AgentPubKey) -> ExternResult<LinkDetails> {
-    let links = get_link_details(creator, LinkTypes::CreatorToFollowers, None)?;
+    let links = get_link_details(
+        creator,
+        LinkTypes::CreatorToFollowers,
+        None,
+        GetOptions::default(),
+    )?;
 
     Ok(links)
 }
@@ -111,6 +118,7 @@ pub fn remove_creator_for_follower(input: RemoveCreatorForFollowerInput) -> Exte
         after: None,
         before: None,
         author: None,
+        get_options: GetOptions::default(),
     })?;
 
     for link in links {
@@ -128,6 +136,7 @@ pub fn remove_creator_for_follower(input: RemoveCreatorForFollowerInput) -> Exte
         after: None,
         before: None,
         author: None,
+        get_options: GetOptions::default(),
     })?;
 
     for link in links {
