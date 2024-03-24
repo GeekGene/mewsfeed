@@ -41,7 +41,6 @@ import {
   ProfilesClient,
   ProfilesStore,
 } from "@holochain-open-dev/profiles";
-import { EntryRecord } from "@holochain-open-dev/utils";
 import { AppAgentClient, AppInfo, encodeHashToBase64 } from "@holochain/client";
 import WebSdkApi from "@holo-host/web-sdk";
 import { decode } from "@msgpack/msgpack";
