@@ -101,6 +101,7 @@ const setupApp = async () => {
 
   // Setup profiles
   const profilesClient = new ProfilesClient(
+    // TODO remove this type casting once @holo-host/web-sdk is updated for interface consitency with @holochain/client 16.x
     toRaw(client.value as AppAgentClient),
     "mewsfeed",
     "profiles"
