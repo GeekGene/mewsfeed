@@ -38,10 +38,11 @@ defineProps<{
 const baseEditAgentProfileFormRef = ref();
 
 const createProfile = async (profile: Profile) => {
-  await profilesStore.client.createProfile(profile);
-  await profilesStore.myProfile.reload();
+  profilesStore.myProfile.subscribe(() => {
+    emit("profile-created", profile);
+    emit("update:model-value", false);
+  });
 
-  emit("profile-created", profile);
-  emit("update:model-value", false);
+  await profilesStore.client.createProfile(profile);
 };
 </script>

@@ -41,6 +41,7 @@ import {
   ProfilesClient,
   ProfilesStore,
 } from "@holochain-open-dev/profiles";
+import { EntryRecord } from "@holochain-open-dev/utils";
 import { AppAgentClient, AppInfo, encodeHashToBase64 } from "@holochain/client";
 import WebSdkApi from "@holo-host/web-sdk";
 import { decode } from "@msgpack/msgpack";
@@ -101,14 +102,14 @@ const setupApp = async () => {
 
   // Setup profiles
   const profilesClient = new ProfilesClient(
-    toRaw(client.value),
+    toRaw(client.value as AppAgentClient),
     "mewsfeed",
     "profiles"
   );
   profilesStore.value = new ProfilesStore(profilesClient, PROFILES_CONFIG);
   profilesStore.value.myProfile.subscribe((res) => {
     if (res.status === "complete" && res.value !== undefined) {
-      myProfile.value = res.value;
+      myProfile.value = res.value.entry;
     }
   });
   console.log("Profiles Store initialized");

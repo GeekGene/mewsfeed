@@ -152,9 +152,9 @@ const search = async (inputValue: string) => {
             name: ROUTES.profile,
             params: { agentPubKey: encodeHashToBase64(agentPubKey) },
           },
-          label: profile.fields["Display Name"]
-            ? `${profile.fields["Display Name"]} (@${profile.nickname})`
-            : `@${profile.nickname}`,
+          label: profile.entry.fields["Display Name"]
+            ? `${profile.entry.fields["Display Name"]} (@${profile.entry.nickname})`
+            : `@${profile.entry.nickname}`,
         })
       );
 

@@ -34,7 +34,7 @@ const agentPubKeyB64 = computed(() => encodeHashToBase64(props.agentPubKey));
 const fetchProfile = async () => {
   const profile = await profilesStore.client.getAgentProfile(props.agentPubKey);
   if (profile) {
-    return profile;
+    return profile.entry;
   } else {
     throw new Error("No profile found");
   }
