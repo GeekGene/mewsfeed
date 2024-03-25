@@ -1,5 +1,5 @@
-use hdi::prelude::*;
 use hc_prefix_index::PrefixIndex;
+use hdi::prelude::*;
 
 pub fn validate_create_link_prefix_index_to_hashtags(
     _action: CreateLink,
