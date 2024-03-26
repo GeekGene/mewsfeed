@@ -16,7 +16,7 @@
     "@fontsource/space-mono": "^5.0.3",
     "@fontsource/syne": "^5.0.3",
     "@headlessui/vue": "^1.7.14",
-    "@holo-host/web-sdk": "0.6.18-prerelease",
+    "@holo-host/web-sdk": "0.6.19-prerelease",
     "@holochain-open-dev/profiles": "^0.17.3",
     "@holochain/client": "^0.16.10",
     "@shoelace-style/shoelace": "^2.13.1",
