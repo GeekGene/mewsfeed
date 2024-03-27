@@ -209,7 +209,7 @@ const fetchProfile = async () => {
   const profile = await profilesStore.client.getAgentProfile(agentPubKey.value);
 
   if (profile) {
-    return profile;
+    return profile.entry;
   } else {
     throw new Error("No profile found");
   }

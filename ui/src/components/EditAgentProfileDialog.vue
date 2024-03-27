@@ -41,11 +41,12 @@ const baseEditAgentProfileFormRef = ref();
 
 const update = async (newProfile: Profile) => {
   try {
-    await profilesStore.client.updateProfile(newProfile);
-    await profilesStore.myProfile.reload();
+    profilesStore.myProfile.subscribe(() => {
+      emit("update:model-value", false);
+      emit("profile-updated", newProfile);
+    });
 
-    emit("update:model-value", false);
-    emit("profile-updated", newProfile);
+    await profilesStore.client.updateProfile(newProfile);
   } catch (e) {
     showError(e);
   }

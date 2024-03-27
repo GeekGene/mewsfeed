@@ -17,10 +17,10 @@ pub use prefix_index_to_cashtags::*;
 pub mod prefix_index_to_hashtags;
 pub use prefix_index_to_hashtags::*;
 pub mod mew;
+use hc_prefix_index::PrefixIndex;
 use hdi::prelude::*;
 pub use mew::*;
 pub use mews_types::*;
-use prefix_index::PrefixIndex;
 
 pub fn make_tag_prefix_index() -> ExternResult<PrefixIndex> {
     PrefixIndex::new("prefix_index".into(), LinkTypes::PrefixIndex, 3, 3)

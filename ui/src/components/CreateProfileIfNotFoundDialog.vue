@@ -39,7 +39,6 @@ const baseEditAgentProfileFormRef = ref();
 
 const createProfile = async (profile: Profile) => {
   await profilesStore.client.createProfile(profile);
-  await profilesStore.myProfile.reload();
 
   emit("profile-created", profile);
   emit("update:model-value", false);

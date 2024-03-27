@@ -9,7 +9,5 @@ name = "agent_pins"
 
 [dependencies]
 hdk = { workspace = true }
-
 serde = { workspace = true }
-
 agent_pins_integrity = { workspace = true } 

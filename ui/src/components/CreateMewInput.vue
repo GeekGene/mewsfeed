@@ -137,7 +137,7 @@
               @keydown="onAutocompleteKeyDown"
             >
               <BaseAgentProfileName
-                :profile="profile"
+                :profile="profile.entry"
                 :agentPubKey="agentPubKey"
               />
             </a>
@@ -208,6 +208,7 @@ import IconHelpCircleOutline from "~icons/ion/help-circle-outline";
 import IconAlertCircleOutline from "~icons/ion/alert-circle-outline";
 import IconArrowForwardOutline from "~icons/ion/arrow-forward-outline";
 import { useToasts } from "@/stores/toasts";
+import { EntryRecord } from "@holochain-open-dev/utils";
 
 const ANCHOR_DATA_ID_AGENT_PUB_KEY = "agentPubKey";
 const ANCHOR_DATA_ID_URL = "url";
@@ -238,7 +239,9 @@ const saving = ref(false);
 const linkTarget = ref();
 const linkTargetInput = ref();
 const currentAgentSearch = ref("");
-const agentAutocompletions = ref<Array<[AgentPubKey, Profile]>>([]);
+const agentAutocompletions = ref<Array<[AgentPubKey, EntryRecord<Profile>]>>(
+  []
+);
 const autocompleterLoading = ref(false);
 const showCreateProfileDialog = ref(false);
 const createButtonInput = ref();
@@ -442,7 +445,10 @@ const onAutocompleteKeyDown = (keyDownEvent: KeyboardEvent) => {
   }
 };
 
-const onAutocompleteAgentSelect = (agent: AgentPubKey, profile: Profile) => {
+const onAutocompleteAgentSelect = (
+  agent: AgentPubKey,
+  profile: EntryRecord<Profile>
+) => {
   const range = new Range();
   range.setStart(currentNode, currentAnchorOffset);
   range.setEnd(currentNode, currentFocusOffset);
@@ -450,7 +456,7 @@ const onAutocompleteAgentSelect = (agent: AgentPubKey, profile: Profile) => {
   // Insert mention link: '@' + agent username
   const anchor = document.createElement("a");
   anchor.href = "#";
-  anchor.textContent = TAG_SYMBOLS.MENTION + profile.nickname;
+  anchor.textContent = TAG_SYMBOLS.MENTION + profile.entry.nickname;
   anchor.dataset[ANCHOR_DATA_ID_AGENT_PUB_KEY] = encodeHashToBase64(agent);
   range.deleteContents();
   range.insertNode(anchor);

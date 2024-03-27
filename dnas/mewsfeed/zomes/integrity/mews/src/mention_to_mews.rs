@@ -17,9 +17,7 @@ pub fn validate_create_link_mention_to_mews(
             "Linked action must reference an entry"
         ))))?;
 
-    let base_address_entry_hash =
-        EntryHash::try_from(base_address).map_err(|err| wasm_error!(err))?;
-    if AgentPubKey::try_from(base_address_entry_hash).is_err() {
+    if AgentPubKey::try_from(base_address).is_err() {
         return Ok(ValidateCallbackResult::Invalid(
             "Base addesss of MentionToMew link must be an AgentPubKey".into(),
         ));

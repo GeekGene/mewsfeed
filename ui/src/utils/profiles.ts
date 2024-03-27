@@ -5,6 +5,7 @@ import {
 } from "@holochain-open-dev/profiles";
 import { ComputedRef, inject } from "vue";
 import { PROFILE_FIELDS } from "@/types/types";
+import { EntryRecord } from "@holochain-open-dev/utils";
 
 export const PROFILES_CONFIG: ProfilesConfig = {
   minNicknameLength: 3,
@@ -34,7 +35,7 @@ export const useSearchProfiles = () => {
 
   const searchProfiles = (
     input: string
-  ): Promise<Array<[Uint8Array, Profile]>> =>
+  ): Promise<Array<[Uint8Array, EntryRecord<Profile>]>> =>
     new Promise((resolve, reject) => {
       profilesStore.searchProfiles(input).subscribe((res) => {
         if (res.status === "complete") {

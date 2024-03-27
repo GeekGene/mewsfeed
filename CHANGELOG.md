@@ -4,6 +4,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## Unreleased
 
+- build: upgrade holochain to 0.2.6
+- build: upgrade profiles zomes to support holochain 0.2.6
+- build: upgrade profiles client to latest
+
 
 ## 2023-09-12 v0.11.1
 - feat: add ellipses to truncated agent pub keys, extend truncation to 15 chars, do not truncate only on creators / followers list

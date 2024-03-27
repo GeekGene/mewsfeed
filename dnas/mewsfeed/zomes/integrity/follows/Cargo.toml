@@ -9,5 +9,4 @@ name = "follows_integrity"
 
 [dependencies]
 hdi = { workspace = true }
-
 serde = { workspace = true }
