@@ -35,9 +35,10 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             )),
             _ => Ok(ValidateCallbackResult::Valid),
         },
-        FlatOp::RegisterDelete(delete_entry) => match delete_entry {
-            OpDelete { .. } => Ok(ValidateCallbackResult::Valid),
-        },
+        FlatOp::RegisterDelete(delete_entry) => {
+            let OpDelete { .. } = delete_entry;
+            Ok(ValidateCallbackResult::Valid)
+        }
         FlatOp::RegisterCreateLink {
             link_type,
             base_address,

@@ -86,14 +86,13 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             },
             _ => Ok(ValidateCallbackResult::Valid),
         },
-        FlatOp::RegisterDelete(delete_entry) => match delete_entry {
-            OpDelete { action } => {
-                let original_action = must_get_action(action.deletes_address.clone())?
-                    .hashed
-                    .content;
-                validate_delete_mew(action, original_action)
-            }
-        },
+        FlatOp::RegisterDelete(delete_entry) => {
+            let OpDelete { action } = delete_entry;
+            let original_action = must_get_action(action.deletes_address.clone())?
+                .hashed
+                .content;
+            validate_delete_mew(action, original_action)
+        }
         FlatOp::RegisterCreateLink {
             link_type,
             base_address,
