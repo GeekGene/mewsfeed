@@ -8,6 +8,6 @@ pub struct DnaProperties {
 
 #[hdk_extern]
 pub fn get_dna_properties(_: ()) -> ExternResult<DnaProperties> {
-    DnaProperties::try_from(dna_info()?.properties)
+    DnaProperties::try_from(dna_info()?.modifiers.properties)
         .map_err(|e| wasm_error!(WasmErrorInner::Guest(e.into())))
 }

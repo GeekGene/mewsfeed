@@ -1,4 +1,5 @@
 use crate::mew_with_context::get_batch_mews_with_context;
+use hc_link_pagination::{paginate_by_hash, HashPagination};
 use hdk::prelude::*;
 use mews_integrity::*;
 
@@ -19,9 +20,14 @@ pub fn add_mention_for_mew(input: AddMentionForMewInput) -> ExternResult<()> {
     Ok(())
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GetMewsForMentionInput {
+    mention: AgentPubKey,
+    page: Option<HashPagination>,
+}
 #[hdk_extern]
-pub fn get_mews_for_mention(mention: AgentPubKey) -> ExternResult<Vec<Record>> {
-    let hashes = get_mew_hashes_for_mention(mention)?;
+pub fn get_mews_for_mention(input: GetMewsForMentionInput) -> ExternResult<Vec<Record>> {
+    let hashes = get_mew_hashes_for_mention(input.mention, input.page)?;
     let get_input: Vec<GetInput> = hashes
         .into_iter()
         .map(|hash| GetInput::new(hash.into(), GetOptions::default()))
@@ -37,19 +43,38 @@ pub fn get_mews_for_mention(mention: AgentPubKey) -> ExternResult<Vec<Record>> {
     Ok(records)
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GetMewsForMentionWithContextInput {
+    mention: AgentPubKey,
+    page: Option<HashPagination>,
+}
 #[hdk_extern]
-pub fn get_mews_for_mention_with_context(mention: AgentPubKey) -> ExternResult<Vec<FeedMew>> {
-    let hashes = get_mew_hashes_for_mention(mention)?;
+pub fn get_mews_for_mention_with_context(
+    input: GetMewsForMentionWithContextInput,
+) -> ExternResult<Vec<FeedMew>> {
+    let hashes = get_mew_hashes_for_mention(input.mention, input.page)?;
 
     get_batch_mews_with_context(hashes)
 }
 
-fn get_mew_hashes_for_mention(mention: AgentPubKey) -> ExternResult<Vec<ActionHash>> {
-    let links: Vec<Link> = get_links(mention, LinkTypes::MentionToMews, None)?;
+fn get_mew_hashes_for_mention(
+    mention: AgentPubKey,
+    page: Option<HashPagination>,
+) -> ExternResult<Vec<ActionHash>> {
+    let links = get_links(GetLinksInput {
+        base_address: mention.into(),
+        link_type: LinkTypes::MentionToMews.try_into_filter()?,
+        tag_prefix: None,
+        after: None,
+        before: None,
+        author: None,
+        get_options: GetOptions::default(),
+    })?;
+    let links_page = paginate_by_hash(links, page)?;
 
-    let hashes: Vec<ActionHash> = links
+    let hashes: Vec<ActionHash> = links_page
         .into_iter()
-        .map(|link| ActionHash::from(link.target))
+        .filter_map(|link| ActionHash::try_from(link.target).ok())
         .collect();
 
     Ok(hashes)
@@ -62,10 +87,20 @@ pub struct RemoveMentionForMewInput {
 }
 #[hdk_extern]
 pub fn remove_mention_for_mew(input: RemoveMentionForMewInput) -> ExternResult<()> {
-    let links = get_links(input.base_mention.clone(), LinkTypes::MentionToMews, None)?;
+    let links = get_links(GetLinksInput {
+        base_address: input.base_mention.into(),
+        link_type: LinkTypes::MentionToMews.try_into_filter()?,
+        tag_prefix: None,
+        after: None,
+        before: None,
+        author: None,
+        get_options: GetOptions::default(),
+    })?;
 
     for link in links {
-        if ActionHash::from(link.target.clone()).eq(&input.target_mew_hash) {
+        let action_hash =
+            ActionHash::try_from(link.target.clone()).map_err(|err| wasm_error!(err))?;
+        if action_hash.eq(&input.target_mew_hash) {
             delete_link(link.create_link_hash)?;
         }
     }

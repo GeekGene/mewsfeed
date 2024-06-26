@@ -1,6 +1,6 @@
-import { Record } from "@holochain/client";
-import { getZomeCaller, runScenario } from "@holochain/tryorama";
-import { assert, test, expect } from "vitest";
+import { ActionHash } from "@holochain/client";
+import { runScenario } from "@holochain/tryorama";
+import { assert, expect, test } from "vitest";
 import { Mew, MewTypeName } from "../../../../ui/src/types/types.js";
 import {
   mewsfeedAppBundleSource,
@@ -16,10 +16,6 @@ test("Mew must not be longer than DNA property mew_characters_max chars", async 
       // Add 2 players with the test app to the Scenario. The returned players
       // can be destructured.
       const [alice] = await scenario.addPlayersWithApps([appSource]);
-
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
 
       const createMewInput: Mew = {
         text: new Array(200).fill("a").join(""),
@@ -53,7 +49,7 @@ test("Mew must not be longer than DNA property mew_characters_max chars", async 
       }
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -66,10 +62,6 @@ test("Mew must not be shorter than DNA property mew_characters_min chars", async
       // Add 2 players with the test app to the Scenario. The returned players
       // can be destructured.
       const [alice] = await scenario.addPlayersWithApps([appSource]);
-
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
 
       const createMewInput: Mew = {
         text: new Array(10).fill("a").join(""),
@@ -103,7 +95,7 @@ test("Mew must not be shorter than DNA property mew_characters_min chars", async
       }
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -118,10 +110,6 @@ test("Mew can be any length if DNA property mew_characters_min and mew_character
       // Add 2 players with the test app to the Scenario. The returned players
       // can be destructured.
       const [alice] = await scenario.addPlayersWithApps([appSource]);
-
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
 
       // 0 charactres
       const createMewInput2: Mew = {
@@ -158,7 +146,7 @@ test("Mew can be any length if DNA property mew_characters_min and mew_character
       );
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -172,10 +160,6 @@ test("Can get deserialized DNA Properties", async () => {
       // can be destructured.
       const [alice] = await scenario.addPlayersWithApps([appSource]);
 
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
-
       const properties = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_dna_properties",
@@ -185,6 +169,6 @@ test("Can get deserialized DNA Properties", async () => {
       expect(properties).toHaveProperty("mew_characters_max", 200);
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });

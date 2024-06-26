@@ -1,5 +1,5 @@
 import { assert, expect, test } from "vitest";
-import { runScenario, pause } from "@holochain/tryorama";
+import { runScenario, dhtSync } from "@holochain/tryorama";
 import { Record, fakeActionHash } from "@holochain/client";
 import { mewsfeedAppBundleSource } from "../../common";
 
@@ -15,10 +15,6 @@ test("link a Liker to a Hash", async () => {
         appSource,
         appSource,
       ]);
-
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
 
       const baseAddress = alice.agentPubKey;
       const targetAddress = await fakeActionHash();
@@ -41,7 +37,7 @@ test("link a Liker to a Hash", async () => {
         },
       });
 
-      await pause(1200);
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
       // Bob gets the links again
       linksOutput = await bob.cells[0].callZome({
@@ -68,7 +64,7 @@ test("link a Liker to a Hash", async () => {
         },
       });
 
-      await pause(1200);
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
       // Bob gets the links again
       linksOutput = await bob.cells[0].callZome({
@@ -87,7 +83,7 @@ test("link a Liker to a Hash", async () => {
       assert.equal(linksOutput.length, 0);
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -104,10 +100,6 @@ test("Agent can only change their own likes", async () => {
         appSource,
       ]);
 
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
-
       const targetAddress = await fakeActionHash();
 
       // Alice likes hash
@@ -117,7 +109,7 @@ test("Agent can only change their own likes", async () => {
         payload: targetAddress,
       });
 
-      await pause(1200);
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
       // Bob tries to remove alices' like
       const response = bob.cells[0].callZome({
@@ -129,7 +121,7 @@ test("Agent can only change their own likes", async () => {
         },
       });
       await expect(response).rejects.toHaveProperty(
-        "data.data",
+        "message",
         expect.stringContaining("InvalidCommit")
       );
 
@@ -140,7 +132,7 @@ test("Agent can only change their own likes", async () => {
         payload: targetAddress,
       });
 
-      await pause(1200);
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
       // Bob tries to add a like for allice
       const response2 = bob.cells[0].callZome({
@@ -152,11 +144,11 @@ test("Agent can only change their own likes", async () => {
         },
       });
       await expect(response2).rejects.toHaveProperty(
-        "data.data",
+        "message",
         expect.stringContaining("InvalidCommit")
       );
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });

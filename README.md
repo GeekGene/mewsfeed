@@ -1,4 +1,3 @@
-
 # MewsFeed – for the calm cats
 
 MewsFeed is a micro-blogging platform built with [Holochain](https://holochain.org).
@@ -95,6 +94,19 @@ You'll have to go through the same profile setup steps as described in the secti
 #### Use the Holo-hosted Web Version
 This one is the easiest option. Just head on over to [app.mewsfeed.social](https://app.mewsfeed.social), sign up for an account, fill out your profile, and start using the platform!
 
+## Chat With Us
+
+Come join us on mewsfeed. We're talking at the hashtags #mewsfeed and #holochain. Share your feedback by tagging #mewsfeedback!
+
+## Follow Us
+
+You can follow the team on mewsfeed at:
+
+@artbrock
+@bierlingm
+@mattyg
+@jost
+
 ## Environment Setup
 
 1. Install the holochain dev environment (only nix-shell is required): https://developer.holochain.org/docs/install/
@@ -145,6 +157,16 @@ npm start
 ```
 
 Each new agent that you create this way will get assigned its own port and get connected to the other agents.
+
+## Holo Hosting
+
+1. Get a copy of the Holo envoy server directly from a Holo team member, copy it to the root of the directory as `holo-dev-server`
+
+To test out a holo hosted agent:
+
+```bash
+npm start:agent:holo
+```
 
 ## Package
 

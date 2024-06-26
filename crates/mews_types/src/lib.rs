@@ -1,3 +1,4 @@
+use hc_link_pagination::Timestamped;
 use hdk::prelude::*;
 use std::collections::BTreeMap;
 
@@ -43,13 +44,17 @@ pub struct FeedMew {
     pub mew: Mew,
     pub action: Action,
     pub action_hash: ActionHash,
-    pub replies: Vec<ActionHash>,
-    pub quotes: Vec<ActionHash>,
-    pub licks: Vec<AgentPubKey>,
-    pub mewmews: Vec<ActionHash>,
+    pub replies_count: usize,
+    pub quotes_count: usize,
+    pub licks_count: usize,
+    pub mewmews_count: usize,
     pub deleted_timestamp: Option<Timestamp>,
     pub author_profile: Option<Profile>,
     pub is_pinned: bool,
+    pub is_licked: bool,
+    pub is_mewmewed: bool,
+    pub is_replied: bool,
+    pub is_quoted: bool,
     pub original_mew: Option<EmbedMew>,
 }
 
@@ -69,6 +74,12 @@ pub struct Notification {
     pub agent: AgentPubKey,
     pub agent_profile: Option<Profile>,
     pub feed_mew: Option<FeedMew>,
+}
+
+impl Timestamped for Notification {
+    fn timestamp(&self) -> Timestamp {
+        self.timestamp
+    }
 }
 
 #[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]

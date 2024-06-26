@@ -4,7 +4,6 @@ import {
   Create,
   SigningCredentials,
 } from "@holochain/client";
-import { QSelectOption } from "quasar";
 import { RouteLocationNamedRaw, RouteLocationRaw } from "vue-router";
 import { Profile } from "@holochain-open-dev/profiles";
 
@@ -63,9 +62,7 @@ export enum MewTypeName {
 }
 
 export type MewType =
-  | {
-      [MewTypeName.Original]: null;
-    }
+  | MewTypeName.Original
   | {
       [MewTypeName.Reply]: ActionHash;
     }
@@ -80,11 +77,15 @@ export interface FeedMew {
   mew: Mew;
   action: Create;
   action_hash: ActionHash;
-  replies: ActionHash[];
-  quotes: ActionHash[];
-  licks: AgentPubKey[];
-  mewmews: ActionHash[];
+  replies_count: number;
+  quotes_count: number;
+  licks_count: number;
+  mewmews_count: number;
   is_pinned: boolean;
+  is_licked: boolean;
+  is_mewmewed: boolean;
+  is_replied: boolean;
+  is_quoted: boolean;
   author_profile: Profile | null;
   deleted_timestamp: number | null;
   original_mew: EmbedMew | null;
@@ -144,7 +145,9 @@ export interface MewsfeedDnaProperties {
   mew_characters_max: number | null;
 }
 
-export type SearchResultOption = QSelectOption<RouteLocationRaw> & {
+export type SearchResultOption = {
+  value: RouteLocationRaw;
+  label: string;
   agentPubKey?: AgentPubKey;
   resultType: SearchResult;
 };
@@ -191,3 +194,44 @@ export type NotificationType =
   | { [NotificationTypeName.MyAgentFollowed]: null }
   | { [NotificationTypeName.MyAgentUnfollowed]: null }
   | { [NotificationTypeName.FollowedYarnResponded]: null };
+
+export declare type CacheData<R = any, P = any> = {
+  data: R;
+  params: P;
+  time: number;
+};
+
+export type HashPagination = {
+  after_hash?: Uint8Array | null;
+  direction?: PaginationDirectionType | null;
+  limit: number;
+};
+
+export type TimestampPagination = {
+  after_timestamp?: number | null;
+  direction?: PaginationDirectionType | null;
+  limit: number;
+};
+
+export type PaginationDirectionType =
+  | { [PaginationDirectionName.Ascending]: null }
+  | { [PaginationDirectionName.Descending]: null };
+
+export enum PaginationDirectionName {
+  Ascending = "Ascending",
+  Descending = "Descending",
+}
+
+export type LoadMoreDataType = {
+  list: any[];
+  [key: string]: any;
+  nextPage: HashPagination;
+  noMore: boolean;
+};
+
+export type ToastMessageType = "error" | "warning" | "info" | "success";
+export type ToastMessage = {
+  id: string;
+  type: ToastMessageType;
+  text: string;
+};

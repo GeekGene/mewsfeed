@@ -1,3 +1,4 @@
+use hc_link_pagination::{paginate_by_hash, HashPagination};
 use hdk::prelude::*;
 use mews_integrity::*;
 
@@ -28,6 +29,7 @@ pub fn add_response_for_mew(input: AddResponseForMewInput) -> ExternResult<()> {
 pub struct GetResponsesForMewInput {
     pub original_mew_hash: ActionHash,
     pub response_type: Option<ResponseType>,
+    pub page: Option<HashPagination>,
 }
 #[hdk_extern]
 pub fn get_response_hashes_for_mew(
@@ -46,13 +48,90 @@ pub fn get_response_hashes_for_mew(
         None => None,
     };
 
-    let links = get_links(input.original_mew_hash, LinkTypes::MewToResponses, tag)?;
-    let hashes: Vec<ActionHash> = links
+    let links = get_links(GetLinksInput {
+        base_address: input.original_mew_hash.into(),
+        link_type: LinkTypes::MewToResponses.try_into_filter()?,
+        tag_prefix: tag,
+        after: None,
+        before: None,
+        author: None,
+        get_options: GetOptions::default(),
+    })?;
+    let links_page = paginate_by_hash(links, input.page)?;
+    let hashes: Vec<ActionHash> = links_page
         .into_iter()
-        .map(|link| ActionHash::from(link.target))
+        .filter_map(|link| ActionHash::try_from(link.target).ok())
         .collect();
 
     Ok(hashes)
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct CountResponsesForMewInput {
+    pub original_mew_hash: ActionHash,
+    pub response_type: Option<ResponseType>,
+}
+#[hdk_extern]
+pub fn count_responses_for_mew(input: CountResponsesForMewInput) -> ExternResult<usize> {
+    let maybe_tag = match input.response_type {
+        Some(response_type) => {
+            let tag: SerializedBytes = response_type.try_into().map_err(|_| {
+                wasm_error!(WasmErrorInner::Guest(
+                    "Failed to seriailize response_type".into()
+                ))
+            })?;
+
+            Some(LinkTag::from(tag.bytes().clone()))
+        }
+        None => None,
+    };
+
+    let mut query = LinkQuery::new(
+        input.original_mew_hash,
+        LinkTypes::MewToResponses.try_into_filter()?,
+    );
+
+    if let Some(tag) = maybe_tag {
+        query = query.tag_prefix(tag)
+    }
+
+    count_links(query)
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GetResponseForMewExistsInput {
+    pub original_mew_hash: ActionHash,
+    pub response_type: Option<ResponseType>,
+    pub response_author: AgentPubKey,
+}
+#[hdk_extern]
+pub fn get_response_for_mew_exists(input: GetResponseForMewExistsInput) -> ExternResult<bool> {
+    let maybe_tag = match input.response_type {
+        Some(response_type) => {
+            let tag: SerializedBytes = response_type.try_into().map_err(|_| {
+                wasm_error!(WasmErrorInner::Guest(
+                    "Failed to seriailize response_type".into()
+                ))
+            })?;
+
+            Some(LinkTag::from(tag.bytes().clone()))
+        }
+        None => None,
+    };
+
+    let mut query = LinkQuery::new(
+        input.original_mew_hash.clone(),
+        LinkTypes::MewToResponses.try_into_filter()?,
+    )
+    .author(input.response_author);
+
+    if let Some(tag) = maybe_tag {
+        query = query.tag_prefix(tag)
+    }
+
+    let count = count_links(query)?;
+
+    Ok(count > 0)
 }
 
 #[hdk_extern]
@@ -77,13 +156,19 @@ pub struct RemoveResponseForMewInput {
 }
 #[hdk_extern]
 pub fn remove_response_for_mew(input: RemoveResponseForMewInput) -> ExternResult<()> {
-    let links = get_links(
-        input.base_original_mew_hash.clone(),
-        LinkTypes::MewToResponses,
-        None,
-    )?;
+    let links = get_links(GetLinksInput {
+        base_address: input.base_original_mew_hash.into(),
+        link_type: LinkTypes::MewToResponses.try_into_filter()?,
+        tag_prefix: None,
+        after: None,
+        before: None,
+        author: None,
+        get_options: GetOptions::default(),
+    })?;
     for link in links {
-        if ActionHash::from(link.target.clone()).eq(&input.target_response_mew_hash) {
+        let action_hash =
+            ActionHash::try_from(link.target.clone()).map_err(|err| wasm_error!(err))?;
+        if action_hash.eq(&input.target_response_mew_hash) {
             delete_link(link.create_link_hash)?;
         }
     }

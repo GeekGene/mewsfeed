@@ -1,10 +1,10 @@
 {
   inputs = {
-    versions.url = "github:holochain/holochain?dir=versions/0_1";
+    nixpkgs.follows = "holonix/nixpkgs";
+
+    versions.url = "github:holochain/holochain?dir=versions/weekly";
     holonix.url = "github:holochain/holochain";
     holonix.inputs.versions.follows = "versions";
-
-    nixpkgs.follows = "holonix/nixpkgs";
   };
 
   outputs = inputs@{ holonix, ... }:
@@ -15,11 +15,10 @@
       perSystem = { config, system, pkgs, ... }:
         {
           devShells.default = pkgs.mkShell {
-            inputsFrom = [ holonix.devShells.${system}.holonix ];
+            inputsFrom = [ holonix.devShells.${system}.holochainBinaries ];
             packages = with pkgs; [
               # add further packages from nixpkgs
-              cargo-watch
-              nodejs
+              # nodejs
             ];
           };
         };

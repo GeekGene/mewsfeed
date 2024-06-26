@@ -1,9 +1,10 @@
 <template>
-  <div class="q-mx-sm q-my-sm">
-    <MewContent :mew="embedMew.mew as Mew" class="cursor-pointer q-mb-sm" />
+  <div>
+    <BaseMewContent :mew="(embedMew.mew as Mew)" class="cursor-pointer mb-2" />
     <BaseAgentProfile
       :agent-pub-key="embedMew.action.author"
       :profile="embedMew.author_profile"
+      class="flex justify-end"
     />
   </div>
 </template>
@@ -11,7 +12,7 @@
 <script setup lang="ts">
 import { EmbedMew } from "@/types/types";
 import { Mew } from "@/types/types";
-import MewContent from "@/components/MewContent.vue";
+import BaseMewContent from "@/components/BaseMewContent.vue";
 import BaseAgentProfile from "@/components/BaseAgentProfile.vue";
 
 defineProps<{

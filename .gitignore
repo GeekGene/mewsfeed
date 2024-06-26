@@ -17,3 +17,6 @@ target/
 
 ## ui files
 dist.zip
+
+## holo files
+holo-dev-server

@@ -4,39 +4,50 @@ import DiscoverCreators from "./pages/DiscoverCreators.vue";
 import MewsFeed from "./pages/MewsFeed.vue";
 import AgentProfile from "./pages/AgentProfile.vue";
 import MewYarn from "./pages/MewYarn.vue";
-import CashtagMewsFeed from "./pages/CashtagMewsFeed.vue";
-import HashtagMewsFeed from "./pages/CashtagMewsFeed.vue";
-import MentionMewsFeed from "./pages/MentionMewsFeed.vue";
+import MewsListCashtag from "./pages/MewsListCashtag.vue";
+import MewsListHashtag from "./pages/MewsListHashtag.vue";
+import MewsListMention from "./pages/MewsListMention.vue";
+import MewsListAuthor from "./pages/MewsListAuthor.vue";
 import NotFound from "./pages/NotFound.vue";
 import MyNotifications from "./pages/MyNotifications.vue";
-
-export const PATH = {
-  [TAG_SYMBOLS.CASHTAG]: "cashtag",
-  [TAG_SYMBOLS.HASHTAG]: "hashtag",
-  [TAG_SYMBOLS.MENTION]: "handle",
-};
+import { getHomeRedirect } from "./utils/homeRedirect";
 
 export const ROUTES = {
+  landing: "landing",
   discover: "discover",
   profile: "profile",
+  authoredMews: "authoredMews",
+  creators: "creators",
+  followers: "followers",
   notifications: "notifications",
   feed: "feed",
   yarn: "yarn",
-  [PATH[TAG_SYMBOLS.CASHTAG]]: PATH[TAG_SYMBOLS.CASHTAG],
-  [PATH[TAG_SYMBOLS.HASHTAG]]: PATH[TAG_SYMBOLS.HASHTAG],
-  [PATH[TAG_SYMBOLS.MENTION]]: PATH[TAG_SYMBOLS.MENTION],
+  hashtag: "hashtag",
+  cashtag: "cashtag",
+  mention: "mention",
 };
 
 export const routes: RouteRecordRaw[] = [
   {
     path: "/",
+    name: ROUTES.landing,
+    redirect: () =>
+      getHomeRedirect() ? { path: ROUTES.discover } : { name: ROUTES.feed },
+  },
+  {
+    path: "/feed",
     name: ROUTES.feed,
     component: MewsFeed,
   },
   {
-    path: "/profiles/:agent",
+    path: "/profiles/:agentPubKey",
     name: ROUTES.profile,
     component: AgentProfile,
+  },
+  {
+    path: "/profiles/:agentPubKey/mews",
+    name: ROUTES.authoredMews,
+    component: MewsListAuthor,
   },
   {
     path: "/notifications",
@@ -49,26 +60,26 @@ export const routes: RouteRecordRaw[] = [
     component: DiscoverCreators,
   },
   {
-    path: "/yarn/:hash",
+    path: "/yarn/:actionHash",
     name: ROUTES.yarn,
     component: MewYarn,
   },
   {
-    path: `/${PATH[TAG_SYMBOLS.CASHTAG]}/:tag`,
-    name: ROUTES[PATH[TAG_SYMBOLS.CASHTAG]],
-    component: CashtagMewsFeed,
+    path: `/cashtag/:tag`,
+    name: ROUTES.cashtag,
+    component: MewsListCashtag,
     meta: { tag: TAG_SYMBOLS.CASHTAG },
   },
   {
-    path: `/${PATH[TAG_SYMBOLS.HASHTAG]}/:tag`,
-    name: ROUTES[PATH[TAG_SYMBOLS.HASHTAG]],
-    component: HashtagMewsFeed,
+    path: `/hashtag/:tag`,
+    name: ROUTES.hashtag,
+    component: MewsListHashtag,
     meta: { tag: TAG_SYMBOLS.HASHTAG },
   },
   {
-    path: `/${PATH[TAG_SYMBOLS.MENTION]}/:tag/:agentPubKey`,
-    name: ROUTES[PATH[TAG_SYMBOLS.MENTION]],
-    component: MentionMewsFeed,
+    path: `/mention/:tag/:agentPubKey`,
+    name: ROUTES.mention,
+    component: MewsListMention,
     meta: { tag: TAG_SYMBOLS.MENTION },
   },
   { path: "/:pathMatch(.*)", component: NotFound },

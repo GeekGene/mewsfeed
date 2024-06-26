@@ -1,181 +1,190 @@
 <template>
-  <QPage class="row" :style-fn="pageHeightCorrection">
-    <div class="col-8">
-      <QSpinnerPie v-if="loading || !agentPubKey" size="10%" color="primary" />
-      <QCard
-        v-else-if="!showEditProfileForm"
-        v-bind="$attrs"
-        square
-        class="q-mb-md text-body1"
-      >
-        <QCardSection v-if="!showEditProfileForm" class="flex justify-between">
-          <div class="flex items-center">
-            <agent-avatar
-              :agentPubKey="agentPubKey"
-              size="50"
-              :class="['q-mr-lg', { 'cursor-pointer': !isMyProfile }]"
-            />
-            <div class="q-mr-lg text-primary text-weight-medium">
-              {{ profile?.fields[PROFILE_FIELDS.DISPLAY_NAME] }}
-            </div>
-            <div class="text-primary">@{{ profile?.nickname }}</div>
-          </div>
-          <ButtonFollow
-            v-if="!isMyProfile"
-            :agentPubKey="agentPubKey"
-            @toggle-follow="forceReloadFollowersListKey += 1"
-          />
-          <QBtn
-            v-if="isMyProfile"
-            icon="edit"
-            @click="showEditProfileForm = true"
-          >
-            <span class="q-pl-sm">Edit Profile</span></QBtn
-          >
-        </QCardSection>
-
-        <QCardSection v-if="!showEditProfileForm" class="flex">
-          <div class="q-mr-md">
-            <div>
-              <label class="text-weight-medium">Bio:</label>
-            </div>
-            <div>
-              <label class="text-weight-medium">Location:</label>
-            </div>
-          </div>
-          <div class="col-grow">
-            <div>{{ profile?.fields[PROFILE_FIELDS.BIO] }}</div>
-            <div>{{ profile?.fields[PROFILE_FIELDS.LOCATION] }}</div>
-          </div>
-        </QCardSection>
-
-        <div class="flex justify-end q-mx-sm">
-          <holo-identicon :hash="agentPubKey" size="30"></holo-identicon>
-        </div>
-      </QCard>
-
-      <QCard v-else square class="q-mb-md text-body1">
-        <QCardSection v-if="showEditProfileForm" class="flex justify-between">
-          <update-profile
-            style="width: 100%"
-            :profile="profile"
-            @profile-updated="onEditProfile"
-            @cancel-edit-profile="showEditProfileForm = false"
-          ></update-profile>
-        </QCardSection>
-      </QCard>
-
-      <MewList
-        :key="forceReloadPinnedMewsKey"
-        title="Pinned Mews"
-        :fetch-fn="fetchPinnedMews"
-        :cache-key="`mews/get_mews_for_pinner_with_context/${agentPubKey}`"
-        :insert-responses="false"
-        @mew-pinned="
-          () => {
-            forceReloadPinnedMewsKey += 1;
-            forceReloadAgentMewsKey += 1;
-          }
-        "
-        @mew-unpinned="
-          () => {
-            forceReloadPinnedMewsKey += 1;
-            forceReloadAgentMewsKey += 1;
-          }
-        "
-        @reply-created="forceReloadAgentMewsKey += 1"
-        @mewmew-created="forceReloadAgentMewsKey += 1"
-        @quote-created="forceReloadAgentMewsKey += 1"
-      />
-
-      <MewList
-        :key="forceReloadAgentMewsKey"
-        title="Authored Mews"
-        :fetch-fn="fetchAgentMews"
-        :cache-key="`mews/get_agent_mews_with_context/${agentPubKey}`"
-        :insert-responses="isMyProfile"
-        @mew-pinned="forceReloadPinnedMewsKey += 1"
-        @mew-unpinned="forceReloadPinnedMewsKey += 1"
-      />
-    </div>
-
-    <div class="follow-col col self-start q-pl-xl q-pr-md">
-      <h6 class="q-mt-none q-mb-md">Following</h6>
-      <FolloweesList :agentPubKey="agentPubKey" />
-      <h6 class="q-mb-md">Followed by</h6>
-      <FollowersList
-        :key="forceReloadFollowersListKey"
+  <div class="mt-4">
+    <div v-if="!isInitialLoadingProfile && agentPubKey">
+      <BaseAgentProfileDetail
+        :profile="profile"
+        :joined-timestamp="joinedTimestamp"
         :agentPubKey="agentPubKey"
+        :creators-count="creatorsCount || 0"
+        :followers-count="followersCount || 0"
+        class="bg-base-200/75 rounded-3xl"
+        style="-webkit-backdrop-filter: blur(10px)"
+        enable-copy-agent-pub-key
+        enable-lightbox-on-avatar-click
+        @click-edit-profile="showEditProfileDialog = true"
+        @click-followers="
+          () => {
+            if (followersCount && followersCount > 0)
+              showFollowersListDialog = true;
+          }
+        "
+        @click-creators="
+          () => {
+            if (creatorsCount && creatorsCount > 0)
+              showCreatorsListDialog = true;
+          }
+        "
+        @toggle-follow="refetchFollowersCount"
       />
-      <h6 class="q-mb-md">
-        <QBtn
-          v-if="profile?.nickname"
-          size="lg"
-          color="secondary"
-          @click="
-            router.push({
-              name: ROUTES[PATH[TAG_SYMBOLS.MENTION]],
-              params: {
-                tag: profile.nickname,
-                agentPubKey: encodeHashToBase64(agentPubKey),
-              },
-            })
+      <EditAgentProfileDialog
+        v-if="profile"
+        v-model="showEditProfileDialog"
+        :profile="profile"
+        @profile-updated="(profile: any) => {
+          refetchProfile();
+          queryClient.setQueryData([
+              'profiles',
+              'getAgentProfile',
+              encodeHashToBase64(agentPubKey),
+            ],
+            profile
+          );
+        }"
+      />
+
+      <BaseList
+        v-slot="{ item }"
+        class="my-8 px-4"
+        title="pinned"
+        :items="pinnedMews"
+        :is-loading="isLoadingPinnedMews"
+        :show-empty-list="false"
+      >
+        <BaseMewListItem
+          :feed-mew="item"
+          @mew-pinned="
+            () => {
+              refetchPinnedMews();
+              refetchAuthoredMews();
+            }
           "
-        >
-          Mew Mentions
-        </QBtn>
-      </h6>
+          @mew-unpinned="
+            () => {
+              refetchPinnedMews();
+              refetchAuthoredMews();
+            }
+          "
+          @mew-deleted="
+            () => {
+              refetchPinnedMews();
+              refetchAuthoredMews();
+            }
+          "
+          @mew-licked="refetchPinnedMews"
+          @mew-unlicked="refetchPinnedMews"
+          @reply-created="refetchAuthoredMews"
+          @mewmew-created="refetchAuthoredMews"
+          @quote-created="refetchAuthoredMews"
+        />
+      </BaseList>
+
+      <BaseList
+        v-slot="{ item }"
+        class="my-8 px-4"
+        title="mews"
+        :items="authoredMews"
+        :is-loading="isLoadingAuthoredMews"
+        :enable-more-button="authoredMews && authoredMews.length >= pageLimit"
+        @click-more="
+          router.push({
+            name: 'authoredMews',
+            params: {
+              agentPubKey: route.params.agentPubKey,
+            },
+          })
+        "
+      >
+        <BaseMewListItem
+          :feed-mew="item"
+          @mew-pinned="
+            () => {
+              refetchPinnedMews();
+              refetchAuthoredMews();
+            }
+          "
+          @mew-unpinned="
+            () => {
+              refetchPinnedMews();
+              refetchAuthoredMews();
+            }
+          "
+          @mew-deleted="
+            () => {
+              refetchPinnedMews();
+              refetchAuthoredMews();
+            }
+          "
+          @mew-licked="refetchAuthoredMews"
+          @mew-unlicked="refetchAuthoredMews"
+          @reply-created="refetchAuthoredMews"
+          @mewmew-created="refetchAuthoredMews"
+          @quote-created="refetchAuthoredMews"
+        />
+      </BaseList>
     </div>
-  </QPage>
+  </div>
+  <FollowersListDialog
+    v-model="showFollowersListDialog"
+    :agent-pub-key="agentPubKey"
+  />
+  <CreatorsListDialog
+    v-model="showCreatorsListDialog"
+    :agent-pub-key="agentPubKey"
+  />
 </template>
 
 <script setup lang="ts">
-import { QPage, QSpinnerPie, QCard, QCardSection, QBtn } from "quasar";
-import ButtonFollow from "@/components/ButtonFollow.vue";
-import FolloweesList from "@/components/FolloweesList.vue";
-import FollowersList from "@/components/FollowersList.vue";
-import { PROFILE_FIELDS } from "@/types/types";
-import isEqual from "lodash/isEqual";
-import { showError } from "@/utils/toasts";
-import { pageHeightCorrection } from "@/utils/page-layout";
-import { PATH, ROUTES } from "@/router";
-import { TAG_SYMBOLS } from "@/utils/tags";
-import {
-  AgentPubKey,
-  decodeHashFromBase64,
-  encodeHashToBase64,
-} from "@holochain/client";
-import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
-import { ComputedRef, computed, inject, ref, watch } from "vue";
+import { decodeHashFromBase64, encodeHashToBase64 } from "@holochain/client";
+import { ProfilesStore } from "@holochain-open-dev/profiles";
+import { ComputedRef, computed, inject, nextTick, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import MewList from "@/components/MewList.vue";
-import { AppAgentClient } from "@holochain/client";
-import { useRequest } from "vue-request";
+import BaseList from "@/components/BaseList.vue";
+import { AppClient } from "@holochain/client";
+import { useQuery, useQueryClient } from "@tanstack/vue-query";
+import BaseAgentProfileDetail from "@/components/BaseAgentProfileDetail.vue";
+import EditAgentProfileDialog from "@/components/EditAgentProfileDialog.vue";
+import FollowersListDialog from "@/components/FollowersListDialog.vue";
+import CreatorsListDialog from "@/components/CreatorsListDialog.vue";
 
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
-const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+const client = (inject("client") as ComputedRef<AppClient>).value;
 const route = useRoute();
 const router = useRouter();
+const queryClient = useQueryClient();
+
 const agentPubKey = computed(() =>
-  decodeHashFromBase64(route.params.agent as string)
+  decodeHashFromBase64(route.params.agentPubKey as string)
 );
-const forceReloadFollowersListKey = ref(0);
-const forceReloadPinnedMewsKey = ref(0);
-const forceReloadAgentMewsKey = ref(0);
-const showEditProfileForm = ref(false);
+const showEditProfileDialog = ref(false);
+const showFollowersListDialog = ref(false);
+const showCreatorsListDialog = ref(false);
+const agentPubKeyB64 = computed(() => route.params.agentPubKey);
+const pageLimit = 5;
 
-const isMyProfile = computed(() =>
-  isEqual(agentPubKey.value, client.myPubKey as AgentPubKey)
-);
-
-const fetchAgentMews = () =>
+const fetchAuthoredMews = () =>
   client.callZome({
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_agent_mews_with_context",
-    payload: agentPubKey.value,
+    payload: {
+      agent: agentPubKey.value,
+      page: {
+        limit: pageLimit,
+      },
+    },
   });
+
+const {
+  data: authoredMews,
+  isLoading: isLoadingAuthoredMews,
+  error: errorAuthoredMews,
+  refetch: refetchAuthoredMews,
+} = useQuery({
+  queryKey: ["profiles", "get_agent_mews_with_context", agentPubKeyB64],
+  queryFn: fetchAuthoredMews,
+});
+watch(errorAuthoredMews, console.error);
 
 const fetchPinnedMews = () =>
   client.callZome({
@@ -184,6 +193,17 @@ const fetchPinnedMews = () =>
     fn_name: "get_mews_for_pinner_with_context",
     payload: agentPubKey.value,
   });
+
+const {
+  data: pinnedMews,
+  isLoading: isLoadingPinnedMews,
+  error: errorPinnedMews,
+  refetch: refetchPinnedMews,
+} = useQuery({
+  queryKey: ["profiles", "get_mews_for_pinner_with_context", agentPubKeyB64],
+  queryFn: fetchPinnedMews,
+});
+watch(errorPinnedMews, console.error);
 
 const fetchProfile = async () => {
   const profile = await profilesStore.client.getAgentProfile(agentPubKey.value);
@@ -197,25 +217,79 @@ const fetchProfile = async () => {
 
 const {
   data: profile,
-  loading,
-  error,
-  mutate: mutateProfile,
-} = useRequest(fetchProfile, {
-  cacheKey: `profiles/getAgentProfile/${agentPubKey.value}`,
-  refreshOnWindowFocus: true,
-  refocusTimespan: 25000, // 25 seconds between window focus to trigger refresh
-  loadingDelay: 1000,
+  isInitialLoading: isInitialLoadingProfile,
+  error: errorProfile,
+  refetch: refetchProfile,
+} = useQuery({
+  queryKey: ["profiles", "getAgentProfile", agentPubKeyB64],
+  queryFn: fetchProfile,
+  refetchOnMount: true,
 });
-watch(error, showError);
+watch(errorProfile, console.error);
 
-const onEditProfile = (event: CustomEvent<{ profile: Profile }>) => {
-  showEditProfileForm.value = false;
-  mutateProfile(event.detail.profile);
-};
+const fetchJoinedTimestamp = () =>
+  client.callZome({
+    role_name: "mewsfeed",
+    zome_name: "profiles",
+    fn_name: "get_joining_timestamp_for_agent",
+    payload: route.params.agentPubKey,
+  });
+
+const {
+  data: joinedTimestamp,
+  error: errorJoinedTimestamp,
+  refetch: refetchJoinedTimestamp,
+} = useQuery({
+  queryKey: ["profiles", "get_joining_timestamp_for_agent", agentPubKeyB64],
+  queryFn: fetchJoinedTimestamp,
+});
+watch(errorJoinedTimestamp, console.error);
+
+const fetchCreatorsCount = async (): Promise<number> =>
+  client.callZome({
+    role_name: "mewsfeed",
+    zome_name: "follows",
+    fn_name: "count_creators_for_follower",
+    payload: route.params.agentPubKey,
+  });
+
+const {
+  data: creatorsCount,
+  error: errorCreatorsCount,
+  refetch: refetchCreatorsCount,
+} = useQuery({
+  queryKey: ["follows", "count_creators_for_follower", agentPubKeyB64],
+  queryFn: fetchCreatorsCount,
+});
+watch(errorCreatorsCount, console.error);
+
+const fetchFollowersCount = async (): Promise<number> =>
+  client.callZome({
+    role_name: "mewsfeed",
+    zome_name: "follows",
+    fn_name: "count_followers_for_creator",
+    payload: route.params.agentPubKey,
+  });
+
+const {
+  data: followersCount,
+  error: errorFollowersCount,
+  refetch: refetchFollowersCount,
+} = useQuery({
+  queryKey: ["follows", "count_followers_for_creator", agentPubKeyB64],
+  queryFn: fetchFollowersCount,
+});
+watch(errorFollowersCount, console.error);
+
+watch(route, (newVal) => {
+  console.log("new route is ", newVal);
+  nextTick(() => {
+    refetchProfile();
+    refetchAuthoredMews();
+    refetchPinnedMews();
+    refetchJoinedTimestamp();
+    refetchFollowersCount();
+    refetchCreatorsCount();
+  });
+});
 </script>
-
-<style lang="sass">
-.follow-col
-  position: sticky
-  top: $toolbar-min-height + map-get(map-get($spaces, "xl"), "y")
-</style>

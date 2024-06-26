@@ -1,17 +1,28 @@
 use crate::agent_mews::get_agent_mews;
+use crate::agent_mews::GetAgentMewsInput;
 use crate::mew_to_responses::{get_responses_for_mew, GetResponsesForMewInput};
 use crate::mew_with_context::get_mew_with_context;
 use hc_call_utils::call_local_zome;
+use hc_link_pagination::{paginate_by_timestamp, TimestampPagination};
 use hdk::prelude::*;
 use mews_types::{Mew, MewType, Notification, NotificationType, Profile};
-use std::cmp::Reverse;
 
+#[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
+pub struct GetNotificationsForAgentInput {
+    agent: AgentPubKey,
+    page: Option<TimestampPagination>,
+}
 #[hdk_extern]
-pub fn get_notifications_for_agent(agent: AgentPubKey) -> ExternResult<Vec<Notification>> {
-    let my_mews = get_agent_mews(agent.clone())?;
+pub fn get_notifications_for_agent(
+    input: GetNotificationsForAgentInput,
+) -> ExternResult<Vec<Notification>> {
+    let agent_mews = get_agent_mews(GetAgentMewsInput {
+        agent: input.agent.clone(),
+        page: None,
+    })?;
 
     let agent_link_details = get_link_details(
-        agent.clone(),
+        input.agent.clone(),
         LinkTypeFilter::Types(vec![
             // Mentions of agent (MentionToMews)
             (ZomeIndex(1), vec![LinkType(6)]),
@@ -19,9 +30,10 @@ pub fn get_notifications_for_agent(agent: AgentPubKey) -> ExternResult<Vec<Notif
             (ZomeIndex(2), vec![LinkType(1)]),
         ]),
         None,
+        GetOptions::default(),
     )?;
 
-    let mut all_link_details = my_mews
+    let mut all_link_details = agent_mews
         .iter()
         .map(|mew| {
             get_link_details(
@@ -35,6 +47,7 @@ pub fn get_notifications_for_agent(agent: AgentPubKey) -> ExternResult<Vec<Notif
                     (ZomeIndex(4), vec![LinkType(1)]),
                 ]),
                 None,
+                GetOptions::default(),
             )
         })
         .collect::<ExternResult<Vec<LinkDetails>>>()?;
@@ -53,8 +66,13 @@ pub fn get_notifications_for_agent(agent: AgentPubKey) -> ExternResult<Vec<Notif
                         Action::CreateLink(a) => Ok(a.clone()),
                         _ => Err(wasm_error!(WasmErrorInner::Guest("Expected first element of LinkDetails to be CreateLink".into())))
                     }?;
+                    if create.author == input.agent {
+                        return Ok(vec!());
+                    }
+
                     let deletes = delete_actions_hashed
                         .iter()
+                        .filter(|action_hashed| *action_hashed.action().author() != input.agent)
                         .map(|action_hashed| -> ExternResult<DeleteLink> {
                             match action_hashed.action() {
                                 Action::DeleteLink(a) => Ok(a.clone()),
@@ -75,29 +93,65 @@ pub fn get_notifications_for_agent(agent: AgentPubKey) -> ExternResult<Vec<Notif
         .collect();
 
     // Responses to Mews I have responded to
-    let mew_hashes_i_responded_to: Vec<ActionHash> = my_mews
+    let mut mew_hashes_i_responded_to: Vec<(Record, ActionHash)> = agent_mews
         .iter()
-        .filter_map(|record| match record.entry().to_app_option::<Mew>().ok() {
-            Some(Some(mew)) => match mew.mew_type {
-                MewType::Reply(ah) | MewType::Quote(ah) | MewType::Mewmew(ah) => Some(ah),
+        // Filter only mew types that are responses
+        .filter_map(
+            |response_record| match response_record.entry().to_app_option::<Mew>().ok() {
+                Some(Some(mew)) => match mew.mew_type {
+                    MewType::Reply(original_ah)
+                    | MewType::Quote(original_ah)
+                    | MewType::Mewmew(original_ah) => Some((response_record.clone(), original_ah)),
+                    _ => None,
+                },
                 _ => None,
             },
-            _ => None,
+        )
+        // Exclude responses to agent's mews to avoid duplicate notifications for both "responded to your mew" and "responded to a yarn you participated in"
+        .filter(|(_, original_ah)| {
+            agent_mews
+                .iter()
+                .filter(|authored_record| {
+                    authored_record.action_hashed().hash == original_ah.clone()
+                })
+                .count()
+                == 0
         })
         .collect();
-    let mews_responding_to_mews_i_responded_to: Vec<Record> = mew_hashes_i_responded_to
-        .iter()
-        .map(|ah| {
-            get_responses_for_mew(GetResponsesForMewInput {
-                original_mew_hash: ah.clone(),
-                response_type: None,
+    mew_hashes_i_responded_to
+        .sort_by_key(|(response_record, _)| response_record.action().timestamp());
+    mew_hashes_i_responded_to.dedup_by_key(|(_, original_ah)| original_ah.clone());
+
+    let mews_responding_to_mews_i_responded_to: Vec<(Record, Vec<Record>)> =
+        mew_hashes_i_responded_to
+            .iter()
+            .map(|(my_response, original_ah)| {
+                // Still have to use a get_links here because we cannot filter count_links by excluding an author
+                let responses_result = get_responses_for_mew(GetResponsesForMewInput {
+                    original_mew_hash: original_ah.clone(),
+                    response_type: None,
+                    page: None,
+                });
+
+                match responses_result {
+                    Ok(all_responses) => Ok((my_response.clone(), all_responses)),
+                    Err(e) => Err(e),
+                }
             })
-        })
-        .collect::<ExternResult<Vec<Vec<Record>>>>()?
+            .collect::<ExternResult<Vec<(Record, Vec<Record>)>>>()?;
+
+    let mews_responding_to_mews_i_responded_to = mews_responding_to_mews_i_responded_to
         .iter()
-        .flatten()
-        .cloned()
-        .filter(|r| r.action().author().clone() != agent.clone())
+        .flat_map(|(my_response, all_responses)| -> Vec<Record> {
+            all_responses
+                .iter()
+                .filter(|other_response| {
+                    other_response.action().author().clone() != input.agent.clone()
+                        && other_response.action().timestamp() >= my_response.action().timestamp()
+                })
+                .cloned()
+                .collect()
+        })
         .collect();
 
     let mut n = make_notifications_for_records(
@@ -108,14 +162,194 @@ pub fn get_notifications_for_agent(agent: AgentPubKey) -> ExternResult<Vec<Notif
     notifications.append(&mut n);
 
     // All of this combined into one list sorted by timestamp descending
-    notifications.sort_by_key(|n| Reverse(n.timestamp));
+    let notifications_page = paginate_by_timestamp(notifications.clone(), input.page)?;
 
-    Ok(notifications)
+    Ok(notifications_page)
 }
 
 #[hdk_extern]
-pub fn get_my_notifications(_: ()) -> ExternResult<Vec<Notification>> {
-    get_notifications_for_agent(agent_info()?.agent_initial_pubkey)
+pub fn get_my_notifications(page: Option<TimestampPagination>) -> ExternResult<Vec<Notification>> {
+    get_notifications_for_agent(GetNotificationsForAgentInput {
+        agent: agent_info()?.agent_initial_pubkey,
+        page,
+    })
+}
+
+#[hdk_extern]
+pub fn count_notifications_for_agent(agent: AgentPubKey) -> ExternResult<usize> {
+    let agent_mews = get_agent_mews(GetAgentMewsInput {
+        agent: agent.clone(),
+        page: None,
+    })?;
+
+    let agent_link_details = get_link_details(
+        agent.clone(),
+        LinkTypeFilter::Types(vec![
+            // Mentions of agent (MentionToMews)
+            (ZomeIndex(1), vec![LinkType(6)]),
+            // Follows of agent (CreatorToFollowers)
+            (ZomeIndex(2), vec![LinkType(1)]),
+        ]),
+        None,
+        GetOptions::default(),
+    )?;
+
+    let mut all_link_details = agent_mews
+        .iter()
+        .map(|mew| {
+            get_link_details(
+                mew.action_hashed().hash.clone(),
+                LinkTypeFilter::Types(vec![
+                    // MewToResponses
+                    (ZomeIndex(1), vec![LinkType(5)]),
+                    // HashToLikers
+                    (ZomeIndex(3), vec![LinkType(1)]),
+                    // HashToPinners
+                    (ZomeIndex(4), vec![LinkType(1)]),
+                ]),
+                None,
+                GetOptions::default(),
+            )
+        })
+        .collect::<ExternResult<Vec<LinkDetails>>>()?;
+
+    if !agent_link_details.clone().into_inner().is_empty() {
+        all_link_details.push(agent_link_details);
+    }
+
+    let notifications_count: usize = all_link_details
+        .iter()
+        .map(|link_details| -> ExternResult<Vec<usize>> {
+            link_details
+                .clone()
+                .into_inner()
+                .iter()
+                .map(
+                    |(create_action_hashed, delete_actions_hashed)| -> ExternResult<usize> {
+                        let create = match create_action_hashed.action() {
+                            Action::CreateLink(a) => Ok(a.clone()),
+                            _ => Err(wasm_error!(WasmErrorInner::Guest(
+                                "Expected first element of LinkDetails to be CreateLink".into()
+                            ))),
+                        }?;
+                        if create.author == agent {
+                            return Ok(0);
+                        }
+
+                        let deletes = delete_actions_hashed
+                            .iter()
+                            .filter(|action_hashed| *action_hashed.action().author() != agent)
+                            .map(|action_hashed| -> ExternResult<DeleteLink> {
+                                match action_hashed.action() {
+                                    Action::DeleteLink(a) => Ok(a.clone()),
+                                    _ => Err(wasm_error!(WasmErrorInner::Guest(
+                                        "Expected first element of LinkDetails to be CreateLink"
+                                            .into()
+                                    ))),
+                                }
+                            })
+                            .collect::<ExternResult<Vec<DeleteLink>>>()?;
+
+                        count_notifications(create, deletes)
+                    },
+                )
+                .collect::<ExternResult<Vec<usize>>>()
+        })
+        .collect::<ExternResult<Vec<Vec<usize>>>>()?
+        .iter()
+        .flatten()
+        .cloned()
+        .sum();
+
+    // Responses to Mews I have responded to
+    let mut mew_hashes_i_responded_to: Vec<(Record, ActionHash)> = agent_mews
+        .iter()
+        .filter_map(
+            |response_record| match response_record.entry().to_app_option::<Mew>().ok() {
+                Some(Some(mew)) => match mew.mew_type {
+                    MewType::Reply(original_ah)
+                    | MewType::Quote(original_ah)
+                    | MewType::Mewmew(original_ah) => Some((response_record.clone(), original_ah)),
+                    _ => None,
+                },
+                _ => None,
+            },
+        )
+        .filter(|(_, original_ah)| {
+            agent_mews
+                .iter()
+                .filter(|authored_record| {
+                    authored_record.action_hashed().hash == original_ah.clone()
+                })
+                .count()
+                == 0
+        })
+        .collect();
+    mew_hashes_i_responded_to
+        .sort_by_key(|(response_record, _)| response_record.action().timestamp());
+    mew_hashes_i_responded_to.dedup_by_key(|(_, original_ah)| original_ah.clone());
+
+    let mews_responding_to_mews_i_responded_to: Vec<(Record, Vec<Record>)> =
+        mew_hashes_i_responded_to
+            .iter()
+            .map(|(my_response, original_ah)| {
+                // Still have to use a get_links here because we cannot filter count_links by excluding an author
+                let responses_result = get_responses_for_mew(GetResponsesForMewInput {
+                    original_mew_hash: original_ah.clone(),
+                    response_type: None,
+                    page: None,
+                });
+
+                match responses_result {
+                    Ok(all_responses) => Ok((my_response.clone(), all_responses)),
+                    Err(e) => Err(e),
+                }
+            })
+            .collect::<ExternResult<Vec<(Record, Vec<Record>)>>>()?;
+
+    let mews_responding_to_mews_i_responded_to_count = mews_responding_to_mews_i_responded_to
+        .iter()
+        .flat_map(|(my_response, all_responses)| -> Vec<Record> {
+            all_responses
+                .iter()
+                .filter(|other_response| {
+                    other_response.action().author().clone() != agent.clone()
+                        && other_response.action().timestamp() >= my_response.action().timestamp()
+                })
+                .cloned()
+                .collect()
+        })
+        .count();
+
+    Ok(notifications_count + mews_responding_to_mews_i_responded_to_count)
+}
+
+#[hdk_extern]
+pub fn count_my_notifications(_: ()) -> ExternResult<usize> {
+    count_notifications_for_agent(agent_info()?.agent_initial_pubkey)
+}
+
+fn count_notifications(create: CreateLink, deletes: Vec<DeleteLink>) -> ExternResult<usize> {
+    match (create.zome_index, create.link_type) {
+        // MentionToMews
+        (ZomeIndex(1), LinkType(6)) => Ok(1),
+
+        // CreatorToFollowers
+        (ZomeIndex(2), LinkType(1)) => Ok(1 + deletes.len()),
+
+        // MewToResponses
+        (ZomeIndex(1), LinkType(5)) => Ok(1),
+
+        // HashToLikers
+        (ZomeIndex(3), LinkType(1)) => Ok(1 + deletes.len()),
+
+        // HashToPinners
+        (ZomeIndex(4), LinkType(1)) => Ok(1 + deletes.len()),
+
+        (_, _) => Err(wasm_error!(WasmErrorInner::Guest(
+            "Unexpected link type".into()
+        ))),
+    }
 }
 
 fn make_notifications(
@@ -125,7 +359,10 @@ fn make_notifications(
     match (create.zome_index, create.link_type) {
         // MentionToMews
         (ZomeIndex(1), LinkType(6)) => {
-            let feed_mew_hash = Some(ActionHash::from(create.target_address.clone()));
+            let feed_mew_hash = Some(
+                ActionHash::try_from(create.target_address.clone())
+                    .map_err(|err| wasm_error!(err))?,
+            );
 
             make_notifications_for_createlinks(
                 vec![create],
@@ -154,7 +391,10 @@ fn make_notifications(
 
         // MewToResponses
         (ZomeIndex(1), LinkType(5)) => {
-            let feed_mew_hash = Some(ActionHash::from(create.target_address.clone()));
+            let feed_mew_hash = Some(
+                ActionHash::try_from(create.target_address.clone())
+                    .map_err(|err| wasm_error!(err))?,
+            );
 
             make_notifications_for_createlinks(
                 vec![create],
@@ -165,7 +405,10 @@ fn make_notifications(
 
         // HashToLikers
         (ZomeIndex(3), LinkType(1)) => {
-            let feed_mew_hash = Some(ActionHash::from(create.base_address.clone()));
+            let feed_mew_hash = Some(
+                ActionHash::try_from(create.base_address.clone())
+                    .map_err(|err| wasm_error!(err))?,
+            );
 
             let mut all_notifications = make_notifications_for_createlinks(
                 vec![create],
@@ -185,7 +428,10 @@ fn make_notifications(
 
         // HashToPinners
         (ZomeIndex(4), LinkType(1)) => {
-            let feed_mew_hash = Some(ActionHash::from(create.base_address.clone()));
+            let feed_mew_hash = Some(
+                ActionHash::try_from(create.base_address.clone())
+                    .map_err(|err| wasm_error!(err))?,
+            );
 
             let mut all_notifications = make_notifications_for_createlinks(
                 vec![create],

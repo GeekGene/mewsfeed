@@ -1,13 +1,20 @@
 <template>
-  {{ formattedTimestamp }}
-  <QTooltip>{{ timestamp }}</QTooltip>
+  <div
+    v-tooltip.bottom="{
+      content: timestamp.toString(),
+      popperClass: 'text-xs font-mono',
+      triggers: ['hover'],
+    }"
+    class="font-mono inline-block"
+  >
+    <div>{{ formattedTimestamp }}</div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { QTooltip } from "quasar";
 dayjs.extend(relativeTime);
 
 const props = defineProps({ timestamp: { type: Number, required: true } });

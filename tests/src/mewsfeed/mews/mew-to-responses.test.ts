@@ -1,8 +1,8 @@
-import { Record } from "@holochain/client";
 import { runScenario } from "@holochain/tryorama";
-import { assert, test } from "vitest";
+import { assert, expect, test } from "vitest";
 import { FeedMew, Mew, MewTypeName } from "../../../../ui/src/types/types.js";
 import { mewsfeedAppBundleSource } from "../../common.js";
+import { ActionHash } from "@holochain/client";
 
 test("Agent can reply to a mew", async () => {
   await runScenario(
@@ -14,15 +14,11 @@ test("Agent can reply to a mew", async () => {
       // can be destructured.
       const [alice] = await scenario.addPlayersWithApps([appSource]);
 
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
-
       const aliceMewContent = "alice-test-mew";
       const aliceMewInput: Mew = {
         text: aliceMewContent,
         links: [],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: MewTypeName.Original,
       };
       const action_hash: ActionHash = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -47,7 +43,11 @@ test("Agent can reply to a mew", async () => {
         fn_name: "get_mew_with_context",
         payload: reply_action_hash,
       });
-      assert.ok(MewTypeName.Reply in replyMew.mew.mew_type, "mew is a reply");
+      assert.ok(
+        typeof replyMew.mew.mew_type === "object" &&
+          MewTypeName.Reply in replyMew.mew.mew_type,
+        "mew is a reply"
+      );
       assert.equal(
         replyMew.mew.text,
         aliceReplyContent,
@@ -59,24 +59,25 @@ test("Agent can reply to a mew", async () => {
         fn_name: "get_mew_with_context",
         payload: action_hash,
       });
-      assert.ok(
-        MewTypeName.Original in originalMew.mew.mew_type,
+      console.log("original", originalMew.mew.mew_type);
+      assert.equal(
+        originalMew.mew.mew_type,
+        MewTypeName.Original,
         "mew is an original mew"
       );
       assert.equal(originalMew.mew.text, aliceMewContent, "mew is alice's mew");
-      assert.ok(originalMew.replies.length === 1, "original mew has 1 reply");
-      assert.deepEqual(
-        originalMew.replies[0],
-        reply_action_hash,
+      assert.ok(originalMew.replies_count === 1, "original mew has 1 reply");
+      assert.isTrue(
+        originalMew.is_replied,
         "original mew's reply is alice's reply"
       );
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
-test("Agent can mewmew a mew", async () => {
+test("Agent can mewmew a mew only once", async () => {
   await runScenario(
     async (scenario) => {
       // Set up the app to be installed
@@ -94,7 +95,7 @@ test("Agent can mewmew a mew", async () => {
       const aliceMewInput: Mew = {
         text: aliceMewContent,
         links: [],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: MewTypeName.Original,
       };
       const action_hash: ActionHash = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -118,7 +119,11 @@ test("Agent can mewmew a mew", async () => {
         fn_name: "get_mew_with_context",
         payload: mewmew_action_hash,
       });
-      assert.ok(MewTypeName.Mewmew in mewmew.mew.mew_type, "mew is a mewmew");
+      assert.ok(
+        typeof mewmew.mew.mew_type === "object" &&
+          MewTypeName.Mewmew in mewmew.mew.mew_type,
+        "mew is a mewmew"
+      );
       assert.deepEqual(
         mewmew.mew,
         aliceMewmewInput,
@@ -130,20 +135,31 @@ test("Agent can mewmew a mew", async () => {
         fn_name: "get_mew_with_context",
         payload: action_hash,
       });
-      assert.ok(
-        MewTypeName.Original in originalMew.mew.mew_type,
+      assert.equal(
+        originalMew.mew.mew_type,
+        MewTypeName.Original,
         "mew is an original mew"
       );
       assert.equal(originalMew.mew.text, aliceMewContent, "mew is alice's mew");
-      assert.ok(originalMew.mewmews.length === 1, "original mew has 1 mewmew");
-      assert.deepEqual(
-        originalMew.mewmews[0],
-        mewmew_action_hash,
+      assert.ok(originalMew.mewmews_count === 1, "original mew has 1 mewmew");
+      assert.isTrue(
+        originalMew.is_mewmewed,
         "original mew's mewmew is alice's mewmew"
+      );
+
+      // Mewmew the same mew again
+      const response = alice.cells[0].callZome({
+        zome_name: "mews",
+        fn_name: "create_mew",
+        payload: aliceMewmewInput,
+      });
+      await expect(response).rejects.toHaveProperty(
+        "message",
+        expect.stringContaining("InvalidCommit")
       );
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });
 
@@ -157,15 +173,11 @@ test("Agent can quote a mew", async () => {
       // can be destructured.
       const [alice] = await scenario.addPlayersWithApps([appSource]);
 
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
-
       const aliceMewContent = "alice-test-mew";
       const aliceMewInput: Mew = {
         text: aliceMewContent,
         links: [],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: MewTypeName.Original,
       };
       const action_hash: ActionHash = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -192,7 +204,11 @@ test("Agent can quote a mew", async () => {
         fn_name: "get_mew_with_context",
         payload: quote_action_hash,
       });
-      assert.ok(MewTypeName.Quote in quote.mew.mew_type, "mew is a quote");
+      assert.ok(
+        typeof quote.mew.mew_type === "object" &&
+          MewTypeName.Quote in quote.mew.mew_type,
+        "mew is a quote"
+      );
       assert.equal(quote.mew.text, aliceQuoteText, "quote is alice's quote");
 
       const originalMew: FeedMew = await alice.cells[0].callZome({
@@ -200,19 +216,19 @@ test("Agent can quote a mew", async () => {
         fn_name: "get_mew_with_context",
         payload: action_hash,
       });
-      assert.ok(
-        MewTypeName.Original in originalMew.mew.mew_type,
+      assert.equal(
+        originalMew.mew.mew_type,
+        MewTypeName.Original,
         "mew is an original mew"
       );
       assert.equal(originalMew.mew.text, aliceMewContent, "mew is alice's mew");
-      assert.ok(originalMew.quotes.length === 1, "original mew has 1 quote");
-      assert.deepEqual(
-        originalMew.quotes[0],
-        quote_action_hash,
+      assert.ok(originalMew.quotes_count === 1, "original mew has 1 quote");
+      assert.isTrue(
+        originalMew.is_quoted,
         "original mew's quote is alice's quote"
       );
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });

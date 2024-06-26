@@ -2,12 +2,12 @@ use hdi::prelude::*;
 
 pub fn validate_create_link_mention_to_mews(
     _action: CreateLink,
-    base_address: AnyLinkableHash,
+    _base_address: AnyLinkableHash,
     target_address: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
     // Check the entry type for the given action hash
-    let action_hash = ActionHash::from(target_address);
+    let action_hash = ActionHash::try_from(target_address).map_err(|err| wasm_error!(err))?;
     let record = must_get_valid_record(action_hash)?;
     let _mew: crate::Mew = record
         .entry()
@@ -16,13 +16,6 @@ pub fn validate_create_link_mention_to_mews(
         .ok_or(wasm_error!(WasmErrorInner::Guest(String::from(
             "Linked action must reference an entry"
         ))))?;
-
-    if AgentPubKey::try_from(EntryHash::from(base_address)).is_err() {
-        return Ok(ValidateCallbackResult::Invalid(
-            "Base addesss of MentionToMew link must be an AgentPubKey".into(),
-        ));
-    }
-
     Ok(ValidateCallbackResult::Valid)
 }
 

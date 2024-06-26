@@ -1,67 +1,86 @@
 <template>
-  <QBtn size="md" color="secondary" @click.stop.prevent="toggleFollow">
-    <template v-if="isFollowing">
-      <div class="q-mr-sm">Unfollow</div>
-      <QIcon name="svguse:/icons.svg#cat" />
-    </template>
-    <template v-else>
-      <div class="q-mr-sm">Follow</div>
-      <QIcon
-        name="svguse:/icons.svg#cat"
-        color="secondary"
-        style="stroke: white"
-      />
-    </template>
-  </QBtn>
+  <button
+    class="btn btn-sm rounded-3xl px-4"
+    :class="{
+      'btn-primary': isFollowing,
+      'btn-neutral': !isFollowing,
+      'md:btn-md': big,
+    }"
+    @click.stop.prevent="toggleFollow"
+  >
+    {{ isFollowing ? "Following" : "Follow" }}
+  </button>
   <CreateProfileIfNotFoundDialog
     v-model="showCreateProfileDialog"
-    @profile-created="toggleFollow"
+    @profile-created="toggleFollow()"
   />
 </template>
 
 <script setup lang="ts">
 import { PROFILE_FIELDS } from "@/types/types";
-import { showError, showMessage } from "@/utils/toasts";
-import { AgentPubKey } from "@holochain/client";
-import { ComputedRef, inject, onMounted, PropType, ref } from "vue";
-import { QBtn, QIcon } from "quasar";
+import { AgentPubKey, encodeHashToBase64 } from "@holochain/client";
+import { computed, ComputedRef, inject, ref, watch } from "vue";
 import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
-import { AppAgentClient } from "@holochain/client";
+import { AppClient } from "@holochain/client";
 import CreateProfileIfNotFoundDialog from "./CreateProfileIfNotFoundDialog.vue";
 import isEqual from "lodash/isEqual";
+import { setHomeRedirect } from "@/utils/homeRedirect";
+import { useQuery } from "@tanstack/vue-query";
+import { useToasts } from "@/stores/toasts";
 
-const props = defineProps({
-  agentPubKey: {
-    type: Object as PropType<AgentPubKey>,
-    required: true,
-  },
-});
+const props = withDefaults(
+  defineProps<{
+    agentPubKey: AgentPubKey;
+    big?: boolean;
+  }>(),
+  {
+    big: true,
+  }
+);
 const emit = defineEmits(["toggle-follow"]);
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
-const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+const client = (inject("client") as ComputedRef<AppClient>).value;
 const myProfile = inject("myProfile") as ComputedRef<Profile>;
+const { showMessage, showError } = useToasts();
 
-const loading = ref(true);
-const isFollowing = ref(false);
 const showCreateProfileDialog = ref(false);
+const agentPubKeyB64 = computed(() => encodeHashToBase64(client.myPubKey));
 
-onMounted(async () => {
-  try {
-    const currentMyFollowing: AgentPubKey[] = await client.callZome({
-      role_name: "mewsfeed",
-      zome_name: "follows",
-      fn_name: "get_creators_for_follower",
-      payload: client.myPubKey,
-    });
-    isFollowing.value = currentMyFollowing.some((agent) =>
-      isEqual(agent, props.agentPubKey)
-    );
-  } catch (error) {
-    showError(error);
-  } finally {
-    loading.value = false;
-  }
+const fetchMyFollowing = async (): Promise<AgentPubKey[]> =>
+  client.callZome({
+    role_name: "mewsfeed",
+    zome_name: "follows",
+    fn_name: "get_creators_for_follower",
+    payload: {
+      follower: client.myPubKey,
+    },
+  });
+
+const isFollowing = computed(() => {
+  if (!currentMyFollowing.value) return false;
+
+  return currentMyFollowing.value.some((agent: AgentPubKey) =>
+    isEqual(agent, props.agentPubKey)
+  );
+});
+
+const {
+  data: currentMyFollowing,
+  error: errorMyFollowing,
+  refetch: refetchMyFollowing,
+} = useQuery({
+  queryKey: [
+    "follows",
+    "get_creators_for_follower",
+    agentPubKeyB64,
+    "isFollowing",
+  ],
+  queryFn: fetchMyFollowing,
+});
+watch(errorMyFollowing, console.error);
+watch(props, () => {
+  refetchMyFollowing();
 });
 
 const toggleFollow = async () => {
@@ -72,33 +91,45 @@ const toggleFollow = async () => {
   showCreateProfileDialog.value = false;
 
   try {
-    const [profile] = await Promise.all([
-      profilesStore.client.getAgentProfile(props.agentPubKey),
-      isFollowing.value
-        ? await client.callZome({
-            role_name: "mewsfeed",
-            zome_name: "follows",
-            fn_name: "unfollow",
-            payload: props.agentPubKey,
-          })
-        : await client.callZome({
-            role_name: "mewsfeed",
-            zome_name: "follows",
-            fn_name: "follow",
-            payload: props.agentPubKey,
-          }),
-    ]);
-    isFollowing.value = !isFollowing.value;
-    const name = `${profile?.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
-      profile?.nickname
-    })`;
-    const message = isFollowing.value
-      ? `You're following ${name} now`
-      : `You're not following ${name} anymore`;
-    showMessage(message);
+    isFollowing.value
+      ? await client.callZome({
+          role_name: "mewsfeed",
+          zome_name: "follows",
+          fn_name: "unfollow",
+          payload: props.agentPubKey,
+        })
+      : await client.callZome({
+          role_name: "mewsfeed",
+          zome_name: "follows",
+          fn_name: "follow",
+          payload: props.agentPubKey,
+        });
+    await refetchMyFollowing();
+    if (isFollowing.value) {
+      setHomeRedirect(false);
+    }
     emit("toggle-follow", isFollowing.value);
+    showSuccessMessage();
   } catch (error) {
     showError(error);
   }
+};
+
+const showSuccessMessage = async () => {
+  let name;
+  try {
+    const profile = await profilesStore.client.getAgentProfile(
+      props.agentPubKey
+    );
+    name = `${profile?.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
+      profile?.nickname
+    })`;
+  } catch (error) {
+    console.error(error);
+    name = encodeHashToBase64(props.agentPubKey);
+  }
+
+  const message = isFollowing.value ? `Followed ${name}` : `Unfollowed ${name}`;
+  showMessage(message);
 };
 </script>

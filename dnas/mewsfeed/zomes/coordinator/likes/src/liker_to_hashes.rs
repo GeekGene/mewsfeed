@@ -26,7 +26,15 @@ pub fn add_hash_for_liker(input: AddHashForLikerInput) -> ExternResult<()> {
 
 #[hdk_extern]
 pub fn get_hashes_for_liker(liker: AgentPubKey) -> ExternResult<Vec<AnyLinkableHash>> {
-    let links = get_links(liker, LinkTypes::LikerToHashes, None)?;
+    let links = get_links(GetLinksInput {
+        base_address: liker.into(),
+        link_type: LinkTypes::LikerToHashes.try_into_filter()?,
+        tag_prefix: None,
+        after: None,
+        before: None,
+        author: None,
+        get_options: GetOptions::default(),
+    })?;
 
     let hashes: Vec<AnyLinkableHash> = links.into_iter().map(|link| link.target).collect();
 
@@ -38,15 +46,46 @@ pub fn get_likers_for_hash(hash: AnyLinkableHash) -> ExternResult<Vec<AgentPubKe
     let links = get_liker_links_for_hash(hash)?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()
-        .map(|link| AgentPubKey::from(EntryHash::from(link.target)))
+        .filter_map(|link| EntryHash::try_from(link.target).ok())
+        .map(AgentPubKey::from)
         .collect();
 
     Ok(agents)
 }
 
 #[hdk_extern]
+pub fn count_likers_for_hash(hash: AnyLinkableHash) -> ExternResult<usize> {
+    let query = LinkQuery::new(hash, LinkTypes::HashToLikers.try_into_filter()?);
+
+    count_links(query)
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct IsLikerForHashInput {
+    pub liker: AgentPubKey,
+    pub hash: AnyLinkableHash,
+}
+#[hdk_extern]
+pub fn is_liker_for_hash(input: IsLikerForHashInput) -> ExternResult<bool> {
+    let query =
+        LinkQuery::new(input.hash, LinkTypes::HashToLikers.try_into_filter()?).author(input.liker);
+
+    let count = count_links(query)?;
+
+    Ok(count > 0)
+}
+
+#[hdk_extern]
 pub fn get_liker_links_for_hash(hash: AnyLinkableHash) -> ExternResult<Vec<Link>> {
-    let mut links = get_links(hash, LinkTypes::HashToLikers, None)?;
+    let mut links = get_links(GetLinksInput {
+        base_address: hash,
+        link_type: LinkTypes::HashToLikers.try_into_filter()?,
+        tag_prefix: None,
+        after: None,
+        before: None,
+        author: None,
+        get_options: GetOptions::default(),
+    })?;
     links.dedup_by_key(|l| l.target.clone());
 
     Ok(links)
@@ -54,7 +93,7 @@ pub fn get_liker_links_for_hash(hash: AnyLinkableHash) -> ExternResult<Vec<Link>
 
 #[hdk_extern]
 pub fn get_liker_link_details_for_hash(hash: AnyLinkableHash) -> ExternResult<LinkDetails> {
-    get_link_details(hash, LinkTypes::HashToLikers, None)
+    get_link_details(hash, LinkTypes::HashToLikers, None, GetOptions::default())
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -64,7 +103,15 @@ pub struct RemoveHashForLikerInput {
 }
 #[hdk_extern]
 pub fn remove_hash_for_liker(input: RemoveHashForLikerInput) -> ExternResult<()> {
-    let links = get_links(input.base_liker.clone(), LinkTypes::LikerToHashes, None)?;
+    let links = get_links(GetLinksInput {
+        base_address: input.base_liker.clone().into(),
+        link_type: LinkTypes::LikerToHashes.try_into_filter()?,
+        tag_prefix: None,
+        after: None,
+        before: None,
+        author: None,
+        get_options: GetOptions::default(),
+    })?;
 
     for link in links {
         if link.target.clone().eq(&input.target_hash) {
@@ -72,10 +119,20 @@ pub fn remove_hash_for_liker(input: RemoveHashForLikerInput) -> ExternResult<()>
         }
     }
 
-    let links = get_links(input.target_hash.clone(), LinkTypes::HashToLikers, None)?;
+    let links = get_links(GetLinksInput {
+        base_address: input.target_hash.clone(),
+        link_type: LinkTypes::HashToLikers.try_into_filter()?,
+        tag_prefix: None,
+        after: None,
+        before: None,
+        author: None,
+        get_options: GetOptions::default(),
+    })?;
 
     for link in links {
-        if AgentPubKey::from(EntryHash::from(link.target.clone())).eq(&input.base_liker) {
+        let entry_hash =
+            EntryHash::try_from(link.target.clone()).map_err(|err| wasm_error!(err))?;
+        if AgentPubKey::from(entry_hash).eq(&input.base_liker) {
             delete_link(link.create_link_hash)?;
         }
     }

@@ -1,4 +1,5 @@
 use crate::tag_to_mews::*;
+use hc_link_pagination::HashPagination;
 use hdk::prelude::*;
 use mews_integrity::*;
 
@@ -35,14 +36,19 @@ pub fn remove_hashtag_for_mew(input: RemoveHashtagForMewInput) -> ExternResult<(
     let tag = make_tag_text(input.base_hashtag.clone());
     let prefix_index = make_tag_prefix_index()?;
     let result_path = prefix_index.make_result_path(tag, Some(input.base_hashtag.clone()))?;
-
-    let links = get_links(
-        result_path.path_entry_hash()?,
-        LinkTypes::HashtagToMews,
-        Some(LinkTag(input.base_hashtag.as_bytes().to_vec())),
-    )?;
+    let links = get_links(GetLinksInput {
+        base_address: result_path.path_entry_hash()?.into(),
+        link_type: LinkTypes::HashtagToMews.try_into_filter()?,
+        tag_prefix: Some(LinkTag(input.base_hashtag.as_bytes().to_vec())),
+        after: None,
+        before: None,
+        author: None,
+        get_options: GetOptions::default(),
+    })?;
     for link in links {
-        if ActionHash::from(link.target.clone()).eq(&input.target_mew_hash) {
+        let action_hash =
+            ActionHash::try_from(link.target.clone()).map_err(|err| wasm_error!(err))?;
+        if action_hash.eq(&input.target_mew_hash) {
             delete_link(link.create_link_hash)?;
         }
     }
@@ -50,7 +56,14 @@ pub fn remove_hashtag_for_mew(input: RemoveHashtagForMewInput) -> ExternResult<(
     Ok(())
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GetMewsForHashtagWithContextInput {
+    hashtag: String,
+    page: Option<HashPagination>,
+}
 #[hdk_extern]
-pub fn get_mews_for_hashtag_with_context(hashtag: String) -> ExternResult<Vec<FeedMew>> {
-    get_mews_for_tag_with_context(hashtag, LinkTypes::HashtagToMews)
+pub fn get_mews_for_hashtag_with_context(
+    input: GetMewsForHashtagWithContextInput,
+) -> ExternResult<Vec<FeedMew>> {
+    get_mews_for_tag_with_context(input.hashtag, LinkTypes::HashtagToMews, input.page)
 }

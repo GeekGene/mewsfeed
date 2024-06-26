@@ -1,8 +1,8 @@
+import { ActionHash } from "@holochain/client";
+import { dhtSync, runScenario } from "@holochain/tryorama";
 import { assert, test } from "vitest";
-import { runScenario, pause } from "@holochain/tryorama";
-import { ActionHash, Record } from "@holochain/client";
-import { createMew } from "./common.js";
 import { FeedMew } from "../../../../ui/src/types/types.js";
+import { createMew } from "./common.js";
 
 test("link a Pinner to a Mew", async () => {
   await runScenario(
@@ -20,10 +20,6 @@ test("link a Pinner to a Mew", async () => {
         appSource,
         appSource,
       ]);
-
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
 
       const baseAddress = alice.agentPubKey;
       const targetActionHash: ActionHash = await createMew(alice.cells[0]);
@@ -43,7 +39,7 @@ test("link a Pinner to a Mew", async () => {
         payload: targetActionHash,
       });
 
-      await pause(1200);
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
       // Bob gets the links again
       linksOutput = await bob.cells[0].callZome({
@@ -60,7 +56,7 @@ test("link a Pinner to a Mew", async () => {
         payload: targetActionHash,
       });
 
-      await pause(1200);
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
 
       // Bob gets the links again
       linksOutput = await bob.cells[0].callZome({
@@ -71,6 +67,6 @@ test("link a Pinner to a Mew", async () => {
       assert.equal(linksOutput.length, 0);
     },
     true,
-    { timeout: 100000 }
+    { timeout: 500000 }
   );
 });

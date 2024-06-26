@@ -1,10 +1,16 @@
 use crate::mew_with_context::get_batch_mews_with_context;
+use hc_link_pagination::{paginate_by_hash, HashPagination};
 use hdk::prelude::*;
 use mews_integrity::*;
 
+#[derive(Serialize, Deserialize, SerializedBytes, Clone, Debug)]
+pub struct GetAgentMewsInput {
+    pub agent: AgentPubKey,
+    pub page: Option<HashPagination>,
+}
 #[hdk_extern]
-pub fn get_agent_mews(author: AgentPubKey) -> ExternResult<Vec<Record>> {
-    let hashes = get_agent_mew_hashes(author)?;
+pub fn get_agent_mews(input: GetAgentMewsInput) -> ExternResult<Vec<Record>> {
+    let hashes = get_agent_mew_hashes(input)?;
     let get_input: Vec<GetInput> = hashes
         .into_iter()
         .map(|hash| GetInput::new(hash.into(), GetOptions::default()))
@@ -15,18 +21,28 @@ pub fn get_agent_mews(author: AgentPubKey) -> ExternResult<Vec<Record>> {
 }
 
 #[hdk_extern]
-pub fn get_agent_mews_with_context(author: AgentPubKey) -> ExternResult<Vec<FeedMew>> {
-    let hashes = get_agent_mew_hashes(author)?;
+pub fn get_agent_mews_with_context(input: GetAgentMewsInput) -> ExternResult<Vec<FeedMew>> {
+    let hashes = get_agent_mew_hashes(input)?;
 
     get_batch_mews_with_context(hashes)
 }
 
-fn get_agent_mew_hashes(author: AgentPubKey) -> ExternResult<Vec<ActionHash>> {
-    let mut links = get_links(author, LinkTypes::AgentMews, None)?;
-    links.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
-    let hashes: Vec<ActionHash> = links
+fn get_agent_mew_hashes(input: GetAgentMewsInput) -> ExternResult<Vec<ActionHash>> {
+    let links = get_links(GetLinksInput {
+        base_address: input.agent.into(),
+        link_type: LinkTypes::AgentMews.try_into_filter()?,
+        tag_prefix: None,
+        after: None,
+        before: None,
+        author: None,
+        get_options: GetOptions::default(),
+    })?;
+
+    let links_slice = paginate_by_hash(links, input.page)?;
+
+    let hashes: Vec<ActionHash> = links_slice
         .into_iter()
-        .map(|link| ActionHash::from(link.target))
+        .filter_map(|link| ActionHash::try_from(link.target).ok())
         .collect();
 
     Ok(hashes)
