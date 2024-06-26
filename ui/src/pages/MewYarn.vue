@@ -113,7 +113,7 @@ const fetchReplies = (params: any) =>
       original_mew_hash: mew?.value.action_hash,
       page: {
         limit: pageLimit,
-        direction: { [PaginationDirectionName.Ascending]: null },
+        direction: PaginationDirectionName.Ascending,
         ...params.pageParam,
       },
     },
