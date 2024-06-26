@@ -987,6 +987,7 @@ dependencies = [
 [[package]]
 name = "hc_prefix_index"
 version = "0.10.0"
+source = "git+https://github.com/jost-s/holochain-prefix-index?branch=build/holochain-0.4.0-dev.8#964cdffe813f36d3760851247f54d45add1a1348"
 dependencies = [
  "hdk",
  "rand",

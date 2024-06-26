@@ -23,10 +23,6 @@ test("mention in mews", async () => {
         appSource,
       ]);
 
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
-
       await createMew(alice.cells[0], {
         text: "this is for @bob",
         links: [{ [LinkTargetName.Mention]: bob.agentPubKey }],
@@ -81,10 +77,6 @@ test("Mentions list are time-paginated", async () => {
       // Add 2 players with the test app to the Scenario. The returned players
       // can be destructured.
       const [alice] = await scenario.addPlayersWithApps([appSource]);
-
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
 
       const mewContent1 = "My Mew with @mention 1";
       const createMewInput1: Mew = {

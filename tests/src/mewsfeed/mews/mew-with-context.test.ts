@@ -1,10 +1,9 @@
 import { ActionHash } from "@holochain/client";
-import { dhtSync, pause, runScenario } from "@holochain/tryorama";
+import { dhtSync, runScenario } from "@holochain/tryorama";
 import { assert, expect, test } from "vitest";
-import { FeedMew, Mew, MewTypeName } from "../../../../ui/src/types/types";
+import { FeedMew, MewTypeName } from "../../../../ui/src/types/types";
 import { mewsfeedAppBundleSource } from "../../common";
 import { createMew } from "./common";
-
 
 test("Mew with context contains licks count and is_licked", async () => {
   await runScenario(
@@ -18,10 +17,6 @@ test("Mew with context contains licks count and is_licked", async () => {
         appSource,
         appSource,
       ]);
-
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
 
       // Alice creates a Mew
       const actionHash: ActionHash = await createMew(alice.cells[0]);
@@ -101,10 +96,6 @@ test("Mew with context contains replies count and is_replied", async () => {
         appSource,
       ]);
 
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
-
       // Alice creates a Mew
       const actionHash: ActionHash = await createMew(alice.cells[0]);
       assert.ok(actionHash);
@@ -160,10 +151,6 @@ test("Mew with context contains quotes count and is_quoted", async () => {
         appSource,
       ]);
 
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
-
       // Alice creates a Mew
       const actionHash: ActionHash = await createMew(alice.cells[0]);
       assert.ok(actionHash);
@@ -218,10 +205,6 @@ test("Mew with context contains mewmews count and is_mewmewed", async () => {
         appSource,
         appSource,
       ]);
-
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
 
       // Alice creates a Mew
       const actionHash: ActionHash = await createMew(alice.cells[0]);
@@ -280,10 +263,6 @@ test("Mew with context contains is_pinned", async () => {
         appSource,
         appSource,
       ]);
-
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
 
       // Alice creates a Mew
       const actionHash: ActionHash = await createMew(alice.cells[0]);

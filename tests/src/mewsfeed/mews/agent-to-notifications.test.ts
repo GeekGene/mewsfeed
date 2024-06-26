@@ -60,11 +60,11 @@ test("notifications include my agent follows & unfollows", async () => {
       // Notifications should be orderded by action time descending (newest first)
       expect(notifications[0]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyAgentUnfollowed]: null },
+        notification_type: NotificationTypeName.MyAgentUnfollowed,
       });
       expect(notifications[1]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyAgentFollowed]: null },
+        notification_type: NotificationTypeName.MyAgentFollowed,
       });
 
       // Alice gets notifications count
@@ -139,12 +139,12 @@ test("notifications include my mews' likes & unlikes", async () => {
 
       expect(notifications[0]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyMewUnlicked]: null },
+        notification_type: NotificationTypeName.MyMewUnlicked,
         feed_mew: feedMew,
       });
       expect(notifications[1]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyMewLicked]: null },
+        notification_type: NotificationTypeName.MyMewLicked,
         feed_mew: feedMew,
       });
 
@@ -220,12 +220,12 @@ test("notifications include my mews' pins & unpins", async () => {
 
       expect(notifications[0]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyMewUnpinned]: null },
+        notification_type: NotificationTypeName.MyMewUnpinned,
         feed_mew: feedMew,
       });
       expect(notifications[1]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyMewPinned]: null },
+        notification_type: NotificationTypeName.MyMewPinned,
         feed_mew: feedMew,
       });
 
@@ -327,17 +327,17 @@ test("notifications include my mews' replies, quotes, mewmews", async () => {
 
       expect(notifications[0]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyMewResponded]: null },
+        notification_type: NotificationTypeName.MyMewResponded,
         feed_mew: quoteFeedMew,
       });
       expect(notifications[1]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyMewResponded]: null },
+        notification_type: NotificationTypeName.MyMewResponded,
         feed_mew: mewmewFeedMew,
       });
       expect(notifications[2]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyMewResponded]: null },
+        notification_type: NotificationTypeName.MyMewResponded,
         feed_mew: replyFeedMew,
       });
 
@@ -451,23 +451,17 @@ test("notifications include replies, quotes, mewmews to mews that I also respond
 
       expect(notifications[0]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: {
-          [NotificationTypeName.FollowedYarnResponded]: null,
-        },
+        notification_type: NotificationTypeName.FollowedYarnResponded,
         feed_mew: quoteFeedMew,
       });
       expect(notifications[1]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: {
-          [NotificationTypeName.FollowedYarnResponded]: null,
-        },
+        notification_type: NotificationTypeName.FollowedYarnResponded,
         feed_mew: mewmewFeedMew,
       });
       expect(notifications[2]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: {
-          [NotificationTypeName.FollowedYarnResponded]: null,
-        },
+        notification_type: NotificationTypeName.FollowedYarnResponded,
         feed_mew: replyFeedMew,
       });
 
@@ -633,7 +627,7 @@ test("notifications list is time-paginated", async () => {
         zome_name: "mews",
         fn_name: "get_my_notifications",
         payload: {
-          direction: { [PaginationDirectionName.Descending]: null },
+          direction: PaginationDirectionName.Descending,
           limit: 2,
         },
       });
@@ -641,12 +635,12 @@ test("notifications list is time-paginated", async () => {
       // Notifications should be orderded by action time descending (newest first)
       expect(page1[0]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyMewResponded]: null },
+        notification_type: NotificationTypeName.MyMewResponded,
         feed_mew: replyFeedMew7,
       });
       expect(page1[1]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyMewResponded]: null },
+        notification_type: NotificationTypeName.MyMewResponded,
         feed_mew: replyFeedMew6,
       });
 
@@ -658,7 +652,7 @@ test("notifications list is time-paginated", async () => {
         fn_name: "get_my_notifications",
         payload: {
           after_timestamp: page1[1].timestamp,
-          direction: { [PaginationDirectionName.Descending]: null },
+          direction: PaginationDirectionName.Descending,
           limit: 2,
         },
       });
@@ -666,12 +660,12 @@ test("notifications list is time-paginated", async () => {
       // Notifications should be orderded by action time descending (newest first)
       expect(page2[0]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyMewResponded]: null },
+        notification_type: NotificationTypeName.MyMewResponded,
         feed_mew: replyFeedMew5,
       });
       expect(page2[1]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyMewResponded]: null },
+        notification_type: NotificationTypeName.MyMewResponded,
         feed_mew: replyFeedMew4,
       });
 
@@ -686,7 +680,7 @@ test("notifications list is time-paginated", async () => {
         fn_name: "get_my_notifications",
         payload: {
           after_timestamp: page2[1].timestamp,
-          direction: { [PaginationDirectionName.Descending]: null },
+          direction: PaginationDirectionName.Descending,
           limit: 2,
         },
       });
@@ -694,12 +688,12 @@ test("notifications list is time-paginated", async () => {
       // Notifications should be orderded by action time descending (newest first)
       expect(page3[0]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyMewResponded]: null },
+        notification_type: NotificationTypeName.MyMewResponded,
         feed_mew: replyFeedMew3,
       });
       expect(page3[1]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyMewResponded]: null },
+        notification_type: NotificationTypeName.MyMewResponded,
         feed_mew: replyFeedMew2,
       });
 
@@ -716,7 +710,7 @@ test("notifications list is time-paginated", async () => {
         fn_name: "get_my_notifications",
         payload: {
           after_timestamp: page3[1].timestamp,
-          direction: { [PaginationDirectionName.Descending]: null },
+          direction: PaginationDirectionName.Descending,
           limit: 2,
         },
       });
@@ -725,7 +719,7 @@ test("notifications list is time-paginated", async () => {
       assert.lengthOf(page4, 1);
       expect(page4[0]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyMewResponded]: null },
+        notification_type: NotificationTypeName.MyMewResponded,
         feed_mew: replyFeedMew,
       });
 
@@ -742,7 +736,7 @@ test("notifications list is time-paginated", async () => {
         fn_name: "get_my_notifications",
         payload: {
           after_timestamp: page4[0].timestamp,
-          direction: { [PaginationDirectionName.Descending]: null },
+          direction: PaginationDirectionName.Descending,
           limit: 2,
         },
       });

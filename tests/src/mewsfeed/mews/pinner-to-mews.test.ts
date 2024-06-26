@@ -21,10 +21,6 @@ test("link a Pinner to a Mew", async () => {
         appSource,
       ]);
 
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
-
       const baseAddress = alice.agentPubKey;
       const targetActionHash: ActionHash = await createMew(alice.cells[0]);
 

@@ -18,10 +18,6 @@ test("create a Mew and get followed creators mews", async () => {
         appSource,
       ]);
 
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
-
       // Bob follows alice
       await bob.cells[0].callZome({
         zome_name: "follows",
@@ -71,10 +67,6 @@ test("Followed creators mews should include mews of followed creator", async () 
         appSource,
       ]);
 
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
-
       const mewContent = "test-mew";
       const mewInput: Mew = {
         text: mewContent,
@@ -103,6 +95,8 @@ test("Followed creators mews should include mews of followed creator", async () 
         payload: alice.agentPubKey,
       });
 
+      await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
+
       const bobMewsFeed: FeedMew[] = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_my_followed_creators_mews_with_context",
@@ -129,10 +123,6 @@ test("Followed creators mews should include own mews", async () => {
       // Add 2 players with the test app to the Scenario. The returned players
       // can be destructured.
       const [alice] = await scenario.addPlayersWithApps([appSource]);
-
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
 
       const aliceMewsFeedInitial: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -189,10 +179,6 @@ test("Followed creators mews should not include mews of non-followed creator", a
         appSource,
         appSource,
       ]);
-
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
 
       const aliceMewContent = "alice-test-mew";
       const aliceMewInput: Mew = {
@@ -254,10 +240,6 @@ test("Unfollowing should exclude creators mews from feed", async () => {
         appSource,
         appSource,
       ]);
-
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
 
       const aliceMewContent = "alice-test-mew";
       const aliceMewInput: Mew = {
@@ -324,10 +306,6 @@ test("Followed creators mews should be ordered by timestamp in descending order"
         appSource,
         appSource,
       ]);
-
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
 
       const firstMewContent = "first-test-mew";
       const firstMewInput: Mew = {
@@ -437,10 +415,6 @@ test("Followed creators mews list are time-paginated", async () => {
         appSource,
         appSource,
       ]);
-
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
 
       const mewContent1 = "My Mew with #hashtag 1";
       const createMewInput1: Mew = {
