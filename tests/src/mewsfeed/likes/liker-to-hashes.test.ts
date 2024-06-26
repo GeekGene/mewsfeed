@@ -16,10 +16,6 @@ test("link a Liker to a Hash", async () => {
         appSource,
       ]);
 
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
-
       const baseAddress = alice.agentPubKey;
       const targetAddress = await fakeActionHash();
 
@@ -104,10 +100,6 @@ test("Agent can only change their own likes", async () => {
         appSource,
       ]);
 
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
-
       const targetAddress = await fakeActionHash();
 
       // Alice likes hash
@@ -129,7 +121,7 @@ test("Agent can only change their own likes", async () => {
         },
       });
       await expect(response).rejects.toHaveProperty(
-        "data.data",
+        "message",
         expect.stringContaining("InvalidCommit")
       );
 
@@ -152,7 +144,7 @@ test("Agent can only change their own likes", async () => {
         },
       });
       await expect(response2).rejects.toHaveProperty(
-        "data.data",
+        "message",
         expect.stringContaining("InvalidCommit")
       );
     },

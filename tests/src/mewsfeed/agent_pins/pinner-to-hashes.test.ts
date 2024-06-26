@@ -20,10 +20,6 @@ test("link a Pinner to a Hash", async () => {
         appSource,
       ]);
 
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
-
       const baseAddress = alice.agentPubKey;
       const targetHash = await fakeActionHash();
 

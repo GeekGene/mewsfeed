@@ -16,10 +16,6 @@ test("link a Follower to a Creator", async () => {
         appSource,
       ]);
 
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
-
       const baseAddress = alice.agentPubKey;
       const targetAddress = bob.agentPubKey;
 
@@ -111,10 +107,6 @@ test("Agent cannot follow themselves", async () => {
       // can be destructured.
       const [alice] = await scenario.addPlayersWithApps([appSource]);
 
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
-
       // Alice tries to follow herself
       const response = alice.cells[0].callZome({
         zome_name: "follows",
@@ -122,7 +114,7 @@ test("Agent cannot follow themselves", async () => {
         payload: alice.agentPubKey,
       });
       await expect(response).rejects.toHaveProperty(
-        "data.data",
+        "message",
         expect.stringContaining("InvalidCommit")
       );
     },
@@ -143,10 +135,6 @@ test("Agent can only change their own follows", async () => {
         appSource,
         appSource,
       ]);
-
-      // Shortcut peer discovery through gossip and register all agents in every
-      // conductor of the scenario.
-      await scenario.shareAllAgents();
 
       const baseAddress = alice.agentPubKey;
       const targetAddress = bob.agentPubKey;
@@ -170,7 +158,7 @@ test("Agent can only change their own follows", async () => {
         },
       });
       await expect(response).rejects.toHaveProperty(
-        "data.data",
+        "message",
         expect.stringContaining("InvalidCommit")
       );
 
@@ -193,7 +181,7 @@ test("Agent can only change their own follows", async () => {
         },
       });
       await expect(response2).rejects.toHaveProperty(
-        "data.data",
+        "message",
         expect.stringContaining("InvalidCommit")
       );
     },
@@ -221,10 +209,6 @@ test(
             appSource,
             appSource,
           ]);
-
-        // Shortcut peer discovery through gossip and register all agents in every
-        // conductor of the scenario.
-        await scenario.shareAllAgents();
 
         // Alice creates a link from Follower to Creator
         await alice.cells[0].callZome({
@@ -352,10 +336,6 @@ test(
             appSource,
           ]);
 
-        // Shortcut peer discovery through gossip and register all agents in every
-        // conductor of the scenario.
-        await scenario.shareAllAgents();
-
         // Alice creates a link from Follower to Creator
         await bob.cells[0].callZome({
           zome_name: "follows",
@@ -462,5 +442,5 @@ test(
       { timeout: 500000 }
     );
   },
-  { timeout: 500000 }
+  { timeout: 600000 }
 );
