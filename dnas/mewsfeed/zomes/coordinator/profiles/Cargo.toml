@@ -12,7 +12,6 @@ hdk = { workspace = true }
 
 serde = { workspace = true }
 
-profiles_integrity = { workspace = true } 
-hc_zome_profiles_coordinator = {path = "../../../../../../profiles/crates/coordinator"}
-# hc_zome_profiles_coordinator = {git = "https://github.com/holochain-open-dev/profiles.git", branch = "build/holochain-0.3.x"}
+profiles_integrity = { workspace = true }
+hc_zome_profiles_coordinator = { git = "https://github.com/holochain-open-dev/profiles.git", branch = "for-hdk-v0.4.0-dev.8" }
 # hc_zome_profiles_coordinator = "0.2.0"

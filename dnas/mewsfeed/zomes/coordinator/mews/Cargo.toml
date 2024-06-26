@@ -11,8 +11,8 @@ name = "mews"
 hdk = { workspace = true }
 serde = { workspace = true }
 regex = "1"
-mews_integrity = { workspace = true } 
-prefix_index = {workspace = true }
+mews_integrity = { workspace = true }
+hc_prefix_index = { workspace = true }
 # prefix_index = { git = "https://github.com/holochain-open-dev/holochain-prefix-index", branch = "build/holochain-0.3.x", module = "lib/prefix_index" }
 profiles_integrity = { workspace = true }
 mews_types = { workspace = true }

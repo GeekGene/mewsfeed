@@ -17,10 +17,10 @@ pub use prefix_index_to_cashtags::*;
 pub mod prefix_index_to_hashtags;
 pub use prefix_index_to_hashtags::*;
 pub mod mew;
+use hc_prefix_index::PrefixIndex;
 use hdi::prelude::*;
 pub use mew::*;
 pub use mews_types::*;
-use prefix_index::PrefixIndex;
 
 pub fn make_tag_prefix_index() -> ExternResult<PrefixIndex> {
     PrefixIndex::new("prefix_index".into(), LinkTypes::PrefixIndex, 3, 3)
@@ -81,27 +81,18 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             _ => Ok(ValidateCallbackResult::Valid),
         },
         FlatOp::RegisterUpdate(update_entry) => match update_entry {
-            OpUpdate::Entry {
-                original_action,
-                original_app_entry,
-                app_entry,
-                action,
-            } => match (app_entry, original_app_entry) {
-                (EntryTypes::Mew(mew), EntryTypes::Mew(original_mew)) => {
-                    validate_update_mew(action, mew, original_action, original_mew)
-                }
+            OpUpdate::Entry { app_entry, action } => match app_entry {
+                EntryTypes::Mew(mew) => validate_update_mew(action, mew),
             },
             _ => Ok(ValidateCallbackResult::Valid),
         },
         FlatOp::RegisterDelete(delete_entry) => match delete_entry {
-            OpDelete::Entry {
-                original_action,
-                original_app_entry,
-                action,
-            } => match original_app_entry {
-                EntryTypes::Mew(mew) => validate_delete_mew(action, original_action, mew),
-            },
-            _ => Ok(ValidateCallbackResult::Valid),
+            OpDelete { action } => {
+                let original_action = must_get_action(action.deletes_address.clone())?
+                    .hashed
+                    .content;
+                validate_delete_mew(action, original_action)
+            }
         },
         FlatOp::RegisterCreateLink {
             link_type,
@@ -219,52 +210,20 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 }
             },
             OpRecord::UpdateEntry {
-                original_action_hash,
-                app_entry,
-                action,
-                ..
-            } => {
-                let original_record = must_get_valid_record(original_action_hash)?;
-                let original_action = original_record.action().clone();
-                let original_action = match original_action {
-                    Action::Create(create) => EntryCreationAction::Create(create),
-                    Action::Update(update) => EntryCreationAction::Update(update),
-                    _ => {
-                        return Ok(ValidateCallbackResult::Invalid(
-                            "Original action for an update must be a Create or Update action"
-                                .to_string(),
-                        ));
-                    }
-                };
-                match app_entry {
-                    EntryTypes::Mew(mew) => {
-                        let result = validate_create_mew(
-                            EntryCreationAction::Update(action.clone()),
-                            mew.clone(),
-                        )?;
-                        if let ValidateCallbackResult::Valid = result {
-                            let original_mew: Option<Mew> = original_record
-                                .entry()
-                                .to_app_option()
-                                .map_err(|e| wasm_error!(e))?;
-                            let original_mew = match original_mew {
-                                Some(mew) => mew,
-                                None => {
-                                    return Ok(
-                                            ValidateCallbackResult::Invalid(
-                                                "The updated entry type must be the same as the original entry type"
-                                                    .to_string(),
-                                            ),
-                                        );
-                                }
-                            };
-                            validate_update_mew(action, mew, original_action, original_mew)
-                        } else {
-                            Ok(result)
-                        }
+                app_entry, action, ..
+            } => match app_entry {
+                EntryTypes::Mew(mew) => {
+                    let result = validate_create_mew(
+                        EntryCreationAction::Update(action.clone()),
+                        mew.clone(),
+                    )?;
+                    if let ValidateCallbackResult::Valid = result {
+                        validate_update_mew(action, mew)
+                    } else {
+                        Ok(result)
                     }
                 }
-            }
+            },
             OpRecord::DeleteEntry {
                 original_action_hash,
                 action,
@@ -319,9 +278,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                     }
                 };
                 match original_app_entry {
-                    EntryTypes::Mew(original_mew) => {
-                        validate_delete_mew(action, original_action, original_mew)
-                    }
+                    EntryTypes::Mew(_) => validate_delete_mew(action, original_action.into()),
                 }
             }
             OpRecord::CreateLink {

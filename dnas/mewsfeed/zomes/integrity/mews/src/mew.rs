@@ -95,12 +95,7 @@ pub fn validate_create_mew(
     Ok(ValidateCallbackResult::Valid)
 }
 
-pub fn validate_update_mew(
-    _action: Update,
-    _mew: Mew,
-    _original_action: EntryCreationAction,
-    _original_mew: Mew,
-) -> ExternResult<ValidateCallbackResult> {
+pub fn validate_update_mew(_action: Update, _mew: Mew) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Invalid(
         "Mews cannot be updated".into(),
     ))
@@ -108,8 +103,7 @@ pub fn validate_update_mew(
 
 pub fn validate_delete_mew(
     action: Delete,
-    original_action: EntryCreationAction,
-    _original_mew: Mew,
+    original_action: Action,
 ) -> ExternResult<ValidateCallbackResult> {
     if action.author != *original_action.author() {
         return Ok(ValidateCallbackResult::Invalid(
