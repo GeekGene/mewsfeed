@@ -11,15 +11,12 @@ export const setupHolochain = async () => {
     if (typeof window === "object" && !("__HC_LAUNCHER_ENV__" in window)) {
       client = await createClient();
     } else {
-      const url = IS_LAUNCHER
-        ? new URL(`ws://UNUSED`)
-        : new URL(`ws://localhost:${import.meta.env.VITE_HC_PORT}`);
-      console.log("url", url);
       client = await AppWebsocket.connect({
-        url,
+        url: IS_LAUNCHER
+          ? new URL(`ws://UNUSED`)
+          : new URL(`ws://localhost:${import.meta.env.VITE_HC_PORT}`),
         defaultTimeout: 60000,
       });
-      console.log("client", client);
     }
 
     return client;

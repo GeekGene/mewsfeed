@@ -96,7 +96,7 @@ const setupApp = async () => {
   if (!client.value) throw Error("Holo / Holochain client not ready");
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  //@ts-ignore
+  // @ts-ignore
   appInfo.value = await client.value.appInfo();
 
   // Setup profiles
