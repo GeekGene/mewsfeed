@@ -62,9 +62,7 @@ export enum MewTypeName {
 }
 
 export type MewType =
-  | {
-      [MewTypeName.Original]: null;
-    }
+  | MewTypeName.Original
   | {
       [MewTypeName.Reply]: ActionHash;
     }

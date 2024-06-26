@@ -2,7 +2,7 @@
   <BaseDialog
     :model-value="modelValue"
     :initial-focus-ref="
-      MewTypeName.Mewmew in mewType
+      typeof mewType === 'object' && MewTypeName.Mewmew in mewType
         ? createMewInputRef?.$refs.createButtonInput
         : createMewInputRef?.$refs.mewContainerInput
     "
@@ -11,8 +11,8 @@
     <profiles-context :store="profilesStore">
       <div
         v-if="
-          (mewType !== undefined && MewTypeName.Reply in mewType) ||
-          MewTypeName.Quote in mewType
+          typeof mewType === 'object' &&
+          (MewTypeName.Reply in mewType || MewTypeName.Quote in mewType)
         "
         class="font-title text-xl flex justify-start items-center mr-2 mb-4"
       >
@@ -28,7 +28,7 @@
 
       <div
         v-if="
-          mewType !== undefined &&
+          typeof mewType === 'object' &&
           (MewTypeName.Reply in mewType ||
             MewTypeName.Quote in mewType ||
             MewTypeName.Mewmew in mewType) &&
@@ -86,7 +86,7 @@ const createMewInputRef = ref();
 const onCreateMew = (val: FeedMew) => {
   setHomeRedirect(false);
 
-  if (MewTypeName.Original in val.mew.mew_type) {
+  if (val.mew.mew_type === MewTypeName.Original) {
     router.push({ name: ROUTES.feed });
   }
   emit("mew-created", val);

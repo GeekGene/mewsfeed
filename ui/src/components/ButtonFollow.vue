@@ -21,7 +21,7 @@ import { PROFILE_FIELDS } from "@/types/types";
 import { AgentPubKey, encodeHashToBase64 } from "@holochain/client";
 import { computed, ComputedRef, inject, ref, watch } from "vue";
 import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
-import { AppAgentClient } from "@holochain/client";
+import { AppClient } from "@holochain/client";
 import CreateProfileIfNotFoundDialog from "./CreateProfileIfNotFoundDialog.vue";
 import isEqual from "lodash/isEqual";
 import { setHomeRedirect } from "@/utils/homeRedirect";
@@ -40,7 +40,7 @@ const props = withDefaults(
 const emit = defineEmits(["toggle-follow"]);
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
-const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+const client = (inject("client") as ComputedRef<AppClient>).value;
 const myProfile = inject("myProfile") as ComputedRef<Profile>;
 const { showMessage, showError } = useToasts();
 

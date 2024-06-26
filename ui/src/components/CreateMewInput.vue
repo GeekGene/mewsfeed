@@ -161,7 +161,13 @@
       <div class="flex justify-start items-center space-x-1 sm:space-x-2">
         <IconArrowForwardOutline class="text-xl" />
         <div>
-          <template v-if="MewTypeName.Mewmew in props.mewType">Mewmew</template>
+          <template
+            v-if="
+              typeof props.mewType === 'object' &&
+              MewTypeName.Mewmew in props.mewType
+            "
+            >Mewmew</template
+          >
           <template v-else>
             Send <br class="inline-block sm:hidden" />Mew
           </template>
@@ -200,7 +206,7 @@ import {
 import min from "lodash/min";
 import union from "lodash/union";
 import flatten from "lodash/flatten";
-import { AppAgentClient } from "@holochain/client";
+import { AppClient } from "@holochain/client";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
 import { ROUTES } from "@/router";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
@@ -220,7 +226,7 @@ const props = defineProps<{
   mewType: MewType;
 }>();
 const searchProfiles = useSearchProfiles();
-const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+const client = (inject("client") as ComputedRef<AppClient>).value;
 const dnaProperties = (
   inject("dnaProperties") as ComputedRef<MewsfeedDnaProperties>
 ).value;
@@ -276,7 +282,7 @@ const linkTargetValid = computed(() => {
 });
 const isMewTypeWithText = computed(() => {
   return (
-    MewTypeName.Original in props.mewType ||
+    props.mewType === MewTypeName.Original ||
     MewTypeName.Reply in props.mewType ||
     MewTypeName.Quote in props.mewType
   );
@@ -355,7 +361,7 @@ const publishMew = async (profile: undefined | Profile = undefined) => {
       payload: mew,
     });
     emit("mew-created", feedMew);
-    if (MewTypeName.Original in mew.mew_type) {
+    if (mew.mew_type === MewTypeName.Original) {
       showMessage("Published Mew");
     }
   } catch (error) {

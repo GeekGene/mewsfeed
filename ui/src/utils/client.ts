@@ -1,9 +1,4 @@
-import {
-  AppInfo,
-  AdminWebsocket,
-  CellType,
-  AppAgentWebsocket,
-} from "@holochain/client";
+import { AdminWebsocket, CellType, AppWebsocket } from "@holochain/client";
 import WebSdkApi, { AgentState } from "@holo-host/web-sdk";
 
 export const HOLOCHAIN_APP_ID = "mewsfeed";
@@ -12,55 +7,20 @@ export const IS_HOLO_HOSTED = import.meta.env.VITE_IS_HOLO_HOSTED;
 
 export const setupHolochain = async () => {
   try {
-    const adminWs = await AdminWebsocket.connect(
-      new URL(`ws://localhost:${import.meta.env.VITE_HC_ADMIN_PORT}`)
-    );
-    let agentKey;
-    let appInfo;
-    let port;
-    const installedApps = await adminWs.listApps({});
-    if (installedApps.length === 0) {
-      console.log("generating agent key");
-      agentKey = await adminWs.generateAgentPubKey();
-      console.log("installing mewsfeed app");
-      appInfo = await adminWs.installApp({
-        agent_key: agentKey,
-        path: "/Users/jost/Desktop/holochain/mewsfeed/workdir/mewsfeed.happ",
-        membrane_proofs: {},
+    let client;
+    if (typeof window === "object" && !("__HC_LAUNCHER_ENV__" in window)) {
+      client = await createClient();
+    } else {
+      const url = IS_LAUNCHER
+        ? new URL(`ws://UNUSED`)
+        : new URL(`ws://localhost:${import.meta.env.VITE_HC_PORT}`);
+      console.log("url", url);
+      client = await AppWebsocket.connect({
+        url,
+        defaultTimeout: 60000,
       });
-      console.log("installed", appInfo);
-      await adminWs.enableApp({ installed_app_id: appInfo.installed_app_id });
-      console.log("app enabled");
-    } else {
-      appInfo = installedApps[0];
+      console.log("client", client);
     }
-    const appInterfaces = await adminWs.listAppInterfaces();
-    console.log("appi interfaces", appInterfaces);
-    if (appInterfaces.length === 0) {
-      port = (await adminWs.attachAppInterface({})).port;
-    } else {
-      port = appInterfaces[0];
-    }
-    console.log("port is", port);
-
-    if (!(CellType.Provisioned in appInfo.cell_info.mewsfeed[0])) {
-      throw new Error("mewsfeed cell not provisioned");
-    }
-    const { cell_id } = appInfo.cell_info.mewsfeed[0][CellType.Provisioned];
-    await adminWs.authorizeSigningCredentials(cell_id);
-
-    const client = await AppAgentWebsocket.connect(
-      // IS_LAUNCHER
-      //   ? new URL(`ws://UNUSED`)
-      new URL(`ws://localhost:${port}`),
-      HOLOCHAIN_APP_ID,
-      60000
-    );
-
-    // if (typeof window === "object" && !("__HC_LAUNCHER_ENV__" in window)) {
-    //   const appInfo = await client.appInfo();
-    //   await authorizeClient(appInfo);
-    // }
 
     return client;
   } catch (e) {
@@ -100,17 +60,27 @@ export const setupHolo = async () => {
   }
 };
 
-// set up zome call signing when run outside of launcher
-export const authorizeClient = async (appInfo: AppInfo) => {
-  if (typeof window === "object" && !("__HC_LAUNCHER_ENV__" in window)) {
-    if (!(CellType.Provisioned in appInfo.cell_info.mewsfeed[0])) {
-      throw new Error("mewsfeed cell not provisioned");
-    }
-    const { cell_id } = appInfo.cell_info.mewsfeed[0][CellType.Provisioned];
-    const adminWs = await AdminWebsocket.connect(
-      new URL(`ws://localhost:${import.meta.env.VITE_HC_ADMIN_PORT}`)
-    );
-    await adminWs.authorizeSigningCredentials(cell_id);
-    console.log("Holochain app client authorized for zome calls");
+// authenticate app websocket and set up zome call signing when run outside of launcher
+const createClient = async () => {
+  const adminWs = await AdminWebsocket.connect({
+    url: new URL(`ws://localhost:${import.meta.env.VITE_HC_ADMIN_PORT}`),
+  });
+  const issued = await adminWs.issueAppAuthenticationToken({
+    installed_app_id: HOLOCHAIN_APP_ID,
+  });
+  const client = await AppWebsocket.connect({
+    url: new URL(`ws://localhost:${import.meta.env.VITE_HC_PORT}`),
+    token: issued.token,
+    defaultTimeout: 60000,
+  });
+  if (
+    !client.cachedAppInfo ||
+    !(CellType.Provisioned in client.cachedAppInfo.cell_info.mewsfeed[0])
+  ) {
+    throw new Error("mewsfeed cell not provisioned");
   }
+  const { cell_id } =
+    client.cachedAppInfo.cell_info.mewsfeed[0][CellType.Provisioned];
+  await adminWs.authorizeSigningCredentials(cell_id);
+  return client;
 };

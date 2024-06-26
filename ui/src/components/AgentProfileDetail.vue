@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { AgentPubKey, AppAgentClient } from "@holochain/client";
+import { AgentPubKey, AppClient } from "@holochain/client";
 import { ComputedRef, computed, inject, watch } from "vue";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
 import BaseAgentProfileDetail from "@/components/BaseAgentProfileDetail.vue";
@@ -28,7 +28,7 @@ const props = withDefaults(
 
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
-const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+const client = (inject("client") as ComputedRef<AppClient>).value;
 const agentPubKeyB64 = computed(() => encodeHashToBase64(props.agentPubKey));
 
 const fetchProfile = async () => {

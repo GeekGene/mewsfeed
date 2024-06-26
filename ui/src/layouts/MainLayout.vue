@@ -22,10 +22,13 @@
         <div
           v-if="route.name === ROUTES.feed"
           class="bg-neutral/[0.1] backdrop-blur-md rounded-[2rem] flex-1 w-full"
-          style="-webkit-backdrop-filter: blur(10px)"
+          style="
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+          "
         >
           <CreateMewInput
-            :mew-type="{ [MewTypeName.Original]: null }"
+            :mew-type="MewTypeName.Original"
             @mew-created="onCreateMew"
           />
         </div>
@@ -33,11 +36,7 @@
           <button
             class="z-10 btn btn-md btn-neutral rounded-full py-3 flex justify-start items-center"
             @click="
-              openCreateMewDialog(
-                { [MewTypeName.Original]: null },
-                undefined,
-                onCreateMew
-              )
+              openCreateMewDialog(MewTypeName.Original, undefined, onCreateMew)
             "
           >
             <IconAdd class="w-6 h-6" />
@@ -50,13 +49,7 @@
 
   <button
     class="block sm:hidden z-10 fixed bottom-32 right-3 btn btn-md btn-neutral rounded-full py-3 flex justify-start items-center"
-    @click="
-      openCreateMewDialog(
-        { [MewTypeName.Original]: null },
-        undefined,
-        onCreateMew
-      )
-    "
+    @click="openCreateMewDialog(MewTypeName.Original, undefined, onCreateMew)"
   >
     <IconAdd class="w-6 h-6" />
     <div>Mew</div>
@@ -118,7 +111,7 @@ import BaseSiteMenu from "@/components/BaseSiteMenu.vue";
 import SearchEverythingDialog from "@/components/SearchEverythingDialog.vue";
 import { ROUTES } from "@/router";
 import { FeedMew, MewTypeName } from "@/types/types";
-import { AppAgentClient, encodeHashToBase64 } from "@holochain/client";
+import { AppClient, encodeHashToBase64 } from "@holochain/client";
 import { ComputedRef, computed, inject, ref, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";
@@ -136,7 +129,7 @@ import { storeToRefs } from "pinia";
 import { useLightboxStore } from "@/stores/lightbox";
 import VueEasyLightbox from "vue-easy-lightbox";
 
-const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+const client = (inject("client") as ComputedRef<AppClient>).value;
 const router = useRouter();
 const route = useRoute();
 const useNotificationsReadStore = makeUseNotificationsReadStore(client);
