@@ -29,7 +29,8 @@
     "cargo:clippy": "cargo clippy --all-targets --all-features -- -D warnings",
     "cargo:clippy:watch": "cargo watch --clear -- npm run cargo:clippy",
     "cargo:fmt": "cargo fmt",
-    "cargo:fmt:check": "cargo fmt --check"
+    "cargo:fmt:check": "cargo fmt --check",
+    "clean": "rimraf target && rimraf .cargo && rimraf Cargo.lock && rimraf flake.lock && cargo clean"
   },
   "devDependencies": {
     "@holochain-playground/cli": "^0.1.1",

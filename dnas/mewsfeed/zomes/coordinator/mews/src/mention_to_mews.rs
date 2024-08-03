@@ -61,7 +61,10 @@ fn get_mew_hashes_for_mention(
     mention: AgentPubKey,
     page: Option<HashPagination>,
 ) -> ExternResult<Vec<ActionHash>> {
-    let links: Vec<Link> = get_links(mention, LinkTypes::MentionToMews, None)?;
+    let links = get_links(
+        GetLinksInputBuilder::try_new(mention, LinkTypes::MentionToMews.try_into_filter()?)?
+            .build(),
+    )?;
     let links_page = paginate_by_hash(links, page)?;
 
     let hashes: Vec<ActionHash> = links_page
@@ -79,7 +82,13 @@ pub struct RemoveMentionForMewInput {
 }
 #[hdk_extern]
 pub fn remove_mention_for_mew(input: RemoveMentionForMewInput) -> ExternResult<()> {
-    let links = get_links(input.base_mention.clone(), LinkTypes::MentionToMews, None)?;
+    let links = get_links(
+        GetLinksInputBuilder::try_new(
+            input.base_mention,
+            LinkTypes::MentionToMews.try_into_filter()?,
+        )?
+        .build(),
+    )?;
 
     for link in links {
         let action_hash =

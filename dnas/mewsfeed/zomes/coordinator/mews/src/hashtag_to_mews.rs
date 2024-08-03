@@ -36,11 +36,12 @@ pub fn remove_hashtag_for_mew(input: RemoveHashtagForMewInput) -> ExternResult<(
     let tag = make_tag_text(input.base_hashtag.clone());
     let prefix_index = make_tag_prefix_index()?;
     let result_path = prefix_index.make_result_path(tag, Some(input.base_hashtag.clone()))?;
-
     let links = get_links(
-        result_path.path_entry_hash()?,
-        LinkTypes::HashtagToMews,
-        Some(LinkTag(input.base_hashtag.as_bytes().to_vec())),
+        GetLinksInputBuilder::try_new(
+            result_path.path_entry_hash()?,
+            LinkTypes::HashtagToMews.try_into_filter()?,
+        )?
+        .build(),
     )?;
     for link in links {
         let action_hash =

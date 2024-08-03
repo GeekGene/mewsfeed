@@ -3,9 +3,9 @@ members = ["dnas/*/zomes/coordinator/*", "dnas/*/zomes/integrity/*", "crates/*"]
 resolver = "2"
 
 [workspace.dependencies]
-hdi = "=0.3.6"
-hdk = "=0.2.6"
-serde = "1"
+hdi = "=0.4.1"
+hdk = "=0.3.1"
+serde = "=1.0.197"
 paste = "1.0"
 rand = "0.8.5"
 hc_prefix_index = "0.10.0"

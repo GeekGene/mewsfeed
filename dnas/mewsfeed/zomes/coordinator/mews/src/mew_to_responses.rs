@@ -48,7 +48,13 @@ pub fn get_response_hashes_for_mew(
         None => None,
     };
 
-    let links = get_links(input.original_mew_hash, LinkTypes::MewToResponses, tag)?;
+    let links = get_links(
+        GetLinksInputBuilder::try_new(
+            input.original_mew_hash,
+            LinkTypes::MewToResponses.try_into_filter()?,
+        )?
+        .build(),
+    )?;
     let links_page = paginate_by_hash(links, input.page)?;
     let hashes: Vec<ActionHash> = links_page
         .into_iter()
@@ -80,10 +86,7 @@ pub fn count_responses_for_mew(input: CountResponsesForMewInput) -> ExternResult
 
     let mut query = LinkQuery::new(
         input.original_mew_hash,
-        LinkTypeFilter::single_type(
-            ZomeIndex(1),
-            LinkType(5), // LinkTypes::MewToResponses
-        ),
+        LinkTypes::MewToResponses.try_into_filter()?,
     );
 
     if let Some(tag) = maybe_tag {
@@ -116,10 +119,7 @@ pub fn get_response_for_mew_exists(input: GetResponseForMewExistsInput) -> Exter
 
     let mut query = LinkQuery::new(
         input.original_mew_hash.clone(),
-        LinkTypeFilter::single_type(
-            ZomeIndex(1),
-            LinkType(5), // LinkTypes::MewToResponses
-        ),
+        LinkTypes::MewToResponses.try_into_filter()?,
     )
     .author(input.response_author);
 
@@ -155,9 +155,11 @@ pub struct RemoveResponseForMewInput {
 #[hdk_extern]
 pub fn remove_response_for_mew(input: RemoveResponseForMewInput) -> ExternResult<()> {
     let links = get_links(
-        input.base_original_mew_hash.clone(),
-        LinkTypes::MewToResponses,
-        None,
+        GetLinksInputBuilder::try_new(
+            input.base_original_mew_hash,
+            LinkTypes::MewToResponses.try_into_filter()?,
+        )?
+        .build(),
     )?;
     for link in links {
         let action_hash =

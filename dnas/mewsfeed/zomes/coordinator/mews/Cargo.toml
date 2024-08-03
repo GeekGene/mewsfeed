@@ -12,7 +12,7 @@ hdk = { workspace = true }
 serde = { workspace = true }
 regex = { workspace = true }
 mews_integrity = { workspace = true } 
-hc_prefix_index = { workspace = true }
+hc_prefix_index = { git = "https://github.com/holochain-open-dev/holochain-prefix-index", module = "lib/hc_prefix_index" }
 profiles_integrity = { workspace = true }
 mews_types = { workspace = true }
 rand = { workspace = true }

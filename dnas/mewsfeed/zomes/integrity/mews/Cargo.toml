@@ -11,5 +11,5 @@ name = "mews_integrity"
 hdi = { workspace = true }
 hdk = { workspace = true }
 serde = { workspace = true }
-hc_prefix_index = { workspace = true }
+hc_prefix_index = { git = "https://github.com/holochain-open-dev/holochain-prefix-index", module = "lib/hc_prefix_index" }
 mews_types = { workspace = true }

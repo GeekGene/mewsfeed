@@ -38,9 +38,11 @@ pub fn remove_cashtag_for_mew(input: RemoveCashtagForMewInput) -> ExternResult<(
     let result_path = prefix_index.make_result_path(tag, Some(input.base_cashtag.clone()))?;
 
     let links = get_links(
-        result_path.path_entry_hash()?,
-        LinkTypes::CashtagToMews,
-        Some(LinkTag(input.base_cashtag.as_bytes().to_vec())),
+        GetLinksInputBuilder::try_new(
+            result_path.path_entry_hash()?,
+            LinkTypes::CashtagToMews.try_into_filter()?,
+        )?
+        .build(),
     )?;
     for link in links {
         let action_hash =
