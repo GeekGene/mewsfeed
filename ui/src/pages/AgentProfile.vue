@@ -139,7 +139,7 @@ import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { ComputedRef, computed, inject, nextTick, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import BaseList from "@/components/BaseList.vue";
-import { AppAgentClient } from "@holochain/client";
+import { AppClient } from "@holochain/client";
 import { useQuery, useQueryClient } from "@tanstack/vue-query";
 import BaseAgentProfileDetail from "@/components/BaseAgentProfileDetail.vue";
 import EditAgentProfileDialog from "@/components/EditAgentProfileDialog.vue";
@@ -148,7 +148,7 @@ import CreatorsListDialog from "@/components/CreatorsListDialog.vue";
 
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
-const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+const client = (inject("client") as ComputedRef<AppClient>).value;
 const route = useRoute();
 const router = useRouter();
 const queryClient = useQueryClient();

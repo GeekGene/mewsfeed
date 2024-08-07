@@ -89,7 +89,7 @@
 
 <script setup lang="ts">
 import { ROUTES } from "@/router";
-import { AppAgentClient, encodeHashToBase64 } from "@holochain/client";
+import { AppClient, encodeHashToBase64 } from "@holochain/client";
 import { inject, ComputedRef } from "vue";
 import { Profile } from "@holochain-open-dev/profiles";
 import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";
@@ -99,7 +99,7 @@ import IconGlobeOutline from "~icons/ion/globe-outline";
 import IconSearch from "~icons/ion/search-outline";
 import IconNotificationsOutline from "~icons/ion/notifications-outline";
 
-const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+const client = (inject("client") as ComputedRef<AppClient>).value;
 const myProfile = inject("myProfile") as ComputedRef<Profile>;
 
 const useNotificationsReadStore = makeUseNotificationsReadStore(client);

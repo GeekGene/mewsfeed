@@ -54,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { AppAgentClient, encodeHashToBase64 } from "@holochain/client";
+import { AppClient, encodeHashToBase64 } from "@holochain/client";
 import { ComputedRef, computed, inject, watch } from "vue";
 import { FeedMew, PaginationDirectionName } from "@/types/types";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
@@ -65,7 +65,7 @@ import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
 import BaseInfiniteScroll from "@/components/BaseInfiniteScroll.vue";
 import { onBeforeRouteLeave } from "vue-router";
 
-const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+const client = (inject("client") as ComputedRef<AppClient>).value;
 const queryClient = useQueryClient();
 const myPubKeyB64 = computed(() => encodeHashToBase64(client.myPubKey));
 const pageLimit = 10;

@@ -27,12 +27,12 @@
 </template>
 
 <script setup lang="ts">
-import { AppAgentClient, ActionHash } from "@holochain/client";
+import { AppClient, ActionHash } from "@holochain/client";
 import { ComputedRef, Ref, computed, inject, watch } from "vue";
 import { useQuery } from "@tanstack/vue-query";
 import { FeedMew } from "@/types/types";
 
-const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+const client = (inject("client") as ComputedRef<AppClient>).value;
 
 const props = defineProps<{
   tag: string;

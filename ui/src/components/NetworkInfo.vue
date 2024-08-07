@@ -51,7 +51,7 @@
 
 <script setup lang="ts">
 import {
-  AppAgentClient,
+  AppClient,
   AppInfo,
   CellType,
   NetworkInfoResponse,
@@ -65,7 +65,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 dayjs.extend(relativeTime);
 
-const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+const client = (inject("client") as ComputedRef<AppClient>).value;
 const appInfo = (inject("appInfo") as ComputedRef<AppInfo>).value;
 
 const showExpanded = ref(false);

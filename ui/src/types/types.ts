@@ -62,9 +62,7 @@ export enum MewTypeName {
 }
 
 export type MewType =
-  | {
-      [MewTypeName.Original]: null;
-    }
+  | MewTypeName.Original
   | {
       [MewTypeName.Reply]: ActionHash;
     }
@@ -187,15 +185,16 @@ export enum NotificationTypeName {
 }
 
 export type NotificationType =
-  | { [NotificationTypeName.MyMewLicked]: null }
-  | { [NotificationTypeName.MyMewUnlicked]: null }
-  | { [NotificationTypeName.MyMewPinned]: null }
-  | { [NotificationTypeName.MyMewUnpinned]: null }
-  | { [NotificationTypeName.MyMewResponded]: null }
-  | { [NotificationTypeName.MyAgentMentioned]: null }
-  | { [NotificationTypeName.MyAgentFollowed]: null }
-  | { [NotificationTypeName.MyAgentUnfollowed]: null }
-  | { [NotificationTypeName.FollowedYarnResponded]: null };
+  | NotificationTypeName.MyMewLicked
+  | NotificationTypeName.MyMewUnlicked
+  | NotificationTypeName.MyMewPinned
+  | NotificationTypeName.MyMewUnpinned
+  | NotificationTypeName.MyMewResponded
+  | NotificationTypeName.MyAgentMentioned
+  | NotificationTypeName.MyAgentMentioned
+  | NotificationTypeName.MyAgentFollowed
+  | NotificationTypeName.MyAgentUnfollowed
+  | NotificationTypeName.FollowedYarnResponded;
 
 export declare type CacheData<R = any, P = any> = {
   data: R;

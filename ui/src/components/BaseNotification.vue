@@ -2,7 +2,7 @@
   <div class="py-4">
     <div
       v-if="
-        NotificationTypeName.MyAgentFollowed in notification.notification_type
+        notification.notification_type === NotificationTypeName.MyAgentFollowed
       "
       class="flex justify-between items-center py-2"
       style="width: 100%"
@@ -20,7 +20,8 @@
     </div>
     <div
       v-else-if="
-        NotificationTypeName.MyAgentUnfollowed in notification.notification_type
+        notification.notification_type ===
+        NotificationTypeName.MyAgentUnfollowed
       "
       class="flex justify-between items-center py-2 w-full space-x-2"
     >
@@ -37,7 +38,7 @@
     </div>
     <div
       v-else-if="
-        NotificationTypeName.MyAgentMentioned in notification.notification_type
+        notification.notification_type === NotificationTypeName.MyAgentMentioned
       "
       class="my-2 w-full"
     >
@@ -66,7 +67,7 @@
 
     <div
       v-else-if="
-        NotificationTypeName.MyMewLicked in notification.notification_type
+        notification.notification_type === NotificationTypeName.MyMewLicked
       "
       class="py-2 w-full"
     >
@@ -95,7 +96,7 @@
 
     <div
       v-else-if="
-        NotificationTypeName.MyMewUnlicked in notification.notification_type
+        notification.notification_type === NotificationTypeName.MyMewUnlicked
       "
       style="width: 100%"
       class="w-full py-2"
@@ -125,7 +126,7 @@
 
     <div
       v-else-if="
-        NotificationTypeName.MyMewPinned in notification.notification_type
+        notification.notification_type === NotificationTypeName.MyMewPinned
       "
       class="w-full py-2"
     >
@@ -154,7 +155,7 @@
 
     <div
       v-else-if="
-        NotificationTypeName.MyMewUnpinned in notification.notification_type
+        notification.notification_type === NotificationTypeName.MyMewUnpinned
       "
       class="py-2 w-full"
     >
@@ -183,7 +184,7 @@
 
     <div
       v-else-if="
-        NotificationTypeName.MyMewResponded in notification.notification_type
+        notification.notification_type === NotificationTypeName.MyMewResponded
       "
       class="w-full py-2"
     >
@@ -196,6 +197,7 @@
           <div
             v-if="
               notification.feed_mew &&
+              typeof notification.feed_mew.mew.mew_type === 'object' &&
               MewTypeName.Reply in notification.feed_mew.mew.mew_type
             "
             class="font-mono"
@@ -205,6 +207,7 @@
           <div
             v-else-if="
               notification.feed_mew &&
+              typeof notification.feed_mew.mew.mew_type === 'object' &&
               MewTypeName.Quote in notification.feed_mew.mew.mew_type
             "
             class="font-mono"
@@ -214,6 +217,7 @@
           <div
             v-else-if="
               notification.feed_mew &&
+              typeof notification.feed_mew.mew.mew_type === 'object' &&
               MewTypeName.Mewmew in notification.feed_mew.mew.mew_type
             "
             class="font-mono"
@@ -238,8 +242,8 @@
 
     <div
       v-else-if="
-        NotificationTypeName.FollowedYarnResponded in
-        notification.notification_type
+        notification.notification_type ===
+        NotificationTypeName.FollowedYarnResponded
       "
       class="py-2 w-full"
     >
@@ -252,6 +256,7 @@
           <div
             v-if="
               notification.feed_mew &&
+              typeof notification.feed_mew.mew.mew_type === 'object' &&
               MewTypeName.Reply in notification.feed_mew.mew.mew_type
             "
             class="font-mono"
@@ -261,6 +266,7 @@
           <div
             v-else-if="
               notification.feed_mew &&
+              typeof notification.feed_mew.mew.mew_type === 'object' &&
               MewTypeName.Quote in notification.feed_mew.mew.mew_type
             "
             class="font-mono"
@@ -270,6 +276,7 @@
           <div
             v-else-if="
               notification.feed_mew &&
+              typeof notification.feed_mew.mew.mew_type === 'object' &&
               MewTypeName.Mewmew in notification.feed_mew.mew.mew_type
             "
             class="font-mono"

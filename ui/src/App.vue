@@ -41,7 +41,7 @@ import {
   ProfilesClient,
   ProfilesStore,
 } from "@holochain-open-dev/profiles";
-import { AppAgentClient, AppInfo, encodeHashToBase64 } from "@holochain/client";
+import { AppClient, AppInfo, encodeHashToBase64 } from "@holochain/client";
 import WebSdkApi from "@holo-host/web-sdk";
 import { decode } from "@msgpack/msgpack";
 import { MewsfeedDnaProperties } from "./types/types";
@@ -52,7 +52,7 @@ import { useThemeStore } from "@/stores/theme";
 import { useQueryClient } from "@tanstack/vue-query";
 import NetworkInfo from "./components/NetworkInfo.vue";
 
-const client = ref<AppAgentClient | WebSdkApi>();
+const client = ref<AppClient | WebSdkApi>();
 const appInfo = ref<AppInfo>();
 const profilesStore = ref<ProfilesStore>();
 const myProfile = ref<Profile>();
@@ -101,6 +101,8 @@ const setupApp = async () => {
 
   // Setup profiles
   const profilesClient = new ProfilesClient(
+    // eslint-disable-next-line
+    // @ts-ignore
     toRaw(client.value),
     "mewsfeed",
     "profiles"

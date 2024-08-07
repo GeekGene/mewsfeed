@@ -190,12 +190,8 @@
 
 <script setup lang="ts">
 import isEqual from "lodash/isEqual";
-import {
-  AgentPubKey,
-  AppAgentClient,
-  encodeHashToBase64,
-} from "@holochain/client";
-import { computed, ComputedRef, inject, ref } from "vue";
+import { AgentPubKey, AppClient, encodeHashToBase64 } from "@holochain/client";
+import { computed, ComputedRef, inject } from "vue";
 import ButtonFollow from "@/components/ButtonFollow.vue";
 import { Profile } from "@holochain-open-dev/profiles";
 import BaseAgentProfileNameLarge from "@/components/BaseAgentProfileNameLarge.vue";
@@ -237,7 +233,7 @@ const emit = defineEmits([
   "toggle-follow",
 ]);
 
-const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+const client = (inject("client") as ComputedRef<AppClient>).value;
 const isMyProfile = computed(() => isEqual(props.agentPubKey, client.myPubKey));
 const { openLightbox } = useLightboxStore();
 </script>
