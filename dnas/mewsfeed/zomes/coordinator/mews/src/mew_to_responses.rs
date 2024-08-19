@@ -35,7 +35,7 @@ pub struct GetResponsesForMewInput {
 pub fn get_response_hashes_for_mew(
     input: GetResponsesForMewInput,
 ) -> ExternResult<Vec<ActionHash>> {
-    let tag = match input.response_type {
+    let _tag = match input.response_type {
         Some(response_type) => {
             let tag: SerializedBytes = response_type.try_into().map_err(|_| {
                 wasm_error!(WasmErrorInner::Guest(
