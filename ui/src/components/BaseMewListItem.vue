@@ -317,7 +317,7 @@ import BaseAgentProfileLinkAvatar from "@/components/BaseAgentProfileLinkAvatar.
 import BaseMewContent from "@/components/BaseMewContent.vue";
 import isEqual from "lodash/isEqual";
 import { useRouter } from "vue-router";
-import { AppAgentClient } from "@holochain/client";
+import { AppClient } from "@holochain/client";
 import BaseTimestamp from "@/components/BaseTimestamp.vue";
 import dayjs from "dayjs";
 import BaseEmbedMew from "@/components/BaseEmbedMew.vue";
@@ -364,7 +364,7 @@ const emit = defineEmits([
   "mew-unpinned",
 ]);
 const router = useRouter();
-const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+const client = (inject("client") as ComputedRef<AppClient>).value;
 const myProfile = inject("myProfile") as ComputedRef<Profile>;
 const { showMessage, showError } = useToasts();
 const { openCreateMewDialog, closeCreateMewDialog } = useCreateMewDialogStore();

@@ -118,7 +118,7 @@ import BaseSiteMenu from "@/components/BaseSiteMenu.vue";
 import SearchEverythingDialog from "@/components/SearchEverythingDialog.vue";
 import { ROUTES } from "@/router";
 import { FeedMew, MewTypeName } from "@/types/types";
-import { AppAgentClient, encodeHashToBase64 } from "@holochain/client";
+import { AppClient, encodeHashToBase64 } from "@holochain/client";
 import { ComputedRef, computed, inject, ref, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";
@@ -136,7 +136,7 @@ import { storeToRefs } from "pinia";
 import { useLightboxStore } from "@/stores/lightbox";
 import VueEasyLightbox from "vue-easy-lightbox";
 
-const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+const client = (inject("client") as ComputedRef<AppClient>).value;
 const router = useRouter();
 const route = useRoute();
 const useNotificationsReadStore = makeUseNotificationsReadStore(client);

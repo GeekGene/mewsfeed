@@ -200,7 +200,7 @@ import {
 import min from "lodash/min";
 import union from "lodash/union";
 import flatten from "lodash/flatten";
-import { AppAgentClient } from "@holochain/client";
+import { AppClient } from "@holochain/client";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
 import { ROUTES } from "@/router";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
@@ -221,7 +221,7 @@ const props = defineProps<{
   mewType: MewType;
 }>();
 const searchProfiles = useSearchProfiles();
-const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+const client = (inject("client") as ComputedRef<AppClient>).value;
 const dnaProperties = (
   inject("dnaProperties") as ComputedRef<MewsfeedDnaProperties>
 ).value;

@@ -99,7 +99,7 @@ import { SearchResult, SearchResultOption } from "@/types/types";
 import { ROUTES } from "@/router";
 import { useSearchProfiles } from "@/utils/profiles";
 import { useToasts } from "@/stores/toasts";
-import { AppAgentClient, encodeHashToBase64 } from "@holochain/client";
+import { AppClient, encodeHashToBase64 } from "@holochain/client";
 import { ComputedRef, ref, toRaw, inject } from "vue";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { watch } from "vue";
@@ -108,7 +108,7 @@ import IconSearch from "~icons/ion/search";
 const emit = defineEmits(["selected"]);
 
 const searchProfiles = useSearchProfiles();
-const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+const client = (inject("client") as ComputedRef<AppClient>).value;
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const { showError } = useToasts();

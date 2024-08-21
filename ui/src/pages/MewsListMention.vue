@@ -54,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { AppAgentClient, decodeHashFromBase64 } from "@holochain/client";
+import { AppClient, decodeHashFromBase64 } from "@holochain/client";
 import { ComputedRef, computed, inject, ref, watch, onMounted } from "vue";
 import { useRoute, onBeforeRouteLeave } from "vue-router";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
@@ -66,7 +66,7 @@ import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
 import BaseInfiniteScroll from "@/components/BaseInfiniteScroll.vue";
 
 const route = useRoute();
-const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+const client = (inject("client") as ComputedRef<AppClient>).value;
 const queryClient = useQueryClient();
 const agentPubKeyB64 = computed(() => route.params.agentPubKey);
 const agentPubKey = computed(() =>

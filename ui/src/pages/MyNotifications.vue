@@ -51,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { AppAgentClient, encodeHashToBase64 } from "@holochain/client";
+import { AppClient, encodeHashToBase64 } from "@holochain/client";
 import { inject, ComputedRef, watch, toRaw, computed } from "vue";
 import { onBeforeRouteLeave } from "vue-router";
 import { pageHeightCorrection } from "@/utils/page-layout";
@@ -64,7 +64,7 @@ import BaseListSkeleton from "@/components/BaseListSkeleton.vue";
 import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
 import BaseInfiniteScroll from "@/components/BaseInfiniteScroll.vue";
 
-const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+const client = (inject("client") as ComputedRef<AppClient>).value;
 const useNotificationsReadStore = makeUseNotificationsReadStore(client);
 const { markRead, addNotificationStatus } = useNotificationsReadStore();
 const queryClient = useQueryClient();

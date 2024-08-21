@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import { AppAgentClient } from "@holochain/client";
+import { AppClient } from "@holochain/client";
 import { ComputedRef, computed, inject } from "vue";
 import { onBeforeRouteLeave } from "vue-router";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
@@ -58,7 +58,7 @@ const props = defineProps<{
   agentPubKey: AgentPubKey;
 }>();
 
-const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+const client = (inject("client") as ComputedRef<AppClient>).value;
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const queryClient = useQueryClient();
