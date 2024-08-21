@@ -18,7 +18,7 @@
     "@headlessui/vue": "^1.7.14",
     "@holo-host/web-sdk": "0.6.19-prerelease",
     "@holochain-open-dev/profiles": "^0.17.3",
-    "@holochain/client": "^0.16.10",
+    "@holochain/client": "^0.17.1",
     "@shoelace-style/shoelace": "^2.13.1",
     "@tanstack/query-persist-client-core": "^4.35.0",
     "@tanstack/query-sync-storage-persister": "^4.35.0",
