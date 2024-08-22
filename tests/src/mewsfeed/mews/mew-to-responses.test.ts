@@ -21,7 +21,7 @@ it("Agent can reply to a mew", async () => {
     const aliceMewInput: Mew = {
       text: aliceMewContent,
       links: [],
-      mew_type: { [MewTypeName.Original]: null },
+      mew_type: { type: MewTypeName.Original },
     };
     const action_hash: ActionHash = await alice.cells[0].callZome({
       zome_name: "mews",
@@ -33,7 +33,7 @@ it("Agent can reply to a mew", async () => {
     const aliceReplyInput: Mew = {
       text: aliceReplyContent,
       links: [],
-      mew_type: { [MewTypeName.Reply]: action_hash },
+      mew_type: { type: MewTypeName.Reply, original_action_hash: action_hash },
     };
     const reply_action_hash: ActionHash = await alice.cells[0].callZome({
       zome_name: "mews",
@@ -46,7 +46,7 @@ it("Agent can reply to a mew", async () => {
       fn_name: "get_mew_with_context",
       payload: reply_action_hash,
     });
-    assert.ok(MewTypeName.Reply in replyMew.mew.mew_type, "mew is a reply");
+    assert.ok(MewTypeName.Reply === replyMew.mew.mew_type.type, "mew is a reply");
     assert.equal(
       replyMew.mew.text,
       aliceReplyContent,
@@ -59,7 +59,7 @@ it("Agent can reply to a mew", async () => {
       payload: action_hash,
     });
     assert.ok(
-      MewTypeName.Original in originalMew.mew.mew_type,
+      MewTypeName.Original === originalMew.mew.mew_type.type,
       "mew is an original mew"
     );
     assert.equal(originalMew.mew.text, aliceMewContent, "mew is alice's mew");
@@ -89,7 +89,7 @@ it("Agent can mewmew a mew, only once", async () => {
       const aliceMewInput: Mew = {
         text: aliceMewContent,
         links: [],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
       const action_hash: ActionHash = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -100,7 +100,7 @@ it("Agent can mewmew a mew, only once", async () => {
       const aliceMewmewInput: Mew = {
         text: "",
         links: [],
-        mew_type: { [MewTypeName.Mewmew]: action_hash },
+        mew_type: { type: MewTypeName.Mewmew, original_action_hash: action_hash },
       };
       const mewmew_action_hash: ActionHash = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -113,7 +113,7 @@ it("Agent can mewmew a mew, only once", async () => {
         fn_name: "get_mew_with_context",
         payload: mewmew_action_hash,
       });
-      assert.ok(MewTypeName.Mewmew in mewmew.mew.mew_type, "mew is a mewmew");
+      assert.ok(MewTypeName.Mewmew === mewmew.mew.mew_type.type, "mew is a mewmew");
       assert.deepEqual(
         mewmew.mew,
         aliceMewmewInput,
@@ -126,7 +126,7 @@ it("Agent can mewmew a mew, only once", async () => {
         payload: action_hash,
       });
       assert.ok(
-        MewTypeName.Original in originalMew.mew.mew_type,
+        MewTypeName.Original === originalMew.mew.mew_type.type,
         "mew is an original mew"
       );
       assert.equal(originalMew.mew.text, aliceMewContent, "mew is alice's mew");
@@ -167,7 +167,7 @@ it("Agent can quote a mew", async () => {
       const aliceMewInput: Mew = {
         text: aliceMewContent,
         links: [],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
       const action_hash: ActionHash = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -180,7 +180,8 @@ it("Agent can quote a mew", async () => {
         text: aliceQuoteText,
         links: [],
         mew_type: {
-          [MewTypeName.Quote]: action_hash,
+          type: MewTypeName.Quote,
+          original_action_hash: action_hash,
         },
       };
       const quote_action_hash: ActionHash = await alice.cells[0].callZome({
@@ -194,7 +195,7 @@ it("Agent can quote a mew", async () => {
         fn_name: "get_mew_with_context",
         payload: quote_action_hash,
       });
-      assert.ok(MewTypeName.Quote in quote.mew.mew_type, "mew is a quote");
+      assert.ok(MewTypeName.Quote === quote.mew.mew_type.type, "mew is a quote");
       assert.equal(quote.mew.text, aliceQuoteText, "quote is alice's quote");
 
       const originalMew: FeedMew = await alice.cells[0].callZome({
@@ -203,7 +204,7 @@ it("Agent can quote a mew", async () => {
         payload: action_hash,
       });
       assert.ok(
-        MewTypeName.Original in originalMew.mew.mew_type,
+        MewTypeName.Original === originalMew.mew.mew_type.type,
         "mew is an original mew"
       );
       assert.equal(originalMew.mew.text, aliceMewContent, "mew is alice's mew");

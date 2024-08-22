@@ -25,7 +25,7 @@
           style="-webkit-backdrop-filter: blur(10px)"
         >
           <CreateMewInput
-            :mew-type="{ [MewTypeName.Original]: null }"
+            :mew-type="{ type: MewTypeName.Original }"
             @mew-created="onCreateMew"
           />
         </div>
@@ -34,7 +34,7 @@
             class="z-10 btn btn-md btn-neutral rounded-full py-3 flex justify-start items-center"
             @click="
               openCreateMewDialog(
-                { [MewTypeName.Original]: null },
+                { type: MewTypeName.Original },
                 undefined,
                 onCreateMew
               )
@@ -52,7 +52,7 @@
     class="block sm:hidden z-10 fixed bottom-32 right-3 btn btn-md btn-neutral rounded-full py-3 flex justify-start items-center"
     @click="
       openCreateMewDialog(
-        { [MewTypeName.Original]: null },
+        { type: MewTypeName.Original },
         undefined,
         onCreateMew
       )

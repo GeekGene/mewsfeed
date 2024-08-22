@@ -117,7 +117,7 @@ it("Mew with context contains replies count and is_replied", async () => {
         payload: {
           text: "my reply blah blah",
           links: [],
-          mew_type: { [MewTypeName.Reply]: actionHash },
+          mew_type: { type: MewTypeName.Reply, original_action_hash: actionHash },
         },
       });
 
@@ -176,7 +176,7 @@ it("Mew with context contains quotes count and is_quoted", async () => {
         payload: {
           text: "this is a quote blah blah",
           links: [],
-          mew_type: { [MewTypeName.Quote]: actionHash },
+          mew_type: { type: MewTypeName.Quote, original_action_hash: actionHash },
         },
       });
 
@@ -235,7 +235,7 @@ it("Mew with context contains mewmews count and is_mewmewed", async () => {
         payload: {
           text: "",
           links: [],
-          mew_type: { [MewTypeName.Mewmew]: actionHash },
+          mew_type: { type: MewTypeName.Mewmew, original_action_hash: actionHash },
         },
       });
 

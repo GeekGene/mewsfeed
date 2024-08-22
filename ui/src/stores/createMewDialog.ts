@@ -8,7 +8,7 @@ export const useCreateMewDialogStore = defineStore("createMewDialog", () => {
     console.log("completed createMew callback");
   };
 
-  const createMewDialogType = ref<MewType>({ [MewTypeName.Original]: null });
+  const createMewDialogType = ref<MewType>({ type: MewTypeName.Original });
   const createMewDialogProps = ref<{
     originalMew?: FeedMew;
     originalAuthor?: Profile;
