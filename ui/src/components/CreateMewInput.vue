@@ -161,7 +161,7 @@
       <div class="flex justify-start items-center space-x-1 sm:space-x-2">
         <IconArrowForwardOutline class="text-xl" />
         <div>
-          <template v-if="MewTypeName.Mewmew in props.mewType">Mewmew</template>
+          <template v-if="MewTypeName.Mewmew === props.mewType.type">Mewmew</template>
           <template v-else>
             Send <br class="inline-block sm:hidden" />Mew
           </template>
@@ -358,7 +358,7 @@ const publishMew = async (profile: undefined | Profile = undefined) => {
       payload: mew,
     });
     emit("mew-created", feedMew);
-    if (MewTypeName.Original in mew.mew_type) {
+    if (MewTypeName.Original === mew.mew_type.type) {
       showMessage("Published Mew");
     }
   } catch (error) {

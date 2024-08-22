@@ -196,7 +196,7 @@
           <div
             v-if="
               notification.feed_mew &&
-              MewTypeName.Reply in notification.feed_mew.mew.mew_type
+              MewTypeName.Reply === notification.feed_mew.mew.mew_type.type
             "
             class="font-mono"
           >
@@ -205,7 +205,7 @@
           <div
             v-else-if="
               notification.feed_mew &&
-              MewTypeName.Quote in notification.feed_mew.mew.mew_type
+              MewTypeName.Quote === notification.feed_mew.mew.mew_type.type
             "
             class="font-mono"
           >
@@ -214,7 +214,7 @@
           <div
             v-else-if="
               notification.feed_mew &&
-              MewTypeName.Mewmew in notification.feed_mew.mew.mew_type
+              MewTypeName.Mewmew === notification.feed_mew.mew.mew_type.type
             "
             class="font-mono"
           >
@@ -252,7 +252,7 @@
           <div
             v-if="
               notification.feed_mew &&
-              MewTypeName.Reply in notification.feed_mew.mew.mew_type
+              MewTypeName.Reply === notification.feed_mew.mew.mew_type.type
             "
             class="font-mono"
           >
@@ -261,7 +261,7 @@
           <div
             v-else-if="
               notification.feed_mew &&
-              MewTypeName.Quote in notification.feed_mew.mew.mew_type
+              MewTypeName.Quote === notification.feed_mew.mew.mew_type.type
             "
             class="font-mono"
           >
@@ -270,7 +270,7 @@
           <div
             v-else-if="
               notification.feed_mew &&
-              MewTypeName.Mewmew in notification.feed_mew.mew.mew_type
+              MewTypeName.Mewmew === notification.feed_mew.mew.mew_type.type
             "
             class="font-mono"
           >

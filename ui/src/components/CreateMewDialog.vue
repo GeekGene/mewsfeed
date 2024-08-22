@@ -11,13 +11,13 @@
     <profiles-context :store="profilesStore">
       <div
         v-if="
-          (mewType !== undefined && MewTypeName.Reply in mewType) ||
+          (mewType !== undefined && MewTypeName.Reply === mewType.type) ||
           MewTypeName.Quote in mewType
         "
         class="font-title text-xl flex justify-start items-center mr-2 mb-4"
       >
-        <div v-if="MewTypeName.Reply in mewType" class="mr-2">reply to</div>
-        <div v-else-if="MewTypeName.Quote in mewType" class="mr-2">quote</div>
+        <div v-if="MewTypeName.Reply === mewType.type" class="mr-2">reply to</div>
+        <div v-else-if="MewTypeName.Quote === mewType.type" class="mr-2">quote</div>
 
         <BaseAgentProfileName
           v-if="originalMew"
@@ -29,9 +29,9 @@
       <div
         v-if="
           mewType !== undefined &&
-          (MewTypeName.Reply in mewType ||
-            MewTypeName.Quote in mewType ||
-            MewTypeName.Mewmew in mewType) &&
+          (MewTypeName.Reply === mewType.type ||
+            MewTypeName.Quote === mewType.type ||
+            MewTypeName.Mewmew === mewType.type) &&
           originalMew
         "
         class="bg-base-200 rounded-3xl mb-4 mx-4"
