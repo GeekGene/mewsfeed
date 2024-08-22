@@ -79,7 +79,7 @@ it("Followed creators mews should include mews of followed creator", async () =>
       const mewInput: Mew = {
         text: mewContent,
         links: [],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
       await alice.cells[0].callZome({
         zome_name: "mews",
@@ -152,7 +152,7 @@ it("Followed creators mews should include own mews", async () => {
       const mewInput: Mew = {
         text: mewContent,
         links: [],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
       await alice.cells[0].callZome({
         zome_name: "mews",
@@ -203,7 +203,7 @@ it("Followed creators mews should not include mews of non-followed creator", asy
       const aliceMewInput: Mew = {
         text: aliceMewContent,
         links: [],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
       await alice.cells[0].callZome({
         zome_name: "mews",
@@ -215,7 +215,7 @@ it("Followed creators mews should not include mews of non-followed creator", asy
       const carolMewInput: Mew = {
         text: carolMewContent,
         links: [],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
       await carol.cells[0].callZome({
         zome_name: "mews",

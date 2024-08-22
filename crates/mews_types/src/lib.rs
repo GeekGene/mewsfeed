@@ -10,6 +10,7 @@ pub enum LinkTarget {
 }
 
 #[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone, PartialEq, Eq)]
+#[serde(tag="type", content="original_action_hash")]
 pub enum MewType {
     Original,
     Reply(ActionHash),

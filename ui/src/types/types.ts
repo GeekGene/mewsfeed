@@ -61,19 +61,10 @@ export enum MewTypeName {
   Quote = "Quote",
 }
 
-export type MewType =
-  | {
-      [MewTypeName.Original]: null;
-    }
-  | {
-      [MewTypeName.Reply]: ActionHash;
-    }
-  | {
-      [MewTypeName.Mewmew]: ActionHash;
-    }
-  | {
-      [MewTypeName.Quote]: ActionHash;
-    };
+export type MewType = {
+  type: MewTypeName,
+  original_action_hash?: ActionHash
+}
 
 export interface FeedMew {
   mew: Mew;

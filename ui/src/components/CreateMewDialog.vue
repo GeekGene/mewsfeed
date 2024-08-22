@@ -86,7 +86,7 @@ const createMewInputRef = ref();
 const onCreateMew = (val: FeedMew) => {
   setHomeRedirect(false);
 
-  if (MewTypeName.Original in val.mew.mew_type) {
+  if (MewTypeName.Original === val.mew.mew_type.type) {
     router.push({ name: ROUTES.feed });
   }
   emit("mew-created", val);

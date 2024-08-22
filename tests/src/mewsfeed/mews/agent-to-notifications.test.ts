@@ -269,7 +269,7 @@ it("notifications include my mews' replies, quotes, mewmews", async () => {
       const replyInput: Mew = {
         text: "test reply 12345",
         links: [],
-        mew_type: { [MewTypeName.Reply]: actionHash },
+        mew_type: { type: MewTypeName.Reply, original_action_hash: actionHash },
       };
       const replyActionHash: ActionHash = await bob.cells[0].callZome({
         zome_name: "mews",
@@ -286,7 +286,7 @@ it("notifications include my mews' replies, quotes, mewmews", async () => {
       const mewmewInput: Mew = {
         text: "",
         links: [],
-        mew_type: { [MewTypeName.Mewmew]: actionHash },
+        mew_type: { type: MewTypeName.Mewmew, original_action_hash: actionHash },
       };
       const mewmewActionHash: ActionHash = await bob.cells[0].callZome({
         zome_name: "mews",
@@ -303,7 +303,7 @@ it("notifications include my mews' replies, quotes, mewmews", async () => {
       const quoteInput: Mew = {
         text: "a response to a quoted mew",
         links: [],
-        mew_type: { [MewTypeName.Quote]: actionHash },
+        mew_type: { type: MewTypeName.Quote, original_action_hash: actionHash },
       };
       const quoteActionHash: ActionHash = await bob.cells[0].callZome({
         zome_name: "mews",
@@ -385,7 +385,7 @@ it("notifications include replies, quotes, mewmews to mews that I also responded
         payload: {
           text: "test reply 12345",
           links: [],
-          mew_type: { [MewTypeName.Reply]: actionHash },
+          mew_type: { type: MewTypeName.Reply, original_action_hash: actionHash },
         },
       });
 
@@ -393,7 +393,7 @@ it("notifications include replies, quotes, mewmews to mews that I also responded
       const replyInput: Mew = {
         text: "test reply 12345",
         links: [],
-        mew_type: { [MewTypeName.Reply]: actionHash },
+        mew_type: { type: MewTypeName.Reply, original_action_hash: actionHash },
       };
       const replyActionHash: ActionHash = await bob.cells[0].callZome({
         zome_name: "mews",
@@ -410,7 +410,7 @@ it("notifications include replies, quotes, mewmews to mews that I also responded
       const mewmewInput: Mew = {
         text: "",
         links: [],
-        mew_type: { [MewTypeName.Mewmew]: actionHash },
+        mew_type: { type: MewTypeName.Mewmew, original_action_hash: actionHash },
       };
       const mewmewActionHash: ActionHash = await bob.cells[0].callZome({
         zome_name: "mews",
@@ -427,7 +427,7 @@ it("notifications include replies, quotes, mewmews to mews that I also responded
       const quoteInput: Mew = {
         text: "a response to a quoted mew",
         links: [],
-        mew_type: { [MewTypeName.Quote]: actionHash },
+        mew_type: { type: MewTypeName.Quote, original_action_hash: actionHash },
       };
       const quoteActionHash: ActionHash = await bob.cells[0].callZome({
         zome_name: "mews",
@@ -505,7 +505,7 @@ it("notifications list is time-paginated", async () => {
       const replyInput: Mew = {
         text: "xyxyxyxy test reply 1",
         links: [],
-        mew_type: { [MewTypeName.Reply]: actionHash },
+        mew_type: { type: MewTypeName.Reply, original_action_hash: actionHash },
       };
       const replyActionHash: ActionHash = await bob.cells[0].callZome({
         zome_name: "mews",
@@ -522,7 +522,7 @@ it("notifications list is time-paginated", async () => {
       const replyInput2: Mew = {
         text: "xyxyxyxy test reply 2",
         links: [],
-        mew_type: { [MewTypeName.Reply]: actionHash },
+        mew_type: { type: MewTypeName.Reply, original_action_hash: actionHash },
       };
       const replyActionHash2: ActionHash = await bob.cells[0].callZome({
         zome_name: "mews",
@@ -539,7 +539,7 @@ it("notifications list is time-paginated", async () => {
       const replyInput3: Mew = {
         text: "xyxyxyxy test reply 3",
         links: [],
-        mew_type: { [MewTypeName.Reply]: actionHash },
+        mew_type: { type: MewTypeName.Reply, original_action_hash: actionHash },
       };
       const replyActionHash3: ActionHash = await bob.cells[0].callZome({
         zome_name: "mews",
@@ -556,7 +556,7 @@ it("notifications list is time-paginated", async () => {
       const replyInput4: Mew = {
         text: "xyxyxyxy test reply 4",
         links: [],
-        mew_type: { [MewTypeName.Reply]: actionHash },
+        mew_type: { type: MewTypeName.Reply, original_action_hash: actionHash },
       };
       const replyActionHash4: ActionHash = await bob.cells[0].callZome({
         zome_name: "mews",
@@ -573,7 +573,7 @@ it("notifications list is time-paginated", async () => {
       const replyInput5: Mew = {
         text: "xyxyxyxy test reply 5",
         links: [],
-        mew_type: { [MewTypeName.Reply]: actionHash },
+        mew_type: { type: MewTypeName.Reply, original_action_hash: actionHash },
       };
       const replyActionHash5: ActionHash = await bob.cells[0].callZome({
         zome_name: "mews",
@@ -590,7 +590,7 @@ it("notifications list is time-paginated", async () => {
       const replyInput6: Mew = {
         text: "xyxyxyxy test reply 6",
         links: [],
-        mew_type: { [MewTypeName.Reply]: actionHash },
+        mew_type: { type: MewTypeName.Reply, original_action_hash: actionHash },
       };
       const replyActionHash6: ActionHash = await bob.cells[0].callZome({
         zome_name: "mews",
@@ -607,7 +607,7 @@ it("notifications list is time-paginated", async () => {
       const replyInput7: Mew = {
         text: "xyxyxyxy test reply 7",
         links: [],
-        mew_type: { [MewTypeName.Reply]: actionHash },
+        mew_type: { type: MewTypeName.Reply, original_action_hash: actionHash },
       };
       const replyActionHash7: ActionHash = await bob.cells[0].callZome({
         zome_name: "mews",

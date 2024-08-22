@@ -279,9 +279,9 @@ const linkTargetValid = computed(() => {
 });
 const isMewTypeWithText = computed(() => {
   return (
-    MewTypeName.Original in props.mewType ||
-    MewTypeName.Reply in props.mewType ||
-    MewTypeName.Quote in props.mewType
+    MewTypeName.Original === props.mewType.type ||
+    MewTypeName.Reply === props.mewType.type ||
+    MewTypeName.Quote === props.mewType.type
   );
 });
 

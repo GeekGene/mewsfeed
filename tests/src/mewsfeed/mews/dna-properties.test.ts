@@ -24,7 +24,7 @@ it("Mew must not be longer than DNA property mew_characters_max chars", async ()
       const createMewInput: Mew = {
         text: new Array(200).fill("a").join(""),
         links: [],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
       const action_hash: ActionHash = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -74,7 +74,7 @@ it("Mew must not be shorter than DNA property mew_characters_min chars", async (
       const createMewInput: Mew = {
         text: new Array(10).fill("a").join(""),
         links: [],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
       const action_hash: ActionHash = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -127,7 +127,7 @@ it("Mew can be any length if DNA property mew_characters_min and mew_characters_
       const createMewInput2: Mew = {
         text: "",
         links: [],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
       const action_hash2: ActionHash = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -144,7 +144,7 @@ it("Mew can be any length if DNA property mew_characters_min and mew_characters_
       const createMewInput3: Mew = {
         text: new Array(1000).fill("a").join(""),
         links: [],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
       const action_hash3: ActionHash = await alice.cells[0].callZome({
         zome_name: "mews",
