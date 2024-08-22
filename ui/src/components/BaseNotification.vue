@@ -2,7 +2,7 @@
   <div class="py-4">
     <div
       v-if="
-        NotificationTypeName.MyAgentFollowed === notification.notification_type
+        NotificationType.MyAgentFollowed === notification.notification_type
       "
       class="flex justify-between items-center py-2"
       style="width: 100%"
@@ -20,7 +20,7 @@
     </div>
     <div
       v-else-if="
-        NotificationTypeName.MyAgentUnfollowed === notification.notification_type
+        NotificationType.MyAgentUnfollowed === notification.notification_type
       "
       class="flex justify-between items-center py-2 w-full space-x-2"
     >
@@ -37,7 +37,7 @@
     </div>
     <div
       v-else-if="
-        NotificationTypeName.MyAgentMentioned === notification.notification_type
+        NotificationType.MyAgentMentioned === notification.notification_type
       "
       class="my-2 w-full"
     >
@@ -66,7 +66,7 @@
 
     <div
       v-else-if="
-        NotificationTypeName.MyMewLicked === notification.notification_type
+        NotificationType.MyMewLicked === notification.notification_type
       "
       class="py-2 w-full"
     >
@@ -95,7 +95,7 @@
 
     <div
       v-else-if="
-        NotificationTypeName.MyMewUnlicked === notification.notification_type
+        NotificationType.MyMewUnlicked === notification.notification_type
       "
       style="width: 100%"
       class="w-full py-2"
@@ -125,7 +125,7 @@
 
     <div
       v-else-if="
-        NotificationTypeName.MyMewPinned === notification.notification_type
+        NotificationType.MyMewPinned === notification.notification_type
       "
       class="w-full py-2"
     >
@@ -154,7 +154,7 @@
 
     <div
       v-else-if="
-        NotificationTypeName.MyMewUnpinned === notification.notification_type
+        NotificationType.MyMewUnpinned === notification.notification_type
       "
       class="py-2 w-full"
     >
@@ -183,7 +183,7 @@
 
     <div
       v-else-if="
-        NotificationTypeName.MyMewResponded === notification.notification_type
+        NotificationType.MyMewResponded === notification.notification_type
       "
       class="w-full py-2"
     >
@@ -238,7 +238,7 @@
 
     <div
       v-else-if="
-        NotificationTypeName.FollowedYarnResponded ===
+        NotificationType.FollowedYarnResponded ===
         notification.notification_type
       "
       class="py-2 w-full"
@@ -296,7 +296,7 @@
 
 <script setup lang="ts">
 import {
-  NotificationTypeName,
+  NotificationType,
   Notification,
   FeedMew,
   MewTypeName,

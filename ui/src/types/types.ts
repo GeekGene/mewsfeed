@@ -174,7 +174,7 @@ export type Notification = {
   feed_mew: FeedMew | null;
 };
 
-export enum NotificationTypeName {
+export enum NotificationType {
   MyMewLicked = "MyMewLicked",
   MyMewUnlicked = "MyMewUnlicked",
   MyMewPinned = "MyMewPinned",
@@ -185,17 +185,6 @@ export enum NotificationTypeName {
   MyAgentUnfollowed = "MyAgentUnfollowed",
   FollowedYarnResponded = "FollowedYarnResponded",
 }
-
-export type NotificationType =
-  | NotificationTypeName.MyMewLicked
-  | NotificationTypeName.MyMewUnlicked
-  | NotificationTypeName.MyMewPinned
-  | NotificationTypeName.MyMewUnpinned
-  | NotificationTypeName.MyMewResponded
-  | NotificationTypeName.MyAgentMentioned
-  | NotificationTypeName.MyAgentFollowed
-  | NotificationTypeName.MyAgentUnfollowed
-  | NotificationTypeName.FollowedYarnResponded;
 
 export declare type CacheData<R = any, P = any> = {
   data: R;
