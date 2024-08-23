@@ -94,7 +94,7 @@ pub fn remove_hash_for_liker(input: RemoveHashForLikerInput) -> ExternResult<()>
     let links = get_links(
         GetLinksInputBuilder::try_new(
             input.base_liker.clone(),
-            LinkTypes::HashToLikers.try_into_filter()?,
+            LinkTypes::LikerToHashes.try_into_filter()?,
         )?
         .build(),
     )?;
