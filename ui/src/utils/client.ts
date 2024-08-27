@@ -2,7 +2,8 @@ import { AdminWebsocket, CellType, AppWebsocket } from "@holochain/client";
 import WebSdkApi, { AgentState } from "@holo-host/web-sdk";
 
 export const HOLOCHAIN_APP_ID = "mewsfeed";
-export const IS_LAUNCHER = typeof window === "object" && ("__HC_LAUNCHER_ENV__" in window);
+export const IS_LAUNCHER =
+  typeof window === "object" && "__HC_LAUNCHER_ENV__" in window;
 export const IS_HOLO_HOSTED = import.meta.env.VITE_IS_HOLO_HOSTED;
 
 export const setupHolochain = async () => {
