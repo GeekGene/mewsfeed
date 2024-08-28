@@ -28,7 +28,11 @@ pub fn get_agent_mews_with_context(input: GetAgentMewsInput) -> ExternResult<Vec
 }
 
 fn get_agent_mew_hashes(input: GetAgentMewsInput) -> ExternResult<Vec<ActionHash>> {
-    let links = get_links(input.agent, LinkTypes::AgentMews, None)?;
+    let links = get_links(
+        GetLinksInputBuilder::try_new(input.agent, LinkTypes::AgentMews.try_into_filter()?)?
+            .build(),
+    )?;
+
     let links_slice = paginate_by_hash(links, input.page)?;
 
     let hashes: Vec<ActionHash> = links_slice

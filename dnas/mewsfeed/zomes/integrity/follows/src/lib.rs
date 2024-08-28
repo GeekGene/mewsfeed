@@ -30,24 +30,12 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             _ => Ok(ValidateCallbackResult::Valid),
         },
         FlatOp::RegisterUpdate(update_entry) => match update_entry {
-            OpUpdate::Entry {
-                original_action,
-                original_app_entry,
-                app_entry,
-                action,
-            } => Ok(ValidateCallbackResult::Invalid(
+            OpUpdate::Entry { app_entry, action } => Ok(ValidateCallbackResult::Invalid(
                 "There are no entry types in this integrity zome".to_string(),
             )),
             _ => Ok(ValidateCallbackResult::Valid),
         },
-        FlatOp::RegisterDelete(delete_entry) => match delete_entry {
-            OpDelete::Entry {
-                original_action,
-                original_app_entry,
-                action,
-            } => Ok(ValidateCallbackResult::Valid),
-            _ => Ok(ValidateCallbackResult::Valid),
-        },
+        FlatOp::RegisterDelete(delete_entry) => Ok(ValidateCallbackResult::Valid),
         FlatOp::RegisterCreateLink {
             link_type,
             base_address,

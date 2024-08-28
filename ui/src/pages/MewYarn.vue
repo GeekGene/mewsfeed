@@ -61,7 +61,7 @@ import { PaginationDirectionName } from "@/types/types";
 import { decodeHashFromBase64 } from "@holochain/client";
 import { ComputedRef, computed, inject, watch } from "vue";
 import { useRoute, onBeforeRouteLeave } from "vue-router";
-import { AppAgentClient } from "@holochain/client";
+import { AppClient } from "@holochain/client";
 import {
   useInfiniteQuery,
   useQuery,
@@ -71,7 +71,7 @@ import BaseButtonBack from "@/components/BaseButtonBack.vue";
 import BaseListSkeleton from "@/components/BaseListSkeleton.vue";
 import BaseInfiniteScroll from "@/components/BaseInfiniteScroll.vue";
 
-const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+const client = (inject("client") as ComputedRef<AppClient>).value;
 const route = useRoute();
 const queryClient = useQueryClient();
 

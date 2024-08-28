@@ -1,5 +1,5 @@
 import {
-  AppAgentClient,
+  AppClient,
   decodeHashFromBase64,
   encodeHashToBase64,
 } from "@holochain/client";
@@ -21,7 +21,7 @@ const notificationToKey = (notification: Notification) => {
   return encodeHashToBase64(encode(keyObj));
 };
 
-export const makeUseNotificationsReadStore = (client: AppAgentClient) =>
+export const makeUseNotificationsReadStore = (client: AppClient) =>
   defineStore(
     "notificationsRead",
     () => {

@@ -10,5 +10,5 @@ name = "profiles"
 [dependencies]
 hdk = { workspace = true }
 serde = { workspace = true }
-profiles_integrity = { workspace = true } 
-hc_zome_profiles_coordinator = { workspace = true }
+profiles_integrity = { workspace = true }
+hc_zome_profiles_coordinator = { git = "https://github.com/holochain-open-dev/profiles", branch = "for-hdk-v0.3.1" }

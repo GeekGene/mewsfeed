@@ -30,21 +30,12 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
         },
         FlatOp::RegisterUpdate(update_entry) => match update_entry {
             OpUpdate::Entry {
-                original_action: _,
-                original_app_entry: _,
                 app_entry: _,
                 action: _,
             } => Ok(ValidateCallbackResult::Valid),
             _ => Ok(ValidateCallbackResult::Valid),
         },
-        FlatOp::RegisterDelete(delete_entry) => match delete_entry {
-            OpDelete::Entry {
-                original_action: _,
-                original_app_entry: _,
-                action: _,
-            } => Ok(ValidateCallbackResult::Valid),
-            _ => Ok(ValidateCallbackResult::Valid),
-        },
+        FlatOp::RegisterDelete(_delete_entry) => Ok(ValidateCallbackResult::Valid),
         FlatOp::RegisterCreateLink {
             link_type,
             base_address,

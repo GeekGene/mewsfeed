@@ -28,7 +28,7 @@ pub fn make_tag_prefix_index() -> ExternResult<PrefixIndex> {
 
 #[derive(Serialize, Deserialize)]
 #[serde(tag = "type")]
-#[hdk_entry_defs]
+#[hdk_entry_types]
 #[unit_enum(UnitEntryTypes)]
 pub enum EntryTypes {
     Mew(Mew),
@@ -81,28 +81,81 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             _ => Ok(ValidateCallbackResult::Valid),
         },
         FlatOp::RegisterUpdate(update_entry) => match update_entry {
-            OpUpdate::Entry {
-                original_action,
-                original_app_entry,
-                app_entry,
-                action,
-            } => match (app_entry, original_app_entry) {
-                (EntryTypes::Mew(mew), EntryTypes::Mew(original_mew)) => {
-                    validate_update_mew(action, mew, original_action, original_mew)
+            OpUpdate::Entry { app_entry, action } => {
+                let original_action = must_get_action(action.clone().original_action_address)?
+                    .action()
+                    .to_owned();
+                let original_create_action = match EntryCreationAction::try_from(original_action) {
+                    Ok(action) => action,
+                    Err(e) => {
+                        return Ok(ValidateCallbackResult::Invalid(format!(
+                            "Expected to get EntryCreationAction from Action: {e:?}"
+                        )));
+                    }
+                };
+                match app_entry {
+                    EntryTypes::Mew(mew) => {
+                        let original_app_entry =
+                            must_get_valid_record(action.clone().original_action_address)?;
+                        let original_mew = match Mew::try_from(original_app_entry) {
+                            Ok(entry) => entry,
+                            Err(e) => {
+                                return Ok(ValidateCallbackResult::Invalid(format!(
+                                    "Expected to get Post from Record: {e:?}"
+                                )));
+                            }
+                        };
+                        validate_update_mew(action, mew, original_create_action, original_mew)
+                    }
                 }
-            },
+            }
             _ => Ok(ValidateCallbackResult::Valid),
         },
-        FlatOp::RegisterDelete(delete_entry) => match delete_entry {
-            OpDelete::Entry {
-                original_action,
-                original_app_entry,
-                action,
-            } => match original_app_entry {
-                EntryTypes::Mew(mew) => validate_delete_mew(action, original_action, mew),
-            },
-            _ => Ok(ValidateCallbackResult::Valid),
-        },
+        FlatOp::RegisterDelete(delete_entry) => {
+            let original_action_hash = delete_entry.clone().action.deletes_address;
+            let original_record = must_get_valid_record(original_action_hash)?;
+            let original_record_action = original_record.action().clone();
+            let original_action = match EntryCreationAction::try_from(original_record_action) {
+                Ok(action) => action,
+                Err(e) => {
+                    return Ok(ValidateCallbackResult::Invalid(format!(
+                        "Expected to get EntryCreationAction from Action: {e:?}"
+                    )));
+                }
+            };
+            let app_entry_type = match original_action.entry_type() {
+                EntryType::App(app_entry_type) => app_entry_type,
+                _ => {
+                    return Ok(ValidateCallbackResult::Valid);
+                }
+            };
+            let entry = match original_record.entry().as_option() {
+                Some(entry) => entry,
+                None => {
+                    return Ok(ValidateCallbackResult::Invalid(
+                        "Original record for a delete must contain an entry".to_string(),
+                    ));
+                }
+            };
+            let original_app_entry = match EntryTypes::deserialize_from_type(
+                app_entry_type.zome_index,
+                app_entry_type.entry_index,
+                entry,
+            )? {
+                Some(app_entry) => app_entry,
+                None => {
+                    return Ok(ValidateCallbackResult::Invalid(
+                        "Original app entry must be one of the defined entry types for this zome"
+                            .to_string(),
+                    ));
+                }
+            };
+            match original_app_entry {
+                EntryTypes::Mew(original_mew) => {
+                    validate_delete_mew(delete_entry.clone().action, original_action, original_mew)
+                }
+            }
+        }
         FlatOp::RegisterCreateLink {
             link_type,
             base_address,

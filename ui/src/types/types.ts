@@ -61,19 +61,10 @@ export enum MewTypeName {
   Quote = "Quote",
 }
 
-export type MewType =
-  | {
-      [MewTypeName.Original]: null;
-    }
-  | {
-      [MewTypeName.Reply]: ActionHash;
-    }
-  | {
-      [MewTypeName.Mewmew]: ActionHash;
-    }
-  | {
-      [MewTypeName.Quote]: ActionHash;
-    };
+export type MewType = {
+  type: MewTypeName,
+  original_action_hash?: ActionHash
+}
 
 export interface FeedMew {
   mew: Mew;
@@ -174,7 +165,7 @@ export type Notification = {
   feed_mew: FeedMew | null;
 };
 
-export enum NotificationTypeName {
+export enum NotificationType {
   MyMewLicked = "MyMewLicked",
   MyMewUnlicked = "MyMewUnlicked",
   MyMewPinned = "MyMewPinned",
@@ -185,17 +176,6 @@ export enum NotificationTypeName {
   MyAgentUnfollowed = "MyAgentUnfollowed",
   FollowedYarnResponded = "FollowedYarnResponded",
 }
-
-export type NotificationType =
-  | { [NotificationTypeName.MyMewLicked]: null }
-  | { [NotificationTypeName.MyMewUnlicked]: null }
-  | { [NotificationTypeName.MyMewPinned]: null }
-  | { [NotificationTypeName.MyMewUnpinned]: null }
-  | { [NotificationTypeName.MyMewResponded]: null }
-  | { [NotificationTypeName.MyAgentMentioned]: null }
-  | { [NotificationTypeName.MyAgentFollowed]: null }
-  | { [NotificationTypeName.MyAgentUnfollowed]: null }
-  | { [NotificationTypeName.FollowedYarnResponded]: null };
 
 export declare type CacheData<R = any, P = any> = {
   data: R;

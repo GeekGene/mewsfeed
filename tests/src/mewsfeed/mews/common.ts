@@ -1,12 +1,13 @@
 import { CallableCell } from "@holochain/tryorama";
 import { ActionHash } from "@holochain/client";
+import { MewTypeName } from "../../../../ui/src/types/types";
 
 export async function sampleMew(cell: CallableCell, partialMew = {}) {
   return {
     ...{
       text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
       links: [],
-      mew_type: { Original: null },
+      mew_type: { type: MewTypeName.Original },
     },
     ...partialMew,
   };

@@ -5,7 +5,7 @@ import {
   FeedMew,
   Mew,
   MewTypeName,
-  NotificationTypeName,
+  NotificationType,
   PaginationDirectionName,
 } from "../../../../ui/src/types/types";
 import { mewsfeedAppBundleSource } from "../../common";
@@ -60,11 +60,11 @@ it("notifications include my agent follows & unfollows", async () => {
       // Notifications should be orderded by action time descending (newest first)
       expect(notifications[0]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyAgentUnfollowed]: null },
+        notification_type: NotificationType.MyAgentUnfollowed
       });
       expect(notifications[1]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyAgentFollowed]: null },
+        notification_type: NotificationType.MyAgentFollowed
       });
 
       // Alice gets notifications count
@@ -139,12 +139,12 @@ it("notifications include my mews' likes & unlikes", async () => {
 
       expect(notifications[0]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyMewUnlicked]: null },
+        notification_type: NotificationType.MyMewUnlicked,
         feed_mew: feedMew,
       });
       expect(notifications[1]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyMewLicked]: null },
+        notification_type: NotificationType.MyMewLicked,
         feed_mew: feedMew,
       });
 
@@ -220,12 +220,12 @@ it("notifications include my mews' pins & unpins", async () => {
 
       expect(notifications[0]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyMewUnpinned]: null },
+        notification_type: NotificationType.MyMewUnpinned,
         feed_mew: feedMew,
       });
       expect(notifications[1]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyMewPinned]: null },
+        notification_type: NotificationType.MyMewPinned,
         feed_mew: feedMew,
       });
 
@@ -269,7 +269,7 @@ it("notifications include my mews' replies, quotes, mewmews", async () => {
       const replyInput: Mew = {
         text: "test reply 12345",
         links: [],
-        mew_type: { [MewTypeName.Reply]: actionHash },
+        mew_type: { type: MewTypeName.Reply, original_action_hash: actionHash },
       };
       const replyActionHash: ActionHash = await bob.cells[0].callZome({
         zome_name: "mews",
@@ -286,7 +286,7 @@ it("notifications include my mews' replies, quotes, mewmews", async () => {
       const mewmewInput: Mew = {
         text: "",
         links: [],
-        mew_type: { [MewTypeName.Mewmew]: actionHash },
+        mew_type: { type: MewTypeName.Mewmew, original_action_hash: actionHash },
       };
       const mewmewActionHash: ActionHash = await bob.cells[0].callZome({
         zome_name: "mews",
@@ -303,7 +303,7 @@ it("notifications include my mews' replies, quotes, mewmews", async () => {
       const quoteInput: Mew = {
         text: "a response to a quoted mew",
         links: [],
-        mew_type: { [MewTypeName.Quote]: actionHash },
+        mew_type: { type: MewTypeName.Quote, original_action_hash: actionHash },
       };
       const quoteActionHash: ActionHash = await bob.cells[0].callZome({
         zome_name: "mews",
@@ -327,17 +327,17 @@ it("notifications include my mews' replies, quotes, mewmews", async () => {
 
       expect(notifications[0]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyMewResponded]: null },
+        notification_type: NotificationType.MyMewResponded,
         feed_mew: quoteFeedMew,
       });
       expect(notifications[1]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyMewResponded]: null },
+        notification_type: NotificationType.MyMewResponded,
         feed_mew: mewmewFeedMew,
       });
       expect(notifications[2]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyMewResponded]: null },
+        notification_type: NotificationType.MyMewResponded,
         feed_mew: replyFeedMew,
       });
 
@@ -385,7 +385,7 @@ it("notifications include replies, quotes, mewmews to mews that I also responded
         payload: {
           text: "test reply 12345",
           links: [],
-          mew_type: { [MewTypeName.Reply]: actionHash },
+          mew_type: { type: MewTypeName.Reply, original_action_hash: actionHash },
         },
       });
 
@@ -393,7 +393,7 @@ it("notifications include replies, quotes, mewmews to mews that I also responded
       const replyInput: Mew = {
         text: "test reply 12345",
         links: [],
-        mew_type: { [MewTypeName.Reply]: actionHash },
+        mew_type: { type: MewTypeName.Reply, original_action_hash: actionHash },
       };
       const replyActionHash: ActionHash = await bob.cells[0].callZome({
         zome_name: "mews",
@@ -410,7 +410,7 @@ it("notifications include replies, quotes, mewmews to mews that I also responded
       const mewmewInput: Mew = {
         text: "",
         links: [],
-        mew_type: { [MewTypeName.Mewmew]: actionHash },
+        mew_type: { type: MewTypeName.Mewmew, original_action_hash: actionHash },
       };
       const mewmewActionHash: ActionHash = await bob.cells[0].callZome({
         zome_name: "mews",
@@ -427,7 +427,7 @@ it("notifications include replies, quotes, mewmews to mews that I also responded
       const quoteInput: Mew = {
         text: "a response to a quoted mew",
         links: [],
-        mew_type: { [MewTypeName.Quote]: actionHash },
+        mew_type: { type: MewTypeName.Quote, original_action_hash: actionHash },
       };
       const quoteActionHash: ActionHash = await bob.cells[0].callZome({
         zome_name: "mews",
@@ -451,23 +451,17 @@ it("notifications include replies, quotes, mewmews to mews that I also responded
 
       expect(notifications[0]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: {
-          [NotificationTypeName.FollowedYarnResponded]: null,
-        },
+        notification_type: NotificationType.FollowedYarnResponded,
         feed_mew: quoteFeedMew,
       });
       expect(notifications[1]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: {
-          [NotificationTypeName.FollowedYarnResponded]: null,
-        },
+        notification_type: NotificationType.FollowedYarnResponded,
         feed_mew: mewmewFeedMew,
       });
       expect(notifications[2]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: {
-          [NotificationTypeName.FollowedYarnResponded]: null,
-        },
+        notification_type: NotificationType.FollowedYarnResponded,
         feed_mew: replyFeedMew,
       });
 
@@ -511,7 +505,7 @@ it("notifications list is time-paginated", async () => {
       const replyInput: Mew = {
         text: "xyxyxyxy test reply 1",
         links: [],
-        mew_type: { [MewTypeName.Reply]: actionHash },
+        mew_type: { type: MewTypeName.Reply, original_action_hash: actionHash },
       };
       const replyActionHash: ActionHash = await bob.cells[0].callZome({
         zome_name: "mews",
@@ -528,7 +522,7 @@ it("notifications list is time-paginated", async () => {
       const replyInput2: Mew = {
         text: "xyxyxyxy test reply 2",
         links: [],
-        mew_type: { [MewTypeName.Reply]: actionHash },
+        mew_type: { type: MewTypeName.Reply, original_action_hash: actionHash },
       };
       const replyActionHash2: ActionHash = await bob.cells[0].callZome({
         zome_name: "mews",
@@ -545,7 +539,7 @@ it("notifications list is time-paginated", async () => {
       const replyInput3: Mew = {
         text: "xyxyxyxy test reply 3",
         links: [],
-        mew_type: { [MewTypeName.Reply]: actionHash },
+        mew_type: { type: MewTypeName.Reply, original_action_hash: actionHash },
       };
       const replyActionHash3: ActionHash = await bob.cells[0].callZome({
         zome_name: "mews",
@@ -562,7 +556,7 @@ it("notifications list is time-paginated", async () => {
       const replyInput4: Mew = {
         text: "xyxyxyxy test reply 4",
         links: [],
-        mew_type: { [MewTypeName.Reply]: actionHash },
+        mew_type: { type: MewTypeName.Reply, original_action_hash: actionHash },
       };
       const replyActionHash4: ActionHash = await bob.cells[0].callZome({
         zome_name: "mews",
@@ -579,7 +573,7 @@ it("notifications list is time-paginated", async () => {
       const replyInput5: Mew = {
         text: "xyxyxyxy test reply 5",
         links: [],
-        mew_type: { [MewTypeName.Reply]: actionHash },
+        mew_type: { type: MewTypeName.Reply, original_action_hash: actionHash },
       };
       const replyActionHash5: ActionHash = await bob.cells[0].callZome({
         zome_name: "mews",
@@ -596,7 +590,7 @@ it("notifications list is time-paginated", async () => {
       const replyInput6: Mew = {
         text: "xyxyxyxy test reply 6",
         links: [],
-        mew_type: { [MewTypeName.Reply]: actionHash },
+        mew_type: { type: MewTypeName.Reply, original_action_hash: actionHash },
       };
       const replyActionHash6: ActionHash = await bob.cells[0].callZome({
         zome_name: "mews",
@@ -613,7 +607,7 @@ it("notifications list is time-paginated", async () => {
       const replyInput7: Mew = {
         text: "xyxyxyxy test reply 7",
         links: [],
-        mew_type: { [MewTypeName.Reply]: actionHash },
+        mew_type: { type: MewTypeName.Reply, original_action_hash: actionHash },
       };
       const replyActionHash7: ActionHash = await bob.cells[0].callZome({
         zome_name: "mews",
@@ -641,12 +635,12 @@ it("notifications list is time-paginated", async () => {
       // Notifications should be orderded by action time descending (newest first)
       expect(page1[0]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyMewResponded]: null },
+        notification_type: NotificationType.MyMewResponded,
         feed_mew: replyFeedMew7,
       });
       expect(page1[1]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyMewResponded]: null },
+        notification_type: NotificationType.MyMewResponded,
         feed_mew: replyFeedMew6,
       });
 
@@ -666,12 +660,12 @@ it("notifications list is time-paginated", async () => {
       // Notifications should be orderded by action time descending (newest first)
       expect(page2[0]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyMewResponded]: null },
+        notification_type: NotificationType.MyMewResponded,
         feed_mew: replyFeedMew5,
       });
       expect(page2[1]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyMewResponded]: null },
+        notification_type: NotificationType.MyMewResponded,
         feed_mew: replyFeedMew4,
       });
 
@@ -694,12 +688,12 @@ it("notifications list is time-paginated", async () => {
       // Notifications should be orderded by action time descending (newest first)
       expect(page3[0]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyMewResponded]: null },
+        notification_type: NotificationType.MyMewResponded,
         feed_mew: replyFeedMew3,
       });
       expect(page3[1]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyMewResponded]: null },
+        notification_type: NotificationType.MyMewResponded,
         feed_mew: replyFeedMew2,
       });
 
@@ -725,7 +719,7 @@ it("notifications list is time-paginated", async () => {
       assert.lengthOf(page4, 1);
       expect(page4[0]).toMatchObject({
         agent: bob.agentPubKey,
-        notification_type: { [NotificationTypeName.MyMewResponded]: null },
+        notification_type: NotificationType.MyMewResponded,
         feed_mew: replyFeedMew,
       });
 

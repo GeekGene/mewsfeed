@@ -46,7 +46,7 @@
 
 <script setup lang="ts">
 import { ComputedRef, computed, inject, onMounted, toRaw, watch } from "vue";
-import { AppAgentClient } from "@holochain/client";
+import { AppClient } from "@holochain/client";
 import BaseList from "@/components/BaseList.vue";
 import { FeedMew } from "@/types/types";
 import { useQuery } from "@tanstack/vue-query";
@@ -55,7 +55,7 @@ import { ActionHash } from "@holochain/client";
 import BaseListSkeleton from "@/components/BaseListSkeleton.vue";
 import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
 
-const client = (inject("client") as ComputedRef<AppAgentClient>).value;
+const client = (inject("client") as ComputedRef<AppClient>).value;
 
 const fetchRandomMewHashes = (): Promise<ActionHash[]> =>
   client.callZome({
