@@ -856,7 +856,8 @@ dependencies = [
 [[package]]
 name = "hc_prefix_index"
 version = "0.11.0"
-source = "git+https://github.com/holochain-open-dev/holochain-prefix-index#e78c0fa36854405d6bfd74d3256e5e962e50fc46"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a4484515b95d7e6f0b60b0b7e5f88f8803f30b26aa5c5375792da70eb68f40b4"
 dependencies = [
  "hdk",
  "rand",
