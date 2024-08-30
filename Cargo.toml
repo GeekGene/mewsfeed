@@ -1,15 +1,15 @@
 [workspace]
-members = ["dnas/*/zomes/coordinator/*", "dnas/*/zomes/integrity/*", "crates/*"]
+members = ["dnas/*/zomes/coordinator/*", "dnas/*/zomes/integrity/*", "crates/*", "src-tauri"]
 resolver = "2"
 
 [workspace.dependencies]
+hc_prefix_index = "0.12.0"
 hdi = "=0.4.2"
 hdk = "=0.3.2"
-serde = "1.0"
 paste = "1.0"
 rand = "0.8.5"
-hc_prefix_index = "0.12.0"
 regex = "1.10.3"
+serde = "1.0"
 
 [workspace.dependencies.agent_pins]
 path = "dnas/mewsfeed/zomes/coordinator/agent_pins"
@@ -25,6 +25,12 @@ path = "dnas/mewsfeed/zomes/integrity/follows"
 
 [workspace.dependencies.follows_types]
 path = "crates/follows_types"
+
+[workspace.dependencies.hc_call_utils]
+path = "crates/hc_call_utils"
+
+[workspace.dependencies.hc_link_pagination]
+path = "crates/hc_link_pagination"
 
 [workspace.dependencies.likes]
 path = "dnas/mewsfeed/zomes/coordinator/likes"
@@ -49,9 +55,3 @@ path = "dnas/mewsfeed/zomes/coordinator/profiles"
 
 [workspace.dependencies.profiles_integrity]
 path = "dnas/mewsfeed/zomes/integrity/profiles"
-
-[workspace.dependencies.hc_call_utils]
-path = "crates/hc_call_utils"
-
-[workspace.dependencies.hc_link_pagination]
-path = "crates/hc_link_pagination"
