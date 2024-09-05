@@ -16,7 +16,7 @@
     "network:android": "npm run build:happ && BOOTSTRAP_PORT=$(port) SIGNAL_PORT=$(port) INTERNAL_IP=$(internal-ip --ipv4) concurrently -k \"npm run local-services\" \"UI_PORT=1420 npm run -w ui start\" \"AGENTS=1 npm run launch:tauri\" \"npm run launch:android\"",
     "launch:tauri": "concurrently-repeat \"npm run tauri dev\" $AGENTS",
     "launch:electron": "hc-spin --ui-port 1420 -n $AGENTS  workdir/kando.happ",
-    "launch:android": "ctauri android dev",
+    "launch:android": "tauri android dev",
     "launch:browser": "echo \"starting with admin $VITE_ADMIN_PORT\" && RUST_LOG=warn echo \"pass\" | hc s -f=$VITE_ADMIN_PORT --piped generate workdir/kando.happ --run=$VITE_APP_PORT -a kando network -b \"http://127.0.0.1:$BOOTSTRAP_PORT\"  webrtc \"ws://127.0.0.1:$SIGNAL_PORT\"",
     "local-services": "hc run-local-services --bootstrap-interface $INTERNAL_IP --bootstrap-port $BOOTSTRAP_PORT --signal-interfaces $INTERNAL_IP --signal-port $SIGNAL_PORT",
     "start:agent:holo": "npm run build:happ && concurrently \"echo pass | lair-keystore server\" \"./holo-dev-server ./workdir/mewsfeed.happ\" \"sleep 15 && VITE_IS_HOLO_HOSTED=true VITE_CHAPERONE_SERVER_URL=http://127.0.0.1:24274 UI_PORT=5432 npm -w ui run start\"",
