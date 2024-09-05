@@ -8821,7 +8821,7 @@ dependencies = [
 [[package]]
 name = "tauri-plugin-holochain"
 version = "0.0.0"
-source = "git+https://github.com/darksoil-studio/p2p-shipyard?branch=main#2f936b485c88124696b15285492b72aa1430a710"
+source = "git+https://github.com/mattyg/p2p-shipyard?branch=feat/long-adminwebsocket-timeout#ac810ad8a7aaa6a3515c02abd07b13906cd4cd90"
 dependencies = [
  "anyhow",
  "async-std",

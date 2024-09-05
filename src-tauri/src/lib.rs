@@ -26,6 +26,7 @@ pub fn run() {
             HolochainPluginConfig {
                 wan_network_config: wan_network_config(),
                 holochain_dir: holochain_dir(),
+                admin_port: None
             },
         ))
         .setup(|app| {
@@ -88,10 +89,25 @@ async fn setup(handle: AppHandle) -> anyhow::Result<()> {
     }
 }
 
+fn internal_ip() -> String {
+    std::option_env!("INTERNAL_IP")
+        .expect("Environment variable INTERNAL_IP was not set")
+        .to_string()
+}
+
 fn wan_network_config() -> Option<WANNetworkConfig> {
     // Resolved at compile time to be able to point to local services
     if tauri::is_dev() {
-        None
+        let internal_ip = internal_ip();
+        let signal_port =
+            std::option_env!("SIGNAL_PORT").expect("Environment variable INTERNAL_IP was not set");
+        let bootstrap_port = std::option_env!("BOOTSTRAP_PORT")
+            .expect("Environment variable BOOTSTRAP_PORT was not set");
+        
+        Some(WANNetworkConfig {
+            signal_url: url2::url2!("ws://{internal_ip}:{signal_port}"),
+            bootstrap_url: url2::url2!("http://{internal_ip}:{bootstrap_port}")
+        })
     } else {
         Some(WANNetworkConfig {
             signal_url: url2::url2!("{}", SIGNAL_URL),
