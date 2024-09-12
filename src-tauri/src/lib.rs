@@ -1,8 +1,9 @@
-use holochain_types::prelude::AppBundle; use lair_keystore::dependencies::sodoken::{BufRead, BufWrite};
+use holochain_types::prelude::AppBundle;
+use lair_keystore::dependencies::sodoken::{BufRead, BufWrite};
 use std::collections::HashMap;
 use std::path::PathBuf;
-use tauri_plugin_holochain::{HolochainPluginConfig, HolochainExt, WANNetworkConfig};
 use tauri::AppHandle;
+use tauri_plugin_holochain::{HolochainExt, HolochainPluginConfig, WANNetworkConfig};
 
 const APP_ID: &str = "mewsfeed";
 const SIGNAL_URL: &str = "wss://signal.holo.host";
@@ -26,7 +27,7 @@ pub fn run() {
             HolochainPluginConfig {
                 wan_network_config: wan_network_config(),
                 holochain_dir: holochain_dir(),
-                admin_port: None
+                admin_port: None,
             },
         ))
         .setup(|app| {
@@ -36,7 +37,13 @@ pub fn run() {
 
                 // After set up we can be sure our app is installed and up to date, so we can just open it
                 app.holochain()?
-                    .main_window_builder(String::from("main"), false, Some(String::from("mewsfeed")), None).await?
+                    .main_window_builder(
+                        String::from("main"),
+                        false,
+                        Some(String::from("mewsfeed")),
+                        None,
+                    )
+                    .await?
                     .build()?;
 
                 Ok(())
@@ -80,10 +87,10 @@ async fn setup(handle: AppHandle) -> anyhow::Result<()> {
 
         Ok(())
     } else {
-        handle.holochain()?.update_app_if_necessary(
-            String::from(APP_ID),
-            happ_bundle()
-        ).await?;
+        handle
+            .holochain()?
+            .update_app_if_necessary(String::from(APP_ID), happ_bundle())
+            .await?;
 
         Ok(())
     }
@@ -103,15 +110,15 @@ fn wan_network_config() -> Option<WANNetworkConfig> {
             std::option_env!("SIGNAL_PORT").expect("Environment variable INTERNAL_IP was not set");
         let bootstrap_port = std::option_env!("BOOTSTRAP_PORT")
             .expect("Environment variable BOOTSTRAP_PORT was not set");
-        
+
         Some(WANNetworkConfig {
             signal_url: url2::url2!("ws://{internal_ip}:{signal_port}"),
-            bootstrap_url: url2::url2!("http://{internal_ip}:{bootstrap_port}")
+            bootstrap_url: url2::url2!("http://{internal_ip}:{bootstrap_port}"),
         })
     } else {
         Some(WANNetworkConfig {
             signal_url: url2::url2!("{}", SIGNAL_URL),
-            bootstrap_url: url2::url2!("{}", BOOTSTRAP_URL)
+            bootstrap_url: url2::url2!("{}", BOOTSTRAP_URL),
         })
     }
 }
@@ -126,7 +133,8 @@ fn holochain_dir() -> PathBuf {
                     name: "mewsfeed",
                     author: std::env!("CARGO_PKG_AUTHORS"),
                 },
-            ).expect("Could not get the UserCache directory")
+            )
+            .expect("Could not get the UserCache directory")
         }
         #[cfg(not(target_os = "android"))]
         {
@@ -135,7 +143,7 @@ fn holochain_dir() -> PathBuf {
 
             // Convert `tmp_dir` into a `Path`, destroying the `TempDir`
             // without deleting the directory.
-            
+
             tmp_dir.into_path()
         }
     } else {
