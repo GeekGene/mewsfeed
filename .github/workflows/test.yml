@@ -47,14 +47,14 @@ jobs:
       - name: Install JS packages
         run: nix develop -c $SHELL -c "npm ci"
 
-      - name: Clippy
-        run: nix develop -c $SHELL -c "npm run cargo:clippy"
-
       - name: Check rust formatting
         run: nix develop -c $SHELL -c "npm run cargo:fmt:check"
 
       - name: Build Happ
         run: nix develop -c $SHELL -c "npm run build:happ"
+
+      - name: Clippy
+        run: nix develop -c $SHELL -c "npm run cargo:clippy"
 
       - name: Save cargo and build to cache
         uses: actions/cache/save@v3
