@@ -161,13 +161,7 @@
       <div class="flex justify-start items-center space-x-1 sm:space-x-2">
         <IconArrowForwardOutline class="text-xl" />
         <div>
-          <template
-            v-if="
-              typeof props.mewType === 'object' &&
-              MewTypeName.Mewmew in props.mewType
-            "
-            >Mewmew</template
-          >
+          <template v-if="MewTypeName.Mewmew === props.mewType.type">Mewmew</template>
           <template v-else>
             Send <br class="inline-block sm:hidden" />Mew
           </template>
@@ -285,9 +279,9 @@ const linkTargetValid = computed(() => {
 });
 const isMewTypeWithText = computed(() => {
   return (
-    props.mewType === MewTypeName.Original ||
-    MewTypeName.Reply in props.mewType ||
-    MewTypeName.Quote in props.mewType
+    MewTypeName.Original === props.mewType.type ||
+    MewTypeName.Reply === props.mewType.type ||
+    MewTypeName.Quote === props.mewType.type
   );
 });
 
@@ -364,7 +358,7 @@ const publishMew = async (profile: undefined | Profile = undefined) => {
       payload: mew,
     });
     emit("mew-created", feedMew);
-    if (mew.mew_type === MewTypeName.Original) {
+    if (MewTypeName.Original === mew.mew_type.type) {
       showMessage("Published Mew");
     }
   } catch (error) {

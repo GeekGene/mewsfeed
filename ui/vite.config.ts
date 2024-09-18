@@ -2,7 +2,6 @@ import { defineConfig, PluginOption } from "vite";
 import path from "node:path";
 import vue from "@vitejs/plugin-vue";
 import { viteStaticCopy } from "vite-plugin-static-copy";
-import checker from "vite-plugin-checker";
 import tailwindcss from "tailwindcss";
 import Components from "unplugin-vue-components/vite";
 import Icons from "unplugin-icons/vite";
@@ -40,13 +39,9 @@ export default defineConfig({
       },
     }),
 
-    checker({
-      vueTsc: true,
-    }) as PluginOption,
-
     Components({
       resolvers: [IconsResolver({ prefix: "icon" })],
-    }) as PluginOption,
+    }),
 
     Icons({ autoInstall: true }) as PluginOption,
   ],

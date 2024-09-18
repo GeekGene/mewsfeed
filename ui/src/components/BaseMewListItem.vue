@@ -149,7 +149,7 @@
                 }"
                 @click.stop.prevent="
                   openCreateMewDialog(
-                    { [MewTypeName.Reply]: feedMew.action_hash },
+                    { type: MewTypeName.Reply, original_action_hash: feedMew.action_hash },
                     feedMew,
                     () => {
                       onCreateReply(feedMew);
@@ -178,7 +178,7 @@
                 }"
                 @click.stop.prevent="
                   openCreateMewDialog(
-                    { [MewTypeName.Quote]: feedMew.action_hash },
+                    { type: MewTypeName.Quote, original_action_hash: feedMew.action_hash },
                     feedMew,
                     () => {
                       onCreateQuote(feedMew);
@@ -207,7 +207,7 @@
                 }"
                 @click.stop.prevent="
                   openCreateMewDialog(
-                    { [MewTypeName.Mewmew]: feedMew.action_hash },
+                    { type: MewTypeName.Mewmew, original_action_hash: feedMew.action_hash },
                     feedMew,
                     () => {
                       onCreateMewmew(feedMew);
@@ -376,20 +376,10 @@ const isUpdatingPin = ref(false);
 const isUpdatingLick = ref(false);
 
 const isMewmew = computed(
-  () =>
-    typeof props.feedMew.mew.mew_type === "object" &&
-    MewTypeName.Mewmew in props.feedMew.mew.mew_type
+  () => MewTypeName.Mewmew === props.feedMew.mew.mew_type.type
 );
-const isQuote = computed(
-  () =>
-    typeof props.feedMew.mew.mew_type === "object" &&
-    MewTypeName.Quote in props.feedMew.mew.mew_type
-);
-const isReply = computed(
-  () =>
-    typeof props.feedMew.mew.mew_type === "object" &&
-    MewTypeName.Reply in props.feedMew.mew.mew_type
-);
+const isQuote = computed(() => MewTypeName.Quote === props.feedMew.mew.mew_type.type);
+const isReply = computed(() => MewTypeName.Reply === props.feedMew.mew.mew_type.type);
 const responseLabel = computed(() =>
   isMewmew.value ? "mewmewed from" : isReply.value ? "replied to" : "quoted"
 );

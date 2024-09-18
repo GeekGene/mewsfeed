@@ -190,8 +190,12 @@
 
 <script setup lang="ts">
 import isEqual from "lodash/isEqual";
-import { AgentPubKey, AppClient, encodeHashToBase64 } from "@holochain/client";
-import { computed, ComputedRef, inject } from "vue";
+import {
+  AgentPubKey,
+  AppClient,
+  encodeHashToBase64,
+} from "@holochain/client";
+import { computed, ComputedRef, inject, ref } from "vue";
 import ButtonFollow from "@/components/ButtonFollow.vue";
 import { Profile } from "@holochain-open-dev/profiles";
 import BaseAgentProfileNameLarge from "@/components/BaseAgentProfileNameLarge.vue";

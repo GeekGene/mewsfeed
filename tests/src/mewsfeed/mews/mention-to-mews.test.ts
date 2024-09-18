@@ -30,19 +30,19 @@ it("mention in mews", async () => {
       await createMew(alice.cells[0], {
         text: "this is for @bob",
         links: [{ [LinkTargetName.Mention]: bob.agentPubKey }],
-        mew_type: { Original: null },
+        mew_type: { type: MewTypeName.Original },
       });
 
       const actionHash2: ActionHash = await createMew(bob.cells[0], {
         text: "this is for @bob 2",
         links: [{ [LinkTargetName.Mention]: bob.agentPubKey }],
-        mew_type: { Original: null },
+        mew_type: { type: MewTypeName.Original },
       });
 
       const actionHash3: ActionHash = await createMew(alice.cells[0], {
         text: "this is for @alice",
         links: [{ [LinkTargetName.Mention]: alice.agentPubKey }],
-        mew_type: { Original: null },
+        mew_type: { type: MewTypeName.Original },
       });
 
       await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
@@ -90,7 +90,7 @@ it("Mentions list are time-paginated", async () => {
       const createMewInput1: Mew = {
         text: mewContent1,
         links: [{ [LinkTargetName.Mention]: alice.agentPubKey }],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
       const mewActionHash1 = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -102,7 +102,7 @@ it("Mentions list are time-paginated", async () => {
       const createMewInput2: Mew = {
         text: mewContent2,
         links: [{ [LinkTargetName.Mention]: alice.agentPubKey }],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
       const mewActionHash2 = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -114,7 +114,7 @@ it("Mentions list are time-paginated", async () => {
       const createMewInput3: Mew = {
         text: mewContent3,
         links: [{ [LinkTargetName.Mention]: alice.agentPubKey }],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
       const mewActionHash3 = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -126,7 +126,7 @@ it("Mentions list are time-paginated", async () => {
       const createMewInput4: Mew = {
         text: mewContent4,
         links: [{ [LinkTargetName.Mention]: alice.agentPubKey }],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
       const mewActionHash4 = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -138,7 +138,7 @@ it("Mentions list are time-paginated", async () => {
       const createMewInput5: Mew = {
         text: mewContent5,
         links: [{ [LinkTargetName.Mention]: alice.agentPubKey }],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
       const mewActionHash5 = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -150,7 +150,7 @@ it("Mentions list are time-paginated", async () => {
       const createMewInput6: Mew = {
         text: mewContent6,
         links: [{ [LinkTargetName.Mention]: alice.agentPubKey }],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
       const mewActionHash6 = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -162,7 +162,7 @@ it("Mentions list are time-paginated", async () => {
       const createMewInput7: Mew = {
         text: mewContent7,
         links: [{ [LinkTargetName.Mention]: alice.agentPubKey }],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
       const mewActionHash7 = await alice.cells[0].callZome({
         zome_name: "mews",

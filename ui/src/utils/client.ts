@@ -2,21 +2,19 @@ import { AdminWebsocket, CellType, AppWebsocket } from "@holochain/client";
 import WebSdkApi, { AgentState } from "@holo-host/web-sdk";
 
 export const HOLOCHAIN_APP_ID = "mewsfeed";
-export const IS_LAUNCHER = import.meta.env.VITE_IS_LAUNCHER;
+export const IS_LAUNCHER =
+  typeof window === "object" && "__HC_LAUNCHER_ENV__" in window;
 export const IS_HOLO_HOSTED = import.meta.env.VITE_IS_HOLO_HOSTED;
 
 export const setupHolochain = async () => {
   try {
     let client;
-    if (typeof window === "object" && !("__HC_LAUNCHER_ENV__" in window)) {
-      client = await createClient();
-    } else {
+    if (IS_LAUNCHER) {
       client = await AppWebsocket.connect({
-        url: IS_LAUNCHER
-          ? new URL(`ws://UNUSED`)
-          : new URL(`ws://localhost:${import.meta.env.VITE_HC_PORT}`),
         defaultTimeout: 60000,
       });
+    } else {
+      client = await createClient();
     }
 
     return client;
@@ -59,12 +57,15 @@ export const setupHolo = async () => {
 
 // authenticate app websocket and set up zome call signing when run outside of launcher
 const createClient = async () => {
+  // Authenticate app websocket
   const adminWs = await AdminWebsocket.connect({
     url: new URL(`ws://localhost:${import.meta.env.VITE_HC_ADMIN_PORT}`),
   });
   const issued = await adminWs.issueAppAuthenticationToken({
     installed_app_id: HOLOCHAIN_APP_ID,
   });
+
+  // Connect app web socket
   const client = await AppWebsocket.connect({
     url: new URL(`ws://localhost:${import.meta.env.VITE_HC_PORT}`),
     token: issued.token,
@@ -76,6 +77,8 @@ const createClient = async () => {
   ) {
     throw new Error("mewsfeed cell not provisioned");
   }
+
+  // Authorize signing credentials
   const { cell_id } =
     client.cachedAppInfo.cell_info.mewsfeed[0][CellType.Provisioned];
   await adminWs.authorizeSigningCredentials(cell_id);

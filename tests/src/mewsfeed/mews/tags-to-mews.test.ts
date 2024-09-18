@@ -29,7 +29,7 @@ it("Hashtag, cashtag and mention", async () => {
       const createMewInput: Mew = {
         text: mewContent,
         links: [{ [LinkTargetName.Mention]: alice.agentPubKey }],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
 
       const action_hash: ActionHash = await alice.cells[0].callZome({
@@ -126,7 +126,7 @@ it("Prefix index should return hashtags and cashtags", async () => {
       const createMewInput: Mew = {
         text: mewContent,
         links: [{ [LinkTargetName.Mention]: alice.agentPubKey }],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
 
       const action_hash: ActionHash = await alice.cells[0].callZome({
@@ -211,7 +211,7 @@ it("Hashtags list are time-paginated", async () => {
       const createMewInput1: Mew = {
         text: mewContent1,
         links: [],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
       const mewActionHash1 = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -223,7 +223,7 @@ it("Hashtags list are time-paginated", async () => {
       const createMewInput2: Mew = {
         text: mewContent2,
         links: [],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
       const mewActionHash2 = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -235,7 +235,7 @@ it("Hashtags list are time-paginated", async () => {
       const createMewInput3: Mew = {
         text: mewContent3,
         links: [],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
       const mewActionHash3 = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -247,7 +247,7 @@ it("Hashtags list are time-paginated", async () => {
       const createMewInput4: Mew = {
         text: mewContent4,
         links: [],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
       const mewActionHash4 = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -259,7 +259,7 @@ it("Hashtags list are time-paginated", async () => {
       const createMewInput5: Mew = {
         text: mewContent5,
         links: [],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
       const mewActionHash5 = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -271,7 +271,7 @@ it("Hashtags list are time-paginated", async () => {
       const createMewInput6: Mew = {
         text: mewContent6,
         links: [],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
       const mewActionHash6 = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -283,7 +283,7 @@ it("Hashtags list are time-paginated", async () => {
       const createMewInput7: Mew = {
         text: mewContent7,
         links: [],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
       const mewActionHash7 = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -410,7 +410,7 @@ it("Cashtags list are time-paginated", async () => {
       const createMewInput1: Mew = {
         text: mewContent1,
         links: [],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
       const mewActionHash1 = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -422,7 +422,7 @@ it("Cashtags list are time-paginated", async () => {
       const createMewInput2: Mew = {
         text: mewContent2,
         links: [],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
       const mewActionHash2 = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -434,7 +434,7 @@ it("Cashtags list are time-paginated", async () => {
       const createMewInput3: Mew = {
         text: mewContent3,
         links: [],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
       const mewActionHash3 = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -446,7 +446,7 @@ it("Cashtags list are time-paginated", async () => {
       const createMewInput4: Mew = {
         text: mewContent4,
         links: [],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
       const mewActionHash4 = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -458,7 +458,7 @@ it("Cashtags list are time-paginated", async () => {
       const createMewInput5: Mew = {
         text: mewContent5,
         links: [],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
       const mewActionHash5 = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -470,7 +470,7 @@ it("Cashtags list are time-paginated", async () => {
       const createMewInput6: Mew = {
         text: mewContent6,
         links: [],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
       const mewActionHash6 = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -482,7 +482,7 @@ it("Cashtags list are time-paginated", async () => {
       const createMewInput7: Mew = {
         text: mewContent7,
         links: [],
-        mew_type: { [MewTypeName.Original]: null },
+        mew_type: { type: MewTypeName.Original },
       };
       const mewActionHash7 = await alice.cells[0].callZome({
         zome_name: "mews",
