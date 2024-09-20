@@ -32,8 +32,8 @@ path = "crates/hc_call_utils"
 path = "crates/hc_link_pagination"
 
 [workspace.dependencies.hc_prefix_index]
-branch = "build/holochain-0.4.0-dev.8"
-git = "https://github.com/jost-s/holochain-prefix-index"
+branch = "build/holochain-0.4.0-dev"
+git = "https://github.com/holochain-open-dev/holochain-prefix-index"
 
 [workspace.dependencies.likes]
 path = "dnas/mewsfeed/zomes/coordinator/likes"
@@ -58,3 +58,7 @@ path = "dnas/mewsfeed/zomes/coordinator/profiles"
 
 [workspace.dependencies.profiles_integrity]
 path = "dnas/mewsfeed/zomes/integrity/profiles"
+
+[patch.crates-io]
+# hc-wasmer = { git = "https://github.com/holochain/wasmer", branch = "fix/android-build" }
+hc-wasmer = { path = "../../Holochain/hc-wasmer/lib/api" }
