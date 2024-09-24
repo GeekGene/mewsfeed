@@ -12,28 +12,30 @@ MewsFeed is built with the distributed app development framework Holochain. Prac
 
 Here is how to decide which version to use:
 
-#### 1. You are a Tinkerer 🛠️
+**1. You are a Tinkerer 🛠️**
 You like to experiment with the tools you use and enjoy having access to the data you use.
 
 💻 Install MewsFeed locally, either as a Desktop App with Kangaroo or in the Holochain Launcher.
 
 This way you can analyze your data, connect it to other tools, and tinker around.
 
-#### 2. You are a Creator 🧑‍💻
+**2. You are a Creator 🧑‍💻**
 You like to publish good posts and interact with your audience wherever you are.
 
 📲 Sign up for an account on [app.mewsfeed.social](https://app.mewsfeed.social).
 
-This way you can use it from any device through the browser. Alternatively, install MewsFeed locally and you'll be able to create content even when you're offline.
+This way you can use it from any device through the browser.
 
-#### 3. You are an Anon 👤
+Alternatively, install MewsFeed locally and you'll be able to create content even when you're offline.
+
+**3. You are an Anon 👤**
 You want to stay anonymous, shitpost, and interact with interesting accounts.
 
 💻 Install MewsFeed locally, either as a Desktop App with Kangaroo or in the Holochain Launcher.
 
 This way you have access to your posts even when you don't have internet.
 
-#### 4. You are a Lurker 👀
+**4. You are a Lurker 👀**
 You mostly just want to follow others for their content and stay informed of what's happening.
 
 📲 Sign up for an account on [app.mewsfeed.social](https://app.mewsfeed.social) and use it from any device through the browser.
@@ -42,12 +44,14 @@ Alternatively, if you only browse content from your laptop or desktop, install i
 
 Either way, you'll be able to follow people and read their stuff.
 
-#### 5. You are a casual User 😎
+**5. You are a casual User 😎**
 You like following cool accounts, interacting with your friends, and having interesting conversations.
 
 💻 Install MewsFeed locally, either as a Desktop App with Kangaroo or in the Holochain Launcher.
 
-This way you can access your favorite content and send replies to your friends even when you're offline. Alternatively, sign up on [app.mewsfeed.social](https://app.mewsfeed.social) and use it from any device through the browser.
+This way you can access your favorite content and send replies to your friends even when you're offline.
+
+Alternatively, sign up on [app.mewsfeed.social](https://app.mewsfeed.social) and use it from any device through the browser.
 
 ### Install as Desktop App
 Download the latest release of the Desktop App here: [MewsFeed Kangaroo](https://github.com/GeekGene/mewsfeed-kangaroo/releases/tag/v0.10.1).
