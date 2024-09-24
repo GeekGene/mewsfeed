@@ -60,5 +60,4 @@ path = "dnas/mewsfeed/zomes/coordinator/profiles"
 path = "dnas/mewsfeed/zomes/integrity/profiles"
 
 [patch.crates-io]
-# hc-wasmer = { git = "https://github.com/holochain/wasmer", branch = "fix/android-build" }
-hc-wasmer = { path = "../../Holochain/hc-wasmer/lib/api" }
+hc-wasmer = { git = "https://github.com/holochain/wasmer", branch = "fix/android-build" }

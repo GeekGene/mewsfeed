@@ -2897,6 +2897,7 @@ dependencies = [
 [[package]]
 name = "hc-wasmer"
 version = "4.3.6-hc.1"
+source = "git+https://github.com/holochain/wasmer?branch=fix/android-build#04fe29156b7a979e2a1c85e363c48eb237a8862e"
 dependencies = [
  "bindgen",
  "bytes",
@@ -2928,6 +2929,7 @@ dependencies = [
 [[package]]
 name = "hc-wasmer-compiler"
 version = "4.3.6-hc.1"
+source = "git+https://github.com/holochain/wasmer?branch=fix/android-build#04fe29156b7a979e2a1c85e363c48eb237a8862e"
 dependencies = [
  "backtrace",
  "bytes",
@@ -2954,6 +2956,7 @@ dependencies = [
 [[package]]
 name = "hc-wasmer-derive"
 version = "4.3.6-hc.1"
+source = "git+https://github.com/holochain/wasmer?branch=fix/android-build#04fe29156b7a979e2a1c85e363c48eb237a8862e"
 dependencies = [
  "proc-macro-error",
  "proc-macro2",
@@ -2964,6 +2967,7 @@ dependencies = [
 [[package]]
 name = "hc-wasmer-types"
 version = "4.3.6-hc.1"
+source = "git+https://github.com/holochain/wasmer?branch=fix/android-build#04fe29156b7a979e2a1c85e363c48eb237a8862e"
 dependencies = [
  "bytecheck",
  "enum-iterator",
@@ -2982,6 +2986,7 @@ dependencies = [
 [[package]]
 name = "hc-wasmer-vm"
 version = "4.3.6-hc.1"
+source = "git+https://github.com/holochain/wasmer?branch=fix/android-build#04fe29156b7a979e2a1c85e363c48eb237a8862e"
 dependencies = [
  "backtrace",
  "cc",
