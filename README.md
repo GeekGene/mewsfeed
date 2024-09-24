@@ -1,7 +1,6 @@
-
 # mewsfeed
 
-We are currently working towards the first major release of mewsfeed.
+We are currently working towards the first major release of MewsFeed.
 
 [Collaborate on GitHub](https://github.com/orgs/GeekGene/projects/1) and [join our Discord](https://discord.gg/D3BykUZumM)!
 
