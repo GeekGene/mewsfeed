@@ -2,21 +2,18 @@ import { AdminWebsocket, CellType, AppWebsocket } from "@holochain/client";
 import WebSdkApi, { AgentState } from "@holo-host/web-sdk";
 
 export const HOLOCHAIN_APP_ID = "mewsfeed";
-export const IS_LAUNCHER = import.meta.env.VITE_IS_LAUNCHER;
+export const IS_LAUNCHER = (window as any).__HC_LAUNCHER_ENV__ !== undefined;
 export const IS_HOLO_HOSTED = import.meta.env.VITE_IS_HOLO_HOSTED;
 
 export const setupHolochain = async () => {
   try {
     let client;
-    if (typeof window === "object" && !("__HC_LAUNCHER_ENV__" in window)) {
-      client = await createClient();
-    } else {
+    if (IS_LAUNCHER) {
       client = await AppWebsocket.connect({
-        url: IS_LAUNCHER
-          ? undefined
-          : new URL(`ws://localhost:${import.meta.env.VITE_HC_PORT}`),
         defaultTimeout: 60000,
       });
+    } else {
+      client = await createClient();
     }
 
     return client;
