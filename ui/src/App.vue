@@ -110,7 +110,7 @@ const setupApp = async () => {
   profilesStore.value = new ProfilesStore(profilesClient, PROFILES_CONFIG);
   profilesStore.value.myProfile.subscribe((res) => {
     if (res.status === "complete" && res.value !== undefined) {
-      myProfile.value = res.value;
+      myProfile.value = res.value.entry;
     }
   });
   console.log("Profiles Store initialized");

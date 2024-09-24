@@ -208,8 +208,8 @@ watch(errorPinnedMews, console.error);
 const fetchProfile = async () => {
   const profile = await profilesStore.client.getAgentProfile(agentPubKey.value);
 
-  if (profile) {
-    return profile;
+  if (profile?.entry) {
+    return profile.entry;
   } else {
     throw new Error("No profile found");
   }

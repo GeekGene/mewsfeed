@@ -7,14 +7,15 @@
     "tests"
   ],
   "scripts": {
-    "start": "AGENTS=2 npm run network",
+    "start": "AGENTS=1 npm run network",
     "local-services": "hc run-local-services --bootstrap-interface $INTERNAL_IP --bootstrap-port $BOOTSTRAP_PORT --signal-interfaces $INTERNAL_IP --signal-port $SIGNAL_PORT",
-    "network": "npm run build:happ && BOOTSTRAP_PORT=$(port) SIGNAL_PORT=$(port) INTERNAL_IP=$(internal-ip --ipv4) concurrently -k \"npm run local-services\" \"UI_PORT=1420 npm run -w mewsfeed-ui-vue start\" \"npm run launch\"",
+    "network": "npm run build:happ && BOOTSTRAP_PORT=$(port) SIGNAL_PORT=$(port) INTERNAL_IP=$(internal-ip --ipv4) concurrently -k \"npm run local-services\" \"UI_PORT=1420 npm run -w ui start\" \"UI_PORT=1420 npm run launch\"",
     "start:agent": "HC_PORT=$(get-port) HC_ADMIN_PORT=$(get-port) concurrently \"npm run launch:happ\" \"npm run start:browser -w ui\"",
-    "launch:happ": "hc s clean && echo pass | RUST_LOG=warn hc s --piped -f=$HC_ADMIN_PORT generate ./workdir/mewsfeed.happ --run=$HC_PORT -a mewsfeed network -b http://127.0.0.1:54000 webrtc ws://127.0.0.1:55000",
+    "launch": "hc-spin -n $AGENTS --ui-port $UI_PORT workdir/mewsfeed.happ",
     "start:launcher": "VITE_IS_LAUNCHER=true AGENTS=2 npm run network:launcher",
     "network:launcher": "hc s clean && npm run build:happ && UI_PORT=8888 concurrently \"npm run local-services\" \"npm start -w ui\" \"npm run launch:happ:launcher\" \"holochain-playground\"",
     "launch:happ:launcher": "echo \"pass\" | RUST_LOG=warn hc launch --piped -n $AGENTS workdir/mewsfeed.happ --ui-port $UI_PORT network -b http://127.0.0.1:54000 webrtc ws://127.0.0.1:55000",
+    "launch:happ:electron": "hc-spin -n 1k --ui-path=./ui workdir/mewsfeed.happ",
     "start:agent:holo": "npm run build:happ && concurrently \"echo pass | lair-keystore server\" \"./holo-dev-server ./workdir/mewsfeed.happ\" \"sleep 15 && VITE_IS_HOLO_HOSTED=true VITE_CHAPERONE_SERVER_URL=http://127.0.0.1:24274 UI_PORT=5432 npm -w ui run start\"",
     "test": "npm run build:happ && npm t -w tests",
     "test:watch": "cargo watch --clear -- npm test",
@@ -31,11 +32,15 @@
     "cargo:fmt": "cargo fmt",
     "cargo:fmt:check": "cargo fmt --check",
     "network:android": "npm run build:happ && BOOTSTRAP_PORT=$(port) SIGNAL_PORT=$(port) INTERNAL_IP=$(internal-ip --ipv4) concurrently -k \"npm run local-services\" \"UI_PORT=1420 npm run -w mewsfeed-ui-vue start\" \"npm run tauri dev\" \"npm run tauri android dev\"",
-    "launch": "concurrently-repeat \"npm run tauri dev --no-watch\" $AGENTS",
+    "start:android": "npm run package && BOOTSTRAP_PORT=$(port) SIGNAL_PORT=$(port) INTERNAL_IP=$(internal-ip --ipv4) concurrently -k \"npm run local-services\" \"UI_PORT=1420 npm run -w ui start\" \"npm run launch:android\"",
+    "launch:android": "tauri android dev",
+    "launch:tauri": "concurrently-repeat \"npm run tauri dev --no-watch\" $AGENTS",
     "tauri": "tauri"
   },
   "devDependencies": {
     "@holochain-playground/cli": "^0.1.1",
+    "@holochain/hc-spin": "^0.400.0-dev.3",
+    "@tauri-apps/cli": "^2.0.0-rc",
     "@typescript-eslint/eslint-plugin": "^5.59.5",
     "@typescript-eslint/parser": "^5.59.5",
     "bestzip": "^2.2.1",
@@ -47,12 +52,11 @@
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-vue": "^8.7.1",
     "get-port-cli": "github:mattyg/get-port-cli#main",
+    "internal-ip-cli": "^2.0.0",
+    "new-port-cli": "^1.0.0",
     "prettier": "^2.8.8",
     "rimraf": "^3.0.2",
-    "run-singleton-cli": "^0.0.7",
-    "@tauri-apps/cli": "^2.0.0-rc",
-    "internal-ip-cli": "^2.0.0",
-    "new-port-cli": "^1.0.0"
+    "run-singleton-cli": "^0.0.7"
   },
   "engines": {
     "npm": ">=7.0.0"
