@@ -13,7 +13,7 @@ export const setupHolochain = async () => {
     } else {
       client = await AppWebsocket.connect({
         url: IS_LAUNCHER
-          ? new URL(`ws://UNUSED`)
+          ? undefined
           : new URL(`ws://localhost:${import.meta.env.VITE_HC_PORT}`),
         defaultTimeout: 60000,
       });
