@@ -4,9 +4,9 @@ use std::path::PathBuf;
 use tauri_plugin_holochain::{HolochainPluginConfig, HolochainExt, WANNetworkConfig};
 use tauri::AppHandle;
 
-const APP_ID: &'static str = "mewsfeed";
-const SIGNAL_URL: &'static str = "wss://sbd.holo.host";
-const BOOTSTRAP_URL: &'static str = "https://bootstrap-0.infra.holochain.org";
+const APP_ID: &str = "mewsfeed";
+const SIGNAL_URL: &str = "wss://sbd.holo.host";
+const BOOTSTRAP_URL: &str = "https://bootstrap-0.infra.holochain.org";
 
 pub fn happ_bundle() -> AppBundle {
     let bytes = include_bytes!("../../workdir/mewsfeed.happ");
@@ -59,9 +59,8 @@ async fn setup(handle: AppHandle) -> anyhow::Result<()> {
     let installed_apps = admin_ws
         .list_apps(None)
         .await
-        .map_err(|err| tauri_plugin_holochain::Error::ConductorApiError(err))?;
-
-    if installed_apps.iter().find(|app| app.installed_app_id.as_str().eq(APP_ID)).is_none() {
+        .map_err(tauri_plugin_holochain::Error::ConductorApiError)?;
+    if !installed_apps.iter().any(|app| app.installed_app_id.as_str().eq(APP_ID)) {
         handle
             .holochain()?
             .install_app(
@@ -119,8 +118,7 @@ fn holochain_dir() -> PathBuf {
 
             // Convert `tmp_dir` into a `Path`, destroying the `TempDir`
             // without deleting the directory.
-            let tmp_path = tmp_dir.into_path();
-            tmp_path
+            tmp_dir.into_path()
         }
     } else {
         app_dirs2::app_root(
