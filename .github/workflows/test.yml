@@ -40,21 +40,21 @@ jobs:
           key: ${{ runner.os }}-build-${{ hashFiles('Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-build-
-
+      
       - name: Install nix packages
-        run: nix develop -c $SHELL -c "echo Nix packages installed"
+        uses: nicknovitski/nix-develop@v1
 
       - name: Install JS packages
-        run: nix develop -c $SHELL -c "npm ci"
+        run: npm ci
 
       - name: Clippy
-        run: nix develop -c $SHELL -c "npm run cargo:clippy"
+        run: npm run cargo:clippy
 
       - name: Check rust formatting
-        run: nix develop -c $SHELL -c "npm run cargo:fmt:check"
+        run: npm run cargo:fmt:check
 
       - name: Build Happ
-        run: nix develop -c $SHELL -c "npm run build:happ"
+        run: npm run build:happ
 
       - name: Save cargo and build to cache
         uses: actions/cache/save@v3
@@ -65,4 +65,4 @@ jobs:
           key: ${{ runner.os }}-build-${{ hashFiles('Cargo.lock') }}
 
       - name: Test with tryorama
-        run: nix develop -c $SHELL -c "npm run test"
+        run: npm run test
