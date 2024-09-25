@@ -35,7 +35,7 @@
           <div class="font-bold">Completed Rounds Since Last Queried</div>
           <div>{{ data[0]?.completed_rounds_since_last_time_queried }}</div>
         </div>
-        <IconCloseCircleOutline class="absolute bottom-2 right-2" />
+        <IconCloseCircleOutline class="absolute top-1 right-1" />
       </template>
     </div>
     <div

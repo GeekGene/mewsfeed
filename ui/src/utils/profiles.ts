@@ -38,7 +38,8 @@ export const useSearchProfiles = () => {
     new Promise((resolve, reject) => {
       profilesStore.searchProfiles(input).subscribe((res) => {
         if (res.status === "complete") {
-          resolve(Array.from(res.value.entries()));
+          const entries: [Uint8Array, Profile][] = Array.from(res.value).map(([a, b]) => [a, b.entry]);
+          resolve(entries);
         } else if (res.status === "error") reject(res);
       });
     });

@@ -121,8 +121,8 @@ const showSuccessMessage = async () => {
     const profile = await profilesStore.client.getAgentProfile(
       props.agentPubKey
     );
-    name = `${profile?.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
-      profile?.nickname
+    name = `${profile?.entry.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
+      profile?.entry.nickname
     })`;
   } catch (error) {
     console.error(error);

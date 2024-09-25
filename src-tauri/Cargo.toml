@@ -1,0 +1,38 @@
+[package]
+name = "mewsfeed"
+version = "0.0.0"
+description = "Mewsfeed"
+authors = ["you"]
+license = ""
+repository = ""
+edition = "2021"
+rust-version = "1.70"
+
+[lib]
+name = "tauri_app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[build-dependencies]
+tauri-build = { version = "2.0.0-rc", default-features = false , features = [] }
+
+[dependencies]
+tauri = { version = "2.0.0-rc", features = [] }
+#tauri-plugin-holochain = { git = "https://github.com/darksoil-studio/p2p-shipyard", branch = "next" }
+tauri-plugin-holochain = { git = "https://github.com/mattyg/p2p-shipyard", branch = "feat/wasm-interpreter-feature-flag", default-features = false, features = [
+  "gossip_arc_normal",
+  "wasm_interpreter"
+] }
+holochain_types = { version = "0.4.0-dev" }
+lair_keystore = { version = "0.5" }
+
+holochain_client = { version = "0.6.0-dev" }
+
+log = "0.4"
+tauri-plugin-log = "2.0.0-rc"
+url2 = "0.0.6"
+app_dirs2 = "2.5.5"
+tempdir = "0.3.7"
+anyhow = "1"
+uuid = "1"

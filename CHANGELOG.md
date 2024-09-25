@@ -4,12 +4,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## Unreleased
 
-
 ## 2023-09-12 v0.11.1
 - feat: add ellipses to truncated agent pub keys, extend truncation to 15 chars, do not truncate only on creators / followers list
-
-
-
 
 ## 2023-09-12 v0.11.0
 - feat: show avatar in lightbox upon clicking profile (#233)

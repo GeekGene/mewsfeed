@@ -1,13 +1,14 @@
 [workspace]
-members = ["dnas/*/zomes/coordinator/*", "dnas/*/zomes/integrity/*", "crates/*"]
+members = ["dnas/*/zomes/coordinator/*", "dnas/*/zomes/integrity/*", "crates/*", "src-tauri"]
 resolver = "2"
 
 [workspace.dependencies]
-hdi = "0.5.0-dev.7"
-hdk = "0.4.0-dev.8"
-serde = "1"
+hdi = "0.5.0-dev"
+hdk = "0.4.0-dev"
+hc_zome_profiles_integrity = { git = "https://github.com/holochain-open-dev/profiles.git", branch = "for-hdk-v0.4.0-dev" }
+hc_zome_profiles_coordinator = { git = "https://github.com/holochain-open-dev/profiles.git", branch = "for-hdk-v0.4.0-dev" }
 paste = "1.0"
-hc_prefix_index = { git = "https://github.com/jost-s/holochain-prefix-index", branch = "build/holochain-0.4.0-dev.8" }
+serde = "1"
 
 [workspace.dependencies.agent_pins]
 path = "dnas/mewsfeed/zomes/coordinator/agent_pins"
@@ -23,6 +24,16 @@ path = "dnas/mewsfeed/zomes/integrity/follows"
 
 [workspace.dependencies.follows_types]
 path = "crates/follows_types"
+
+[workspace.dependencies.hc_call_utils]
+path = "crates/hc_call_utils"
+
+[workspace.dependencies.hc_link_pagination]
+path = "crates/hc_link_pagination"
+
+[workspace.dependencies.hc_prefix_index]
+branch = "build/holochain-0.4.0-dev"
+git = "https://github.com/holochain-open-dev/holochain-prefix-index"
 
 [workspace.dependencies.likes]
 path = "dnas/mewsfeed/zomes/coordinator/likes"
@@ -48,8 +59,5 @@ path = "dnas/mewsfeed/zomes/coordinator/profiles"
 [workspace.dependencies.profiles_integrity]
 path = "dnas/mewsfeed/zomes/integrity/profiles"
 
-[workspace.dependencies.hc_call_utils]
-path = "crates/hc_call_utils"
-
-[workspace.dependencies.hc_link_pagination]
-path = "crates/hc_link_pagination"
+[patch.crates-io]
+hc-wasmer = { git = "https://github.com/holochain/wasmer", branch = "fix/android-build" }

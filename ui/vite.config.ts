@@ -10,7 +10,16 @@ import IconsResolver from "unplugin-icons/resolver";
 
 export default defineConfig({
   server: {
-    open: true,
+    port: 1420,
+    strictPort: true,
+    host: process.env.TAURI_DEV_HOST || false,
+    hmr: process.env.TAURI_DEV_HOST
+      ? {
+          protocol: "ws",
+          host: process.env.TAURI_DEV_HOST,
+          port: 1430,
+        }
+      : undefined,
   },
   resolve: {
     alias: {

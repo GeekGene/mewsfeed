@@ -7,7 +7,6 @@ import "@holochain-open-dev/profiles/dist/elements/agent-avatar.js";
 import "@holochain-open-dev/profiles/dist/elements/my-profile.js";
 import "@holochain-open-dev/profiles/dist/elements/profiles-context.js";
 import "@holochain-open-dev/profiles/dist/elements/create-profile.js";
-import "@holochain-open-dev/elements/dist/elements/holo-identicon.js";
 import { createApp } from "vue";
 import { createPinia } from "pinia";
 import VueObserveVisibility from "vue-observe-visibility";

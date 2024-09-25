@@ -482,7 +482,7 @@ test("Cashtags list are time-paginated", async () => {
           page: {
             start_time: null,
             limit: 2,
-            order: { [PaginationDirectionName.Ascending]: null },
+            order: PaginationDirectionName.Ascending,
           },
         },
       });
@@ -501,7 +501,7 @@ test("Cashtags list are time-paginated", async () => {
           page: {
             after_hash: page1[page1.length - 1].action_hash,
             limit: 2,
-            order: { [PaginationDirectionName.Ascending]: null },
+            order: PaginationDirectionName.Ascending,
           },
         },
       });
@@ -522,7 +522,7 @@ test("Cashtags list are time-paginated", async () => {
           page: {
             after_hash: page2[page2.length - 1].action_hash,
             limit: 2,
-            order: { [PaginationDirectionName.Ascending]: null },
+            order: PaginationDirectionName.Ascending,
           },
         },
       });
@@ -545,7 +545,7 @@ test("Cashtags list are time-paginated", async () => {
           page: {
             after_hash: page3[page3.length - 1].action_hash,
             limit: 2,
-            order: { [PaginationDirectionName.Ascending]: null },
+            order: PaginationDirectionName.Ascending,
           },
         },
       });
@@ -569,7 +569,7 @@ test("Cashtags list are time-paginated", async () => {
           page: {
             after_hash: page4[page4.length - 1].action_hash,
             limit: 2,
-            order: { [PaginationDirectionName.Ascending]: null },
+            order: PaginationDirectionName.Ascending,
           },
         },
       });
