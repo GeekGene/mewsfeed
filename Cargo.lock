@@ -189,6 +189,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "borsh"
+version = "1.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a6362ed55def622cddc70a4746a68554d7b687713770de539e59a739b249f8ed"
+dependencies = [
+ "borsh-derive",
+ "cfg_aliases",
+]
+
+[[package]]
+name = "borsh-derive"
+version = "1.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c3ef8005764f53cd4dca619f5bf64cafd4664dada50ece25e4d81de54c80cc0b"
+dependencies = [
+ "once_cell",
+ "proc-macro-crate",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.75",
+ "syn_derive",
+]
+
+[[package]]
 name = "bumpalo"
 version = "3.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -286,6 +310,12 @@ name = "cfg-if"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
+
+[[package]]
+name = "cfg_aliases"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "613afe47fcd5fac7ccf1db93babcb082c5994d996f20b8b159f2ad1658eb5724"
 
 [[package]]
 name = "chrono"
@@ -796,9 +826,12 @@ version = "0.0.1"
 dependencies = [
  "follows_integrity",
  "follows_types",
+ "hc_call_utils",
  "hc_link_pagination",
  "hdk",
+ "mews_types",
  "serde",
+ "trust_atom_types",
 ]
 
 [[package]]
@@ -1576,6 +1609,7 @@ dependencies = [
  "rand",
  "regex",
  "serde",
+ "trust_atom 0.0.1",
 ]
 
 [[package]]
@@ -1728,6 +1762,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "77957b295656769bb8ad2b6a6b09d897d94f05c41b069aede1fcdaa675eaea04"
 dependencies = [
  "zerocopy",
+]
+
+[[package]]
+name = "proc-macro-crate"
+version = "3.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8ecf48c7ca261d60b74ab1a7b20da18bede46776b2e55535cb958eb595c5fa7b"
+dependencies = [
+ "toml_edit",
 ]
 
 [[package]]
@@ -1988,6 +2031,22 @@ dependencies = [
  "byteorder",
  "rmp",
  "serde",
+]
+
+[[package]]
+name = "rust_decimal"
+version = "1.36.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b082d80e3e3cc52b2ed634388d436fe1f4de6af5786cc2de9ba9737527bdf555"
+dependencies = [
+ "arrayvec",
+ "borsh",
+ "bytes",
+ "num-traits",
+ "rand",
+ "rkyv",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -2346,6 +2405,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "syn_derive"
+version = "0.1.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1329189c02ff984e9736652b1631330da25eaa6bc639089ed4915d25446cbe7b"
+dependencies = [
+ "proc-macro-error",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.75",
+]
+
+[[package]]
 name = "tap"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2557,6 +2628,58 @@ name = "trilean"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "683ba5022fe6dbd7133cad150478ccf51bdb6d861515181e5fc6b4323d4fa424"
+
+[[package]]
+name = "trust_atom"
+version = "0.0.1"
+dependencies = [
+ "hdk",
+ "rust_decimal",
+ "serde",
+ "trust_atom 0.1.32-dev",
+]
+
+[[package]]
+name = "trust_atom"
+version = "0.1.32-dev"
+source = "git+https://github.com/trustgraph/trustgraph-holochain.git?branch=chore/hdk-0.3.2-using-builder#be2d3e016e7225bfceeddd381465079c956e454a"
+dependencies = [
+ "hdk",
+ "rust_decimal",
+ "serde",
+ "trust_atom_integrity 0.1.32-dev",
+ "trust_atom_types",
+]
+
+[[package]]
+name = "trust_atom_integrity"
+version = "0.0.1"
+dependencies = [
+ "hdk",
+ "rust_decimal",
+ "serde",
+ "trust_atom_integrity 0.1.32-dev",
+]
+
+[[package]]
+name = "trust_atom_integrity"
+version = "0.1.32-dev"
+source = "git+https://github.com/trustgraph/trustgraph-holochain.git?branch=chore/hdk-0.3.2-using-builder#be2d3e016e7225bfceeddd381465079c956e454a"
+dependencies = [
+ "hdi",
+ "rust_decimal",
+ "serde",
+ "trust_atom_types",
+]
+
+[[package]]
+name = "trust_atom_types"
+version = "0.1.32-dev"
+source = "git+https://github.com/trustgraph/trustgraph-holochain.git?branch=chore/hdk-0.3.2-using-builder#be2d3e016e7225bfceeddd381465079c956e454a"
+dependencies = [
+ "hdk",
+ "serde",
+]
 
 [[package]]
 name = "typenum"

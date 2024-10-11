@@ -19,3 +19,4 @@ rand = { workspace = true }
 hc_call_utils = { workspace = true }
 hc_link_pagination = { workspace = true }
 follows_types = { workspace = true }
+trust_atom = { workspace = true }
