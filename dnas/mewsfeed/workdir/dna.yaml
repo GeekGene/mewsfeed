@@ -30,7 +30,7 @@ integrity:
       dependencies: ~
     - name: trust_atom_integrity
       hash: ~
-      bundled: "../../../target/wasm32-unknown-unknown/release/trust_atom_integrity_zome.wasm"
+      bundled: "../../../target/wasm32-unknown-unknown/release/trust_atom_integrity.wasm"
       dependencies: ~
 coordinator:
   zomes:
@@ -66,6 +66,6 @@ coordinator:
       dependencies: []
     - name: trust_atom
       hash: ~
-      bundled: "../../../target/wasm32-unknown-unknown/release/trust_atom_zome.wasm"
+      bundled: "../../../target/wasm32-unknown-unknown/release/trust_atom.wasm"
       dependencies:
         - name: trust_atom_integrity

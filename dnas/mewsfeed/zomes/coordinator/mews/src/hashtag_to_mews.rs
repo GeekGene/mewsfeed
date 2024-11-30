@@ -3,7 +3,7 @@ use hc_link_pagination::HashPagination;
 use hdk::prelude::*;
 use mews_integrity::*;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AddHashtagForMewInput {
     pub base_hashtag: String,
     pub target_mew_hash: ActionHash,
@@ -31,7 +31,7 @@ pub fn add_hashtag_for_mew(input: AddHashtagForMewInput) -> ExternResult<()> {
     // Link from hashtag to mew_hash
     create_link(
         path.path_entry_hash()?,
-        input.target_mew_hash,
+        input.target_mew_hash.clone(),
         LinkTypes::HashtagToMews,
         LinkTag(input.base_hashtag.as_bytes().to_vec()),
     )?;

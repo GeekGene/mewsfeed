@@ -9,24 +9,6 @@ use hdk::prelude::*;
 use mews_types::FOLLOW_TOPIC;
 use trust_atom_types::{DeleteReport, QueryInput, TrustAtom, TrustAtomInput};
 
-#[derive(Debug, Serialize, Deserialize, SerializedBytes)]
-pub struct FollowInput {
-    pub agent: AgentPubKey,
-    pub follow_topics: Vec<FollowTopicInput>,
-}
-
-#[derive(Debug, Serialize, Deserialize, SerializedBytes)]
-pub struct FollowTopicInput {
-    pub topic: String,
-    pub weight: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, SerializedBytes)]
-pub struct TrustedFeedInput {
-    pub agent: AgentPubKey,
-    pub topic: String,
-    pub weight: String,
-}
 #[hdk_extern]
 pub fn add_creator_for_follower(input: AddCreatorForFollowerInput) -> ExternResult<()> {
     call_local_zome(

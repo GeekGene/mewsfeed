@@ -1,10 +1,13 @@
+use crate::hashtag_to_mews::*;
 use crate::licker_to_mews::*;
 use crate::mew_to_responses::*;
 use crate::pinner_to_mews::get_is_hash_pinned;
+use follows_types::TrustedFeedInput;
 use hc_call_utils::call_local_zome;
 use hdk::prelude::*;
 use mews_integrity::*;
 use mews_types::Profile;
+use trust_atom_types::{QueryInput, TrustAtom};
 
 fn get_agent_profile(agent_pub_key: AgentPubKey) -> ExternResult<Option<Profile>> {
     let maybe_record = call_local_zome::<Option<Record>, AgentPubKey>(
@@ -53,6 +56,7 @@ pub fn get_batch_mews_with_context_based_on_topic_and_weight_threshold(
                 target: None,
                 content_full: Some(topic.clone()), // query by topic
                 content_starts_with: None,
+                content_not_starts_with: None,
                 value_starts_with: None,
             },
         )?;
@@ -247,6 +251,8 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                                     author_profile: original_mew_author_profile,
                                     deleted_timestamp: original_mew_deleted_timestamp,
                                 }),
+                                weight: None, // default is None
+                                topic: None,
                             })
                         }
                         _ => Err(wasm_error!(WasmErrorInner::Guest(String::from(
