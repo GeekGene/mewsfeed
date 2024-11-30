@@ -2,7 +2,7 @@
   <BaseDialog
     :model-value="modelValue"
     :initial-focus-ref="
-      MewTypeName.Mewmew in mewType
+      typeof mewType === 'object' && MewTypeName.Mewmew in mewType
         ? createMewInputRef?.$refs.createButtonInput
         : createMewInputRef?.$refs.mewContainerInput
     "

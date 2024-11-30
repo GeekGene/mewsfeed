@@ -101,6 +101,8 @@ const setupApp = async () => {
 
   // Setup profiles
   const profilesClient = new ProfilesClient(
+    // eslint-disable-next-line
+    // @ts-ignore
     toRaw(client.value),
     "mewsfeed",
     "profiles"

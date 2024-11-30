@@ -8,8 +8,11 @@ crate-type = ["cdylib", "rlib"]
 name = "follows"
 
 [dependencies]
-hdk = { workspace = true }
-serde = { workspace = true }
-follows_integrity = { workspace = true } 
+hc_call_utils = { workspace = true }
 hc_link_pagination = { workspace = true }
+hdk = { workspace = true }
+follows_integrity = { workspace = true } 
 follows_types = { workspace = true }
+mews_types ={ workspace = true}
+serde = { workspace = true }
+trust_atom_types ={ workspace = true}
