@@ -36,7 +36,6 @@ npm install
 ```
 
 This will install all the needed dependencies in your local environment, including `holochain`, `hc` and `npm`.
-```
 
 ## Building the DNA
 
