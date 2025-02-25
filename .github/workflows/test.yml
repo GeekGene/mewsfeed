@@ -48,10 +48,10 @@ jobs:
         run: nix develop -c $SHELL -c "npm ci"
 
       - name: Clippy
-        run: nix develop -c $SHELL -c "npm run cargo:clippy"
+        run: nix develop -c $SHELL -c "cargo clippy --all-targets --all-features -- -D warnings"
 
       - name: Check rust formatting
-        run: nix develop -c $SHELL -c "npm run cargo:fmt:check"
+        run: nix develop -c $SHELL -c "cargo fmt --check"
 
       - name: Build Happ
         run: nix develop -c $SHELL -c "npm run build:happ"
