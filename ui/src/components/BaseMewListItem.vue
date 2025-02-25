@@ -150,9 +150,9 @@
                 @click.stop.prevent="
                   openCreateMewDialog(
                     { [MewTypeName.Reply]: feedMew.action_hash },
-                    feedMew,
+                    toRaw(feedMew),
                     () => {
-                      onCreateReply(feedMew);
+                      onCreateReply(toRaw(feedMew));
                     }
                   )
                 "
@@ -179,9 +179,9 @@
                 @click.stop.prevent="
                   openCreateMewDialog(
                     { [MewTypeName.Quote]: feedMew.action_hash },
-                    feedMew,
+                    toRaw(feedMew),
                     () => {
-                      onCreateQuote(feedMew);
+                      onCreateQuote(toRaw(feedMew));
                     }
                   )
                 "
@@ -208,9 +208,9 @@
                 @click.stop.prevent="
                   openCreateMewDialog(
                     { [MewTypeName.Mewmew]: feedMew.action_hash },
-                    feedMew,
+                    toRaw(feedMew),
                     () => {
-                      onCreateMewmew(feedMew);
+                      onCreateMewmew(toRaw(feedMew));
                     }
                   )
                 "
@@ -312,7 +312,7 @@ import { ROUTES } from "@/router";
 import { Mew, FeedMew, MewTypeName } from "@/types/types";
 import { Profile } from "@holochain-open-dev/profiles";
 import { ActionHash, encodeHashToBase64 } from "@holochain/client";
-import { computed, ComputedRef, inject, ref } from "vue";
+import { computed, ComputedRef, inject, ref, toRaw } from "vue";
 import BaseAgentProfileLinkAvatar from "@/components/BaseAgentProfileLinkAvatar.vue";
 import BaseMewContent from "@/components/BaseMewContent.vue";
 import isEqual from "lodash/isEqual";
