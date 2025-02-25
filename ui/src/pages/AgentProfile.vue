@@ -160,6 +160,7 @@ const showEditProfileDialog = ref(false);
 const showFollowersListDialog = ref(false);
 const showCreatorsListDialog = ref(false);
 const agentPubKeyB64 = computed(() => route.params.agentPubKey);
+const hasAgentPubKeyB64 = computed(() => agentPubKeyB64.value !== undefined);
 const pageLimit = 5;
 
 const fetchAuthoredMews = () =>
@@ -183,6 +184,7 @@ const {
 } = useQuery({
   queryKey: ["profiles", "get_agent_mews_with_context", agentPubKeyB64],
   queryFn: fetchAuthoredMews,
+  enabled: hasAgentPubKeyB64,
 });
 watch(errorAuthoredMews, console.error);
 
@@ -202,6 +204,7 @@ const {
 } = useQuery({
   queryKey: ["profiles", "get_mews_for_pinner_with_context", agentPubKeyB64],
   queryFn: fetchPinnedMews,
+  enabled: hasAgentPubKeyB64,
 });
 watch(errorPinnedMews, console.error);
 
@@ -224,6 +227,7 @@ const {
   queryKey: ["profiles", "getAgentProfile", agentPubKeyB64],
   queryFn: fetchProfile,
   refetchOnMount: true,
+  enabled: hasAgentPubKeyB64,
 });
 watch(errorProfile, console.error);
 
@@ -242,6 +246,7 @@ const {
 } = useQuery({
   queryKey: ["profiles", "get_joining_timestamp_for_agent", agentPubKeyB64],
   queryFn: fetchJoinedTimestamp,
+  enabled: hasAgentPubKeyB64,
 });
 watch(errorJoinedTimestamp, console.error);
 
@@ -260,6 +265,7 @@ const {
 } = useQuery({
   queryKey: ["follows", "count_creators_for_follower", agentPubKeyB64],
   queryFn: fetchCreatorsCount,
+  enabled: hasAgentPubKeyB64,
 });
 watch(errorCreatorsCount, console.error);
 
@@ -278,6 +284,7 @@ const {
 } = useQuery({
   queryKey: ["follows", "count_followers_for_creator", agentPubKeyB64],
   queryFn: fetchFollowersCount,
+  enabled: hasAgentPubKeyB64,
 });
 watch(errorFollowersCount, console.error);
 
