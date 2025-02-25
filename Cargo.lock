@@ -400,8 +400,9 @@ dependencies = [
 
 [[package]]
 name = "hc_prefix_index"
-version = "0.10.0"
-source = "git+https://github.com/jost-s/holochain-prefix-index?branch=build/holochain-0.4.0-dev.8#964cdffe813f36d3760851247f54d45add1a1348"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "36ea7921a7f831707b837b652c845045f0e29ffe1f35f157c6ff76e2f74f99df"
 dependencies = [
  "hdk",
  "rand",
@@ -411,7 +412,7 @@ dependencies = [
 [[package]]
 name = "hc_zome_profiles_coordinator"
 version = "0.2.0"
-source = "git+https://github.com/holochain-open-dev/profiles.git?branch=main-0.4#ac038bf4163ab3950817ef858a920746f8678063"
+source = "git+https://github.com/holochain-open-dev/profiles.git?branch=main-0.4#d6416d3034c01622098157e0d13cf7713424a75d"
 dependencies = [
  "derive_more",
  "hc_zome_profiles_integrity",
@@ -422,7 +423,7 @@ dependencies = [
 [[package]]
 name = "hc_zome_profiles_integrity"
 version = "0.2.0"
-source = "git+https://github.com/holochain-open-dev/profiles.git?branch=main-0.4#ac038bf4163ab3950817ef858a920746f8678063"
+source = "git+https://github.com/holochain-open-dev/profiles.git?branch=main-0.4#d6416d3034c01622098157e0d13cf7713424a75d"
 dependencies = [
  "derive_more",
  "hdi",

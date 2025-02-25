@@ -7,7 +7,7 @@ hdi = "0.5.1"
 hdk = "0.4.1"
 serde = "1"
 paste = "1.0"
-hc_prefix_index = { git = "https://github.com/jost-s/holochain-prefix-index", branch = "build/holochain-0.4.0-dev.8" }
+hc_prefix_index = "0.13.0"
 
 [workspace.dependencies.agent_pins]
 path = "dnas/mewsfeed/zomes/coordinator/agent_pins"
