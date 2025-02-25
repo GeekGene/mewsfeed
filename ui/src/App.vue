@@ -24,7 +24,7 @@
 
       <NetworkInfo
         v-else
-        class="flex justify-start items-center fixed right-5 bottom-5 my-8 mx-4 z-50"
+        class="flex justify-start items-center fixed left-0 sm:left-auto sm:right-5 bottom-[6.25rem] sm:bottom-12 my-8 mx-4 z-50 opacity-50"
       />
     </profiles-context>
   </div>
@@ -110,7 +110,7 @@ const setupApp = async () => {
   profilesStore.value = new ProfilesStore(profilesClient, PROFILES_CONFIG);
   profilesStore.value.myProfile.subscribe((res) => {
     if (res.status === "complete" && res.value !== undefined) {
-      myProfile.value = res.value;
+      myProfile.value = res.value.entry;
     }
   });
   console.log("Profiles Store initialized");

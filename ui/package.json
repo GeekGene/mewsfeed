@@ -5,7 +5,7 @@
   "version": "0.11.1",
   "type": "module",
   "scripts": {
-    "start": "vite --port $UI_PORT --clearScreen false",
+    "start": "vite --clearScreen false",
     "start:browser": "VITE_HC_PORT=$HC_PORT VITE_HC_ADMIN_PORT=$HC_ADMIN_PORT vite",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
@@ -16,7 +16,7 @@
     "@fontsource/space-mono": "^5.0.3",
     "@fontsource/syne": "^5.0.3",
     "@headlessui/vue": "^1.7.14",
-    "@holo-host/web-sdk": "0.6.13-prerelease",
+    "@holo-host/web-sdk": "0.6.20-prerelease",
     "@holochain-open-dev/profiles": "^0.400.1",
     "@holochain/client": "^0.18.0",
     "@shoelace-style/shoelace": "^2.4.0",
