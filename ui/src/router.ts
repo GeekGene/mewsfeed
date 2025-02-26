@@ -35,6 +35,10 @@ export const routes: RouteRecordRaw[] = [
       getHomeRedirect() ? { path: ROUTES.discover } : { name: ROUTES.feed },
   },
   {
+    path: "/index.html",
+    redirect: () => "/"
+  },
+  {
     path: "/feed",
     name: ROUTES.feed,
     component: MewsFeed,
