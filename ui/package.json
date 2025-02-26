@@ -2,7 +2,7 @@
   "name": "mewsfeed-ui-vue",
   "description": "A UI for MewsFeed based on Vue",
   "author": "Jost Schulte",
-  "version": "0.13.0",
+  "version": "0.13.1",
   "type": "module",
   "scripts": {
     "start": "vite --clearScreen false",

@@ -4,6 +4,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## Unreleased
 
+
+## 2025-02-25 v0.13.1
+- fix: redirect /index.html to / for use in launcher
+
 ## 2025-02-25 v0.13.0
 - build: bump to holochain 0.4.1
 - build: switch to new holonix
