@@ -9,7 +9,8 @@
     "start:browser": "VITE_HC_PORT=$HC_PORT VITE_HC_ADMIN_PORT=$HC_ADMIN_PORT vite",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
-    "lint": "eslint --fix --ext .ts ./ --ext .vue src"
+    "lint": "eslint --fix --ext .ts ./ --ext .vue src",
+    "package": "npm run build && rimraf dist.zip && cd dist && bestzip ../dist.zip *"
   },
   "dependencies": {
     "@fontsource/inter": "^5.0.3",
