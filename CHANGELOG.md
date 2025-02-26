@@ -4,10 +4,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## Unreleased
 
-## 2025-02-25 v0.12.0
+## 2025-02-25 v0.13.0
 - build: bump to holochain 0.4.1
 - build: switch to new holonix
 - fix: avoid failing zome calls due to empty input when navigating away from profile page
+
+## 2023-10-11 v0.12.0
+- breaking bumps holochain to 0.3.0-beta-dev.20
+- improve network info indictator styling, hide when cell not loaded
+- Resolves #245
 
 ## 2023-09-12 v0.11.1
 - feat: add ellipses to truncated agent pub keys, extend truncation to 15 chars, do not truncate only on creators / followers list
