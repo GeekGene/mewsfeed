@@ -91,7 +91,7 @@ const fetchCreators = async (params: any) => {
 
       return {
         agentPubKey,
-        profile: profile?.entry
+        profile: profile?.entry,
       } as AgentProfile;
     })
   );
