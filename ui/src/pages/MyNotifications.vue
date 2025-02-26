@@ -81,7 +81,7 @@ const fetchNotifications = async (params: any) => {
       agent: client.myPubKey,
       page: {
         limit: pageLimit,
-        direction: { [PaginationDirectionName.Descending]: null },
+        direction: PaginationDirectionName.Descending,
         ...params.pageParam,
       },
     },

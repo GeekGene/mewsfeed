@@ -4,12 +4,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## Unreleased
 
+## 2025-02-25 v0.12.0
+- build: bump to holochain 0.4.1
+- build: switch to new holonix
+- fix: avoid failing zome calls due to empty input when navigating away from profile page
 
 ## 2023-09-12 v0.11.1
 - feat: add ellipses to truncated agent pub keys, extend truncation to 15 chars, do not truncate only on creators / followers list
-
-
-
 
 ## 2023-09-12 v0.11.0
 - feat: show avatar in lightbox upon clicking profile (#233)

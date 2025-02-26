@@ -10,7 +10,7 @@
     </label>
     <ul
       tabindex="0"
-      class="dropdown-content w-full menu z-10 px-0 bg-base-100 text-netural-content rounded-box max-h-64 overflow-scroll flex-nowrap"
+      class="dropdown-content w-full menu z-10 px-0 bg-base-100 text-netural-content rounded-box max-h-64 overflow-none flex-nowrap"
     >
       <li
         v-for="theme in store.themesDisplay"

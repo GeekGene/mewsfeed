@@ -186,7 +186,7 @@
 import { useSearchProfiles } from "@/utils/profiles";
 import { Profile } from "@holochain-open-dev/profiles";
 import { isMentionTag, isRawUrl, isLinkTag, TAG_SYMBOLS } from "@/utils/tags";
-import { onMounted, ref, computed, ComputedRef, inject } from "vue";
+import { onMounted, ref, computed, ComputedRef, inject, toRaw } from "vue";
 import {
   Mew,
   LinkTarget,
@@ -340,7 +340,7 @@ const publishMew = async (profile: undefined | Profile = undefined) => {
   const mew: Mew = {
     text: "",
     links: [],
-    mew_type: props.mewType,
+    mew_type: toRaw(props.mewType),
   };
 
   if (isMewTypeWithText.value && mewContainerInput.value) {
