@@ -20,7 +20,7 @@
     "@holo-host/web-sdk": "0.6.20-prerelease",
     "@holochain-open-dev/profiles": "^0.600.0",
     "@holochain/client": "^0.20.0",
-    "@shoelace-style/shoelace": "^2.20.0",
+    "@shoelace-style/shoelace": "2.11.0",
     "@tanstack/query-persist-client-core": "^4.35.0",
     "@tanstack/query-sync-storage-persister": "^4.35.0",
     "@tanstack/vue-query": "^4.35.2",

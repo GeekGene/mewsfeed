@@ -39,5 +39,8 @@
   },
   "engines": {
     "npm": ">=7.0.0"
+  },
+  "overrides": {
+    "@shoelace-style/shoelace": "2.11.0"
   }
 }
