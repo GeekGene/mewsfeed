@@ -62,16 +62,12 @@ const themeStore = useThemeStore();
 themeStore.apply();
 const queryClient = useQueryClient();
 
-const dnaProperties = computed(() =>
-  appInfo.value
-    ? (decode(
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        appInfo.value.cell_info.mewsfeed[0][CellType.Provisioned].dna_modifiers
-          .properties
-      ) as MewsfeedDnaProperties)
-    : {}
-);
+const dnaProperties = computed(() => {
+  if (!appInfo.value) return {};
+  const cellInfo = appInfo.value.cell_info.mewsfeed[0];
+  if (cellInfo.type !== CellType.Provisioned) return {};
+  return decode(cellInfo.value.dna_modifiers.properties) as MewsfeedDnaProperties;
+});
 
 onMounted(() => {
   setup();

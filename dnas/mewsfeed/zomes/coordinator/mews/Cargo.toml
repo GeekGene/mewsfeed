@@ -16,7 +16,8 @@ hc_prefix_index = { workspace = true }
 # prefix_index = { git = "https://github.com/holochain-open-dev/holochain-prefix-index", branch = "build/holochain-0.3.x", module = "lib/prefix_index" }
 profiles_integrity = { workspace = true }
 mews_types = { workspace = true }
-rand = "0.8.5"
 hc_call_utils = { workspace = true }
 hc_link_pagination = { workspace = true }
+hc_zome_input = { workspace = true }
 follows_types = { workspace = true }
+holochain_serialized_bytes = { workspace = true }

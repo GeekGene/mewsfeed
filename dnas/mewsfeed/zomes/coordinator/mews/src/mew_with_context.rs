@@ -2,13 +2,19 @@ use crate::licker_to_mews::*;
 use crate::mew_to_responses::*;
 use crate::pinner_to_mews::get_is_hash_pinned;
 use hc_call_utils::call_local_zome;
+use hc_zome_input::ZomeFnInput;
 use hdk::prelude::*;
 use mews_integrity::*;
 use mews_types::Profile;
 
 #[hdk_extern]
-pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedMew> {
-    let response = get_details(original_mew_hash.clone(), GetOptions::default())?.ok_or(
+pub fn get_mew_with_context(input: ZomeFnInput<ActionHash>) -> ExternResult<FeedMew> {
+    let get_options = input.get_options();
+    get_mew_with_context_internal(input.input, get_options)
+}
+
+pub fn get_mew_with_context_internal(original_mew_hash: ActionHash, get_options: GetOptions) -> ExternResult<FeedMew> {
+    let response = get_details(original_mew_hash.clone(), get_options.clone())?.ok_or(
         wasm_error!(WasmErrorInner::Guest(String::from("Mew not found"))),
     )?;
 
@@ -88,7 +94,7 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
                 MewType::Reply(response_to_hash)
                 | MewType::Quote(response_to_hash)
                 | MewType::Mewmew(response_to_hash) => {
-                    let details = get_details(response_to_hash, GetOptions::default())?.ok_or(
+                    let details = get_details(response_to_hash, get_options)?.ok_or(
                         wasm_error!(WasmErrorInner::Guest(String::from("Mew not found"))),
                     )?;
 
@@ -148,27 +154,36 @@ pub fn get_mew_with_context(original_mew_hash: ActionHash) -> ExternResult<FeedM
 }
 
 #[hdk_extern]
-pub fn get_batch_mews_with_context(hashes: Vec<ActionHash>) -> ExternResult<Vec<FeedMew>> {
+pub fn get_batch_mews_with_context(input: ZomeFnInput<Vec<ActionHash>>) -> ExternResult<Vec<FeedMew>> {
+    let get_options = input.get_options();
+    input.input
+        .into_iter()
+        .map(|hash| get_mew_with_context_internal(hash, get_options.clone()))
+        .collect::<ExternResult<Vec<FeedMew>>>()
+}
+
+pub fn get_batch_mews_with_context_internal(hashes: Vec<ActionHash>, get_options: GetOptions) -> ExternResult<Vec<FeedMew>> {
     hashes
         .into_iter()
-        .map(get_mew_with_context)
+        .map(|hash| get_mew_with_context_internal(hash, get_options.clone()))
         .collect::<ExternResult<Vec<FeedMew>>>()
 }
 
 #[hdk_extern]
 pub fn get_responses_for_mew_with_context(
-    input: GetResponsesForMewInput,
+    input: ZomeFnInput<GetResponsesForMewInput>,
 ) -> ExternResult<Vec<FeedMew>> {
+    let get_options = input.get_options();
     let response_hashes = get_response_hashes_for_mew(input)?;
 
-    get_batch_mews_with_context(response_hashes)
+    get_batch_mews_with_context_internal(response_hashes, get_options)
 }
 
 fn get_agent_profile(agent_pub_key: AgentPubKey) -> ExternResult<Option<Profile>> {
-    let maybe_record = call_local_zome::<Option<Record>, AgentPubKey>(
+    let maybe_record = call_local_zome::<Option<Record>, ZomeFnInput<AgentPubKey>>(
         "profiles",
         "get_agent_profile",
-        agent_pub_key,
+        ZomeFnInput::new(agent_pub_key, Some(true)),
     )?;
 
     match maybe_record {

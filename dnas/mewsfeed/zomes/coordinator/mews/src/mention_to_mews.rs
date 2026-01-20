@@ -1,5 +1,6 @@
-use crate::mew_with_context::get_batch_mews_with_context;
+use crate::mew_with_context::get_batch_mews_with_context_internal;
 use hc_link_pagination::{paginate_by_hash, HashPagination};
+use hc_zome_input::ZomeFnInput;
 use hdk::prelude::*;
 use mews_integrity::*;
 
@@ -22,15 +23,17 @@ pub fn add_mention_for_mew(input: AddMentionForMewInput) -> ExternResult<()> {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct GetMewsForMentionInput {
-    mention: AgentPubKey,
-    page: Option<HashPagination>,
+    pub mention: AgentPubKey,
+    pub page: Option<HashPagination>,
 }
 #[hdk_extern]
-pub fn get_mews_for_mention(input: GetMewsForMentionInput) -> ExternResult<Vec<Record>> {
-    let hashes = get_mew_hashes_for_mention(input.mention, input.page)?;
+pub fn get_mews_for_mention(input: ZomeFnInput<GetMewsForMentionInput>) -> ExternResult<Vec<Record>> {
+    let strategy = input.get_strategy();
+    let get_options = input.get_options();
+    let hashes = get_mew_hashes_for_mention(input.input.mention, input.input.page, strategy)?;
     let get_input: Vec<GetInput> = hashes
         .into_iter()
-        .map(|hash| GetInput::new(hash.into(), GetOptions::default()))
+        .map(|hash| GetInput::new(hash.into(), get_options.clone()))
         .collect();
 
     // Get the records to filter out the deleted ones
@@ -45,31 +48,32 @@ pub fn get_mews_for_mention(input: GetMewsForMentionInput) -> ExternResult<Vec<R
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct GetMewsForMentionWithContextInput {
-    mention: AgentPubKey,
-    page: Option<HashPagination>,
+    pub mention: AgentPubKey,
+    pub page: Option<HashPagination>,
 }
 #[hdk_extern]
 pub fn get_mews_for_mention_with_context(
-    input: GetMewsForMentionWithContextInput,
+    input: ZomeFnInput<GetMewsForMentionWithContextInput>,
 ) -> ExternResult<Vec<FeedMew>> {
-    let hashes = get_mew_hashes_for_mention(input.mention, input.page)?;
+    let strategy = input.get_strategy();
+    let get_options = input.get_options();
+    let hashes = get_mew_hashes_for_mention(input.input.mention, input.input.page, strategy)?;
 
-    get_batch_mews_with_context(hashes)
+    get_batch_mews_with_context_internal(hashes, get_options)
 }
 
 fn get_mew_hashes_for_mention(
     mention: AgentPubKey,
     page: Option<HashPagination>,
+    strategy: GetStrategy,
 ) -> ExternResult<Vec<ActionHash>> {
-    let links = get_links(GetLinksInput {
-        base_address: mention.into(),
-        link_type: LinkTypes::MentionToMews.try_into_filter()?,
-        tag_prefix: None,
-        after: None,
-        before: None,
-        author: None,
-        get_options: GetOptions::default(),
-    })?;
+    let links = get_links(
+        LinkQuery::new(
+            AnyLinkableHash::from(mention),
+            LinkTypes::MentionToMews.try_into_filter()?,
+        ),
+        strategy,
+    )?;
     let links_page = paginate_by_hash(links, page)?;
 
     let hashes: Vec<ActionHash> = links_page
@@ -87,21 +91,19 @@ pub struct RemoveMentionForMewInput {
 }
 #[hdk_extern]
 pub fn remove_mention_for_mew(input: RemoveMentionForMewInput) -> ExternResult<()> {
-    let links = get_links(GetLinksInput {
-        base_address: input.base_mention.into(),
-        link_type: LinkTypes::MentionToMews.try_into_filter()?,
-        tag_prefix: None,
-        after: None,
-        before: None,
-        author: None,
-        get_options: GetOptions::default(),
-    })?;
+    let links = get_links(
+        LinkQuery::new(
+            AnyLinkableHash::from(input.base_mention),
+            LinkTypes::MentionToMews.try_into_filter()?,
+        ),
+        GetStrategy::Local,
+    )?;
 
     for link in links {
         let action_hash =
             ActionHash::try_from(link.target.clone()).map_err(|err| wasm_error!(err))?;
         if action_hash.eq(&input.target_mew_hash) {
-            delete_link(link.create_link_hash)?;
+            delete_link(link.create_link_hash, GetOptions::local())?;
         }
     }
 

@@ -12,28 +12,25 @@
           <div class="text-xs">Updated {{ lastUpdatedSeconds }}s ago</div>
         </div>
         <div class="flex justify-start items-center space-x-2 text-xs">
-          <div class="font-bold">Op Bytes to Fetch</div>
-          <div>{{ data[0]?.fetch_pool_info.op_bytes_to_fetch }}</div>
+          <div class="font-bold">Backend</div>
+          <div>{{ data.backend }}</div>
         </div>
         <div class="flex justify-start items-center space-x-2 text-xs mb-2">
-          <div class="font-bold">Num Ops to Fetch</div>
-          <div>{{ data[0]?.fetch_pool_info.num_ops_to_fetch }}</div>
+          <div class="font-bold">Peer URLs</div>
+          <div>{{ data.peer_urls?.length || 0 }}</div>
         </div>
         <div class="flex justify-start items-center space-x-2 text-xs">
-          <div class="font-bold">Current Peers</div>
-          <div>{{ data[0]?.current_number_of_peers }}</div>
+          <div class="font-bold">Active Connections</div>
+          <div>{{ data.connections?.length || 0 }}</div>
         </div>
-        <div class="flex justify-start items-center space-x-2 text-xs mb-2">
-          <div class="font-bold">Total Network Peers</div>
-          <div>{{ data[0]?.total_network_peers }}</div>
-        </div>
-        <div class="flex justify-start items-center space-x-2 text-xs">
-          <div class="font-bold">Bytes Since Last Queried</div>
-          <div>{{ data[0]?.bytes_since_last_time_queried }} bytes</div>
-        </div>
-        <div class="flex justify-start items-center space-x-2 text-xs">
-          <div class="font-bold">Completed Rounds Since Last Queried</div>
-          <div>{{ data[0]?.completed_rounds_since_last_time_queried }}</div>
+        <div v-if="data.connections?.length" class="mt-2 text-xs">
+          <div class="font-bold mb-1">Connection Details:</div>
+          <div v-for="conn in data.connections.slice(0, 3)" :key="conn.pub_key" class="ml-2">
+            <div>Messages: {{ conn.send_message_count }} sent</div>
+          </div>
+          <div v-if="data.connections.length > 3" class="ml-2 text-xs opacity-70">
+            ... and {{ data.connections.length - 3 }} more
+          </div>
         </div>
         <IconCloseCircleOutline class="absolute top-1 right-1" />
       </template>
@@ -52,9 +49,7 @@
 <script setup lang="ts">
 import {
   AppClient,
-  AppInfo,
-  CellType,
-  NetworkInfoResponse,
+  AppDumpNetworkStatsResponse,
 } from "@holochain/client";
 import { useQuery } from "@tanstack/vue-query";
 import { computed, ref } from "vue";
@@ -66,19 +61,12 @@ import relativeTime from "dayjs/plugin/relativeTime";
 dayjs.extend(relativeTime);
 
 const client = (inject("client") as ComputedRef<AppClient>).value;
-const appInfo = (inject("appInfo") as ComputedRef<AppInfo>).value;
 
 const showExpanded = ref(false);
-const lastUpdated = computed(() => dataUpdatedAt.value);
 const lastUpdatedSeconds = ref(0);
 
-const fetchNetworkInfo = (): Promise<NetworkInfoResponse> =>
-  client.networkInfo({
-    dnas: [
-      (appInfo.cell_info.mewsfeed[0] as any)[CellType.Provisioned].cell_id[0],
-    ],
-    last_time_queried: lastUpdated.value,
-  });
+const fetchNetworkInfo = (): Promise<AppDumpNetworkStatsResponse> =>
+  client.dumpNetworkStats();
 
 const { data, error, dataUpdatedAt } = useQuery({
   queryKey: ["networkInfo"],

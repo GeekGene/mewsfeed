@@ -3,11 +3,12 @@ members = ["dnas/*/zomes/coordinator/*", "dnas/*/zomes/integrity/*", "crates/*"]
 resolver = "2"
 
 [workspace.dependencies]
-hdi = "0.5.1"
-hdk = "0.4.1"
+hdi = "0.7.0"
+hdk = "0.6.0"
 serde = "1"
 paste = "1.0"
-hc_prefix_index = "0.13.0"
+hc_prefix_index = { path = "../holochain-prefix-index/lib/hc_prefix_index" }
+holochain_serialized_bytes = "0.0.56"
 
 [workspace.dependencies.agent_pins]
 path = "dnas/mewsfeed/zomes/coordinator/agent_pins"
@@ -53,3 +54,6 @@ path = "crates/hc_call_utils"
 
 [workspace.dependencies.hc_link_pagination]
 path = "crates/hc_link_pagination"
+
+[workspace.dependencies.hc_zome_input]
+path = "crates/hc_zome_input"

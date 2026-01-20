@@ -15,9 +15,10 @@ where
 
     let result_io = match response {
         ZomeCallResponse::Ok(bytes) => Ok(bytes),
-        ZomeCallResponse::Unauthorized(zome_call_auth, cell_id, zome, func, agent) => Err(
-            wasm_error!("ZomeCallResponse::Unauthorized: zome_call_auth: {:?}, cell_id: {:?}, zome: {:?}, func: {:?}, agent: {:?}", zome_call_auth, cell_id, zome, func, agent))
-        ,
+        ZomeCallResponse::Unauthorized(zome_call_auth, cap_secret, zome, func) => Err(
+            wasm_error!("ZomeCallResponse::Unauthorized: zome_call_auth: {:?}, cap_secret: {:?}, zome: {:?}, func: {:?}", zome_call_auth, cap_secret, zome, func)),
+        ZomeCallResponse::AuthenticationFailed(signature, agent) => Err(
+            wasm_error!("ZomeCallResponse::AuthenticationFailed: signature: {:?}, agent: {:?}", signature, agent)),
         ZomeCallResponse::NetworkError(message) => Err(wasm_error!("ZomeCallResponse::NetworkError: {}", message)),
         ZomeCallResponse::CountersigningSession(message) => {
             Err(wasm_error!("ZomeCallResponse::CountersigningSession: {}", message))

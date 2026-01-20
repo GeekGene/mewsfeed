@@ -3,15 +3,13 @@ use mews_integrity::LinkTypes;
 
 pub fn get_all_mew_hashes() -> ExternResult<Vec<ActionHash>> {
     let path = Path::from("all_mews");
-    let mut links = get_links(GetLinksInput {
-        base_address: path.path_entry_hash()?.into(),
-        link_type: LinkTypes::AllMews.try_into_filter()?,
-        tag_prefix: None,
-        after: None,
-        before: None,
-        author: None,
-        get_options: GetOptions::default(),
-    })?;
+    let mut links = get_links(
+        LinkQuery::new(
+            path.path_entry_hash()?,
+            LinkTypes::AllMews.try_into_filter()?,
+        ),
+        GetStrategy::Local,
+    )?;
     links.sort_by_key(|a| a.timestamp);
     let hashes: Vec<ActionHash> = links
         .into_iter()

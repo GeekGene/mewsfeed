@@ -39,6 +39,7 @@
               ref="dialogPanelRef"
               class="relative transform overflow-visible bg-base-100 rounded-3xl transition-all w-full p-2 md:p-8 md:w-2/3"
               :class="dialogPanelClass"
+              :data-theme="themeStore.active"
             >
               <slot></slot>
             </DialogPanel>
@@ -56,7 +57,11 @@ import {
   TransitionChild,
   TransitionRoot,
 } from "@headlessui/vue";
+import { useThemeStore } from "@/stores/theme";
+
 const emit = defineEmits(["update:model-value"]);
+const themeStore = useThemeStore();
+
 withDefaults(
   defineProps<{
     modelValue: boolean;

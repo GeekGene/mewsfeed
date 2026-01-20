@@ -27,6 +27,7 @@ import isEqual from "lodash/isEqual";
 import { setHomeRedirect } from "@/utils/homeRedirect";
 import { useQuery } from "@tanstack/vue-query";
 import { useToasts } from "@/stores/toasts";
+import { wrapInput } from "@/utils/zomeCall";
 
 const props = withDefaults(
   defineProps<{
@@ -52,9 +53,9 @@ const fetchMyFollowing = async (): Promise<AgentPubKey[]> =>
     role_name: "mewsfeed",
     zome_name: "follows",
     fn_name: "get_creators_for_follower",
-    payload: {
+    payload: wrapInput({
       follower: client.myPubKey,
-    },
+    }),
   });
 
 const isFollowing = computed(() => {

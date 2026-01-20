@@ -54,6 +54,7 @@ import IconDiceOutline from "~icons/ion/dice-outline";
 import { ActionHash } from "@holochain/client";
 import BaseListSkeleton from "@/components/BaseListSkeleton.vue";
 import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
+import { wrapInput } from "@/utils/zomeCall";
 
 const client = (inject("client") as ComputedRef<AppClient>).value;
 
@@ -62,7 +63,7 @@ const fetchRandomMewHashes = (): Promise<ActionHash[]> =>
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_random_mew_hashes",
-    payload: 3,
+    payload: wrapInput(3),
   });
 
 const fetchMewsWithContext = async (hashes: ActionHash[]): Promise<FeedMew[]> =>
@@ -70,7 +71,7 @@ const fetchMewsWithContext = async (hashes: ActionHash[]): Promise<FeedMew[]> =>
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_batch_mews_with_context",
-    payload: hashes,
+    payload: wrapInput(hashes),
   });
 
 const {
@@ -112,7 +113,7 @@ const fetchRandomTags = (): Promise<string[]> => {
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_random_tags",
-    payload: 4,
+    payload: wrapInput(4),
   });
 };
 

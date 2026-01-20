@@ -15,6 +15,7 @@ import { ProfilesStore } from "@holochain-open-dev/profiles";
 import BaseAgentProfileDetail from "@/components/BaseAgentProfileDetail.vue";
 import { useQuery } from "@tanstack/vue-query";
 import { encodeHashToBase64 } from "@holochain/client";
+import { wrapInput } from "@/utils/zomeCall";
 
 const props = withDefaults(
   defineProps<{
@@ -56,7 +57,7 @@ const fetchJoinedTimestamp = async () =>
     role_name: "mewsfeed",
     zome_name: "profiles",
     fn_name: "get_joining_timestamp_for_agent",
-    payload: props.agentPubKey,
+    payload: wrapInput(props.agentPubKey),
   });
 
 const {

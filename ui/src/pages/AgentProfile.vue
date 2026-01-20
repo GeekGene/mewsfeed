@@ -145,6 +145,7 @@ import BaseAgentProfileDetail from "@/components/BaseAgentProfileDetail.vue";
 import EditAgentProfileDialog from "@/components/EditAgentProfileDialog.vue";
 import FollowersListDialog from "@/components/FollowersListDialog.vue";
 import CreatorsListDialog from "@/components/CreatorsListDialog.vue";
+import { wrapInput } from "@/utils/zomeCall";
 
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
@@ -168,12 +169,12 @@ const fetchAuthoredMews = () =>
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_agent_mews_with_context",
-    payload: {
+    payload: wrapInput({
       agent: agentPubKey.value,
       page: {
         limit: pageLimit,
       },
-    },
+    }),
   });
 
 const {
@@ -193,7 +194,7 @@ const fetchPinnedMews = () =>
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_mews_for_pinner_with_context",
-    payload: agentPubKey.value,
+    payload: wrapInput(agentPubKey.value),
   });
 
 const {
@@ -236,7 +237,7 @@ const fetchJoinedTimestamp = () =>
     role_name: "mewsfeed",
     zome_name: "profiles",
     fn_name: "get_joining_timestamp_for_agent",
-    payload: route.params.agentPubKey,
+    payload: wrapInput(route.params.agentPubKey),
   });
 
 const {
@@ -255,7 +256,7 @@ const fetchCreatorsCount = async (): Promise<number> =>
     role_name: "mewsfeed",
     zome_name: "follows",
     fn_name: "count_creators_for_follower",
-    payload: route.params.agentPubKey,
+    payload: wrapInput(route.params.agentPubKey),
   });
 
 const {
@@ -274,7 +275,7 @@ const fetchFollowersCount = async (): Promise<number> =>
     role_name: "mewsfeed",
     zome_name: "follows",
     fn_name: "count_followers_for_creator",
-    payload: route.params.agentPubKey,
+    payload: wrapInput(route.params.agentPubKey),
   });
 
 const {

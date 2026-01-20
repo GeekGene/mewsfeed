@@ -1,4 +1,5 @@
 use hc_link_pagination::{paginate_by_hash, HashPagination};
+use hc_zome_input::ZomeFnInput;
 use hdk::prelude::*;
 use mews_integrity::*;
 
@@ -33,9 +34,10 @@ pub struct GetResponsesForMewInput {
 }
 #[hdk_extern]
 pub fn get_response_hashes_for_mew(
-    input: GetResponsesForMewInput,
+    input: ZomeFnInput<GetResponsesForMewInput>,
 ) -> ExternResult<Vec<ActionHash>> {
-    let tag = match input.response_type {
+    let strategy = input.get_strategy();
+    let tag = match input.input.response_type {
         Some(response_type) => {
             let tag: SerializedBytes = response_type.try_into().map_err(|_| {
                 wasm_error!(WasmErrorInner::Guest(
@@ -48,16 +50,16 @@ pub fn get_response_hashes_for_mew(
         None => None,
     };
 
-    let links = get_links(GetLinksInput {
-        base_address: input.original_mew_hash.into(),
-        link_type: LinkTypes::MewToResponses.try_into_filter()?,
-        tag_prefix: tag,
-        after: None,
-        before: None,
-        author: None,
-        get_options: GetOptions::default(),
-    })?;
-    let links_page = paginate_by_hash(links, input.page)?;
+    let mut query = LinkQuery::new(
+        AnyLinkableHash::from(input.input.original_mew_hash),
+        LinkTypes::MewToResponses.try_into_filter()?,
+    );
+    if let Some(t) = tag {
+        query = query.tag_prefix(t);
+    }
+
+    let links = get_links(query, strategy)?;
+    let links_page = paginate_by_hash(links, input.input.page)?;
     let hashes: Vec<ActionHash> = links_page
         .into_iter()
         .filter_map(|link| ActionHash::try_from(link.target).ok())
@@ -135,11 +137,12 @@ pub fn get_response_for_mew_exists(input: GetResponseForMewExistsInput) -> Exter
 }
 
 #[hdk_extern]
-pub fn get_responses_for_mew(input: GetResponsesForMewInput) -> ExternResult<Vec<Record>> {
+pub fn get_responses_for_mew(input: ZomeFnInput<GetResponsesForMewInput>) -> ExternResult<Vec<Record>> {
+    let get_options = input.get_options();
     let response_hashes = get_response_hashes_for_mew(input)?;
     let get_input: Vec<GetInput> = response_hashes
         .into_iter()
-        .map(|hash| GetInput::new(hash.into(), GetOptions::default()))
+        .map(|hash| GetInput::new(hash.into(), get_options.clone()))
         .collect();
     let records: Vec<Record> = HDK
         .with(|hdk| hdk.borrow().get(get_input))?
@@ -156,20 +159,18 @@ pub struct RemoveResponseForMewInput {
 }
 #[hdk_extern]
 pub fn remove_response_for_mew(input: RemoveResponseForMewInput) -> ExternResult<()> {
-    let links = get_links(GetLinksInput {
-        base_address: input.base_original_mew_hash.into(),
-        link_type: LinkTypes::MewToResponses.try_into_filter()?,
-        tag_prefix: None,
-        after: None,
-        before: None,
-        author: None,
-        get_options: GetOptions::default(),
-    })?;
+    let links = get_links(
+        LinkQuery::new(
+            AnyLinkableHash::from(input.base_original_mew_hash),
+            LinkTypes::MewToResponses.try_into_filter()?,
+        ),
+        GetStrategy::Local,
+    )?;
     for link in links {
         let action_hash =
             ActionHash::try_from(link.target.clone()).map_err(|err| wasm_error!(err))?;
         if action_hash.eq(&input.target_response_mew_hash) {
-            delete_link(link.create_link_hash)?;
+            delete_link(link.create_link_hash, GetOptions::local())?;
         }
     }
     Ok(())

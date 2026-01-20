@@ -722,8 +722,7 @@ const hideAutocompleter = () => {
   display: block;
   position: absolute;
   font-family: "Inter";
-
-  @apply text-base-content/50;
+  color: hsl(var(--bc) / 0.5);
 }
 
 .mew-container-input a {

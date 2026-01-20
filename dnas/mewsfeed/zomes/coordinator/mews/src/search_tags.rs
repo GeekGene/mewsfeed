@@ -1,3 +1,4 @@
+use hc_zome_input::ZomeFnInput;
 use hdk::prelude::*;
 use mews_integrity::*;
 
@@ -7,7 +8,7 @@ pub struct SearchTagsInput {
     pub limit: usize,
 }
 #[hdk_extern]
-fn search_tags(input: SearchTagsInput) -> ExternResult<Vec<String>> {
+fn search_tags(input: ZomeFnInput<SearchTagsInput>) -> ExternResult<Vec<String>> {
     let prefix_index = make_tag_prefix_index()?;
-    prefix_index.get_results(input.query, input.limit)
+    prefix_index.get_results(input.input.query, input.input.limit)
 }

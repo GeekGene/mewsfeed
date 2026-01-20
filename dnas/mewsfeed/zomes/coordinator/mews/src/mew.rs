@@ -2,7 +2,8 @@ use crate::cashtag_to_mews::*;
 use crate::hashtag_to_mews::*;
 use crate::mention_to_mews::*;
 use crate::mew_to_responses::*;
-use crate::mew_with_context::get_mew_with_context;
+use crate::mew_with_context::get_mew_with_context_internal;
+use hc_zome_input::ZomeFnInput;
 use hdk::prelude::*;
 use mews_integrity::*;
 use regex::Regex;
@@ -17,7 +18,7 @@ pub fn create_mew(mew: Mew) -> ExternResult<ActionHash> {
         LinkTypes::AllMews,
         (),
     )?;
-    let my_agent_pub_key = agent_info()?.agent_latest_pubkey;
+    let my_agent_pub_key = agent_info()?.agent_initial_pubkey;
     create_link(my_agent_pub_key, mew_hash.clone(), LinkTypes::AgentMews, ())?;
     add_tags_for_mew(mew.clone(), mew_hash.clone())?;
 
@@ -52,12 +53,13 @@ pub fn create_mew(mew: Mew) -> ExternResult<ActionHash> {
 #[hdk_extern]
 pub fn create_mew_with_context(mew: Mew) -> ExternResult<FeedMew> {
     let action_hash = create_mew(mew)?;
-    get_mew_with_context(action_hash)
+    get_mew_with_context_internal(action_hash, GetOptions::local())
 }
 
 #[hdk_extern]
-pub fn get_mew(original_mew_hash: ActionHash) -> ExternResult<Option<Record>> {
-    get(original_mew_hash, GetOptions::default())
+pub fn get_mew(input: ZomeFnInput<ActionHash>) -> ExternResult<Option<Record>> {
+    let get_options = input.get_options();
+    get(input.input, get_options)
 }
 
 #[hdk_extern]
@@ -75,55 +77,46 @@ pub fn delete_mew(original_mew_hash: ActionHash) -> ExternResult<ActionHash> {
     }
 
     let path_hash = Path::from("all_mews").path_entry_hash()?;
-    let links = get_links(GetLinksInput {
-        base_address: path_hash.into(),
-        link_type: LinkTypes::AllMews.try_into_filter()?,
-        tag_prefix: None,
-        after: None,
-        before: None,
-        author: None,
-        get_options: GetOptions::default(),
-    })?;
+    let links = get_links(
+        LinkQuery::new(path_hash, LinkTypes::AllMews.try_into_filter()?),
+        GetStrategy::Local,
+    )?;
     for link in links {
         let action_hash =
             ActionHash::try_from(link.target.clone()).map_err(|err| wasm_error!(err))?;
         if action_hash.eq(&original_mew_hash) {
-            delete_link(link.create_link_hash)?;
+            delete_link(link.create_link_hash, GetOptions::local())?;
         }
     }
 
-    let my_agent_pub_key = agent_info()?.agent_latest_pubkey;
-    let links = get_links(GetLinksInput {
-        base_address: my_agent_pub_key.into(),
-        link_type: LinkTypes::AgentMews.try_into_filter()?,
-        tag_prefix: None,
-        after: None,
-        before: None,
-        author: None,
-        get_options: GetOptions::default(),
-    })?;
+    let my_agent_pub_key = agent_info()?.agent_initial_pubkey;
+    let links = get_links(
+        LinkQuery::new(
+            AnyLinkableHash::from(my_agent_pub_key),
+            LinkTypes::AgentMews.try_into_filter()?,
+        ),
+        GetStrategy::Local,
+    )?;
     for link in links {
         let action_hash =
             ActionHash::try_from(link.target.clone()).map_err(|err| wasm_error!(err))?;
         if action_hash.eq(&original_mew_hash) {
-            delete_link(link.create_link_hash)?;
+            delete_link(link.create_link_hash, GetOptions::local())?;
         }
     }
 
-    let links = get_links(GetLinksInput {
-        base_address: original_mew_hash.clone().into(),
-        link_type: LinkTypes::MewToResponses.try_into_filter()?,
-        tag_prefix: None,
-        after: None,
-        before: None,
-        author: None,
-        get_options: GetOptions::default(),
-    })?;
+    let links = get_links(
+        LinkQuery::new(
+            AnyLinkableHash::from(original_mew_hash.clone()),
+            LinkTypes::MewToResponses.try_into_filter()?,
+        ),
+        GetStrategy::Local,
+    )?;
     for link in links {
         let action_hash =
             ActionHash::try_from(link.target.clone()).map_err(|err| wasm_error!(err))?;
         if action_hash.eq(&original_mew_hash) {
-            delete_link(link.create_link_hash)?;
+            delete_link(link.create_link_hash, GetOptions::local())?;
         }
     }
 

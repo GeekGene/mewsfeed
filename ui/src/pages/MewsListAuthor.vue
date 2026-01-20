@@ -79,6 +79,7 @@ import BaseButtonBack from "@/components/BaseButtonBack.vue";
 import BaseInfiniteScroll from "@/components/BaseInfiniteScroll.vue";
 import BaseListSkeleton from "@/components/BaseListSkeleton.vue";
 import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
+import { wrapInput } from "@/utils/zomeCall";
 
 const route = useRoute();
 const client = (inject("client") as ComputedRef<AppClient>).value;
@@ -97,13 +98,13 @@ const fetchAuthoredMews = async (params: any) => {
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_agent_mews_with_context",
-    payload: {
+    payload: wrapInput({
       agent: agentPubKey.value,
       page: {
         limit: pageLimit,
         ...params.pageParam,
       },
-    },
+    }),
   });
   return res;
 };

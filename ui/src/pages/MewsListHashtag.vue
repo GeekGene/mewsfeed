@@ -65,6 +65,7 @@ import BaseButtonBack from "@/components/BaseButtonBack.vue";
 import BaseListSkeleton from "@/components/BaseListSkeleton.vue";
 import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
 import BaseInfiniteScroll from "@/components/BaseInfiniteScroll.vue";
+import { wrapInput } from "@/utils/zomeCall";
 
 const route = useRoute();
 const client = (inject("client") as ComputedRef<AppClient>).value;
@@ -78,13 +79,13 @@ const fetchHashtagMews = async (params: any) => {
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_mews_for_hashtag_with_context",
-    payload: {
+    payload: wrapInput({
       hashtag: tag.value,
       page: {
         limit: pageLimit,
         ...params.pageParam,
       },
-    },
+    }),
   });
   return res;
 };

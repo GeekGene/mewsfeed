@@ -104,6 +104,7 @@ import { ComputedRef, ref, toRaw, inject } from "vue";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { watch } from "vue";
 import IconSearch from "~icons/ion/search";
+import { wrapInput } from "@/utils/zomeCall";
 
 const emit = defineEmits(["selected"]);
 
@@ -137,10 +138,10 @@ const search = async (inputValue: string) => {
           role_name: "mewsfeed",
           zome_name: "mews",
           fn_name: "search_tags",
-          payload: {
+          payload: wrapInput({
             query: inputValue,
             limit: 5,
-          },
+          }),
         }),
       ]);
 

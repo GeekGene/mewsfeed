@@ -70,6 +70,7 @@ import {
 import BaseButtonBack from "@/components/BaseButtonBack.vue";
 import BaseListSkeleton from "@/components/BaseListSkeleton.vue";
 import BaseInfiniteScroll from "@/components/BaseInfiniteScroll.vue";
+import { wrapInput } from "@/utils/zomeCall";
 
 const client = (inject("client") as ComputedRef<AppClient>).value;
 const route = useRoute();
@@ -88,7 +89,7 @@ const fetchMew = () =>
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_mew_with_context",
-    payload: actionHash.value,
+    payload: wrapInput(actionHash.value),
   });
 
 const {
@@ -109,14 +110,14 @@ const fetchReplies = (params: any) =>
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_responses_for_mew_with_context",
-    payload: {
+    payload: wrapInput({
       original_mew_hash: mew?.value.action_hash,
       page: {
         limit: pageLimit,
         direction: PaginationDirectionName.Ascending,
         ...params.pageParam,
       },
-    },
+    }),
   });
 
 const hasMew = computed(() => mew.value !== undefined);

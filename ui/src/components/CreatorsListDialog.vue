@@ -51,6 +51,7 @@ import { encodeHashToBase64 } from "@holochain/client";
 import { AgentProfile } from "@/types/types";
 import { AgentPubKey } from "@holochain/client";
 import BaseInfiniteScroll from "@/components/BaseInfiniteScroll.vue";
+import { wrapInput } from "@/utils/zomeCall";
 
 const emit = defineEmits(["update:model-value"]);
 const props = defineProps<{
@@ -71,13 +72,13 @@ const fetchCreators = async (params: any) => {
     role_name: "mewsfeed",
     zome_name: "follows",
     fn_name: "get_creators_for_follower",
-    payload: {
+    payload: wrapInput({
       follower: props.agentPubKey,
       page: {
         limit: pageLimit,
         ...params.pageParam,
       },
-    },
+    }),
   });
 
   const agentProfiles = await Promise.all(

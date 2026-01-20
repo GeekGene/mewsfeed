@@ -58,6 +58,7 @@ import { AppClient, encodeHashToBase64 } from "@holochain/client";
 import { ComputedRef, computed, inject, watch } from "vue";
 import { FeedMew, PaginationDirectionName } from "@/types/types";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
+import { wrapInput } from "@/utils/zomeCall";
 import BaseMewListItem from "@/components/BaseMewListItem.vue";
 import BaseEmptyList from "@/components/BaseEmptyList.vue";
 import BaseListSkeleton from "@/components/BaseListSkeleton.vue";
@@ -75,14 +76,14 @@ const fetchMewsFeed = (params: any): Promise<FeedMew[]> =>
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_followed_creators_mews_with_context",
-    payload: {
+    payload: wrapInput({
       agent: client.myPubKey,
       page: {
         limit: pageLimit,
         direction: PaginationDirectionName.Descending,
         ...params.pageParam,
       },
-    },
+    }),
   });
 
 const { data, error, fetchNextPage, hasNextPage, isInitialLoading, refetch } =

@@ -1,5 +1,6 @@
 use crate::tag_to_mews::*;
 use hc_link_pagination::HashPagination;
+use hc_zome_input::ZomeFnInput;
 use hdk::prelude::*;
 use mews_integrity::*;
 
@@ -37,20 +38,19 @@ pub fn remove_cashtag_for_mew(input: RemoveCashtagForMewInput) -> ExternResult<(
     let prefix_index = make_tag_prefix_index()?;
     let result_path = prefix_index.make_result_path(tag, Some(input.base_cashtag.clone()))?;
 
-    let links = get_links(GetLinksInput {
-        base_address: result_path.path_entry_hash()?.into(),
-        link_type: LinkTypes::CashtagToMews.try_into_filter()?,
-        tag_prefix: Some(LinkTag(input.base_cashtag.as_bytes().to_vec())),
-        after: None,
-        before: None,
-        author: None,
-        get_options: GetOptions::default(),
-    })?;
+    let links = get_links(
+        LinkQuery::new(
+            result_path.path_entry_hash()?,
+            LinkTypes::CashtagToMews.try_into_filter()?,
+        )
+        .tag_prefix(LinkTag(input.base_cashtag.as_bytes().to_vec())),
+        GetStrategy::Local,
+    )?;
     for link in links {
         let action_hash =
             ActionHash::try_from(link.target.clone()).map_err(|err| wasm_error!(err))?;
         if action_hash.eq(&input.target_mew_hash) {
-            delete_link(link.create_link_hash)?;
+            delete_link(link.create_link_hash, GetOptions::local())?;
         }
     }
 
@@ -59,12 +59,20 @@ pub fn remove_cashtag_for_mew(input: RemoveCashtagForMewInput) -> ExternResult<(
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct GetMewsForCashtagWithContextInput {
-    cashtag: String,
-    page: Option<HashPagination>,
+    pub cashtag: String,
+    pub page: Option<HashPagination>,
 }
 #[hdk_extern]
 pub fn get_mews_for_cashtag_with_context(
-    input: GetMewsForCashtagWithContextInput,
+    input: ZomeFnInput<GetMewsForCashtagWithContextInput>,
 ) -> ExternResult<Vec<FeedMew>> {
-    get_mews_for_tag_with_context(input.cashtag, LinkTypes::CashtagToMews, input.page)
+    let strategy = input.get_strategy();
+    let get_options = input.get_options();
+    get_mews_for_tag_with_context(
+        input.input.cashtag,
+        LinkTypes::CashtagToMews,
+        input.input.page,
+        get_options,
+        strategy,
+    )
 }

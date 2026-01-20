@@ -1,7 +1,8 @@
-use crate::mew_with_context::get_batch_mews_with_context;
+use crate::mew_with_context::get_batch_mews_with_context_internal;
 use follows_types::GetCreatorsForFollowerInput;
 use hc_call_utils::call_local_zome;
 use hc_link_pagination::{paginate_by_hash, HashPagination};
+use hc_zome_input::ZomeFnInput;
 use hdk::prelude::*;
 use mews_integrity::*;
 
@@ -12,12 +13,14 @@ pub struct GetFollowedCreatorsMewsInput {
 }
 #[hdk_extern]
 pub fn get_followed_creators_mews(
-    input: GetFollowedCreatorsMewsInput,
+    input: ZomeFnInput<GetFollowedCreatorsMewsInput>,
 ) -> ExternResult<Vec<Record>> {
-    let hashes = get_followed_creators_mew_hashes(input)?;
+    let strategy = input.get_strategy();
+    let get_options = input.get_options();
+    let hashes = get_followed_creators_mew_hashes(input.input, strategy)?;
     let get_input: Vec<GetInput> = hashes
         .into_iter()
-        .map(|hash| GetInput::new(hash.into(), GetOptions::default()))
+        .map(|hash| GetInput::new(hash.into(), get_options.clone()))
         .collect();
     let records = HDK.with(|hdk| hdk.borrow().get(get_input))?;
     let records: Vec<Record> = records.into_iter().flatten().collect();
@@ -27,39 +30,44 @@ pub fn get_followed_creators_mews(
 
 #[hdk_extern]
 pub fn get_followed_creators_mews_with_context(
-    input: GetFollowedCreatorsMewsInput,
+    input: ZomeFnInput<GetFollowedCreatorsMewsInput>,
 ) -> ExternResult<Vec<FeedMew>> {
-    let hashes = get_followed_creators_mew_hashes(input)?;
+    let strategy = input.get_strategy();
+    let get_options = input.get_options();
+    let hashes = get_followed_creators_mew_hashes(input.input, strategy)?;
 
-    get_batch_mews_with_context(hashes)
+    get_batch_mews_with_context_internal(hashes, get_options)
 }
 
 fn get_followed_creators_mew_hashes(
     input: GetFollowedCreatorsMewsInput,
+    strategy: GetStrategy,
 ) -> ExternResult<Vec<ActionHash>> {
+    // Note: The follows zome now expects ZomeFnInput, so we wrap the input
     let mut creators: Vec<AgentPubKey> =
-        call_local_zome::<Vec<AgentPubKey>, GetCreatorsForFollowerInput>(
+        call_local_zome::<Vec<AgentPubKey>, ZomeFnInput<GetCreatorsForFollowerInput>>(
             "follows",
             "get_creators_for_follower",
-            GetCreatorsForFollowerInput {
-                follower: input.agent.clone(),
-                page: None,
-            },
+            ZomeFnInput::new(
+                GetCreatorsForFollowerInput {
+                    follower: input.agent.clone(),
+                    page: None,
+                },
+                Some(strategy == GetStrategy::Local),
+            ),
         )?;
     creators.push(input.agent);
 
     let links: Vec<Link> = creators
         .into_iter()
         .filter_map(|agent| {
-            get_links(GetLinksInput {
-                base_address: agent.into(),
-                link_type: LinkTypes::AgentMews.try_into_filter().ok().unwrap(),
-                tag_prefix: None,
-                after: None,
-                before: None,
-                author: None,
-                get_options: GetOptions::default(),
-            })
+            get_links(
+                LinkQuery::new(
+                    AnyLinkableHash::from(agent),
+                    LinkTypes::AgentMews.try_into_filter().ok().unwrap(),
+                ),
+                strategy,
+            )
             .ok()
         })
         .flatten()
@@ -76,10 +84,17 @@ fn get_followed_creators_mew_hashes(
 
 #[hdk_extern]
 pub fn get_my_followed_creators_mews_with_context(
-    page: Option<HashPagination>,
+    input: ZomeFnInput<Option<HashPagination>>,
 ) -> ExternResult<Vec<FeedMew>> {
-    get_followed_creators_mews_with_context(GetFollowedCreatorsMewsInput {
-        agent: agent_info()?.agent_initial_pubkey,
-        page,
-    })
+    let strategy = input.get_strategy();
+    let get_options = input.get_options();
+    let hashes = get_followed_creators_mew_hashes(
+        GetFollowedCreatorsMewsInput {
+            agent: agent_info()?.agent_initial_pubkey,
+            page: input.input,
+        },
+        strategy,
+    )?;
+
+    get_batch_mews_with_context_internal(hashes, get_options)
 }

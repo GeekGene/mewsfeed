@@ -1,4 +1,5 @@
 use agent_pins_integrity::*;
+use hc_zome_input::ZomeFnInput;
 use hdk::prelude::*;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -25,16 +26,15 @@ pub fn add_hash_for_pinner(input: AddHashForPinnerInput) -> ExternResult<()> {
 }
 
 #[hdk_extern]
-pub fn get_hashes_for_pinner(pinner: AgentPubKey) -> ExternResult<Vec<AnyLinkableHash>> {
-    let links = get_links(GetLinksInput {
-        base_address: pinner.into(),
-        link_type: LinkTypes::PinnerToHashes.try_into_filter()?,
-        tag_prefix: None,
-        after: None,
-        before: None,
-        author: None,
-        get_options: GetOptions::default(),
-    })?;
+pub fn get_hashes_for_pinner(input: ZomeFnInput<AgentPubKey>) -> ExternResult<Vec<AnyLinkableHash>> {
+    let strategy = input.get_strategy();
+    let links = get_links(
+        LinkQuery::new(
+            AnyLinkableHash::from(input.input),
+            LinkTypes::PinnerToHashes.try_into_filter()?,
+        ),
+        strategy,
+    )?;
 
     let hashes: Vec<AnyLinkableHash> = links.into_iter().map(|link| link.target).collect();
 
@@ -42,8 +42,8 @@ pub fn get_hashes_for_pinner(pinner: AgentPubKey) -> ExternResult<Vec<AnyLinkabl
 }
 
 #[hdk_extern]
-pub fn get_pinners_for_hash(hash: AnyLinkableHash) -> ExternResult<Vec<AgentPubKey>> {
-    let links = get_pinner_links_for_hash(hash)?;
+pub fn get_pinners_for_hash(input: ZomeFnInput<AnyLinkableHash>) -> ExternResult<Vec<AgentPubKey>> {
+    let links = get_pinner_links_for_hash(input)?;
 
     let agents: Vec<AgentPubKey> = links
         .into_iter()
@@ -55,16 +55,12 @@ pub fn get_pinners_for_hash(hash: AnyLinkableHash) -> ExternResult<Vec<AgentPubK
 }
 
 #[hdk_extern]
-pub fn get_pinner_links_for_hash(hash: AnyLinkableHash) -> ExternResult<Vec<Link>> {
-    let mut links = get_links(GetLinksInput {
-        base_address: hash,
-        link_type: LinkTypes::HashToPinners.try_into_filter()?,
-        tag_prefix: None,
-        after: None,
-        before: None,
-        author: None,
-        get_options: GetOptions::default(),
-    })?;
+pub fn get_pinner_links_for_hash(input: ZomeFnInput<AnyLinkableHash>) -> ExternResult<Vec<Link>> {
+    let strategy = input.get_strategy();
+    let mut links = get_links(
+        LinkQuery::new(input.input, LinkTypes::HashToPinners.try_into_filter()?),
+        strategy,
+    )?;
 
     links.dedup_by_key(|l| l.target.clone());
 
@@ -72,8 +68,12 @@ pub fn get_pinner_links_for_hash(hash: AnyLinkableHash) -> ExternResult<Vec<Link
 }
 
 #[hdk_extern]
-pub fn get_pinner_link_details_for_hash(hash: AnyLinkableHash) -> ExternResult<LinkDetails> {
-    get_link_details(hash, LinkTypes::HashToPinners, None, GetOptions::default())
+pub fn get_pinner_link_details_for_hash(input: ZomeFnInput<AnyLinkableHash>) -> ExternResult<LinkDetails> {
+    let strategy = input.get_strategy();
+    get_links_details(
+        LinkQuery::new(input.input, LinkTypes::HashToPinners.try_into_filter()?),
+        strategy,
+    )
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -83,37 +83,33 @@ pub struct RemoveHashForPinnerInput {
 }
 #[hdk_extern]
 pub fn remove_hash_for_pinner(input: RemoveHashForPinnerInput) -> ExternResult<()> {
-    let links = get_links(GetLinksInput {
-        base_address: input.base_pinner.clone().into(),
-        link_type: LinkTypes::PinnerToHashes.try_into_filter()?,
-        tag_prefix: None,
-        after: None,
-        before: None,
-        author: None,
-        get_options: GetOptions::default(),
-    })?;
+    let links = get_links(
+        LinkQuery::new(
+            AnyLinkableHash::from(input.base_pinner.clone()),
+            LinkTypes::PinnerToHashes.try_into_filter()?,
+        ),
+        GetStrategy::Local,
+    )?;
 
     for link in links {
         if link.target.eq(&input.target_hash) {
-            delete_link(link.create_link_hash)?;
+            delete_link(link.create_link_hash, GetOptions::local())?;
         }
     }
 
-    let links = get_links(GetLinksInput {
-        base_address: input.target_hash.clone(),
-        link_type: LinkTypes::HashToPinners.try_into_filter()?,
-        tag_prefix: None,
-        after: None,
-        before: None,
-        author: None,
-        get_options: GetOptions::default(),
-    })?;
+    let links = get_links(
+        LinkQuery::new(
+            input.target_hash.clone(),
+            LinkTypes::HashToPinners.try_into_filter()?,
+        ),
+        GetStrategy::Local,
+    )?;
 
     for link in links {
         if link.target.eq(&AnyLinkableHash::from(EntryHash::from(
             input.base_pinner.clone(),
         ))) {
-            delete_link(link.create_link_hash)?;
+            delete_link(link.create_link_hash, GetOptions::local())?;
         }
     }
 
@@ -138,7 +134,7 @@ pub fn unpin_hash(hash: AnyLinkableHash) -> ExternResult<()> {
 
 #[hdk_extern]
 pub fn is_hash_pinned(hash: AnyLinkableHash) -> ExternResult<bool> {
-    let hashes = get_hashes_for_pinner(agent_info()?.agent_initial_pubkey)?;
+    let hashes = get_hashes_for_pinner(ZomeFnInput::new(agent_info()?.agent_initial_pubkey, Some(true)))?;
     let is_pinned = hashes.iter().any(|h| hash == h.clone());
 
     Ok(is_pinned)

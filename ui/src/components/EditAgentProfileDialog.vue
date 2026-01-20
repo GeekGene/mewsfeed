@@ -5,7 +5,7 @@
     :initial-focus-ref="baseEditAgentProfileFormRef?.$refs.usernameInputRef"
     @update:model-value="(val: boolean) => emit('update:model-value', val)"
   >
-    <div>
+    <div :data-theme="themeStore.active">
       <profiles-context :store="profilesStore">
         <h2
           class="text-3xl text-left font-title font-bold tracking-tighter mb-4"
@@ -28,6 +28,7 @@ import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
 import { ComputedRef, inject, ref } from "vue";
 import BaseEditAgentProfileForm from "@/components/BaseEditAgentProfileForm.vue";
 import { useToasts } from "@/stores/toasts";
+import { useThemeStore } from "@/stores/theme";
 
 defineProps<{
   profile: Profile;
@@ -37,6 +38,7 @@ const emit = defineEmits(["update:model-value", "profile-updated"]);
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const { showError } = useToasts();
+const themeStore = useThemeStore();
 const baseEditAgentProfileFormRef = ref();
 
 const update = async (newProfile: Profile) => {

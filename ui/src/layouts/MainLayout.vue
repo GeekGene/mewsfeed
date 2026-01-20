@@ -117,6 +117,7 @@ import { useRouter, useRoute } from "vue-router";
 import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";
 import { setHomeRedirect } from "@/utils/homeRedirect";
 import { useInfiniteQuery, useQuery } from "@tanstack/vue-query";
+import { wrapInput } from "@/utils/zomeCall";
 import IconAdd from "~icons/ion/add";
 import ToastNotices from "@/components/ToastNotices.vue";
 import { useCreateMewDialogStore } from "@/stores/createMewDialog";
@@ -178,12 +179,12 @@ const fetchMostRecentMew = (): Promise<FeedMew[]> =>
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_followed_creators_mews_with_context",
-    payload: {
+    payload: wrapInput({
       agent: client.myPubKey,
       page: {
         limit: 1,
       },
-    },
+    }),
   });
 
 const { data: mostRecentMew } = useQuery({
@@ -207,7 +208,7 @@ const fetchNotifications = async () => {
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "count_notifications_for_agent",
-    payload: client.myPubKey,
+    payload: wrapInput(client.myPubKey),
   });
   setNotificationsCount(count);
   return count;

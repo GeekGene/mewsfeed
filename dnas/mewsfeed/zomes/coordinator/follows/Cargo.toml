@@ -12,4 +12,5 @@ hdk = { workspace = true }
 serde = { workspace = true }
 follows_integrity = { workspace = true } 
 hc_link_pagination = { workspace = true }
+hc_zome_input = { workspace = true }
 follows_types = { workspace = true }

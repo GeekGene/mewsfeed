@@ -1,3 +1,4 @@
+use hc_zome_input::ZomeFnInput;
 use hdk::prelude::*;
 use likes_integrity::*;
 
@@ -25,16 +26,15 @@ pub fn add_hash_for_liker(input: AddHashForLikerInput) -> ExternResult<()> {
 }
 
 #[hdk_extern]
-pub fn get_hashes_for_liker(liker: AgentPubKey) -> ExternResult<Vec<AnyLinkableHash>> {
-    let links = get_links(GetLinksInput {
-        base_address: liker.into(),
-        link_type: LinkTypes::LikerToHashes.try_into_filter()?,
-        tag_prefix: None,
-        after: None,
-        before: None,
-        author: None,
-        get_options: GetOptions::default(),
-    })?;
+pub fn get_hashes_for_liker(input: ZomeFnInput<AgentPubKey>) -> ExternResult<Vec<AnyLinkableHash>> {
+    let strategy = input.get_strategy();
+    let links = get_links(
+        LinkQuery::new(
+            AnyLinkableHash::from(input.input),
+            LinkTypes::LikerToHashes.try_into_filter()?,
+        ),
+        strategy,
+    )?;
 
     let hashes: Vec<AnyLinkableHash> = links.into_iter().map(|link| link.target).collect();
 
@@ -42,8 +42,8 @@ pub fn get_hashes_for_liker(liker: AgentPubKey) -> ExternResult<Vec<AnyLinkableH
 }
 
 #[hdk_extern]
-pub fn get_likers_for_hash(hash: AnyLinkableHash) -> ExternResult<Vec<AgentPubKey>> {
-    let links = get_liker_links_for_hash(hash)?;
+pub fn get_likers_for_hash(input: ZomeFnInput<AnyLinkableHash>) -> ExternResult<Vec<AgentPubKey>> {
+    let links = get_liker_links_for_hash(input)?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()
         .filter_map(|link| EntryHash::try_from(link.target).ok())
@@ -76,24 +76,24 @@ pub fn is_liker_for_hash(input: IsLikerForHashInput) -> ExternResult<bool> {
 }
 
 #[hdk_extern]
-pub fn get_liker_links_for_hash(hash: AnyLinkableHash) -> ExternResult<Vec<Link>> {
-    let mut links = get_links(GetLinksInput {
-        base_address: hash,
-        link_type: LinkTypes::HashToLikers.try_into_filter()?,
-        tag_prefix: None,
-        after: None,
-        before: None,
-        author: None,
-        get_options: GetOptions::default(),
-    })?;
+pub fn get_liker_links_for_hash(input: ZomeFnInput<AnyLinkableHash>) -> ExternResult<Vec<Link>> {
+    let strategy = input.get_strategy();
+    let mut links = get_links(
+        LinkQuery::new(input.input, LinkTypes::HashToLikers.try_into_filter()?),
+        strategy,
+    )?;
     links.dedup_by_key(|l| l.target.clone());
 
     Ok(links)
 }
 
 #[hdk_extern]
-pub fn get_liker_link_details_for_hash(hash: AnyLinkableHash) -> ExternResult<LinkDetails> {
-    get_link_details(hash, LinkTypes::HashToLikers, None, GetOptions::default())
+pub fn get_liker_link_details_for_hash(input: ZomeFnInput<AnyLinkableHash>) -> ExternResult<LinkDetails> {
+    let strategy = input.get_strategy();
+    get_links_details(
+        LinkQuery::new(input.input, LinkTypes::HashToLikers.try_into_filter()?),
+        strategy,
+    )
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -103,37 +103,33 @@ pub struct RemoveHashForLikerInput {
 }
 #[hdk_extern]
 pub fn remove_hash_for_liker(input: RemoveHashForLikerInput) -> ExternResult<()> {
-    let links = get_links(GetLinksInput {
-        base_address: input.base_liker.clone().into(),
-        link_type: LinkTypes::LikerToHashes.try_into_filter()?,
-        tag_prefix: None,
-        after: None,
-        before: None,
-        author: None,
-        get_options: GetOptions::default(),
-    })?;
+    let links = get_links(
+        LinkQuery::new(
+            AnyLinkableHash::from(input.base_liker.clone()),
+            LinkTypes::LikerToHashes.try_into_filter()?,
+        ),
+        GetStrategy::Local,
+    )?;
 
     for link in links {
         if link.target.clone().eq(&input.target_hash) {
-            delete_link(link.create_link_hash)?;
+            delete_link(link.create_link_hash, GetOptions::local())?;
         }
     }
 
-    let links = get_links(GetLinksInput {
-        base_address: input.target_hash.clone(),
-        link_type: LinkTypes::HashToLikers.try_into_filter()?,
-        tag_prefix: None,
-        after: None,
-        before: None,
-        author: None,
-        get_options: GetOptions::default(),
-    })?;
+    let links = get_links(
+        LinkQuery::new(
+            input.target_hash.clone(),
+            LinkTypes::HashToLikers.try_into_filter()?,
+        ),
+        GetStrategy::Local,
+    )?;
 
     for link in links {
         let entry_hash =
             EntryHash::try_from(link.target.clone()).map_err(|err| wasm_error!(err))?;
         if AgentPubKey::from(entry_hash).eq(&input.base_liker) {
-            delete_link(link.create_link_hash)?;
+            delete_link(link.create_link_hash, GetOptions::local())?;
         }
     }
 
@@ -158,5 +154,5 @@ pub fn unlike(hash: AnyLinkableHash) -> ExternResult<()> {
 
 #[hdk_extern]
 pub fn get_my_liked_hashes(_: ()) -> ExternResult<Vec<AnyLinkableHash>> {
-    get_hashes_for_liker(agent_info()?.agent_initial_pubkey)
+    get_hashes_for_liker(ZomeFnInput::new(agent_info()?.agent_initial_pubkey, Some(true)))
 }

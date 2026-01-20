@@ -67,14 +67,11 @@ const createClient = async () => {
     token: issued.token,
     defaultTimeout: 60000,
   });
-  if (
-    !client.cachedAppInfo ||
-    !(CellType.Provisioned in client.cachedAppInfo.cell_info.mewsfeed[0])
-  ) {
+  const cellInfo = client.cachedAppInfo?.cell_info.mewsfeed[0];
+  if (!cellInfo || cellInfo.type !== CellType.Provisioned) {
     throw new Error("mewsfeed cell not provisioned");
   }
-  const { cell_id } =
-    client.cachedAppInfo.cell_info.mewsfeed[0][CellType.Provisioned];
+  const { cell_id } = cellInfo.value;
   await adminWs.authorizeSigningCredentials(cell_id);
   return client;
 };

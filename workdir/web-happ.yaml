@@ -1,7 +1,7 @@
 ---
-manifest_version: "1"
+manifest_version: "0"
 name: mewsfeed
 ui:
-  bundled: "../ui/dist.zip"
-happ_manifest:
-  bundled: "./mewsfeed.happ"
+  path: "../ui/dist.zip"
+happ:
+  path: "./mewsfeed.happ"

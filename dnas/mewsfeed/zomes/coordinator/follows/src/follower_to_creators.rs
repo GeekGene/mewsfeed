@@ -1,6 +1,7 @@
 use follows_integrity::*;
 use follows_types::*;
 use hc_link_pagination::paginate_by_agentpubkey;
+use hc_zome_input::ZomeFnInput;
 use hdk::prelude::*;
 
 #[hdk_extern]
@@ -23,19 +24,18 @@ pub fn add_creator_for_follower(input: AddCreatorForFollowerInput) -> ExternResu
 
 #[hdk_extern]
 pub fn get_creators_for_follower(
-    input: GetCreatorsForFollowerInput,
+    input: ZomeFnInput<GetCreatorsForFollowerInput>,
 ) -> ExternResult<Vec<AgentPubKey>> {
-    let links = get_links(GetLinksInput {
-        base_address: input.follower.clone().into(),
-        link_type: LinkTypes::FollowerToCreators.try_into_filter()?,
-        tag_prefix: None,
-        after: None,
-        before: None,
-        author: None,
-        get_options: GetOptions::default(),
-    })?;
+    let strategy = input.get_strategy();
+    let links = get_links(
+        LinkQuery::new(
+            AnyLinkableHash::from(input.input.follower.clone()),
+            LinkTypes::FollowerToCreators.try_into_filter()?,
+        ),
+        strategy,
+    )?;
 
-    let links_page = paginate_by_agentpubkey(links, input.page)?;
+    let links_page = paginate_by_agentpubkey(links, input.input.page)?;
 
     let agents: Vec<AgentPubKey> = links_page
         .into_iter()
@@ -48,7 +48,7 @@ pub fn get_creators_for_follower(
 
 #[hdk_extern]
 pub fn get_followers_for_creator(
-    input: GetFollowersForCreatorInput,
+    input: ZomeFnInput<GetFollowersForCreatorInput>,
 ) -> ExternResult<Vec<AgentPubKey>> {
     let links = get_follower_links_for_creator(input)?;
 
@@ -62,48 +62,49 @@ pub fn get_followers_for_creator(
 }
 
 #[hdk_extern]
-pub fn count_creators_for_follower(follower: AgentPubKey) -> ExternResult<usize> {
+pub fn count_creators_for_follower(input: ZomeFnInput<AgentPubKey>) -> ExternResult<usize> {
     count_links(LinkQuery::new(
-        follower,
+        input.input,
         LinkTypes::FollowerToCreators.try_into_filter()?,
     ))
 }
 
 #[hdk_extern]
-pub fn count_followers_for_creator(creator: AgentPubKey) -> ExternResult<usize> {
+pub fn count_followers_for_creator(input: ZomeFnInput<AgentPubKey>) -> ExternResult<usize> {
     count_links(LinkQuery::new(
-        creator,
+        input.input,
         LinkTypes::CreatorToFollowers.try_into_filter()?,
     ))
 }
 
 #[hdk_extern]
 pub fn get_follower_links_for_creator(
-    input: GetFollowersForCreatorInput,
+    input: ZomeFnInput<GetFollowersForCreatorInput>,
 ) -> ExternResult<Vec<Link>> {
-    let mut links = get_links(GetLinksInput {
-        base_address: input.creator.into(),
-        link_type: LinkTypes::CreatorToFollowers.try_into_filter()?,
-        tag_prefix: None,
-        after: None,
-        before: None,
-        author: None,
-        get_options: GetOptions::default(),
-    })?;
+    let strategy = input.get_strategy();
+    let mut links = get_links(
+        LinkQuery::new(
+            AnyLinkableHash::from(input.input.creator),
+            LinkTypes::CreatorToFollowers.try_into_filter()?,
+        ),
+        strategy,
+    )?;
 
     links.dedup_by_key(|l| l.target.clone());
-    let links_page = paginate_by_agentpubkey(links, input.page)?;
+    let links_page = paginate_by_agentpubkey(links, input.input.page)?;
 
     Ok(links_page)
 }
 
 #[hdk_extern]
-pub fn get_follower_link_details_for_creator(creator: AgentPubKey) -> ExternResult<LinkDetails> {
-    let links = get_link_details(
-        creator,
-        LinkTypes::CreatorToFollowers,
-        None,
-        GetOptions::default(),
+pub fn get_follower_link_details_for_creator(input: ZomeFnInput<AgentPubKey>) -> ExternResult<LinkDetails> {
+    let strategy = input.get_strategy();
+    let links = get_links_details(
+        LinkQuery::new(
+            AnyLinkableHash::from(input.input),
+            LinkTypes::CreatorToFollowers.try_into_filter()?,
+        ),
+        strategy,
     )?;
 
     Ok(links)
@@ -111,39 +112,35 @@ pub fn get_follower_link_details_for_creator(creator: AgentPubKey) -> ExternResu
 
 #[hdk_extern]
 pub fn remove_creator_for_follower(input: RemoveCreatorForFollowerInput) -> ExternResult<()> {
-    let links = get_links(GetLinksInput {
-        base_address: input.base_follower.clone().into(),
-        link_type: LinkTypes::FollowerToCreators.try_into_filter()?,
-        tag_prefix: None,
-        after: None,
-        before: None,
-        author: None,
-        get_options: GetOptions::default(),
-    })?;
+    let links = get_links(
+        LinkQuery::new(
+            AnyLinkableHash::from(input.base_follower.clone()),
+            LinkTypes::FollowerToCreators.try_into_filter()?,
+        ),
+        GetStrategy::Local,
+    )?;
 
     for link in links {
         let entry_hash =
             EntryHash::try_from(link.target.clone()).map_err(|err| wasm_error!(err))?;
         if AgentPubKey::from(entry_hash).eq(&input.target_creator) {
-            delete_link(link.create_link_hash)?;
+            delete_link(link.create_link_hash, GetOptions::local())?;
         }
     }
 
-    let links = get_links(GetLinksInput {
-        base_address: input.target_creator.clone().into(),
-        link_type: LinkTypes::CreatorToFollowers.try_into_filter()?,
-        tag_prefix: None,
-        after: None,
-        before: None,
-        author: None,
-        get_options: GetOptions::default(),
-    })?;
+    let links = get_links(
+        LinkQuery::new(
+            AnyLinkableHash::from(input.target_creator.clone()),
+            LinkTypes::CreatorToFollowers.try_into_filter()?,
+        ),
+        GetStrategy::Local,
+    )?;
 
     for link in links {
         let entry_hash =
             EntryHash::try_from(link.target.clone()).map_err(|err| wasm_error!(err))?;
         if AgentPubKey::from(entry_hash).eq(&input.base_follower) {
-            delete_link(link.create_link_hash)?;
+            delete_link(link.create_link_hash, GetOptions::local())?;
         }
     }
 

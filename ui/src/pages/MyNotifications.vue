@@ -63,6 +63,7 @@ import { PaginationDirectionName, Notification } from "@/types/types";
 import BaseListSkeleton from "@/components/BaseListSkeleton.vue";
 import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
 import BaseInfiniteScroll from "@/components/BaseInfiniteScroll.vue";
+import { wrapInput } from "@/utils/zomeCall";
 
 const client = (inject("client") as ComputedRef<AppClient>).value;
 const useNotificationsReadStore = makeUseNotificationsReadStore(client);
@@ -77,14 +78,14 @@ const fetchNotifications = async (params: any) => {
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_notifications_for_agent",
-    payload: {
+    payload: wrapInput({
       agent: client.myPubKey,
       page: {
         limit: pageLimit,
         direction: PaginationDirectionName.Descending,
         ...params.pageParam,
       },
-    },
+    }),
   });
   res.forEach((n) => addNotificationStatus(n, true));
   return res;
