@@ -6,6 +6,8 @@ on:
     branches:
       - "develop"
       - "main"
+      - "main-0.4"
+      - "main-0.6"
 
 concurrency:
   group: ${{ github.ref_name }}
@@ -40,6 +42,9 @@ jobs:
           key: ${{ runner.os }}-build-${{ hashFiles('Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-build-
+
+      - name: Remove stale cargo config
+        run: rm -f .cargo/config .cargo/config.toml
 
       - name: Install nix packages
         run: nix develop -c $SHELL -c "echo Nix packages installed"
