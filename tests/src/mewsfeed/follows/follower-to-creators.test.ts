@@ -1,7 +1,7 @@
 import { assert, test, expect } from "vitest";
 import { runScenario, dhtSync } from "@holochain/tryorama";
 import { AgentPubKey, Record } from "@holochain/client";
-import { mewsfeedAppBundleSource } from "../../common";
+import { mewsfeedAppBundleSource, wrapInput } from "../../common";
 
 test("link a Follower to a Creator", async () => {
   await runScenario(
@@ -23,9 +23,9 @@ test("link a Follower to a Creator", async () => {
       let linksOutput: Record[] = await bob.cells[0].callZome({
         zome_name: "follows",
         fn_name: "get_creators_for_follower",
-        payload: {
+        payload: wrapInput({
           follower: baseAddress,
-        },
+        }),
       });
       assert.equal(linksOutput.length, 0);
 
@@ -45,9 +45,9 @@ test("link a Follower to a Creator", async () => {
       linksOutput = await bob.cells[0].callZome({
         zome_name: "follows",
         fn_name: "get_creators_for_follower",
-        payload: {
+        payload: wrapInput({
           follower: baseAddress,
-        },
+        }),
       });
       assert.equal(linksOutput.length, 1);
 
@@ -55,9 +55,9 @@ test("link a Follower to a Creator", async () => {
       linksOutput = await bob.cells[0].callZome({
         zome_name: "follows",
         fn_name: "get_followers_for_creator",
-        payload: {
+        payload: wrapInput({
           creator: targetAddress,
-        },
+        }),
       });
       assert.equal(linksOutput.length, 1);
 
@@ -76,9 +76,9 @@ test("link a Follower to a Creator", async () => {
       linksOutput = await bob.cells[0].callZome({
         zome_name: "follows",
         fn_name: "get_creators_for_follower",
-        payload: {
+        payload: wrapInput({
           follower: baseAddress,
-        },
+        }),
       });
       assert.equal(linksOutput.length, 0);
 
@@ -86,9 +86,9 @@ test("link a Follower to a Creator", async () => {
       linksOutput = await bob.cells[0].callZome({
         zome_name: "follows",
         fn_name: "get_followers_for_creator",
-        payload: {
+        payload: wrapInput({
           creator: targetAddress,
-        },
+        }),
       });
       assert.equal(linksOutput.length, 0);
     },
@@ -257,12 +257,12 @@ test(
         const page1: AgentPubKey[] = await alice.cells[0].callZome({
           zome_name: "follows",
           fn_name: "get_creators_for_follower",
-          payload: {
+          payload: wrapInput({
             follower: alice.agentPubKey,
             page: {
               limit: 2,
             },
-          },
+          }),
         });
 
         assert.deepEqual(page1[0], mary.agentPubKey);
@@ -271,13 +271,13 @@ test(
         const page2: AgentPubKey[] = await alice.cells[0].callZome({
           zome_name: "follows",
           fn_name: "get_creators_for_follower",
-          payload: {
+          payload: wrapInput({
             follower: alice.agentPubKey,
             page: {
               after_agentpubkey: page1[1],
               limit: 2,
             },
-          },
+          }),
         });
         assert.deepEqual(page2[0], john.agentPubKey);
         assert.deepEqual(page2[1], carol.agentPubKey);
@@ -285,13 +285,13 @@ test(
         const page3: AgentPubKey[] = await alice.cells[0].callZome({
           zome_name: "follows",
           fn_name: "get_creators_for_follower",
-          payload: {
+          payload: wrapInput({
             follower: alice.agentPubKey,
             page: {
               after_agentpubkey: page2[1],
               limit: 2,
             },
-          },
+          }),
         });
         assert.lengthOf(page3, 1);
         assert.deepEqual(page3[0], bob.agentPubKey);
@@ -299,13 +299,13 @@ test(
         const page5: AgentPubKey[] = await alice.cells[0].callZome({
           zome_name: "follows",
           fn_name: "get_creators_for_follower",
-          payload: {
+          payload: wrapInput({
             follower: alice.agentPubKey,
             page: {
               after_agentpubkey: page3[0],
               limit: 2,
             },
-          },
+          }),
         });
         assert.lengthOf(page5, 0);
       },
@@ -386,12 +386,12 @@ test(
         const page1: AgentPubKey[] = await alice.cells[0].callZome({
           zome_name: "follows",
           fn_name: "get_followers_for_creator",
-          payload: {
+          payload: wrapInput({
             creator: alice.agentPubKey,
             page: {
               limit: 2,
             },
-          },
+          }),
         });
 
         assert.deepEqual(page1[0], mary.agentPubKey);
@@ -400,13 +400,13 @@ test(
         const page2: AgentPubKey[] = await alice.cells[0].callZome({
           zome_name: "follows",
           fn_name: "get_followers_for_creator",
-          payload: {
+          payload: wrapInput({
             creator: alice.agentPubKey,
             page: {
               after_agentpubkey: page1[1],
               limit: 2,
             },
-          },
+          }),
         });
         assert.deepEqual(page2[0], john.agentPubKey);
         assert.deepEqual(page2[1], carol.agentPubKey);
@@ -414,13 +414,13 @@ test(
         const page3: AgentPubKey[] = await alice.cells[0].callZome({
           zome_name: "follows",
           fn_name: "get_followers_for_creator",
-          payload: {
+          payload: wrapInput({
             creator: alice.agentPubKey,
             page: {
               after_agentpubkey: page2[1],
               limit: 2,
             },
-          },
+          }),
         });
         assert.lengthOf(page3, 1);
         assert.deepEqual(page3[0], bob.agentPubKey);
@@ -428,13 +428,13 @@ test(
         const page5: AgentPubKey[] = await alice.cells[0].callZome({
           zome_name: "follows",
           fn_name: "get_followers_for_creator",
-          payload: {
+          payload: wrapInput({
             creator: alice.agentPubKey,
             page: {
               after_agentpubkey: page3[0],
               limit: 2,
             },
-          },
+          }),
         });
         assert.lengthOf(page5, 0);
       },

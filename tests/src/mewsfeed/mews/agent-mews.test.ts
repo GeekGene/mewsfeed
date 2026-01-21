@@ -2,7 +2,7 @@ import { ActionHash } from "@holochain/client";
 import { dhtSync, runScenario } from "@holochain/tryorama";
 import { assert, expect, test } from "vitest";
 import { FeedMew, Mew, MewTypeName } from "../../../../ui/src/types/types";
-import { mewsfeedAppBundleSource } from "../../common";
+import { mewsfeedAppBundleSource, wrapInput } from "../../common";
 import { createMew } from "./common";
 
 test("create a Mew and get agent mews", async () => {
@@ -22,9 +22,9 @@ test("create a Mew and get agent mews", async () => {
       let collectionOutput: FeedMew[] = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_agent_mews_with_context",
-        payload: {
+        payload: wrapInput({
           agent: alice.agentPubKey,
-        },
+        }),
       });
       assert.equal(collectionOutput.length, 0);
 
@@ -38,9 +38,9 @@ test("create a Mew and get agent mews", async () => {
       collectionOutput = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_agent_mews_with_context",
-        payload: {
+        payload: wrapInput({
           agent: alice.agentPubKey,
-        },
+        }),
       });
       assert.equal(collectionOutput.length, 1);
       assert.deepEqual(actionHash, collectionOutput[0].action_hash);
@@ -147,12 +147,12 @@ test("Agent mews list are time-paginated", async () => {
       const page1: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_agent_mews_with_context",
-        payload: {
+        payload: wrapInput({
           agent: alice.agentPubKey,
           page: {
             limit: 2,
           },
-        },
+        }),
       });
 
       assert.deepEqual(page1[0].action_hash, mewActionHash7);
@@ -164,13 +164,13 @@ test("Agent mews list are time-paginated", async () => {
       const page2: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_agent_mews_with_context",
-        payload: {
+        payload: wrapInput({
           agent: alice.agentPubKey,
           page: {
             after_hash: page1[page1.length - 1].action_hash,
             limit: 2,
           },
-        },
+        }),
       });
 
       assert.deepEqual(page2[0].action_hash, mewActionHash5);
@@ -184,13 +184,13 @@ test("Agent mews list are time-paginated", async () => {
       const page3: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_agent_mews_with_context",
-        payload: {
+        payload: wrapInput({
           agent: alice.agentPubKey,
           page: {
             after_hash: page2[page2.length - 1].action_hash,
             limit: 2,
           },
-        },
+        }),
       });
 
       assert.deepEqual(page3[0].action_hash, mewActionHash3);
@@ -205,13 +205,13 @@ test("Agent mews list are time-paginated", async () => {
       const page4: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_agent_mews_with_context",
-        payload: {
+        payload: wrapInput({
           agent: alice.agentPubKey,
           page: {
             after_hash: page3[page3.length - 1].action_hash,
             limit: 2,
           },
-        },
+        }),
       });
 
       assert.lengthOf(page4, 1);
@@ -227,13 +227,13 @@ test("Agent mews list are time-paginated", async () => {
       const page5: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_agent_mews_with_context",
-        payload: {
+        payload: wrapInput({
           agent: alice.agentPubKey,
           page: {
             after_hash: page4[page4.length - 1].action_hash,
             limit: 2,
           },
-        },
+        }),
       });
 
       assert.lengthOf(page5, 0);

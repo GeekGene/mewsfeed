@@ -2,7 +2,7 @@ import { ActionHash } from "@holochain/client";
 import { dhtSync, runScenario } from "@holochain/tryorama";
 import { assert, expect, test } from "vitest";
 import { FeedMew, MewTypeName } from "../../../../ui/src/types/types";
-import { mewsfeedAppBundleSource } from "../../common";
+import { mewsfeedAppBundleSource, wrapInput } from "../../common";
 import { createMew } from "./common";
 
 test("Mew with context contains licks count and is_licked", async () => {
@@ -37,7 +37,7 @@ test("Mew with context contains licks count and is_licked", async () => {
       let feedMew: FeedMew = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: actionHash,
+        payload: wrapInput(actionHash),
       });
       expect(feedMew.licks_count).toEqual(1);
       expect(feedMew.is_licked).true;
@@ -46,7 +46,7 @@ test("Mew with context contains licks count and is_licked", async () => {
       let aliceFeedMew: FeedMew = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: actionHash,
+        payload: wrapInput(actionHash),
       });
       expect(aliceFeedMew.licks_count).toEqual(1);
       expect(aliceFeedMew.is_licked).false;
@@ -64,7 +64,7 @@ test("Mew with context contains licks count and is_licked", async () => {
       feedMew = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: actionHash,
+        payload: wrapInput(actionHash),
       });
       expect(feedMew.licks_count).toEqual(0);
       expect(feedMew.is_licked).false;
@@ -73,7 +73,7 @@ test("Mew with context contains licks count and is_licked", async () => {
       aliceFeedMew = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: actionHash,
+        payload: wrapInput(actionHash),
       });
       expect(aliceFeedMew.licks_count).toEqual(0);
       expect(aliceFeedMew.is_licked).false;
@@ -119,7 +119,7 @@ test("Mew with context contains replies count and is_replied", async () => {
       const feedMew: FeedMew = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: actionHash,
+        payload: wrapInput(actionHash),
       });
       expect(feedMew.replies_count).toEqual(1);
       expect(feedMew.is_replied).true;
@@ -128,7 +128,7 @@ test("Mew with context contains replies count and is_replied", async () => {
       const aliceFeedMew: FeedMew = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: actionHash,
+        payload: wrapInput(actionHash),
       });
       expect(aliceFeedMew.replies_count).toEqual(1);
       expect(aliceFeedMew.is_replied).false;
@@ -174,7 +174,7 @@ test("Mew with context contains quotes count and is_quoted", async () => {
       const feedMew: FeedMew = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: actionHash,
+        payload: wrapInput(actionHash),
       });
       expect(feedMew.quotes_count).toEqual(1);
       expect(feedMew.is_quoted).true;
@@ -183,7 +183,7 @@ test("Mew with context contains quotes count and is_quoted", async () => {
       const aliceFeedMew: FeedMew = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: actionHash,
+        payload: wrapInput(actionHash),
       });
       expect(aliceFeedMew.quotes_count).toEqual(1);
       expect(aliceFeedMew.is_quoted).false;
@@ -229,7 +229,7 @@ test("Mew with context contains mewmews count and is_mewmewed", async () => {
       const feedMew: FeedMew = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: actionHash,
+        payload: wrapInput(actionHash),
       });
       expect(feedMew.mewmews_count).toEqual(1);
       expect(feedMew.is_mewmewed).true;
@@ -239,7 +239,7 @@ test("Mew with context contains mewmews count and is_mewmewed", async () => {
       const aliceFeedMew: FeedMew = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: actionHash,
+        payload: wrapInput(actionHash),
       });
       console.warn("alice got mew");
 
@@ -283,7 +283,7 @@ test("Mew with context contains is_pinned", async () => {
       let feedMew: FeedMew = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: actionHash,
+        payload: wrapInput(actionHash),
       });
       expect(feedMew.is_pinned).true;
 
@@ -291,7 +291,7 @@ test("Mew with context contains is_pinned", async () => {
       let aliceFeedMew: FeedMew = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: actionHash,
+        payload: wrapInput(actionHash),
       });
       expect(aliceFeedMew.is_pinned).false;
 
@@ -308,7 +308,7 @@ test("Mew with context contains is_pinned", async () => {
       feedMew = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: actionHash,
+        payload: wrapInput(actionHash),
       });
       expect(feedMew.is_pinned).false;
 
@@ -316,7 +316,7 @@ test("Mew with context contains is_pinned", async () => {
       aliceFeedMew = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: actionHash,
+        payload: wrapInput(actionHash),
       });
       expect(aliceFeedMew.is_pinned).false;
     },

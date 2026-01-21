@@ -2,16 +2,13 @@ import { assert, test } from "vitest";
 
 import { runScenario, dhtSync } from "@holochain/tryorama";
 import { AgentPubKey, HoloHash, fakeActionHash } from "@holochain/client";
+import { mewsfeedAppBundleSource, wrapInput } from "../../common";
 
 test("link a Pinner to a Hash", async () => {
   await runScenario(
     async (scenario) => {
-      // Construct proper paths for your app.
-      // This assumes app bundle created by the `hc app pack` command.
-      const testAppPath = process.cwd() + "/../workdir/mewsfeed.happ";
-
       // Set up the app to be installed
-      const appSource = { appBundleSource: { path: testAppPath } };
+      const appSource = { appBundleSource: mewsfeedAppBundleSource };
 
       // Add 2 players with the test app to the Scenario. The returned players
       // can be destructured.
@@ -27,7 +24,7 @@ test("link a Pinner to a Hash", async () => {
       let linksOutput: HoloHash[] = await bob.cells[0].callZome({
         zome_name: "agent_pins",
         fn_name: "get_hashes_for_pinner",
-        payload: baseAddress,
+        payload: wrapInput(baseAddress),
       });
       assert.equal(linksOutput.length, 0);
 
@@ -44,7 +41,7 @@ test("link a Pinner to a Hash", async () => {
       linksOutput = await bob.cells[0].callZome({
         zome_name: "agent_pins",
         fn_name: "get_hashes_for_pinner",
-        payload: baseAddress,
+        payload: wrapInput(baseAddress),
       });
 
       assert.equal(linksOutput.length, 1);
@@ -53,7 +50,7 @@ test("link a Pinner to a Hash", async () => {
       const pinnersOutput: AgentPubKey[] = await bob.cells[0].callZome({
         zome_name: "agent_pins",
         fn_name: "get_pinners_for_hash",
-        payload: targetHash,
+        payload: wrapInput(targetHash),
       });
       assert.equal(pinnersOutput.length, 1);
 
@@ -69,7 +66,7 @@ test("link a Pinner to a Hash", async () => {
       linksOutput = await bob.cells[0].callZome({
         zome_name: "agent_pins",
         fn_name: "get_hashes_for_pinner",
-        payload: baseAddress,
+        payload: wrapInput(baseAddress),
       });
       assert.equal(linksOutput.length, 0);
 
@@ -77,7 +74,7 @@ test("link a Pinner to a Hash", async () => {
       linksOutput = await bob.cells[0].callZome({
         zome_name: "agent_pins",
         fn_name: "get_pinners_for_hash",
-        payload: targetHash,
+        payload: wrapInput(targetHash),
       });
 
       assert.equal(linksOutput.length, 0);

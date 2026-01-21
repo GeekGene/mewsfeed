@@ -3,7 +3,7 @@ import { runScenario, dhtSync } from "@holochain/tryorama";
 import { ActionHash } from "@holochain/client";
 import { createMew } from "./common";
 import { FeedMew, Mew, MewTypeName } from "../../../../ui/src/types/types";
-import { mewsfeedAppBundleSource } from "../../common";
+import { mewsfeedAppBundleSource, wrapInput } from "../../common";
 
 test("create a Mew and get followed creators mews", async () => {
   await runScenario(
@@ -29,7 +29,7 @@ test("create a Mew and get followed creators mews", async () => {
       let collectionOutput: FeedMew[] = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_my_followed_creators_mews_with_context",
-        payload: null,
+        payload: wrapInput(null),
       });
       assert.equal(collectionOutput.length, 0);
 
@@ -43,7 +43,7 @@ test("create a Mew and get followed creators mews", async () => {
       collectionOutput = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_my_followed_creators_mews_with_context",
-        payload: null,
+        payload: wrapInput(null),
       });
 
       assert.equal(collectionOutput.length, 1);
@@ -82,7 +82,7 @@ test("Followed creators mews should include mews of followed creator", async () 
       const bobMewsFeedInitial: FeedMew[] = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_my_followed_creators_mews_with_context",
-        payload: null,
+        payload: wrapInput(null),
       });
       assert.ok(
         bobMewsFeedInitial.length === 0,
@@ -100,7 +100,7 @@ test("Followed creators mews should include mews of followed creator", async () 
       const bobMewsFeed: FeedMew[] = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_my_followed_creators_mews_with_context",
-        payload: null,
+        payload: wrapInput(null),
       });
       assert.ok(bobMewsFeed.length === 1, "bob's mews feed includes 1 mew");
       assert.equal(
@@ -127,7 +127,7 @@ test("Followed creators mews should include own mews", async () => {
       const aliceMewsFeedInitial: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_my_followed_creators_mews_with_context",
-        payload: null,
+        payload: wrapInput(null),
       });
       assert.ok(
         aliceMewsFeedInitial.length === 0,
@@ -149,7 +149,7 @@ test("Followed creators mews should include own mews", async () => {
       const aliceMewsFeed: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_my_followed_creators_mews_with_context",
-        payload: null,
+        payload: wrapInput(null),
       });
       assert.ok(
         aliceMewsFeed.length === 1,
@@ -214,7 +214,7 @@ test("Followed creators mews should not include mews of non-followed creator", a
       const bobMewsFeed: FeedMew[] = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_my_followed_creators_mews_with_context",
-        payload: null,
+        payload: wrapInput(null),
       });
       assert.ok(bobMewsFeed.length === 1, "bob's mews feed includes 1 mew");
       assert.equal(
@@ -263,7 +263,7 @@ test("Unfollowing should exclude creators mews from feed", async () => {
       const bobMewsFeedWhenFollowing: FeedMew[] = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_my_followed_creators_mews_with_context",
-        payload: null,
+        payload: wrapInput(null),
       });
       assert.ok(
         bobMewsFeedWhenFollowing.length === 1,
@@ -284,7 +284,7 @@ test("Unfollowing should exclude creators mews from feed", async () => {
       const bobMewsFeed: FeedMew[] = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_my_followed_creators_mews_with_context",
-        payload: null,
+        payload: wrapInput(null),
       });
       assert.ok(bobMewsFeed.length === 0, "bob's mews feed is empty");
     },
@@ -371,7 +371,7 @@ test("Followed creators mews should be ordered by timestamp in descending order"
       const aliceMewsFeed: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_my_followed_creators_mews_with_context",
-        payload: null,
+        payload: wrapInput(null),
       });
       assert.ok(
         aliceMewsFeed.length === 4,
@@ -511,9 +511,9 @@ test("Followed creators mews list are time-paginated", async () => {
       const page1: FeedMew[] = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_my_followed_creators_mews_with_context",
-        payload: {
+        payload: wrapInput({
           limit: 2,
-        },
+        }),
       });
 
       assert.deepEqual(page1[0].action_hash, mewActionHash7);
@@ -525,10 +525,10 @@ test("Followed creators mews list are time-paginated", async () => {
       const page2: FeedMew[] = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_my_followed_creators_mews_with_context",
-        payload: {
+        payload: wrapInput({
           after_hash: page1[page1.length - 1].action_hash,
           limit: 2,
-        },
+        }),
       });
 
       assert.deepEqual(page2[0].action_hash, mewActionHash5);
@@ -541,10 +541,10 @@ test("Followed creators mews list are time-paginated", async () => {
       const page3: FeedMew[] = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_my_followed_creators_mews_with_context",
-        payload: {
+        payload: wrapInput({
           after_hash: page2[page2.length - 1].action_hash,
           limit: 2,
-        },
+        }),
       });
 
       assert.deepEqual(page3[0].action_hash, mewActionHash3);
@@ -559,10 +559,10 @@ test("Followed creators mews list are time-paginated", async () => {
       const page4: FeedMew[] = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_my_followed_creators_mews_with_context",
-        payload: {
+        payload: wrapInput({
           after_hash: page3[page3.length - 1].action_hash,
           limit: 2,
-        },
+        }),
       });
 
       assert.lengthOf(page4, 1);
@@ -578,10 +578,10 @@ test("Followed creators mews list are time-paginated", async () => {
       const page5: FeedMew[] = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_my_followed_creators_mews_with_context",
-        payload: {
+        payload: wrapInput({
           after_hash: page4[page4.length - 1].action_hash,
           limit: 2,
-        },
+        }),
       });
 
       assert.lengthOf(page5, 0);

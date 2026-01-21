@@ -1,7 +1,7 @@
 import { assert, expect, test } from "vitest";
 import { runScenario, dhtSync } from "@holochain/tryorama";
 import { Record, fakeActionHash } from "@holochain/client";
-import { mewsfeedAppBundleSource } from "../../common";
+import { mewsfeedAppBundleSource, wrapInput } from "../../common";
 
 test("link a Liker to a Hash", async () => {
   await runScenario(
@@ -23,7 +23,7 @@ test("link a Liker to a Hash", async () => {
       let linksOutput: Record[] = await bob.cells[0].callZome({
         zome_name: "likes",
         fn_name: "get_hashes_for_liker",
-        payload: baseAddress,
+        payload: wrapInput(baseAddress),
       });
       assert.equal(linksOutput.length, 0);
 
@@ -43,7 +43,7 @@ test("link a Liker to a Hash", async () => {
       linksOutput = await bob.cells[0].callZome({
         zome_name: "likes",
         fn_name: "get_hashes_for_liker",
-        payload: baseAddress,
+        payload: wrapInput(baseAddress),
       });
       assert.equal(linksOutput.length, 1);
 
@@ -51,7 +51,7 @@ test("link a Liker to a Hash", async () => {
       linksOutput = await bob.cells[0].callZome({
         zome_name: "likes",
         fn_name: "get_likers_for_hash",
-        payload: targetAddress,
+        payload: wrapInput(targetAddress),
       });
       assert.equal(linksOutput.length, 1);
 
@@ -70,7 +70,7 @@ test("link a Liker to a Hash", async () => {
       linksOutput = await bob.cells[0].callZome({
         zome_name: "likes",
         fn_name: "get_hashes_for_liker",
-        payload: baseAddress,
+        payload: wrapInput(baseAddress),
       });
       assert.equal(linksOutput.length, 0);
 
@@ -78,7 +78,7 @@ test("link a Liker to a Hash", async () => {
       linksOutput = await bob.cells[0].callZome({
         zome_name: "likes",
         fn_name: "get_likers_for_hash",
-        payload: targetAddress,
+        payload: wrapInput(targetAddress),
       });
       assert.equal(linksOutput.length, 0);
     },

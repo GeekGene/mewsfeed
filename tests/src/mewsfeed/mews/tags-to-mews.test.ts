@@ -8,7 +8,7 @@ import {
   MewTypeName,
   PaginationDirectionName,
 } from "../../../../ui/src/types/types.js";
-import { mewsfeedAppBundleSource } from "../../common.js";
+import { mewsfeedAppBundleSource, wrapInput } from "../../common.js";
 
 test("Hashtag, cashtag and mention", async () => {
   await runScenario(
@@ -42,9 +42,9 @@ test("Hashtag, cashtag and mention", async () => {
       const hashtaggedMews: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mews_for_hashtag_with_context",
-        payload: {
+        payload: wrapInput({
           hashtag: "#hashtag",
-        },
+        }),
       });
       assert.ok(hashtaggedMews.length === 1, "one mew with hashtag");
       assert.equal(
@@ -56,9 +56,9 @@ test("Hashtag, cashtag and mention", async () => {
       const arabicHashtaggedMews: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mews_for_hashtag_with_context",
-        payload: {
+        payload: wrapInput({
           hashtag: "#سعيدة",
-        },
+        }),
       });
       assert.ok(
         arabicHashtaggedMews.length === 1,
@@ -74,27 +74,27 @@ test("Hashtag, cashtag and mention", async () => {
       const emojiHashtaggedMews: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mews_for_hashtag_with_context",
-        payload: {
+        payload: wrapInput({
           hashtag: "#😃😃😃",
-        },
+        }),
       });
       assert.ok(emojiHashtaggedMews.length === 0, "no mew with emoji hashtag");
 
       const cashtaggedMews: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mews_for_cashtag_with_context",
-        payload: {
+        payload: wrapInput({
           cashtag: "$cashtag",
-        },
+        }),
       });
       assert.ok(cashtaggedMews.length === 1, "one mew with cashtag");
 
       const mentionedMews: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mews_for_mention_with_context",
-        payload: {
+        payload: wrapInput({
           mention: alice.agentPubKey,
-        },
+        }),
       });
       assert.ok(mentionedMews.length === 1, "one mew with mention");
     },
@@ -135,10 +135,10 @@ test("Prefix index should return hashtags and cashtags", async () => {
       const hashtags: string[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "search_tags",
-        payload: {
+        payload: wrapInput({
           query: "has",
           limit: 10,
-        },
+        }),
       });
       assert.ok(hashtags.length === 1, "one hashtag");
       assert.equal(hashtags[0], "#hashtag", "hashtag search result matches");
@@ -146,10 +146,10 @@ test("Prefix index should return hashtags and cashtags", async () => {
       const arabicHashtags: string[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "search_tags",
-        payload: {
+        payload: wrapInput({
           query: "سعيدة",
           limit: 10,
-        },
+        }),
       });
       assert.ok(arabicHashtags.length === 1, "one arabic hashtag");
       assert.equal(
@@ -162,20 +162,20 @@ test("Prefix index should return hashtags and cashtags", async () => {
       const emojiHashtags: string[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "search_tags",
-        payload: {
+        payload: wrapInput({
           query: "😃😃😃",
           limit: 10,
-        },
+        }),
       });
       assert.ok(emojiHashtags.length === 0, "no emoji hashtags");
 
       const cashtags: string[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "search_tags",
-        payload: {
+        payload: wrapInput({
           query: "cas",
           limit: 10,
-        },
+        }),
       });
       assert.ok(cashtags.length === 1, "one cashtag");
       assert.equal(cashtags[0], "$cashtag", "hashtag search result matches");
@@ -282,12 +282,12 @@ test("Hashtags list are time-paginated", async () => {
       const page1: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mews_for_hashtag_with_context",
-        payload: {
+        payload: wrapInput({
           hashtag: "#hashtag",
           page: {
             limit: 2,
           },
-        },
+        }),
       });
 
       assert.deepEqual(page1[0].action_hash, mewActionHash7);
@@ -299,13 +299,13 @@ test("Hashtags list are time-paginated", async () => {
       const page2: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mews_for_hashtag_with_context",
-        payload: {
+        payload: wrapInput({
           hashtag: "#hashtag",
           page: {
             after_hash: page1[page1.length - 1].action_hash,
             limit: 2,
           },
-        },
+        }),
       });
 
       assert.deepEqual(page2[0].action_hash, mewActionHash5);
@@ -319,13 +319,13 @@ test("Hashtags list are time-paginated", async () => {
       const page3: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mews_for_hashtag_with_context",
-        payload: {
+        payload: wrapInput({
           hashtag: "#hashtag",
           page: {
             after_hash: page2[page1.length - 1].action_hash,
             limit: 2,
           },
-        },
+        }),
       });
 
       assert.deepEqual(page3[0].action_hash, mewActionHash3);
@@ -341,13 +341,13 @@ test("Hashtags list are time-paginated", async () => {
       const page4: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mews_for_hashtag_with_context",
-        payload: {
+        payload: wrapInput({
           hashtag: "#hashtag",
           page: {
             after_hash: page3[page1.length - 1].action_hash,
             limit: 2,
           },
-        },
+        }),
       });
 
       assert.lengthOf(page4, 1);
@@ -364,13 +364,13 @@ test("Hashtags list are time-paginated", async () => {
       const page5: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mews_for_hashtag_with_context",
-        payload: {
+        payload: wrapInput({
           hashtag: "#hashtag",
           page: {
             after_hash: page4[page4.length - 1].action_hash,
             limit: 2,
           },
-        },
+        }),
       });
 
       assert.lengthOf(page5, 0);
@@ -477,14 +477,14 @@ test("Cashtags list are time-paginated", async () => {
       const page1: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mews_for_cashtag_with_context",
-        payload: {
+        payload: wrapInput({
           cashtag: "$cashtag",
           page: {
             start_time: null,
             limit: 2,
             order: PaginationDirectionName.Ascending,
           },
-        },
+        }),
       });
 
       assert.deepEqual(page1[0].action_hash, mewActionHash7);
@@ -496,14 +496,14 @@ test("Cashtags list are time-paginated", async () => {
       const page2: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mews_for_cashtag_with_context",
-        payload: {
+        payload: wrapInput({
           cashtag: "$cashtag",
           page: {
             after_hash: page1[page1.length - 1].action_hash,
             limit: 2,
             order: PaginationDirectionName.Ascending,
           },
-        },
+        }),
       });
 
       assert.deepEqual(page2[0].action_hash, mewActionHash5);
@@ -517,14 +517,14 @@ test("Cashtags list are time-paginated", async () => {
       const page3: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mews_for_cashtag_with_context",
-        payload: {
+        payload: wrapInput({
           cashtag: "$cashtag",
           page: {
             after_hash: page2[page2.length - 1].action_hash,
             limit: 2,
             order: PaginationDirectionName.Ascending,
           },
-        },
+        }),
       });
 
       assert.deepEqual(page3[0].action_hash, mewActionHash3);
@@ -540,14 +540,14 @@ test("Cashtags list are time-paginated", async () => {
       const page4: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mews_for_cashtag_with_context",
-        payload: {
+        payload: wrapInput({
           cashtag: "$cashtag",
           page: {
             after_hash: page3[page3.length - 1].action_hash,
             limit: 2,
             order: PaginationDirectionName.Ascending,
           },
-        },
+        }),
       });
 
       assert.lengthOf(page4, 1);
@@ -564,14 +564,14 @@ test("Cashtags list are time-paginated", async () => {
       const page5: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mews_for_cashtag_with_context",
-        payload: {
+        payload: wrapInput({
           cashtag: "$cashtag",
           page: {
             after_hash: page4[page4.length - 1].action_hash,
             limit: 2,
             order: PaginationDirectionName.Ascending,
           },
-        },
+        }),
       });
 
       assert.lengthOf(page5, 0);

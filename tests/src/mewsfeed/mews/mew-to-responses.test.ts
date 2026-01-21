@@ -1,7 +1,7 @@
 import { runScenario } from "@holochain/tryorama";
 import { assert, expect, test } from "vitest";
 import { FeedMew, Mew, MewTypeName } from "../../../../ui/src/types/types.js";
-import { mewsfeedAppBundleSource } from "../../common.js";
+import { mewsfeedAppBundleSource, wrapInput } from "../../common.js";
 import { ActionHash } from "@holochain/client";
 
 test("Agent can reply to a mew", async () => {
@@ -41,7 +41,7 @@ test("Agent can reply to a mew", async () => {
       const replyMew: FeedMew = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: reply_action_hash,
+        payload: wrapInput(reply_action_hash),
       });
       assert.ok(
         typeof replyMew.mew.mew_type === "object" &&
@@ -57,7 +57,7 @@ test("Agent can reply to a mew", async () => {
       const originalMew: FeedMew = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: action_hash,
+        payload: wrapInput(action_hash),
       });
       console.log("original", originalMew.mew.mew_type);
       assert.equal(
@@ -117,7 +117,7 @@ test("Agent can mewmew a mew only once", async () => {
       const mewmew: FeedMew = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: mewmew_action_hash,
+        payload: wrapInput(mewmew_action_hash),
       });
       assert.ok(
         typeof mewmew.mew.mew_type === "object" &&
@@ -133,7 +133,7 @@ test("Agent can mewmew a mew only once", async () => {
       const originalMew: FeedMew = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: action_hash,
+        payload: wrapInput(action_hash),
       });
       assert.equal(
         originalMew.mew.mew_type,
@@ -202,7 +202,7 @@ test("Agent can quote a mew", async () => {
       const quote: FeedMew = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: quote_action_hash,
+        payload: wrapInput(quote_action_hash),
       });
       assert.ok(
         typeof quote.mew.mew_type === "object" &&
@@ -214,7 +214,7 @@ test("Agent can quote a mew", async () => {
       const originalMew: FeedMew = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: action_hash,
+        payload: wrapInput(action_hash),
       });
       assert.equal(
         originalMew.mew.mew_type,

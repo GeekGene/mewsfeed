@@ -8,7 +8,7 @@ import {
   NotificationTypeName,
   PaginationDirectionName,
 } from "../../../../ui/src/types/types";
-import { mewsfeedAppBundleSource } from "../../common";
+import { mewsfeedAppBundleSource, wrapInput } from "../../common";
 import { createMew } from "./common";
 
 test("notifications include my agent follows & unfollows", async () => {
@@ -54,7 +54,7 @@ test("notifications include my agent follows & unfollows", async () => {
       const notifications = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_my_notifications",
-        payload: null,
+        payload: wrapInput(null),
       });
 
       // Notifications should be orderded by action time descending (newest first)
@@ -71,7 +71,7 @@ test("notifications include my agent follows & unfollows", async () => {
       const count = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "count_my_notifications",
-        payload: null,
+        payload: wrapInput(null),
       });
       expect(count).toEqual(2);
     },
@@ -103,7 +103,7 @@ test("notifications include my mews' likes & unlikes", async () => {
       const feedMew: FeedMew = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: actionHash,
+        payload: wrapInput(actionHash),
       });
 
       await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
@@ -134,7 +134,7 @@ test("notifications include my mews' likes & unlikes", async () => {
       const notifications = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_my_notifications",
-        payload: null,
+        payload: wrapInput(null),
       });
 
       expect(notifications[0]).toMatchObject({
@@ -152,7 +152,7 @@ test("notifications include my mews' likes & unlikes", async () => {
       const count = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "count_my_notifications",
-        payload: null,
+        payload: wrapInput(null),
       });
       expect(count).toEqual(2);
     },
@@ -184,7 +184,7 @@ test("notifications include my mews' pins & unpins", async () => {
       const feedMew: FeedMew = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: actionHash,
+        payload: wrapInput(actionHash),
       });
 
       await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
@@ -215,7 +215,7 @@ test("notifications include my mews' pins & unpins", async () => {
       const notifications = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_my_notifications",
-        payload: null,
+        payload: wrapInput(null),
       });
 
       expect(notifications[0]).toMatchObject({
@@ -233,7 +233,7 @@ test("notifications include my mews' pins & unpins", async () => {
       const count = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "count_my_notifications",
-        payload: null,
+        payload: wrapInput(null),
       });
       expect(count).toEqual(2);
     },
@@ -279,7 +279,7 @@ test("notifications include my mews' replies, quotes, mewmews", async () => {
       const replyFeedMew: FeedMew = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: replyActionHash,
+        payload: wrapInput(replyActionHash),
       });
 
       // Bob mewmews Alice's mew
@@ -296,7 +296,7 @@ test("notifications include my mews' replies, quotes, mewmews", async () => {
       const mewmewFeedMew: FeedMew = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: mewmewActionHash,
+        payload: wrapInput(mewmewActionHash),
       });
 
       // Bob quotes Alice's mew
@@ -313,7 +313,7 @@ test("notifications include my mews' replies, quotes, mewmews", async () => {
       const quoteFeedMew: FeedMew = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: quoteActionHash,
+        payload: wrapInput(quoteActionHash),
       });
 
       await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
@@ -322,7 +322,7 @@ test("notifications include my mews' replies, quotes, mewmews", async () => {
       const notifications = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_my_notifications",
-        payload: null,
+        payload: wrapInput(null),
       });
 
       expect(notifications[0]).toMatchObject({
@@ -345,7 +345,7 @@ test("notifications include my mews' replies, quotes, mewmews", async () => {
       const count = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "count_my_notifications",
-        payload: null,
+        payload: wrapInput(null),
       });
       expect(count).toEqual(3);
     },
@@ -403,7 +403,7 @@ test("notifications include replies, quotes, mewmews to mews that I also respond
       const replyFeedMew: FeedMew = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: replyActionHash,
+        payload: wrapInput(replyActionHash),
       });
 
       // Bob mewmews Carol's mew
@@ -420,7 +420,7 @@ test("notifications include replies, quotes, mewmews to mews that I also respond
       const mewmewFeedMew: FeedMew = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: mewmewActionHash,
+        payload: wrapInput(mewmewActionHash),
       });
 
       // Bob quotes Carol's mew
@@ -437,7 +437,7 @@ test("notifications include replies, quotes, mewmews to mews that I also respond
       const quoteFeedMew: FeedMew = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: quoteActionHash,
+        payload: wrapInput(quoteActionHash),
       });
 
       await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
@@ -446,7 +446,7 @@ test("notifications include replies, quotes, mewmews to mews that I also respond
       const notifications = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_my_notifications",
-        payload: null,
+        payload: wrapInput(null),
       });
 
       expect(notifications[0]).toMatchObject({
@@ -469,7 +469,7 @@ test("notifications include replies, quotes, mewmews to mews that I also respond
       const count = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "count_my_notifications",
-        payload: null,
+        payload: wrapInput(null),
       });
       expect(count).toEqual(3);
     },
@@ -515,7 +515,7 @@ test("notifications list is time-paginated", async () => {
       const replyFeedMew: FeedMew = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: replyActionHash,
+        payload: wrapInput(replyActionHash),
       });
 
       // Bob replies to Alice's mew
@@ -532,7 +532,7 @@ test("notifications list is time-paginated", async () => {
       const replyFeedMew2: FeedMew = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: replyActionHash2,
+        payload: wrapInput(replyActionHash2),
       });
 
       // Bob replies to Alice's mew
@@ -549,7 +549,7 @@ test("notifications list is time-paginated", async () => {
       const replyFeedMew3: FeedMew = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: replyActionHash3,
+        payload: wrapInput(replyActionHash3),
       });
 
       // Bob replies to Alice's mew
@@ -566,7 +566,7 @@ test("notifications list is time-paginated", async () => {
       const replyFeedMew4: FeedMew = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: replyActionHash4,
+        payload: wrapInput(replyActionHash4),
       });
 
       // Bob replies to Alice's mew
@@ -583,7 +583,7 @@ test("notifications list is time-paginated", async () => {
       const replyFeedMew5: FeedMew = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: replyActionHash5,
+        payload: wrapInput(replyActionHash5),
       });
 
       // Bob replies to Alice's mew
@@ -600,7 +600,7 @@ test("notifications list is time-paginated", async () => {
       const replyFeedMew6: FeedMew = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: replyActionHash6,
+        payload: wrapInput(replyActionHash6),
       });
 
       // Bob replies to Alice's mew
@@ -617,7 +617,7 @@ test("notifications list is time-paginated", async () => {
       const replyFeedMew7: FeedMew = await bob.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_mew_with_context",
-        payload: replyActionHash7,
+        payload: wrapInput(replyActionHash7),
       });
 
       await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
@@ -626,10 +626,10 @@ test("notifications list is time-paginated", async () => {
       const page1 = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_my_notifications",
-        payload: {
+        payload: wrapInput({
           direction: PaginationDirectionName.Descending,
           limit: 2,
-        },
+        }),
       });
 
       // Notifications should be orderded by action time descending (newest first)
@@ -650,11 +650,11 @@ test("notifications list is time-paginated", async () => {
       const page2 = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_my_notifications",
-        payload: {
+        payload: wrapInput({
           after_timestamp: page1[1].timestamp,
           direction: PaginationDirectionName.Descending,
           limit: 2,
-        },
+        }),
       });
 
       // Notifications should be orderded by action time descending (newest first)
@@ -678,11 +678,11 @@ test("notifications list is time-paginated", async () => {
       const page3 = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_my_notifications",
-        payload: {
+        payload: wrapInput({
           after_timestamp: page2[1].timestamp,
           direction: PaginationDirectionName.Descending,
           limit: 2,
-        },
+        }),
       });
 
       // Notifications should be orderded by action time descending (newest first)
@@ -708,11 +708,11 @@ test("notifications list is time-paginated", async () => {
       const page4 = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_my_notifications",
-        payload: {
+        payload: wrapInput({
           after_timestamp: page3[1].timestamp,
           direction: PaginationDirectionName.Descending,
           limit: 2,
-        },
+        }),
       });
 
       // Notifications should be orderded by action time descending (newest first)
@@ -734,11 +734,11 @@ test("notifications list is time-paginated", async () => {
       const page5 = await alice.cells[0].callZome({
         zome_name: "mews",
         fn_name: "get_my_notifications",
-        payload: {
+        payload: wrapInput({
           after_timestamp: page4[0].timestamp,
           direction: PaginationDirectionName.Descending,
           limit: 2,
-        },
+        }),
       });
 
       assert.lengthOf(page5, 0);
