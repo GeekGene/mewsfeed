@@ -14,8 +14,7 @@ pub fn validate_create_mew(
             if let Some(mew_characters_min) = properties.mew_characters_min {
                 if mew.text.len() < mew_characters_min {
                     return Ok(ValidateCallbackResult::Invalid(format!(
-                        "mew must contain at least {} characters",
-                        mew_characters_min
+                        "mew must contain at least {mew_characters_min} characters"
                     )));
                 }
             }
@@ -24,8 +23,7 @@ pub fn validate_create_mew(
             if let Some(mew_characters_max) = properties.mew_characters_max {
                 if mew.text.len() > mew_characters_max {
                     return Ok(ValidateCallbackResult::Invalid(format!(
-                        "mew must contain at most {} characters",
-                        mew_characters_max
+                        "mew must contain at most {mew_characters_max} characters"
                     )));
                 }
             }

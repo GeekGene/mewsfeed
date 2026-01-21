@@ -35,8 +35,7 @@ pub fn validate_create_link_prefix_index_to_hashtags(
 
     if base_address_entry_hash != prefix_path_hash {
         return Ok(ValidateCallbackResult::Invalid(format!(
-            "PrefixIndexToHashtag base address should be '{:?}'",
-            prefix_path_hash
+            "PrefixIndexToHashtag base address should be '{prefix_path_hash:?}'"
         )));
     }
 
