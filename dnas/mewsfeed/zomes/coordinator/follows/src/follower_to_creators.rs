@@ -97,7 +97,9 @@ pub fn get_follower_links_for_creator(
 }
 
 #[hdk_extern]
-pub fn get_follower_link_details_for_creator(input: ZomeFnInput<AgentPubKey>) -> ExternResult<LinkDetails> {
+pub fn get_follower_link_details_for_creator(
+    input: ZomeFnInput<AgentPubKey>,
+) -> ExternResult<LinkDetails> {
     let strategy = input.get_strategy();
     let links = get_links_details(
         LinkQuery::new(

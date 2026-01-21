@@ -181,7 +181,9 @@ pub fn get_notifications_for_agent(
 }
 
 #[hdk_extern]
-pub fn get_my_notifications(input: ZomeFnInput<Option<TimestampPagination>>) -> ExternResult<Vec<Notification>> {
+pub fn get_my_notifications(
+    input: ZomeFnInput<Option<TimestampPagination>>,
+) -> ExternResult<Vec<Notification>> {
     let local = Some(input.get_strategy() == GetStrategy::Local);
     get_notifications_for_agent(ZomeFnInput::new(
         GetNotificationsForAgentInput {
@@ -561,7 +563,10 @@ fn make_notifications_for_records(
         .map(|record| -> ExternResult<Notification> {
             let agent_profile = get_agent_profile(record.action_hashed().author().clone())?;
             let feed_mew = match include_feed_mew {
-                true => Some(get_mew_with_context_internal(record.action_hashed().hash.clone(), get_options.clone())?),
+                true => Some(get_mew_with_context_internal(
+                    record.action_hashed().hash.clone(),
+                    get_options.clone(),
+                )?),
                 false => None,
             };
 

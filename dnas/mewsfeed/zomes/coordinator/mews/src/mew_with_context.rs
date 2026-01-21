@@ -13,7 +13,10 @@ pub fn get_mew_with_context(input: ZomeFnInput<ActionHash>) -> ExternResult<Feed
     get_mew_with_context_internal(input.input, get_options)
 }
 
-pub fn get_mew_with_context_internal(original_mew_hash: ActionHash, get_options: GetOptions) -> ExternResult<FeedMew> {
+pub fn get_mew_with_context_internal(
+    original_mew_hash: ActionHash,
+    get_options: GetOptions,
+) -> ExternResult<FeedMew> {
     let response = get_details(original_mew_hash.clone(), get_options.clone())?.ok_or(
         wasm_error!(WasmErrorInner::Guest(String::from("Mew not found"))),
     )?;
@@ -154,15 +157,21 @@ pub fn get_mew_with_context_internal(original_mew_hash: ActionHash, get_options:
 }
 
 #[hdk_extern]
-pub fn get_batch_mews_with_context(input: ZomeFnInput<Vec<ActionHash>>) -> ExternResult<Vec<FeedMew>> {
+pub fn get_batch_mews_with_context(
+    input: ZomeFnInput<Vec<ActionHash>>,
+) -> ExternResult<Vec<FeedMew>> {
     let get_options = input.get_options();
-    input.input
+    input
+        .input
         .into_iter()
         .map(|hash| get_mew_with_context_internal(hash, get_options.clone()))
         .collect::<ExternResult<Vec<FeedMew>>>()
 }
 
-pub fn get_batch_mews_with_context_internal(hashes: Vec<ActionHash>, get_options: GetOptions) -> ExternResult<Vec<FeedMew>> {
+pub fn get_batch_mews_with_context_internal(
+    hashes: Vec<ActionHash>,
+    get_options: GetOptions,
+) -> ExternResult<Vec<FeedMew>> {
     hashes
         .into_iter()
         .map(|hash| get_mew_with_context_internal(hash, get_options.clone()))

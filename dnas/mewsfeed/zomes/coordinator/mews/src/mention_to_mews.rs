@@ -27,7 +27,9 @@ pub struct GetMewsForMentionInput {
     pub page: Option<HashPagination>,
 }
 #[hdk_extern]
-pub fn get_mews_for_mention(input: ZomeFnInput<GetMewsForMentionInput>) -> ExternResult<Vec<Record>> {
+pub fn get_mews_for_mention(
+    input: ZomeFnInput<GetMewsForMentionInput>,
+) -> ExternResult<Vec<Record>> {
     let strategy = input.get_strategy();
     let get_options = input.get_options();
     let hashes = get_mew_hashes_for_mention(input.input.mention, input.input.page, strategy)?;

@@ -88,7 +88,9 @@ pub fn get_liker_links_for_hash(input: ZomeFnInput<AnyLinkableHash>) -> ExternRe
 }
 
 #[hdk_extern]
-pub fn get_liker_link_details_for_hash(input: ZomeFnInput<AnyLinkableHash>) -> ExternResult<LinkDetails> {
+pub fn get_liker_link_details_for_hash(
+    input: ZomeFnInput<AnyLinkableHash>,
+) -> ExternResult<LinkDetails> {
     let strategy = input.get_strategy();
     get_links_details(
         LinkQuery::new(input.input, LinkTypes::HashToLikers.try_into_filter()?),
@@ -154,5 +156,8 @@ pub fn unlike(hash: AnyLinkableHash) -> ExternResult<()> {
 
 #[hdk_extern]
 pub fn get_my_liked_hashes(_: ()) -> ExternResult<Vec<AnyLinkableHash>> {
-    get_hashes_for_liker(ZomeFnInput::new(agent_info()?.agent_initial_pubkey, Some(true)))
+    get_hashes_for_liker(ZomeFnInput::new(
+        agent_info()?.agent_initial_pubkey,
+        Some(true),
+    ))
 }

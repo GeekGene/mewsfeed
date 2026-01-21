@@ -137,7 +137,9 @@ pub fn get_response_for_mew_exists(input: GetResponseForMewExistsInput) -> Exter
 }
 
 #[hdk_extern]
-pub fn get_responses_for_mew(input: ZomeFnInput<GetResponsesForMewInput>) -> ExternResult<Vec<Record>> {
+pub fn get_responses_for_mew(
+    input: ZomeFnInput<GetResponsesForMewInput>,
+) -> ExternResult<Vec<Record>> {
     let get_options = input.get_options();
     let response_hashes = get_response_hashes_for_mew(input)?;
     let get_input: Vec<GetInput> = response_hashes

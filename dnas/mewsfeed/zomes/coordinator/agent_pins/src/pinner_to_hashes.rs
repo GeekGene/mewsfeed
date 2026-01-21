@@ -26,7 +26,9 @@ pub fn add_hash_for_pinner(input: AddHashForPinnerInput) -> ExternResult<()> {
 }
 
 #[hdk_extern]
-pub fn get_hashes_for_pinner(input: ZomeFnInput<AgentPubKey>) -> ExternResult<Vec<AnyLinkableHash>> {
+pub fn get_hashes_for_pinner(
+    input: ZomeFnInput<AgentPubKey>,
+) -> ExternResult<Vec<AnyLinkableHash>> {
     let strategy = input.get_strategy();
     let links = get_links(
         LinkQuery::new(
@@ -68,7 +70,9 @@ pub fn get_pinner_links_for_hash(input: ZomeFnInput<AnyLinkableHash>) -> ExternR
 }
 
 #[hdk_extern]
-pub fn get_pinner_link_details_for_hash(input: ZomeFnInput<AnyLinkableHash>) -> ExternResult<LinkDetails> {
+pub fn get_pinner_link_details_for_hash(
+    input: ZomeFnInput<AnyLinkableHash>,
+) -> ExternResult<LinkDetails> {
     let strategy = input.get_strategy();
     get_links_details(
         LinkQuery::new(input.input, LinkTypes::HashToPinners.try_into_filter()?),
@@ -134,7 +138,10 @@ pub fn unpin_hash(hash: AnyLinkableHash) -> ExternResult<()> {
 
 #[hdk_extern]
 pub fn is_hash_pinned(hash: AnyLinkableHash) -> ExternResult<bool> {
-    let hashes = get_hashes_for_pinner(ZomeFnInput::new(agent_info()?.agent_initial_pubkey, Some(true)))?;
+    let hashes = get_hashes_for_pinner(ZomeFnInput::new(
+        agent_info()?.agent_initial_pubkey,
+        Some(true),
+    ))?;
     let is_pinned = hashes.iter().any(|h| hash == h.clone());
 
     Ok(is_pinned)

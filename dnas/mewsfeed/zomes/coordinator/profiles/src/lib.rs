@@ -4,7 +4,9 @@ use hdk::prelude::*;
 extern crate hc_zome_profiles_coordinator;
 
 #[hdk_extern]
-pub fn get_joining_timestamp_for_agent(input: ZomeFnInput<AgentPubKey>) -> ExternResult<Option<Timestamp>> {
+pub fn get_joining_timestamp_for_agent(
+    input: ZomeFnInput<AgentPubKey>,
+) -> ExternResult<Option<Timestamp>> {
     let joining_agent_activity: AgentActivity = get_agent_activity(
         input.input,
         ChainQueryFilter::new()

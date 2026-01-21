@@ -31,23 +31,22 @@ pub fn get_agent_mews(input: ZomeFnInput<GetAgentMewsInput>) -> ExternResult<Vec
 }
 
 #[hdk_extern]
-pub fn get_agent_mews_with_context(input: ZomeFnInput<GetAgentMewsWithContextInput>) -> ExternResult<Vec<FeedMew>> {
+pub fn get_agent_mews_with_context(
+    input: ZomeFnInput<GetAgentMewsWithContextInput>,
+) -> ExternResult<Vec<FeedMew>> {
     let get_options = input.get_options();
     let strategy = input.get_strategy();
     let agent = input.input.agent;
     let page = input.input.page;
-    let hashes = get_agent_mew_hashes_internal(
-        GetAgentMewsInput {
-            agent,
-            page,
-        },
-        strategy,
-    )?;
+    let hashes = get_agent_mew_hashes_internal(GetAgentMewsInput { agent, page }, strategy)?;
 
     get_batch_mews_with_context_internal(hashes, get_options)
 }
 
-fn get_agent_mew_hashes_internal(input: GetAgentMewsInput, strategy: GetStrategy) -> ExternResult<Vec<ActionHash>> {
+fn get_agent_mew_hashes_internal(
+    input: GetAgentMewsInput,
+    strategy: GetStrategy,
+) -> ExternResult<Vec<ActionHash>> {
     let links = get_links(
         LinkQuery::new(
             AnyLinkableHash::from(input.agent),

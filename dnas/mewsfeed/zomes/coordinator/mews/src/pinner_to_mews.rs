@@ -9,7 +9,9 @@ pub fn get_is_hash_pinned(hash: ActionHash) -> ExternResult<bool> {
 }
 
 #[hdk_extern]
-pub fn get_mews_for_pinner_with_context(input: ZomeFnInput<AgentPubKey>) -> ExternResult<Vec<FeedMew>> {
+pub fn get_mews_for_pinner_with_context(
+    input: ZomeFnInput<AgentPubKey>,
+) -> ExternResult<Vec<FeedMew>> {
     let get_options = input.get_options();
     let local = Some(input.get_strategy() == GetStrategy::Local);
     let pinned_hashes = call_local_zome::<Vec<AnyLinkableHash>, ZomeFnInput<AgentPubKey>>(
