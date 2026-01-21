@@ -449,6 +449,8 @@ dependencies = [
 [[package]]
 name = "hc_prefix_index"
 version = "0.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "250a33231877008225037bb386aea8b2a0bdb9889bb223b1056bcd7d72e70764"
 dependencies = [
  "hdk",
  "holochain_serialized_bytes",

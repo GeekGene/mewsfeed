@@ -10,5 +10,6 @@ pub struct SearchTagsInput {
 #[hdk_extern]
 fn search_tags(input: ZomeFnInput<SearchTagsInput>) -> ExternResult<Vec<String>> {
     let prefix_index = make_tag_prefix_index()?;
-    prefix_index.get_results(input.input.query, input.input.limit)
+    let strategy = input.get_strategy();
+    prefix_index.get_results(input.input.query, input.input.limit, strategy)
 }

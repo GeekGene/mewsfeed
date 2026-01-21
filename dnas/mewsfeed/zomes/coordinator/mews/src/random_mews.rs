@@ -42,8 +42,9 @@ pub fn get_random_mew_hashes(input: ZomeFnInput<usize>) -> ExternResult<Vec<Acti
 #[hdk_extern]
 pub fn get_random_tags(input: ZomeFnInput<usize>) -> ExternResult<Vec<String>> {
     let prefix_index = make_tag_prefix_index()?;
+    let strategy = input.get_strategy();
 
-    prefix_index.get_random_results(input.input)
+    prefix_index.get_random_results(input.input, strategy)
 }
 
 #[derive(Serialize, Deserialize, Debug)]
