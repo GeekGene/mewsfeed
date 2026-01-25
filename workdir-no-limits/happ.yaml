@@ -1,0 +1,15 @@
+---
+manifest_version: "0"
+name: mewsfeed
+description: ~
+roles:
+  - name: mewsfeed
+    provisioning:
+      strategy: create
+      deferred: false
+    dna:
+      path: "../dnas/mewsfeed/workdir-no-limits/mewsfeed.dna"
+      properties: ~
+      uuid: ~
+      version: ~
+      clone_limit: 0

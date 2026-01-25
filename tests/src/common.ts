@@ -12,7 +12,7 @@ export const mewsfeedAppBundleSource: AppBundleSource = {
 
 export const mewsfeedAppBundleSourceNoLengthLimits: AppBundleSource = {
   type: "path",
-  value: path.join(__dirname, "../../workdir/mewsfeed.happ"),
+  value: path.join(__dirname, "../../workdir-no-limits/mewsfeed.happ"),
 };
 
 // Helper to wrap inputs in ZomeFnInput format for the new API

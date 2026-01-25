@@ -15,7 +15,7 @@
     "launch:spin": "hc-spin -n $AGENTS --ui-port $UI_PORT workdir/mewsfeed.happ",
     "launch:tauri": "concurrently \"hc run-local-services --bootstrap-port $BOOTSTRAP_PORT --signal-port $SIGNAL_PORT\" \"echo pass | WEBKIT_DISABLE_COMPOSITING_MODE=1 RUST_LOG=warn hc launch --piped -n $AGENTS workdir/mewsfeed.happ --ui-port $UI_PORT network --bootstrap http://127.0.0.1:\"$BOOTSTRAP_PORT\" webrtc ws://127.0.0.1:\"$SIGNAL_PORT\"\"",
     "package": "npm run build:happ && npm run package --workspace ui && hc web-app pack workdir --recursive",
-    "build:happ": "npm run build:zomes && hc app pack workdir --recursive",
+    "build:happ": "npm run build:zomes && hc app pack workdir --recursive && hc app pack workdir-no-limits --recursive",
     "build:zomes": "RUSTFLAGS='--cfg getrandom_backend=\"custom\"' cargo build --release --target wasm32-unknown-unknown",
     "test": "npm run build:happ && npm t -w tests",
     "lint": "eslint --fix --ext .ts tests --ext .ts ui/src --ext .vue ui/src"
