@@ -9,6 +9,11 @@ import { PROFILE_FIELDS } from "@/types/types";
 export const PROFILES_CONFIG: ProfilesConfig = {
   minNicknameLength: 3,
   avatarMode: "avatar-optional",
+  /** Whether to use local-only gets (true) or network gets (false). Defaults to true (local). */
+  getLocal: true,
+  /** Interval in milliseconds for polling agents with profile. Defaults to 4000. */
+  pollIntervalMs: 5000,
+
   additionalFields: [
     {
       name: PROFILE_FIELDS.DISPLAY_NAME,
