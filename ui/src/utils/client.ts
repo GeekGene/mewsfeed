@@ -1,12 +1,40 @@
 import { AdminWebsocket, CellType, AppWebsocket } from "@holochain/client";
 import WebSdkApi, { AgentState } from "@holo-host/web-sdk";
+import { FishyAppClient, waitForFishy } from "@/fishy";
 
 export const HOLOCHAIN_APP_ID = "mewsfeed";
 export const IS_LAUNCHER = (window as any).__HC_LAUNCHER_ENV__ !== undefined;
 export const IS_HOLO_HOSTED = import.meta.env.VITE_IS_HOLO_HOSTED;
 
+// Fishy extension detection
+declare const __GATEWAY_URL__: string;
+const GATEWAY_URL = typeof __GATEWAY_URL__ !== "undefined" ? __GATEWAY_URL__ : "http://localhost:8000";
+export let IS_FISHY = false;
+
 export const setupHolochain = async () => {
   try {
+    // Check for fishy extension first
+    if ((window as any).holochain?.isFishy) {
+      IS_FISHY = true;
+    } else {
+      try {
+        await waitForFishy(3000);
+        IS_FISHY = true;
+      } catch {
+        // Not fishy - fall through to normal setup
+      }
+    }
+
+    if (IS_FISHY) {
+      console.log("Fishy extension detected, using FishyAppClient");
+      const fishyClient = await FishyAppClient.connect({
+        gatewayUrl: GATEWAY_URL,
+        roleName: "mewsfeed",
+      });
+      // Cast to AppWebsocket to satisfy type checker (different @holochain/client versions)
+      return fishyClient as unknown as AppWebsocket;
+    }
+
     let client;
     if (IS_LAUNCHER) {
       client = await AppWebsocket.connect({

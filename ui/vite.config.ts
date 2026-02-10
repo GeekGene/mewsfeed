@@ -59,6 +59,9 @@ export default defineConfig({
 
     Icons({ autoInstall: true }) as PluginOption,
   ],
+  define: {
+    __GATEWAY_URL__: JSON.stringify(process.env.GATEWAY_URL || "http://localhost:8000"),
+  },
   build: {
     target: "es2020",
   },
