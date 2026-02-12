@@ -237,7 +237,7 @@ const fetchJoinedTimestamp = () =>
     role_name: "mewsfeed",
     zome_name: "profiles",
     fn_name: "get_joining_timestamp_for_agent",
-    payload: wrapInput(route.params.agentPubKey),
+    payload: wrapInput(agentPubKey.value),
   });
 
 const {
@@ -256,7 +256,7 @@ const fetchCreatorsCount = async (): Promise<number> =>
     role_name: "mewsfeed",
     zome_name: "follows",
     fn_name: "count_creators_for_follower",
-    payload: wrapInput(route.params.agentPubKey),
+    payload: wrapInput(agentPubKey.value),
   });
 
 const {
@@ -275,7 +275,7 @@ const fetchFollowersCount = async (): Promise<number> =>
     role_name: "mewsfeed",
     zome_name: "follows",
     fn_name: "count_followers_for_creator",
-    payload: wrapInput(route.params.agentPubKey),
+    payload: wrapInput(agentPubKey.value),
   });
 
 const {
