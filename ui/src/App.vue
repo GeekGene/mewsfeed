@@ -104,7 +104,9 @@ const setupApp = async () => {
     "profiles"
   );
   profilesStore.value = new ProfilesStore(profilesClient, PROFILES_CONFIG);
-  profilesStore.value.myProfile.subscribe((res) => {
+  // eslint-disable-next-line
+  // @ts-ignore
+  profilesStore.value.myProfile.subscribe((res: any) => {
     if (res.status === "complete" && res.value !== undefined) {
       myProfile.value = res.value.entry;
     }

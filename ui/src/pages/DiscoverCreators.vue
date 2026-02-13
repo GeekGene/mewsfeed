@@ -157,6 +157,8 @@ const shuffle = async () => {
 
 const refetchMews = async () => {
   await refetchRandomMewHashes();
-  refetchRandomMews();
+  if (hasRandomMewHashes.value) {
+    refetchRandomMews();
+  }
 };
 </script>

@@ -28,7 +28,7 @@
 
 <script setup lang="ts">
 import { AppClient, ActionHash } from "@holochain/client";
-import { ComputedRef, Ref, computed, inject, watch } from "vue";
+import { ComputedRef, Ref, computed, inject, toRaw, watch } from "vue";
 import { useQuery } from "@tanstack/vue-query";
 import { FeedMew } from "@/types/types";
 import { wrapInput } from "@/utils/zomeCall";
@@ -76,7 +76,7 @@ const fetchMewsWithContext = async (): Promise<FeedMew[]> =>
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_batch_mews_with_context",
-    payload: wrapInput(randomMewHashesWithTag.value),
+    payload: wrapInput(toRaw(randomMewHashesWithTag.value)),
   });
 
 const {
@@ -104,6 +104,8 @@ watch(props, () => {
 });
 
 watch(randomMewHashesWithTag, () => {
-  refetchRandomMewsWithTag();
+  if (hasRandomMewHashesWithTag.value) {
+    refetchRandomMewsWithTag();
+  }
 });
 </script>

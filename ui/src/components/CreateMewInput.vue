@@ -151,15 +151,16 @@
       class="btn btn-neutral btn-sm sm:btn-md rounded-full"
       :class="{
         'btn-disabled':
-          (isMewEmpty || isMewOverfull || isMewUnderfull) && isMewTypeWithText,
+          ((isMewEmpty || isMewOverfull || isMewUnderfull) && isMewTypeWithText) || saving,
       }"
-      :loading="saving"
+      :disabled="saving"
       tabindex="0"
       @click="publishMew()"
       @keydown.enter.prevent="publishMew()"
     >
       <div class="flex justify-start items-center space-x-1 sm:space-x-2">
-        <IconArrowForwardOutline class="text-xl" />
+        <span v-if="saving" class="loading loading-spinner loading-sm"></span>
+        <IconArrowForwardOutline v-else class="text-xl" />
         <div>
           <template
             v-if="
