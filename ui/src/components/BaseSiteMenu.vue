@@ -78,6 +78,7 @@
       <div class="flex justify-center items-center relative w-8 h-8">
         <agent-avatar
           :agentPubKey="client.myPubKey"
+          :store="profilesStore"
           size="48"
           disable-tooltip
           disable-copy
@@ -91,7 +92,7 @@
 import { ROUTES } from "@/router";
 import { AppClient, encodeHashToBase64 } from "@holochain/client";
 import { inject, ComputedRef } from "vue";
-import { Profile } from "@holochain-open-dev/profiles";
+import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
 import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";
 import { storeToRefs } from "pinia";
 import IconHome from "~icons/ion/home";
@@ -101,6 +102,8 @@ import IconNotificationsOutline from "~icons/ion/notifications-outline";
 
 const client = (inject("client") as ComputedRef<AppClient>).value;
 const myProfile = inject("myProfile") as ComputedRef<Profile>;
+const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
+  .value;
 
 const useNotificationsReadStore = makeUseNotificationsReadStore(client);
 const { unreadCount } = storeToRefs(useNotificationsReadStore());

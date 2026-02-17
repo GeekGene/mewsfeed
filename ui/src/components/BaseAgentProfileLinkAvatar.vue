@@ -6,6 +6,7 @@
   >
     <div class="pr-4">
       <agent-avatar
+        v-if="profilesStore"
         :agentPubKey="agentPubKey"
         disable-tooltip
         disable-copy

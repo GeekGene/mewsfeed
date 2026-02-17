@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, provide, ref, toRaw, watch } from "vue";
+import { computed, onMounted, provide, ref, shallowRef, toRaw, watch } from "vue";
 import { IS_HOLO_HOSTED, IS_FISHY, setupHolo, setupHolochain } from "@/utils/client";
 import { ZeroArcProfilesClient } from "@/fishy";
 import MainLayout from "@/layouts/MainLayout.vue";
@@ -53,9 +53,9 @@ import { useThemeStore } from "@/stores/theme";
 import { useQueryClient } from "@tanstack/vue-query";
 import NetworkInfo from "./components/NetworkInfo.vue";
 
-const client = ref<AppClient | WebSdkApi>();
+const client = shallowRef<AppClient | WebSdkApi>();
 const appInfo = ref<AppInfo>();
-const profilesStore = ref<ProfilesStore>();
+const profilesStore = shallowRef<ProfilesStore>();
 const myProfile = ref<Profile>();
 const loadingClient = ref<boolean>(true);
 const loadingCells = ref<boolean>(true);
