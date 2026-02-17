@@ -24,7 +24,7 @@
     "@tanstack/query-sync-storage-persister": "^4.35.0",
     "@tanstack/vue-query": "^4.35.2",
     "@tauri-apps/api": "^1.4.0",
-    "@zippy/fishy-client": "file:../../fishy/packages/client",
+    "@holo-host/web-conductor-client": "file:../../holo-web-conductor/packages/client",
     "async-retry": "^1.3.3",
     "dayjs": "^1.11.7",
     "floating-vue": "^2.0.0-beta.24",

@@ -32,8 +32,8 @@
 
 <script setup lang="ts">
 import { computed, onMounted, provide, ref, shallowRef, toRaw, watch } from "vue";
-import { IS_HOLO_HOSTED, IS_FISHY, setupHolo, setupHolochain } from "@/utils/client";
-import { ZeroArcProfilesClient } from "@/fishy";
+import { IS_HOLO_HOSTED, IS_HWC, setupHolo, setupHolochain } from "@/utils/client";
+import { ZeroArcProfilesClient } from "@/hwc";
 import MainLayout from "@/layouts/MainLayout.vue";
 import { PROFILES_CONFIG } from "@/utils/profiles";
 import "@shoelace-style/shoelace/dist/components/spinner/spinner";
@@ -96,8 +96,8 @@ const setupApp = async () => {
   // @ts-ignore
   appInfo.value = await client.value.appInfo();
 
-  // Setup profiles - use ZeroArcProfilesClient for fishy (forces network fetch)
-  const profilesClient = IS_FISHY
+  // Setup profiles - use ZeroArcProfilesClient for HWC (forces network fetch)
+  const profilesClient = IS_HWC
     ? new ZeroArcProfilesClient(
         toRaw(client.value) as any,
         "mewsfeed",

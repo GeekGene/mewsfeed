@@ -1,5 +1,5 @@
 /**
- * ZeroArcProfilesClient - ProfilesClient for zero-arc nodes (like Fishy extension)
+ * ZeroArcProfilesClient - ProfilesClient for zero-arc nodes (like Holochain Web Conductor)
  *
  * Zero-arc nodes don't have local data for other agents - they must always
  * fetch from the network. This client overrides the default `local: true`

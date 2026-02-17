@@ -1,9 +1,9 @@
 import { useNetworkModeStore } from "@/stores/networkMode";
-import { IS_FISHY } from "@/utils/client";
+import { IS_HWC } from "@/utils/client";
 
 export function wrapInput<T>(input: T): { input: T; local: boolean } {
   // Zero-arc nodes must always fetch from network
-  if (IS_FISHY) {
+  if (IS_HWC) {
     return { input, local: false };
   }
   const networkStore = useNetworkModeStore();
@@ -16,7 +16,7 @@ export function wrapInput<T>(input: T): { input: T; local: boolean } {
 // For functions that take no input
 export function getLocalOption(): { input: null; local: boolean } {
   // Zero-arc nodes must always fetch from network
-  if (IS_FISHY) {
+  if (IS_HWC) {
     return { input: null, local: false };
   }
   const networkStore = useNetworkModeStore();

@@ -1,21 +1,21 @@
 /**
- * Fishy integration module for mewsfeed
+ * HWC integration module for mewsfeed
  *
- * Re-exports from @zippy/fishy-client package for compatibility.
+ * Re-exports from @holo-host/web-conductor-client package for compatibility.
  * Also provides ZeroArcProfilesClient for zero-arc nodes that need to always
  * fetch from network instead of using local-first strategy.
  */
 
-// Re-export from the fishy-client package
+// Re-export from the web-conductor-client package
 export {
-  FishyAppClient,
-  waitForFishy,
-  isFishyAvailable,
+  WebConductorAppClient,
+  waitForHolochain,
+  isWebConductorAvailable,
   ConnectionStatus,
   type ConnectionState,
   type ConnectionConfig,
-  type FishyAppClientOptions,
-} from '@zippy/fishy-client';
+  type WebConductorAppClientOptions,
+} from '@holo-host/web-conductor-client';
 
 // Keep local ZeroArcProfilesClient (app-specific)
 export { ZeroArcProfilesClient } from './ZeroArcProfilesClient';
