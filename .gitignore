@@ -17,6 +17,7 @@ target/
 
 ## ui files
 dist.zip
+*.timestamp-*
 
 ## holo files
 holo-dev-server
