@@ -1,4 +1,6 @@
 <template>
+  <JoiningChallengeDialog ref="challengeDialog" />
+
   <div
     v-if="loadingClient"
     class="h-screen w-full flex justify-center items-center"
@@ -35,6 +37,7 @@ import { computed, onMounted, provide, ref, shallowRef, toRaw, watch } from "vue
 import { IS_HWC, setupHolochain } from "@/utils/client";
 import { ZeroArcProfilesClient } from "@/hwc";
 import MainLayout from "@/layouts/MainLayout.vue";
+import JoiningChallengeDialog from "@/components/JoiningChallengeDialog.vue";
 import { PROFILES_CONFIG } from "@/utils/profiles";
 import "@shoelace-style/shoelace/dist/components/spinner/spinner";
 import {
@@ -58,6 +61,7 @@ const profilesStore = shallowRef<ProfilesStore>();
 const myProfile = ref<Profile>();
 const loadingClient = ref<boolean>(true);
 const loadingCells = ref<boolean>(true);
+const challengeDialog = ref<InstanceType<typeof JoiningChallengeDialog>>();
 const themeStore = useThemeStore();
 themeStore.apply();
 const queryClient = useQueryClient();
@@ -75,9 +79,18 @@ onMounted(() => {
 
 const setup = async () => {
   // Setup client
-  client.value = await asyncRetry(setupHolochain, {
-    factor: 1.3,
-  });
+  client.value = await asyncRetry(
+    () =>
+      setupHolochain({
+        onChallenge: (challenge) => {
+          if (!challengeDialog.value) {
+            throw new Error("Challenge dialog not available");
+          }
+          return challengeDialog.value.prompt(challenge);
+        },
+      }),
+    { factor: 1.3 }
+  );
 
   await asyncRetry(setupApp, {
     factor: 1.3,

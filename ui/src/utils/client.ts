@@ -1,5 +1,6 @@
 import { AdminWebsocket, CellType, AppWebsocket } from "@holochain/client";
 import { WebConductorAppClient, waitForHolochain } from "@/hwc";
+import type { Challenge } from "@/hwc";
 
 export const HOLOCHAIN_APP_ID = "mewsfeed";
 export const IS_LAUNCHER = (window as any).__HC_LAUNCHER_ENV__ !== undefined;
@@ -11,7 +12,11 @@ const LINKER_URL = typeof __LINKER_URL__ !== "undefined" ? __LINKER_URL__ : "htt
 const JOINING_SERVICE_URL = typeof __JOINING_SERVICE_URL__ !== "undefined" ? __JOINING_SERVICE_URL__ : "";
 export let IS_HWC = false;
 
-export const setupHolochain = async () => {
+export interface SetupHolochainOptions {
+  onChallenge?: (challenge: Challenge) => Promise<string>;
+}
+
+export const setupHolochain = async (opts?: SetupHolochainOptions) => {
   try {
     // Check for web conductor extension first
     if ((window as any).holochain?.isWebConductor) {
@@ -33,6 +38,7 @@ export const setupHolochain = async () => {
         ...(JOINING_SERVICE_URL && {
           joiningServiceUrl: JOINING_SERVICE_URL,
           claims: {},
+          onChallenge: opts?.onChallenge,
         }),
       });
       // Cast to AppWebsocket to satisfy type checker (different @holochain/client versions)
