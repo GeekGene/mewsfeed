@@ -47,6 +47,7 @@ declare module 'vue' {
     CreatorsListDialog: typeof import('./src/components/CreatorsListDialog.vue')['default']
     EditAgentProfileDialog: typeof import('./src/components/EditAgentProfileDialog.vue')['default']
     FollowersListDialog: typeof import('./src/components/FollowersListDialog.vue')['default']
+    JoiningChallengeDialog: typeof import('./src/components/JoiningChallengeDialog.vue')['default']
     NetworkInfo: typeof import('./src/components/NetworkInfo.vue')['default']
     NetworkModeToggle: typeof import('./src/components/NetworkModeToggle.vue')['default']
     RandomMewWithTagList: typeof import('./src/components/RandomMewWithTagList.vue')['default']

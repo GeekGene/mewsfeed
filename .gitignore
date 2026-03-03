@@ -22,4 +22,7 @@ dist.zip
 ## holo files
 holo-dev-server
 
+## deploy secrets
+deploy/config.sh
+
 .claude
