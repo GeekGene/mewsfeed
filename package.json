@@ -9,7 +9,6 @@
   "scripts": {
     "start": "AGENTS=${AGENTS:-2} BOOTSTRAP_PORT=$(get-port) SIGNAL_PORT=$(get-port) npm run network",
     "start:tauri": "AGENTS=${AGENTS:-2} BOOTSTRAP_PORT=$(get-port) SIGNAL_PORT=$(get-port) npm run network:tauri",
-    "start:holo": "npm run build:happ && concurrently \"echo pass | lair-keystore server\" \"./holo-dev-server ./workdir/mewsfeed.happ\" \"sleep 15 && VITE_IS_HOLO_HOSTED=true VITE_CHAPERONE_SERVER_URL=http://127.0.0.1:24274 UI_PORT=5432 npm -w ui run start\"",
     "network": "hc sandbox clean && npm run build:happ && UI_PORT=1420 concurrently \"npm run start --workspace ui\" \"npm run launch:spin\" \"hc playground\"",
     "network:tauri": "hc sandbox clean && npm run build:happ && UI_PORT=1420 concurrently \"npm run start --workspace ui\" \"npm run launch:tauri\" \"hc playground\"",
     "launch:spin": "hc-spin -n $AGENTS --ui-port $UI_PORT workdir/mewsfeed.happ",

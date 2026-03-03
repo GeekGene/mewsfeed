@@ -12,9 +12,13 @@ export {
   waitForHolochain,
   isWebConductorAvailable,
   ConnectionStatus,
+  JoiningClient,
+  JoiningError,
+  GatewayProxy,
   type ConnectionState,
   type ConnectionConfig,
   type WebConductorAppClientOptions,
+  type Challenge,
 } from '@holo-host/web-conductor-client';
 
 // Keep local ZeroArcProfilesClient (app-specific)

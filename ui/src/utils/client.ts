@@ -1,14 +1,14 @@
 import { AdminWebsocket, CellType, AppWebsocket } from "@holochain/client";
-import WebSdkApi, { AgentState } from "@holo-host/web-sdk";
 import { WebConductorAppClient, waitForHolochain } from "@/hwc";
 
 export const HOLOCHAIN_APP_ID = "mewsfeed";
 export const IS_LAUNCHER = (window as any).__HC_LAUNCHER_ENV__ !== undefined;
-export const IS_HOLO_HOSTED = import.meta.env.VITE_IS_HOLO_HOSTED;
 
 // Web Conductor extension detection
 declare const __LINKER_URL__: string;
+declare const __JOINING_SERVICE_URL__: string;
 const LINKER_URL = typeof __LINKER_URL__ !== "undefined" ? __LINKER_URL__ : "http://localhost:8000";
+const JOINING_SERVICE_URL = typeof __JOINING_SERVICE_URL__ !== "undefined" ? __JOINING_SERVICE_URL__ : "";
 export let IS_HWC = false;
 
 export const setupHolochain = async () => {
@@ -30,6 +30,10 @@ export const setupHolochain = async () => {
       const hwcClient = await WebConductorAppClient.connect({
         linkerUrl: LINKER_URL,
         roleName: "mewsfeed",
+        ...(JOINING_SERVICE_URL && {
+          joiningServiceUrl: JOINING_SERVICE_URL,
+          claims: {},
+        }),
       });
       // Cast to AppWebsocket to satisfy type checker (different @holochain/client versions)
       return hwcClient as unknown as AppWebsocket;
@@ -47,37 +51,6 @@ export const setupHolochain = async () => {
     return client;
   } catch (e) {
     console.log("Holochain client setup error", e);
-    throw e;
-  }
-};
-
-export const setupHolo = async () => {
-  const HOLO_CHAPERONE_URL = import.meta.env.VITE_CHAPERONE_SERVER_URL
-    ? import.meta.env.VITE_CHAPERONE_SERVER_URL
-    : "http://localhost:24274";
-
-  try {
-    const client = await WebSdkApi.connect({
-      chaperoneUrl: HOLO_CHAPERONE_URL,
-      authFormCustomization: {
-        appName: "mewsfeed",
-        requireRegistrationCode: false,
-      },
-    });
-
-    await new Promise((resolve) =>
-      client.on("agent-state", (state: AgentState) => {
-        if (state.isAvailable && state.isAnonymous) {
-          client.signUp({});
-        } else if (state.isAvailable && !state.isAnonymous) {
-          resolve(state);
-        }
-      })
-    );
-
-    return client;
-  } catch (e) {
-    console.log("Holo client setup error", e);
     throw e;
   }
 };

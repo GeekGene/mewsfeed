@@ -32,7 +32,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, provide, ref, shallowRef, toRaw, watch } from "vue";
-import { IS_HOLO_HOSTED, IS_HWC, setupHolo, setupHolochain } from "@/utils/client";
+import { IS_HWC, setupHolochain } from "@/utils/client";
 import { ZeroArcProfilesClient } from "@/hwc";
 import MainLayout from "@/layouts/MainLayout.vue";
 import { PROFILES_CONFIG } from "@/utils/profiles";
@@ -43,7 +43,6 @@ import {
   ProfilesStore,
 } from "@holochain-open-dev/profiles";
 import { AppClient, AppInfo, encodeHashToBase64 } from "@holochain/client";
-import WebSdkApi from "@holo-host/web-sdk";
 import { decode } from "@msgpack/msgpack";
 import { MewsfeedDnaProperties } from "./types/types";
 import asyncRetry from "async-retry";
@@ -53,7 +52,7 @@ import { useThemeStore } from "@/stores/theme";
 import { useQueryClient } from "@tanstack/vue-query";
 import NetworkInfo from "./components/NetworkInfo.vue";
 
-const client = shallowRef<AppClient | WebSdkApi>();
+const client = shallowRef<AppClient>();
 const appInfo = ref<AppInfo>();
 const profilesStore = shallowRef<ProfilesStore>();
 const myProfile = ref<Profile>();
@@ -76,13 +75,9 @@ onMounted(() => {
 
 const setup = async () => {
   // Setup client
-  if (IS_HOLO_HOSTED) {
-    client.value = await setupHolo();
-  } else {
-    client.value = await asyncRetry(setupHolochain, {
-      factor: 1.3,
-    });
-  }
+  client.value = await asyncRetry(setupHolochain, {
+    factor: 1.3,
+  });
 
   await asyncRetry(setupApp, {
     factor: 1.3,
