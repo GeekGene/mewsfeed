@@ -1,8 +1,20 @@
 <template>
+  <JoiningClaimsDialog ref="claimsDialog" />
   <JoiningChallengeDialog ref="challengeDialog" />
 
   <div
-    v-if="loadingClient"
+    v-if="needsExtension"
+    class="h-screen w-full flex flex-col justify-center items-center space-y-4 p-8"
+  >
+    <h3 class="text-xl font-title">Holochain Extension Required</h3>
+    <p class="text-sm opacity-70 max-w-md text-center">
+      This app requires the Holochain Web Conductor browser extension to run.
+      Please install it and reload this page.
+    </p>
+  </div>
+
+  <div
+    v-else-if="loadingClient"
     class="h-screen w-full flex justify-center items-center"
   >
     <sl-spinner style="font-size: 2rem" class="mr-4"></sl-spinner>
@@ -34,9 +46,10 @@
 
 <script setup lang="ts">
 import { computed, onMounted, provide, ref, shallowRef, toRaw, watch } from "vue";
-import { IS_HWC, setupHolochain } from "@/utils/client";
+import { IS_HWC, JOINING_SERVICE_URL, detectHWC, setupHolochain } from "@/utils/client";
 import { ZeroArcProfilesClient } from "@/hwc";
 import MainLayout from "@/layouts/MainLayout.vue";
+import JoiningClaimsDialog from "@/components/JoiningClaimsDialog.vue";
 import JoiningChallengeDialog from "@/components/JoiningChallengeDialog.vue";
 import { PROFILES_CONFIG } from "@/utils/profiles";
 import "@shoelace-style/shoelace/dist/components/spinner/spinner";
@@ -61,6 +74,8 @@ const profilesStore = shallowRef<ProfilesStore>();
 const myProfile = ref<Profile>();
 const loadingClient = ref<boolean>(true);
 const loadingCells = ref<boolean>(true);
+const needsExtension = ref<boolean>(false);
+const claimsDialog = ref<InstanceType<typeof JoiningClaimsDialog>>();
 const challengeDialog = ref<InstanceType<typeof JoiningChallengeDialog>>();
 const themeStore = useThemeStore();
 themeStore.apply();
@@ -78,19 +93,45 @@ onMounted(() => {
 });
 
 const setup = async () => {
-  // Setup client
-  client.value = await asyncRetry(
-    () =>
-      setupHolochain({
-        onChallenge: (challenge) => {
-          if (!challengeDialog.value) {
-            throw new Error("Challenge dialog not available");
-          }
-          return challengeDialog.value.prompt(challenge);
-        },
-      }),
-    { factor: 1.3 }
-  );
+  // When a joining service is configured, extension is required
+  if (JOINING_SERVICE_URL) {
+    const hasExtension = await detectHWC();
+    if (!hasExtension) {
+      needsExtension.value = true;
+      loadingClient.value = false;
+      return;
+    }
+  }
+
+  // Try connecting — only collect claims if joining is actually needed
+  const connectWithOpts = (claims: Record<string, string> = {}) =>
+    setupHolochain({
+      claims,
+      onChallenge: (challenge) => {
+        if (!challengeDialog.value) {
+          throw new Error("Challenge dialog not available");
+        }
+        return challengeDialog.value.prompt(challenge);
+      },
+    });
+
+  try {
+    client.value = await connectWithOpts();
+  } catch (e: any) {
+    // If joining failed due to missing claims, collect them and retry
+    const needsClaims =
+      JOINING_SERVICE_URL &&
+      claimsDialog.value &&
+      (e?.message?.includes("claim") || e?.code?.includes("claim"));
+    if (needsClaims) {
+      const claims = await claimsDialog.value!.collectClaims();
+      client.value = await asyncRetry(() => connectWithOpts(claims), {
+        factor: 1.3,
+      });
+    } else {
+      throw e;
+    }
+  }
 
   await asyncRetry(setupApp, {
     factor: 1.3,

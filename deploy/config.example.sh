@@ -9,8 +9,15 @@
 CLOUDFLARE_ACCOUNT_ID=""
 CLOUDFLARE_API_TOKEN=""
 
+# Cloudflare workers subdomain (found in Workers & Pages → Settings)
+CLOUDFLARE_WORKERS_SUBDOMAIN=""
+
 # Cloudflare project/worker names
 PAGES_PROJECT_NAME="mewsfeed"
+# Pages subdomain (may differ from project name if the subdomain was taken).
+# Check your project's Custom Domains in Cloudflare Pages dashboard.
+# Leave empty to default to PAGES_PROJECT_NAME.
+PAGES_SUBDOMAIN=""
 WORKER_NAME="mewsfeed-joining"
 
 # --- Linker Auth ---
@@ -42,12 +49,17 @@ H2HC_LINKER_DIR="../h2hc-linker"
 LINKER_PORT=8000
 
 # --- Tunnel ---
-# If set, skip starting ngrok and use this URL directly.
+# If set, skip starting a tunnel and use this URL directly.
 # Useful for pre-existing tunnels or remote linkers.
-# Leave empty to auto-start ngrok.
 LINKER_PUBLIC_URL=""
 
-# Path to ngrok binary (auto-detected if on PATH).
+# Tunnel provider: "cloudflared" (default) or "ngrok".
+TUNNEL_PROVIDER="cloudflared"
+
+# Cloudflare Tunnel settings (when TUNNEL_PROVIDER="cloudflared")
+CLOUDFLARED_BIN="cloudflared"
+
+# ngrok settings (when TUNNEL_PROVIDER="ngrok")
 NGROK_BIN="ngrok"
 
 # --- Sandbox ---

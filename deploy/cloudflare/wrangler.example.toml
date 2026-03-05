@@ -1,6 +1,7 @@
 name = "mewsfeed-joining"
 main = "worker-entry.ts"
 compatibility_date = "2024-12-01"
+compatibility_flags = ["nodejs_compat"]
 
 # KV namespace for session storage and linker URL registrations.
 # Both KvSessionStore and KvUrlProvider use this namespace.

@@ -6,38 +6,47 @@ export const HOLOCHAIN_APP_ID = "mewsfeed";
 export const IS_LAUNCHER = (window as any).__HC_LAUNCHER_ENV__ !== undefined;
 
 // Web Conductor extension detection
-declare const __LINKER_URL__: string;
 declare const __JOINING_SERVICE_URL__: string;
-const LINKER_URL = typeof __LINKER_URL__ !== "undefined" ? __LINKER_URL__ : "http://localhost:8000";
-const JOINING_SERVICE_URL = typeof __JOINING_SERVICE_URL__ !== "undefined" ? __JOINING_SERVICE_URL__ : "";
+export const JOINING_SERVICE_URL = typeof __JOINING_SERVICE_URL__ !== "undefined" ? __JOINING_SERVICE_URL__ : "";
 export let IS_HWC = false;
 
 export interface SetupHolochainOptions {
   onChallenge?: (challenge: Challenge) => Promise<string>;
+  claims?: Record<string, string>;
 }
+
+/**
+ * Detect whether the HWC extension is available.
+ * Sets IS_HWC and returns true if detected.
+ */
+export const detectHWC = async (): Promise<boolean> => {
+  if ((window as any).holochain?.isWebConductor) {
+    IS_HWC = true;
+    return true;
+  }
+  try {
+    await waitForHolochain(3000);
+    IS_HWC = true;
+    return true;
+  } catch {
+    return false;
+  }
+};
 
 export const setupHolochain = async (opts?: SetupHolochainOptions) => {
   try {
-    // Check for web conductor extension first
-    if ((window as any).holochain?.isWebConductor) {
-      IS_HWC = true;
-    } else {
-      try {
-        await waitForHolochain(3000);
-        IS_HWC = true;
-      } catch {
-        // Not web conductor - fall through to normal setup
-      }
+    // Detect extension if not already done
+    if (!IS_HWC) {
+      await detectHWC();
     }
 
     if (IS_HWC) {
-      console.log("Holochain extension detected, using WebConductorAppClient");
+      console.log("Holochain extension detected, using WebConductorAppClient, joiningServiceUrl:", JOINING_SERVICE_URL || "(empty)");
       const hwcClient = await WebConductorAppClient.connect({
-        linkerUrl: LINKER_URL,
         roleName: "mewsfeed",
         ...(JOINING_SERVICE_URL && {
           joiningServiceUrl: JOINING_SERVICE_URL,
-          claims: {},
+          claims: opts?.claims ?? {},
           onChallenge: opts?.onChallenge,
         }),
       });

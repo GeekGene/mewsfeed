@@ -41,5 +41,8 @@
   },
   "overrides": {
     "@shoelace-style/shoelace": "2.11.0"
+  },
+  "dependencies": {
+    "wrangler": "^4.70.0"
   }
 }

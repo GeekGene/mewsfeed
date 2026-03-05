@@ -60,11 +60,12 @@ export default defineConfig({
     Icons({ autoInstall: true }) as PluginOption,
   ],
   define: {
-    __LINKER_URL__: JSON.stringify(process.env.LINKER_URL || "http://localhost:8000"),
     __JOINING_SERVICE_URL__: JSON.stringify(process.env.JOINING_SERVICE_URL || ""),
   },
   build: {
     target: "es2020",
+    minify: false,
+    sourcemap: true,
   },
   optimizeDeps: {
     esbuildOptions: {

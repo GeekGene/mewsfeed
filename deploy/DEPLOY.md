@@ -8,7 +8,7 @@ Deploy mewsfeed with the Holo Web Conductor (HWC) browser extension: UI on Cloud
 Browser (HWC extension)
   → Cloudflare Pages (mewsfeed UI + .happ bundle)
   → Cloudflare Worker (joining service, invite_code auth)
-  → Linker (local, tunneled via ngrok, white_list auth)
+  → Linker (local, tunneled via cloudflared, white_list auth)
   → 2x Conductor (local, always-on, full-arc DHT nodes)
   → Public Holo bootstrap server
 ```
@@ -17,8 +17,17 @@ Browser (HWC extension)
 
 - Node.js 20+
 - [Nix](https://developer.holochain.org/docs/install/) with `nix develop` for `holochain` and `hc` binaries
-- [Cloudflare account](https://dash.cloudflare.com/) with API token
-- [ngrok](https://ngrok.com/) installed (or set `LINKER_PUBLIC_URL` for an alternative tunnel)
+- [Cloudflare account](https://dash.cloudflare.com/) with API token (see below)
+
+### Cloudflare API Token Setup
+
+1. **Account ID**: Found in the Cloudflare dashboard right sidebar under **API** on any domain overview page, or in the URL after `dash.cloudflare.com/`.
+2. **API Token**: Go to **My Profile** → **API Tokens** → **Create Token**. Use the **Edit Cloudflare Workers** template, or create a custom token with these permissions:
+   - Workers Scripts: Edit
+   - Workers KV Storage: Edit
+   - Cloudflare Pages: Edit
+   - Account Settings: Read
+- [cloudflared](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/) installed (default tunnel provider), or [ngrok](https://ngrok.com/) (set `TUNNEL_PROVIDER="ngrok"` in config)
 - [h2hc-linker](https://github.com/AInonymous/h2hc-linker) repo cloned as a sibling directory
 - [holo-web-conductor](https://github.com/AInonymous/holo-web-conductor) repo on `feat/joining-client` branch, with the extension built and loaded in Chrome
 
@@ -51,8 +60,9 @@ The script will output the Pages URL, Worker URL, tunnel URL, and invite code.
 | `setup` | One-time Cloudflare setup (KV namespace, Pages project) |
 | `build` | Build mewsfeed UI with joining service URL baked in |
 | `deploy-cloud` | Deploy worker + pages to Cloudflare |
-| `start-local` | Start conductors, linker, ngrok tunnel, seed KV |
+| `start-local` | Start conductors, linker, tunnel (cloudflared/ngrok), seed KV |
 | `stop-local` | Stop all local services |
+| `restart-tunnel` | Restart tunnel and re-seed KV (keeps conductors/linker running) |
 | `seed-kv` | Re-seed KV with linker registration (e.g. after tunnel restart) |
 | `status` | Show status of all components |
 | `all` | Full deploy: build → deploy-cloud → start-local |
@@ -69,7 +79,8 @@ See `config.example.sh` for all options. Key settings:
 | `HAPP_BUNDLE_PATH` | Path to .happ bundle | `../holo-web-conductor/fixtures/mewsfeed.happ` |
 | `BOOTSTRAP_URL` | Kitsune2 bootstrap server | `https://dev-test-bootstrap2.holochain.org/` |
 | `NUM_CONDUCTORS` | Number of always-on conductors | `2` |
-| `LINKER_PUBLIC_URL` | Skip ngrok, use this URL | (empty = auto-start ngrok) |
+| `TUNNEL_PROVIDER` | Tunnel provider | `cloudflared` |
+| `LINKER_PUBLIC_URL` | Skip tunnel, use this URL directly | (empty = auto-start tunnel) |
 | `LINKER_ADMIN_SECRET` | Shared secret for linker auth | (auto-generated on setup) |
 
 ## How It Works
@@ -78,19 +89,23 @@ See `config.example.sh` for all options. Key settings:
 
 2. **Joining service** runs as a Cloudflare Worker with `invite_code` auth. It stores sessions and linker registrations in Workers KV.
 
-3. **Linker** runs locally with `H2HC_LINKER_ADMIN_SECRET` set, which enables white_list auth. ngrok tunnels it to a public URL.
+3. **Linker** runs locally with `H2HC_LINKER_ADMIN_SECRET` set, which enables white_list auth. A tunnel (cloudflared by default, or ngrok) exposes it at a public URL.
 
 4. **Conductors** (2x) run locally via `hc sandbox`, connected to the public bootstrap server for DHT networking.
 
 5. When an HWC browser node connects:
    - The UI calls the joining service with an invite code
    - The joining service authorizes the agent on the linker via `POST /admin/agents`
-   - The agent receives the linker URL and connects through the ngrok tunnel
+   - The agent receives the linker URL and connects through the tunnel
    - The agent syncs data with the always-on conductors via the DHT
 
 ## Troubleshooting
 
-**ngrok tunnel expired**: Free ngrok tunnels rotate URLs. Run `./deploy/deploy.sh seed-kv` after restarting ngrok to update the KV with the new URL.
+**Tunnel URL changed**: If you restart the tunnel, run `./deploy/deploy.sh seed-kv` to update the KV with the new URL.
+
+**cloudflared not connecting**: Quick tunnels (the default) require no authentication. If cloudflared fails to start, check `$SANDBOX_DIR/cloudflared.log`. You can also try ngrok by setting `TUNNEL_PROVIDER="ngrok"` in config.sh.
+
+**ngrok tunnel expired** (when using ngrok): Free ngrok tunnels rotate URLs. Run `./deploy/deploy.sh seed-kv` after restarting ngrok to update the KV with the new URL.
 
 **Conductors not syncing**: Arc establishment takes 30-90 seconds after conductors start. Check `status` and conductor logs in `$SANDBOX_DIR/conductor*.log`.
 

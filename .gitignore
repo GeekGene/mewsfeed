@@ -25,4 +25,10 @@ holo-dev-server
 ## deploy secrets
 deploy/config.sh
 
+## wrangler local state
+.wrangler/
+
+## wrangler config with real KV IDs (use wrangler.example.toml as template)
+deploy/cloudflare/wrangler.toml
+
 .claude

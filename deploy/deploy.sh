@@ -5,7 +5,7 @@
 # Orchestrates a full e2e deployment:
 #   - Cloudflare Worker (joining service with invite_code auth)
 #   - Cloudflare Pages (mewsfeed UI + .happ bundle)
-#   - Local linker (h2hc-linker with white_list auth, tunneled via ngrok)
+#   - Local linker (h2hc-linker with white_list auth, tunneled via cloudflared/ngrok)
 #   - Local conductors (2x always-on nodes)
 #
 # Usage:
@@ -16,8 +16,9 @@
 #   build        Build mewsfeed UI with joining service URL
 #   deploy-cloud Deploy worker + pages to Cloudflare
 #   start-local  Start conductors, linker, tunnel, and seed KV
-#   stop-local   Stop all local services (tunnel, linker, conductors)
-#   seed-kv      Seed KV with linker registration data
+#   stop-local      Stop all local services (tunnel, linker, conductors)
+#   restart-tunnel  Restart tunnel and re-seed KV (keeps conductors/linker)
+#   seed-kv         Seed KV with linker registration data
 #   status       Show status of all components
 #   all          Full deploy: build → deploy-cloud → start-local
 #
@@ -62,8 +63,11 @@ load_config() {
     LINKER_PORT="${LINKER_PORT:-8000}"
     NUM_CONDUCTORS="${NUM_CONDUCTORS:-2}"
     BOOTSTRAP_URL="${BOOTSTRAP_URL:-https://dev-test-bootstrap2.holochain.org/}"
+    RELAY_URL="${RELAY_URL:-https://use1-1.relay.n0.iroh-canary.iroh.link./}"
     PAGES_PROJECT_NAME="${PAGES_PROJECT_NAME:-mewsfeed}"
     WORKER_NAME="${WORKER_NAME:-mewsfeed-joining}"
+    TUNNEL_PROVIDER="${TUNNEL_PROVIDER:-cloudflared}"
+    CLOUDFLARED_BIN="${CLOUDFLARED_BIN:-cloudflared}"
     NGROK_BIN="${NGROK_BIN:-ngrok}"
     INVITE_CODES="${INVITE_CODES:-test-invite-123}"
 
@@ -104,10 +108,16 @@ cmd_setup() {
         echo "LINKER_ADMIN_SECRET=\"$LINKER_ADMIN_SECRET\"" >> "$SCRIPT_DIR/config.sh"
     fi
 
+    # Create wrangler.toml from example if it doesn't exist
+    if [ ! -f "$WRANGLER_TOML" ]; then
+        log_info "Creating wrangler.toml from example template..."
+        cp "$SCRIPT_DIR/cloudflare/wrangler.example.toml" "$WRANGLER_TOML"
+    fi
+
     # Create KV namespace
     log_info "Creating KV namespace..."
     local kv_output
-    kv_output=$(npx wrangler kv:namespace create SESSIONS \
+    kv_output=$(npx wrangler kv namespace create SESSIONS \
         --config "$WRANGLER_TOML" 2>&1) || true
     echo "$kv_output"
 
@@ -126,7 +136,7 @@ cmd_setup() {
 
     # Create preview KV namespace
     local preview_output
-    preview_output=$(npx wrangler kv:namespace create SESSIONS --preview \
+    preview_output=$(npx wrangler kv namespace create SESSIONS --preview \
         --config "$WRANGLER_TOML" 2>&1) || true
     local preview_id
     preview_id=$(echo "$preview_output" | grep -oP 'id = "\K[^"]+' | head -1 || true)
@@ -140,7 +150,7 @@ cmd_setup() {
         --production-branch main 2>&1 || log_warn "Pages project may already exist"
 
     # Determine worker URL
-    local worker_url="https://${WORKER_NAME}.${CLOUDFLARE_ACCOUNT_ID}.workers.dev"
+    local worker_url="https://${WORKER_NAME}.${CLOUDFLARE_WORKERS_SUBDOMAIN}.workers.dev"
     log_info "Worker will be at: $worker_url"
     mkdir -p "$SANDBOX_DIR"
     save_state "worker_url.txt" "$worker_url"
@@ -158,13 +168,7 @@ cmd_setup() {
 cmd_build() {
     log_step "Building mewsfeed UI..."
 
-    local worker_url
-    worker_url=$(read_state "worker_url.txt")
-    if [ -z "$worker_url" ]; then
-        # Construct from config
-        worker_url="https://${WORKER_NAME}.${CLOUDFLARE_ACCOUNT_ID}.workers.dev"
-        log_warn "No saved worker URL, using: $worker_url"
-    fi
+    local worker_url="https://${WORKER_NAME}.${CLOUDFLARE_WORKERS_SUBDOMAIN}.workers.dev/v1"
 
     log_info "JOINING_SERVICE_URL=$worker_url"
 
@@ -201,7 +205,9 @@ cmd_deploy_cloud() {
     export CLOUDFLARE_ACCOUNT_ID CLOUDFLARE_API_TOKEN
 
     # Determine Pages URL for happ_bundle_url
-    local pages_url="https://${PAGES_PROJECT_NAME}.pages.dev"
+    # PAGES_SUBDOMAIN may differ from PAGES_PROJECT_NAME if Cloudflare assigned a different subdomain
+    local pages_subdomain="${PAGES_SUBDOMAIN:-$PAGES_PROJECT_NAME}"
+    local pages_url="https://${pages_subdomain}.pages.dev"
 
     # Build CONFIG_JSON
     local invite_codes_json
@@ -240,7 +246,7 @@ ENDJSON
         --config "$WRANGLER_TOML" \
         --name "$WORKER_NAME"
 
-    local worker_url="https://${WORKER_NAME}.${CLOUDFLARE_ACCOUNT_ID}.workers.dev"
+    local worker_url="https://${WORKER_NAME}.${CLOUDFLARE_WORKERS_SUBDOMAIN}.workers.dev"
     save_state "worker_url.txt" "$worker_url"
     log_info "Worker deployed: $worker_url"
 
@@ -252,7 +258,8 @@ ENDJSON
     # Deploy pages
     log_info "Deploying UI to Cloudflare Pages..."
     npx wrangler pages deploy "$PROJECT_DIR/ui/dist" \
-        --project-name "$PAGES_PROJECT_NAME"
+        --project-name "$PAGES_PROJECT_NAME" \
+        --branch main
 
     save_state "pages_url.txt" "$pages_url"
     log_info "Pages deployed: $pages_url"
@@ -307,7 +314,24 @@ check_local_prereqs() {
 start_conductors() {
     log_info "Starting $NUM_CONDUCTORS conductor(s)..."
 
-    # Clean stale processes
+    # Check if all conductors are already running
+    local all_running=true
+    for i in $(seq 1 "$NUM_CONDUCTORS"); do
+        local SUFFIX=""
+        [ "$i" -gt 1 ] && SUFFIX="_$i"
+        local PID_FILE="$SANDBOX_DIR/conductor$SUFFIX.pid"
+        if ! ([ -f "$PID_FILE" ] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null); then
+            all_running=false
+            break
+        fi
+    done
+
+    if [ "$all_running" = true ]; then
+        log_warn "All $NUM_CONDUCTORS conductor(s) already running, skipping"
+        return 0
+    fi
+
+    # Kill stale processes before starting fresh
     pkill -f "holochain.*mewsfeed-deploy" 2>/dev/null || true
     sleep 1
 
@@ -346,9 +370,6 @@ start_conductor_instance() {
     local INSTANCE_APP_ID="mewsfeed"
     [ "$INDEX" -gt 1 ] && INSTANCE_APP_ID="mewsfeed_${INDEX}"
 
-    local BOOTSTRAP_URL_VAL="$BOOTSTRAP_URL"
-    local RELAY_URL="$BOOTSTRAP_URL"
-
     (echo "test-passphrase" | \
         RUST_LOG="info,holochain=debug,kitsune2=debug" \
         hc sandbox --piped generate \
@@ -357,7 +378,7 @@ start_conductor_instance() {
             --app-id "$INSTANCE_APP_ID" \
             --root "$DATA_DIR" \
             "$HAPP_BUNDLE_PATH" \
-            network -b "$BOOTSTRAP_URL_VAL" quic "$RELAY_URL") \
+            network -b "$BOOTSTRAP_URL" quic "$RELAY_URL") \
         > "$LOG_FILE" 2>&1 &
 
     local PID=$!
@@ -425,10 +446,13 @@ wait_for_arc_establishment() {
 start_linker() {
     log_info "Starting h2hc-linker on port $LINKER_PORT..."
 
-    if pgrep -f "h2hc-linker.*--port" > /dev/null 2>&1; then
-        log_warn "Linker already running"
+    local PID_FILE="$SANDBOX_DIR/linker.pid"
+    if [ -f "$PID_FILE" ] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
+        log_warn "Linker already running (PID $(cat "$PID_FILE"))"
         return 0
     fi
+    # Clean up any stale linker processes
+    pkill -f "h2hc-linker" 2>/dev/null || true
 
     local ADMIN_PORT
     ADMIN_PORT=$(read_state "admin_port.txt")
@@ -437,9 +461,10 @@ start_linker() {
         exit 1
     fi
 
+    env \
     H2HC_LINKER_ADMIN_WS_URL="127.0.0.1:$ADMIN_PORT" \
     H2HC_LINKER_BOOTSTRAP_URL="$BOOTSTRAP_URL" \
-    H2HC_LINKER_RELAY_URL="$BOOTSTRAP_URL" \
+    H2HC_LINKER_RELAY_URL="$RELAY_URL" \
     H2HC_LINKER_ADMIN_SECRET="$LINKER_ADMIN_SECRET" \
     RUST_LOG="info,h2hc_linker=debug" \
     "$LINKER_BINARY" --port "$LINKER_PORT" > "$SANDBOX_DIR/linker.log" 2>&1 &
@@ -475,6 +500,59 @@ start_tunnel() {
         return 0
     fi
 
+    case "$TUNNEL_PROVIDER" in
+        cloudflared) start_tunnel_cloudflared ;;
+        ngrok)       start_tunnel_ngrok ;;
+        *)
+            log_error "Unknown TUNNEL_PROVIDER: $TUNNEL_PROVIDER (expected 'cloudflared' or 'ngrok')"
+            exit 1
+            ;;
+    esac
+}
+
+start_tunnel_cloudflared() {
+    log_info "Starting cloudflared tunnel to localhost:$LINKER_PORT..."
+
+    if ! command -v "$CLOUDFLARED_BIN" &> /dev/null; then
+        log_error "cloudflared not found at '$CLOUDFLARED_BIN'. Install cloudflared or set LINKER_PUBLIC_URL."
+        exit 1
+    fi
+
+    # Kill existing cloudflared quick tunnel if running
+    pkill -f "cloudflared.*tunnel.*--url" 2>/dev/null || true
+    sleep 1
+
+    "$CLOUDFLARED_BIN" tunnel --url "http://localhost:$LINKER_PORT" \
+        > "$SANDBOX_DIR/cloudflared.log" 2>&1 &
+    local PID=$!
+    echo "$PID" > "$SANDBOX_DIR/cloudflared.pid"
+
+    log_info "Waiting for cloudflared tunnel URL..."
+    local TUNNEL_URL=""
+    for _ in $(seq 1 30); do
+        TUNNEL_URL=$(grep -oP 'https://[a-z0-9-]+\.trycloudflare\.com' \
+            "$SANDBOX_DIR/cloudflared.log" 2>/dev/null | head -1) || true
+        if [ -n "$TUNNEL_URL" ]; then
+            break
+        fi
+        if ! kill -0 "$PID" 2>/dev/null; then
+            log_error "cloudflared died. Log:"
+            tail -20 "$SANDBOX_DIR/cloudflared.log"
+            exit 1
+        fi
+        sleep 1
+    done
+
+    if [ -z "$TUNNEL_URL" ]; then
+        log_error "Could not get cloudflared tunnel URL. Check $SANDBOX_DIR/cloudflared.log"
+        exit 1
+    fi
+
+    save_state "tunnel_url.txt" "$TUNNEL_URL"
+    log_info "Tunnel URL: $TUNNEL_URL"
+}
+
+start_tunnel_ngrok() {
     log_info "Starting ngrok tunnel to localhost:$LINKER_PORT..."
 
     if ! command -v "$NGROK_BIN" &> /dev/null; then
@@ -512,6 +590,43 @@ start_tunnel() {
 }
 
 # ──────────────────────────────────────────────
+# restart-tunnel: Restart tunnel without touching conductors/linker
+# ──────────────────────────────────────────────
+
+stop_tunnel() {
+    if [ -f "$SANDBOX_DIR/cloudflared.pid" ]; then
+        local PID
+        PID=$(cat "$SANDBOX_DIR/cloudflared.pid")
+        if kill -0 "$PID" 2>/dev/null; then
+            log_info "Stopping cloudflared (PID $PID)..."
+            kill "$PID" 2>/dev/null || true
+        fi
+        rm -f "$SANDBOX_DIR/cloudflared.pid"
+    fi
+    pkill -f "cloudflared.*tunnel.*--url" 2>/dev/null || true
+
+    if [ -f "$SANDBOX_DIR/ngrok.pid" ]; then
+        local PID
+        PID=$(cat "$SANDBOX_DIR/ngrok.pid")
+        if kill -0 "$PID" 2>/dev/null; then
+            log_info "Stopping ngrok (PID $PID)..."
+            kill "$PID" 2>/dev/null || true
+        fi
+        rm -f "$SANDBOX_DIR/ngrok.pid"
+    fi
+    pkill -f "ngrok http" 2>/dev/null || true
+}
+
+cmd_restart_tunnel() {
+    log_step "Restarting tunnel..."
+    stop_tunnel
+    sleep 1
+    start_tunnel
+    cmd_seed_kv
+    log_info "Tunnel restarted and KV updated."
+}
+
+# ──────────────────────────────────────────────
 # seed-kv: Seed worker KV with linker registration
 # ──────────────────────────────────────────────
 
@@ -527,10 +642,6 @@ cmd_seed_kv() {
         exit 1
     fi
 
-    # Convert https:// to wss:// for the linker WebSocket URL
-    local wss_url
-    wss_url=$(echo "$tunnel_url" | sed 's|^https://|wss://|')
-
     local kv_id
     kv_id=$(read_state "kv_namespace_id.txt")
     if [ -z "$kv_id" ]; then
@@ -545,16 +656,17 @@ cmd_seed_kv() {
 
     local registration_json
     registration_json=$(cat <<ENDJSON
-[{"linker_url":{"url":"${wss_url}"},"admin":{"url":"${tunnel_url}","secret":"${LINKER_ADMIN_SECRET}"}}]
+[{"linker_url":{"url":"${tunnel_url}"},"admin":{"url":"${tunnel_url}","secret":"${LINKER_ADMIN_SECRET}"}}]
 ENDJSON
 )
 
     log_info "Writing linker_registrations to KV namespace $kv_id"
-    log_info "  linker_url: $wss_url"
+    log_info "  linker_url: $tunnel_url"
     log_info "  admin_url:  $tunnel_url"
 
-    npx wrangler kv:key put \
+    npx wrangler kv key put \
         --namespace-id="$kv_id" \
+        --remote \
         "linker_registrations" \
         "$registration_json"
 
@@ -568,17 +680,7 @@ ENDJSON
 cmd_stop_local() {
     log_step "Stopping local services..."
 
-    # Stop ngrok
-    if [ -f "$SANDBOX_DIR/ngrok.pid" ]; then
-        local PID
-        PID=$(cat "$SANDBOX_DIR/ngrok.pid")
-        if kill -0 "$PID" 2>/dev/null; then
-            log_info "Stopping ngrok (PID $PID)..."
-            kill "$PID" 2>/dev/null || true
-        fi
-        rm -f "$SANDBOX_DIR/ngrok.pid"
-    fi
-    pkill -f "ngrok http" 2>/dev/null || true
+    stop_tunnel
 
     # Stop linker
     if [ -f "$SANDBOX_DIR/linker.pid" ]; then
@@ -646,8 +748,10 @@ cmd_status() {
     # Tunnel
     local tunnel_url
     tunnel_url=$(read_state "tunnel_url.txt")
-    if [ -f "$SANDBOX_DIR/ngrok.pid" ] && kill -0 "$(cat "$SANDBOX_DIR/ngrok.pid")" 2>/dev/null; then
-        echo -e "  Tunnel:      ${GREEN}RUNNING${NC} → $tunnel_url"
+    if [ -f "$SANDBOX_DIR/cloudflared.pid" ] && kill -0 "$(cat "$SANDBOX_DIR/cloudflared.pid")" 2>/dev/null; then
+        echo -e "  Tunnel:      ${GREEN}RUNNING${NC} (cloudflared) → $tunnel_url"
+    elif [ -f "$SANDBOX_DIR/ngrok.pid" ] && kill -0 "$(cat "$SANDBOX_DIR/ngrok.pid")" 2>/dev/null; then
+        echo -e "  Tunnel:      ${GREEN}RUNNING${NC} (ngrok) → $tunnel_url"
     elif [ -n "$tunnel_url" ]; then
         echo -e "  Tunnel:      ${YELLOW}EXTERNAL${NC} → $tunnel_url"
     else
@@ -692,17 +796,18 @@ cmd_all() {
 COMMAND="${1:-}"
 
 if [ -z "$COMMAND" ]; then
-    echo "Usage: $0 {setup|build|deploy-cloud|start-local|stop-local|seed-kv|status|all}"
+    echo "Usage: $0 {setup|build|deploy-cloud|start-local|stop-local|restart-tunnel|seed-kv|status|all}"
     echo ""
     echo "Commands:"
-    echo "  setup        One-time Cloudflare setup (KV namespace, Pages project)"
-    echo "  build        Build mewsfeed UI with joining service URL"
-    echo "  deploy-cloud Deploy worker + pages to Cloudflare"
-    echo "  start-local  Start conductors, linker, ngrok tunnel, seed KV"
-    echo "  stop-local   Stop all local services"
-    echo "  seed-kv      Seed KV with current linker registration"
-    echo "  status       Show status of all components"
-    echo "  all          Full deploy: build → deploy-cloud → start-local"
+    echo "  setup           One-time Cloudflare setup (KV namespace, Pages project)"
+    echo "  build           Build mewsfeed UI with joining service URL"
+    echo "  deploy-cloud    Deploy worker + pages to Cloudflare"
+    echo "  start-local     Start conductors, linker, tunnel, seed KV"
+    echo "  stop-local      Stop all local services"
+    echo "  restart-tunnel  Restart tunnel and re-seed KV (keeps conductors/linker)"
+    echo "  seed-kv         Seed KV with current linker registration"
+    echo "  status          Show status of all components"
+    echo "  all             Full deploy: build → deploy-cloud → start-local"
     exit 1
 fi
 
@@ -713,10 +818,11 @@ case "$COMMAND" in
     build)        cmd_build ;;
     deploy-cloud) cmd_deploy_cloud ;;
     start-local)  cmd_start_local ;;
-    stop-local)   cmd_stop_local ;;
-    seed-kv)      cmd_seed_kv ;;
-    status)       cmd_status ;;
-    all)          cmd_all ;;
+    stop-local)      cmd_stop_local ;;
+    restart-tunnel)  cmd_restart_tunnel ;;
+    seed-kv)         cmd_seed_kv ;;
+    status)          cmd_status ;;
+    all)             cmd_all ;;
     *)
         log_error "Unknown command: $COMMAND"
         exit 1
