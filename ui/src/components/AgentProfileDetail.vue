@@ -11,6 +11,7 @@
 <script setup lang="ts">
 import { AgentPubKey, AppClient } from "@holochain/client";
 import { ComputedRef, computed, inject, watch } from "vue";
+import { useCellsReady } from "@/composables/useCellsReady";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
 import BaseAgentProfileDetail from "@/components/BaseAgentProfileDetail.vue";
 import { useQuery } from "@tanstack/vue-query";
@@ -30,6 +31,7 @@ const props = withDefaults(
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const client = (inject("client") as ComputedRef<AppClient>).value;
+const cellsReady = useCellsReady();
 const agentPubKeyB64 = computed(() => encodeHashToBase64(props.agentPubKey));
 
 const fetchProfile = async () => {
@@ -49,6 +51,7 @@ const {
   queryKey: ["profiles", "getAgentProfile", agentPubKeyB64],
   queryFn: fetchProfile,
   refetchOnMount: true,
+  enabled: cellsReady,
 });
 watch(errorProfile, console.error);
 
@@ -68,6 +71,7 @@ const {
   queryKey: ["profiles", "get_joining_timestamp_for_agent", agentPubKeyB64],
   queryFn: fetchJoinedTimestamp,
   refetchOnMount: true,
+  enabled: cellsReady,
 });
 watch(errorJoinedTimestamp, console.error);
 

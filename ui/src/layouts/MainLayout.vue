@@ -113,6 +113,7 @@ import { ROUTES } from "@/router";
 import { FeedMew, MewTypeName } from "@/types/types";
 import { AppClient, encodeHashToBase64 } from "@holochain/client";
 import { ComputedRef, computed, inject, ref, watch } from "vue";
+import { useCellsReady } from "@/composables/useCellsReady";
 import { useRouter, useRoute } from "vue-router";
 import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";
 import { setHomeRedirect } from "@/utils/homeRedirect";
@@ -131,6 +132,7 @@ import { useLightboxStore } from "@/stores/lightbox";
 import VueEasyLightbox from "vue-easy-lightbox";
 
 const client = (inject("client") as ComputedRef<AppClient>).value;
+const cellsReady = useCellsReady();
 const router = useRouter();
 const route = useRoute();
 const useNotificationsReadStore = makeUseNotificationsReadStore(client);
@@ -195,6 +197,7 @@ const { data: mostRecentMew } = useQuery({
     { page: { limit: 1 } },
   ],
   queryFn: fetchMostRecentMew,
+  enabled: cellsReady,
 });
 
 watch(mostRecentMew, (val) => {
@@ -220,5 +223,6 @@ useInfiniteQuery({
   refetchInterval: 1000 * 30, // 30 seconds
   refetchIntervalInBackground: true,
   refetchOnMount: true,
+  enabled: cellsReady,
 });
 </script>

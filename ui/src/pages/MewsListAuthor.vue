@@ -63,6 +63,7 @@
 <script setup lang="ts">
 import { AppClient } from "@holochain/client";
 import { ComputedRef, computed, inject } from "vue";
+import { useCellsReady } from "@/composables/useCellsReady";
 import { useRoute, onBeforeRouteLeave } from "vue-router";
 import {
   useInfiniteQuery,
@@ -83,6 +84,7 @@ import { wrapInput } from "@/utils/zomeCall";
 
 const route = useRoute();
 const client = (inject("client") as ComputedRef<AppClient>).value;
+const cellsReady = useCellsReady();
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const queryClient = useQueryClient();
@@ -121,6 +123,7 @@ const { data, error, fetchNextPage, hasNextPage, isInitialLoading, refetch } =
     },
     refetchInterval: 1000 * 60 * 2, // 2 minutes
     refetchOnMount: true,
+    enabled: cellsReady,
   });
 
 const fetchProfile = async () => {
@@ -136,6 +139,7 @@ const fetchProfile = async () => {
 const { data: profile, error: errorProfile } = useQuery({
   queryKey: ["profiles", "getAgentProfile", agentPubKeyB64],
   queryFn: fetchProfile,
+  enabled: cellsReady,
 });
 
 const fetchNextPageInfiniteScroll = async (

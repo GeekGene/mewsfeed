@@ -125,6 +125,7 @@ import {
 import { useQuery } from "@tanstack/vue-query";
 import { computed, ref, onUnmounted, onMounted } from "vue";
 import { ComputedRef, inject } from "vue";
+import { useCellsReady } from "@/composables/useCellsReady";
 import IconStatsChart from "~icons/ion/stats-chart";
 import IconCloseCircleOutline from "~icons/ion/close-circle-outline";
 import IconInformationCircleOutline from "~icons/ion/information-circle-outline";
@@ -135,6 +136,7 @@ import { WebConductorAppClient, type ConnectionState } from "@/hwc";
 dayjs.extend(relativeTime);
 
 const client = (inject("client") as ComputedRef<AppClient>).value;
+const cellsReady = useCellsReady();
 const isHwc = IS_HWC;
 
 const showExpanded = ref(false);
@@ -222,7 +224,7 @@ const { data, dataUpdatedAt } = useQuery({
   refetchOnMount: false,
   refetchOnWindowFocus: false,
   cacheTime: 0,
-  enabled: !isHwc,
+  enabled: computed(() => !isHwc && cellsReady.value),
 });
 
 setInterval(() => {

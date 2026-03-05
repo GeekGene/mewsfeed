@@ -60,6 +60,7 @@ import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
 import { PaginationDirectionName } from "@/types/types";
 import { decodeHashFromBase64 } from "@holochain/client";
 import { ComputedRef, computed, inject, watch } from "vue";
+import { useCellsReady } from "@/composables/useCellsReady";
 import { useRoute, onBeforeRouteLeave } from "vue-router";
 import { AppClient } from "@holochain/client";
 import {
@@ -73,6 +74,7 @@ import BaseInfiniteScroll from "@/components/BaseInfiniteScroll.vue";
 import { wrapInput } from "@/utils/zomeCall";
 
 const client = (inject("client") as ComputedRef<AppClient>).value;
+const cellsReady = useCellsReady();
 const route = useRoute();
 const queryClient = useQueryClient();
 
@@ -100,7 +102,7 @@ const {
 } = useQuery({
   queryKey: ["mews", "get_mew_with_context", actionHashB64],
   queryFn: fetchMew,
-  enabled: hasActionHash,
+  enabled: computed(() => cellsReady.value && hasActionHash.value),
   refetchInterval: 1000 * 60 * 2, // 2 minutes
 });
 watch(mewError, console.error);
@@ -132,7 +134,7 @@ const {
 } = useInfiniteQuery({
   queryKey: ["mews", "get_responses_for_mew_with_context", actionHashB64],
   queryFn: fetchReplies,
-  enabled: hasMew,
+  enabled: computed(() => cellsReady.value && hasMew.value),
   getNextPageParam: (lastPage) => {
     if (lastPage.length === 0) return;
     if (lastPage.length < pageLimit) return;

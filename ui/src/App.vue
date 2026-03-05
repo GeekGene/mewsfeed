@@ -33,11 +33,10 @@
         class="flex justify-start items-center fixed right-5 top-0 my-8 mx-4 py-4 badge badge-warning z-50"
       >
         <sl-spinner style="font-size: 1rem" class="mr-2"></sl-spinner>
-        <div>Cells loading...</div>
+        <div>Waiting for cells...</div>
       </div>
 
       <NetworkInfo
-        v-else
         class="flex justify-start items-center fixed left-0 sm:left-auto sm:right-5 bottom-[6.25rem] sm:bottom-12 my-8 mx-4 z-50 opacity-50"
       />
     </profiles-context>
@@ -74,6 +73,7 @@ const profilesStore = shallowRef<ProfilesStore>();
 const myProfile = ref<Profile>();
 const loadingClient = ref<boolean>(true);
 const loadingCells = ref<boolean>(true);
+const cellsReady = computed(() => !loadingCells.value);
 const needsExtension = ref<boolean>(false);
 const claimsDialog = ref<InstanceType<typeof JoiningClaimsDialog>>();
 const challengeDialog = ref<InstanceType<typeof JoiningChallengeDialog>>();
@@ -201,6 +201,7 @@ provide("appInfo", appInfo);
 provide("dnaProperties", dnaProperties);
 provide("profilesStore", profilesStore);
 provide("myProfile", myProfile);
+provide("cellsReady", cellsReady);
 </script>
 
 <style>

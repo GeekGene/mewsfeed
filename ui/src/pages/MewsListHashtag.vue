@@ -56,6 +56,7 @@
 <script setup lang="ts">
 import { AppClient } from "@holochain/client";
 import { ComputedRef, computed, inject } from "vue";
+import { useCellsReady } from "@/composables/useCellsReady";
 import { useRoute, onBeforeRouteLeave } from "vue-router";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
 import BaseEmptyList from "@/components/BaseEmptyList.vue";
@@ -69,6 +70,7 @@ import { wrapInput } from "@/utils/zomeCall";
 
 const route = useRoute();
 const client = (inject("client") as ComputedRef<AppClient>).value;
+const cellsReady = useCellsReady();
 const queryClient = useQueryClient();
 const tag = computed(() => `${route.meta.tag}${route.params.tag}`);
 
@@ -102,6 +104,7 @@ const { data, error, fetchNextPage, hasNextPage, isInitialLoading, refetch } =
     },
     refetchInterval: 1000 * 60 * 2, // 2 minutes
     refetchOnMount: true,
+    enabled: cellsReady,
   });
 watch(error, console.error);
 

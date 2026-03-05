@@ -29,11 +29,13 @@
 <script setup lang="ts">
 import { AppClient, ActionHash } from "@holochain/client";
 import { ComputedRef, Ref, computed, inject, toRaw, watch } from "vue";
+import { useCellsReady } from "@/composables/useCellsReady";
 import { useQuery } from "@tanstack/vue-query";
 import { FeedMew } from "@/types/types";
 import { wrapInput } from "@/utils/zomeCall";
 
 const client = (inject("client") as ComputedRef<AppClient>).value;
+const cellsReady = useCellsReady();
 
 const props = defineProps<{
   tag: string;
@@ -63,6 +65,7 @@ const {
   refetchOnWindowFocus: false,
   refetchOnMount: false,
   refetchOnReconnect: false,
+  enabled: cellsReady,
 });
 watch(errorRandomMewHashesWithTag, console.error);
 const hasRandomMewHashesWithTag = computed(() =>
@@ -92,7 +95,7 @@ const {
     "get_batch_mews_with_context",
   ],
   queryFn: fetchMewsWithContext,
-  enabled: hasRandomMewHashesWithTag,
+  enabled: computed(() => cellsReady.value && hasRandomMewHashesWithTag.value),
   refetchOnWindowFocus: false,
   refetchOnMount: false,
   refetchOnReconnect: false,

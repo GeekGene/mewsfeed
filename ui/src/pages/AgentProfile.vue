@@ -137,6 +137,7 @@
 import { decodeHashFromBase64, encodeHashToBase64 } from "@holochain/client";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { ComputedRef, computed, inject, nextTick, ref, watch } from "vue";
+import { useCellsReady } from "@/composables/useCellsReady";
 import { useRoute, useRouter } from "vue-router";
 import BaseList from "@/components/BaseList.vue";
 import { AppClient } from "@holochain/client";
@@ -150,6 +151,7 @@ import { wrapInput } from "@/utils/zomeCall";
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const client = (inject("client") as ComputedRef<AppClient>).value;
+const cellsReady = useCellsReady();
 const route = useRoute();
 const router = useRouter();
 const queryClient = useQueryClient();
@@ -185,7 +187,7 @@ const {
 } = useQuery({
   queryKey: ["profiles", "get_agent_mews_with_context", agentPubKeyB64],
   queryFn: fetchAuthoredMews,
-  enabled: hasAgentPubKeyB64,
+  enabled: computed(() => cellsReady.value && hasAgentPubKeyB64.value),
 });
 watch(errorAuthoredMews, console.error);
 
@@ -205,7 +207,7 @@ const {
 } = useQuery({
   queryKey: ["profiles", "get_mews_for_pinner_with_context", agentPubKeyB64],
   queryFn: fetchPinnedMews,
-  enabled: hasAgentPubKeyB64,
+  enabled: computed(() => cellsReady.value && hasAgentPubKeyB64.value),
 });
 watch(errorPinnedMews, console.error);
 
@@ -228,7 +230,7 @@ const {
   queryKey: ["profiles", "getAgentProfile", agentPubKeyB64],
   queryFn: fetchProfile,
   refetchOnMount: true,
-  enabled: hasAgentPubKeyB64,
+  enabled: computed(() => cellsReady.value && hasAgentPubKeyB64.value),
 });
 watch(errorProfile, console.error);
 
@@ -247,7 +249,7 @@ const {
 } = useQuery({
   queryKey: ["profiles", "get_joining_timestamp_for_agent", agentPubKeyB64],
   queryFn: fetchJoinedTimestamp,
-  enabled: hasAgentPubKeyB64,
+  enabled: computed(() => cellsReady.value && hasAgentPubKeyB64.value),
 });
 watch(errorJoinedTimestamp, console.error);
 
@@ -266,7 +268,7 @@ const {
 } = useQuery({
   queryKey: ["follows", "count_creators_for_follower", agentPubKeyB64],
   queryFn: fetchCreatorsCount,
-  enabled: hasAgentPubKeyB64,
+  enabled: computed(() => cellsReady.value && hasAgentPubKeyB64.value),
 });
 watch(errorCreatorsCount, console.error);
 
@@ -285,7 +287,7 @@ const {
 } = useQuery({
   queryKey: ["follows", "count_followers_for_creator", agentPubKeyB64],
   queryFn: fetchFollowersCount,
-  enabled: hasAgentPubKeyB64,
+  enabled: computed(() => cellsReady.value && hasAgentPubKeyB64.value),
 });
 watch(errorFollowersCount, console.error);
 

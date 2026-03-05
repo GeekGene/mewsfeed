@@ -56,6 +56,7 @@
 <script setup lang="ts">
 import { AppClient, decodeHashFromBase64 } from "@holochain/client";
 import { ComputedRef, computed, inject, ref, watch, onMounted } from "vue";
+import { useCellsReady } from "@/composables/useCellsReady";
 import { useRoute, onBeforeRouteLeave } from "vue-router";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
 import BaseEmptyList from "@/components/BaseEmptyList.vue";
@@ -68,6 +69,7 @@ import { wrapInput } from "@/utils/zomeCall";
 
 const route = useRoute();
 const client = (inject("client") as ComputedRef<AppClient>).value;
+const cellsReady = useCellsReady();
 const queryClient = useQueryClient();
 const agentPubKeyB64 = computed(() => route.params.agentPubKey);
 const agentPubKey = computed(() =>
@@ -108,7 +110,7 @@ const { data, error, fetchNextPage, hasNextPage, isInitialLoading, refetch } =
     },
     refetchInterval: 1000 * 60 * 2, // 2 minutes
     refetchOnMount: true,
-    enabled: isMounted,
+    enabled: computed(() => cellsReady.value && isMounted.value),
   });
 watch(error, console.error);
 

@@ -20,6 +20,7 @@
 import { PROFILE_FIELDS } from "@/types/types";
 import { AgentPubKey, encodeHashToBase64 } from "@holochain/client";
 import { computed, ComputedRef, inject, ref, watch } from "vue";
+import { useCellsReady } from "@/composables/useCellsReady";
 import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
 import { AppClient } from "@holochain/client";
 import CreateProfileIfNotFoundDialog from "./CreateProfileIfNotFoundDialog.vue";
@@ -42,6 +43,7 @@ const emit = defineEmits(["toggle-follow"]);
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const client = (inject("client") as ComputedRef<AppClient>).value;
+const cellsReady = useCellsReady();
 const myProfile = inject("myProfile") as ComputedRef<Profile>;
 const { showMessage, showError } = useToasts();
 
@@ -78,6 +80,7 @@ const {
     "isFollowing",
   ],
   queryFn: fetchMyFollowing,
+  enabled: cellsReady,
 });
 watch(errorMyFollowing, console.error);
 watch(props, () => {

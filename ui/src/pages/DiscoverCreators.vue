@@ -46,6 +46,7 @@
 
 <script setup lang="ts">
 import { ComputedRef, computed, inject, onMounted, toRaw, watch } from "vue";
+import { useCellsReady } from "@/composables/useCellsReady";
 import { AppClient } from "@holochain/client";
 import BaseList from "@/components/BaseList.vue";
 import { FeedMew } from "@/types/types";
@@ -57,6 +58,7 @@ import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
 import { wrapInput } from "@/utils/zomeCall";
 
 const client = (inject("client") as ComputedRef<AppClient>).value;
+const cellsReady = useCellsReady();
 
 const fetchRandomMewHashes = (): Promise<ActionHash[]> =>
   client.callZome({
@@ -85,6 +87,7 @@ const {
   refetchOnWindowFocus: false,
   refetchOnMount: false,
   refetchOnReconnect: false,
+  enabled: cellsReady,
 });
 watch(errorRandomMewHashes, console.error);
 
@@ -99,7 +102,7 @@ const {
   isFetching: isFetchingRandomMews,
 } = useQuery({
   queryKey: ["mews", "get_random_mew_hashes", "get_batch_mews_with_context"],
-  enabled: hasRandomMewHashes,
+  enabled: computed(() => cellsReady.value && hasRandomMewHashes.value),
   queryFn: () =>
     fetchMewsWithContext(toRaw(randomMewHashes.value as ActionHash[])),
   refetchOnWindowFocus: false,
@@ -128,6 +131,7 @@ const {
   refetchOnWindowFocus: false,
   refetchOnMount: false,
   refetchOnReconnect: false,
+  enabled: cellsReady,
 });
 watch(errorRandomTags, console.error);
 

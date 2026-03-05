@@ -40,6 +40,7 @@
 <script setup lang="ts">
 import { AppClient } from "@holochain/client";
 import { ComputedRef, computed, inject } from "vue";
+import { useCellsReady } from "@/composables/useCellsReady";
 import { onBeforeRouteLeave } from "vue-router";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
 import BaseAgentProfileListItemSkeleton from "@/components/BaseAgentProfileListItemSkeleton.vue";
@@ -60,6 +61,7 @@ const props = defineProps<{
 }>();
 
 const client = (inject("client") as ComputedRef<AppClient>).value;
+const cellsReady = useCellsReady();
 const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const queryClient = useQueryClient();
@@ -112,6 +114,7 @@ const { data, error, fetchNextPage, hasNextPage, isInitialLoading, refetch } =
     },
     refetchInterval: 1000 * 60 * 2, // 2 minutes
     refetchOnMount: true,
+    enabled: cellsReady,
   });
 
 const fetchNextPageInfiniteScroll = async (
