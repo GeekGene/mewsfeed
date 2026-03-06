@@ -42,8 +42,11 @@ export const setupHolochain = async (opts?: SetupHolochainOptions) => {
 
     if (IS_HWC) {
       console.log("Holochain extension detected, using WebConductorAppClient, joiningServiceUrl:", JOINING_SERVICE_URL || "(empty)");
+      // linkerUrl can be passed via ?linkerUrl= query param for direct (non-joining) connections
+      const linkerUrl = new URLSearchParams(window.location.search).get("linkerUrl") || undefined;
       const hwcClient = await WebConductorAppClient.connect({
         roleName: "mewsfeed",
+        ...(linkerUrl && { linkerUrl }),
         ...(JOINING_SERVICE_URL && {
           joiningServiceUrl: JOINING_SERVICE_URL,
           claims: opts?.claims ?? {},

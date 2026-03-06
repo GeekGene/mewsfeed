@@ -9,6 +9,9 @@
   "scripts": {
     "start": "AGENTS=${AGENTS:-2} BOOTSTRAP_PORT=$(get-port) SIGNAL_PORT=$(get-port) npm run network",
     "start:tauri": "AGENTS=${AGENTS:-2} BOOTSTRAP_PORT=$(get-port) SIGNAL_PORT=$(get-port) npm run network:tauri",
+    "start:hwc": "npm run build:happ && concurrently --kill-others \"./deploy/local-dev.sh\" \"npm run start --workspace ui\"",
+    "start:hwc:joining": "npm run build:happ && concurrently --kill-others \"./deploy/local-dev.sh joining\" \"JOINING_SERVICE_URL=http://localhost:3000/v1 npm run start --workspace ui\"",
+    "stop:hwc": "./deploy/local-dev.sh stop",
     "network": "hc sandbox clean && npm run build:happ && UI_PORT=1420 concurrently \"npm run start --workspace ui\" \"npm run launch:spin\" \"hc playground\"",
     "network:tauri": "hc sandbox clean && npm run build:happ && UI_PORT=1420 concurrently \"npm run start --workspace ui\" \"npm run launch:tauri\" \"hc playground\"",
     "launch:spin": "hc-spin -n $AGENTS --ui-port $UI_PORT workdir/mewsfeed.happ",
