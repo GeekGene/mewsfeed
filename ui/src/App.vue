@@ -1,6 +1,5 @@
 <template>
-  <JoiningClaimsDialog ref="claimsDialog" />
-  <JoiningChallengeDialog ref="challengeDialog" />
+  <div ref="joinUiContainer"></div>
 
   <div
     v-if="needsExtension"
@@ -48,8 +47,6 @@ import { computed, onMounted, provide, ref, shallowRef, toRaw, watch } from "vue
 import { IS_HWC, JOINING_SERVICE_URL, detectHWC, setupHolochain } from "@/utils/client";
 import { ZeroArcProfilesClient } from "@/hwc";
 import MainLayout from "@/layouts/MainLayout.vue";
-import JoiningClaimsDialog from "@/components/JoiningClaimsDialog.vue";
-import JoiningChallengeDialog from "@/components/JoiningChallengeDialog.vue";
 import { PROFILES_CONFIG } from "@/utils/profiles";
 import "@shoelace-style/shoelace/dist/components/spinner/spinner";
 import {
@@ -75,8 +72,7 @@ const loadingClient = ref<boolean>(true);
 const loadingCells = ref<boolean>(true);
 const cellsReady = computed(() => !loadingCells.value);
 const needsExtension = ref<boolean>(false);
-const claimsDialog = ref<InstanceType<typeof JoiningClaimsDialog>>();
-const challengeDialog = ref<InstanceType<typeof JoiningChallengeDialog>>();
+const joinUiContainer = ref<HTMLElement>();
 const themeStore = useThemeStore();
 themeStore.apply();
 const queryClient = useQueryClient();
@@ -103,35 +99,11 @@ const setup = async () => {
     }
   }
 
-  // Try connecting — only collect claims if joining is actually needed
-  const connectWithOpts = (claims: Record<string, string> = {}) =>
-    setupHolochain({
-      claims,
-      onChallenge: (challenge) => {
-        if (!challengeDialog.value) {
-          throw new Error("Challenge dialog not available");
-        }
-        return challengeDialog.value.prompt(challenge);
-      },
-    });
-
-  try {
-    client.value = await connectWithOpts();
-  } catch (e: any) {
-    // If joining failed due to missing claims, collect them and retry
-    const needsClaims =
-      JOINING_SERVICE_URL &&
-      claimsDialog.value &&
-      (e?.message?.includes("claim") || e?.code?.includes("claim"));
-    if (needsClaims) {
-      const claims = await claimsDialog.value!.collectClaims();
-      client.value = await asyncRetry(() => connectWithOpts(claims), {
-        factor: 1.3,
-      });
-    } else {
-      throw e;
-    }
-  }
+  // Connect — joining UI (claims form, challenge dialog, status) is
+  // handled automatically by connectWithJoiningUI() inside setupHolochain().
+  client.value = await setupHolochain({
+    mountTo: joinUiContainer.value,
+  });
 
   await asyncRetry(setupApp, {
     factor: 1.3,

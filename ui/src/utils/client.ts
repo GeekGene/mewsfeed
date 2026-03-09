@@ -1,6 +1,6 @@
 import { AdminWebsocket, CellType, AppWebsocket } from "@holochain/client";
-import { WebConductorAppClient, waitForHolochain } from "@/hwc";
-import type { Challenge } from "@/hwc";
+import { waitForHolochain } from "@/hwc";
+import { connectWithJoiningUI } from "@holo-host/web-conductor-client/ui";
 
 export const HOLOCHAIN_APP_ID = "mewsfeed";
 export const IS_LAUNCHER = (window as any).__HC_LAUNCHER_ENV__ !== undefined;
@@ -11,8 +11,7 @@ export const JOINING_SERVICE_URL = typeof __JOINING_SERVICE_URL__ !== "undefined
 export let IS_HWC = false;
 
 export interface SetupHolochainOptions {
-  onChallenge?: (challenge: Challenge) => Promise<string>;
-  claims?: Record<string, string>;
+  mountTo?: HTMLElement;
 }
 
 /**
@@ -41,17 +40,16 @@ export const setupHolochain = async (opts?: SetupHolochainOptions) => {
     }
 
     if (IS_HWC) {
-      console.log("Holochain extension detected, using WebConductorAppClient, joiningServiceUrl:", JOINING_SERVICE_URL || "(empty)");
+      console.log("Holochain extension detected, using connectWithJoiningUI, joiningServiceUrl:", JOINING_SERVICE_URL || "(empty)");
       // linkerUrl can be passed via ?linkerUrl= query param for direct (non-joining) connections
       const linkerUrl = new URLSearchParams(window.location.search).get("linkerUrl") || undefined;
-      const hwcClient = await WebConductorAppClient.connect({
+      const hwcClient = await connectWithJoiningUI({
         roleName: "mewsfeed",
         ...(linkerUrl && { linkerUrl }),
         ...(JOINING_SERVICE_URL && {
           joiningServiceUrl: JOINING_SERVICE_URL,
-          claims: opts?.claims ?? {},
-          onChallenge: opts?.onChallenge,
         }),
+        ...(opts?.mountTo && { mountTo: opts.mountTo }),
       });
       // Cast to AppWebsocket to satisfy type checker (different @holochain/client versions)
       return hwcClient as unknown as AppWebsocket;
