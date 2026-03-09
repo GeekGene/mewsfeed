@@ -67,6 +67,72 @@ npm start
 
 Each new agent that you create this way will get assigned its own port and get connected to the other agents.
 
+## Local HWC Development
+
+The `deploy/local-dev.sh` script manages local infrastructure for testing with the Holo Web Conductor browser extension. It starts conductors, a bootstrap server, the h2hc-linker, and optionally a joining service.
+
+### Prerequisites
+
+- Nix develop shell (`nix develop`)
+- [h2hc-linker](https://github.com/nicetransition/h2hc-linker) built at `../h2hc-linker` (or set `H2HC_LINKER_DIR`)
+- [joining-service](https://github.com/nicetransition/joining-service) at `../joining-service` (or set `JOINING_SERVICE_DIR`) — only needed for joining mode
+- The HWC browser extension installed
+
+### Quick Start
+
+**Basic mode** (no joining service, direct linker connection):
+
+```bash
+npm run start:hwc
+```
+
+**With joining service** (invite code auth, default):
+
+```bash
+npm run start:hwc:joining
+```
+
+**With email code auth** (verification codes written to files):
+
+```bash
+AUTH_METHOD=email_code npm run start:hwc:joining
+```
+
+Email codes are written to `/tmp/mewsfeed-local-dev/dev-emails/`. Read the file to get the verification code.
+
+**With email code + hc_auth integration**:
+
+```bash
+AUTH_METHOD=email_code \
+HC_AUTH_URL=https://hc-auth-server.example.com \
+HC_AUTH_TOKEN=your-api-token \
+npm run start:hwc:joining
+```
+
+### Environment Variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `AUTH_METHOD` | `invite_code` | Auth method: `invite_code`, `email_code`, `open` |
+| `INVITE_CODES` | `test-invite-123` | Comma-separated invite codes (for `invite_code` method) |
+| `EMAIL_OUTPUT_DIR` | `/tmp/mewsfeed-local-dev/dev-emails` | Directory for email-to-file dev emails |
+| `HC_AUTH_URL` | _(empty)_ | hc_auth server URL (enables hc_auth notification on join) |
+| `HC_AUTH_TOKEN` | _(empty)_ | hc_auth API bearer token |
+| `HC_AUTH_FORWARD_CLAIMS` | _(empty)_ | Comma-separated claim keys to forward to hc_auth (e.g. `email,phone`) |
+| `JOINING_SERVICE_DIR` | `../joining-service` | Path to joining-service repo |
+| `H2HC_LINKER_DIR` | `../h2hc-linker` | Path to h2hc-linker repo |
+| `JOINING_SERVICE_PORT` | `3000` | Joining service port |
+| `LINKER_PORT` | `8000` | Linker port |
+| `NUM_CONDUCTORS` | `2` | Number of holochain conductors to start |
+| `LINKER_ADMIN_SECRET` | `local-dev-secret` | Linker admin secret |
+
+### Managing Services
+
+```bash
+./deploy/local-dev.sh status    # Show running services
+./deploy/local-dev.sh stop      # Stop all services
+```
+
 ## Holo Web Conductor Deployment
 
 For deploying mewsfeed with the Holo Web Conductor (HWC) browser extension, see [deploy/DEPLOY.md](deploy/DEPLOY.md).

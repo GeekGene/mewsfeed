@@ -5,6 +5,13 @@
 #   ./deploy/local-dev.sh joining      Also start local joining service
 #   ./deploy/local-dev.sh stop         Stop all local services
 #   ./deploy/local-dev.sh status       Show component status
+#
+# Environment variables:
+#   AUTH_METHOD        Auth method (default: invite_code). Options: invite_code, email_code, open
+#   INVITE_CODES       Comma-separated invite codes (default: test-invite-123)
+#   EMAIL_OUTPUT_DIR   Dir for email-to-file dev emails (default: $SANDBOX_DIR/dev-emails)
+#   HC_AUTH_URL        hc_auth server URL (optional, enables hc_auth notification)
+#   HC_AUTH_TOKEN      hc_auth API bearer token (required if HC_AUTH_URL set)
 
 set -euo pipefail
 
@@ -22,6 +29,10 @@ NUM_CONDUCTORS="${NUM_CONDUCTORS:-2}"
 LINKER_ADMIN_SECRET="${LINKER_ADMIN_SECRET:-local-dev-secret}"
 AUTH_METHOD="${AUTH_METHOD:-invite_code}"
 INVITE_CODES="${INVITE_CODES:-test-invite-123}"
+EMAIL_OUTPUT_DIR="${EMAIL_OUTPUT_DIR:-$SANDBOX_DIR/dev-emails}"
+HC_AUTH_URL="${HC_AUTH_URL:-}"
+HC_AUTH_TOKEN="${HC_AUTH_TOKEN:-}"
+HC_AUTH_FORWARD_CLAIMS="${HC_AUTH_FORWARD_CLAIMS:-}"
 
 LINKER_BINARY="$H2HC_LINKER_DIR/target/release/h2hc-linker"
 
@@ -269,6 +280,39 @@ start_joining_service() {
         CODES_JSON=$(echo "$INVITE_CODES" | tr ',' '\n' | sed 's/^/"/;s/$/"/' | paste -sd',' | sed 's/^/[/;s/$/]/')
     fi
 
+    # Build optional config sections
+    local EMAIL_JSON=""
+    if [ "$AUTH_METHOD" = "email_code" ]; then
+        mkdir -p "$EMAIL_OUTPUT_DIR"
+        EMAIL_JSON=$(cat <<EJSON
+  "email": {
+    "provider": "file",
+    "output_dir": "$EMAIL_OUTPUT_DIR"
+  },
+EJSON
+)
+        log_info "Email codes will be written to: $EMAIL_OUTPUT_DIR"
+    fi
+
+    local HC_AUTH_JSON=""
+    if [ -n "$HC_AUTH_URL" ] && [ -n "$HC_AUTH_TOKEN" ]; then
+        local FORWARD_CLAIMS_JSON=""
+        if [ -n "$HC_AUTH_FORWARD_CLAIMS" ]; then
+            FORWARD_CLAIMS_JSON=$(echo "$HC_AUTH_FORWARD_CLAIMS" | tr ',' '\n' | sed 's/^/"/;s/$/"/' | paste -sd',' | sed 's/^/,\n    "forward_claims": [/;s/$/]/')
+        fi
+        HC_AUTH_JSON=$(cat <<HJSON
+  "hc_auth": {
+    "url": "$HC_AUTH_URL",
+    "api_token": "$HC_AUTH_TOKEN"$FORWARD_CLAIMS_JSON
+  },
+HJSON
+)
+        log_info "hc_auth integration: $HC_AUTH_URL"
+        if [ -n "$HC_AUTH_FORWARD_CLAIMS" ]; then
+            log_info "hc_auth forward_claims: $HC_AUTH_FORWARD_CLAIMS"
+        fi
+    fi
+
     cat > "$CONFIG_FILE" <<JSONEOF
 {
   "happ": {
@@ -277,6 +321,8 @@ start_joining_service() {
   },
   "auth_methods": ["$AUTH_METHOD"],
   "invite_codes": $CODES_JSON,
+$EMAIL_JSON
+$HC_AUTH_JSON
   "session": {
     "store": "memory"
   },

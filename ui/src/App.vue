@@ -1,25 +1,31 @@
 <template>
-  <div ref="joinUiContainer"></div>
-
+  <!-- Initialization screens (extension check, connecting) -->
   <div
-    v-if="needsExtension"
-    class="h-screen w-full flex flex-col justify-center items-center space-y-4 p-8"
+    v-if="needsExtension || loadingClient"
+    class="h-screen w-full flex flex-col"
   >
-    <h3 class="text-xl font-title">Holochain Extension Required</h3>
-    <p class="text-sm opacity-70 max-w-md text-center">
-      This app requires the Holochain Web Conductor browser extension to run.
-      Please install it and reload this page.
-    </p>
+    <header class="flex items-center gap-3 px-6 py-4 border-b border-base-300">
+      <img src="/mewsfeed_logo.png" alt="mewsfeed logo" class="w-8 h-8 -scale-x-100" />
+      <h1 class="text-lg font-title">Welcome to Mewsfeed: Initialization</h1>
+    </header>
+
+    <div class="flex-1 flex flex-col justify-center items-center space-y-4 p-8">
+      <template v-if="needsExtension">
+        <h3 class="text-xl font-title">Holochain Extension Required</h3>
+        <p class="text-sm opacity-70 max-w-md text-center">
+          This app requires the Holochain Web Conductor browser extension to run.
+          Please install it and reload this page.
+        </p>
+      </template>
+
+      <template v-else>
+        <sl-spinner style="font-size: 2rem" class="mr-4"></sl-spinner>
+        <h6>Connecting...</h6>
+      </template>
+    </div>
   </div>
 
-  <div
-    v-else-if="loadingClient"
-    class="h-screen w-full flex justify-center items-center"
-  >
-    <sl-spinner style="font-size: 2rem" class="mr-4"></sl-spinner>
-    <h6>Connecting...</h6>
-  </div>
-
+  <!-- Main app -->
   <div
     v-else
     class="w-full flex justify-center items-center relative font-content cursor-default"
@@ -72,7 +78,6 @@ const loadingClient = ref<boolean>(true);
 const loadingCells = ref<boolean>(true);
 const cellsReady = computed(() => !loadingCells.value);
 const needsExtension = ref<boolean>(false);
-const joinUiContainer = ref<HTMLElement>();
 const themeStore = useThemeStore();
 themeStore.apply();
 const queryClient = useQueryClient();
@@ -101,9 +106,9 @@ const setup = async () => {
 
   // Connect — joining UI (claims form, challenge dialog, status) is
   // handled automatically by connectWithJoiningUI() inside setupHolochain().
-  client.value = await setupHolochain({
-    mountTo: joinUiContainer.value,
-  });
+  // The joining UI creates its own overlay after the extension connects,
+  // so the "Connecting..." spinner shows until user interaction is needed.
+  client.value = await setupHolochain();
 
   await asyncRetry(setupApp, {
     factor: 1.3,
