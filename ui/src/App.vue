@@ -18,7 +18,7 @@
         </p>
       </template>
 
-      <template v-else>
+      <template v-else-if="!isHwcJoining">
         <sl-spinner style="font-size: 2rem" class="mr-4"></sl-spinner>
         <h6>Connecting...</h6>
       </template>
@@ -78,6 +78,7 @@ const loadingClient = ref<boolean>(true);
 const loadingCells = ref<boolean>(true);
 const cellsReady = computed(() => !loadingCells.value);
 const needsExtension = ref<boolean>(false);
+const isHwcJoining = ref<boolean>(false);
 const themeStore = useThemeStore();
 themeStore.apply();
 const queryClient = useQueryClient();
@@ -94,14 +95,19 @@ onMounted(() => {
 });
 
 const setup = async () => {
+  // Detect HWC extension early so we know whether to show "Connecting..."
+  await detectHWC();
+
   // When a joining service is configured, extension is required
-  if (JOINING_SERVICE_URL) {
-    const hasExtension = await detectHWC();
-    if (!hasExtension) {
-      needsExtension.value = true;
-      loadingClient.value = false;
-      return;
-    }
+  if (JOINING_SERVICE_URL && !IS_HWC) {
+    needsExtension.value = true;
+    loadingClient.value = false;
+    return;
+  }
+
+  // HWC manages its own overlay UI, hide the "Connecting..." spinner
+  if (IS_HWC) {
+    isHwcJoining.value = true;
   }
 
   // Connect — joining UI (claims form, challenge dialog, status) is
