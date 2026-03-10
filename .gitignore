@@ -24,6 +24,7 @@ holo-dev-server
 
 ## deploy secrets
 deploy/config.sh
+deploy/local-dev.config.json
 
 ## wrangler local state
 .wrangler/

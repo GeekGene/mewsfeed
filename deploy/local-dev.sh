@@ -12,6 +12,7 @@
 #   EMAIL_OUTPUT_DIR   Dir for email-to-file dev emails (default: $SANDBOX_DIR/dev-emails)
 #   HC_AUTH_URL        hc_auth server URL (optional, enables hc_auth notification)
 #   HC_AUTH_TOKEN      hc_auth API bearer token (required if HC_AUTH_URL set)
+#   LOCAL_DEV_CONFIG_FILE  Path to a custom joining-service config JSON (skips config generation)
 
 set -euo pipefail
 
@@ -33,6 +34,7 @@ EMAIL_OUTPUT_DIR="${EMAIL_OUTPUT_DIR:-$SANDBOX_DIR/dev-emails}"
 HC_AUTH_URL="${HC_AUTH_URL:-}"
 HC_AUTH_TOKEN="${HC_AUTH_TOKEN:-}"
 HC_AUTH_FORWARD_CLAIMS="${HC_AUTH_FORWARD_CLAIMS:-}"
+LOCAL_DEV_CONFIG_FILE="${LOCAL_DEV_CONFIG_FILE:-}"
 
 LINKER_BINARY="$H2HC_LINKER_DIR/target/release/h2hc-linker"
 
@@ -271,49 +273,60 @@ start_joining_service() {
         exit 1
     fi
 
-    # Build config JSON
-    local CONFIG_FILE="$SANDBOX_DIR/joining-config.json"
+    local CONFIG_FILE
 
-    # Parse invite codes into JSON array
-    local CODES_JSON="[]"
-    if [ -n "$INVITE_CODES" ]; then
-        CODES_JSON=$(echo "$INVITE_CODES" | tr ',' '\n' | sed 's/^/"/;s/$/"/' | paste -sd',' | sed 's/^/[/;s/$/]/')
-    fi
+    if [ -n "$LOCAL_DEV_CONFIG_FILE" ]; then
+        # Use the user-provided config file directly
+        if [ ! -f "$LOCAL_DEV_CONFIG_FILE" ]; then
+            log_error "Config file not found: $LOCAL_DEV_CONFIG_FILE"
+            exit 1
+        fi
+        CONFIG_FILE="$(cd "$PROJECT_DIR" && realpath "$LOCAL_DEV_CONFIG_FILE")"
+        log_info "Using custom config: $CONFIG_FILE"
+    else
+        # Build config JSON from env vars
+        CONFIG_FILE="$SANDBOX_DIR/joining-config.json"
 
-    # Build optional config sections
-    local EMAIL_JSON=""
-    if [ "$AUTH_METHOD" = "email_code" ]; then
-        mkdir -p "$EMAIL_OUTPUT_DIR"
-        EMAIL_JSON=$(cat <<EJSON
+        # Parse invite codes into JSON array
+        local CODES_JSON="[]"
+        if [ -n "$INVITE_CODES" ]; then
+            CODES_JSON=$(echo "$INVITE_CODES" | tr ',' '\n' | sed 's/^/"/;s/$/"/' | paste -sd',' | sed 's/^/[/;s/$/]/')
+        fi
+
+        # Build optional config sections
+        local EMAIL_JSON=""
+        if [ "$AUTH_METHOD" = "email_code" ]; then
+            mkdir -p "$EMAIL_OUTPUT_DIR"
+            EMAIL_JSON=$(cat <<EJSON
   "email": {
     "provider": "file",
     "output_dir": "$EMAIL_OUTPUT_DIR"
   },
 EJSON
 )
-        log_info "Email codes will be written to: $EMAIL_OUTPUT_DIR"
-    fi
-
-    local HC_AUTH_JSON=""
-    if [ -n "$HC_AUTH_URL" ] && [ -n "$HC_AUTH_TOKEN" ]; then
-        local FORWARD_CLAIMS_JSON=""
-        if [ -n "$HC_AUTH_FORWARD_CLAIMS" ]; then
-            FORWARD_CLAIMS_JSON=$(echo "$HC_AUTH_FORWARD_CLAIMS" | tr ',' '\n' | sed 's/^/"/;s/$/"/' | paste -sd',' | sed 's/^/,\n    "forward_claims": [/;s/$/]/')
+            log_info "Email codes will be written to: $EMAIL_OUTPUT_DIR"
         fi
-        HC_AUTH_JSON=$(cat <<HJSON
+
+        local HC_AUTH_JSON=""
+        if [ -n "$HC_AUTH_URL" ] && [ -n "$HC_AUTH_TOKEN" ]; then
+            local FORWARD_CLAIMS_JSON=""
+            if [ -n "$HC_AUTH_FORWARD_CLAIMS" ]; then
+                FORWARD_CLAIMS_JSON=$(echo "$HC_AUTH_FORWARD_CLAIMS" | tr ',' '\n' | sed 's/^/"/;s/$/"/' | paste -sd',' | sed 's/^/,\n    "forward_claims": [/;s/$/]/')
+            fi
+            HC_AUTH_JSON=$(cat <<HJSON
   "hc_auth": {
     "url": "$HC_AUTH_URL",
     "api_token": "$HC_AUTH_TOKEN"$FORWARD_CLAIMS_JSON
   },
 HJSON
 )
-        log_info "hc_auth integration: $HC_AUTH_URL"
-        if [ -n "$HC_AUTH_FORWARD_CLAIMS" ]; then
-            log_info "hc_auth forward_claims: $HC_AUTH_FORWARD_CLAIMS"
+            log_info "hc_auth integration: $HC_AUTH_URL"
+            if [ -n "$HC_AUTH_FORWARD_CLAIMS" ]; then
+                log_info "hc_auth forward_claims: $HC_AUTH_FORWARD_CLAIMS"
+            fi
         fi
-    fi
 
-    cat > "$CONFIG_FILE" <<JSONEOF
+        cat > "$CONFIG_FILE" <<JSONEOF
 {
   "happ": {
     "id": "mewsfeed",
@@ -335,9 +348,9 @@ $HC_AUTH_JSON
   ]
 }
 JSONEOF
+    fi
 
-    log_info "Starting joining service on port $JOINING_SERVICE_PORT (auth: $AUTH_METHOD)..."
-    log_info "Config: $CONFIG_FILE"
+    log_info "Starting joining service (config: $CONFIG_FILE)..."
 
     (cd "$JOINING_SERVICE_DIR" && npx tsx src/server.ts "$CONFIG_FILE") \
         > "$SANDBOX_DIR/joining.log" 2>&1 &

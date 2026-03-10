@@ -1,0 +1,26 @@
+{
+  "happ": {
+    "id": "mewsfeed",
+    "name": "MewsFeed"
+  },
+  "auth_methods": ["email_code"],
+  "email": {
+    "provider": "sendgrid",
+    "api_key": "SG.your-sendgrid-api-key-here",
+    "from": "noreply@yourdomain.com"
+  },
+  "hc_auth": {
+    "url": "http://localhost:4000",
+    "api_token": "your-hc-auth-token-here"
+  },
+  "session": {
+    "store": "memory"
+  },
+  "port": 3000,
+  "linker_registrations": [
+    {
+      "linker_url": { "url": "http://localhost:8000" },
+      "admin": { "url": "http://localhost:8000", "secret": "local-dev-secret" }
+    }
+  ]
+}
