@@ -74,9 +74,38 @@ The `deploy/local-dev.sh` script manages local infrastructure for testing with t
 ### Prerequisites
 
 - Nix develop shell (`nix develop`)
-- [h2hc-linker](https://github.com/nicetransition/h2hc-linker) built at `../h2hc-linker` (or set `H2HC_LINKER_DIR`)
-- [joining-service](https://github.com/nicetransition/joining-service) at `../joining-service` (or set `JOINING_SERVICE_DIR`) — only needed for joining mode
+- Sibling repo checkouts (see layout below)
+- [h2hc-linker](https://github.com/holo-host/h2hc-linker) built at `../h2hc-linker` (or set `H2HC_LINKER_DIR`)
+- [joining-service](https://github.com/holo-host/joining-service) at `../joining-service` (or set `JOINING_SERVICE_DIR`) — only needed for joining mode
 - The HWC browser extension installed
+
+### First-time setup
+
+All HWC-related repos must be siblings in the same parent directory:
+
+```
+parent/
+├── mewsfeed/               # This repo
+├── holo-web-conductor/     # Required (provides client library)
+├── joining-service/        # Optional (for joining mode)
+└── h2hc-linker/            # Required (linker binary)
+```
+
+Run the setup script from holo-web-conductor to verify the layout and build dependencies:
+
+```bash
+cd ../holo-web-conductor
+nix develop -c ./scripts/holo-dev-setup.sh
+```
+
+Use `--clone` to automatically clone missing repos, or `--download-linker` to fetch a prebuilt linker binary instead of building from source.
+
+Then install this repo's dependencies:
+
+```bash
+cd ../mewsfeed
+nix develop -c npm install
+```
 
 ### Quick Start
 
