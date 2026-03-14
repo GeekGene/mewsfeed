@@ -8,6 +8,10 @@
   </head>
   <body>
     <div id="app"></div>
+    <!-- Optional runtime context config — provided by the serving environment, not the build.
+         Sets window.__HOLOCHAIN_RUNTIME__ to declare which runtime (hwc, launcher, moss, dev).
+         Silently ignored if the file doesn't exist. -->
+    <script src="/runtime-config.js" onerror="/* no runtime config — will use defaults */"></script>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

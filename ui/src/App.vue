@@ -50,7 +50,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, provide, ref, shallowRef, toRaw, watch } from "vue";
-import { IS_HWC, JOINING_SERVICE_URL, detectHWC, setupHolochain } from "@/utils/client";
+import { IS_HWC, waitForExtension, setupHolochain } from "@/utils/client";
 import { ZeroArcProfilesClient } from "@/hwc";
 import MainLayout from "@/layouts/MainLayout.vue";
 import { PROFILES_CONFIG } from "@/utils/profiles";
@@ -95,25 +95,21 @@ onMounted(() => {
 });
 
 const setup = async () => {
-  // Detect HWC extension early so we know whether to show "Connecting..."
-  await detectHWC();
-
-  // When a joining service is configured, extension is required
-  if (JOINING_SERVICE_URL && !IS_HWC) {
-    needsExtension.value = true;
-    loadingClient.value = false;
-    return;
-  }
-
-  // HWC manages its own overlay UI, hide the "Connecting..." spinner
+  // In HWC context, check that the extension is actually installed
   if (IS_HWC) {
+    const extensionPresent = await waitForExtension();
+    if (!extensionPresent) {
+      needsExtension.value = true;
+      loadingClient.value = false;
+      return;
+    }
+    // HWC manages its own overlay UI, hide the "Connecting..." spinner
     isHwcJoining.value = true;
   }
 
-  // Connect — joining UI (claims form, challenge dialog, status) is
-  // handled automatically by connectWithJoiningUI() inside setupHolochain().
-  // The joining UI creates its own overlay after the extension connects,
-  // so the "Connecting..." spinner shows until user interaction is needed.
+  // Connect — in HWC mode, connectWithJoiningUI() handles the extension
+  // approval overlay, joining UI, and connection. In other modes,
+  // setupHolochain() connects directly.
   client.value = await setupHolochain();
 
   await asyncRetry(setupApp, {

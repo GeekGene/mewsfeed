@@ -1,31 +1,33 @@
 import { AdminWebsocket, CellType, AppWebsocket } from "@holochain/client";
 import { waitForHolochain } from "@/hwc";
 import { connectWithJoiningUI } from "@holo-host/web-conductor-client/ui";
+import { getRuntime, Runtime } from "@holo-host/web-conductor-client/runtime";
 
 export const HOLOCHAIN_APP_ID = "mewsfeed";
-export const IS_LAUNCHER = (window as any).__HC_LAUNCHER_ENV__ !== undefined;
 
-// Web Conductor extension detection
+// Joining service URL (compile-time or empty)
 declare const __JOINING_SERVICE_URL__: string;
 export const JOINING_SERVICE_URL = typeof __JOINING_SERVICE_URL__ !== "undefined" ? __JOINING_SERVICE_URL__ : "";
-export let IS_HWC = false;
+
+// Runtime context — determined by the serving environment, not probed
+export const RUNTIME = getRuntime();
+export const IS_HWC = RUNTIME === Runtime.HWC;
 
 export interface SetupHolochainOptions {
   mountTo?: HTMLElement;
 }
 
 /**
- * Detect whether the HWC extension is available.
- * Sets IS_HWC and returns true if detected.
+ * Wait for the HWC extension to inject window.holochain.
+ * Only called when we already know we're in HWC context.
+ * Returns true if the extension is present.
  */
-export const detectHWC = async (): Promise<boolean> => {
+export const waitForExtension = async (): Promise<boolean> => {
   if ((window as any).holochain?.isWebConductor) {
-    IS_HWC = true;
     return true;
   }
   try {
     await waitForHolochain(3000);
-    IS_HWC = true;
     return true;
   } catch {
     return false;
@@ -34,14 +36,8 @@ export const detectHWC = async (): Promise<boolean> => {
 
 export const setupHolochain = async (opts?: SetupHolochainOptions) => {
   try {
-    // Detect extension if not already done
-    if (!IS_HWC) {
-      await detectHWC();
-    }
-
     if (IS_HWC) {
-      console.log("Holochain extension detected, using connectWithJoiningUI, joiningServiceUrl:", JOINING_SERVICE_URL || "(empty)");
-      // linkerUrl can be passed via ?linkerUrl= query param for direct (non-joining) connections
+      console.log("HWC runtime context, joiningServiceUrl:", JOINING_SERVICE_URL || "(empty)");
       const linkerUrl = new URLSearchParams(window.location.search).get("linkerUrl") || undefined;
       const hwcClient = await connectWithJoiningUI({
         roleName: "mewsfeed",
@@ -51,20 +47,17 @@ export const setupHolochain = async (opts?: SetupHolochainOptions) => {
         }),
         ...(opts?.mountTo && { mountTo: opts.mountTo }),
       });
-      // Cast to AppWebsocket to satisfy type checker (different @holochain/client versions)
       return hwcClient as unknown as AppWebsocket;
     }
 
-    let client;
-    if (IS_LAUNCHER) {
-      client = await AppWebsocket.connect({
+    if (RUNTIME === Runtime.Launcher) {
+      return await AppWebsocket.connect({
         defaultTimeout: 60000,
       });
-    } else {
-      client = await createClient();
     }
 
-    return client;
+    // Dev mode — direct admin/app websocket
+    return await createClient();
   } catch (e) {
     console.log("Holochain client setup error", e);
     throw e;
