@@ -13,7 +13,7 @@ Come join us on mewsfeed. We're talking at the hashtags #mewsfeed and #holochain
 You can follow the team on mewsfeed at:
 
 @artbrock
-@bierlingm
+@zippy
 @mattyg
 @jost
 
