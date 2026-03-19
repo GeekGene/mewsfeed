@@ -67,7 +67,7 @@ test("Followed creators mews should include mews of followed creator", async () 
         appSource,
       ]);
 
-      const mewContent = "test-mew";
+      const mewContent = "test-mew-content";
       const mewInput: Mew = {
         text: mewContent,
         links: [],
@@ -134,7 +134,7 @@ test("Followed creators mews should include own mews", async () => {
         "alice's mews feed is initially empty"
       );
 
-      const mewContent = "test-mew";
+      const mewContent = "test-mew-content";
       const mewInput: Mew = {
         text: mewContent,
         links: [],

@@ -165,8 +165,8 @@ test("Can get deserialized DNA Properties", async () => {
         fn_name: "get_dna_properties",
         payload: null,
       });
-      expect(properties).toHaveProperty("mew_characters_min", 5);
-      expect(properties).toHaveProperty("mew_characters_max", 200);
+      expect(properties).toHaveProperty("mew_characters_min", 10);
+      expect(properties).toHaveProperty("mew_characters_max", null);
     },
     true,
     { timeout: 500000 }
