@@ -83,6 +83,14 @@ fn get_followed_creators_mew_hashes(
 }
 
 #[hdk_extern]
+pub fn get_followed_creators_mew_hashes_extern(
+    input: ZomeFnInput<GetFollowedCreatorsMewsInput>,
+) -> ExternResult<Vec<ActionHash>> {
+    let strategy = input.get_strategy();
+    get_followed_creators_mew_hashes(input.input, strategy)
+}
+
+#[hdk_extern]
 pub fn get_my_followed_creators_mews_with_context(
     input: ZomeFnInput<Option<HashPagination>>,
 ) -> ExternResult<Vec<FeedMew>> {

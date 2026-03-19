@@ -42,7 +42,7 @@
       </div>
 
       <NetworkInfo
-        class="flex justify-start items-center fixed left-0 sm:left-auto sm:right-5 bottom-[6.25rem] sm:bottom-12 my-8 mx-4 z-50 opacity-50"
+        class="flex justify-start items-center fixed left-0 sm:left-auto sm:right-5 bottom-[6.25rem] sm:bottom-12 my-8 mx-4 z-50"
       />
     </profiles-context>
   </div>

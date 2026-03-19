@@ -4,42 +4,45 @@
     @click.passive="navigateToYarn(feedMew.action_hash)"
   >
     <div
-      v-if="feedMew.original_mew && showYarnLink"
+      v-if="isResponseType && showYarnLink"
       class="flex justify-between items-center w-full pt-4 px-4"
     >
       <Component
-        :is="enableYarnLink ? 'RouterLink' : 'span'"
+        :is="enableYarnLink && feedMew.original_mew ? 'RouterLink' : 'span'"
         :class="{
           'flex justify-start items-center space-x-1 bg-base-200 font-bold px-2 py-1 text-xs rounded-lg uppercase cursor-default':
-            !enableYarnLink,
-          'btn btn-xs': enableYarnLink,
+            !enableYarnLink || !feedMew.original_mew,
+          'btn btn-xs': enableYarnLink && feedMew.original_mew,
         }"
-        :to="{
+        :to="feedMew.original_mew ? {
           name: ROUTES.yarn,
           params: {
             actionHash: encodeHashToBase64(feedMew.original_mew.action_hash),
           },
-        }"
+        } : undefined"
         @click.stop.prevent
       >
         <div
           :class="{
-            'text-primary': enableYarnLink,
+            'text-primary': enableYarnLink && feedMew.original_mew,
           }"
         >
           {{ responseLabel }}
         </div>
-        <BaseAgentProfileName
-          :profile="feedMew.original_mew.author_profile"
-          :agentPubKey="feedMew.original_mew.action.author"
-        />
+        <template v-if="feedMew.original_mew">
+          <BaseAgentProfileName
+            :profile="feedMew.original_mew.author_profile"
+            :agentPubKey="feedMew.original_mew.action.author"
+          />
 
-        <div
-          v-if="feedMew.original_mew.deleted_timestamp !== null"
-          class="text-bold text-primary"
-        >
-          (Deleted)
-        </div>
+          <div
+            v-if="feedMew.original_mew.deleted_timestamp !== null"
+            class="text-bold text-primary"
+          >
+            (Deleted)
+          </div>
+        </template>
+        <span v-else class="italic opacity-50">unavailable</span>
       </Component>
 
       <div class="font-mono text-xs">
@@ -102,6 +105,26 @@
               <div class="flex justify-end items-end">
                 <IconFormatQuoteClose class="text-base-300 text-2xl" />
               </div>
+            </div>
+          </div>
+
+          <div
+            v-else-if="
+              (!isDeleted || showIfDeleted) &&
+              isResponseType &&
+              !feedMew.original_mew
+            "
+            class="w-full"
+          >
+            <BaseMewContent
+              v-if="!isMewmew"
+              :mew="(feedMew.mew as Mew)"
+              :disable-truncate="disableTruncateContent"
+            />
+            <div
+              class="bg-base-200 rounded-md p-3 my-2 text-base-content/50 italic text-sm"
+            >
+              Referenced mew is currently unavailable
             </div>
           </div>
 
@@ -199,7 +222,7 @@
                   popperClass: 'text-xs',
                   triggers: ['hover'],
                 }"
-                :disable="isDeleted"
+                :disabled="isDeleted || feedMew.is_mewmewed"
                 class="flex justify-start items-center space-x-1 p-2"
                 :class="{
                   'text-green-400 cursor-default': feedMew.is_mewmewed,
@@ -390,6 +413,9 @@ const isReply = computed(
     typeof props.feedMew.mew.mew_type === "object" &&
     MewTypeName.Reply in props.feedMew.mew.mew_type
 );
+const isResponseType = computed(
+  () => isMewmew.value || isQuote.value || isReply.value
+);
 const responseLabel = computed(() =>
   isMewmew.value ? "mewmewed from" : isReply.value ? "replied to" : "quoted"
 );
@@ -495,6 +521,8 @@ const togglePinMew = async () => {
 
 const onCreateMewmew = async (feedMew: FeedMew) => {
   closeCreateMewDialog();
+  feedMew.is_mewmewed = true;
+  feedMew.mewmews_count += 1;
   emit("mewmew-created", feedMew);
   showMessage("Mewmewed");
 };

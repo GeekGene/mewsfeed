@@ -97,56 +97,66 @@ pub fn get_mew_with_context_internal(
                 MewType::Reply(response_to_hash)
                 | MewType::Quote(response_to_hash)
                 | MewType::Mewmew(response_to_hash) => {
-                    let details = get_details(response_to_hash, get_options)?.ok_or(
-                        wasm_error!(WasmErrorInner::Guest(String::from("Mew not found"))),
-                    )?;
+                    let original_mew_embed =
+                        match get_details(response_to_hash.clone(), get_options) {
+                            Ok(Some(Details::Record(record_details))) => {
+                                let original_mew_author_profile = get_agent_profile(
+                                    record_details.record.action().author().clone(),
+                                )
+                                .ok()
+                                .flatten();
+                                let original_mew_deleted_timestamp = record_details
+                                    .deletes
+                                    .first()
+                                    .map(|first_delete| first_delete.action().timestamp());
 
-                    match details {
-                        Details::Record(record_details) => {
-                            let original_mew_author_profile =
-                                get_agent_profile(record_details.record.action().author().clone())?;
-                            let original_mew_deleted_timestamp = record_details
-                                .deletes
-                                .first()
-                                .map(|first_delete| first_delete.action().timestamp());
+                                match record_details.record.entry().to_app_option::<Mew>() {
+                                    Ok(Some(original_mew)) => Some(EmbedMew {
+                                        mew: original_mew,
+                                        action: record_details.record.action().clone(),
+                                        action_hash: record_details
+                                            .record
+                                            .action_hashed()
+                                            .clone()
+                                            .hash,
+                                        author_profile: original_mew_author_profile,
+                                        deleted_timestamp: original_mew_deleted_timestamp,
+                                    }),
+                                    _ => {
+                                        debug!(
+                                            "Malformed original mew {:?}, returning None",
+                                            response_to_hash
+                                        );
+                                        None
+                                    }
+                                }
+                            }
+                            _ => {
+                                debug!(
+                                    "Original mew {:?} unavailable, returning None",
+                                    response_to_hash
+                                );
+                                None
+                            }
+                        };
 
-                            let original_mew: Mew = record_details
-                                .record
-                                .entry()
-                                .to_app_option()
-                                .map_err(|e| wasm_error!(WasmErrorInner::Guest(e.into())))?
-                                .ok_or(wasm_error!(WasmErrorInner::Guest(String::from(
-                                    "Malformed original mew"
-                                ))))?;
-
-                            Ok(FeedMew {
-                                mew,
-                                action: record.action().clone(),
-                                action_hash: record.signed_action().as_hash().clone(),
-                                replies_count,
-                                quotes_count,
-                                licks_count,
-                                mewmews_count,
-                                author_profile,
-                                deleted_timestamp,
-                                is_pinned,
-                                is_licked,
-                                is_mewmewed,
-                                is_replied,
-                                is_quoted,
-                                original_mew: Some(EmbedMew {
-                                    mew: original_mew,
-                                    action: record_details.record.action().clone(),
-                                    action_hash: record_details.record.action_hashed().clone().hash,
-                                    author_profile: original_mew_author_profile,
-                                    deleted_timestamp: original_mew_deleted_timestamp,
-                                }),
-                            })
-                        }
-                        _ => Err(wasm_error!(WasmErrorInner::Guest(String::from(
-                            "Expected Details::Record, got something else"
-                        )))),
-                    }
+                    Ok(FeedMew {
+                        mew,
+                        action: record.action().clone(),
+                        action_hash: record.signed_action().as_hash().clone(),
+                        replies_count,
+                        quotes_count,
+                        licks_count,
+                        mewmews_count,
+                        author_profile,
+                        deleted_timestamp,
+                        is_pinned,
+                        is_licked,
+                        is_mewmewed,
+                        is_replied,
+                        is_quoted,
+                        original_mew: original_mew_embed,
+                    })
                 }
             }
         }
@@ -161,21 +171,25 @@ pub fn get_batch_mews_with_context(
     input: ZomeFnInput<Vec<ActionHash>>,
 ) -> ExternResult<Vec<FeedMew>> {
     let get_options = input.get_options();
-    input
-        .input
-        .into_iter()
-        .map(|hash| get_mew_with_context_internal(hash, get_options.clone()))
-        .collect::<ExternResult<Vec<FeedMew>>>()
+    get_batch_mews_with_context_internal(input.input, get_options)
 }
 
 pub fn get_batch_mews_with_context_internal(
     hashes: Vec<ActionHash>,
     get_options: GetOptions,
 ) -> ExternResult<Vec<FeedMew>> {
-    hashes
+    Ok(hashes
         .into_iter()
-        .map(|hash| get_mew_with_context_internal(hash, get_options.clone()))
-        .collect::<ExternResult<Vec<FeedMew>>>()
+        .filter_map(|hash| {
+            match get_mew_with_context_internal(hash.clone(), get_options.clone()) {
+                Ok(feed_mew) => Some(feed_mew),
+                Err(e) => {
+                    debug!("Skipping unavailable mew {:?}: {:?}", hash, e);
+                    None
+                }
+            }
+        })
+        .collect())
 }
 
 #[hdk_extern]

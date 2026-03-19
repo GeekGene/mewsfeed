@@ -14,8 +14,22 @@
         </div>
 
         <!-- Linker URL -->
-        <div v-if="linkerUrl" class="text-xs opacity-70 mb-3 break-all">
-          {{ linkerUrl }}
+        <div class="text-xs opacity-70 mb-3 break-all">
+          <span class="font-bold">Linker:</span> {{ linkerUrl || 'Not configured' }}
+        </div>
+
+        <!-- Joining service error -->
+        <div v-if="connectionState?.joiningServiceError" class="mt-1 mb-3 p-2 rounded bg-error/20 text-xs">
+          <div class="font-bold mb-1">Joining Service</div>
+          <div class="opacity-80 mb-2">{{ connectionState.joiningServiceError }}</div>
+          <button
+            class="btn btn-xs btn-outline"
+            :disabled="rejoining"
+            @click="handleRejoin"
+          >
+            {{ rejoining ? 'Rejoining...' : 'Rejoin' }}
+          </button>
+          <div v-if="rejoinError" class="mt-1 opacity-80 text-error">{{ rejoinError }}</div>
         </div>
 
         <!-- Status rows -->
@@ -69,8 +83,11 @@
         <template v-else>
           <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg">Network Info</h3>
-            <div class="text-xs">Updated {{ lastUpdatedSeconds }}s ago</div>
+            <button class="btn btn-ghost btn-xs" @click="showExpanded = false">
+              <IconCloseCircleOutline />
+            </button>
           </div>
+          <div class="text-xs opacity-70 mb-2">Updated {{ lastUpdatedSeconds }}s ago</div>
           <div class="flex justify-start items-center space-x-2 text-xs">
             <div class="font-bold">Backend</div>
             <div>{{ data.backend }}</div>
@@ -92,13 +109,25 @@
               ... and {{ data.connections.length - 3 }} more
             </div>
           </div>
-          <IconCloseCircleOutline class="absolute top-1 right-1" />
         </template>
       </template>
+
+      <!-- Feed strategy toggle (available in both HWC and non-HWC) -->
+      <div class="mt-3 pt-3 border-t border-warning-content/20">
+        <div class="flex justify-between items-center text-xs">
+          <span class="font-bold">Feed Strategy</span>
+          <button
+            class="btn btn-xs"
+            @click="feedStrategy.toggle()"
+          >
+            {{ feedStrategy.strategy }}
+          </button>
+        </div>
+      </div>
     </div>
     <div
       v-else
-      class="flex justify-start items-center space-x-2 badge badge-warning py-4 cursor-pointer"
+      class="flex justify-start items-center space-x-2 badge badge-warning py-4 cursor-pointer opacity-50"
       @click="showExpanded = true"
     >
       <template v-if="isHwc">
@@ -133,12 +162,15 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { IS_HWC } from "@/utils/client";
 import { WebConductorAppClient, type ConnectionState } from "@/hwc";
+import { rejoinWithUI } from "@holo-host/web-conductor-client/ui";
+import { useFeedStrategyStore } from "@/stores/feedStrategy";
 dayjs.extend(relativeTime);
 
 const client = (inject("client") as ComputedRef<AppClient>).value;
 const cellsReady = useCellsReady();
 const isHwc = IS_HWC;
 
+const feedStrategy = useFeedStrategyStore();
 const showExpanded = ref(false);
 const lastUpdatedSeconds = ref(0);
 
@@ -169,6 +201,29 @@ if (isHwc && client) {
       connectedSince.value = null;
     }
   });
+}
+
+// --- Rejoin ---
+const rejoining = ref(false);
+const rejoinError = ref('');
+
+async function handleRejoin() {
+  if (!isHwc || !client) return;
+  const hwcClient = client as unknown as WebConductorAppClient;
+
+  rejoining.value = true;
+  rejoinError.value = '';
+  try {
+    await rejoinWithUI(hwcClient);
+    // Refresh connection state
+    connectionState.value = hwcClient.getConnectionState();
+  } catch (e: any) {
+    if (e?.message !== 'Rejoin cancelled') {
+      rejoinError.value = e?.message ?? String(e);
+    }
+  } finally {
+    rejoining.value = false;
+  }
 }
 
 function updateUptime() {
