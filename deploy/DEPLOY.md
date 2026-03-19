@@ -8,7 +8,7 @@ Deploy mewsfeed with the Holo Web Conductor (HWC) browser extension: UI on Cloud
 Browser (HWC extension)
   → Cloudflare Pages (mewsfeed UI + .happ bundle)
   → Cloudflare Worker (joining service, invite_code auth)
-  → Linker (local, tunneled via cloudflared, white_list auth)
+  → Linker (local, tunneled via cloudflared, allow_list auth)
   → 2x Conductor (local, always-on, full-arc DHT nodes)
   → Public Holo bootstrap server
 ```
@@ -28,8 +28,8 @@ Browser (HWC extension)
    - Cloudflare Pages: Edit
    - Account Settings: Read
 - [cloudflared](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/) installed (default tunnel provider), or [ngrok](https://ngrok.com/) (set `TUNNEL_PROVIDER="ngrok"` in config)
-- [h2hc-linker](https://github.com/AInonymous/h2hc-linker) repo cloned as a sibling directory
-- [holo-web-conductor](https://github.com/AInonymous/holo-web-conductor) repo on `feat/joining-client` branch, with the extension built and loaded in Chrome
+- [h2hc-linker](https://github.com/holo-host/h2hc-linker) repo cloned as a sibling directory
+- [holo-web-conductor](https://github.com/holo/holo-web-conductor) repo on `main` branch, with the extension built and loaded in Chrome
 
 ## Quick Start
 
@@ -89,7 +89,7 @@ See `config.example.sh` for all options. Key settings:
 
 2. **Joining service** runs as a Cloudflare Worker with `invite_code` auth. It stores sessions and linker registrations in Workers KV.
 
-3. **Linker** runs locally with `H2HC_LINKER_ADMIN_SECRET` set, which enables white_list auth. A tunnel (cloudflared by default, or ngrok) exposes it at a public URL.
+3. **Linker** runs locally with `H2HC_LINKER_ADMIN_SECRET` set, which enables allow_list auth. A tunnel (cloudflared by default, or ngrok) exposes it at a public URL.
 
 4. **Conductors** (2x) run locally via `hc sandbox`, connected to the public bootstrap server for DHT networking.
 
@@ -111,4 +111,4 @@ See `config.example.sh` for all options. Key settings:
 
 **"hc command not found"**: Run commands inside `nix develop` shell.
 
-**Extension not connecting**: Make sure the HWC extension is built from the `feat/joining-client` branch and loaded in Chrome.
+**Extension not connecting**: Make sure the HWC extension is built from the `main` branch and loaded in Chrome.

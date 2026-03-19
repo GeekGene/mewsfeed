@@ -33,3 +33,4 @@ deploy/local-dev.config.json
 deploy/cloudflare/wrangler.toml
 
 .claude
+.dmux/

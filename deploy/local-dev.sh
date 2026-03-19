@@ -219,7 +219,7 @@ start_linker() {
     # In basic mode, run without auth so the extension can connect directly.
     # The linker treats any set value (even empty) as "auth enabled", so we must unset it.
     local -a LINKER_ENV=(
-        "H2HC_LINKER_ADMIN_WS_URL=127.0.0.1:$ADMIN_PORT"
+        "H2HC_LINKER_CONDUCTOR_URL=127.0.0.1:$ADMIN_PORT"
         "H2HC_LINKER_BOOTSTRAP_URL=$BOOTSTRAP_URL"
         "H2HC_LINKER_RELAY_URL=$RELAY_URL"
         "RUST_LOG=info,h2hc_linker=debug"
@@ -338,6 +338,13 @@ $EMAIL_JSON
 $HC_AUTH_JSON
   "session": {
     "store": "memory"
+  },
+  "network": {
+    "bootstrap_url": "$BOOTSTRAP_URL",
+    "relay_url": "$RELAY_URL"
+  },
+  "linker_auth": {
+    "capabilities": ["dht_read", "dht_write", "k2"]
   },
   "port": $JOINING_SERVICE_PORT,
   "linker_registrations": [

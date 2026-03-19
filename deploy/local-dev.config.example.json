@@ -16,6 +16,13 @@
   "session": {
     "store": "memory"
   },
+  "network": {
+    "bootstrap_url": "http://127.0.0.1:BOOTSTRAP_PORT",
+    "relay_url": "http://127.0.0.1:RELAY_PORT"
+  },
+  "linker_auth": {
+    "capabilities": ["dht_read", "dht_write", "k2"]
+  },
   "port": 3000,
   "linker_registrations": [
     {

@@ -13,6 +13,7 @@ import { OpenAuthMethod } from '../../../joining-service/src/auth-methods/open.j
 import { EmailCodeAuthMethod } from '../../../joining-service/src/auth-methods/email-code.js';
 import { InviteCodeAuthMethod } from '../../../joining-service/src/auth-methods/invite-code.js';
 import { PostmarkTransport } from '../../../joining-service/src/email/postmark.js';
+import { SendGridTransport } from '../../../joining-service/src/email/sendgrid.js';
 import { LairProofGenerator } from '../../../joining-service/src/membrane-proof/lair-signer.js';
 import type { MembraneProofGenerator } from '../../../joining-service/src/membrane-proof/generator.js';
 import type { AuthMethodPlugin } from '../../../joining-service/src/auth-methods/plugin.js';
@@ -32,6 +33,13 @@ function buildEmailTransport(config: ServiceConfig): EmailTransport | null {
       throw new Error('Postmark requires api_key and from');
     }
     return new PostmarkTransport(config.email.api_key, config.email.from);
+  }
+
+  if (config.email.provider === 'sendgrid') {
+    if (!config.email.api_key || !config.email.from) {
+      throw new Error('SendGrid requires api_key and from');
+    }
+    return new SendGridTransport(config.email.api_key, config.email.from);
   }
 
   return null;

@@ -5,7 +5,7 @@
 # Orchestrates a full e2e deployment:
 #   - Cloudflare Worker (joining service with invite_code auth)
 #   - Cloudflare Pages (mewsfeed UI + .happ bundle)
-#   - Local linker (h2hc-linker with white_list auth, tunneled via cloudflared/ngrok)
+#   - Local linker (h2hc-linker with allow_list auth, tunneled via cloudflared/ngrok)
 #   - Local conductors (2x always-on nodes)
 #
 # Usage:
@@ -182,6 +182,12 @@ cmd_build() {
 
     # Build with joining service URL baked in
     JOINING_SERVICE_URL="$worker_url" npm run build
+
+    # Set HWC runtime context for the deployed build
+    cat > "$PROJECT_DIR/ui/dist/runtime-config.js" <<'RTEOF'
+window.__HOLOCHAIN_RUNTIME__ = "hwc";
+RTEOF
+    log_info "Set runtime-config.js to HWC mode"
 
     # Copy hApp bundle into dist for Pages hosting
     if [ -f "$HAPP_BUNDLE_PATH" ]; then
@@ -462,7 +468,7 @@ start_linker() {
     fi
 
     env \
-    H2HC_LINKER_ADMIN_WS_URL="127.0.0.1:$ADMIN_PORT" \
+    H2HC_LINKER_CONDUCTOR_URL="127.0.0.1:$ADMIN_PORT" \
     H2HC_LINKER_BOOTSTRAP_URL="$BOOTSTRAP_URL" \
     H2HC_LINKER_RELAY_URL="$RELAY_URL" \
     H2HC_LINKER_ADMIN_SECRET="$LINKER_ADMIN_SECRET" \
