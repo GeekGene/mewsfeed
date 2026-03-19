@@ -28,11 +28,10 @@ pub fn get_joining_timestamp_for_agent(
         get_options,
     };
 
-    let joining_agent_activity: AgentActivity =
-        host_call::<GetAgentActivityInputWithOptions, AgentActivity>(
-            __hc__get_agent_activity_1,
-            activity_input,
-        )?;
+    let joining_agent_activity: AgentActivity = host_call::<
+        GetAgentActivityInputWithOptions,
+        AgentActivity,
+    >(__hc__get_agent_activity_1, activity_input)?;
 
     let Some(action) = joining_agent_activity.valid_activity.first() else {
         return Ok(None);
