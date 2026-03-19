@@ -52,7 +52,14 @@
       />
     </div>
 
-    <button class="btn btn-primary btn-md w-full" @click="save">Save</button>
+    <button
+      class="btn btn-primary btn-md w-full"
+      :disabled="saving"
+      @click="save"
+    >
+      <span v-if="saving" class="loading loading-spinner loading-sm"></span>
+      Save
+    </button>
   </div>
 </template>
 
@@ -66,6 +73,7 @@ import { useToasts } from "@/stores/toasts";
 const emit = defineEmits(["update:model-value"]);
 const props = defineProps<{
   modelValue?: Profile;
+  saving?: boolean;
 }>();
 const { showMessage } = useToasts();
 

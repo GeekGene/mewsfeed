@@ -16,6 +16,7 @@
           ref="baseEditAgentProfileFormRef"
           :model-value="profile"
           :profile="profile"
+          :saving="isSaving"
           @update:model-value="update"
         ></BaseEditAgentProfileForm>
       </profiles-context>
@@ -40,8 +41,10 @@ const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
 const { showError } = useToasts();
 const themeStore = useThemeStore();
 const baseEditAgentProfileFormRef = ref();
+const isSaving = ref(false);
 
 const update = async (newProfile: Profile) => {
+  isSaving.value = true;
   try {
     await profilesStore.client.updateProfile(newProfile);
 
@@ -49,6 +52,8 @@ const update = async (newProfile: Profile) => {
     emit("profile-updated", newProfile);
   } catch (e) {
     showError(e);
+  } finally {
+    isSaving.value = false;
   }
 };
 </script>

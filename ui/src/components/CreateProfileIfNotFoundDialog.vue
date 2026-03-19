@@ -15,6 +15,7 @@
           </h2>
           <BaseEditAgentProfileForm
             ref="baseEditAgentProfileFormRef"
+            :saving="isSaving"
             @update:model-value="createProfile"
           />
         </div>
@@ -40,11 +41,16 @@ defineProps<{
 }>();
 
 const baseEditAgentProfileFormRef = ref();
+const isSaving = ref(false);
 
 const createProfile = async (profile: Profile) => {
-  await profilesStore.client.createProfile(profile);
-
-  emit("profile-created", profile);
-  emit("update:model-value", false);
+  isSaving.value = true;
+  try {
+    await profilesStore.client.createProfile(profile);
+    emit("profile-created", profile);
+    emit("update:model-value", false);
+  } finally {
+    isSaving.value = false;
+  }
 };
 </script>
