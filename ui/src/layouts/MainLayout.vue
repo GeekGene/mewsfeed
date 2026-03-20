@@ -10,7 +10,14 @@
         @click-search="showSearchDialog = true"
       />
       <div class="flex-1 w-full h-full pb-32 sm:pb-16 overflow-hidden relative">
-        <RouterView :key="`${route.fullPath}-${forceReloadRouterViewKey}`" />
+        <RouterView v-slot="{ Component: RouteComponent, route: currentRoute }">
+          <KeepAlive>
+            <component
+              :is="RouteComponent"
+              :key="`${currentRoute.fullPath}-${forceReloadRouterViewKey}`"
+            />
+          </KeepAlive>
+        </RouterView>
       </div>
     </div>
   </div>
