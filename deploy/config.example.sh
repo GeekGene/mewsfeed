@@ -31,8 +31,8 @@ LINKER_ADMIN_SECRET=""
 INVITE_CODES="test-invite-123"
 
 # --- hApp ---
-# Path to the .happ bundle file.
-HAPP_BUNDLE_PATH="../holo-web-conductor/fixtures/mewsfeed.happ"
+# Path to the .happ bundle file (built by `npm run build:happ`).
+HAPP_BUNDLE_PATH="workdir/mewsfeed.happ"
 
 # --- Network ---
 # Public bootstrap/relay server URL.

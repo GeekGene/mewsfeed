@@ -76,7 +76,7 @@ See `config.example.sh` for all options. Key settings:
 | `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account ID | (required) |
 | `CLOUDFLARE_API_TOKEN` | Cloudflare API token | (required) |
 | `INVITE_CODES` | Comma-separated invite codes | `test-invite-123` |
-| `HAPP_BUNDLE_PATH` | Path to .happ bundle | `../holo-web-conductor/fixtures/mewsfeed.happ` |
+| `HAPP_BUNDLE_PATH` | Path to .happ bundle | `workdir/mewsfeed.happ` |
 | `BOOTSTRAP_URL` | Kitsune2 bootstrap server | `https://dev-test-bootstrap2.holochain.org/` |
 | `NUM_CONDUCTORS` | Number of always-on conductors | `2` |
 | `TUNNEL_PROVIDER` | Tunnel provider | `cloudflared` |
