@@ -180,15 +180,15 @@ pub fn get_batch_mews_with_context_internal(
 ) -> ExternResult<Vec<FeedMew>> {
     Ok(hashes
         .into_iter()
-        .filter_map(|hash| {
-            match get_mew_with_context_internal(hash.clone(), get_options.clone()) {
+        .filter_map(
+            |hash| match get_mew_with_context_internal(hash.clone(), get_options.clone()) {
                 Ok(feed_mew) => Some(feed_mew),
                 Err(e) => {
                     debug!("Skipping unavailable mew {:?}: {:?}", hash, e);
                     None
                 }
-            }
-        })
+            },
+        )
         .collect())
 }
 
