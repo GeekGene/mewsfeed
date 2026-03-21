@@ -72,9 +72,10 @@ const client = (inject("client") as ComputedRef<AppClient>).value;
 const cellsReady = useCellsReady();
 const queryClient = useQueryClient();
 const agentPubKeyB64 = computed(() => route.params.agentPubKey);
-const agentPubKey = computed(() =>
-  decodeHashFromBase64(route.params.agentPubKey as string)
-);
+const agentPubKey = computed(() => {
+  const key = route.params.agentPubKey as string;
+  return key ? decodeHashFromBase64(key) : undefined;
+});
 const isMounted = ref(false);
 onMounted(() => {
   isMounted.value = true;
@@ -83,6 +84,7 @@ onMounted(() => {
 const pageLimit = 10;
 
 const fetchMentionMews = async (params: any) => {
+  if (!agentPubKey.value) return [];
   const res = await client.callZome({
     role_name: "mewsfeed",
     zome_name: "mews",

@@ -35,7 +35,7 @@
           queryClient.setQueryData([
               'profiles',
               'getAgentProfile',
-              encodeHashToBase64(agentPubKey),
+              encodeHashToBase64(agentPubKey!),
             ],
             profile
           );
@@ -124,10 +124,12 @@
     </div>
   </div>
   <FollowersListDialog
+    v-if="agentPubKey"
     v-model="showFollowersListDialog"
     :agent-pub-key="agentPubKey"
   />
   <CreatorsListDialog
+    v-if="agentPubKey"
     v-model="showCreatorsListDialog"
     :agent-pub-key="agentPubKey"
   />
@@ -156,9 +158,10 @@ const route = useRoute();
 const router = useRouter();
 const queryClient = useQueryClient();
 
-const agentPubKey = computed(() =>
-  decodeHashFromBase64(route.params.agentPubKey as string)
-);
+const agentPubKey = computed(() => {
+  const key = route.params.agentPubKey as string;
+  return key ? decodeHashFromBase64(key) : undefined;
+});
 const showEditProfileDialog = ref(false);
 const showFollowersListDialog = ref(false);
 const showCreatorsListDialog = ref(false);
@@ -166,8 +169,9 @@ const agentPubKeyB64 = computed(() => route.params.agentPubKey);
 const hasAgentPubKeyB64 = computed(() => agentPubKeyB64.value !== undefined);
 const pageLimit = 5;
 
-const fetchAuthoredMews = () =>
-  client.callZome({
+const fetchAuthoredMews = () => {
+  if (!agentPubKey.value) return [];
+  return client.callZome({
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_agent_mews_with_context",
@@ -178,6 +182,7 @@ const fetchAuthoredMews = () =>
       },
     }),
   });
+};
 
 const {
   data: authoredMews,
@@ -191,13 +196,15 @@ const {
 });
 watch(errorAuthoredMews, console.error);
 
-const fetchPinnedMews = () =>
-  client.callZome({
+const fetchPinnedMews = () => {
+  if (!agentPubKey.value) return [];
+  return client.callZome({
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_mews_for_pinner_with_context",
     payload: wrapInput(agentPubKey.value),
   });
+};
 
 const {
   data: pinnedMews,
@@ -212,6 +219,7 @@ const {
 watch(errorPinnedMews, console.error);
 
 const fetchProfile = async () => {
+  if (!agentPubKey.value) return undefined;
   const profile = await profilesStore.client.getAgentProfile(agentPubKey.value);
 
   if (profile?.entry) {
@@ -234,13 +242,15 @@ const {
 });
 watch(errorProfile, console.error);
 
-const fetchJoinedTimestamp = () =>
-  client.callZome({
+const fetchJoinedTimestamp = () => {
+  if (!agentPubKey.value) return null;
+  return client.callZome({
     role_name: "mewsfeed",
     zome_name: "profiles",
     fn_name: "get_joining_timestamp_for_agent",
     payload: wrapInput(agentPubKey.value),
   });
+};
 
 const {
   data: joinedTimestamp,
@@ -253,13 +263,15 @@ const {
 });
 watch(errorJoinedTimestamp, console.error);
 
-const fetchCreatorsCount = async (): Promise<number> =>
-  client.callZome({
+const fetchCreatorsCount = async (): Promise<number> => {
+  if (!agentPubKey.value) return 0;
+  return client.callZome({
     role_name: "mewsfeed",
     zome_name: "follows",
     fn_name: "count_creators_for_follower",
     payload: wrapInput(agentPubKey.value),
   });
+};
 
 const {
   data: creatorsCount,
@@ -272,13 +284,15 @@ const {
 });
 watch(errorCreatorsCount, console.error);
 
-const fetchFollowersCount = async (): Promise<number> =>
-  client.callZome({
+const fetchFollowersCount = async (): Promise<number> => {
+  if (!agentPubKey.value) return 0;
+  return client.callZome({
     role_name: "mewsfeed",
     zome_name: "follows",
     fn_name: "count_followers_for_creator",
     payload: wrapInput(agentPubKey.value),
   });
+};
 
 const {
   data: followersCount,

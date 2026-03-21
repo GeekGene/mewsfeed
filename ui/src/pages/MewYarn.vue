@@ -80,19 +80,22 @@ const queryClient = useQueryClient();
 
 const pageLimit = 10;
 
-const actionHash = computed(() =>
-  decodeHashFromBase64(route.params.actionHash as string)
-);
+const actionHash = computed(() => {
+  const hash = route.params.actionHash as string;
+  return hash ? decodeHashFromBase64(hash) : undefined;
+});
 const actionHashB64 = computed(() => route.params.actionHash);
 const hasActionHash = computed(() => actionHash.value !== undefined);
 
-const fetchMew = () =>
-  client.callZome({
+const fetchMew = () => {
+  if (!actionHash.value) return null;
+  return client.callZome({
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_mew_with_context",
     payload: wrapInput(actionHash.value),
   });
+};
 
 const {
   data: mew,
@@ -107,13 +110,14 @@ const {
 });
 watch(mewError, console.error);
 
-const fetchReplies = (params: any) =>
-  client.callZome({
+const fetchReplies = (params: any) => {
+  if (!mew?.value?.action_hash) return [];
+  return client.callZome({
     role_name: "mewsfeed",
     zome_name: "mews",
     fn_name: "get_responses_for_mew_with_context",
     payload: wrapInput({
-      original_mew_hash: mew?.value.action_hash,
+      original_mew_hash: mew.value.action_hash,
       page: {
         limit: pageLimit,
         direction: PaginationDirectionName.Ascending,
@@ -121,6 +125,7 @@ const fetchReplies = (params: any) =>
       },
     }),
   });
+};
 
 const hasMew = computed(() => mew.value !== undefined);
 

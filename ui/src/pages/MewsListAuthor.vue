@@ -8,8 +8,9 @@
           mews by
         </div>
         <BaseAgentProfileLinkName
+          v-if="agentPubKey"
           class="q-ml-md"
-          :agentPubKey="decodeHashFromBase64(route.params.agentPubKey as string)"
+          :agentPubKey="agentPubKey"
           :profile="profile"
           :avatar-size="30"
           :enable-popup="false"
@@ -89,13 +90,16 @@ const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
   .value;
 const queryClient = useQueryClient();
 const agentPubKeyB64 = computed(() => route.params.agentPubKey);
-const agentPubKey = computed(() =>
-  decodeHashFromBase64(route.params.agentPubKey as string)
-);
+const agentPubKey = computed(() => {
+  const key = route.params.agentPubKey as string;
+  return key ? decodeHashFromBase64(key) : undefined;
+});
+const hasAgentPubKey = computed(() => agentPubKey.value !== undefined);
 
 const pageLimit = 10;
 
 const fetchAuthoredMews = async (params: any) => {
+  if (!agentPubKey.value) return [];
   const res = await client.callZome({
     role_name: "mewsfeed",
     zome_name: "mews",
@@ -123,10 +127,11 @@ const { data, error, fetchNextPage, hasNextPage, isInitialLoading, refetch } =
     },
     refetchInterval: 1000 * 60 * 2, // 2 minutes
     refetchOnMount: true,
-    enabled: cellsReady,
+    enabled: computed(() => cellsReady.value && hasAgentPubKey.value),
   });
 
 const fetchProfile = async () => {
+  if (!agentPubKey.value) return undefined;
   const profile = await profilesStore.client.getAgentProfile(agentPubKey.value);
 
   if (profile?.entry) {
@@ -139,7 +144,7 @@ const fetchProfile = async () => {
 const { data: profile, error: errorProfile } = useQuery({
   queryKey: ["profiles", "getAgentProfile", agentPubKeyB64],
   queryFn: fetchProfile,
-  enabled: cellsReady,
+  enabled: computed(() => cellsReady.value && hasAgentPubKey.value),
 });
 
 const fetchNextPageInfiniteScroll = async (
