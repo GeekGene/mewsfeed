@@ -10,14 +10,14 @@
             v-if="slot.status === 'loaded'"
             :feed-mew="slot.feedMew"
             class="my-4"
-            @mew-deleted="refetchBatchForIndex(i)"
-            @mew-licked="refetchBatchForIndex(i)"
-            @mew-pinned="refetchBatchForIndex(i)"
-            @mew-unlicked="refetchBatchForIndex(i)"
-            @mew-unpinned="refetchBatchForIndex(i)"
-            @mewmew-created="refetchBatchForIndex(i)"
-            @quote-created="refetchBatchForIndex(i)"
-            @reply-created="refetchBatchForIndex(i)"
+            @mew-deleted="patchBatchMew"
+            @mew-licked="patchBatchMew"
+            @mew-pinned="patchBatchMew"
+            @mew-unlicked="patchBatchMew"
+            @mew-unpinned="patchBatchMew"
+            @mewmew-created="patchBatchMew"
+            @quote-created="patchBatchMew"
+            @reply-created="patchBatchMew"
           />
           <div v-else-if="slot.status === 'failed'" class="my-4 px-4">
             <div
@@ -214,16 +214,17 @@ const mewSlots = computed<MewSlot[]>(() => {
   return slots;
 });
 
-// Refetch the batch containing a given slot index
-const refetchBatchForIndex = (slotIndex: number) => {
-  const batchIndex = Math.floor(slotIndex / BATCH_SIZE);
-  const batch = hashBatches.value[batchIndex];
-  if (batch) {
-    const batchKey = batch
-      .map((h) => encodeHashToBase64(h))
-      .join(",");
-    queryClient.invalidateQueries({
-      queryKey: ["mews", "get_batch_mews_with_context", batchKey],
+// Patch a single mew across all batch caches
+const patchBatchMew = (updatedMew: FeedMew) => {
+  const targetHash = encodeHashToBase64(updatedMew.action_hash);
+  for (const batch of hashBatches.value) {
+    const batchKey = batch.map((h) => encodeHashToBase64(h)).join(",");
+    const qk = ["mews", "get_batch_mews_with_context", batchKey];
+    queryClient.setQueryData(qk, (old: FeedMew[] | undefined) => {
+      if (!old) return old;
+      return old.map((mew) =>
+        encodeHashToBase64(mew.action_hash) === targetHash ? updatedMew : mew
+      );
     });
   }
 };

@@ -27,26 +27,14 @@
         <template v-for="(mew, j) of page" :key="j">
           <BaseMewListItem
             :feed-mew="mew"
-            @mew-deleted="
-              refetch({ refetchPage: (page, index) => index === i })
-            "
-            @mew-licked="refetch({ refetchPage: (page, index) => index === i })"
-            @mew-pinned="refetch({ refetchPage: (page, index) => index === i })"
-            @mew-unlicked="
-              refetch({ refetchPage: (page, index) => index === i })
-            "
-            @mew-unpinned="
-              refetch({ refetchPage: (page, index) => index === i })
-            "
-            @mewmew-created="
-              refetch({ refetchPage: (page, index) => index === i })
-            "
-            @quote-created="
-              refetch({ refetchPage: (page, index) => index === i })
-            "
-            @reply-created="
-              refetch({ refetchPage: (page, index) => index === i })
-            "
+            @mew-deleted="patchMew"
+            @mew-licked="patchMew"
+            @mew-pinned="patchMew"
+            @mew-unlicked="patchMew"
+            @mew-unpinned="patchMew"
+            @mewmew-created="patchMew"
+            @quote-created="patchMew"
+            @reply-created="patchMew"
           />
           <hr v-if="j !== page.length - 1" class="border-base-300" />
         </template>
@@ -75,11 +63,14 @@ import BaseInfiniteScroll from "@/components/BaseInfiniteScroll.vue";
 import BaseListSkeleton from "@/components/BaseListSkeleton.vue";
 import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
 import { wrapInput } from "@/utils/zomeCall";
+import { usePatchFeedMew } from "@/composables/usePatchFeedMew";
+import { FeedMew } from "@/types/types";
 
 const route = useRoute();
 const client = (inject("client") as ComputedRef<AppClient>).value;
 const cellsReady = useCellsReady();
 const queryClient = useQueryClient();
+const { patchFeedMew } = usePatchFeedMew();
 const agentPubKeyB64 = computed(() => route.params.agentPubKey);
 const agentPubKey = computed(() => {
   const key = route.params.agentPubKey as string;
@@ -106,9 +97,15 @@ const fetchAuthoredMews = async (params: any) => {
   return res;
 };
 
-const { data, error, fetchNextPage, hasNextPage, isInitialLoading, refetch } =
+const queryKey = ["mews", "get_agent_mews_with_context", agentPubKeyB64];
+
+const patchMew = (updatedMew: FeedMew) => {
+  patchFeedMew(queryKey, updatedMew);
+};
+
+const { data, error, fetchNextPage, hasNextPage, isInitialLoading } =
   useInfiniteQuery({
-    queryKey: ["mews", "get_agent_mews_with_context", agentPubKeyB64],
+    queryKey,
     queryFn: fetchAuthoredMews,
     getNextPageParam: (lastPage) => {
       if (lastPage.length === 0) return;
@@ -133,7 +130,7 @@ watch(error, console.error);
 onBeforeRouteLeave(() => {
   if (data.value && data.value.pages.length > 1) {
     queryClient.setQueryData(
-      ["mews", "get_agent_mews_with_context", agentPubKeyB64.value],
+      queryKey,
       (d: any) => ({
         pages: [d.pages[0]],
         pageParams: [d.pageParams[0]],

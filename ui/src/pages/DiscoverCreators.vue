@@ -21,14 +21,14 @@
       <template #default="{ item }">
         <BaseMewListItem
           :feed-mew="item"
-          @mew-deleted="refetchRandomMews()"
-          @mew-licked="refetchRandomMews()"
-          @mew-unlicked="refetchRandomMews()"
-          @mew-pinned="refetchRandomMews()"
-          @mew-unpinned="refetchRandomMews()"
-          @mewmew-created="refetchRandomMews()"
-          @reply-created="refetchRandomMews()"
-          @quote-created="refetchRandomMews()"
+          @mew-deleted="patchRandomMew"
+          @mew-licked="patchRandomMew"
+          @mew-unlicked="patchRandomMew"
+          @mew-pinned="patchRandomMew"
+          @mew-unpinned="patchRandomMew"
+          @mewmew-created="patchRandomMew"
+          @reply-created="patchRandomMew"
+          @quote-created="patchRandomMew"
         />
       </template>
       <template #loading>
@@ -50,7 +50,8 @@ import { useCellsReady } from "@/composables/useCellsReady";
 import { AppClient } from "@holochain/client";
 import BaseList from "@/components/BaseList.vue";
 import { FeedMew } from "@/types/types";
-import { useQuery } from "@tanstack/vue-query";
+import { useQuery, useQueryClient } from "@tanstack/vue-query";
+import { usePatchFeedMew } from "@/composables/usePatchFeedMew";
 import IconDiceOutline from "~icons/ion/dice-outline";
 import { ActionHash } from "@holochain/client";
 import BaseListSkeleton from "@/components/BaseListSkeleton.vue";
@@ -59,6 +60,7 @@ import { wrapInput } from "@/utils/zomeCall";
 
 const client = (inject("client") as ComputedRef<AppClient>).value;
 const cellsReady = useCellsReady();
+const { patchFeedMew } = usePatchFeedMew();
 
 const fetchRandomMewHashes = (): Promise<ActionHash[]> =>
   client.callZome({
@@ -95,13 +97,19 @@ const hasRandomMewHashes = computed(
   () => randomMewHashes.value !== undefined && randomMewHashes.value.length > 0
 );
 
+const randomMewsQueryKey = ["mews", "get_random_mew_hashes", "get_batch_mews_with_context"];
+
+const patchRandomMew = (updatedMew: FeedMew) => {
+  patchFeedMew(randomMewsQueryKey, updatedMew);
+};
+
 const {
   data: randomMews,
   error: errorRandomMews,
   refetch: refetchRandomMews,
   isFetching: isFetchingRandomMews,
 } = useQuery({
-  queryKey: ["mews", "get_random_mew_hashes", "get_batch_mews_with_context"],
+  queryKey: randomMewsQueryKey,
   enabled: computed(() => cellsReady.value && hasRandomMewHashes.value),
   queryFn: () =>
     fetchMewsWithContext(toRaw(randomMewHashes.value as ActionHash[])),

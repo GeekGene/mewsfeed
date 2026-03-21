@@ -44,29 +44,14 @@
       >
         <BaseMewListItem
           :feed-mew="item"
-          @mew-pinned="
-            () => {
-              refetchPinnedMews();
-              refetchAuthoredMews();
-            }
-          "
-          @mew-unpinned="
-            () => {
-              refetchPinnedMews();
-              refetchAuthoredMews();
-            }
-          "
-          @mew-deleted="
-            () => {
-              refetchPinnedMews();
-              refetchAuthoredMews();
-            }
-          "
-          @mew-licked="refetchPinnedMews"
-          @mew-unlicked="refetchPinnedMews"
-          @reply-created="refetchAuthoredMews"
-          @mewmew-created="refetchAuthoredMews"
-          @quote-created="refetchAuthoredMews"
+          @mew-pinned="patchPinnedAndRefresh"
+          @mew-unpinned="patchPinnedAndRefresh"
+          @mew-deleted="patchPinnedAndRefresh"
+          @mew-licked="patchPinnedMew"
+          @mew-unlicked="patchPinnedMew"
+          @reply-created="patchPinnedMew"
+          @mewmew-created="patchPinnedMew"
+          @quote-created="patchPinnedMew"
         />
       </BaseList>
 
@@ -88,29 +73,14 @@
       >
         <BaseMewListItem
           :feed-mew="item"
-          @mew-pinned="
-            () => {
-              refetchPinnedMews();
-              refetchAuthoredMews();
-            }
-          "
-          @mew-unpinned="
-            () => {
-              refetchPinnedMews();
-              refetchAuthoredMews();
-            }
-          "
-          @mew-deleted="
-            () => {
-              refetchPinnedMews();
-              refetchAuthoredMews();
-            }
-          "
-          @mew-licked="refetchAuthoredMews"
-          @mew-unlicked="refetchAuthoredMews"
-          @reply-created="refetchAuthoredMews"
-          @mewmew-created="refetchAuthoredMews"
-          @quote-created="refetchAuthoredMews"
+          @mew-pinned="patchAuthoredAndRefreshPins"
+          @mew-unpinned="patchAuthoredAndRefreshPins"
+          @mew-deleted="patchAuthoredAndRefreshPins"
+          @mew-licked="patchAuthoredMew"
+          @mew-unlicked="patchAuthoredMew"
+          @reply-created="patchAuthoredMew"
+          @mewmew-created="patchAuthoredMew"
+          @quote-created="patchAuthoredMew"
         />
       </BaseList>
     </div>
@@ -135,17 +105,21 @@ import { useProfile } from "@/composables/useProfile";
 import { useRoute, useRouter } from "vue-router";
 import BaseList from "@/components/BaseList.vue";
 import { AppClient } from "@holochain/client";
-import { useQuery } from "@tanstack/vue-query";
+import { useQuery, useQueryClient } from "@tanstack/vue-query";
 import BaseAgentProfileDetail from "@/components/BaseAgentProfileDetail.vue";
 import EditAgentProfileDialog from "@/components/EditAgentProfileDialog.vue";
 import FollowersListDialog from "@/components/FollowersListDialog.vue";
 import CreatorsListDialog from "@/components/CreatorsListDialog.vue";
 import { wrapInput } from "@/utils/zomeCall";
+import { usePatchFeedMew } from "@/composables/usePatchFeedMew";
+import { FeedMew } from "@/types/types";
 
 const client = (inject("client") as ComputedRef<AppClient>).value;
 const cellsReady = useCellsReady();
 const route = useRoute();
 const router = useRouter();
+const queryClient = useQueryClient();
+const { patchFeedMew } = usePatchFeedMew();
 
 const agentPubKey = computed(() => {
   const key = route.params.agentPubKey as string;
@@ -173,13 +147,19 @@ const fetchAuthoredMews = () => {
   });
 };
 
+const authoredMewsQueryKey = ["profiles", "get_agent_mews_with_context", agentPubKeyB64];
+
+const patchAuthoredMew = (updatedMew: FeedMew) => {
+  patchFeedMew(authoredMewsQueryKey, updatedMew);
+};
+
 const {
   data: authoredMews,
   isLoading: isLoadingAuthoredMews,
   error: errorAuthoredMews,
   refetch: refetchAuthoredMews,
 } = useQuery({
-  queryKey: ["profiles", "get_agent_mews_with_context", agentPubKeyB64],
+  queryKey: authoredMewsQueryKey,
   queryFn: fetchAuthoredMews,
   enabled: computed(() => cellsReady.value && hasAgentPubKeyB64.value),
 });
@@ -195,17 +175,34 @@ const fetchPinnedMews = () => {
   });
 };
 
+const pinnedMewsQueryKey = ["profiles", "get_mews_for_pinner_with_context", agentPubKeyB64];
+
+const patchPinnedMew = (updatedMew: FeedMew) => {
+  patchFeedMew(pinnedMewsQueryKey, updatedMew);
+};
+
 const {
   data: pinnedMews,
   isLoading: isLoadingPinnedMews,
   error: errorPinnedMews,
   refetch: refetchPinnedMews,
 } = useQuery({
-  queryKey: ["profiles", "get_mews_for_pinner_with_context", agentPubKeyB64],
+  queryKey: pinnedMewsQueryKey,
   queryFn: fetchPinnedMews,
   enabled: computed(() => cellsReady.value && hasAgentPubKeyB64.value),
 });
 watch(errorPinnedMews, console.error);
+
+const patchPinnedAndRefresh = (m: FeedMew) => {
+  patchPinnedMew(m);
+  patchAuthoredMew(m);
+  refetchPinnedMews();
+};
+
+const patchAuthoredAndRefreshPins = (m: FeedMew) => {
+  patchAuthoredMew(m);
+  refetchPinnedMews();
+};
 
 const {
   profile,

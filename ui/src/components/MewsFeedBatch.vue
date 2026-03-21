@@ -12,30 +12,14 @@
             <BaseMewListItem
               :feed-mew="mew"
               class="my-4"
-              @mew-deleted="
-                refetch({ refetchPage: (page, index) => index === i })
-              "
-              @mew-licked="
-                refetch({ refetchPage: (page, index) => index === i })
-              "
-              @mew-pinned="
-                refetch({ refetchPage: (page, index) => index === i })
-              "
-              @mew-unlicked="
-                refetch({ refetchPage: (page, index) => index === i })
-              "
-              @mew-unpinned="
-                refetch({ refetchPage: (page, index) => index === i })
-              "
-              @mewmew-created="
-                refetch({ refetchPage: (page, index) => index === i })
-              "
-              @quote-created="
-                refetch({ refetchPage: (page, index) => index === i })
-              "
-              @reply-created="
-                refetch({ refetchPage: (page, index) => index === i })
-              "
+              @mew-deleted="patchMew"
+              @mew-licked="patchMew"
+              @mew-pinned="patchMew"
+              @mew-unlicked="patchMew"
+              @mew-unpinned="patchMew"
+              @mewmew-created="patchMew"
+              @quote-created="patchMew"
+              @reply-created="patchMew"
             />
             <hr v-if="j !== page.length - 1" class="border-base-300" />
           </template>
@@ -55,6 +39,7 @@ import { ComputedRef, computed, inject, watch } from "vue";
 import { useCellsReady } from "@/composables/useCellsReady";
 import { FeedMew, PaginationDirectionName } from "@/types/types";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
+import { usePatchFeedMew } from "@/composables/usePatchFeedMew";
 import { wrapInput } from "@/utils/zomeCall";
 import BaseMewListItem from "@/components/BaseMewListItem.vue";
 import BaseEmptyList from "@/components/BaseEmptyList.vue";
@@ -66,6 +51,7 @@ import { onBeforeRouteLeave } from "vue-router";
 const client = (inject("client") as ComputedRef<AppClient>).value;
 const cellsReady = useCellsReady();
 const queryClient = useQueryClient();
+const { patchFeedMew } = usePatchFeedMew();
 const myPubKeyB64 = computed(() => encodeHashToBase64(client.myPubKey));
 const pageLimit = 10;
 
@@ -93,9 +79,15 @@ const fetchMewsFeed = (params: any): Promise<FeedMew[]> => {
     });
 };
 
-const { data, error, fetchNextPage, hasNextPage, isInitialLoading, refetch } =
+const queryKey = ["mews", "get_followed_creators_mews_with_context", myPubKeyB64];
+
+const patchMew = (updatedMew: FeedMew) => {
+  patchFeedMew(queryKey, updatedMew);
+};
+
+const { data, error, fetchNextPage, hasNextPage, isInitialLoading } =
   useInfiniteQuery<FeedMew[]>({
-    queryKey: ["mews", "get_followed_creators_mews_with_context", myPubKeyB64],
+    queryKey,
     queryFn: fetchMewsFeed,
     getNextPageParam: (lastPage) => {
       if (lastPage.length === 0) return;
@@ -119,7 +111,7 @@ const fetchNextPageInfiniteScroll = async (
 onBeforeRouteLeave(() => {
   if (data.value && data.value.pages.length > 1) {
     queryClient.setQueryData(
-      ["mews", "get_followed_creators_mews_with_context", myPubKeyB64],
+      queryKey,
       (d: any) => ({
         pages: [d.pages[0]],
         pageParams: [d.pageParams[0]],

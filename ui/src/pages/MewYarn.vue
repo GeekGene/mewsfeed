@@ -12,14 +12,14 @@
         :feed-mew="mew"
         :disable-truncate-content="true"
         class="bg-base-200 rounded-3xl mb-8 !cursor-default"
-        @mew-deleted="refetchMewAndRepliesPage(0)"
-        @mew-licked="refetchMewAndRepliesPage(0)"
-        @mew-pinned="refetchMewAndRepliesPage(0)"
-        @mew-unlicked="refetchMewAndRepliesPage(0)"
-        @mew-unpinned="refetchMewAndRepliesPage(0)"
-        @mewmew-created="refetchMewAndRepliesPage(0)"
-        @quote-created="refetchMewAndRepliesPage(0)"
-        @reply-created="refetchMewAndRepliesPage(0)"
+        @mew-deleted="patchRootMew"
+        @mew-licked="patchRootMew"
+        @mew-pinned="patchRootMew"
+        @mew-unlicked="patchRootMew"
+        @mew-unpinned="patchRootMew"
+        @mewmew-created="patchRootMew"
+        @quote-created="patchRootMew"
+        @reply-created="patchRootMew"
       />
       <BaseMewListItemSkeleton v-else-if="isInitialLoadingMew" />
     </div>
@@ -34,14 +34,14 @@
           <BaseMewListItem
             :feed-mew="reply"
             :enable-yarn-link="false"
-            @mew-deleted="refetchRepliesPage(i)"
-            @mew-licked="refetchRepliesPage(i)"
-            @mew-pinned="refetchRepliesPage(i)"
-            @mew-unlicked="refetchRepliesPage(i)"
-            @mew-unpinned="refetchRepliesPage(i)"
-            @mewmew-created="refetchRepliesPage(i)"
-            @quote-created="refetchRepliesPage(i)"
-            @reply-created="refetchRepliesPage(i)"
+            @mew-deleted="patchReply"
+            @mew-licked="patchReply"
+            @mew-pinned="patchReply"
+            @mew-unlicked="patchReply"
+            @mew-unpinned="patchReply"
+            @mewmew-created="patchReply"
+            @quote-created="patchReply"
+            @reply-created="patchReply"
           />
           <hr v-if="j !== page.length - 1" class="border-base-300" />
         </template>
@@ -57,7 +57,8 @@
 <script setup lang="ts">
 import BaseMewListItem from "@/components/BaseMewListItem.vue";
 import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
-import { PaginationDirectionName } from "@/types/types";
+import { FeedMew, PaginationDirectionName } from "@/types/types";
+import { usePatchFeedMew } from "@/composables/usePatchFeedMew";
 import { decodeHashFromBase64 } from "@holochain/client";
 import { ComputedRef, computed, inject, watch } from "vue";
 import { useCellsReady } from "@/composables/useCellsReady";
@@ -77,6 +78,7 @@ const client = (inject("client") as ComputedRef<AppClient>).value;
 const cellsReady = useCellsReady();
 const route = useRoute();
 const queryClient = useQueryClient();
+const { patchFeedMew } = usePatchFeedMew();
 
 const pageLimit = 10;
 
@@ -97,13 +99,18 @@ const fetchMew = () => {
   });
 };
 
+const mewQueryKey = ["mews", "get_mew_with_context", actionHashB64];
+
+const patchRootMew = (updatedMew: FeedMew) => {
+  queryClient.setQueryData(mewQueryKey, updatedMew);
+};
+
 const {
   data: mew,
   error: mewError,
   isInitialLoading: isInitialLoadingMew,
-  refetch: refetchMew,
 } = useQuery({
-  queryKey: ["mews", "get_mew_with_context", actionHashB64],
+  queryKey: mewQueryKey,
   queryFn: fetchMew,
   enabled: computed(() => cellsReady.value && hasActionHash.value),
   refetchInterval: 1000 * 60 * 2, // 2 minutes
@@ -129,15 +136,20 @@ const fetchReplies = (params: any) => {
 
 const hasMew = computed(() => mew.value !== undefined);
 
+const repliesQueryKey = ["mews", "get_responses_for_mew_with_context", actionHashB64];
+
+const patchReply = (updatedMew: FeedMew) => {
+  patchFeedMew(repliesQueryKey, updatedMew);
+};
+
 const {
   data: replies,
   error: errorReplies,
   fetchNextPage,
   hasNextPage,
   isInitialLoading: isInitialLoadingReplies,
-  refetch: refetchReplies,
 } = useInfiniteQuery({
-  queryKey: ["mews", "get_responses_for_mew_with_context", actionHashB64],
+  queryKey: repliesQueryKey,
   queryFn: fetchReplies,
   enabled: computed(() => cellsReady.value && hasMew.value),
   getNextPageParam: (lastPage) => {
@@ -156,25 +168,11 @@ const fetchNextPageReplies = async (done: (hasMore?: boolean) => void) => {
   done(hasNextPage?.value);
 };
 
-const refetchMewAndRepliesPage = async (pageIndex: number) => {
-  await refetchMew();
-  await refetchRepliesPage(pageIndex);
-};
-
-const refetchRepliesPage = async (pageIndex: number) => {
-  await refetchReplies({
-    refetchPage: (page: any, index: number) => index === pageIndex,
-  });
-};
 
 onBeforeRouteLeave(() => {
   if (replies.value && replies.value.pages.length > 1) {
     queryClient.setQueryData(
-      [
-        "mews",
-        "get_responses_for_mew_with_context",
-        route.params.actionHash as string,
-      ],
+      repliesQueryKey,
       (d: any) => ({
         pages: [d.pages[0]],
         pageParams: [d.pageParams[0]],

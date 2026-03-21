@@ -8,14 +8,14 @@
     <template #default="{ item }">
       <BaseMewListItem
         :feed-mew="item"
-        @mew-deleted="refetchRandomMewsWithTag()"
-        @mew-licked="refetchRandomMewsWithTag()"
-        @mew-unlicked="refetchRandomMewsWithTag()"
-        @mew-pinned="refetchRandomMewsWithTag()"
-        @mew-unpinned="refetchRandomMewsWithTag()"
-        @mewmew-created="refetchRandomMewsWithTag()"
-        @reply-created="refetchRandomMewsWithTag()"
-        @quote-created="refetchRandomMewsWithTag()"
+        @mew-deleted="patchMew"
+        @mew-licked="patchMew"
+        @mew-unlicked="patchMew"
+        @mew-pinned="patchMew"
+        @mew-unpinned="patchMew"
+        @mewmew-created="patchMew"
+        @reply-created="patchMew"
+        @quote-created="patchMew"
       />
     </template>
     <template #loading>
@@ -31,11 +31,13 @@ import { AppClient, ActionHash } from "@holochain/client";
 import { ComputedRef, Ref, computed, inject, toRaw, watch } from "vue";
 import { useCellsReady } from "@/composables/useCellsReady";
 import { useQuery } from "@tanstack/vue-query";
+import { usePatchFeedMew } from "@/composables/usePatchFeedMew";
 import { FeedMew } from "@/types/types";
 import { wrapInput } from "@/utils/zomeCall";
 
 const client = (inject("client") as ComputedRef<AppClient>).value;
 const cellsReady = useCellsReady();
+const { patchFeedMew } = usePatchFeedMew();
 
 const props = defineProps<{
   tag: string;
@@ -82,18 +84,24 @@ const fetchMewsWithContext = async (): Promise<FeedMew[]> =>
     payload: wrapInput(toRaw(randomMewHashesWithTag.value)),
   });
 
+const randomMewsWithTagQueryKey = [
+  "mews",
+  "get_random_mew_hashes_for_tag",
+  tagRef,
+  "get_batch_mews_with_context",
+];
+
+const patchMew = (updatedMew: FeedMew) => {
+  patchFeedMew(randomMewsWithTagQueryKey, updatedMew);
+};
+
 const {
   data: randomMewsWithTag,
   error: errorRandomMewsWithTag,
   isFetching: isFetchingRandomMewsWithTag,
   refetch: refetchRandomMewsWithTag,
 } = useQuery({
-  queryKey: [
-    "mews",
-    "get_random_mew_hashes_for_tag",
-    tagRef,
-    "get_batch_mews_with_context",
-  ],
+  queryKey: randomMewsWithTagQueryKey,
   queryFn: fetchMewsWithContext,
   enabled: computed(() => cellsReady.value && hasRandomMewHashesWithTag.value),
   refetchOnWindowFocus: false,

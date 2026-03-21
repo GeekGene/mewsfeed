@@ -251,10 +251,11 @@
                 }"
                 class="flex justify-start items-center space-x-1 p-2"
                 :class="{
-                  'text-red-500 hover:text-red-600': feedMew.is_licked,
-                  'text-base-300 hover:text-red-500': !feedMew.is_licked,
+                  'text-red-500 hover:text-red-600': feedMew.is_licked && !isUpdatingLick,
+                  'text-base-300 hover:text-red-500': !feedMew.is_licked && !isUpdatingLick,
+                  'text-yellow-400 animate-pulse cursor-wait': isUpdatingLick,
                 }"
-                :disable="isUpdatingLick || isDeleted"
+                :disabled="isUpdatingLick || isDeleted"
                 @click.stop.prevent="toggleLickMew"
               >
                 <BaseIconTongue class="w-4 h-4" />
@@ -267,20 +268,21 @@
               <button
                 v-tooltip.bottom="{
                   disabled: isDeleted,
-                  content: `${props.feedMew.is_pinned ? 'Unpin' : 'Pin'} mew`,
+                  content: `${feedMew.is_pinned ? 'Unpin' : 'Pin'} mew`,
                   popperClass: 'text-xs',
                   triggers: ['hover'],
                 }"
-                :disable="isDeleted && !props.feedMew.is_pinned"
+                :disabled="(isDeleted && !feedMew.is_pinned) || isUpdatingPin"
                 class="flex justify-start items-center space-x-1 p-2"
                 :class="{
-                  'text-green-400 hover:text-green-600': feedMew.is_pinned,
-                  'text-base-300 hover:text-neutral': !feedMew.is_pinned,
+                  'text-green-400 hover:text-green-600': feedMew.is_pinned && !isUpdatingPin,
+                  'text-base-300 hover:text-neutral': !feedMew.is_pinned && !isUpdatingPin,
+                  'text-yellow-400 animate-pulse cursor-wait': isUpdatingPin,
                 }"
                 @click.stop.prevent="togglePinMew"
               >
                 <IconSharpPinOff
-                  v-if="props.feedMew.is_pinned"
+                  v-if="feedMew.is_pinned"
                   class="w-4 h-4"
                 />
                 <IconSharpPushPin v-else class="w-4 h-4" />
@@ -436,6 +438,7 @@ const toggleLickMew = async () => {
   }
 
   isUpdatingLick.value = true;
+
   if (props.feedMew.is_licked) {
     try {
       await client.callZome({
@@ -447,6 +450,7 @@ const toggleLickMew = async () => {
       showMessage("Unlicked Mew");
       emit("mew-unlicked", {
         ...props.feedMew,
+        is_licked: false,
         licks_count: props.feedMew.licks_count - 1,
       });
     } catch (e) {
@@ -463,6 +467,7 @@ const toggleLickMew = async () => {
       showMessage("Licked Mew");
       emit("mew-licked", {
         ...props.feedMew,
+        is_licked: true,
         licks_count: props.feedMew.licks_count + 1,
       });
     } catch (e) {
@@ -480,6 +485,7 @@ const togglePinMew = async () => {
   }
 
   isUpdatingPin.value = true;
+
   if (props.feedMew.is_pinned) {
     try {
       await client.callZome({
@@ -529,13 +535,21 @@ const onCreateMewmew = async (feedMew: FeedMew) => {
 
 const onCreateQuote = async (feedMew: FeedMew) => {
   closeCreateMewDialog();
-  emit("quote-created", feedMew);
+  emit("quote-created", {
+    ...feedMew,
+    is_quoted: true,
+    quotes_count: feedMew.quotes_count + 1,
+  });
   showMessage("Quoted mew");
 };
 
 const onCreateReply = async (feedMew: FeedMew) => {
   closeCreateMewDialog();
-  emit("reply-created", feedMew);
+  emit("reply-created", {
+    ...feedMew,
+    is_replied: true,
+    replies_count: feedMew.replies_count + 1,
+  });
   showMessage("Replied to mew");
 };
 

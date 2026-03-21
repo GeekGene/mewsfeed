@@ -21,26 +21,14 @@
         <template v-for="(mew, j) of page" :key="j">
           <BaseMewListItem
             :feed-mew="mew"
-            @mew-deleted="
-              refetch({ refetchPage: (page, index) => index === i })
-            "
-            @mew-licked="refetch({ refetchPage: (page, index) => index === i })"
-            @mew-pinned="refetch({ refetchPage: (page, index) => index === i })"
-            @mew-unlicked="
-              refetch({ refetchPage: (page, index) => index === i })
-            "
-            @mew-unpinned="
-              refetch({ refetchPage: (page, index) => index === i })
-            "
-            @mewmew-created="
-              refetch({ refetchPage: (page, index) => index === i })
-            "
-            @quote-created="
-              refetch({ refetchPage: (page, index) => index === i })
-            "
-            @reply-created="
-              refetch({ refetchPage: (page, index) => index === i })
-            "
+            @mew-deleted="patchMew"
+            @mew-licked="patchMew"
+            @mew-pinned="patchMew"
+            @mew-unlicked="patchMew"
+            @mew-unpinned="patchMew"
+            @mewmew-created="patchMew"
+            @quote-created="patchMew"
+            @reply-created="patchMew"
           />
           <hr v-if="j !== page.length - 1" class="border-base-300" />
         </template>
@@ -59,6 +47,8 @@ import { ComputedRef, computed, inject } from "vue";
 import { useCellsReady } from "@/composables/useCellsReady";
 import { useRoute, onBeforeRouteLeave } from "vue-router";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
+import { usePatchFeedMew } from "@/composables/usePatchFeedMew";
+import { FeedMew } from "@/types/types";
 import BaseEmptyList from "@/components/BaseEmptyList.vue";
 import BaseMewListItem from "@/components/BaseMewListItem.vue";
 import { watch } from "vue";
@@ -72,6 +62,7 @@ const route = useRoute();
 const client = (inject("client") as ComputedRef<AppClient>).value;
 const cellsReady = useCellsReady();
 const queryClient = useQueryClient();
+const { patchFeedMew } = usePatchFeedMew();
 const tag = computed(() => `${route.meta.tag}${route.params.tag}`);
 
 const pageLimit = 10;
@@ -92,9 +83,15 @@ const fetchHashtagMews = async (params: any) => {
   return res;
 };
 
-const { data, error, fetchNextPage, hasNextPage, isInitialLoading, refetch } =
+const queryKey = ["mews", "get_mews_for_hashtag_with_context", tag];
+
+const patchMew = (updatedMew: FeedMew) => {
+  patchFeedMew(queryKey, updatedMew);
+};
+
+const { data, error, fetchNextPage, hasNextPage, isInitialLoading } =
   useInfiniteQuery({
-    queryKey: ["mews", "get_mews_for_hashtag_with_context", tag],
+    queryKey,
     queryFn: fetchHashtagMews,
     getNextPageParam: (lastPage) => {
       if (lastPage.length === 0) return;
@@ -118,7 +115,7 @@ const fetchNextPageInfiniteScroll = async (
 onBeforeRouteLeave(() => {
   if (data.value && data.value.pages.length > 1) {
     queryClient.setQueryData(
-      ["mews", "get_mews_for_hashtag_with_context", tag.value],
+      queryKey,
       (d: any) => ({
         pages: [d.pages[0]],
         pageParams: [d.pageParams[0]],

@@ -18,26 +18,14 @@
               once: true,
             }"
             :notification="notification"
-            @mew-deleted="
-              refetch({ refetchPage: (page, index) => index === i })
-            "
-            @mew-licked="refetch({ refetchPage: (page, index) => index === i })"
-            @mew-pinned="refetch({ refetchPage: (page, index) => index === i })"
-            @mew-unlicked="
-              refetch({ refetchPage: (page, index) => index === i })
-            "
-            @mew-unpinned="
-              refetch({ refetchPage: (page, index) => index === i })
-            "
-            @mewmew-created="
-              refetch({ refetchPage: (page, index) => index === i })
-            "
-            @quote-created="
-              refetch({ refetchPage: (page, index) => index === i })
-            "
-            @reply-created="
-              refetch({ refetchPage: (page, index) => index === i })
-            "
+            @mew-deleted="patchNotificationMew"
+            @mew-licked="patchNotificationMew"
+            @mew-pinned="patchNotificationMew"
+            @mew-unlicked="patchNotificationMew"
+            @mew-unpinned="patchNotificationMew"
+            @mewmew-created="patchNotificationMew"
+            @quote-created="patchNotificationMew"
+            @reply-created="patchNotificationMew"
           />
           <hr v-if="j !== page.length - 1" class="border-base-300" />
         </template>
@@ -51,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { AppClient, encodeHashToBase64 } from "@holochain/client";
+import { AppClient, encodeHashToBase64, ActionHash } from "@holochain/client";
 import { inject, ComputedRef, watch, toRaw, computed } from "vue";
 import { useCellsReady } from "@/composables/useCellsReady";
 import { onBeforeRouteLeave } from "vue-router";
@@ -60,7 +48,7 @@ import BaseNotification from "@/components/BaseNotification.vue";
 import BaseEmptyList from "@/components/BaseEmptyList.vue";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
 import { makeUseNotificationsReadStore } from "@/stores/notificationsRead";
-import { PaginationDirectionName, Notification } from "@/types/types";
+import { FeedMew, PaginationDirectionName, Notification } from "@/types/types";
 import BaseListSkeleton from "@/components/BaseListSkeleton.vue";
 import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
 import BaseInfiniteScroll from "@/components/BaseInfiniteScroll.vue";
@@ -93,9 +81,28 @@ const fetchNotifications = async (params: any) => {
   return res;
 };
 
-const { data, error, fetchNextPage, hasNextPage, refetch, isInitialLoading } =
+const notificationsQueryKey = ["mews", "get_notifications_for_agent", myPubKeyB64];
+
+const patchNotificationMew = (updatedMew: FeedMew) => {
+  const targetHash = encodeHashToBase64(updatedMew.action_hash);
+  queryClient.setQueryData(notificationsQueryKey, (old: any) => {
+    if (!old?.pages) return old;
+    return {
+      ...old,
+      pages: old.pages.map((page: Notification[]) =>
+        page.map((n) =>
+          n.feed_mew && encodeHashToBase64(n.feed_mew.action_hash) === targetHash
+            ? { ...n, feed_mew: updatedMew }
+            : n
+        )
+      ),
+    };
+  });
+};
+
+const { data, error, fetchNextPage, hasNextPage, isInitialLoading } =
   useInfiniteQuery({
-    queryKey: ["mews", "get_notifications_for_agent", myPubKeyB64],
+    queryKey: notificationsQueryKey,
     queryFn: fetchNotifications,
     getNextPageParam: (lastPage) => {
       if (lastPage.length === 0) return;
@@ -119,7 +126,7 @@ const fetchNextPageInfiniteScroll = async (
 onBeforeRouteLeave(() => {
   if (data.value && data.value.pages.length > 1) {
     queryClient.setQueryData(
-      ["mews", "get_notifications_for_agent", myPubKeyB64],
+      notificationsQueryKey,
       (d: any) => ({
         pages: [d.pages[0]],
         pageParams: [d.pageParams[0]],
