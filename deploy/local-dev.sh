@@ -4,6 +4,8 @@
 #   ./deploy/local-dev.sh              Start conductor + linker (foreground)
 #   ./deploy/local-dev.sh joining      Also start local joining service
 #   ./deploy/local-dev.sh stop         Stop all local services
+#   ./deploy/local-dev.sh stop-linker  Stop linker only
+#   ./deploy/local-dev.sh start-linker Start linker only (rebuild if binary missing)
 #   ./deploy/local-dev.sh status       Show component status
 #
 # Environment variables:
@@ -386,6 +388,43 @@ JSONEOF
     fi
 }
 
+# --- Stop/Start Linker ---
+stop_linker() {
+    local PID_FILE="$SANDBOX_DIR/linker.pid"
+    if [ -f "$PID_FILE" ]; then
+        local PID
+        PID=$(cat "$PID_FILE")
+        if kill -0 "$PID" 2>/dev/null; then
+            kill "$PID" 2>/dev/null || true
+            log_info "Stopped linker (PID $PID)"
+        fi
+        rm -f "$PID_FILE"
+    fi
+    pkill -f "h2hc-linker" 2>/dev/null || true
+}
+
+cmd_stop_linker() {
+    log_info "Stopping linker..."
+    stop_linker
+}
+
+cmd_start_linker() {
+    if [ ! -f "$LINKER_BINARY" ]; then
+        log_info "Building h2hc-linker..."
+        (cd "$H2HC_LINKER_DIR" && cargo build --release)
+    fi
+
+    # Need bootstrap/relay URLs from running bootstrap server
+    BOOTSTRAP_URL=$(read_state "bootstrap_url.txt")
+    RELAY_URL=$(read_state "relay_url.txt")
+    if [ -z "$BOOTSTRAP_URL" ] || [ -z "$RELAY_URL" ]; then
+        log_error "No bootstrap/relay URLs found. Is the bootstrap server running?"
+        exit 1
+    fi
+
+    start_linker
+}
+
 # --- Stop ---
 cmd_stop() {
     log_info "Stopping local dev services..."
@@ -502,9 +541,11 @@ cmd_start() {
 }
 
 case "${1:-start}" in
-    start|"")   cmd_start ;;
-    joining)    cmd_start joining ;;
-    stop)       cmd_stop ;;
-    status)     cmd_status ;;
-    *)          echo "Usage: $0 [start|joining|stop|status]"; exit 1 ;;
+    start|"")    cmd_start ;;
+    joining)     cmd_start joining ;;
+    stop)        cmd_stop ;;
+    stop-linker) cmd_stop_linker ;;
+    start-linker) cmd_start_linker ;;
+    status)      cmd_status ;;
+    *)           echo "Usage: $0 [start|joining|stop|stop-linker|start-linker|status]"; exit 1 ;;
 esac

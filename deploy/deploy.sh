@@ -18,6 +18,8 @@
 #   start-local  Start conductors, linker, tunnel, and seed KV
 #   stop-local      Stop all local services (tunnel, linker, conductors)
 #   restart-tunnel  Restart tunnel and re-seed KV (keeps conductors/linker)
+#   stop-linker     Stop linker only (keeps conductors/tunnel)
+#   start-linker    Start linker (rebuild if binary missing)
 #   seed-kv         Seed KV with linker registration data
 #   status       Show status of all components
 #   all          Full deploy: build → deploy-cloud → start-local
@@ -633,6 +635,38 @@ cmd_restart_tunnel() {
 }
 
 # ──────────────────────────────────────────────
+# restart-linker: Stop and restart linker only
+# ──────────────────────────────────────────────
+
+stop_linker() {
+    if [ -f "$SANDBOX_DIR/linker.pid" ]; then
+        local PID
+        PID=$(cat "$SANDBOX_DIR/linker.pid")
+        if kill -0 "$PID" 2>/dev/null; then
+            log_info "Stopping linker (PID $PID)..."
+            kill "$PID" 2>/dev/null || true
+        fi
+        rm -f "$SANDBOX_DIR/linker.pid"
+    fi
+    pkill -f "h2hc-linker" 2>/dev/null || true
+}
+
+cmd_stop_linker() {
+    log_step "Stopping linker..."
+    stop_linker
+    log_info "Linker stopped."
+}
+
+cmd_start_linker() {
+    log_step "Starting linker..."
+    if [ ! -f "$LINKER_BINARY" ]; then
+        log_info "Building h2hc-linker..."
+        (cd "$H2HC_LINKER_DIR" && cargo build --release)
+    fi
+    start_linker
+}
+
+# ──────────────────────────────────────────────
 # seed-kv: Seed worker KV with linker registration
 # ──────────────────────────────────────────────
 
@@ -687,18 +721,7 @@ cmd_stop_local() {
     log_step "Stopping local services..."
 
     stop_tunnel
-
-    # Stop linker
-    if [ -f "$SANDBOX_DIR/linker.pid" ]; then
-        local PID
-        PID=$(cat "$SANDBOX_DIR/linker.pid")
-        if kill -0 "$PID" 2>/dev/null; then
-            log_info "Stopping linker (PID $PID)..."
-            kill "$PID" 2>/dev/null || true
-        fi
-        rm -f "$SANDBOX_DIR/linker.pid"
-    fi
-    pkill -f "h2hc-linker" 2>/dev/null || true
+    stop_linker
 
     # Stop conductors
     for pid_file in "$SANDBOX_DIR"/conductor*.pid; do
@@ -802,7 +825,7 @@ cmd_all() {
 COMMAND="${1:-}"
 
 if [ -z "$COMMAND" ]; then
-    echo "Usage: $0 {setup|build|deploy-cloud|start-local|stop-local|restart-tunnel|seed-kv|status|all}"
+    echo "Usage: $0 {setup|build|deploy-cloud|start-local|stop-local|restart-tunnel|stop-linker|start-linker|seed-kv|status|all}"
     echo ""
     echo "Commands:"
     echo "  setup           One-time Cloudflare setup (KV namespace, Pages project)"
@@ -811,6 +834,8 @@ if [ -z "$COMMAND" ]; then
     echo "  start-local     Start conductors, linker, tunnel, seed KV"
     echo "  stop-local      Stop all local services"
     echo "  restart-tunnel  Restart tunnel and re-seed KV (keeps conductors/linker)"
+    echo "  stop-linker     Stop linker only (keeps conductors/tunnel)"
+    echo "  start-linker    Start linker (rebuild if binary missing)"
     echo "  seed-kv         Seed KV with current linker registration"
     echo "  status          Show status of all components"
     echo "  all             Full deploy: build → deploy-cloud → start-local"
@@ -826,6 +851,8 @@ case "$COMMAND" in
     start-local)  cmd_start_local ;;
     stop-local)      cmd_stop_local ;;
     restart-tunnel)  cmd_restart_tunnel ;;
+    stop-linker)     cmd_stop_linker ;;
+    start-linker)    cmd_start_linker ;;
     seed-kv)         cmd_seed_kv ;;
     status)          cmd_status ;;
     all)             cmd_all ;;
