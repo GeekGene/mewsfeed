@@ -2,11 +2,10 @@ use crate::agent_mews::get_agent_mews;
 use crate::agent_mews::GetAgentMewsInput;
 use crate::mew_to_responses::{get_responses_for_mew, GetResponsesForMewInput};
 use crate::mew_with_context::get_mew_with_context_internal;
-use hc_call_utils::call_local_zome;
 use hc_link_pagination::{paginate_by_timestamp, TimestampPagination};
 use hc_zome_input::ZomeFnInput;
 use hdk::prelude::*;
-use mews_types::{Mew, MewType, Notification, NotificationType, Profile};
+use mews_types::{Mew, MewType, Notification, NotificationType};
 
 #[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
 pub struct GetNotificationsForAgentInput {
@@ -505,7 +504,6 @@ fn make_notifications_for_createlinks(
     let notifications: Vec<Notification> = create_link_actions
         .iter()
         .map(|create_action| -> ExternResult<Notification> {
-            let agent_profile = get_agent_profile(create_action.author.clone())?;
             let feed_mew = match feed_mew_hash.clone() {
                 Some(hash) => Some(get_mew_with_context_internal(hash, get_options.clone())?),
                 None => None,
@@ -513,7 +511,6 @@ fn make_notifications_for_createlinks(
 
             Ok(Notification {
                 agent: create_action.author.clone(),
-                agent_profile,
                 timestamp: create_action.timestamp,
                 notification_type: notification_type.clone(),
                 feed_mew,
@@ -533,7 +530,6 @@ fn make_notifications_for_deletelinks(
     let notifications: Vec<Notification> = delete_link_actions
         .iter()
         .map(|delete_action| {
-            let agent_profile = get_agent_profile(delete_action.author.clone())?;
             let feed_mew = match feed_mew_hash.clone() {
                 Some(hash) => Some(get_mew_with_context_internal(hash, get_options.clone())?),
                 None => None,
@@ -541,7 +537,6 @@ fn make_notifications_for_deletelinks(
 
             Ok(Notification {
                 agent: delete_action.author.clone(),
-                agent_profile,
                 timestamp: delete_action.timestamp,
                 notification_type: notification_type.clone(),
                 feed_mew,
@@ -561,7 +556,6 @@ fn make_notifications_for_records(
     records
         .iter()
         .map(|record| -> ExternResult<Notification> {
-            let agent_profile = get_agent_profile(record.action_hashed().author().clone())?;
             let feed_mew = match include_feed_mew {
                 true => Some(get_mew_with_context_internal(
                     record.action_hashed().hash.clone(),
@@ -572,34 +566,10 @@ fn make_notifications_for_records(
 
             Ok(Notification {
                 agent: record.action_hashed().author().clone(),
-                agent_profile,
                 timestamp: record.action_hashed().timestamp(),
                 notification_type: notification_type.clone(),
                 feed_mew,
             })
         })
         .collect::<ExternResult<Vec<Notification>>>()
-}
-
-fn get_agent_profile(agent_pub_key: AgentPubKey) -> ExternResult<Option<Profile>> {
-    let maybe_agent_profile_record = call_local_zome::<Option<Record>, ZomeFnInput<AgentPubKey>>(
-        "profiles",
-        "get_agent_profile",
-        ZomeFnInput::new(agent_pub_key, Some(true)),
-    )?;
-
-    match maybe_agent_profile_record {
-        Some(agent_profile_record) => {
-            let profile = agent_profile_record
-                .entry()
-                .to_app_option::<Profile>()
-                .map_err(|e| wasm_error!(WasmErrorInner::Guest(e.into())))?
-                .ok_or(wasm_error!(WasmErrorInner::Guest(String::from(
-                    "Malformed profile"
-                ))))?;
-
-            Ok(Some(profile))
-        }
-        _ => Ok(None),
-    }
 }

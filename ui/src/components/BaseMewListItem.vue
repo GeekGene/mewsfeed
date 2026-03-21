@@ -31,7 +31,6 @@
         </div>
         <template v-if="feedMew.original_mew">
           <BaseAgentProfileName
-            :profile="feedMew.original_mew.author_profile"
             :agentPubKey="feedMew.original_mew.action.author"
           />
 
@@ -65,7 +64,6 @@
             @click.stop.prevent
           >
             <BaseAgentProfileName
-              :profile="feedMew.author_profile"
               :agentPubKey="feedMew.action.author"
             />
           </RouterLink>

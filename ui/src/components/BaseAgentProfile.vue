@@ -7,18 +7,16 @@
       disable-copy
       class="q-mr-xs"
     />
-    <BaseAgentProfileName :agent-pub-key="agentPubKey" :profile="profile" />
+    <BaseAgentProfileName :agent-pub-key="agentPubKey" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { Profile } from "@holochain-open-dev/profiles";
 import { AgentPubKey } from "@holochain/client";
 import BaseAgentProfileName from "./BaseAgentProfileName.vue";
 
 defineProps<{
   agentPubKey: AgentPubKey;
-  profile?: Profile | null;
 }>();
 </script>
 

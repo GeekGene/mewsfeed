@@ -1,11 +1,9 @@
 use crate::licker_to_mews::*;
 use crate::mew_to_responses::*;
 use crate::pinner_to_mews::get_is_hash_pinned;
-use hc_call_utils::call_local_zome;
 use hc_zome_input::ZomeFnInput;
 use hdk::prelude::*;
 use mews_integrity::*;
-use mews_types::Profile;
 
 #[hdk_extern]
 pub fn get_mew_with_context(input: ZomeFnInput<ActionHash>) -> ExternResult<FeedMew> {
@@ -73,7 +71,6 @@ pub fn get_mew_with_context_internal(
             let deleted_timestamp = deletes
                 .first()
                 .map(|first_delete| first_delete.action().timestamp());
-            let author_profile = get_agent_profile(record.action().author().clone())?;
             let is_pinned = get_is_hash_pinned(record.action_hashed().hash.clone())?;
 
             match mew.clone().mew_type {
@@ -86,7 +83,6 @@ pub fn get_mew_with_context_internal(
                     licks_count,
                     mewmews_count,
                     deleted_timestamp,
-                    author_profile,
                     is_pinned,
                     is_licked,
                     is_mewmewed,
@@ -100,11 +96,6 @@ pub fn get_mew_with_context_internal(
                     let original_mew_embed =
                         match get_details(response_to_hash.clone(), get_options) {
                             Ok(Some(Details::Record(record_details))) => {
-                                let original_mew_author_profile = get_agent_profile(
-                                    record_details.record.action().author().clone(),
-                                )
-                                .ok()
-                                .flatten();
                                 let original_mew_deleted_timestamp = record_details
                                     .deletes
                                     .first()
@@ -119,7 +110,6 @@ pub fn get_mew_with_context_internal(
                                             .action_hashed()
                                             .clone()
                                             .hash,
-                                        author_profile: original_mew_author_profile,
                                         deleted_timestamp: original_mew_deleted_timestamp,
                                     }),
                                     _ => {
@@ -148,7 +138,6 @@ pub fn get_mew_with_context_internal(
                         quotes_count,
                         licks_count,
                         mewmews_count,
-                        author_profile,
                         deleted_timestamp,
                         is_pinned,
                         is_licked,
@@ -200,27 +189,4 @@ pub fn get_responses_for_mew_with_context(
     let response_hashes = get_response_hashes_for_mew(input)?;
 
     get_batch_mews_with_context_internal(response_hashes, get_options)
-}
-
-fn get_agent_profile(agent_pub_key: AgentPubKey) -> ExternResult<Option<Profile>> {
-    let maybe_record = call_local_zome::<Option<Record>, ZomeFnInput<AgentPubKey>>(
-        "profiles",
-        "get_agent_profile",
-        ZomeFnInput::new(agent_pub_key, Some(true)),
-    )?;
-
-    match maybe_record {
-        Some(record) => {
-            let profile: Profile = record
-                .entry()
-                .to_app_option()
-                .map_err(|e| wasm_error!(WasmErrorInner::Guest(e.into())))?
-                .ok_or(wasm_error!(WasmErrorInner::Guest(String::from(
-                    "Malformed Profile"
-                ))))?;
-
-            Ok(Some(profile))
-        }
-        None => Ok(None),
-    }
 }

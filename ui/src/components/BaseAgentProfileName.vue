@@ -20,21 +20,49 @@
 </template>
 
 <script setup lang="ts">
-import { Profile } from "@holochain-open-dev/profiles";
+import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { PROFILE_FIELDS } from "@/types/types";
 import { AgentPubKey, encodeHashToBase64 } from "@holochain/client";
+import { ComputedRef, computed, inject } from "vue";
+import { useQuery } from "@tanstack/vue-query";
+import { useCellsReady } from "@/composables/useCellsReady";
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
-    profile?: Profile | null;
     agentPubKey: AgentPubKey;
     trimAgentPubKey?: boolean;
   }>(),
   {
-    profile: null,
     trimAgentPubKey: true,
   }
 );
+
+const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
+  .value;
+const cellsReady = useCellsReady();
+const agentPubKeyB64 = computed(() => encodeHashToBase64(props.agentPubKey));
+
+console.log("[BaseAgentProfileName] mount, cellsReady:", cellsReady.value, "pubkey:", agentPubKeyB64.value, "profilesStore:", !!profilesStore);
+
+const fetchProfile = async () => {
+  try {
+    const record = await profilesStore.client.getAgentProfile(
+      props.agentPubKey,
+      false
+    );
+    console.log("[BaseAgentProfileName] fetched profile for", agentPubKeyB64.value, "result:", record);
+    return record?.entry ?? null;
+  } catch (e) {
+    console.error("[BaseAgentProfileName] error fetching profile for", agentPubKeyB64.value, e);
+    throw e;
+  }
+};
+
+const { data: profile } = useQuery({
+  queryKey: ["profiles", "getAgentProfile", agentPubKeyB64],
+  queryFn: fetchProfile,
+  enabled: cellsReady,
+});
 </script>
 
 <style scoped></style>
