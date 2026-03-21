@@ -2,7 +2,7 @@
   <div class="mt-4">
     <div v-if="!isInitialLoadingProfile && agentPubKey">
       <BaseAgentProfileDetail
-        :profile="profile"
+        :profile="profile ?? undefined"
         :joined-timestamp="joinedTimestamp"
         :agentPubKey="agentPubKey"
         :creators-count="creatorsCount || 0"
@@ -219,7 +219,7 @@ const {
 watch(errorPinnedMews, console.error);
 
 const fetchProfile = async () => {
-  if (!agentPubKey.value) return undefined;
+  if (!agentPubKey.value) return null;
   const profile = await profilesStore.client.getAgentProfile(agentPubKey.value);
 
   if (profile?.entry) {
@@ -305,15 +305,19 @@ const {
 });
 watch(errorFollowersCount, console.error);
 
-watch(route, (newVal) => {
-  console.log("new route is ", newVal);
-  nextTick(() => {
-    refetchProfile();
-    refetchAuthoredMews();
-    refetchPinnedMews();
-    refetchJoinedTimestamp();
-    refetchFollowersCount();
-    refetchCreatorsCount();
-  });
-});
+watch(
+  () => route.params.agentPubKey,
+  (newKey) => {
+    console.log("agentPubKey route param changed:", newKey);
+    if (!newKey) return;
+    nextTick(() => {
+      refetchProfile();
+      refetchAuthoredMews();
+      refetchPinnedMews();
+      refetchJoinedTimestamp();
+      refetchFollowersCount();
+      refetchCreatorsCount();
+    });
+  }
+);
 </script>

@@ -11,7 +11,6 @@
           v-if="agentPubKey"
           class="q-ml-md"
           :agentPubKey="agentPubKey"
-          :profile="profile"
           :avatar-size="30"
           :enable-popup="false"
         />
@@ -131,7 +130,7 @@ const { data, error, fetchNextPage, hasNextPage, isInitialLoading, refetch } =
   });
 
 const fetchProfile = async () => {
-  if (!agentPubKey.value) return undefined;
+  if (!agentPubKey.value) return null;
   const profile = await profilesStore.client.getAgentProfile(agentPubKey.value);
 
   if (profile?.entry) {
