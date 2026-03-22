@@ -519,9 +519,11 @@ const togglePinMew = async () => {
 
 const onCreateMewmew = async (feedMew: FeedMew) => {
   closeCreateMewDialog();
-  feedMew.is_mewmewed = true;
-  feedMew.mewmews_count += 1;
-  emit("mewmew-created", feedMew);
+  emit("mewmew-created", {
+    ...feedMew,
+    is_mewmewed: true,
+    mewmews_count: feedMew.mewmews_count + 1,
+  });
   showMessage("Mewmewed");
 };
 

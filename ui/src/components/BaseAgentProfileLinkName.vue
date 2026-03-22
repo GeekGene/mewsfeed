@@ -44,6 +44,7 @@ const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
 const cellsReady = useCellsReady();
 const agentPubKeyB64 = computed(() => encodeHashToBase64(props.agentPubKey));
 
+// Uses the same query key as BaseAgentProfileName so TanStack deduplicates the fetch
 const fetchProfile = async () => {
   const record = await profilesStore.client.getAgentProfile(
     props.agentPubKey,

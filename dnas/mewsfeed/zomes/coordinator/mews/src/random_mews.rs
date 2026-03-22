@@ -34,7 +34,7 @@ fn hdk_choose_multiple<T: Clone>(slice: &[T], count: usize) -> ExternResult<Vec<
 
 #[hdk_extern]
 pub fn get_random_mew_hashes(input: ZomeFnInput<usize>) -> ExternResult<Vec<ActionHash>> {
-    let hashes = get_all_mew_hashes()?;
+    let hashes = get_all_mew_hashes(input.get_strategy())?;
 
     hdk_choose_multiple(&hashes, input.input)
 }

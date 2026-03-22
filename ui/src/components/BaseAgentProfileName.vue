@@ -42,20 +42,12 @@ const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
 const cellsReady = useCellsReady();
 const agentPubKeyB64 = computed(() => encodeHashToBase64(props.agentPubKey));
 
-console.log("[BaseAgentProfileName] mount, cellsReady:", cellsReady.value, "pubkey:", agentPubKeyB64.value, "profilesStore:", !!profilesStore);
-
 const fetchProfile = async () => {
-  try {
-    const record = await profilesStore.client.getAgentProfile(
-      props.agentPubKey,
-      false
-    );
-    console.log("[BaseAgentProfileName] fetched profile for", agentPubKeyB64.value, "result:", record);
-    return record?.entry ?? null;
-  } catch (e) {
-    console.error("[BaseAgentProfileName] error fetching profile for", agentPubKeyB64.value, e);
-    throw e;
-  }
+  const record = await profilesStore.client.getAgentProfile(
+    props.agentPubKey,
+    false
+  );
+  return record?.entry ?? null;
 };
 
 const { data: profile } = useQuery({

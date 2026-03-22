@@ -25,7 +25,7 @@ pub fn get_joining_timestamp_for_agent(
             .action_type(ActionType::AgentValidationPkg)
             .include_entries(true),
         activity_request: ActivityRequest::Full,
-        get_options,
+        get_options: get_options.clone(),
     };
 
     let joining_agent_activity: AgentActivity = host_call::<
@@ -37,7 +37,7 @@ pub fn get_joining_timestamp_for_agent(
         return Ok(None);
     };
 
-    let Some(record) = get(action.clone().1, GetOptions::default())? else {
+    let Some(record) = get(action.clone().1, get_options)? else {
         return Ok(None);
     };
 

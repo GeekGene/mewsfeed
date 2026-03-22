@@ -244,9 +244,9 @@ test("Mentions list are time-paginated", async () => {
 
       const page5: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
-        fn_name: "get_mews_for_cashtag_with_context",
+        fn_name: "get_mews_for_mention_with_context",
         payload: wrapInput({
-          cashtag: "$cashtag",
+          mention: alice.agentPubKey,
           page: {
             after_hash: page4[page4.length - 1].action_hash,
             limit: 2,

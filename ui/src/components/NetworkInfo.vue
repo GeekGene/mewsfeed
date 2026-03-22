@@ -245,6 +245,7 @@ onMounted(() => {
 onUnmounted(() => {
   unsubscribeConnection?.();
   if (uptimeTimer) clearInterval(uptimeTimer);
+  if (lastUpdatedTimer) clearInterval(lastUpdatedTimer);
 });
 
 const statusColor = computed(() => {
@@ -282,11 +283,17 @@ const { data, dataUpdatedAt } = useQuery({
   enabled: computed(() => !isHwc && cellsReady.value),
 });
 
-setInterval(() => {
-  if (dataUpdatedAt) {
-    lastUpdatedSeconds.value = Math.floor(
-      Date.now() / 1000 - dataUpdatedAt.value / 1000
-    );
-  }
-}, 1000);
+let lastUpdatedTimer: ReturnType<typeof setInterval> | undefined;
+
+onMounted(() => {
+  lastUpdatedTimer = setInterval(() => {
+    if (dataUpdatedAt) {
+      lastUpdatedSeconds.value = Math.floor(
+        Date.now() / 1000 - dataUpdatedAt.value / 1000
+      );
+    }
+  }, 1000);
+});
+
+// Note: uptimeTimer cleanup is already in onUnmounted above
 </script>

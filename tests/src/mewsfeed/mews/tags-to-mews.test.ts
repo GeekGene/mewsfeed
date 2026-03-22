@@ -322,7 +322,7 @@ test("Hashtags list are time-paginated", async () => {
         payload: wrapInput({
           hashtag: "#hashtag",
           page: {
-            after_hash: page2[page1.length - 1].action_hash,
+            after_hash: page2[page2.length - 1].action_hash,
             limit: 2,
           },
         }),
@@ -344,7 +344,7 @@ test("Hashtags list are time-paginated", async () => {
         payload: wrapInput({
           hashtag: "#hashtag",
           page: {
-            after_hash: page3[page1.length - 1].action_hash,
+            after_hash: page3[page3.length - 1].action_hash,
             limit: 2,
           },
         }),
