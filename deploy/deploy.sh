@@ -210,6 +210,7 @@ RTEOF
 cmd_deploy_cloud() {
     log_step "Deploying to Cloudflare..."
 
+    mkdir -p "$SANDBOX_DIR"
     export CLOUDFLARE_ACCOUNT_ID CLOUDFLARE_API_TOKEN
 
     # Determine Pages URL for happ_bundle_url
