@@ -252,7 +252,12 @@ test(
           },
         });
 
-        await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
+        await dhtSync(
+          [alice, bob, carol, john, steve, mary],
+          alice.cells[0].cell_id[0],
+          undefined,
+          120000
+        );
 
         const page1: AgentPubKey[] = await alice.cells[0].callZome({
           zome_name: "mews",
