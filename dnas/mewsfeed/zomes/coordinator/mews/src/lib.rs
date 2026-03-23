@@ -11,6 +11,9 @@ pub mod mew;
 pub mod mew_to_responses;
 pub mod mew_with_context;
 pub mod pinner_to_mews;
+pub mod follower_to_creators;
+pub mod liker_to_hashes;
+pub mod pinner_to_hashes;
 pub mod random_mews;
 pub mod search_tags;
 pub mod tag_to_mews;
@@ -18,4 +21,9 @@ pub mod tag_to_mews;
 #[hdk_extern]
 pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
     Ok(InitCallbackResult::Pass)
+}
+
+#[hdk_extern]
+pub fn ping(_: ()) -> ExternResult<()> {
+    Ok(())
 }

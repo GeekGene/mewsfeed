@@ -54,7 +54,7 @@ const agentPubKeyB64 = computed(() => encodeHashToBase64(client.myPubKey));
 const fetchMyFollowing = async (): Promise<AgentPubKey[]> =>
   client.callZome({
     role_name: "mewsfeed",
-    zome_name: "follows",
+    zome_name: "mews",
     fn_name: "get_creators_for_follower",
     payload: wrapInput({
       follower: client.myPubKey,
@@ -99,13 +99,13 @@ const toggleFollow = async () => {
     isFollowing.value
       ? await client.callZome({
           role_name: "mewsfeed",
-          zome_name: "follows",
+          zome_name: "mews",
           fn_name: "unfollow",
           payload: props.agentPubKey,
         })
       : await client.callZome({
           role_name: "mewsfeed",
-          zome_name: "follows",
+          zome_name: "mews",
           fn_name: "follow",
           payload: props.agentPubKey,
         });

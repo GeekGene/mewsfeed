@@ -30,7 +30,7 @@ test("notifications include my agent follows & unfollows", async () => {
 
       // Bob follows Alice
       await bob.cells[0].callZome({
-        zome_name: "follows",
+        zome_name: "mews",
         fn_name: "add_creator_for_follower",
         payload: {
           base_follower: bob.agentPubKey,
@@ -40,7 +40,7 @@ test("notifications include my agent follows & unfollows", async () => {
 
       // Bob unfollows Alice
       await bob.cells[0].callZome({
-        zome_name: "follows",
+        zome_name: "mews",
         fn_name: "remove_creator_for_follower",
         payload: {
           base_follower: bob.agentPubKey,
@@ -110,7 +110,7 @@ test("notifications include my mews' likes & unlikes", async () => {
 
       // Bob likes Alice's Mew
       await bob.cells[0].callZome({
-        zome_name: "likes",
+        zome_name: "mews",
         fn_name: "add_hash_for_liker",
         payload: {
           base_liker: bob.agentPubKey,
@@ -120,7 +120,7 @@ test("notifications include my mews' likes & unlikes", async () => {
 
       // Bob unlikes Alice's Mew
       await bob.cells[0].callZome({
-        zome_name: "likes",
+        zome_name: "mews",
         fn_name: "remove_hash_for_liker",
         payload: {
           base_liker: bob.agentPubKey,
@@ -191,7 +191,7 @@ test("notifications include my mews' pins & unpins", async () => {
 
       // Bob likes Alice's Mew
       await bob.cells[0].callZome({
-        zome_name: "agent_pins",
+        zome_name: "mews",
         fn_name: "add_hash_for_pinner",
         payload: {
           base_pinner: bob.agentPubKey,
@@ -201,7 +201,7 @@ test("notifications include my mews' pins & unpins", async () => {
 
       // Bob unlikes Alice's Mew
       await bob.cells[0].callZome({
-        zome_name: "agent_pins",
+        zome_name: "mews",
         fn_name: "remove_hash_for_pinner",
         payload: {
           base_pinner: bob.agentPubKey,

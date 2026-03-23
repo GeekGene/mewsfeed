@@ -239,7 +239,7 @@ const fetchCreatorsCount = async (): Promise<number> => {
   if (!agentPubKey.value) return 0;
   return client.callZome({
     role_name: "mewsfeed",
-    zome_name: "follows",
+    zome_name: "mews",
     fn_name: "count_creators_for_follower",
     payload: wrapInput(agentPubKey.value),
   });
@@ -260,7 +260,7 @@ const fetchFollowersCount = async (): Promise<number> => {
   if (!agentPubKey.value) return 0;
   return client.callZome({
     role_name: "mewsfeed",
-    zome_name: "follows",
+    zome_name: "mews",
     fn_name: "count_followers_for_creator",
     payload: wrapInput(agentPubKey.value),
   });

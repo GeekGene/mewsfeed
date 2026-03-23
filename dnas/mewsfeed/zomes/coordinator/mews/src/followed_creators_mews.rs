@@ -1,6 +1,5 @@
+use crate::follower_to_creators::GetCreatorsForFollowerInput;
 use crate::mew_with_context::get_batch_mews_with_context_internal;
-use follows_types::GetCreatorsForFollowerInput;
-use hc_call_utils::call_local_zome;
 use hc_link_pagination::{paginate_by_hash, HashPagination};
 use hc_zome_input::ZomeFnInput;
 use hdk::prelude::*;
@@ -43,19 +42,14 @@ fn get_followed_creators_mew_hashes(
     input: GetFollowedCreatorsMewsInput,
     strategy: GetStrategy,
 ) -> ExternResult<Vec<ActionHash>> {
-    // Note: The follows zome now expects ZomeFnInput, so we wrap the input
     let mut creators: Vec<AgentPubKey> =
-        call_local_zome::<Vec<AgentPubKey>, ZomeFnInput<GetCreatorsForFollowerInput>>(
-            "follows",
-            "get_creators_for_follower",
-            ZomeFnInput::new(
-                GetCreatorsForFollowerInput {
-                    follower: input.agent.clone(),
-                    page: None,
-                },
-                Some(strategy == GetStrategy::Local),
-            ),
-        )?;
+        crate::follower_to_creators::get_creators_for_follower(ZomeFnInput::new(
+            GetCreatorsForFollowerInput {
+                follower: input.agent.clone(),
+                page: None,
+            },
+            Some(strategy == GetStrategy::Local),
+        ))?;
     creators.push(input.agent);
 
     let links: Vec<Link> = creators

@@ -152,7 +152,7 @@ const setupApp = async () => {
   // Wait for cells to become responsive
   await client.value.callZome({
     role_name: "mewsfeed",
-    zome_name: "ping",
+    zome_name: "mews",
     fn_name: "ping",
     payload: null,
   });

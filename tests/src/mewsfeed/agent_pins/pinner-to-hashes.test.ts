@@ -22,7 +22,7 @@ test("link a Pinner to a Hash", async () => {
 
       // Bob gets the links, should be empty
       let linksOutput: HoloHash[] = await bob.cells[0].callZome({
-        zome_name: "agent_pins",
+        zome_name: "mews",
         fn_name: "get_hashes_for_pinner",
         payload: wrapInput(baseAddress),
       });
@@ -30,7 +30,7 @@ test("link a Pinner to a Hash", async () => {
 
       // Alice creates a link from Pinner to Hash
       await alice.cells[0].callZome({
-        zome_name: "agent_pins",
+        zome_name: "mews",
         fn_name: "pin_hash",
         payload: targetHash,
       });
@@ -39,7 +39,7 @@ test("link a Pinner to a Hash", async () => {
 
       // Bob gets the links again
       linksOutput = await bob.cells[0].callZome({
-        zome_name: "agent_pins",
+        zome_name: "mews",
         fn_name: "get_hashes_for_pinner",
         payload: wrapInput(baseAddress),
       });
@@ -48,14 +48,14 @@ test("link a Pinner to a Hash", async () => {
 
       // Bob gets the links in the inverse direction
       const pinnersOutput: AgentPubKey[] = await bob.cells[0].callZome({
-        zome_name: "agent_pins",
+        zome_name: "mews",
         fn_name: "get_pinners_for_hash",
         payload: wrapInput(targetHash),
       });
       assert.equal(pinnersOutput.length, 1);
 
       await alice.cells[0].callZome({
-        zome_name: "agent_pins",
+        zome_name: "mews",
         fn_name: "unpin_hash",
         payload: targetHash,
       });
@@ -64,7 +64,7 @@ test("link a Pinner to a Hash", async () => {
 
       // Bob gets the links again
       linksOutput = await bob.cells[0].callZome({
-        zome_name: "agent_pins",
+        zome_name: "mews",
         fn_name: "get_hashes_for_pinner",
         payload: wrapInput(baseAddress),
       });
@@ -72,7 +72,7 @@ test("link a Pinner to a Hash", async () => {
 
       // Bob gets the links in the inverse direction
       linksOutput = await bob.cells[0].callZome({
-        zome_name: "agent_pins",
+        zome_name: "mews",
         fn_name: "get_pinners_for_hash",
         payload: wrapInput(targetHash),
       });

@@ -26,7 +26,7 @@ test("Mew with context contains licks count and is_licked", async () => {
 
       // Bob licks the mew
       await bob.cells[0].callZome({
-        zome_name: "likes",
+        zome_name: "mews",
         fn_name: "like",
         payload: actionHash,
       });
@@ -53,7 +53,7 @@ test("Mew with context contains licks count and is_licked", async () => {
 
       // Bob unlicks the mew
       await bob.cells[0].callZome({
-        zome_name: "likes",
+        zome_name: "mews",
         fn_name: "unlike",
         payload: actionHash,
       });
@@ -272,7 +272,7 @@ test("Mew with context contains is_pinned", async () => {
 
       // Bob pins the mew
       await bob.cells[0].callZome({
-        zome_name: "agent_pins",
+        zome_name: "mews",
         fn_name: "pin_hash",
         payload: actionHash,
       });
@@ -297,7 +297,7 @@ test("Mew with context contains is_pinned", async () => {
 
       // Bob unpins the mew
       await bob.cells[0].callZome({
-        zome_name: "agent_pins",
+        zome_name: "mews",
         fn_name: "unpin_hash",
         payload: actionHash,
       });

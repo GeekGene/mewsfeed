@@ -31,7 +31,7 @@ test("link a Pinner to a Mew", async () => {
 
       // Alice creates a link from Pinner to Mew
       await alice.cells[0].callZome({
-        zome_name: "agent_pins",
+        zome_name: "mews",
         fn_name: "pin_hash",
         payload: targetActionHash,
       });
@@ -48,7 +48,7 @@ test("link a Pinner to a Mew", async () => {
       assert.deepEqual(targetActionHash, linksOutput[0].action_hash);
 
       await alice.cells[0].callZome({
-        zome_name: "agent_pins",
+        zome_name: "mews",
         fn_name: "unpin_hash",
         payload: targetActionHash,
       });
