@@ -1,11 +1,9 @@
 <template>
   <div class="flex justify-start items-center space-x-2">
-    <agent-avatar
+    <BaseAgentAvatar
       :agentPubKey="agentPubKey"
-      size="20"
-      disable-tooltip
-      disable-copy
-      class="q-mr-xs"
+      :profile="profile"
+      :size="20"
     />
     <BaseAgentProfileName :agent-pub-key="agentPubKey" />
   </div>
@@ -13,11 +11,14 @@
 
 <script setup lang="ts">
 import { AgentPubKey } from "@holochain/client";
+import { computed } from "vue";
+import BaseAgentAvatar from "./BaseAgentAvatar.vue";
 import BaseAgentProfileName from "./BaseAgentProfileName.vue";
+import { useProfile } from "@/composables/useProfile";
 
-defineProps<{
+const props = defineProps<{
   agentPubKey: AgentPubKey;
 }>();
-</script>
 
-<style scoped></style>
+const { profile } = useProfile(computed(() => props.agentPubKey));
+</script>

@@ -20,12 +20,10 @@
 </template>
 
 <script setup lang="ts">
-import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { PROFILE_FIELDS } from "@/types/types";
 import { AgentPubKey, encodeHashToBase64 } from "@holochain/client";
-import { ComputedRef, computed, inject } from "vue";
-import { useQuery } from "@tanstack/vue-query";
-import { useCellsReady } from "@/composables/useCellsReady";
+import { computed } from "vue";
+import { useProfile } from "@/composables/useProfile";
 
 const props = withDefaults(
   defineProps<{
@@ -37,24 +35,7 @@ const props = withDefaults(
   }
 );
 
-const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
-  .value;
-const cellsReady = useCellsReady();
-const agentPubKeyB64 = computed(() => encodeHashToBase64(props.agentPubKey));
-
-const fetchProfile = async () => {
-  const record = await profilesStore.client.getAgentProfile(
-    props.agentPubKey,
-    false
-  );
-  return record?.entry ?? null;
-};
-
-const { data: profile } = useQuery({
-  queryKey: ["profiles", "getAgentProfile", agentPubKeyB64],
-  queryFn: fetchProfile,
-  enabled: cellsReady,
-});
+const { profile } = useProfile(computed(() => props.agentPubKey));
 </script>
 
 <style scoped></style>

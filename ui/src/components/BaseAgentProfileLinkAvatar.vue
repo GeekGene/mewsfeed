@@ -5,25 +5,22 @@
     popup-class="mt-11"
   >
     <div class="pr-4">
-      <agent-avatar
-        v-if="profilesStore"
+      <BaseAgentAvatar
         :agentPubKey="agentPubKey"
-        disable-tooltip
-        disable-copy
+        :profile="profile"
         :size="size"
-        :store="profilesStore"
-      >
-      </agent-avatar>
+      />
     </div>
   </BaseLinkProfilePopup>
 </template>
 
 <script setup lang="ts">
 import BaseLinkProfilePopup from "@/components/BaseLinkProfilePopup.vue";
-import { ProfilesStore } from "@holochain-open-dev/profiles";
-import { ComputedRef, inject } from "vue";
+import BaseAgentAvatar from "@/components/BaseAgentAvatar.vue";
+import { useProfile } from "@/composables/useProfile";
+import { computed } from "vue";
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     agentPubKey: Uint8Array;
     size?: number;
@@ -35,6 +32,5 @@ withDefaults(
   }
 );
 
-const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
-  .value;
+const { profile } = useProfile(computed(() => props.agentPubKey));
 </script>

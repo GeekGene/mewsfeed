@@ -24,13 +24,12 @@
             }
           "
         >
-          <agent-avatar
+          <BaseAgentAvatar
             v-if="!enableCopyAgentPubKey"
             class="hidden sm:block"
             :agentPubKey="agentPubKey"
-            size="80"
-            disable-tooltip
-            disable-copy
+            :profile="profile"
+            :size="80"
           />
           <BaseCopyOnClick
             v-else
@@ -38,20 +37,18 @@
             notice-text="Copied public key"
             class="hidden sm:block"
           >
-            <agent-avatar
+            <BaseAgentAvatar
               :agentPubKey="agentPubKey"
-              size="80"
-              disable-tooltip
-              disable-copy
+              :profile="profile"
+              :size="80"
             />
           </BaseCopyOnClick>
-          <agent-avatar
+          <BaseAgentAvatar
             v-if="!enableCopyAgentPubKey"
             class="block sm:hidden"
             :agentPubKey="agentPubKey"
-            size="50"
-            disable-tooltip
-            disable-copy
+            :profile="profile"
+            :size="50"
           />
           <BaseCopyOnClick
             v-else
@@ -59,11 +56,10 @@
             notice-text="Copied public key"
             class="block sm:hidden"
           >
-            <agent-avatar
+            <BaseAgentAvatar
               :agentPubKey="agentPubKey"
-              size="50"
-              disable-tooltip
-              disable-copy
+              :profile="profile"
+              :size="50"
             />
           </BaseCopyOnClick>
         </div>
@@ -192,6 +188,7 @@
 import isEqual from "lodash/isEqual";
 import { AgentPubKey, AppClient, encodeHashToBase64 } from "@holochain/client";
 import { computed, ComputedRef, inject, ref } from "vue";
+import BaseAgentAvatar from "@/components/BaseAgentAvatar.vue";
 import ButtonFollow from "@/components/ButtonFollow.vue";
 import { Profile } from "@holochain-open-dev/profiles";
 import BaseAgentProfileNameLarge from "@/components/BaseAgentProfileNameLarge.vue";

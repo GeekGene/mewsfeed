@@ -5,11 +5,10 @@
     :enabled="enablePopup"
   >
     <div class="flex justify-end items-center space-x-2">
-      <agent-avatar
+      <BaseAgentAvatar
         :agentPubKey="agentPubKey"
+        :profile="profile"
         :size="avatarSize"
-        disable-tooltip
-        disable-copy
       />
       <BaseAgentProfileName :agentPubKey="agentPubKey" />
     </div>
@@ -18,11 +17,10 @@
 </template>
 
 <script setup lang="ts">
-import { ProfilesStore } from "@holochain-open-dev/profiles";
-import { AgentPubKey, encodeHashToBase64 } from "@holochain/client";
-import { ComputedRef, computed, inject } from "vue";
-import { useQuery } from "@tanstack/vue-query";
-import { useCellsReady } from "@/composables/useCellsReady";
+import { AgentPubKey } from "@holochain/client";
+import { computed } from "vue";
+import { useProfile } from "@/composables/useProfile";
+import BaseAgentAvatar from "@/components/BaseAgentAvatar.vue";
 import BaseLinkProfilePopup from "@/components/BaseLinkProfilePopup.vue";
 import BaseAgentProfileName from "@/components/BaseAgentProfileName.vue";
 import BaseAgentProfileNameSkeleton from "@/components/BaseAgentProfileNameSkeleton.vue";
@@ -39,25 +37,7 @@ const props = withDefaults(
   }
 );
 
-const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
-  .value;
-const cellsReady = useCellsReady();
-const agentPubKeyB64 = computed(() => encodeHashToBase64(props.agentPubKey));
-
-// Uses the same query key as BaseAgentProfileName so TanStack deduplicates the fetch
-const fetchProfile = async () => {
-  const record = await profilesStore.client.getAgentProfile(
-    props.agentPubKey,
-    false
-  );
-  return record?.entry ?? null;
-};
-
-const { data: profile } = useQuery({
-  queryKey: ["profiles", "getAgentProfile", agentPubKeyB64],
-  queryFn: fetchProfile,
-  enabled: cellsReady,
-});
+const { profile } = useProfile(computed(() => props.agentPubKey));
 </script>
 
 <style scoped></style>

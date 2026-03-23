@@ -9,12 +9,10 @@
         params: { agentPubKey: encodeHashToBase64(client.myPubKey) },
       }"
     >
-      <agent-avatar
+      <BaseAgentAvatar
         :agentPubKey="client.myPubKey"
-        :store="profilesStore"
-        size="54"
-        disable-tooltip
-        disable-copy
+        :profile="myProfile"
+        :size="54"
       />
     </RouterLink>
 
@@ -210,7 +208,7 @@ import flatten from "lodash/flatten";
 import { AppClient } from "@holochain/client";
 import CreateProfileIfNotFoundDialog from "@/components/CreateProfileIfNotFoundDialog.vue";
 import { ROUTES } from "@/router";
-import { ProfilesStore } from "@holochain-open-dev/profiles";
+import BaseAgentAvatar from "@/components/BaseAgentAvatar.vue";
 import IconHelpCircleOutline from "~icons/ion/help-circle-outline";
 import IconAlertCircleOutline from "~icons/ion/alert-circle-outline";
 import IconArrowForwardOutline from "~icons/ion/arrow-forward-outline";
@@ -232,7 +230,6 @@ const dnaProperties = (
   inject("dnaProperties") as ComputedRef<MewsfeedDnaProperties>
 ).value;
 const myProfile = inject("myProfile") as ComputedRef<Profile>;
-const profilesStore = inject("profilesStore") as ComputedRef<ProfilesStore>;
 const { showMessage, showError } = useToasts();
 
 const TRUNCATED_MEW_LENGTH = 300;

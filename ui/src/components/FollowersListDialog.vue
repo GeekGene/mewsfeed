@@ -48,6 +48,7 @@ import BaseEmptyList from "@/components/BaseEmptyList.vue";
 import BaseAgentProfileList from "@/components/BaseAgentProfileList.vue";
 import { watch } from "vue";
 import { ProfilesStore } from "@holochain-open-dev/profiles";
+import { toPromise } from "@holochain-open-dev/stores";
 import { encodeHashToBase64 } from "@holochain/client";
 import { AgentProfile } from "@/types/types";
 import { AgentPubKey } from "@holochain/client";
@@ -87,14 +88,16 @@ const fetchFollowers = async (params: any) => {
     agents.map(async (agentPubKey) => {
       let profile;
       try {
-        profile = await profilesStore.client.getAgentProfile(agentPubKey);
+        const store = profilesStore.profiles.get(agentPubKey);
+        const record = store ? await toPromise(store) : undefined;
+        profile = record?.entry;
       } catch (error) {
         console.error(error);
       }
 
       return {
         agentPubKey,
-        profile: profile?.entry,
+        profile,
       } as AgentProfile;
     })
   );
