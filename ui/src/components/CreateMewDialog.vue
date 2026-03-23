@@ -21,7 +21,6 @@
 
         <BaseAgentProfileName
           v-if="originalMew"
-          :profile="originalMew.author_profile"
           :agentPubKey="originalMew.action.author"
         />
       </div>
@@ -57,7 +56,7 @@ import { FeedMew, MewType, MewTypeName } from "@/types/types";
 import CreateMewInput from "@/components/CreateMewInput.vue";
 import BaseAgentProfileName from "@/components/BaseAgentProfileName.vue";
 import BaseDialog from "@/components/BaseDialog.vue";
-import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
+import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { ComputedRef, inject, ref } from "vue";
 import { ROUTES } from "@/router";
 import { useRouter } from "vue-router";
@@ -68,12 +67,10 @@ withDefaults(
     modelValue: boolean;
     mewType: MewType;
     originalMew?: FeedMew;
-    originalAuthor?: Profile | null;
   }>(),
   {
     modelValue: false,
     originalMew: undefined,
-    originalAuthor: undefined,
   }
 );
 const emit = defineEmits(["mew-created", "update:model-value"]);

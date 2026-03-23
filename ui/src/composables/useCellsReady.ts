@@ -1,4 +1,4 @@
-import { inject, type ComputedRef } from "vue";
+import { computed, inject, type ComputedRef } from "vue";
 
 export const useCellsReady = () =>
-  inject("cellsReady") as ComputedRef<boolean>;
+  inject("cellsReady", computed(() => false)) as ComputedRef<boolean>;

@@ -1,8 +1,9 @@
 <template>
   <div class="mt-4">
-    <div v-if="!isInitialLoadingProfile && agentPubKey">
+    <div v-if="!isLoadingProfile && agentPubKey">
       <BaseAgentProfileDetail
-        :profile="profile"
+        :key="profileVersion"
+        :profile="profile ?? undefined"
         :joined-timestamp="joinedTimestamp"
         :agentPubKey="agentPubKey"
         :creators-count="creatorsCount || 0"
@@ -30,16 +31,7 @@
         v-if="profile"
         v-model="showEditProfileDialog"
         :profile="profile"
-        @profile-updated="(profile: any) => {
-          refetchProfile();
-          queryClient.setQueryData([
-              'profiles',
-              'getAgentProfile',
-              encodeHashToBase64(agentPubKey!),
-            ],
-            profile
-          );
-        }"
+        @profile-updated="() => refreshProfile()"
       />
 
       <BaseList
@@ -136,27 +128,24 @@
 </template>
 
 <script setup lang="ts">
-import { decodeHashFromBase64, encodeHashToBase64 } from "@holochain/client";
-import { ProfilesStore } from "@holochain-open-dev/profiles";
-import { ComputedRef, computed, inject, nextTick, ref, watch } from "vue";
+import { decodeHashFromBase64 } from "@holochain/client";
+import { ComputedRef, computed, inject, nextTick, onActivated, ref, watch } from "vue";
 import { useCellsReady } from "@/composables/useCellsReady";
+import { useProfile } from "@/composables/useProfile";
 import { useRoute, useRouter } from "vue-router";
 import BaseList from "@/components/BaseList.vue";
 import { AppClient } from "@holochain/client";
-import { useQuery, useQueryClient } from "@tanstack/vue-query";
+import { useQuery } from "@tanstack/vue-query";
 import BaseAgentProfileDetail from "@/components/BaseAgentProfileDetail.vue";
 import EditAgentProfileDialog from "@/components/EditAgentProfileDialog.vue";
 import FollowersListDialog from "@/components/FollowersListDialog.vue";
 import CreatorsListDialog from "@/components/CreatorsListDialog.vue";
 import { wrapInput } from "@/utils/zomeCall";
 
-const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
-  .value;
 const client = (inject("client") as ComputedRef<AppClient>).value;
 const cellsReady = useCellsReady();
 const route = useRoute();
 const router = useRouter();
-const queryClient = useQueryClient();
 
 const agentPubKey = computed(() => {
   const key = route.params.agentPubKey as string;
@@ -218,29 +207,12 @@ const {
 });
 watch(errorPinnedMews, console.error);
 
-const fetchProfile = async () => {
-  if (!agentPubKey.value) return undefined;
-  const profile = await profilesStore.client.getAgentProfile(agentPubKey.value);
-
-  if (profile?.entry) {
-    return profile.entry;
-  } else {
-    throw new Error("No profile found");
-  }
-};
-
 const {
-  data: profile,
-  isInitialLoading: isInitialLoadingProfile,
-  error: errorProfile,
-  refetch: refetchProfile,
-} = useQuery({
-  queryKey: ["profiles", "getAgentProfile", agentPubKeyB64],
-  queryFn: fetchProfile,
-  refetchOnMount: true,
-  enabled: computed(() => cellsReady.value && hasAgentPubKeyB64.value),
-});
-watch(errorProfile, console.error);
+  profile,
+  isLoading: isLoadingProfile,
+  profileVersion,
+  refresh: refreshProfile,
+} = useProfile(agentPubKey);
 
 const fetchJoinedTimestamp = () => {
   if (!agentPubKey.value) return null;
@@ -305,15 +277,22 @@ const {
 });
 watch(errorFollowersCount, console.error);
 
-watch(route, (newVal) => {
-  console.log("new route is ", newVal);
-  nextTick(() => {
-    refetchProfile();
-    refetchAuthoredMews();
-    refetchPinnedMews();
-    refetchJoinedTimestamp();
-    refetchFollowersCount();
-    refetchCreatorsCount();
-  });
-});
+watch(
+  () => route.params.agentPubKey,
+  (newKey) => {
+    console.log("agentPubKey route param changed:", newKey);
+    if (!newKey) return;
+    nextTick(() => {
+      refreshProfile();
+      refetchAuthoredMews();
+      refetchPinnedMews();
+      refetchJoinedTimestamp();
+      refetchFollowersCount();
+      refetchCreatorsCount();
+    });
+  }
+);
+
+// Refresh profile when navigating to this page (including via KeepAlive reactivation)
+onActivated(() => refreshProfile());
 </script>

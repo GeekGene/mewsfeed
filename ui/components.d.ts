@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AgentProfileDetail: typeof import('./src/components/AgentProfileDetail.vue')['default']
+    BaseAgentAvatar: typeof import('./src/components/BaseAgentAvatar.vue')['default']
     BaseAgentProfile: typeof import('./src/components/BaseAgentProfile.vue')['default']
     BaseAgentProfileDetail: typeof import('./src/components/BaseAgentProfileDetail.vue')['default']
     BaseAgentProfileDetailSkeleton: typeof import('./src/components/BaseAgentProfileDetailSkeleton.vue')['default']

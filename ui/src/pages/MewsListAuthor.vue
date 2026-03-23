@@ -11,7 +11,6 @@
           v-if="agentPubKey"
           class="q-ml-md"
           :agentPubKey="agentPubKey"
-          :profile="profile"
           :avatar-size="30"
           :enable-popup="false"
         />
@@ -63,19 +62,13 @@
 
 <script setup lang="ts">
 import { AppClient } from "@holochain/client";
-import { ComputedRef, computed, inject } from "vue";
+import { ComputedRef, computed, inject, watch } from "vue";
 import { useCellsReady } from "@/composables/useCellsReady";
 import { useRoute, onBeforeRouteLeave } from "vue-router";
-import {
-  useInfiniteQuery,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/vue-query";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/vue-query";
 import BaseEmptyList from "@/components/BaseEmptyList.vue";
 import BaseMewListItem from "@/components/BaseMewListItem.vue";
 import BaseAgentProfileLinkName from "@/components/BaseAgentProfileLinkName.vue";
-import { watch } from "vue";
-import { ProfilesStore } from "@holochain-open-dev/profiles";
 import { decodeHashFromBase64 } from "@holochain/client";
 import BaseButtonBack from "@/components/BaseButtonBack.vue";
 import BaseInfiniteScroll from "@/components/BaseInfiniteScroll.vue";
@@ -86,8 +79,6 @@ import { wrapInput } from "@/utils/zomeCall";
 const route = useRoute();
 const client = (inject("client") as ComputedRef<AppClient>).value;
 const cellsReady = useCellsReady();
-const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
-  .value;
 const queryClient = useQueryClient();
 const agentPubKeyB64 = computed(() => route.params.agentPubKey);
 const agentPubKey = computed(() => {
@@ -130,23 +121,6 @@ const { data, error, fetchNextPage, hasNextPage, isInitialLoading, refetch } =
     enabled: computed(() => cellsReady.value && hasAgentPubKey.value),
   });
 
-const fetchProfile = async () => {
-  if (!agentPubKey.value) return undefined;
-  const profile = await profilesStore.client.getAgentProfile(agentPubKey.value);
-
-  if (profile?.entry) {
-    return profile.entry;
-  } else {
-    throw new Error("No profile found");
-  }
-};
-
-const { data: profile, error: errorProfile } = useQuery({
-  queryKey: ["profiles", "getAgentProfile", agentPubKeyB64],
-  queryFn: fetchProfile,
-  enabled: computed(() => cellsReady.value && hasAgentPubKey.value),
-});
-
 const fetchNextPageInfiniteScroll = async (
   done: (hasMore?: boolean) => void
 ) => {
@@ -155,7 +129,6 @@ const fetchNextPageInfiniteScroll = async (
 };
 
 watch(error, console.error);
-watch(errorProfile, console.error);
 
 onBeforeRouteLeave(() => {
   if (data.value && data.value.pages.length > 1) {

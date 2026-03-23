@@ -31,7 +31,6 @@
         </div>
         <template v-if="feedMew.original_mew">
           <BaseAgentProfileName
-            :profile="feedMew.original_mew.author_profile"
             :agentPubKey="feedMew.original_mew.action.author"
           />
 
@@ -65,7 +64,6 @@
             @click.stop.prevent
           >
             <BaseAgentProfileName
-              :profile="feedMew.author_profile"
               :agentPubKey="feedMew.action.author"
             />
           </RouterLink>
@@ -521,9 +519,11 @@ const togglePinMew = async () => {
 
 const onCreateMewmew = async (feedMew: FeedMew) => {
   closeCreateMewDialog();
-  feedMew.is_mewmewed = true;
-  feedMew.mewmews_count += 1;
-  emit("mewmew-created", feedMew);
+  emit("mewmew-created", {
+    ...feedMew,
+    is_mewmewed: true,
+    mewmews_count: feedMew.mewmews_count + 1,
+  });
   showMessage("Mewmewed");
 };
 

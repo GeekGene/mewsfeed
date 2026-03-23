@@ -509,13 +509,15 @@ cmd_status() {
 
     echo "  Sandbox dir:        $SANDBOX_DIR"
     echo ""
-    echo "  Open in browser:    http://localhost:1420/?linkerUrl=http://localhost:$LINKER_PORT"
+    echo "  Open in browser:    http://localhost:1420/?linkerUrl=http://localhost:$LINKER_PORT&runtime=hwc"
     echo ""
 }
 
 # --- Main ---
+TAIL_PID=""
 cleanup() {
     log_info "Shutting down..."
+    [ -n "$TAIL_PID" ] && kill "$TAIL_PID" 2>/dev/null || true
     cmd_stop
     exit 0
 }
@@ -537,6 +539,10 @@ cmd_start() {
 
     log_info "Local HWC infrastructure ready. Press Ctrl-C to stop."
     trap cleanup INT TERM
+    # Keep script alive — backgrounded processes may have daemonized,
+    # leaving no children for `wait`. Use tail so concurrently sees us as running.
+    tail -f /dev/null &
+    TAIL_PID=$!
     wait
 }
 

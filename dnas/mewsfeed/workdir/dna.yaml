@@ -5,7 +5,7 @@ integrity:
   network_seed: ~
   properties:
     mew_characters_min: 10
-    mew_characters_max: ~
+    mew_characters_max: 200
   zomes:
     - name: profiles_integrity
       hash: ~

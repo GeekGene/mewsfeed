@@ -2,11 +2,38 @@ use crate::agent_mews::get_agent_mews;
 use crate::agent_mews::GetAgentMewsInput;
 use crate::mew_to_responses::{get_responses_for_mew, GetResponsesForMewInput};
 use crate::mew_with_context::get_mew_with_context_internal;
-use hc_call_utils::call_local_zome;
 use hc_link_pagination::{paginate_by_timestamp, TimestampPagination};
 use hc_zome_input::ZomeFnInput;
 use hdk::prelude::*;
-use mews_types::{Mew, MewType, Notification, NotificationType, Profile};
+use mews_types::{Mew, MewType, Notification, NotificationType};
+
+// Cross-zome link type identifiers.
+// These must match the zome ordering in dna.yaml and the LinkTypes enum ordinals
+// in each integrity zome. If dna.yaml zome order changes, update these constants.
+//
+// Integrity zome order in dna.yaml:
+//   0: profiles_integrity
+//   1: mews_integrity
+//   2: follows_integrity
+//   3: likes_integrity
+//   4: agent_pins_integrity
+const MEWS_ZOME_INDEX: ZomeIndex = ZomeIndex(1);
+const FOLLOWS_ZOME_INDEX: ZomeIndex = ZomeIndex(2);
+const LIKES_ZOME_INDEX: ZomeIndex = ZomeIndex(3);
+const AGENT_PINS_ZOME_INDEX: ZomeIndex = ZomeIndex(4);
+
+// mews_integrity::LinkTypes ordinals
+const MEW_TO_RESPONSES_LINK_TYPE: LinkType = LinkType(5);
+const MENTION_TO_MEWS_LINK_TYPE: LinkType = LinkType(6);
+
+// follows_integrity::LinkTypes ordinals
+const CREATOR_TO_FOLLOWERS_LINK_TYPE: LinkType = LinkType(1);
+
+// likes_integrity::LinkTypes ordinals
+const HASH_TO_LIKERS_LINK_TYPE: LinkType = LinkType(1);
+
+// agent_pins_integrity::LinkTypes ordinals
+const HASH_TO_PINNERS_LINK_TYPE: LinkType = LinkType(1);
 
 #[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
 pub struct GetNotificationsForAgentInput {
@@ -31,10 +58,8 @@ pub fn get_notifications_for_agent(
         LinkQuery::new(
             AnyLinkableHash::from(input.input.agent.clone()),
             LinkTypeFilter::Types(vec![
-                // Mentions of agent (MentionToMews)
-                (ZomeIndex(1), vec![LinkType(6)]),
-                // Follows of agent (CreatorToFollowers)
-                (ZomeIndex(2), vec![LinkType(1)]),
+                (MEWS_ZOME_INDEX, vec![MENTION_TO_MEWS_LINK_TYPE]),
+                (FOLLOWS_ZOME_INDEX, vec![CREATOR_TO_FOLLOWERS_LINK_TYPE]),
             ]),
         ),
         strategy,
@@ -47,12 +72,9 @@ pub fn get_notifications_for_agent(
                 LinkQuery::new(
                     AnyLinkableHash::from(mew.action_hashed().hash.clone()),
                     LinkTypeFilter::Types(vec![
-                        // MewToResponses
-                        (ZomeIndex(1), vec![LinkType(5)]),
-                        // HashToLikers
-                        (ZomeIndex(3), vec![LinkType(1)]),
-                        // HashToPinners
-                        (ZomeIndex(4), vec![LinkType(1)]),
+                        (MEWS_ZOME_INDEX, vec![MEW_TO_RESPONSES_LINK_TYPE]),
+                        (LIKES_ZOME_INDEX, vec![HASH_TO_LIKERS_LINK_TYPE]),
+                        (AGENT_PINS_ZOME_INDEX, vec![HASH_TO_PINNERS_LINK_TYPE]),
                     ]),
                 ),
                 strategy,
@@ -210,10 +232,8 @@ pub fn count_notifications_for_agent(input: ZomeFnInput<AgentPubKey>) -> ExternR
         LinkQuery::new(
             AnyLinkableHash::from(agent.clone()),
             LinkTypeFilter::Types(vec![
-                // Mentions of agent (MentionToMews)
-                (ZomeIndex(1), vec![LinkType(6)]),
-                // Follows of agent (CreatorToFollowers)
-                (ZomeIndex(2), vec![LinkType(1)]),
+                (MEWS_ZOME_INDEX, vec![MENTION_TO_MEWS_LINK_TYPE]),
+                (FOLLOWS_ZOME_INDEX, vec![CREATOR_TO_FOLLOWERS_LINK_TYPE]),
             ]),
         ),
         strategy,
@@ -226,12 +246,9 @@ pub fn count_notifications_for_agent(input: ZomeFnInput<AgentPubKey>) -> ExternR
                 LinkQuery::new(
                     AnyLinkableHash::from(mew.action_hashed().hash.clone()),
                     LinkTypeFilter::Types(vec![
-                        // MewToResponses
-                        (ZomeIndex(1), vec![LinkType(5)]),
-                        // HashToLikers
-                        (ZomeIndex(3), vec![LinkType(1)]),
-                        // HashToPinners
-                        (ZomeIndex(4), vec![LinkType(1)]),
+                        (MEWS_ZOME_INDEX, vec![MEW_TO_RESPONSES_LINK_TYPE]),
+                        (LIKES_ZOME_INDEX, vec![HASH_TO_LIKERS_LINK_TYPE]),
+                        (AGENT_PINS_ZOME_INDEX, vec![HASH_TO_PINNERS_LINK_TYPE]),
                     ]),
                 ),
                 strategy,
@@ -363,21 +380,11 @@ pub fn count_my_notifications(input: ZomeFnInput<()>) -> ExternResult<usize> {
 
 fn count_notifications(create: CreateLink, deletes: Vec<DeleteLink>) -> ExternResult<usize> {
     match (create.zome_index, create.link_type) {
-        // MentionToMews
-        (ZomeIndex(1), LinkType(6)) => Ok(1),
-
-        // CreatorToFollowers
-        (ZomeIndex(2), LinkType(1)) => Ok(1 + deletes.len()),
-
-        // MewToResponses
-        (ZomeIndex(1), LinkType(5)) => Ok(1),
-
-        // HashToLikers
-        (ZomeIndex(3), LinkType(1)) => Ok(1 + deletes.len()),
-
-        // HashToPinners
-        (ZomeIndex(4), LinkType(1)) => Ok(1 + deletes.len()),
-
+        (MEWS_ZOME_INDEX, MENTION_TO_MEWS_LINK_TYPE) => Ok(1),
+        (FOLLOWS_ZOME_INDEX, CREATOR_TO_FOLLOWERS_LINK_TYPE) => Ok(1 + deletes.len()),
+        (MEWS_ZOME_INDEX, MEW_TO_RESPONSES_LINK_TYPE) => Ok(1),
+        (LIKES_ZOME_INDEX, HASH_TO_LIKERS_LINK_TYPE) => Ok(1 + deletes.len()),
+        (AGENT_PINS_ZOME_INDEX, HASH_TO_PINNERS_LINK_TYPE) => Ok(1 + deletes.len()),
         (_, _) => Err(wasm_error!(WasmErrorInner::Guest(
             "Unexpected link type".into()
         ))),
@@ -390,8 +397,7 @@ fn make_notifications(
     get_options: GetOptions,
 ) -> ExternResult<Vec<Notification>> {
     match (create.zome_index, create.link_type) {
-        // MentionToMews
-        (ZomeIndex(1), LinkType(6)) => {
+        (MEWS_ZOME_INDEX, MENTION_TO_MEWS_LINK_TYPE) => {
             let feed_mew_hash = Some(
                 ActionHash::try_from(create.target_address.clone())
                     .map_err(|err| wasm_error!(err))?,
@@ -405,8 +411,7 @@ fn make_notifications(
             )
         }
 
-        // CreatorToFollowers
-        (ZomeIndex(2), LinkType(1)) => {
+        (FOLLOWS_ZOME_INDEX, CREATOR_TO_FOLLOWERS_LINK_TYPE) => {
             let mut all_notifications = make_notifications_for_createlinks(
                 vec![create],
                 NotificationType::MyAgentFollowed,
@@ -425,8 +430,7 @@ fn make_notifications(
             Ok(all_notifications)
         }
 
-        // MewToResponses
-        (ZomeIndex(1), LinkType(5)) => {
+        (MEWS_ZOME_INDEX, MEW_TO_RESPONSES_LINK_TYPE) => {
             let feed_mew_hash = Some(
                 ActionHash::try_from(create.target_address.clone())
                     .map_err(|err| wasm_error!(err))?,
@@ -440,8 +444,7 @@ fn make_notifications(
             )
         }
 
-        // HashToLikers
-        (ZomeIndex(3), LinkType(1)) => {
+        (LIKES_ZOME_INDEX, HASH_TO_LIKERS_LINK_TYPE) => {
             let feed_mew_hash = Some(
                 ActionHash::try_from(create.base_address.clone())
                     .map_err(|err| wasm_error!(err))?,
@@ -465,8 +468,7 @@ fn make_notifications(
             Ok(all_notifications)
         }
 
-        // HashToPinners
-        (ZomeIndex(4), LinkType(1)) => {
+        (AGENT_PINS_ZOME_INDEX, HASH_TO_PINNERS_LINK_TYPE) => {
             let feed_mew_hash = Some(
                 ActionHash::try_from(create.base_address.clone())
                     .map_err(|err| wasm_error!(err))?,
@@ -505,7 +507,6 @@ fn make_notifications_for_createlinks(
     let notifications: Vec<Notification> = create_link_actions
         .iter()
         .map(|create_action| -> ExternResult<Notification> {
-            let agent_profile = get_agent_profile(create_action.author.clone())?;
             let feed_mew = match feed_mew_hash.clone() {
                 Some(hash) => Some(get_mew_with_context_internal(hash, get_options.clone())?),
                 None => None,
@@ -513,7 +514,6 @@ fn make_notifications_for_createlinks(
 
             Ok(Notification {
                 agent: create_action.author.clone(),
-                agent_profile,
                 timestamp: create_action.timestamp,
                 notification_type: notification_type.clone(),
                 feed_mew,
@@ -533,7 +533,6 @@ fn make_notifications_for_deletelinks(
     let notifications: Vec<Notification> = delete_link_actions
         .iter()
         .map(|delete_action| {
-            let agent_profile = get_agent_profile(delete_action.author.clone())?;
             let feed_mew = match feed_mew_hash.clone() {
                 Some(hash) => Some(get_mew_with_context_internal(hash, get_options.clone())?),
                 None => None,
@@ -541,7 +540,6 @@ fn make_notifications_for_deletelinks(
 
             Ok(Notification {
                 agent: delete_action.author.clone(),
-                agent_profile,
                 timestamp: delete_action.timestamp,
                 notification_type: notification_type.clone(),
                 feed_mew,
@@ -561,7 +559,6 @@ fn make_notifications_for_records(
     records
         .iter()
         .map(|record| -> ExternResult<Notification> {
-            let agent_profile = get_agent_profile(record.action_hashed().author().clone())?;
             let feed_mew = match include_feed_mew {
                 true => Some(get_mew_with_context_internal(
                     record.action_hashed().hash.clone(),
@@ -572,34 +569,10 @@ fn make_notifications_for_records(
 
             Ok(Notification {
                 agent: record.action_hashed().author().clone(),
-                agent_profile,
                 timestamp: record.action_hashed().timestamp(),
                 notification_type: notification_type.clone(),
                 feed_mew,
             })
         })
         .collect::<ExternResult<Vec<Notification>>>()
-}
-
-fn get_agent_profile(agent_pub_key: AgentPubKey) -> ExternResult<Option<Profile>> {
-    let maybe_agent_profile_record = call_local_zome::<Option<Record>, ZomeFnInput<AgentPubKey>>(
-        "profiles",
-        "get_agent_profile",
-        ZomeFnInput::new(agent_pub_key, Some(true)),
-    )?;
-
-    match maybe_agent_profile_record {
-        Some(agent_profile_record) => {
-            let profile = agent_profile_record
-                .entry()
-                .to_app_option::<Profile>()
-                .map_err(|e| wasm_error!(WasmErrorInner::Guest(e.into())))?
-                .ok_or(wasm_error!(WasmErrorInner::Guest(String::from(
-                    "Malformed profile"
-                ))))?;
-
-            Ok(Some(profile))
-        }
-        _ => Ok(None),
-    }
 }

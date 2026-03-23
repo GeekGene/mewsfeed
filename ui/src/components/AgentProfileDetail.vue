@@ -9,14 +9,13 @@
 </template>
 
 <script setup lang="ts">
-import { AgentPubKey, AppClient } from "@holochain/client";
+import { AgentPubKey, AppClient, encodeHashToBase64 } from "@holochain/client";
 import { ComputedRef, computed, inject, watch } from "vue";
 import { useCellsReady } from "@/composables/useCellsReady";
-import { ProfilesStore } from "@holochain-open-dev/profiles";
 import BaseAgentProfileDetail from "@/components/BaseAgentProfileDetail.vue";
 import { useQuery } from "@tanstack/vue-query";
-import { encodeHashToBase64 } from "@holochain/client";
 import { wrapInput } from "@/utils/zomeCall";
+import { useProfile } from "@/composables/useProfile";
 
 const props = withDefaults(
   defineProps<{
@@ -28,32 +27,11 @@ const props = withDefaults(
   }
 );
 
-const profilesStore = (inject("profilesStore") as ComputedRef<ProfilesStore>)
-  .value;
 const client = (inject("client") as ComputedRef<AppClient>).value;
 const cellsReady = useCellsReady();
 const agentPubKeyB64 = computed(() => encodeHashToBase64(props.agentPubKey));
 
-const fetchProfile = async () => {
-  const profile = await profilesStore.client.getAgentProfile(props.agentPubKey);
-  if (profile?.entry) {
-    return profile.entry;
-  } else {
-    throw new Error("No profile found");
-  }
-};
-
-const {
-  data: profile,
-  error: errorProfile,
-  refetch: refetchProfile,
-} = useQuery({
-  queryKey: ["profiles", "getAgentProfile", agentPubKeyB64],
-  queryFn: fetchProfile,
-  refetchOnMount: true,
-  enabled: cellsReady,
-});
-watch(errorProfile, console.error);
+const { profile } = useProfile(computed(() => props.agentPubKey));
 
 const fetchJoinedTimestamp = async () =>
   client.callZome({
@@ -75,8 +53,7 @@ const {
 });
 watch(errorJoinedTimestamp, console.error);
 
-watch(props, () => {
-  refetchProfile();
+watch(() => props.agentPubKey, () => {
   refetchJoinedTimestamp();
 });
 </script>

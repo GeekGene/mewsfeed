@@ -20,21 +20,22 @@
 </template>
 
 <script setup lang="ts">
-import { Profile } from "@holochain-open-dev/profiles";
 import { PROFILE_FIELDS } from "@/types/types";
 import { AgentPubKey, encodeHashToBase64 } from "@holochain/client";
+import { computed } from "vue";
+import { useProfile } from "@/composables/useProfile";
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
-    profile?: Profile | null;
     agentPubKey: AgentPubKey;
     trimAgentPubKey?: boolean;
   }>(),
   {
-    profile: null,
     trimAgentPubKey: true,
   }
 );
+
+const { profile } = useProfile(computed(() => props.agentPubKey));
 </script>
 
 <style scoped></style>

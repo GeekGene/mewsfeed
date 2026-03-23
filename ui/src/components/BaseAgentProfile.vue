@@ -1,25 +1,24 @@
 <template>
   <div class="flex justify-start items-center space-x-2">
-    <agent-avatar
+    <BaseAgentAvatar
       :agentPubKey="agentPubKey"
-      size="20"
-      disable-tooltip
-      disable-copy
-      class="q-mr-xs"
+      :profile="profile"
+      :size="20"
     />
-    <BaseAgentProfileName :agent-pub-key="agentPubKey" :profile="profile" />
+    <BaseAgentProfileName :agent-pub-key="agentPubKey" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { Profile } from "@holochain-open-dev/profiles";
 import { AgentPubKey } from "@holochain/client";
+import { computed } from "vue";
+import BaseAgentAvatar from "./BaseAgentAvatar.vue";
 import BaseAgentProfileName from "./BaseAgentProfileName.vue";
+import { useProfile } from "@/composables/useProfile";
 
-defineProps<{
+const props = defineProps<{
   agentPubKey: AgentPubKey;
-  profile?: Profile | null;
 }>();
-</script>
 
-<style scoped></style>
+const { profile } = useProfile(computed(() => props.agentPubKey));
+</script>

@@ -10,7 +10,7 @@
       <div class="flex justify-start items-start space-x-2">
         <BaseAgentProfileLinkName
           :agentPubKey="notification.agent"
-          :profile="notification.agent_profile"
+
         />
         <div class="font-mono">Followed you</div>
       </div>
@@ -28,7 +28,7 @@
       <div class="flex justify-start items-start space-x-2">
         <BaseAgentProfileLinkName
           :agentPubKey="notification.agent"
-          :profile="notification.agent_profile"
+
         />
         <div class="font-mono">Unfollowed you</div>
       </div>
@@ -46,7 +46,7 @@
         <div class="flex justify-start items-start space-x-2">
           <BaseAgentProfileLinkName
             :agentPubKey="notification.agent"
-            :profile="notification.agent_profile"
+  
           />
           <div class="font-mono">Mentioned you in a mew</div>
         </div>
@@ -75,7 +75,7 @@
         <div class="flex justify-start items-start space-x-2">
           <BaseAgentProfileLinkName
             :agentPubKey="notification.agent"
-            :profile="notification.agent_profile"
+  
           />
           <div class="font-mono">Licked your mew</div>
         </div>
@@ -105,7 +105,7 @@
         <div class="flex justify-start items-start space-x-2">
           <BaseAgentProfileLinkName
             :agentPubKey="notification.agent"
-            :profile="notification.agent_profile"
+  
           />
           <div class="font-mono">Unlicked your mew</div>
         </div>
@@ -134,7 +134,7 @@
         <div class="flex justify-start items-start space-x-2">
           <BaseAgentProfileLinkName
             :agentPubKey="notification.agent"
-            :profile="notification.agent_profile"
+  
           />
           <div class="font-mono">Pinned your mew</div>
         </div>
@@ -163,7 +163,7 @@
         <div class="flex justify-start items-start space-x-2">
           <BaseAgentProfileLinkName
             :agentPubKey="notification.agent"
-            :profile="notification.agent_profile"
+  
           />
           <div class="font-mono">Unpinned your mew</div>
         </div>
@@ -192,7 +192,7 @@
         <div class="flex justify-start items-start space-x-2">
           <BaseAgentProfileLinkName
             :agentPubKey="notification.agent"
-            :profile="notification.agent_profile"
+  
           />
           <div
             v-if="
@@ -251,7 +251,7 @@
         <div class="flex justify-start items-start space-x-2">
           <BaseAgentProfileLinkName
             :agentPubKey="notification.agent"
-            :profile="notification.agent_profile"
+  
           />
           <div
             v-if="

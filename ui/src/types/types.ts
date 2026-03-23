@@ -86,7 +86,6 @@ export interface FeedMew {
   is_mewmewed: boolean;
   is_replied: boolean;
   is_quoted: boolean;
-  author_profile: Profile | null;
   deleted_timestamp: number | null;
   original_mew: EmbedMew | null;
 }
@@ -95,7 +94,6 @@ export interface EmbedMew {
   mew: Mew;
   action: Create;
   action_hash: ActionHash;
-  author_profile: Profile | null;
   deleted_timestamp: number | null;
 }
 
@@ -168,7 +166,6 @@ export type Notification = {
   notification_type: NotificationType;
   timestamp: number;
   agent: AgentPubKey;
-  agent_profile: Profile | null;
   feed_mew: FeedMew | null;
 };
 

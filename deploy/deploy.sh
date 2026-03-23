@@ -210,6 +210,7 @@ RTEOF
 cmd_deploy_cloud() {
     log_step "Deploying to Cloudflare..."
 
+    mkdir -p "$SANDBOX_DIR"
     export CLOUDFLARE_ACCOUNT_ID CLOUDFLARE_API_TOKEN
 
     # Determine Pages URL for happ_bundle_url
@@ -474,6 +475,7 @@ start_linker() {
     H2HC_LINKER_BOOTSTRAP_URL="$BOOTSTRAP_URL" \
     H2HC_LINKER_RELAY_URL="$RELAY_URL" \
     H2HC_LINKER_ADMIN_SECRET="$LINKER_ADMIN_SECRET" \
+    H2HC_LINKER_SESSION_STORE="sqlite://$SANDBOX_DIR/linker-sessions.db" \
     RUST_LOG="info,h2hc_linker=debug" \
     "$LINKER_BINARY" --port "$LINKER_PORT" > "$SANDBOX_DIR/linker.log" 2>&1 &
 

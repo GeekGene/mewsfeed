@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { FeedMew, MewType, MewTypeName } from "@/types/types";
-import { Profile } from "@holochain-open-dev/profiles";
 
 export const useCreateMewDialogStore = defineStore("createMewDialog", () => {
   const defaultCallback = () => {
@@ -11,7 +10,6 @@ export const useCreateMewDialogStore = defineStore("createMewDialog", () => {
   const createMewDialogType = ref<MewType>(MewTypeName.Original);
   const createMewDialogProps = ref<{
     originalMew?: FeedMew;
-    originalAuthor?: Profile;
   }>();
   const createMewCompleteCallback = ref<() => void>(defaultCallback);
   const showCreateMewDialog = ref(false);
@@ -24,7 +22,6 @@ export const useCreateMewDialogStore = defineStore("createMewDialog", () => {
     createMewDialogType.value = type;
     createMewDialogProps.value = {
       originalMew: original,
-      originalAuthor: original?.original_mew?.author_profile || undefined,
     };
     createMewCompleteCallback.value = callback || defaultCallback;
 

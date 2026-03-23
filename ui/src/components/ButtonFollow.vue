@@ -22,6 +22,7 @@ import { AgentPubKey, encodeHashToBase64 } from "@holochain/client";
 import { computed, ComputedRef, inject, ref, watch } from "vue";
 import { useCellsReady } from "@/composables/useCellsReady";
 import { Profile, ProfilesStore } from "@holochain-open-dev/profiles";
+import { toPromise } from "@holochain-open-dev/stores";
 import { AppClient } from "@holochain/client";
 import CreateProfileIfNotFoundDialog from "./CreateProfileIfNotFoundDialog.vue";
 import isEqual from "lodash/isEqual";
@@ -122,11 +123,10 @@ const toggleFollow = async () => {
 const showSuccessMessage = async () => {
   let name;
   try {
-    const profile = await profilesStore.client.getAgentProfile(
-      props.agentPubKey
-    );
-    name = `${profile?.entry.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
-      profile?.entry.nickname
+    const store = profilesStore.profiles.get(props.agentPubKey);
+    const record = store ? await toPromise(store) : undefined;
+    name = `${record?.entry.fields[PROFILE_FIELDS.DISPLAY_NAME]} (@${
+      record?.entry.nickname
     })`;
   } catch (error) {
     console.error(error);

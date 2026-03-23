@@ -1,6 +1,5 @@
 use hc_link_pagination::Timestamped;
 use hdk::prelude::*;
-use std::collections::BTreeMap;
 
 #[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone, PartialEq, Eq)]
 pub enum LinkTarget {
@@ -34,12 +33,6 @@ pub struct Mew {
 }
 
 #[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
-pub struct Profile {
-    pub nickname: String,
-    pub fields: BTreeMap<String, String>,
-}
-
-#[derive(Serialize, Deserialize, SerializedBytes, Debug, Clone)]
 pub struct FeedMew {
     pub mew: Mew,
     pub action: Action,
@@ -49,7 +42,6 @@ pub struct FeedMew {
     pub licks_count: usize,
     pub mewmews_count: usize,
     pub deleted_timestamp: Option<Timestamp>,
-    pub author_profile: Option<Profile>,
     pub is_pinned: bool,
     pub is_licked: bool,
     pub is_mewmewed: bool,
@@ -63,7 +55,6 @@ pub struct EmbedMew {
     pub mew: Mew,
     pub action: Action,
     pub action_hash: ActionHash,
-    pub author_profile: Option<Profile>,
     pub deleted_timestamp: Option<Timestamp>,
 }
 
@@ -72,7 +63,6 @@ pub struct Notification {
     pub notification_type: NotificationType,
     pub timestamp: Timestamp,
     pub agent: AgentPubKey,
-    pub agent_profile: Option<Profile>,
     pub feed_mew: Option<FeedMew>,
 }
 
