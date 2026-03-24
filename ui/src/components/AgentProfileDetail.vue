@@ -44,16 +44,15 @@ const fetchJoinedTimestamp = async () =>
 const {
   data: joinedTimestamp,
   error: errorJoinedTimestamp,
-  refetch: refetchJoinedTimestamp,
 } = useQuery({
   queryKey: ["profiles", "get_joining_timestamp_for_agent", agentPubKeyB64],
   queryFn: fetchJoinedTimestamp,
-  refetchOnMount: true,
+  staleTime: Infinity,
+  cacheTime: Infinity,
+  refetchOnMount: false,
+  refetchOnWindowFocus: false,
+  refetchOnReconnect: false,
   enabled: cellsReady,
 });
 watch(errorJoinedTimestamp, console.error);
-
-watch(() => props.agentPubKey, () => {
-  refetchJoinedTimestamp();
-});
 </script>

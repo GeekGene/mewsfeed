@@ -224,10 +224,14 @@ const fetchJoinedTimestamp = () => {
 const {
   data: joinedTimestamp,
   error: errorJoinedTimestamp,
-  refetch: refetchJoinedTimestamp,
 } = useQuery({
   queryKey: ["profiles", "get_joining_timestamp_for_agent", agentPubKeyB64],
   queryFn: fetchJoinedTimestamp,
+  staleTime: Infinity,
+  cacheTime: Infinity,
+  refetchOnMount: false,
+  refetchOnWindowFocus: false,
+  refetchOnReconnect: false,
   enabled: computed(() => cellsReady.value && hasAgentPubKeyB64.value),
 });
 watch(errorJoinedTimestamp, console.error);
@@ -283,7 +287,6 @@ watch(
       refreshProfile();
       refetchAuthoredMews();
       refetchPinnedMews();
-      refetchJoinedTimestamp();
       refetchFollowersCount();
       refetchCreatorsCount();
     });
