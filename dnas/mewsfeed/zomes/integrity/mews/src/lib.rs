@@ -392,12 +392,18 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 LinkTypes::CashtagToMews => {
                     validate_create_link_cashtag_to_mews(action, base_address, target_address, tag)
                 }
-                LinkTypes::FollowerToCreators => {
-                    validate_create_link_follower_to_creators(action, base_address, target_address, tag)
-                }
-                LinkTypes::CreatorToFollowers => {
-                    validate_create_link_creator_to_followers(action, base_address, target_address, tag)
-                }
+                LinkTypes::FollowerToCreators => validate_create_link_follower_to_creators(
+                    action,
+                    base_address,
+                    target_address,
+                    tag,
+                ),
+                LinkTypes::CreatorToFollowers => validate_create_link_creator_to_followers(
+                    action,
+                    base_address,
+                    target_address,
+                    tag,
+                ),
                 LinkTypes::LikerToHashes => {
                     validate_create_link_liker_to_hashes(action, base_address, target_address, tag)
                 }
