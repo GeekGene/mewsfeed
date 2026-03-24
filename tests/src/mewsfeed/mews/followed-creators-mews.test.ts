@@ -20,7 +20,7 @@ test("create a Mew and get followed creators mews", async () => {
 
       // Bob follows alice
       await bob.cells[0].callZome({
-        zome_name: "follows",
+        zome_name: "mews",
         fn_name: "follow",
         payload: alice.agentPubKey,
       });
@@ -90,7 +90,7 @@ test("Followed creators mews should include mews of followed creator", async () 
       );
 
       await bob.cells[0].callZome({
-        zome_name: "follows",
+        zome_name: "mews",
         fn_name: "follow",
         payload: alice.agentPubKey,
       });
@@ -205,7 +205,7 @@ test("Followed creators mews should not include mews of non-followed creator", a
       });
 
       await bob.cells[0].callZome({
-        zome_name: "follows",
+        zome_name: "mews",
         fn_name: "follow",
         payload: alice.agentPubKey,
       });
@@ -254,7 +254,7 @@ test("Unfollowing should exclude creators mews from feed", async () => {
       });
 
       await bob.cells[0].callZome({
-        zome_name: "follows",
+        zome_name: "mews",
         fn_name: "follow",
         payload: alice.agentPubKey,
       });
@@ -276,7 +276,7 @@ test("Unfollowing should exclude creators mews from feed", async () => {
       );
 
       await bob.cells[0].callZome({
-        zome_name: "follows",
+        zome_name: "mews",
         fn_name: "unfollow",
         payload: alice.agentPubKey,
       });
@@ -356,12 +356,12 @@ test("Followed creators mews should be ordered by timestamp in descending order"
       });
       // alice starts following bob and carol
       await alice.cells[0].callZome({
-        zome_name: "follows",
+        zome_name: "mews",
         fn_name: "follow",
         payload: bob.agentPubKey,
       });
       await alice.cells[0].callZome({
-        zome_name: "follows",
+        zome_name: "mews",
         fn_name: "follow",
         payload: carol.agentPubKey,
       });
@@ -501,7 +501,7 @@ test("Followed creators mews list are time-paginated", async () => {
       });
 
       await bob.cells[0].callZome({
-        zome_name: "follows",
+        zome_name: "mews",
         fn_name: "follow",
         payload: alice.agentPubKey,
       });

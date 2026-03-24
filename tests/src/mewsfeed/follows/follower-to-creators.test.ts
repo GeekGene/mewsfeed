@@ -21,7 +21,7 @@ test("link a Follower to a Creator", async () => {
 
       // Bob gets the links, should be empty
       let linksOutput: Record[] = await bob.cells[0].callZome({
-        zome_name: "follows",
+        zome_name: "mews",
         fn_name: "get_creators_for_follower",
         payload: wrapInput({
           follower: baseAddress,
@@ -31,7 +31,7 @@ test("link a Follower to a Creator", async () => {
 
       // Alice creates a link from Follower to Creator
       await alice.cells[0].callZome({
-        zome_name: "follows",
+        zome_name: "mews",
         fn_name: "add_creator_for_follower",
         payload: {
           base_follower: baseAddress,
@@ -43,7 +43,7 @@ test("link a Follower to a Creator", async () => {
 
       // Bob gets the links again
       linksOutput = await bob.cells[0].callZome({
-        zome_name: "follows",
+        zome_name: "mews",
         fn_name: "get_creators_for_follower",
         payload: wrapInput({
           follower: baseAddress,
@@ -53,7 +53,7 @@ test("link a Follower to a Creator", async () => {
 
       // Bob gets the links in the inverse direction
       linksOutput = await bob.cells[0].callZome({
-        zome_name: "follows",
+        zome_name: "mews",
         fn_name: "get_followers_for_creator",
         payload: wrapInput({
           creator: targetAddress,
@@ -62,7 +62,7 @@ test("link a Follower to a Creator", async () => {
       assert.equal(linksOutput.length, 1);
 
       await alice.cells[0].callZome({
-        zome_name: "follows",
+        zome_name: "mews",
         fn_name: "remove_creator_for_follower",
         payload: {
           base_follower: baseAddress,
@@ -74,7 +74,7 @@ test("link a Follower to a Creator", async () => {
 
       // Bob gets the links again
       linksOutput = await bob.cells[0].callZome({
-        zome_name: "follows",
+        zome_name: "mews",
         fn_name: "get_creators_for_follower",
         payload: wrapInput({
           follower: baseAddress,
@@ -84,7 +84,7 @@ test("link a Follower to a Creator", async () => {
 
       // Bob gets the links in the inverse direction
       linksOutput = await bob.cells[0].callZome({
-        zome_name: "follows",
+        zome_name: "mews",
         fn_name: "get_followers_for_creator",
         payload: wrapInput({
           creator: targetAddress,
@@ -109,7 +109,7 @@ test("Agent cannot follow themselves", async () => {
 
       // Alice tries to follow herself
       const response = alice.cells[0].callZome({
-        zome_name: "follows",
+        zome_name: "mews",
         fn_name: "follow",
         payload: alice.agentPubKey,
       });
@@ -141,7 +141,7 @@ test("Agent can only change their own follows", async () => {
 
       // Alice follows bob
       await alice.cells[0].callZome({
-        zome_name: "follows",
+        zome_name: "mews",
         fn_name: "follow",
         payload: targetAddress,
       });
@@ -150,7 +150,7 @@ test("Agent can only change their own follows", async () => {
 
       // Bob tries to remove alices' follow
       const response = bob.cells[0].callZome({
-        zome_name: "follows",
+        zome_name: "mews",
         fn_name: "remove_creator_for_follower",
         payload: {
           base_follower: baseAddress,
@@ -164,7 +164,7 @@ test("Agent can only change their own follows", async () => {
 
       // Alice removes her own follow
       await alice.cells[0].callZome({
-        zome_name: "follows",
+        zome_name: "mews",
         fn_name: "unfollow",
         payload: targetAddress,
       });
@@ -173,7 +173,7 @@ test("Agent can only change their own follows", async () => {
 
       // Bob tries to add a follow for allice
       const response2 = bob.cells[0].callZome({
-        zome_name: "follows",
+        zome_name: "mews",
         fn_name: "add_creator_for_follower",
         payload: {
           base_follower: baseAddress,
@@ -212,7 +212,7 @@ test(
 
         // Alice creates a link from Follower to Creator
         await alice.cells[0].callZome({
-          zome_name: "follows",
+          zome_name: "mews",
           fn_name: "add_creator_for_follower",
           payload: {
             base_follower: alice.agentPubKey,
@@ -220,7 +220,7 @@ test(
           },
         });
         await alice.cells[0].callZome({
-          zome_name: "follows",
+          zome_name: "mews",
           fn_name: "add_creator_for_follower",
           payload: {
             base_follower: alice.agentPubKey,
@@ -228,7 +228,7 @@ test(
           },
         });
         await alice.cells[0].callZome({
-          zome_name: "follows",
+          zome_name: "mews",
           fn_name: "add_creator_for_follower",
           payload: {
             base_follower: alice.agentPubKey,
@@ -236,7 +236,7 @@ test(
           },
         });
         await alice.cells[0].callZome({
-          zome_name: "follows",
+          zome_name: "mews",
           fn_name: "add_creator_for_follower",
           payload: {
             base_follower: alice.agentPubKey,
@@ -244,7 +244,7 @@ test(
           },
         });
         await alice.cells[0].callZome({
-          zome_name: "follows",
+          zome_name: "mews",
           fn_name: "add_creator_for_follower",
           payload: {
             base_follower: alice.agentPubKey,
@@ -252,10 +252,15 @@ test(
           },
         });
 
-        await dhtSync([alice, bob], alice.cells[0].cell_id[0]);
+        await dhtSync(
+          [alice, bob, carol, john, steve, mary],
+          alice.cells[0].cell_id[0],
+          undefined,
+          120000
+        );
 
         const page1: AgentPubKey[] = await alice.cells[0].callZome({
-          zome_name: "follows",
+          zome_name: "mews",
           fn_name: "get_creators_for_follower",
           payload: wrapInput({
             follower: alice.agentPubKey,
@@ -269,7 +274,7 @@ test(
         assert.deepEqual(page1[1], steve.agentPubKey);
 
         const page2: AgentPubKey[] = await alice.cells[0].callZome({
-          zome_name: "follows",
+          zome_name: "mews",
           fn_name: "get_creators_for_follower",
           payload: wrapInput({
             follower: alice.agentPubKey,
@@ -283,7 +288,7 @@ test(
         assert.deepEqual(page2[1], carol.agentPubKey);
 
         const page3: AgentPubKey[] = await alice.cells[0].callZome({
-          zome_name: "follows",
+          zome_name: "mews",
           fn_name: "get_creators_for_follower",
           payload: wrapInput({
             follower: alice.agentPubKey,
@@ -297,7 +302,7 @@ test(
         assert.deepEqual(page3[0], bob.agentPubKey);
 
         const page5: AgentPubKey[] = await alice.cells[0].callZome({
-          zome_name: "follows",
+          zome_name: "mews",
           fn_name: "get_creators_for_follower",
           payload: wrapInput({
             follower: alice.agentPubKey,
@@ -338,7 +343,7 @@ test(
 
         // Alice creates a link from Follower to Creator
         await bob.cells[0].callZome({
-          zome_name: "follows",
+          zome_name: "mews",
           fn_name: "add_creator_for_follower",
           payload: {
             base_follower: bob.agentPubKey,
@@ -346,7 +351,7 @@ test(
           },
         });
         await carol.cells[0].callZome({
-          zome_name: "follows",
+          zome_name: "mews",
           fn_name: "add_creator_for_follower",
           payload: {
             base_follower: carol.agentPubKey,
@@ -354,7 +359,7 @@ test(
           },
         });
         await john.cells[0].callZome({
-          zome_name: "follows",
+          zome_name: "mews",
           fn_name: "add_creator_for_follower",
           payload: {
             base_follower: john.agentPubKey,
@@ -362,7 +367,7 @@ test(
           },
         });
         await steve.cells[0].callZome({
-          zome_name: "follows",
+          zome_name: "mews",
           fn_name: "add_creator_for_follower",
           payload: {
             base_follower: steve.agentPubKey,
@@ -370,7 +375,7 @@ test(
           },
         });
         await mary.cells[0].callZome({
-          zome_name: "follows",
+          zome_name: "mews",
           fn_name: "add_creator_for_follower",
           payload: {
             base_follower: mary.agentPubKey,
@@ -384,7 +389,7 @@ test(
         );
 
         const page1: AgentPubKey[] = await alice.cells[0].callZome({
-          zome_name: "follows",
+          zome_name: "mews",
           fn_name: "get_followers_for_creator",
           payload: wrapInput({
             creator: alice.agentPubKey,
@@ -398,7 +403,7 @@ test(
         assert.deepEqual(page1[1], steve.agentPubKey);
 
         const page2: AgentPubKey[] = await alice.cells[0].callZome({
-          zome_name: "follows",
+          zome_name: "mews",
           fn_name: "get_followers_for_creator",
           payload: wrapInput({
             creator: alice.agentPubKey,
@@ -412,7 +417,7 @@ test(
         assert.deepEqual(page2[1], carol.agentPubKey);
 
         const page3: AgentPubKey[] = await alice.cells[0].callZome({
-          zome_name: "follows",
+          zome_name: "mews",
           fn_name: "get_followers_for_creator",
           payload: wrapInput({
             creator: alice.agentPubKey,
@@ -426,7 +431,7 @@ test(
         assert.deepEqual(page3[0], bob.agentPubKey);
 
         const page5: AgentPubKey[] = await alice.cells[0].callZome({
-          zome_name: "follows",
+          zome_name: "mews",
           fn_name: "get_followers_for_creator",
           payload: wrapInput({
             creator: alice.agentPubKey,

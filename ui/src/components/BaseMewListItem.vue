@@ -440,7 +440,7 @@ const toggleLickMew = async () => {
     try {
       await client.callZome({
         role_name: "mewsfeed",
-        zome_name: "likes",
+        zome_name: "mews",
         fn_name: "unlike",
         payload: props.feedMew.action_hash,
       });
@@ -456,7 +456,7 @@ const toggleLickMew = async () => {
     try {
       await client.callZome({
         role_name: "mewsfeed",
-        zome_name: "likes",
+        zome_name: "mews",
         fn_name: "like",
         payload: props.feedMew.action_hash,
       });
@@ -484,7 +484,7 @@ const togglePinMew = async () => {
     try {
       await client.callZome({
         role_name: "mewsfeed",
-        zome_name: "agent_pins",
+        zome_name: "mews",
         fn_name: "unpin_hash",
         payload: props.feedMew.action_hash,
       });
@@ -500,7 +500,7 @@ const togglePinMew = async () => {
     try {
       await client.callZome({
         role_name: "mewsfeed",
-        zome_name: "agent_pins",
+        zome_name: "mews",
         fn_name: "pin_hash",
         payload: props.feedMew.action_hash,
       });

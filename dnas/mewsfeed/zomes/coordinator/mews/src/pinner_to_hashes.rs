@@ -1,6 +1,6 @@
-use agent_pins_integrity::*;
 use hc_zome_input::ZomeFnInput;
 use hdk::prelude::*;
+use mews_integrity::*;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AddHashForPinnerInput {

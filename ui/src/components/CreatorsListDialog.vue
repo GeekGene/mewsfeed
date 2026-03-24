@@ -73,7 +73,7 @@ const pageLimit = 10;
 const fetchCreators = async (params: any) => {
   const agents: AgentPubKey[] = await client.callZome({
     role_name: "mewsfeed",
-    zome_name: "follows",
+    zome_name: "mews",
     fn_name: "get_creators_for_follower",
     payload: wrapInput({
       follower: props.agentPubKey,

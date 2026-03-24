@@ -1,4 +1,5 @@
 use crate::licker_to_mews::*;
+use crate::liker_to_hashes::IsLikerForHashInput;
 use crate::mew_to_responses::*;
 use crate::pinner_to_mews::get_is_hash_pinned;
 use hc_zome_input::ZomeFnInput;

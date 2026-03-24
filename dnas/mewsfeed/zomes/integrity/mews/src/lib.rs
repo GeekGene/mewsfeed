@@ -16,6 +16,12 @@ pub mod prefix_index_to_cashtags;
 pub use prefix_index_to_cashtags::*;
 pub mod prefix_index_to_hashtags;
 pub use prefix_index_to_hashtags::*;
+pub mod follower_to_creators;
+pub use follower_to_creators::*;
+pub mod liker_to_hashes;
+pub use liker_to_hashes::*;
+pub mod pinner_to_hashes;
+pub use pinner_to_hashes::*;
 pub mod mew;
 use hc_prefix_index::PrefixIndex;
 use hdi::prelude::*;
@@ -46,6 +52,12 @@ pub enum LinkTypes {
     MentionToMews,
     HashtagToMews,
     CashtagToMews,
+    FollowerToCreators,
+    CreatorToFollowers,
+    LikerToHashes,
+    HashToLikers,
+    PinnerToHashes,
+    HashToPinners,
 }
 
 #[hdk_extern]
@@ -133,6 +145,24 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             LinkTypes::CashtagToMews => {
                 validate_create_link_cashtag_to_mews(action, base_address, target_address, tag)
             }
+            LinkTypes::FollowerToCreators => {
+                validate_create_link_follower_to_creators(action, base_address, target_address, tag)
+            }
+            LinkTypes::CreatorToFollowers => {
+                validate_create_link_creator_to_followers(action, base_address, target_address, tag)
+            }
+            LinkTypes::LikerToHashes => {
+                validate_create_link_liker_to_hashes(action, base_address, target_address, tag)
+            }
+            LinkTypes::HashToLikers => {
+                validate_create_link_hash_to_likers(action, base_address, target_address, tag)
+            }
+            LinkTypes::PinnerToHashes => {
+                validate_create_link_pinner_to_hashes(action, base_address, target_address, tag)
+            }
+            LinkTypes::HashToPinners => {
+                validate_create_link_hash_to_pinners(action, base_address, target_address, tag)
+            }
         },
         FlatOp::RegisterDeleteLink {
             link_type,
@@ -195,6 +225,48 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 tag,
             ),
             LinkTypes::HashtagToMews => validate_delete_link_hashtag_to_mews(
+                action,
+                original_action,
+                base_address,
+                target_address,
+                tag,
+            ),
+            LinkTypes::FollowerToCreators => validate_delete_link_follower_to_creators(
+                action,
+                original_action,
+                base_address,
+                target_address,
+                tag,
+            ),
+            LinkTypes::CreatorToFollowers => validate_delete_link_creator_to_followers(
+                action,
+                original_action,
+                base_address,
+                target_address,
+                tag,
+            ),
+            LinkTypes::LikerToHashes => validate_delete_link_liker_to_hashes(
+                action,
+                original_action,
+                base_address,
+                target_address,
+                tag,
+            ),
+            LinkTypes::HashToLikers => validate_delete_link_hash_to_likers(
+                action,
+                original_action,
+                base_address,
+                target_address,
+                tag,
+            ),
+            LinkTypes::PinnerToHashes => validate_delete_link_pinner_to_hashes(
+                action,
+                original_action,
+                base_address,
+                target_address,
+                tag,
+            ),
+            LinkTypes::HashToPinners => validate_delete_link_hash_to_pinners(
                 action,
                 original_action,
                 base_address,
@@ -320,6 +392,30 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 LinkTypes::CashtagToMews => {
                     validate_create_link_cashtag_to_mews(action, base_address, target_address, tag)
                 }
+                LinkTypes::FollowerToCreators => validate_create_link_follower_to_creators(
+                    action,
+                    base_address,
+                    target_address,
+                    tag,
+                ),
+                LinkTypes::CreatorToFollowers => validate_create_link_creator_to_followers(
+                    action,
+                    base_address,
+                    target_address,
+                    tag,
+                ),
+                LinkTypes::LikerToHashes => {
+                    validate_create_link_liker_to_hashes(action, base_address, target_address, tag)
+                }
+                LinkTypes::HashToLikers => {
+                    validate_create_link_hash_to_likers(action, base_address, target_address, tag)
+                }
+                LinkTypes::PinnerToHashes => {
+                    validate_create_link_pinner_to_hashes(action, base_address, target_address, tag)
+                }
+                LinkTypes::HashToPinners => {
+                    validate_create_link_hash_to_pinners(action, base_address, target_address, tag)
+                }
             },
             OpRecord::DeleteLink {
                 original_action_hash,
@@ -400,6 +496,48 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         create_link.tag,
                     ),
                     LinkTypes::HashtagToMews => validate_delete_link_hashtag_to_mews(
+                        action,
+                        create_link.clone(),
+                        base_address,
+                        create_link.target_address,
+                        create_link.tag,
+                    ),
+                    LinkTypes::FollowerToCreators => validate_delete_link_follower_to_creators(
+                        action,
+                        create_link.clone(),
+                        base_address,
+                        create_link.target_address,
+                        create_link.tag,
+                    ),
+                    LinkTypes::CreatorToFollowers => validate_delete_link_creator_to_followers(
+                        action,
+                        create_link.clone(),
+                        base_address,
+                        create_link.target_address,
+                        create_link.tag,
+                    ),
+                    LinkTypes::LikerToHashes => validate_delete_link_liker_to_hashes(
+                        action,
+                        create_link.clone(),
+                        base_address,
+                        create_link.target_address,
+                        create_link.tag,
+                    ),
+                    LinkTypes::HashToLikers => validate_delete_link_hash_to_likers(
+                        action,
+                        create_link.clone(),
+                        base_address,
+                        create_link.target_address,
+                        create_link.tag,
+                    ),
+                    LinkTypes::PinnerToHashes => validate_delete_link_pinner_to_hashes(
+                        action,
+                        create_link.clone(),
+                        base_address,
+                        create_link.target_address,
+                        create_link.tag,
+                    ),
+                    LinkTypes::HashToPinners => validate_delete_link_hash_to_pinners(
                         action,
                         create_link.clone(),
                         base_address,

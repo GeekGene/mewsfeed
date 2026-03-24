@@ -1,8 +1,31 @@
-use follows_integrity::*;
-use follows_types::*;
-use hc_link_pagination::paginate_by_agentpubkey;
+use hc_link_pagination::{paginate_by_agentpubkey, AgentPubKeyPagination};
 use hc_zome_input::ZomeFnInput;
 use hdk::prelude::*;
+use mews_integrity::*;
+
+#[derive(Serialize, Deserialize, SerializedBytes, Clone, Debug)]
+pub struct AddCreatorForFollowerInput {
+    pub base_follower: AgentPubKey,
+    pub target_creator: AgentPubKey,
+}
+
+#[derive(Serialize, Deserialize, SerializedBytes, Clone, Debug)]
+pub struct GetCreatorsForFollowerInput {
+    pub follower: AgentPubKey,
+    pub page: Option<AgentPubKeyPagination>,
+}
+
+#[derive(Serialize, Deserialize, SerializedBytes, Clone, Debug)]
+pub struct GetFollowersForCreatorInput {
+    pub creator: AgentPubKey,
+    pub page: Option<AgentPubKeyPagination>,
+}
+
+#[derive(Serialize, Deserialize, SerializedBytes, Clone, Debug)]
+pub struct RemoveCreatorForFollowerInput {
+    pub base_follower: AgentPubKey,
+    pub target_creator: AgentPubKey,
+}
 
 #[hdk_extern]
 pub fn add_creator_for_follower(input: AddCreatorForFollowerInput) -> ExternResult<()> {

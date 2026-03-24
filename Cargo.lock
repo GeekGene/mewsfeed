@@ -3,24 +3,6 @@
 version = 4
 
 [[package]]
-name = "agent_pins"
-version = "0.0.1"
-dependencies = [
- "agent_pins_integrity",
- "hc_zome_input",
- "hdk",
- "serde",
-]
-
-[[package]]
-name = "agent_pins_integrity"
-version = "0.0.1"
-dependencies = [
- "hdi",
- "serde",
-]
-
-[[package]]
 name = "aho-corasick"
 version = "1.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -283,36 +265,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
 
 [[package]]
-name = "follows"
-version = "0.0.1"
-dependencies = [
- "follows_integrity",
- "follows_types",
- "hc_link_pagination",
- "hc_zome_input",
- "hdk",
- "serde",
-]
-
-[[package]]
-name = "follows_integrity"
-version = "0.0.1"
-dependencies = [
- "hdi",
- "serde",
-]
-
-[[package]]
-name = "follows_types"
-version = "0.0.1"
-dependencies = [
- "hc_link_pagination",
- "hdk",
- "holochain_serialized_bytes",
- "serde",
-]
-
-[[package]]
 name = "futures"
 version = "0.3.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -428,14 +380,6 @@ name = "hashbrown"
 version = "0.16.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "841d1cc9bed7f9236f321df977030373f4a4163ae1a7dbfe1a51a2c1a51d9100"
-
-[[package]]
-name = "hc_call_utils"
-version = "0.0.1"
-dependencies = [
- "hdk",
- "serde",
-]
 
 [[package]]
 name = "hc_link_pagination"
@@ -765,24 +709,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "459427e2af2b9c839b132acb702a1c654d95e10f8c326bfc2ad11310e458b1c5"
 
 [[package]]
-name = "likes"
-version = "0.0.1"
-dependencies = [
- "hc_zome_input",
- "hdk",
- "likes_integrity",
- "serde",
-]
-
-[[package]]
-name = "likes_integrity"
-version = "0.0.1"
-dependencies = [
- "hdi",
- "serde",
-]
-
-[[package]]
 name = "log"
 version = "0.4.29"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -798,8 +724,6 @@ checksum = "f8ca58f447f06ed17d5fc4043ce1b10dd205e060fb3ce5b979b8ed8e59ff3f79"
 name = "mews"
 version = "0.1.0"
 dependencies = [
- "follows_types",
- "hc_call_utils",
  "hc_link_pagination",
  "hc_prefix_index",
  "hc_zome_input",
@@ -876,14 +800,6 @@ name = "pin-utils"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
-
-[[package]]
-name = "ping"
-version = "0.0.1"
-dependencies = [
- "hdk",
- "serde",
-]
 
 [[package]]
 name = "proc-macro-error"

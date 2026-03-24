@@ -7,7 +7,7 @@ pub fn validate_create_link_pinner_to_hashes(
 ) -> ExternResult<ValidateCallbackResult> {
     if base_address != AnyLinkableHash::from(action.author) {
         return Ok(ValidateCallbackResult::Invalid(
-            "You cannot change what others pnin".into(),
+            "You cannot change what others pin".into(),
         ));
     }
 
@@ -36,7 +36,7 @@ pub fn validate_create_link_hash_to_pinners(
 ) -> ExternResult<ValidateCallbackResult> {
     if target_address != AnyLinkableHash::from(action.author) {
         return Ok(ValidateCallbackResult::Invalid(
-            "You cannot change what others pnin".into(),
+            "You cannot change what others pin".into(),
         ));
     }
 

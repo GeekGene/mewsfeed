@@ -1,6 +1,6 @@
 use hc_zome_input::ZomeFnInput;
 use hdk::prelude::*;
-use likes_integrity::*;
+use mews_integrity::*;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AddHashForLikerInput {

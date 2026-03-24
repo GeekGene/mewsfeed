@@ -21,7 +21,7 @@ test("link a Liker to a Hash", async () => {
 
       // Bob gets the links, should be empty
       let linksOutput: Record[] = await bob.cells[0].callZome({
-        zome_name: "likes",
+        zome_name: "mews",
         fn_name: "get_hashes_for_liker",
         payload: wrapInput(baseAddress),
       });
@@ -29,7 +29,7 @@ test("link a Liker to a Hash", async () => {
 
       // Alice creates a link from Liker to Hash
       await alice.cells[0].callZome({
-        zome_name: "likes",
+        zome_name: "mews",
         fn_name: "add_hash_for_liker",
         payload: {
           base_liker: baseAddress,
@@ -41,7 +41,7 @@ test("link a Liker to a Hash", async () => {
 
       // Bob gets the links again
       linksOutput = await bob.cells[0].callZome({
-        zome_name: "likes",
+        zome_name: "mews",
         fn_name: "get_hashes_for_liker",
         payload: wrapInput(baseAddress),
       });
@@ -49,14 +49,14 @@ test("link a Liker to a Hash", async () => {
 
       // Bob gets the links in the inverse direction
       linksOutput = await bob.cells[0].callZome({
-        zome_name: "likes",
+        zome_name: "mews",
         fn_name: "get_likers_for_hash",
         payload: wrapInput(targetAddress),
       });
       assert.equal(linksOutput.length, 1);
 
       await alice.cells[0].callZome({
-        zome_name: "likes",
+        zome_name: "mews",
         fn_name: "remove_hash_for_liker",
         payload: {
           base_liker: baseAddress,
@@ -68,7 +68,7 @@ test("link a Liker to a Hash", async () => {
 
       // Bob gets the links again
       linksOutput = await bob.cells[0].callZome({
-        zome_name: "likes",
+        zome_name: "mews",
         fn_name: "get_hashes_for_liker",
         payload: wrapInput(baseAddress),
       });
@@ -76,7 +76,7 @@ test("link a Liker to a Hash", async () => {
 
       // Bob gets the links in the inverse direction
       linksOutput = await bob.cells[0].callZome({
-        zome_name: "likes",
+        zome_name: "mews",
         fn_name: "get_likers_for_hash",
         payload: wrapInput(targetAddress),
       });
@@ -104,7 +104,7 @@ test("Agent can only change their own likes", async () => {
 
       // Alice likes hash
       await alice.cells[0].callZome({
-        zome_name: "likes",
+        zome_name: "mews",
         fn_name: "like",
         payload: targetAddress,
       });
@@ -113,7 +113,7 @@ test("Agent can only change their own likes", async () => {
 
       // Bob tries to remove alices' like
       const response = bob.cells[0].callZome({
-        zome_name: "likes",
+        zome_name: "mews",
         fn_name: "remove_hash_for_liker",
         payload: {
           base_liker: alice.agentPubKey,
@@ -127,7 +127,7 @@ test("Agent can only change their own likes", async () => {
 
       // Alice removes her own like
       await alice.cells[0].callZome({
-        zome_name: "likes",
+        zome_name: "mews",
         fn_name: "unlike",
         payload: targetAddress,
       });
@@ -136,7 +136,7 @@ test("Agent can only change their own likes", async () => {
 
       // Bob tries to add a like for allice
       const response2 = bob.cells[0].callZome({
-        zome_name: "likes",
+        zome_name: "mews",
         fn_name: "add_hash_for_liker",
         payload: {
           base_liker: alice.agentPubKey,
