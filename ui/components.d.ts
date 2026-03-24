@@ -38,6 +38,7 @@ declare module 'vue' {
     BaseMewListItem: typeof import('./src/components/BaseMewListItem.vue')['default']
     BaseMewListItemSkeleton: typeof import('./src/components/BaseMewListItemSkeleton.vue')['default']
     BaseNotification: typeof import('./src/components/BaseNotification.vue')['default']
+    BasePageHeader: typeof import('./src/components/BasePageHeader.vue')['default']
     BaseSiteMenu: typeof import('./src/components/BaseSiteMenu.vue')['default']
     BaseThemeSelect: typeof import('./src/components/BaseThemeSelect.vue')['default']
     BaseTimestamp: typeof import('./src/components/BaseTimestamp.vue')['default']

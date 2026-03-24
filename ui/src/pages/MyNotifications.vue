@@ -1,8 +1,6 @@
 <template>
   <div :style-fn="pageHeightCorrection">
-    <h1 class="text-2xl font-title font-bold tracking-tighter mb-8">
-      notifications
-    </h1>
+    <BasePageHeader>notifications</BasePageHeader>
 
     <BaseInfiniteScroll
       v-if="

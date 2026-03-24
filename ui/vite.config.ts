@@ -1,5 +1,7 @@
 import { defineConfig, PluginOption } from "vite";
 import path from "node:path";
+import { readFileSync } from "node:fs";
+const pkg = JSON.parse(readFileSync("./package.json", "utf-8"));
 import vue from "@vitejs/plugin-vue";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 import checker from "vite-plugin-checker";
@@ -61,6 +63,7 @@ export default defineConfig({
   ],
   define: {
     __JOINING_SERVICE_URL__: JSON.stringify(process.env.JOINING_SERVICE_URL || ""),
+    __APP_VERSION__: JSON.stringify(pkg.version),
   },
   build: {
     target: "es2020",

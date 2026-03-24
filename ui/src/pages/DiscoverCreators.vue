@@ -1,7 +1,7 @@
 <template>
   <div class="w-full">
     <div class="mb-8 flex justify-between items-center">
-      <h1 class="text-2xl font-title font-bold tracking-tighter">explore</h1>
+      <BasePageHeader class="!mb-0">explore</BasePageHeader>
 
       <button
         class="btn btn-xs flex items-center justify-start space-x-1"
