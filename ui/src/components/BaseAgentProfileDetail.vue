@@ -171,7 +171,7 @@
             </div>
 
             <div
-              v-if="joinedTimestamp !== undefined"
+              v-if="joinedTimestamp != null"
               class="flex justify-start items-center space-x-2 text-xs font-mono px-2"
             >
               <IconCalendarOutline />

@@ -2,14 +2,14 @@
   <BaseAgentProfileDetail
     :profile="profile"
     :agentPubKey="props.agentPubKey"
-    :joined-timestamp="joinedTimestamp"
+    :joined-timestamp="joinedTimestamp ?? undefined"
     :hide-edit-button="hideEditButton"
     v-bind="$attrs"
   />
 </template>
 
 <script setup lang="ts">
-import { AgentPubKey, AppClient, encodeHashToBase64 } from "@holochain/client";
+import { AgentPubKey, AppClient, Timestamp, encodeHashToBase64 } from "@holochain/client";
 import { ComputedRef, computed, inject, watch } from "vue";
 import { useCellsReady } from "@/composables/useCellsReady";
 import BaseAgentProfileDetail from "@/components/BaseAgentProfileDetail.vue";
@@ -33,7 +33,7 @@ const agentPubKeyB64 = computed(() => encodeHashToBase64(props.agentPubKey));
 
 const { profile } = useProfile(computed(() => props.agentPubKey));
 
-const fetchJoinedTimestamp = async () =>
+const fetchJoinedTimestamp = async (): Promise<Timestamp | null> =>
   client.callZome({
     role_name: "mewsfeed",
     zome_name: "profiles",
@@ -44,7 +44,7 @@ const fetchJoinedTimestamp = async () =>
 const {
   data: joinedTimestamp,
   error: errorJoinedTimestamp,
-} = useQuery({
+} = useQuery<Timestamp | null>({
   queryKey: ["profiles", "get_joining_timestamp_for_agent", agentPubKeyB64],
   queryFn: fetchJoinedTimestamp,
   staleTime: Infinity,
@@ -53,6 +53,7 @@ const {
   refetchOnWindowFocus: false,
   refetchOnReconnect: false,
   enabled: cellsReady,
+  refetchInterval: (data) => (data ? false : 5000),
 });
 watch(errorJoinedTimestamp, console.error);
 </script>
