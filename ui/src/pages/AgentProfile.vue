@@ -1,6 +1,11 @@
 <template>
   <div class="mt-4">
-    <div v-if="!isLoadingProfile && agentPubKey">
+    <!-- Profile header: skeleton while loading, real content when ready -->
+    <BaseAgentProfileDetailSkeleton
+      v-if="isLoadingProfile"
+      class="bg-base-200/75 rounded-3xl animate-pulse"
+    />
+    <template v-else-if="agentPubKey">
       <BaseAgentProfileDetail
         :key="profileVersion"
         :profile="profile ?? undefined"
@@ -33,15 +38,22 @@
         :profile="profile"
         @profile-updated="() => refreshProfile()"
       />
+    </template>
 
-      <BaseList
-        v-slot="{ item }"
-        class="my-8 px-4"
-        title="pinned"
-        :items="pinnedMews"
-        :is-loading="isLoadingPinnedMews"
-        :show-empty-list="false"
-      >
+    <!-- Pinned mews: loads independently with skeleton -->
+    <BaseList
+      class="my-8 px-4"
+      title="pinned"
+      :items="pinnedMews"
+      :is-loading="isLoadingPinnedMews"
+      :show-empty-list="false"
+    >
+      <template #loading>
+        <BaseListSkeleton :count="2">
+          <BaseMewListItemSkeleton />
+        </BaseListSkeleton>
+      </template>
+      <template #default="{ item }">
         <BaseMewListItem
           :feed-mew="item"
           @mew-pinned="patchPinnedAndRefresh"
@@ -53,24 +65,31 @@
           @mewmew-created="patchPinnedMew"
           @quote-created="patchPinnedMew"
         />
-      </BaseList>
+      </template>
+    </BaseList>
 
-      <BaseList
-        v-slot="{ item }"
-        class="my-8 px-4"
-        title="mews"
-        :items="authoredMews"
-        :is-loading="isLoadingAuthoredMews"
-        :enable-more-button="authoredMews && authoredMews.length >= pageLimit"
-        @click-more="
-          router.push({
-            name: 'authoredMews',
-            params: {
-              agentPubKey: route.params.agentPubKey,
-            },
-          })
-        "
-      >
+    <!-- Authored mews: loads independently with skeleton -->
+    <BaseList
+      class="my-8 px-4"
+      title="mews"
+      :items="authoredMews"
+      :is-loading="isLoadingAuthoredMews"
+      :enable-more-button="authoredMews && authoredMews.length >= pageLimit"
+      @click-more="
+        router.push({
+          name: 'authoredMews',
+          params: {
+            agentPubKey: route.params.agentPubKey,
+          },
+        })
+      "
+    >
+      <template #loading>
+        <BaseListSkeleton :count="3">
+          <BaseMewListItemSkeleton />
+        </BaseListSkeleton>
+      </template>
+      <template #default="{ item }">
         <BaseMewListItem
           :feed-mew="item"
           @mew-pinned="patchAuthoredAndRefreshPins"
@@ -82,8 +101,8 @@
           @mewmew-created="patchAuthoredMew"
           @quote-created="patchAuthoredMew"
         />
-      </BaseList>
-    </div>
+      </template>
+    </BaseList>
   </div>
   <FollowersListDialog
     v-if="agentPubKey"
@@ -107,6 +126,9 @@ import BaseList from "@/components/BaseList.vue";
 import { AppClient } from "@holochain/client";
 import { useQuery, useQueryClient } from "@tanstack/vue-query";
 import BaseAgentProfileDetail from "@/components/BaseAgentProfileDetail.vue";
+import BaseAgentProfileDetailSkeleton from "@/components/BaseAgentProfileDetailSkeleton.vue";
+import BaseListSkeleton from "@/components/BaseListSkeleton.vue";
+import BaseMewListItemSkeleton from "@/components/BaseMewListItemSkeleton.vue";
 import EditAgentProfileDialog from "@/components/EditAgentProfileDialog.vue";
 import FollowersListDialog from "@/components/FollowersListDialog.vue";
 import CreatorsListDialog from "@/components/CreatorsListDialog.vue";

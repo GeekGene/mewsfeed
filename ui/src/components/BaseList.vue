@@ -1,5 +1,5 @@
 <template>
-  <div v-if="showEmptyList || (items && items.length > 0)">
+  <div v-if="showEmptyList || isLoading || (items && items.length > 0)">
     <h2 v-if="title" class="text-xl font-title font-bold tracking-tighter mb-4">
       {{ title }}
     </h2>
