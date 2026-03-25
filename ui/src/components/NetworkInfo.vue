@@ -56,6 +56,13 @@
           </div>
         </div>
 
+        <!-- Peer count -->
+        <div v-if="connectionState?.peerCount != null" class="flex items-center space-x-2 text-xs">
+          <span class="inline-block w-2.5 h-2.5 rounded-full flex-shrink-0" :style="{ backgroundColor: connectionState.peerCount > 0 ? '#4caf50' : '#ff9800' }"></span>
+          <span class="font-bold w-20">Peers</span>
+          <span>{{ connectionState.peerCount }}</span>
+        </div>
+
         <!-- Uptime -->
         <div v-if="uptimeDisplay" class="text-xs opacity-70 mb-2">
           Connected {{ uptimeDisplay }}
@@ -136,6 +143,10 @@
           :style="{ backgroundColor: statusColor }"
         ></span>
         <div>Linker</div>
+        <template v-if="connectionState?.peerCount != null">
+          <span class="opacity-60">|</span>
+          <span>{{ connectionState.peerCount }} {{ connectionState.peerCount === 1 ? 'peer' : 'peers' }}</span>
+        </template>
         <IconInformationCircleOutline class="w-3.5 h-3.5 opacity-60" />
       </template>
       <template v-else>
