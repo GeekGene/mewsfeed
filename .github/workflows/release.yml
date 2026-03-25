@@ -1,0 +1,78 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install nix
+        uses: cachix/install-nix-action@v30
+
+      - name: Set up cachix
+        uses: cachix/cachix-action@v15
+        with:
+          name: holochain-ci
+
+      - name: Restore cargo and build from cache
+        uses: actions/cache/restore@v3
+        with:
+          path: |
+            .cargo
+            target
+          key: ${{ runner.os }}-build-${{ hashFiles('Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-
+
+      - name: Remove stale cargo config
+        run: rm -f .cargo/config .cargo/config.toml
+
+      - name: Install nix packages
+        run: nix develop -c $SHELL -c "echo Nix packages installed"
+
+      - name: Install JS packages
+        run: nix develop -c $SHELL -c "npm ci"
+
+      - name: Build happ
+        run: nix develop -c $SHELL -c "npm run build:happ"
+
+      - name: Save cargo and build to cache
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            .cargo
+            target
+          key: ${{ runner.os }}-build-${{ hashFiles('Cargo.lock') }}
+
+      - name: Package webhapp
+        run: nix develop -c $SHELL -c "npm run package"
+
+      - name: Compute checksums
+        run: |
+          cd workdir
+          shasum -a 256 mewsfeed.happ mewsfeed.webhapp > checksums.txt
+          cat checksums.txt
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            workdir/mewsfeed.happ
+            workdir/mewsfeed.webhapp
+            workdir/checksums.txt
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
