@@ -34,17 +34,35 @@ fn hdk_choose_multiple<T: Clone>(slice: &[T], count: usize) -> ExternResult<Vec<
 
 #[hdk_extern]
 pub fn get_random_mew_hashes(input: ZomeFnInput<usize>) -> ExternResult<Vec<ActionHash>> {
-    let hashes = get_all_mew_hashes(input.get_strategy())?;
+    let hashes = match get_all_mew_hashes(input.get_strategy()) {
+        Ok(h) => h,
+        Err(e) => {
+            debug!("Skipping unavailable mew hashes: {:?}", e);
+            return Ok(vec![]);
+        }
+    };
 
     hdk_choose_multiple(&hashes, input.input)
 }
 
 #[hdk_extern]
 pub fn get_random_tags(input: ZomeFnInput<usize>) -> ExternResult<Vec<String>> {
-    let prefix_index = make_tag_prefix_index()?;
+    let prefix_index = match make_tag_prefix_index() {
+        Ok(p) => p,
+        Err(e) => {
+            debug!("Skipping unavailable tag prefix index: {:?}", e);
+            return Ok(vec![]);
+        }
+    };
     let strategy = input.get_strategy();
 
-    prefix_index.get_random_results(input.input, strategy)
+    match prefix_index.get_random_results(input.input, strategy) {
+        Ok(tags) => Ok(tags),
+        Err(e) => {
+            debug!("Skipping unavailable random tags: {:?}", e);
+            Ok(vec![])
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]

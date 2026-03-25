@@ -38,7 +38,7 @@ pub fn get_notifications_for_agent(
         Some(strategy == GetStrategy::Local),
     ))?;
 
-    let agent_link_details = get_links_details(
+    let agent_link_details = match get_links_details(
         LinkQuery::new(
             AnyLinkableHash::from(input.input.agent.clone()),
             LinkTypeFilter::Types(vec![
@@ -47,12 +47,18 @@ pub fn get_notifications_for_agent(
             ]),
         ),
         strategy,
-    )?;
+    ) {
+        Ok(details) => Some(details),
+        Err(e) => {
+            debug!("Skipping unavailable agent link details: {:?}", e);
+            None
+        }
+    };
 
-    let mut all_link_details = agent_mews
+    let mut all_link_details: Vec<LinkDetails> = agent_mews
         .iter()
-        .map(|mew| {
-            get_links_details(
+        .filter_map(|mew| {
+            match get_links_details(
                 LinkQuery::new(
                     AnyLinkableHash::from(mew.action_hashed().hash.clone()),
                     LinkTypeFilter::Types(vec![
@@ -62,49 +68,60 @@ pub fn get_notifications_for_agent(
                     ]),
                 ),
                 strategy,
-            )
+            ) {
+                Ok(details) => Some(details),
+                Err(e) => {
+                    debug!(
+                        "Skipping unavailable mew link details {:?}: {:?}",
+                        mew.action_hashed().hash,
+                        e
+                    );
+                    None
+                }
+            }
         })
-        .collect::<ExternResult<Vec<LinkDetails>>>()?;
+        .collect();
 
-    if !agent_link_details.clone().into_inner().is_empty() {
-        all_link_details.push(agent_link_details);
+    if let Some(details) = agent_link_details {
+        if !details.clone().into_inner().is_empty() {
+            all_link_details.push(details);
+        }
     }
 
     let agent = input.input.agent.clone();
     let mut notifications: Vec<Notification> = all_link_details
         .iter()
-        .map(|link_details| -> ExternResult<Vec<Vec<Notification>>> {
-            link_details.clone().into_inner()
-                .iter()
-                .map(|(create_action_hashed, delete_actions_hashed)|  -> ExternResult<Vec<Notification>> {
+        .flat_map(|link_details| {
+            link_details.clone().into_inner().into_iter().filter_map(
+                |(create_action_hashed, delete_actions_hashed)| {
                     let create = match create_action_hashed.action() {
-                        Action::CreateLink(a) => Ok(a.clone()),
-                        _ => Err(wasm_error!(WasmErrorInner::Guest("Expected first element of LinkDetails to be CreateLink".into())))
-                    }?;
+                        Action::CreateLink(a) => a.clone(),
+                        _ => {
+                            debug!("Skipping non-CreateLink action in link details");
+                            return None;
+                        }
+                    };
                     if create.author == agent {
-                        return Ok(vec!());
+                        return Some(vec![]);
                     }
 
-                    let deletes = delete_actions_hashed
+                    let deletes: Vec<DeleteLink> = delete_actions_hashed
                         .iter()
                         .filter(|action_hashed| *action_hashed.action().author() != agent)
-                        .map(|action_hashed| -> ExternResult<DeleteLink> {
-                            match action_hashed.action() {
-                                Action::DeleteLink(a) => Ok(a.clone()),
-                                _ => Err(wasm_error!(WasmErrorInner::Guest("Expected first element of LinkDetails to be CreateLink".into())))
+                        .filter_map(|action_hashed| match action_hashed.action() {
+                            Action::DeleteLink(a) => Some(a.clone()),
+                            _ => {
+                                debug!("Skipping non-DeleteLink action in link details");
+                                None
                             }
                         })
-                        .collect::<ExternResult<Vec<DeleteLink>>>()?;
+                        .collect();
 
-                    make_notifications(create, deletes, get_options.clone())
-                })
-                .collect::<ExternResult<Vec<Vec<Notification>>>>()
+                    make_notifications(create, deletes, get_options.clone()).ok()
+                },
+            )
         })
-        .collect::<ExternResult<Vec<Vec<Vec<Notification>>>>>()?
-        .iter()
         .flatten()
-        .flatten()
-        .cloned()
         .collect();
 
     // Responses to Mews I have responded to
@@ -140,23 +157,27 @@ pub fn get_notifications_for_agent(
     let mews_responding_to_mews_i_responded_to: Vec<(Record, Vec<Record>)> =
         mew_hashes_i_responded_to
             .iter()
-            .map(|(my_response, original_ah)| {
+            .filter_map(|(my_response, original_ah)| {
                 // Still have to use a get_links here because we cannot filter count_links by excluding an author
-                let responses_result = get_responses_for_mew(ZomeFnInput::new(
+                match get_responses_for_mew(ZomeFnInput::new(
                     GetResponsesForMewInput {
                         original_mew_hash: original_ah.clone(),
                         response_type: None,
                         page: None,
                     },
                     Some(strategy == GetStrategy::Local),
-                ));
-
-                match responses_result {
-                    Ok(all_responses) => Ok((my_response.clone(), all_responses)),
-                    Err(e) => Err(e),
+                )) {
+                    Ok(all_responses) => Some((my_response.clone(), all_responses)),
+                    Err(e) => {
+                        debug!(
+                            "Skipping unavailable responses for mew {:?}: {:?}",
+                            original_ah, e
+                        );
+                        None
+                    }
                 }
             })
-            .collect::<ExternResult<Vec<(Record, Vec<Record>)>>>()?;
+            .collect();
 
     let mews_responding_to_mews_i_responded_to = mews_responding_to_mews_i_responded_to
         .iter()
@@ -212,7 +233,7 @@ pub fn count_notifications_for_agent(input: ZomeFnInput<AgentPubKey>) -> ExternR
         Some(strategy == GetStrategy::Local),
     ))?;
 
-    let agent_link_details = get_links_details(
+    let agent_link_details = match get_links_details(
         LinkQuery::new(
             AnyLinkableHash::from(agent.clone()),
             LinkTypeFilter::Types(vec![
@@ -221,12 +242,18 @@ pub fn count_notifications_for_agent(input: ZomeFnInput<AgentPubKey>) -> ExternR
             ]),
         ),
         strategy,
-    )?;
+    ) {
+        Ok(details) => Some(details),
+        Err(e) => {
+            debug!("Skipping unavailable agent link details: {:?}", e);
+            None
+        }
+    };
 
-    let mut all_link_details = agent_mews
+    let mut all_link_details: Vec<LinkDetails> = agent_mews
         .iter()
-        .map(|mew| {
-            get_links_details(
+        .filter_map(|mew| {
+            match get_links_details(
                 LinkQuery::new(
                     AnyLinkableHash::from(mew.action_hashed().hash.clone()),
                     LinkTypeFilter::Types(vec![
@@ -236,56 +263,58 @@ pub fn count_notifications_for_agent(input: ZomeFnInput<AgentPubKey>) -> ExternR
                     ]),
                 ),
                 strategy,
-            )
+            ) {
+                Ok(details) => Some(details),
+                Err(e) => {
+                    debug!(
+                        "Skipping unavailable mew link details {:?}: {:?}",
+                        mew.action_hashed().hash,
+                        e
+                    );
+                    None
+                }
+            }
         })
-        .collect::<ExternResult<Vec<LinkDetails>>>()?;
+        .collect();
 
-    if !agent_link_details.clone().into_inner().is_empty() {
-        all_link_details.push(agent_link_details);
+    if let Some(details) = agent_link_details {
+        if !details.clone().into_inner().is_empty() {
+            all_link_details.push(details);
+        }
     }
 
     let notifications_count: usize = all_link_details
         .iter()
-        .map(|link_details| -> ExternResult<Vec<usize>> {
-            link_details
-                .clone()
-                .into_inner()
-                .iter()
-                .map(
-                    |(create_action_hashed, delete_actions_hashed)| -> ExternResult<usize> {
-                        let create = match create_action_hashed.action() {
-                            Action::CreateLink(a) => Ok(a.clone()),
-                            _ => Err(wasm_error!(WasmErrorInner::Guest(
-                                "Expected first element of LinkDetails to be CreateLink".into()
-                            ))),
-                        }?;
-                        if create.author == agent {
-                            return Ok(0);
+        .flat_map(|link_details| {
+            link_details.clone().into_inner().into_iter().filter_map(
+                |(create_action_hashed, delete_actions_hashed)| {
+                    let create = match create_action_hashed.action() {
+                        Action::CreateLink(a) => a.clone(),
+                        _ => {
+                            debug!("Skipping non-CreateLink action in link details");
+                            return None;
                         }
+                    };
+                    if create.author == agent {
+                        return Some(0);
+                    }
 
-                        let deletes = delete_actions_hashed
-                            .iter()
-                            .filter(|action_hashed| *action_hashed.action().author() != agent)
-                            .map(|action_hashed| -> ExternResult<DeleteLink> {
-                                match action_hashed.action() {
-                                    Action::DeleteLink(a) => Ok(a.clone()),
-                                    _ => Err(wasm_error!(WasmErrorInner::Guest(
-                                        "Expected first element of LinkDetails to be CreateLink"
-                                            .into()
-                                    ))),
-                                }
-                            })
-                            .collect::<ExternResult<Vec<DeleteLink>>>()?;
+                    let deletes: Vec<DeleteLink> = delete_actions_hashed
+                        .iter()
+                        .filter(|action_hashed| *action_hashed.action().author() != agent)
+                        .filter_map(|action_hashed| match action_hashed.action() {
+                            Action::DeleteLink(a) => Some(a.clone()),
+                            _ => {
+                                debug!("Skipping non-DeleteLink action in link details");
+                                None
+                            }
+                        })
+                        .collect();
 
-                        count_notifications(create, deletes)
-                    },
-                )
-                .collect::<ExternResult<Vec<usize>>>()
+                    count_notifications(create, deletes).ok()
+                },
+            )
         })
-        .collect::<ExternResult<Vec<Vec<usize>>>>()?
-        .iter()
-        .flatten()
-        .cloned()
         .sum();
 
     // Responses to Mews I have responded to
@@ -319,23 +348,27 @@ pub fn count_notifications_for_agent(input: ZomeFnInput<AgentPubKey>) -> ExternR
     let mews_responding_to_mews_i_responded_to: Vec<(Record, Vec<Record>)> =
         mew_hashes_i_responded_to
             .iter()
-            .map(|(my_response, original_ah)| {
+            .filter_map(|(my_response, original_ah)| {
                 // Still have to use a get_links here because we cannot filter count_links by excluding an author
-                let responses_result = get_responses_for_mew(ZomeFnInput::new(
+                match get_responses_for_mew(ZomeFnInput::new(
                     GetResponsesForMewInput {
                         original_mew_hash: original_ah.clone(),
                         response_type: None,
                         page: None,
                     },
                     Some(strategy == GetStrategy::Local),
-                ));
-
-                match responses_result {
-                    Ok(all_responses) => Ok((my_response.clone(), all_responses)),
-                    Err(e) => Err(e),
+                )) {
+                    Ok(all_responses) => Some((my_response.clone(), all_responses)),
+                    Err(e) => {
+                        debug!(
+                            "Skipping unavailable responses for mew {:?}: {:?}",
+                            original_ah, e
+                        );
+                        None
+                    }
                 }
             })
-            .collect::<ExternResult<Vec<(Record, Vec<Record>)>>>()?;
+            .collect();
 
     let mews_responding_to_mews_i_responded_to_count = mews_responding_to_mews_i_responded_to
         .iter()

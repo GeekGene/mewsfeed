@@ -43,13 +43,19 @@ fn get_followed_creators_mew_hashes(
     strategy: GetStrategy,
 ) -> ExternResult<Vec<ActionHash>> {
     let mut creators: Vec<AgentPubKey> =
-        crate::follower_to_creators::get_creators_for_follower(ZomeFnInput::new(
+        match crate::follower_to_creators::get_creators_for_follower(ZomeFnInput::new(
             GetCreatorsForFollowerInput {
                 follower: input.agent.clone(),
                 page: None,
             },
             Some(strategy == GetStrategy::Local),
-        ))?;
+        )) {
+            Ok(c) => c,
+            Err(e) => {
+                debug!("Skipping unavailable creators for follower: {:?}", e);
+                vec![]
+            }
+        };
     creators.push(input.agent);
 
     let links: Vec<Link> = creators
