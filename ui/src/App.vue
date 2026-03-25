@@ -124,7 +124,21 @@ const setupApp = async () => {
   // @ts-ignore
   appInfo.value = await client.value.appInfo();
 
+  // Wait for cells to become responsive before any other zome calls.
+  // This must happen before ProfilesStore is created, because ProfilesStore
+  // immediately fires network calls (get_agent_profile) on subscription,
+  // which would race ahead of ping and block the worker if cells aren't ready.
+  await client.value.callZome({
+    role_name: "mewsfeed",
+    zome_name: "mews",
+    fn_name: "ping",
+    payload: null,
+  });
+  console.log("Cells responding to zome calls");
+  loadingClient.value = false;
+
   // Setup profiles - use ZeroArcProfilesClient for HWC (forces network fetch)
+  // Must happen after ping (cells ready) but before loadingCells=false (UI un-gated)
   const profilesClient = IS_HWC
     ? new ZeroArcProfilesClient(
         toRaw(client.value) as any,
@@ -139,6 +153,7 @@ const setupApp = async () => {
         "profiles"
       );
   profilesStore.value = new ProfilesStore(profilesClient, PROFILES_CONFIG);
+  loadingCells.value = false;
   // eslint-disable-next-line
   // @ts-ignore
   profilesStore.value.myProfile.subscribe((res: any) => {
@@ -147,17 +162,6 @@ const setupApp = async () => {
     }
   });
   console.log("Profiles Store initialized");
-  loadingClient.value = false;
-
-  // Wait for cells to become responsive
-  await client.value.callZome({
-    role_name: "mewsfeed",
-    zome_name: "mews",
-    fn_name: "ping",
-    payload: null,
-  });
-  console.log("Cells responding to zome calls");
-  loadingCells.value = false;
 };
 
 watch(client, (newClient) => {
