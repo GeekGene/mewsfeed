@@ -8,7 +8,7 @@
       />
       <template #popper>
         <div class="text-xs p-2">
-          v{{ appVersion }} brought to you by the cool cats at
+          v{{ appVersion }} brought to you by the calm cats at
           <a
             href="https://geekgene.com"
             target="_blank"
