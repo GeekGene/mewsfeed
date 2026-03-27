@@ -31,8 +31,18 @@ LINKER_ADMIN_SECRET=""
 INVITE_CODES="test-invite-123"
 
 # --- hApp ---
-# Path to the .happ bundle file (built by `npm run build:happ`).
+# Where to get the .happ bundle: "local" (from HAPP_BUNDLE_PATH) or "github" (latest release).
+HAPP_SOURCE="local"
+
+# Path to the .happ bundle file (used when HAPP_SOURCE="local").
 HAPP_BUNDLE_PATH="workdir/mewsfeed.happ"
+
+# GitHub repo for release downloads (used when HAPP_SOURCE="github").
+GITHUB_REPO="GeekGene/mewsfeed"
+
+# GitHub release tag to download (used when HAPP_SOURCE="github").
+# Leave empty to use the latest release.
+GITHUB_RELEASE_TAG=""
 
 # --- Network ---
 # Public bootstrap/relay server URL.

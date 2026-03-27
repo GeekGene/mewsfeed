@@ -57,10 +57,15 @@ load_config() {
     source "$config_file"
 
     # Resolve relative paths from project root
-    HAPP_BUNDLE_PATH="$(cd "$PROJECT_DIR" && realpath "$HAPP_BUNDLE_PATH")"
+    if [ "$HAPP_SOURCE" != "github" ]; then
+        HAPP_BUNDLE_PATH="$(cd "$PROJECT_DIR" && realpath "$HAPP_BUNDLE_PATH")"
+    fi
     H2HC_LINKER_DIR="$(cd "$PROJECT_DIR" && realpath "$H2HC_LINKER_DIR")"
 
     # Defaults
+    HAPP_SOURCE="${HAPP_SOURCE:-local}"
+    GITHUB_REPO="${GITHUB_REPO:-GeekGene/mewsfeed}"
+    GITHUB_RELEASE_TAG="${GITHUB_RELEASE_TAG:-}"
     SANDBOX_DIR="${SANDBOX_DIR:-/tmp/mewsfeed-deploy}"
     LINKER_PORT="${LINKER_PORT:-8000}"
     NUM_CONDUCTORS="${NUM_CONDUCTORS:-2}"
@@ -84,6 +89,34 @@ load_config() {
 
 save_state() { echo "$2" > "$SANDBOX_DIR/$1"; }
 read_state() { cat "$SANDBOX_DIR/$1" 2>/dev/null || echo ""; }
+
+# ──────────────────────────────────────────────
+# resolve_happ: Get .happ bundle from local or GitHub
+# ──────────────────────────────────────────────
+
+resolve_happ() {
+    if [ "$HAPP_SOURCE" = "github" ]; then
+        local dest="$SANDBOX_DIR/mewsfeed.happ"
+        mkdir -p "$SANDBOX_DIR"
+        local tag_arg=""
+        if [ -n "$GITHUB_RELEASE_TAG" ]; then
+            tag_arg="$GITHUB_RELEASE_TAG"
+            log_info "Downloading .happ from GitHub release $GITHUB_RELEASE_TAG ($GITHUB_REPO)..."
+        else
+            log_info "Downloading .happ from latest GitHub release ($GITHUB_REPO)..."
+        fi
+        gh release download $tag_arg --repo "$GITHUB_REPO" --pattern "mewsfeed.happ" --dir "$SANDBOX_DIR" --clobber
+        HAPP_BUNDLE_PATH="$dest"
+        log_info "Using .happ from GitHub: $HAPP_BUNDLE_PATH"
+    else
+        if [ ! -f "$HAPP_BUNDLE_PATH" ]; then
+            log_error "hApp bundle not found at $HAPP_BUNDLE_PATH"
+            log_error "Build it with 'npm run build:happ' or set HAPP_SOURCE=github"
+            exit 1
+        fi
+        log_info "Using local .happ: $HAPP_BUNDLE_PATH"
+    fi
+}
 
 # ──────────────────────────────────────────────
 # setup: One-time Cloudflare setup
@@ -192,13 +225,9 @@ RTEOF
     log_info "Set runtime-config.js to HWC mode"
 
     # Copy hApp bundle into dist for Pages hosting
-    if [ -f "$HAPP_BUNDLE_PATH" ]; then
-        cp "$HAPP_BUNDLE_PATH" "$PROJECT_DIR/ui/dist/mewsfeed.happ"
-        log_info "Copied .happ bundle to dist/mewsfeed.happ"
-    else
-        log_error "hApp bundle not found at $HAPP_BUNDLE_PATH"
-        exit 1
-    fi
+    resolve_happ
+    cp "$HAPP_BUNDLE_PATH" "$PROJECT_DIR/ui/dist/mewsfeed.happ"
+    log_info "Copied .happ bundle to dist/mewsfeed.happ"
 
     log_info "UI built successfully"
 }
@@ -307,10 +336,7 @@ check_local_prereqs() {
         exit 1
     fi
 
-    if [ ! -f "$HAPP_BUNDLE_PATH" ]; then
-        log_error "hApp bundle not found at $HAPP_BUNDLE_PATH"
-        exit 1
-    fi
+    resolve_happ
 
     if [ ! -f "$LINKER_BINARY" ]; then
         log_info "Building h2hc-linker..."
