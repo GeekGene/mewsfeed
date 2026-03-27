@@ -5,9 +5,11 @@
 
       <button
         class="btn btn-xs flex items-center justify-start space-x-1"
+        :disabled="isShuffling"
         @click="shuffle()"
       >
-        <IconDiceOutline />
+        <span v-if="isShuffling" class="loading loading-spinner loading-xs"></span>
+        <IconDiceOutline v-else />
         <div>Shuffle</div>
       </button>
     </div>
@@ -45,7 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import { ComputedRef, computed, inject, onMounted, toRaw, watch } from "vue";
+import { ComputedRef, computed, inject, onMounted, ref, toRaw, watch } from "vue";
 import { useCellsReady } from "@/composables/useCellsReady";
 import { AppClient } from "@holochain/client";
 import BaseList from "@/components/BaseList.vue";
@@ -162,9 +164,16 @@ const tag3 = computed(() =>
   randomTags.value ? randomTags.value[2] : undefined
 );
 
+const isShuffling = ref(false);
+
 const shuffle = async () => {
-  await refetchMews();
-  await refetchRandomTags();
+  isShuffling.value = true;
+  try {
+    await refetchMews();
+    await refetchRandomTags();
+  } finally {
+    isShuffling.value = false;
+  }
 };
 
 const refetchMews = async () => {
