@@ -37,13 +37,18 @@ export const waitForExtension = async (): Promise<boolean> => {
 export const setupHolochain = async (opts?: SetupHolochainOptions) => {
   try {
     if (IS_HWC) {
-      console.log("HWC runtime context, joiningServiceUrl:", JOINING_SERVICE_URL || "(empty)");
-      const linkerUrl = new URLSearchParams(window.location.search).get("linkerUrl") || undefined;
+      const params = new URLSearchParams(window.location.search);
+      const linkerUrl = params.get("linkerUrl") || undefined;
+      // Query-string override lets e2e tests point at a local joining service;
+      // falls back to the compile-time JOINING_SERVICE_URL.
+      const joiningServiceUrl =
+        params.get("joiningServiceUrl") || JOINING_SERVICE_URL || undefined;
+      console.log("HWC runtime context, joiningServiceUrl:", joiningServiceUrl || "(empty)");
       const hwcClient = await connectWithJoiningUI({
         roleName: "mewsfeed",
         ...(linkerUrl && { linkerUrl }),
-        ...(JOINING_SERVICE_URL && {
-          joiningServiceUrl: JOINING_SERVICE_URL,
+        ...(joiningServiceUrl && {
+          joiningServiceUrl,
         }),
         ...(opts?.mountTo && { mountTo: opts.mountTo }),
       });
