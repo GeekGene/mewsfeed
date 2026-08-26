@@ -36,13 +36,11 @@ pub fn validate_create_mew(
             }
 
             if action.action_seq() > 5 {
-                let prev_action_hash =
-                    action
-                        .prev_action()
-                        .cloned()
-                        .ok_or(wasm_error!(WasmErrorInner::Guest(
-                            "Mew action must have a previous action".to_string()
-                        )))?;
+                let prev_action_hash = action.prev_action().cloned().ok_or_else(|| {
+                    wasm_error!(WasmErrorInner::Guest(
+                        "Mew action must have a previous action".to_string()
+                    ))
+                })?;
                 let agent_activity = must_get_agent_activity(
                     action.author().clone(),
                     ChainFilter::new(prev_action_hash).include_cached_entries(),
