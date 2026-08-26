@@ -2,7 +2,7 @@
   <div>
     <BaseMewContent :mew="(embedMew.mew as Mew)" class="cursor-pointer mb-2" />
     <BaseAgentProfile
-      :agent-pub-key="embedMew.action.author"
+      :agent-pub-key="embedMew.action.header.author"
       class="flex justify-end"
     />
   </div>

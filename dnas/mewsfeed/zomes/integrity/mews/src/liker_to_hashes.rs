@@ -1,11 +1,11 @@
 use hdi::prelude::*;
 pub fn validate_create_link_liker_to_hashes(
-    action: CreateLink,
+    action: Action,
     base_address: AnyLinkableHash,
     _target_address: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    if base_address != AnyLinkableHash::from(action.author) {
+    if base_address != AnyLinkableHash::from(action.author().clone()) {
         return Ok(ValidateCallbackResult::Invalid(
             "You cannot change who others like".into(),
         ));
@@ -14,13 +14,13 @@ pub fn validate_create_link_liker_to_hashes(
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_delete_link_liker_to_hashes(
-    action: DeleteLink,
-    original_action: CreateLink,
+    action: Action,
+    original_action: Action,
     _base: AnyLinkableHash,
     _target: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    if action.author != original_action.author {
+    if action.author() != original_action.author() {
         return Ok(ValidateCallbackResult::Invalid(
             "You cannot change who others unlike".into(),
         ));
@@ -29,12 +29,12 @@ pub fn validate_delete_link_liker_to_hashes(
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_create_link_hash_to_likers(
-    action: CreateLink,
+    action: Action,
     _base_address: AnyLinkableHash,
     target_address: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    if target_address != AnyLinkableHash::from(action.author) {
+    if target_address != AnyLinkableHash::from(action.author().clone()) {
         return Ok(ValidateCallbackResult::Invalid(
             "You cannot change who others like".into(),
         ));
@@ -43,13 +43,13 @@ pub fn validate_create_link_hash_to_likers(
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_delete_link_hash_to_likers(
-    action: DeleteLink,
-    original_action: CreateLink,
+    action: Action,
+    original_action: Action,
     _base: AnyLinkableHash,
     _target: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    if action.author != original_action.author {
+    if action.author() != original_action.author() {
         return Ok(ValidateCallbackResult::Invalid(
             "You cannot change who others unlike".into(),
         ));

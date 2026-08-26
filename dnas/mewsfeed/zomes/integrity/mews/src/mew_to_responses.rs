@@ -2,7 +2,7 @@ use hdi::prelude::*;
 use mews_types::MewType;
 
 pub fn validate_create_link_mew_to_responses(
-    _action: CreateLink,
+    _action: Action,
     base_address: AnyLinkableHash,
     target_address: AnyLinkableHash,
     _tag: LinkTag,
@@ -29,10 +29,13 @@ pub fn validate_create_link_mew_to_responses(
     match response_mew.mew_type {
         MewType::Reply(original_mew_ah)
         | MewType::Quote(original_mew_ah)
-        | MewType::Mewmew(original_mew_ah) => {
-            if original_mew_ah != base_ah {
-                return Ok(ValidateCallbackResult::Invalid("Response mew referenced action hash is different from linked response action hash".into()));
-            }
+        | MewType::Mewmew(original_mew_ah)
+            if original_mew_ah != base_ah =>
+        {
+            return Ok(ValidateCallbackResult::Invalid(
+                "Response mew referenced action hash is different from linked response action hash"
+                    .into(),
+            ));
         }
         _ => {}
     }
@@ -41,13 +44,13 @@ pub fn validate_create_link_mew_to_responses(
 }
 
 pub fn validate_delete_link_mew_to_responses(
-    action: DeleteLink,
-    original_action: CreateLink,
+    action: Action,
+    original_action: Action,
     _base: AnyLinkableHash,
     _target: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    if action.author != original_action.author {
+    if action.author() != original_action.author() {
         return Ok(ValidateCallbackResult::Invalid(
             "Only the author can create their MewToResponses links".into(),
         ));
@@ -57,7 +60,7 @@ pub fn validate_delete_link_mew_to_responses(
 }
 
 pub fn validate_create_link_response_to_mews(
-    _action: CreateLink,
+    _action: Action,
     base_address: AnyLinkableHash,
     target_address: AnyLinkableHash,
     _tag: LinkTag,
@@ -84,13 +87,13 @@ pub fn validate_create_link_response_to_mews(
 }
 
 pub fn validate_delete_link_response_to_mews(
-    action: DeleteLink,
-    original_action: CreateLink,
+    action: Action,
+    original_action: Action,
     _base: AnyLinkableHash,
     _target: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    if action.author != original_action.author {
+    if action.author() != original_action.author() {
         return Ok(ValidateCallbackResult::Invalid(
             "Only the author can create their ResponseToMews links".into(),
         ));

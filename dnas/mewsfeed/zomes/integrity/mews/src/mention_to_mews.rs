@@ -1,7 +1,7 @@
 use hdi::prelude::*;
 
 pub fn validate_create_link_mention_to_mews(
-    _action: CreateLink,
+    _action: Action,
     _base_address: AnyLinkableHash,
     target_address: AnyLinkableHash,
     _tag: LinkTag,
@@ -20,13 +20,13 @@ pub fn validate_create_link_mention_to_mews(
 }
 
 pub fn validate_delete_link_mention_to_mews(
-    action: DeleteLink,
-    original_action: CreateLink,
+    action: Action,
+    original_action: Action,
     _base: AnyLinkableHash,
     _target: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    if action.author != original_action.author {
+    if action.author() != original_action.author() {
         return Ok(ValidateCallbackResult::Invalid(
             "Only the author can create their MentionToMews links".into(),
         ));

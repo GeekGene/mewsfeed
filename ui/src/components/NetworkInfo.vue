@@ -97,23 +97,23 @@
           <div class="text-xs opacity-70 mb-2">Updated {{ lastUpdatedSeconds }}s ago</div>
           <div class="flex justify-start items-center space-x-2 text-xs">
             <div class="font-bold">Backend</div>
-            <div>{{ data.backend }}</div>
+            <div>{{ data.transport_stats.backend }}</div>
           </div>
           <div class="flex justify-start items-center space-x-2 text-xs mb-2">
             <div class="font-bold">Peer URLs</div>
-            <div>{{ data.peer_urls?.length || 0 }}</div>
+            <div>{{ data.transport_stats.peer_urls?.length || 0 }}</div>
           </div>
           <div class="flex justify-start items-center space-x-2 text-xs">
             <div class="font-bold">Active Connections</div>
-            <div>{{ data.connections?.length || 0 }}</div>
+            <div>{{ data.transport_stats.connections?.length || 0 }}</div>
           </div>
-          <div v-if="data.connections?.length" class="mt-2 text-xs">
+          <div v-if="data.transport_stats.connections?.length" class="mt-2 text-xs">
             <div class="font-bold mb-1">Connection Details:</div>
-            <div v-for="conn in data.connections.slice(0, 3)" :key="conn.pub_key" class="ml-2">
+            <div v-for="conn in data.transport_stats.connections.slice(0, 3)" :key="conn.pub_key" class="ml-2">
               <div>Messages: {{ conn.send_message_count }} sent</div>
             </div>
-            <div v-if="data.connections.length > 3" class="ml-2 text-xs opacity-70">
-              ... and {{ data.connections.length - 3 }} more
+            <div v-if="data.transport_stats.connections.length > 3" class="ml-2 text-xs opacity-70">
+              ... and {{ data.transport_stats.connections.length - 3 }} more
             </div>
           </div>
         </template>
@@ -160,7 +160,7 @@
 <script setup lang="ts">
 import {
   AppClient,
-  AppDumpNetworkStatsResponse,
+  DumpNetworkStatsResponse,
 } from "@holochain/client";
 import { useQuery } from "@tanstack/vue-query";
 import { computed, ref, onUnmounted, onMounted } from "vue";
@@ -280,7 +280,7 @@ const errorSummary = computed(() => {
 });
 
 // --- Standard Holochain network stats (disabled for HWC) ---
-const fetchNetworkInfo = (): Promise<AppDumpNetworkStatsResponse> =>
+const fetchNetworkInfo = (): Promise<DumpNetworkStatsResponse> =>
   client.dumpNetworkStats();
 
 const { data, dataUpdatedAt } = useQuery({

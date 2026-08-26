@@ -3,6 +3,15 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+- build: upgrade to holochain 0.7 (hdi 0.8 / hdk 0.7, holonix main-0.7)
+  - integrity/coordinator zomes migrated to the new action model (`Action` = header + data, `TypedAction`, FlatOp renames)
+  - happ manifests moved to the strict 0.7 schema (`modifiers:` form)
+  - workdir-no-limits dna.yaml aligned with the merged zome set (profiles + mews)
+  - tests moved to `@holochain-open-dev/tryorama` ^0.20.0 and `@holochain/client` ^0.21.0
+  - UI moved to `@holochain/client` ^0.21.0 and `@holochain-open-dev/profiles` ^0.701.0; action field accesses updated to the header/data shape
+  - `hc_prefix_index` upgraded to 0.15.0 (holochain-prefix-index main-0.7); temporarily consumed as a sibling-path dependency until published
+  - removed the tauri/`hc launch` dev scripts (signal-server/WebRTC transport is gone in 0.7)
+  - NOTE: DNA hash changed — 0.6 and 0.7 peers are disjoint networks; clear conductor state (`hc sandbox clean`) everywhere
 
 
 ## 2025-02-25 v0.13.1

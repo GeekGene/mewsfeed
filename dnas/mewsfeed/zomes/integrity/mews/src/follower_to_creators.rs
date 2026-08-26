@@ -1,6 +1,6 @@
 use hdi::prelude::*;
 pub fn validate_create_link_follower_to_creators(
-    action: CreateLink,
+    action: Action,
     base_address: AnyLinkableHash,
     target_address: AnyLinkableHash,
     _tag: LinkTag,
@@ -10,7 +10,7 @@ pub fn validate_create_link_follower_to_creators(
             "You cannot follow yourself".into(),
         ));
     }
-    if base_address != AnyLinkableHash::from(action.author) {
+    if base_address != AnyLinkableHash::from(action.author().clone()) {
         return Ok(ValidateCallbackResult::Invalid(
             "You cannot change who others follow".into(),
         ));
@@ -19,13 +19,13 @@ pub fn validate_create_link_follower_to_creators(
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_delete_link_follower_to_creators(
-    action: DeleteLink,
-    original_action: CreateLink,
+    action: Action,
+    original_action: Action,
     _base: AnyLinkableHash,
     _target: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    if action.author != original_action.author {
+    if action.author() != original_action.author() {
         return Ok(ValidateCallbackResult::Invalid(
             "You cannot change who others unfollow".into(),
         ));
@@ -34,7 +34,7 @@ pub fn validate_delete_link_follower_to_creators(
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_create_link_creator_to_followers(
-    action: CreateLink,
+    action: Action,
     base_address: AnyLinkableHash,
     target_address: AnyLinkableHash,
     _tag: LinkTag,
@@ -44,7 +44,7 @@ pub fn validate_create_link_creator_to_followers(
             "You cannot follow yourself".into(),
         ));
     }
-    if target_address != AnyLinkableHash::from(action.author) {
+    if target_address != AnyLinkableHash::from(action.author().clone()) {
         return Ok(ValidateCallbackResult::Invalid(
             "You cannot change who another agent follows".into(),
         ));
@@ -53,13 +53,13 @@ pub fn validate_create_link_creator_to_followers(
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_delete_link_creator_to_followers(
-    action: DeleteLink,
-    original_action: CreateLink,
+    action: Action,
+    original_action: Action,
     _base: AnyLinkableHash,
     _target: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    if action.author != original_action.author {
+    if action.author() != original_action.author() {
         return Ok(ValidateCallbackResult::Invalid(
             "You cannot change who others unfollow".into(),
         ));

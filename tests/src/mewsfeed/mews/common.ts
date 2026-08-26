@@ -1,4 +1,4 @@
-import { CallableCell } from "@holochain/tryorama";
+import { CallableCell } from "@holochain-open-dev/tryorama";
 import { ActionHash } from "@holochain/client";
 
 export async function sampleMew(cell: CallableCell, partialMew = {}) {

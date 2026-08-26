@@ -5,10 +5,10 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@holochain/client": "^0.20.0",
-    "@holochain/tryorama": "^0.19.1",
+    "@holochain/client": "^0.21.0",
+    "@holochain-open-dev/tryorama": "^0.20.0",
     "@msgpack/msgpack": "^2.8.0",
-    "typescript": "^4.9.4",
+    "typescript": "^5.9.3",
     "vitest": "^2.1.3"
   },
   "type": "module"

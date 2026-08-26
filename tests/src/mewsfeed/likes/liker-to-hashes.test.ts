@@ -1,5 +1,5 @@
 import { assert, expect, test } from "vitest";
-import { runScenario, dhtSync } from "@holochain/tryorama";
+import { runScenario, dhtSync } from "@holochain-open-dev/tryorama";
 import { Record, fakeActionHash } from "@holochain/client";
 import { mewsfeedAppBundleSource, wrapInput } from "../../common";
 

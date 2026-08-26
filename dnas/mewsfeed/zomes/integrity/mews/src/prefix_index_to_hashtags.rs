@@ -2,7 +2,7 @@ use hc_prefix_index::PrefixIndex;
 use hdi::prelude::*;
 
 pub fn validate_create_link_prefix_index_to_hashtags(
-    _action: CreateLink,
+    _action: Action,
     base_address: AnyLinkableHash,
     target_address: AnyLinkableHash,
     tag: LinkTag,
@@ -43,8 +43,8 @@ pub fn validate_create_link_prefix_index_to_hashtags(
 }
 
 pub fn validate_delete_link_prefix_index_to_hashtags(
-    _action: DeleteLink,
-    _original_action: CreateLink,
+    _action: Action,
+    _original_action: Action,
     _base: AnyLinkableHash,
     _target: AnyLinkableHash,
     _tag: LinkTag,

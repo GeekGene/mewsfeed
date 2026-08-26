@@ -21,7 +21,7 @@
 
         <BaseAgentProfileName
           v-if="originalMew"
-          :agentPubKey="originalMew.action.author"
+          :agentPubKey="originalMew.action.header.author"
         />
       </div>
 

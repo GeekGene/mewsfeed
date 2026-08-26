@@ -4,6 +4,7 @@ use crate::mew_to_responses::{get_responses_for_mew, GetResponsesForMewInput};
 use crate::mew_with_context::get_mew_with_context_internal;
 use hc_link_pagination::{paginate_by_timestamp, TimestampPagination};
 use hc_zome_input::ZomeFnInput;
+use hdk::hdi::prelude::TypedAction;
 use hdk::prelude::*;
 use mews_types::{Mew, MewType, Notification, NotificationType};
 
@@ -94,25 +95,31 @@ pub fn get_notifications_for_agent(
         .flat_map(|link_details| {
             link_details.clone().into_inner().into_iter().filter_map(
                 |(create_action_hashed, delete_actions_hashed)| {
-                    let create = match create_action_hashed.action() {
-                        Action::CreateLink(a) => a.clone(),
-                        _ => {
+                    let create = match TypedAction::<CreateLinkData>::try_from(
+                        create_action_hashed.action().clone(),
+                    ) {
+                        Ok(a) => a,
+                        Err(_) => {
                             debug!("Skipping non-CreateLink action in link details");
                             return None;
                         }
                     };
-                    if create.author == agent {
+                    if *create.author() == agent {
                         return Some(vec![]);
                     }
 
-                    let deletes: Vec<DeleteLink> = delete_actions_hashed
+                    let deletes: Vec<TypedAction<DeleteLinkData>> = delete_actions_hashed
                         .iter()
                         .filter(|action_hashed| *action_hashed.action().author() != agent)
-                        .filter_map(|action_hashed| match action_hashed.action() {
-                            Action::DeleteLink(a) => Some(a.clone()),
-                            _ => {
-                                debug!("Skipping non-DeleteLink action in link details");
-                                None
+                        .filter_map(|action_hashed| {
+                            match TypedAction::<DeleteLinkData>::try_from(
+                                action_hashed.action().clone(),
+                            ) {
+                                Ok(a) => Some(a),
+                                Err(_) => {
+                                    debug!("Skipping non-DeleteLink action in link details");
+                                    None
+                                }
                             }
                         })
                         .collect();
@@ -288,25 +295,31 @@ pub fn count_notifications_for_agent(input: ZomeFnInput<AgentPubKey>) -> ExternR
         .flat_map(|link_details| {
             link_details.clone().into_inner().into_iter().filter_map(
                 |(create_action_hashed, delete_actions_hashed)| {
-                    let create = match create_action_hashed.action() {
-                        Action::CreateLink(a) => a.clone(),
-                        _ => {
+                    let create = match TypedAction::<CreateLinkData>::try_from(
+                        create_action_hashed.action().clone(),
+                    ) {
+                        Ok(a) => a,
+                        Err(_) => {
                             debug!("Skipping non-CreateLink action in link details");
                             return None;
                         }
                     };
-                    if create.author == agent {
+                    if *create.author() == agent {
                         return Some(0);
                     }
 
-                    let deletes: Vec<DeleteLink> = delete_actions_hashed
+                    let deletes: Vec<TypedAction<DeleteLinkData>> = delete_actions_hashed
                         .iter()
                         .filter(|action_hashed| *action_hashed.action().author() != agent)
-                        .filter_map(|action_hashed| match action_hashed.action() {
-                            Action::DeleteLink(a) => Some(a.clone()),
-                            _ => {
-                                debug!("Skipping non-DeleteLink action in link details");
-                                None
+                        .filter_map(|action_hashed| {
+                            match TypedAction::<DeleteLinkData>::try_from(
+                                action_hashed.action().clone(),
+                            ) {
+                                Ok(a) => Some(a),
+                                Err(_) => {
+                                    debug!("Skipping non-DeleteLink action in link details");
+                                    None
+                                }
                             }
                         })
                         .collect();
@@ -395,7 +408,10 @@ pub fn count_my_notifications(input: ZomeFnInput<()>) -> ExternResult<usize> {
     ))
 }
 
-fn count_notifications(create: CreateLink, deletes: Vec<DeleteLink>) -> ExternResult<usize> {
+fn count_notifications(
+    create: TypedAction<CreateLinkData>,
+    deletes: Vec<TypedAction<DeleteLinkData>>,
+) -> ExternResult<usize> {
     match (create.zome_index, create.link_type) {
         (MEWS_ZOME_INDEX, MENTION_TO_MEWS_LINK_TYPE) => Ok(1),
         (MEWS_ZOME_INDEX, CREATOR_TO_FOLLOWERS_LINK_TYPE) => Ok(1 + deletes.len()),
@@ -409,8 +425,8 @@ fn count_notifications(create: CreateLink, deletes: Vec<DeleteLink>) -> ExternRe
 }
 
 fn make_notifications(
-    create: CreateLink,
-    deletes: Vec<DeleteLink>,
+    create: TypedAction<CreateLinkData>,
+    deletes: Vec<TypedAction<DeleteLinkData>>,
     get_options: GetOptions,
 ) -> ExternResult<Vec<Notification>> {
     match (create.zome_index, create.link_type) {
@@ -516,7 +532,7 @@ fn make_notifications(
 }
 
 fn make_notifications_for_createlinks(
-    create_link_actions: Vec<CreateLink>,
+    create_link_actions: Vec<TypedAction<CreateLinkData>>,
     notification_type: NotificationType,
     feed_mew_hash: Option<ActionHash>,
     get_options: GetOptions,
@@ -530,8 +546,8 @@ fn make_notifications_for_createlinks(
             };
 
             Ok(Notification {
-                agent: create_action.author.clone(),
-                timestamp: create_action.timestamp,
+                agent: create_action.author().clone(),
+                timestamp: create_action.timestamp(),
                 notification_type: notification_type.clone(),
                 feed_mew,
             })
@@ -542,7 +558,7 @@ fn make_notifications_for_createlinks(
 }
 
 fn make_notifications_for_deletelinks(
-    delete_link_actions: Vec<DeleteLink>,
+    delete_link_actions: Vec<TypedAction<DeleteLinkData>>,
     notification_type: NotificationType,
     feed_mew_hash: Option<ActionHash>,
     get_options: GetOptions,
@@ -556,8 +572,8 @@ fn make_notifications_for_deletelinks(
             };
 
             Ok(Notification {
-                agent: delete_action.author.clone(),
-                timestamp: delete_action.timestamp,
+                agent: delete_action.author().clone(),
+                timestamp: delete_action.timestamp(),
                 notification_type: notification_type.clone(),
                 feed_mew,
             })

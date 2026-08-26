@@ -3,7 +3,7 @@ use hdi::prelude::*;
 use mews_types::*;
 
 pub fn validate_create_mew(
-    action: EntryCreationAction,
+    action: TypedAction<EntryCreationData>,
     mew: Mew,
 ) -> ExternResult<ValidateCallbackResult> {
     let properties = get_dna_properties(())?;
@@ -35,10 +35,17 @@ pub fn validate_create_mew(
                 ));
             }
 
-            if *action.action_seq() > 5 {
+            if action.action_seq() > 5 {
+                let prev_action_hash =
+                    action
+                        .prev_action()
+                        .cloned()
+                        .ok_or(wasm_error!(WasmErrorInner::Guest(
+                            "Mew action must have a previous action".to_string()
+                        )))?;
                 let agent_activity = must_get_agent_activity(
                     action.author().clone(),
-                    ChainFilter::new(action.prev_action().clone()).include_cached_entries(),
+                    ChainFilter::new(prev_action_hash).include_cached_entries(),
                 )?;
 
                 let has_identical_mewmews = agent_activity
@@ -93,17 +100,20 @@ pub fn validate_create_mew(
     Ok(ValidateCallbackResult::Valid)
 }
 
-pub fn validate_update_mew(_action: Update, _mew: Mew) -> ExternResult<ValidateCallbackResult> {
+pub fn validate_update_mew(
+    _action: TypedAction<UpdateData>,
+    _mew: Mew,
+) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Invalid(
         "Mews cannot be updated".into(),
     ))
 }
 
 pub fn validate_delete_mew(
-    action: Delete,
+    action: TypedAction<DeleteData>,
     original_action: Action,
 ) -> ExternResult<ValidateCallbackResult> {
-    if action.author != *original_action.author() {
+    if action.author() != original_action.author() {
         return Ok(ValidateCallbackResult::Invalid(
             "Only the original action author can delete their mew".into(),
         ));
