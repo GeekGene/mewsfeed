@@ -19,12 +19,13 @@ pub fn validate_create_link_prefix_index_to_hashtags(
             "Linked action must reference an entry"
         ))))?;
 
-    // Tag should be a utf8 string
-    let tag_string = String::from_utf8(tag.into_inner()).map_err(|_| {
-        wasm_error!(WasmErrorInner::Guest(
-            "Failed to deserialize link tag to string".into()
-        ))
-    })?;
+    // Tag should be a utf8 string. It is author-controlled data, so bytes that
+    // don't decode are the author's fault: reject rather than error.
+    let Ok(tag_string) = String::from_utf8(tag.into_inner()) else {
+        return Ok(ValidateCallbackResult::Invalid(
+            "Link tag must be a utf8 string".into(),
+        ));
+    };
 
     // Base address should be prefix index path matching tag prefix
     let prefix_path_hash = tag_prefix_index
