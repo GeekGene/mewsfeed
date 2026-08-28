@@ -203,118 +203,55 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 original_action,
                 link_type,
                 action,
-            } => {
-                let base_address = action.data.base_address.clone();
-                let target_address = original_action.data.target_address.clone();
-                let tag = original_action.data.tag.clone();
-                match link_type {
-                    LinkTypes::AllMews => validate_delete_link_all_mews(
-                        action.into(),
-                        original_action.into(),
-                        base_address,
-                        target_address,
-                        tag,
-                    ),
-                    LinkTypes::AgentMews => validate_delete_link_agent_mews(
-                        action.into(),
-                        original_action.into(),
-                        base_address,
-                        target_address,
-                        tag,
-                    ),
-                    LinkTypes::PrefixIndex => {
-                        PrefixIndex::validate_delete_link(action, original_action)
-                    }
-                    LinkTypes::PrefixIndexToHashtags => {
-                        validate_delete_link_prefix_index_to_hashtags(
-                            action.into(),
-                            original_action.into(),
-                            base_address,
-                            target_address,
-                            tag,
-                        )
-                    }
-                    LinkTypes::PrefixIndexToCashtags => {
-                        validate_delete_link_prefix_index_to_cashtags(
-                            action.into(),
-                            original_action.into(),
-                            base_address,
-                            target_address,
-                            tag,
-                        )
-                    }
-                    LinkTypes::MewToResponses => validate_delete_link_mew_to_responses(
-                        action.into(),
-                        original_action.into(),
-                        base_address,
-                        target_address,
-                        tag,
-                    ),
-                    LinkTypes::MentionToMews => validate_delete_link_mention_to_mews(
-                        action.into(),
-                        original_action.into(),
-                        base_address,
-                        target_address,
-                        tag,
-                    ),
-                    LinkTypes::CashtagToMews => validate_delete_link_cashtag_to_mews(
-                        action.into(),
-                        original_action.into(),
-                        base_address,
-                        target_address,
-                        tag,
-                    ),
-                    LinkTypes::HashtagToMews => validate_delete_link_hashtag_to_mews(
-                        action.into(),
-                        original_action.into(),
-                        base_address,
-                        target_address,
-                        tag,
-                    ),
-                    LinkTypes::FollowerToCreators => validate_delete_link_follower_to_creators(
-                        action.into(),
-                        original_action.into(),
-                        base_address,
-                        target_address,
-                        tag,
-                    ),
-                    LinkTypes::CreatorToFollowers => validate_delete_link_creator_to_followers(
-                        action.into(),
-                        original_action.into(),
-                        base_address,
-                        target_address,
-                        tag,
-                    ),
-                    LinkTypes::LikerToHashes => validate_delete_link_liker_to_hashes(
-                        action.into(),
-                        original_action.into(),
-                        base_address,
-                        target_address,
-                        tag,
-                    ),
-                    LinkTypes::HashToLikers => validate_delete_link_hash_to_likers(
-                        action.into(),
-                        original_action.into(),
-                        base_address,
-                        target_address,
-                        tag,
-                    ),
-                    LinkTypes::PinnerToHashes => validate_delete_link_pinner_to_hashes(
-                        action.into(),
-                        original_action.into(),
-                        base_address,
-                        target_address,
-                        tag,
-                    ),
-                    LinkTypes::HashToPinners => validate_delete_link_hash_to_pinners(
-                        action.into(),
-                        original_action.into(),
-                        base_address,
-                        target_address,
-                        tag,
-                    ),
+            } => match link_type {
+                LinkTypes::AllMews => {
+                    validate_delete_link_all_mews(action.into(), original_action.into())
                 }
-            }
+                LinkTypes::AgentMews => {
+                    validate_delete_link_agent_mews(action.into(), original_action.into())
+                }
+                LinkTypes::PrefixIndex => {
+                    PrefixIndex::validate_delete_link(action, original_action)
+                }
+                LinkTypes::PrefixIndexToHashtags => validate_delete_link_prefix_index_to_hashtags(
+                    action.into(),
+                    original_action.into(),
+                ),
+                LinkTypes::PrefixIndexToCashtags => validate_delete_link_prefix_index_to_cashtags(
+                    action.into(),
+                    original_action.into(),
+                ),
+                LinkTypes::MewToResponses => {
+                    validate_delete_link_mew_to_responses(action.into(), original_action.into())
+                }
+                LinkTypes::MentionToMews => {
+                    validate_delete_link_mention_to_mews(action.into(), original_action.into())
+                }
+                LinkTypes::CashtagToMews => {
+                    validate_delete_link_cashtag_to_mews(action.into(), original_action.into())
+                }
+                LinkTypes::HashtagToMews => {
+                    validate_delete_link_hashtag_to_mews(action.into(), original_action.into())
+                }
+                LinkTypes::FollowerToCreators => {
+                    validate_delete_link_follower_to_creators(action.into(), original_action.into())
+                }
+                LinkTypes::CreatorToFollowers => {
+                    validate_delete_link_creator_to_followers(action.into(), original_action.into())
+                }
+                LinkTypes::LikerToHashes => {
+                    validate_delete_link_liker_to_hashes(action.into(), original_action.into())
+                }
+                LinkTypes::HashToLikers => {
+                    validate_delete_link_hash_to_likers(action.into(), original_action.into())
+                }
+                LinkTypes::PinnerToHashes => {
+                    validate_delete_link_pinner_to_hashes(action.into(), original_action.into())
+                }
+                LinkTypes::HashToPinners => {
+                    validate_delete_link_hash_to_pinners(action.into(), original_action.into())
+                }
+            },
         },
         FlatOp::CreateRecord(create_record) => match create_record {
             OpRecord::CreateEntry { app_entry, action } => match app_entry {
@@ -489,9 +426,6 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 // than return Invalid.
                 let original_action =
                     TypedAction::<CreateLinkData>::try_from_action(record.action().clone())?;
-                let base_address = action.data.base_address.clone();
-                let target_address = original_action.data.target_address.clone();
-                let tag = original_action.data.tag.clone();
                 let link_type = match LinkTypes::from_type(
                     original_action.data.zome_index,
                     original_action.data.link_type,
@@ -502,20 +436,12 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                     }
                 };
                 match link_type {
-                    LinkTypes::AllMews => validate_delete_link_all_mews(
-                        action.into(),
-                        original_action.into(),
-                        base_address,
-                        target_address,
-                        tag,
-                    ),
-                    LinkTypes::AgentMews => validate_delete_link_agent_mews(
-                        action.into(),
-                        original_action.into(),
-                        base_address,
-                        target_address,
-                        tag,
-                    ),
+                    LinkTypes::AllMews => {
+                        validate_delete_link_all_mews(action.into(), original_action.into())
+                    }
+                    LinkTypes::AgentMews => {
+                        validate_delete_link_agent_mews(action.into(), original_action.into())
+                    }
                     LinkTypes::PrefixIndex => {
                         PrefixIndex::validate_delete_link(action, original_action)
                     }
@@ -523,90 +449,46 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         validate_delete_link_prefix_index_to_hashtags(
                             action.into(),
                             original_action.into(),
-                            base_address,
-                            target_address,
-                            tag,
                         )
                     }
                     LinkTypes::PrefixIndexToCashtags => {
                         validate_delete_link_prefix_index_to_cashtags(
                             action.into(),
                             original_action.into(),
-                            base_address,
-                            target_address,
-                            tag,
                         )
                     }
-                    LinkTypes::MewToResponses => validate_delete_link_mew_to_responses(
-                        action.into(),
-                        original_action.into(),
-                        base_address,
-                        target_address,
-                        tag,
-                    ),
-                    LinkTypes::MentionToMews => validate_delete_link_mention_to_mews(
-                        action.into(),
-                        original_action.into(),
-                        base_address,
-                        target_address,
-                        tag,
-                    ),
-                    LinkTypes::CashtagToMews => validate_delete_link_cashtag_to_mews(
-                        action.into(),
-                        original_action.into(),
-                        base_address,
-                        target_address,
-                        tag,
-                    ),
-                    LinkTypes::HashtagToMews => validate_delete_link_hashtag_to_mews(
-                        action.into(),
-                        original_action.into(),
-                        base_address,
-                        target_address,
-                        tag,
-                    ),
+                    LinkTypes::MewToResponses => {
+                        validate_delete_link_mew_to_responses(action.into(), original_action.into())
+                    }
+                    LinkTypes::MentionToMews => {
+                        validate_delete_link_mention_to_mews(action.into(), original_action.into())
+                    }
+                    LinkTypes::CashtagToMews => {
+                        validate_delete_link_cashtag_to_mews(action.into(), original_action.into())
+                    }
+                    LinkTypes::HashtagToMews => {
+                        validate_delete_link_hashtag_to_mews(action.into(), original_action.into())
+                    }
                     LinkTypes::FollowerToCreators => validate_delete_link_follower_to_creators(
                         action.into(),
                         original_action.into(),
-                        base_address,
-                        target_address,
-                        tag,
                     ),
                     LinkTypes::CreatorToFollowers => validate_delete_link_creator_to_followers(
                         action.into(),
                         original_action.into(),
-                        base_address,
-                        target_address,
-                        tag,
                     ),
-                    LinkTypes::LikerToHashes => validate_delete_link_liker_to_hashes(
-                        action.into(),
-                        original_action.into(),
-                        base_address,
-                        target_address,
-                        tag,
-                    ),
-                    LinkTypes::HashToLikers => validate_delete_link_hash_to_likers(
-                        action.into(),
-                        original_action.into(),
-                        base_address,
-                        target_address,
-                        tag,
-                    ),
-                    LinkTypes::PinnerToHashes => validate_delete_link_pinner_to_hashes(
-                        action.into(),
-                        original_action.into(),
-                        base_address,
-                        target_address,
-                        tag,
-                    ),
-                    LinkTypes::HashToPinners => validate_delete_link_hash_to_pinners(
-                        action.into(),
-                        original_action.into(),
-                        base_address,
-                        target_address,
-                        tag,
-                    ),
+                    LinkTypes::LikerToHashes => {
+                        validate_delete_link_liker_to_hashes(action.into(), original_action.into())
+                    }
+                    LinkTypes::HashToLikers => {
+                        validate_delete_link_hash_to_likers(action.into(), original_action.into())
+                    }
+                    LinkTypes::PinnerToHashes => {
+                        validate_delete_link_pinner_to_hashes(action.into(), original_action.into())
+                    }
+                    LinkTypes::HashToPinners => {
+                        validate_delete_link_hash_to_pinners(action.into(), original_action.into())
+                    }
                 }
             }
             OpRecord::CreatePrivateEntry { .. } => Ok(ValidateCallbackResult::Valid),

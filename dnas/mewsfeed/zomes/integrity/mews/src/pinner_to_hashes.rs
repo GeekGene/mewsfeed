@@ -16,9 +16,6 @@ pub fn validate_create_link_pinner_to_hashes(
 pub fn validate_delete_link_pinner_to_hashes(
     action: Action,
     original_action: Action,
-    _base: AnyLinkableHash,
-    _target: AnyLinkableHash,
-    _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
     if action.author() != original_action.author() {
         return Ok(ValidateCallbackResult::Invalid(
@@ -45,9 +42,6 @@ pub fn validate_create_link_hash_to_pinners(
 pub fn validate_delete_link_hash_to_pinners(
     action: Action,
     original_action: Action,
-    _base: AnyLinkableHash,
-    _target: AnyLinkableHash,
-    _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
     if action.author() != original_action.author() {
         return Ok(ValidateCallbackResult::Invalid(

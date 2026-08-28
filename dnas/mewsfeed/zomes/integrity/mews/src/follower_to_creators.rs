@@ -21,9 +21,6 @@ pub fn validate_create_link_follower_to_creators(
 pub fn validate_delete_link_follower_to_creators(
     action: Action,
     original_action: Action,
-    _base: AnyLinkableHash,
-    _target: AnyLinkableHash,
-    _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
     if action.author() != original_action.author() {
         return Ok(ValidateCallbackResult::Invalid(
@@ -55,9 +52,6 @@ pub fn validate_create_link_creator_to_followers(
 pub fn validate_delete_link_creator_to_followers(
     action: Action,
     original_action: Action,
-    _base: AnyLinkableHash,
-    _target: AnyLinkableHash,
-    _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
     if action.author() != original_action.author() {
         return Ok(ValidateCallbackResult::Invalid(

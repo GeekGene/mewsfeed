@@ -21,9 +21,6 @@ pub fn validate_create_link_prefix_index_to_cashtags(
 pub fn validate_delete_link_prefix_index_to_cashtags(
     _action: Action,
     _original_action: Action,
-    _base: AnyLinkableHash,
-    _target: AnyLinkableHash,
-    _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Invalid(String::from(
         "PrefixIndexToCashtags links cannot be deleted",

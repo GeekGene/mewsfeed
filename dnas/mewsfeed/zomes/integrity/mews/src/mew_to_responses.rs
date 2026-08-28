@@ -46,9 +46,6 @@ pub fn validate_create_link_mew_to_responses(
 pub fn validate_delete_link_mew_to_responses(
     action: Action,
     original_action: Action,
-    _base: AnyLinkableHash,
-    _target: AnyLinkableHash,
-    _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
     if action.author() != original_action.author() {
         return Ok(ValidateCallbackResult::Invalid(
@@ -89,9 +86,6 @@ pub fn validate_create_link_response_to_mews(
 pub fn validate_delete_link_response_to_mews(
     action: Action,
     original_action: Action,
-    _base: AnyLinkableHash,
-    _target: AnyLinkableHash,
-    _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
     if action.author() != original_action.author() {
         return Ok(ValidateCallbackResult::Invalid(

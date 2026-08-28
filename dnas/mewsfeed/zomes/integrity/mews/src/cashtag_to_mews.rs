@@ -21,9 +21,6 @@ pub fn validate_create_link_cashtag_to_mews(
 pub fn validate_delete_link_cashtag_to_mews(
     action: Action,
     original_action: Action,
-    _base: AnyLinkableHash,
-    _target: AnyLinkableHash,
-    _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
     if action.author() != original_action.author() {
         return Ok(ValidateCallbackResult::Invalid(
