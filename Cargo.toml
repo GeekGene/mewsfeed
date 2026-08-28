@@ -7,10 +7,7 @@ hdi = "0.8.0"
 hdk = "0.7.0"
 serde = "1"
 paste = "1.0"
-# TODO: switch to a crates.io version (0.15.0) or the git main-0.7 branch once the
-# holochain-0.7 update of holochain-prefix-index is pushed/published; until then this
-# builds against the sibling checkout.
-hc_prefix_index = { path = "../holochain-prefix-index/lib/hc_prefix_index" }
+hc_prefix_index = "0.15.0"
 holochain_serialized_bytes = "0.0.57"
 
 
