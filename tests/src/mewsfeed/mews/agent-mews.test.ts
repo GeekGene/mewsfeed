@@ -1,5 +1,5 @@
 import { ActionHash } from "@holochain/client";
-import { dhtSync, runScenario } from "@holochain/tryorama";
+import { dhtSync, runScenario } from "@holochain-open-dev/tryorama";
 import { assert, expect, test } from "vitest";
 import { FeedMew, Mew, MewTypeName } from "../../../../ui/src/types/types";
 import { mewsfeedAppBundleSource, wrapInput } from "../../common";
@@ -157,8 +157,8 @@ test("Agent mews list are time-paginated", async () => {
 
       assert.deepEqual(page1[0].action_hash, mewActionHash7);
       assert.deepEqual(page1[1].action_hash, mewActionHash6);
-      expect(page1[0].action.timestamp).greaterThanOrEqual(
-        page1[1].action.timestamp
+      expect(page1[0].action.header.timestamp).greaterThanOrEqual(
+        page1[1].action.header.timestamp
       );
 
       const page2: FeedMew[] = await alice.cells[0].callZome({
@@ -176,10 +176,10 @@ test("Agent mews list are time-paginated", async () => {
       assert.deepEqual(page2[0].action_hash, mewActionHash5);
       assert.deepEqual(page2[1].action_hash, mewActionHash4);
 
-      expect(page1[0].action.timestamp)
-        .greaterThanOrEqual(page1[1].action.timestamp)
-        .greaterThanOrEqual(page2[0].action.timestamp)
-        .greaterThanOrEqual(page2[1].action.timestamp);
+      expect(page1[0].action.header.timestamp)
+        .greaterThanOrEqual(page1[1].action.header.timestamp)
+        .greaterThanOrEqual(page2[0].action.header.timestamp)
+        .greaterThanOrEqual(page2[1].action.header.timestamp);
 
       const page3: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -195,12 +195,12 @@ test("Agent mews list are time-paginated", async () => {
 
       assert.deepEqual(page3[0].action_hash, mewActionHash3);
       assert.deepEqual(page3[1].action_hash, mewActionHash2);
-      expect(page1[0].action.timestamp)
-        .greaterThanOrEqual(page1[1].action.timestamp)
-        .greaterThanOrEqual(page2[0].action.timestamp)
-        .greaterThanOrEqual(page2[1].action.timestamp)
-        .greaterThanOrEqual(page3[0].action.timestamp)
-        .greaterThanOrEqual(page3[1].action.timestamp);
+      expect(page1[0].action.header.timestamp)
+        .greaterThanOrEqual(page1[1].action.header.timestamp)
+        .greaterThanOrEqual(page2[0].action.header.timestamp)
+        .greaterThanOrEqual(page2[1].action.header.timestamp)
+        .greaterThanOrEqual(page3[0].action.header.timestamp)
+        .greaterThanOrEqual(page3[1].action.header.timestamp);
 
       const page4: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",
@@ -216,13 +216,13 @@ test("Agent mews list are time-paginated", async () => {
 
       assert.lengthOf(page4, 1);
       assert.deepEqual(page4[0].action_hash, mewActionHash1);
-      expect(page1[0].action.timestamp)
-        .greaterThanOrEqual(page1[1].action.timestamp)
-        .greaterThanOrEqual(page2[0].action.timestamp)
-        .greaterThanOrEqual(page2[1].action.timestamp)
-        .greaterThanOrEqual(page3[0].action.timestamp)
-        .greaterThanOrEqual(page3[1].action.timestamp)
-        .greaterThanOrEqual(page4[0].action.timestamp);
+      expect(page1[0].action.header.timestamp)
+        .greaterThanOrEqual(page1[1].action.header.timestamp)
+        .greaterThanOrEqual(page2[0].action.header.timestamp)
+        .greaterThanOrEqual(page2[1].action.header.timestamp)
+        .greaterThanOrEqual(page3[0].action.header.timestamp)
+        .greaterThanOrEqual(page3[1].action.header.timestamp)
+        .greaterThanOrEqual(page4[0].action.header.timestamp);
 
       const page5: FeedMew[] = await alice.cells[0].callZome({
         zome_name: "mews",

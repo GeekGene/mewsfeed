@@ -1,7 +1,7 @@
 use hdi::prelude::*;
 
 pub fn validate_create_link_agent_mews(
-    action: CreateLink,
+    action: Action,
     base_address: AnyLinkableHash,
     target_address: AnyLinkableHash,
     _tag: LinkTag,
@@ -16,7 +16,7 @@ pub fn validate_create_link_agent_mews(
             "Linked action must reference an entry"
         ))))?;
 
-    if AnyLinkableHash::from(action.author) != base_address {
+    if AnyLinkableHash::from(action.author().clone()) != base_address {
         return Ok(ValidateCallbackResult::Invalid(
             "Only the author can create their AgentMews links".into(),
         ));
@@ -26,13 +26,10 @@ pub fn validate_create_link_agent_mews(
 }
 
 pub fn validate_delete_link_agent_mews(
-    action: DeleteLink,
-    original_action: CreateLink,
-    _base: AnyLinkableHash,
-    _target: AnyLinkableHash,
-    _tag: LinkTag,
+    action: Action,
+    original_action: Action,
 ) -> ExternResult<ValidateCallbackResult> {
-    if action.author != original_action.author {
+    if action.author() != original_action.author() {
         return Ok(ValidateCallbackResult::Invalid(
             "Only the original action author can delete their agent_mews link".into(),
         ));

@@ -31,7 +31,7 @@
         </div>
         <template v-if="feedMew.original_mew">
           <BaseAgentProfileName
-            :agentPubKey="feedMew.original_mew.action.author"
+            :agentPubKey="feedMew.original_mew.action.header.author"
           />
 
           <div
@@ -45,12 +45,12 @@
       </Component>
 
       <div class="font-mono text-xs">
-        <BaseTimestamp :timestamp="feedMew.action.timestamp" />
+        <BaseTimestamp :timestamp="feedMew.action.header.timestamp" />
       </div>
     </div>
 
     <div class="w-full flex justify-start items-start space-x-4 p-4">
-      <BaseAgentProfileLinkAvatar :agentPubKey="feedMew.action.author" />
+      <BaseAgentProfileLinkAvatar :agentPubKey="feedMew.action.header.author" />
 
       <div class="min-w-0 flex-1 w-full break-words">
         <div class="w-full flex justify-between items-center">
@@ -58,18 +58,18 @@
             :to="{
               name: ROUTES.profile,
               params: {
-                agentPubKey: encodeHashToBase64(feedMew.action.author),
+                agentPubKey: encodeHashToBase64(feedMew.action.header.author),
               },
             }"
             @click.stop.prevent
           >
             <BaseAgentProfileName
-              :agentPubKey="feedMew.action.author"
+              :agentPubKey="feedMew.action.header.author"
             />
           </RouterLink>
 
           <div v-if="!feedMew.original_mew" class="font-mono text-xs">
-            <BaseTimestamp :timestamp="feedMew.action.timestamp" />
+            <BaseTimestamp :timestamp="feedMew.action.header.timestamp" />
           </div>
         </div>
 
@@ -420,7 +420,7 @@ const responseLabel = computed(() =>
   isMewmew.value ? "mewmewed from" : isReply.value ? "replied to" : "quoted"
 );
 const isAuthoredByMe = computed(() =>
-  isEqual(client.myPubKey, props.feedMew.action.author)
+  isEqual(client.myPubKey, props.feedMew.action.header.author)
 );
 const isDeleted = computed(() => props.feedMew.deleted_timestamp !== null);
 

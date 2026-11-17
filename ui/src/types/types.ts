@@ -1,7 +1,7 @@
 import {
+  Action,
   ActionHash,
   AgentPubKey,
-  Create,
   SigningCredentials,
 } from "@holochain/client";
 import { RouteLocationNamedRaw, RouteLocationRaw } from "vue-router";
@@ -75,7 +75,7 @@ export type MewType =
 
 export interface FeedMew {
   mew: Mew;
-  action: Create;
+  action: Action;
   action_hash: ActionHash;
   replies_count: number;
   quotes_count: number;
@@ -92,7 +92,7 @@ export interface FeedMew {
 
 export interface EmbedMew {
   mew: Mew;
-  action: Create;
+  action: Action;
   action_hash: ActionHash;
   deleted_timestamp: number | null;
 }

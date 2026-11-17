@@ -8,6 +8,8 @@ on:
       - "main"
       - "main-0.4"
       - "main-0.6"
+      - "main-0.7"
+      - "chore/holochain-*"
 
 concurrency:
   group: ${{ github.ref_name }}
@@ -23,18 +25,18 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
       - name: Install nix
-        uses: cachix/install-nix-action@v30
+        uses: cachix/install-nix-action@v31
 
       - name: Set up cachix
-        uses: cachix/cachix-action@v15
+        uses: cachix/cachix-action@v16
         with:
           name: holochain-ci
 
       - name: Restore cargo and build from cache
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         with:
           path: |
             .cargo
@@ -62,7 +64,7 @@ jobs:
         run: nix develop -c $SHELL -c "npm run build:happ"
 
       - name: Save cargo and build to cache
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v4
         with:
           path: |
             .cargo

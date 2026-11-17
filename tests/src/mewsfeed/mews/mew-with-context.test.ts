@@ -1,5 +1,5 @@
 import { ActionHash } from "@holochain/client";
-import { dhtSync, runScenario } from "@holochain/tryorama";
+import { dhtSync, runScenario } from "@holochain-open-dev/tryorama";
 import { assert, expect, test } from "vitest";
 import { FeedMew, MewTypeName } from "../../../../ui/src/types/types";
 import { mewsfeedAppBundleSource, wrapInput } from "../../common";
