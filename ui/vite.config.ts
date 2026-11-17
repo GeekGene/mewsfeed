@@ -24,10 +24,15 @@ export default defineConfig({
       : undefined,
   },
   resolve: {
-    alias: {
-      "@": path.resolve("src"),
-      util: "rollup-plugin-node-polyfills/polyfills/util",
-    },
+    alias: [
+      { find: "@", replacement: path.resolve("src") },
+      { find: "util", replacement: "rollup-plugin-node-polyfills/polyfills/util" },
+      // Svelte 5 removed "svelte/internal"; see src/shims/svelte-internal.ts
+      {
+        find: /^svelte\/internal$/,
+        replacement: path.resolve(__dirname, "src/shims/svelte-internal.ts"),
+      },
+    ],
   },
   plugins: [
     viteStaticCopy({
