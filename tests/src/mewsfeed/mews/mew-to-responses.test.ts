@@ -1,4 +1,4 @@
-import { runScenario } from "@holochain/tryorama";
+import { runScenario } from "@holochain-open-dev/tryorama";
 import { assert, expect, test } from "vitest";
 import { FeedMew, Mew, MewTypeName } from "../../../../ui/src/types/types.js";
 import { mewsfeedAppBundleSource, wrapInput } from "../../common.js";

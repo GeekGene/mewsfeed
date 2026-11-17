@@ -1,5 +1,5 @@
 import { ActionHash } from "@holochain/client";
-import { runScenario } from "@holochain/tryorama";
+import { runScenario } from "@holochain-open-dev/tryorama";
 import { assert, expect, test } from "vitest";
 import { Mew, MewTypeName } from "../../../../ui/src/types/types.js";
 import {

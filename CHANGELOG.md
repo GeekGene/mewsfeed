@@ -3,6 +3,9 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+- **BREAKING CHANGE**: upgrade to Holochain 0.7.1 (hdk 0.7.1, hdi 0.8.1, holonix main-0.7). DNA hashes change and 0.6 conductor data can't be read, so this joins a new network.
+- build: switch tests to @holochain-open-dev/tryorama 0.21, @holochain/client 0.21.1, hc-spin 0.700.1
+- chore: remove the deprecated hc launch / hc playground scripts
 
 
 ## 2025-02-25 v0.13.1

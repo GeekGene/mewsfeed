@@ -184,5 +184,6 @@ We are using this tooling:
 
 - [NPM Workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces/): npm v7's built-in monorepo capabilities.
 - [hc](https://github.com/holochain/holochain/tree/develop/crates/hc): Holochain CLI to easily manage Holochain development instances.
-- [@holochain/tryorama](https://www.npmjs.com/package/@holochain/tryorama): test framework.
-- [@holochain/conductor-api](https://www.npmjs.com/package/@holochain/conductor-api): client library to connect to Holochain from the UI.
+- [@holochain-open-dev/tryorama](https://www.npmjs.com/package/@holochain-open-dev/tryorama): test framework (community fork of Tryorama for Holochain 0.7).
+- [@holochain/client](https://www.npmjs.com/package/@holochain/client): client library to connect to Holochain from the UI.
+- [hc-spin](https://github.com/holochain/hc-spin): runs multiple agents with the UI during development (`npm start`).
