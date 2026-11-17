@@ -9,7 +9,4 @@ roles:
       deferred: false
     dna:
       path: "../dnas/mewsfeed/workdir/mewsfeed.dna"
-      properties: ~
-      uuid: ~
-      version: ~
       clone_limit: 0

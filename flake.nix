@@ -2,7 +2,7 @@
   description = "Flake for Holochain app development";
 
   inputs = {
-    holonix.url = "github:holochain/holonix?ref=main-0.6";
+    holonix.url = "github:holochain/holonix?ref=main-0.7";
 
     nixpkgs.follows = "holonix/nixpkgs";
     flake-parts.follows = "holonix/flake-parts";
@@ -14,7 +14,7 @@
       formatter = pkgs.nixpkgs-fmt;
 
       devShells.default = pkgs.mkShell {
-        inputsFrom = [ inputs'.holonix.devShells ];
+        inputsFrom = [ inputs'.holonix.devShells.default ];
 
         packages = (with inputs'.holonix.packages; [
           holochain
@@ -25,7 +25,7 @@
           hn-introspect
           rust # For Rust development, with the WASM target included for zome builds
         ]) ++ (with pkgs; [
-          nodejs_22 # For UI development
+          nodejs_24 # For UI development
           binaryen # For WASM optimisation
           # Add any other packages you need here
         ]);
